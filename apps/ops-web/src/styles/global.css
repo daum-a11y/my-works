@@ -3,11 +3,7 @@
   line-height: 1.5;
   font-weight: 400;
   color: var(--text-secondary);
-  background:
-    linear-gradient(180deg, color-mix(in srgb, var(--surface-canvas) 94%, white), var(--surface-panel)),
-    linear-gradient(90deg, color-mix(in srgb, var(--accent-soft) 14%, transparent) 1px, transparent 1px),
-    linear-gradient(0deg, color-mix(in srgb, var(--raw-paper-4) 16%, transparent) 1px, transparent 1px);
-  background-size: auto, 28px 28px, 28px 28px;
+  background: var(--surface-canvas);
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -17,10 +13,7 @@ body {
   min-width: 320px;
   min-height: 100vh;
   color: var(--text-secondary);
-  background:
-    radial-gradient(circle at top left, color-mix(in srgb, var(--accent-soft) 48%, white) 0, transparent 26%),
-    radial-gradient(circle at bottom right, color-mix(in srgb, var(--raw-indigo-200) 40%, white) 0, transparent 24%),
-    linear-gradient(180deg, color-mix(in srgb, var(--surface-canvas) 94%, white), var(--surface-panel));
+  background: var(--surface-canvas);
 }
 
 body,
