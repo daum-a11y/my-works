@@ -1,41 +1,53 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { useAuth } from "../auth/AuthContext";
 import { opsDataClient } from "../../lib/data-client";
-import { type Project, type ProjectPage, type ReportFilters, type Task } from "../../lib/domain";
+import type { Project, ProjectPage, ReportFilters, Task, TaskType } from "../../lib/domain";
 import {
+  buildProjectViewModels,
+  buildReportViewModel,
+  buildTaskType1Options,
+  buildTaskType2Options,
   createEmptyReportDraft,
   DEFAULT_REPORT_FILTERS,
   draftFromReport,
+  getTodayInputValue,
   reportMatchesFilters,
+  shiftDateInput,
   sortReportsDescending,
+  type ProjectViewModel,
   type ReportDraft,
   type ReportRecord,
-  type ReportType1,
-  type ReportType2,
+  type ReportViewModel,
 } from "./report-domain";
 
 export interface ReportsSlice {
-  reports: ReportRecord[];
-  filteredReports: ReportRecord[];
-  selectedReport: ReportRecord | null;
+  reports: ReportViewModel[];
+  recentReports: ReportViewModel[];
+  periodReports: ReportViewModel[];
+  selectedReport: ReportViewModel | null;
+  selectedReportId: string | null;
   draft: ReportDraft;
-  filters: ReportFilters;
-  statusMessage: string;
-  pendingDeleteId: string | null;
-  projects: Project[];
+  projectQuery: string;
+  projectOptions: ProjectViewModel[];
+  filteredProjectOptions: ProjectViewModel[];
   draftPages: ProjectPage[];
-  filterPages: ProjectPage[];
+  periodFilters: ReportFilters;
+  type1Options: string[];
+  type2Options: string[];
+  statusMessage: string;
+  activeTab: "report" | "period";
+  setActiveTab: (tab: "report" | "period") => void;
   setDraftField: <K extends keyof ReportDraft>(key: K, value: ReportDraft[K]) => void;
-  setFilterField: <K extends keyof ReportFilters>(key: K, value: ReportFilters[K]) => void;
+  setProjectQuery: (value: string) => void;
+  setPeriodField: <K extends keyof ReportFilters>(key: K, value: ReportFilters[K]) => void;
   selectReport: (id: string) => void;
   startNewReport: () => void;
-  saveDraft: () => void;
-  promptDelete: (id: string) => void;
-  cancelDelete: () => void;
-  confirmDelete: () => void;
   resetDraft: () => void;
+  saveDraft: () => Promise<void>;
+  jumpDraftDate: (offsetDays: number) => void;
+  clearPeriodFilters: () => void;
 }
 
 function toReportRecord(
@@ -56,8 +68,8 @@ function toReportRecord(
     pageId: task.pageId ?? "",
     projectName: project?.name ?? "",
     pageName: page?.title ?? "",
-    type1: task.taskType1 as ReportType1,
-    type2: task.taskType2 as ReportType2,
+    type1: task.taskType1 as ReportRecord["type1"],
+    type2: task.taskType2 as ReportRecord["type2"],
     workHours: task.hours,
     content: task.content,
     note: task.note,
@@ -70,13 +82,13 @@ export function useReportsSlice(): ReportsSlice {
   const { session } = useAuth();
   const member = session?.member ?? null;
   const queryClient = useQueryClient();
-  const hasInitializedSelection = useRef(false);
 
+  const [activeTab, setActiveTab] = useState<"report" | "period">("report");
   const [selectedReportId, setSelectedReportId] = useState<string | null>(null);
   const [draft, setDraft] = useState<ReportDraft>(() => createEmptyReportDraft());
-  const [filters, setFilters] = useState<ReportFilters>(DEFAULT_REPORT_FILTERS);
-  const [statusMessage, setStatusMessage] = useState("보고서를 불러오는 중입니다.");
-  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+  const [projectQuery, setProjectQuery] = useState("");
+  const [periodFilters, setPeriodFilters] = useState<ReportFilters>(DEFAULT_REPORT_FILTERS);
+  const [statusMessage, setStatusMessage] = useState("새 보고를 작성할 수 있습니다.");
 
   const tasksQuery = useQuery({
     queryKey: ["reports", "tasks", member?.id],
@@ -90,14 +102,28 @@ export function useReportsSlice(): ReportsSlice {
     enabled: Boolean(member),
   });
 
+  const serviceGroupsQuery = useQuery({
+    queryKey: ["reports", "service-groups"],
+    queryFn: async () => opsDataClient.getServiceGroups(),
+    enabled: Boolean(member),
+  });
+
   const pagesQuery = useQuery({
     queryKey: ["reports", "pages", member?.id],
     queryFn: async () => opsDataClient.getProjectPages(member!),
     enabled: Boolean(member),
   });
 
+  const taskTypesQuery = useQuery({
+    queryKey: ["reports", "task-types"],
+    queryFn: async () => opsDataClient.getTaskTypes(),
+    enabled: Boolean(member),
+  });
+
   const projects = projectsQuery.data ?? [];
+  const serviceGroups = serviceGroupsQuery.data ?? [];
   const pages = pagesQuery.data ?? [];
+  const taskTypes = taskTypesQuery.data ?? [];
   const tasks = tasksQuery.data ?? [];
 
   const projectsById = useMemo(
@@ -108,6 +134,10 @@ export function useReportsSlice(): ReportsSlice {
     () => new Map(pages.map((page) => [page.id, page] as const)),
     [pages],
   );
+  const serviceGroupsById = useMemo(
+    () => new Map(serviceGroups.map((group) => [group.id, group] as const)),
+    [serviceGroups],
+  );
 
   const reports = useMemo(() => {
     if (!member) {
@@ -115,28 +145,52 @@ export function useReportsSlice(): ReportsSlice {
     }
 
     return sortReportsDescending(
-      tasks.map((task) => toReportRecord(task, member, projectsById, pagesById)),
+      tasks.map((task) => buildReportViewModel(toReportRecord(task, member, projectsById, pagesById), projectsById, serviceGroupsById, pagesById)),
     );
-  }, [member, tasks, projectsById, pagesById]);
+  }, [member, tasks, projectsById, pagesById, serviceGroupsById]);
+
+  const recentReports = useMemo(() => reports.slice(0, 8), [reports]);
 
   const selectedReport = useMemo(
     () => reports.find((report) => report.id === selectedReportId) ?? null,
     [reports, selectedReportId],
   );
 
-  const filteredReports = useMemo(
-    () => sortReportsDescending(reports.filter((report) => reportMatchesFilters(report, filters))),
-    [reports, filters],
+  const periodReports = useMemo(
+    () => sortReportsDescending(reports.filter((report) => reportMatchesFilters(report, periodFilters))),
+    [reports, periodFilters],
   );
+
+  const projectOptions = useMemo(
+    () => buildProjectViewModels(projects, serviceGroups),
+    [projects, serviceGroups],
+  );
+
+  const normalizedProjectQuery = projectQuery.trim().toLowerCase();
+  const filteredProjectOptions = useMemo(() => {
+    if (!normalizedProjectQuery) {
+      return projectOptions;
+    }
+
+    return projectOptions.filter((project) => project.searchText.includes(normalizedProjectQuery));
+  }, [projectOptions, normalizedProjectQuery]);
 
   const draftPages = useMemo(
     () => pages.filter((page) => page.projectId === draft.projectId),
     [draft.projectId, pages],
   );
-  const filterPages = useMemo(
-    () => (filters.projectId ? pages.filter((page) => page.projectId === filters.projectId) : pages),
-    [filters.projectId, pages],
-  );
+
+  const type1Options = useMemo(() => buildTaskType1Options(taskTypes), [taskTypes]);
+  const type2Options = useMemo(() => buildTaskType2Options(taskTypes, draft.type1), [taskTypes, draft.type1]);
+
+  const invalidateReportQueries = async () => {
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ["reports", "tasks", member?.id] }),
+      queryClient.invalidateQueries({ queryKey: ["search", "tasks", member?.id] }),
+      queryClient.invalidateQueries({ queryKey: ["dashboard", member?.id] }),
+      queryClient.invalidateQueries({ queryKey: ["dashboard-stats", member?.id] }),
+    ]);
+  };
 
   const saveMutation = useMutation({
     mutationFn: async (input: {
@@ -154,24 +208,29 @@ export function useReportsSlice(): ReportsSlice {
         throw new Error("로그인 정보가 없습니다.");
       }
 
-      if (!input.projectId) {
-        throw new Error("프로젝트를 선택해 주세요.");
-      }
+      let projectId = input.projectId.trim();
+      const pageId = input.pageId.trim();
 
-      if (!input.pageId) {
-        throw new Error("페이지를 선택해 주세요.");
-      }
+      if (pageId) {
+        const page = pagesById.get(pageId);
+        if (!page) {
+          throw new Error("선택한 페이지 정보를 확인할 수 없습니다.");
+        }
 
-      const page = pagesById.get(input.pageId);
-      if (!page || page.projectId !== input.projectId) {
-        throw new Error("선택한 프로젝트와 페이지 연결을 확인해 주세요.");
+        if (projectId && page.projectId !== projectId) {
+          throw new Error("선택한 프로젝트와 페이지 연결을 확인해 주세요.");
+        }
+
+        if (!projectId) {
+          projectId = page.projectId;
+        }
       }
 
       return opsDataClient.saveTask(member, {
         id: input.id,
         taskDate: input.taskDate,
-        projectId: input.projectId,
-        pageId: input.pageId,
+        projectId: projectId || null,
+        pageId: pageId || null,
         taskType1: input.taskType1,
         taskType2: input.taskType2,
         hours: input.hours,
@@ -179,96 +238,56 @@ export function useReportsSlice(): ReportsSlice {
         note: input.note,
       });
     },
-    onSuccess: async (task) => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ["reports", "tasks", member?.id] }),
-        queryClient.invalidateQueries({ queryKey: ["search", "tasks", member?.id] }),
-        queryClient.invalidateQueries({ queryKey: ["dashboard", member?.id] }),
-        queryClient.invalidateQueries({ queryKey: ["dashboard-stats", member?.id] }),
-      ]);
+    onSuccess: async (task, variables) => {
+      await invalidateReportQueries();
 
-      const saved = toReportRecord(task, member!, projectsById, pagesById);
+      const saved = buildReportViewModel(
+        toReportRecord(task, member!, projectsById, pagesById),
+        projectsById,
+        serviceGroupsById,
+        pagesById,
+      );
+
       setSelectedReportId(saved.id);
       setDraft(draftFromReport(saved));
-      setPendingDeleteId(null);
-      setStatusMessage(`"${saved.projectName}" 보고서를 저장했습니다.`);
+      setProjectQuery(saved.projectDisplayName);
+      setStatusMessage(
+        variables.id ? `"${saved.projectDisplayName}" 보고서를 수정했습니다.` : `"${saved.projectDisplayName}" 보고서를 저장했습니다.`,
+      );
     },
     onError: (error) => {
       setStatusMessage(error instanceof Error ? error.message : "저장하지 못했습니다.");
     },
   });
 
-  const deleteMutation = useMutation({
-    mutationFn: async (taskId: string) => {
-      if (!member) {
-        throw new Error("로그인 정보가 없습니다.");
-      }
-
-      await opsDataClient.deleteTask(member, taskId);
-      return taskId;
-    },
-    onSuccess: async (taskId) => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ["reports", "tasks", member?.id] }),
-        queryClient.invalidateQueries({ queryKey: ["search", "tasks", member?.id] }),
-        queryClient.invalidateQueries({ queryKey: ["dashboard", member?.id] }),
-        queryClient.invalidateQueries({ queryKey: ["dashboard-stats", member?.id] }),
-      ]);
-
-      if (selectedReportId === taskId) {
-        setSelectedReportId(null);
-        setDraft(createEmptyReportDraft());
-      }
-
-      setPendingDeleteId(null);
-      setStatusMessage("보고서를 삭제했습니다.");
-    },
-    onError: (error) => {
-      setStatusMessage(error instanceof Error ? error.message : "삭제하지 못했습니다.");
-    },
-  });
-
-  useEffect(() => {
-    if (!reports.length) {
-      if (!tasksQuery.isLoading && !hasInitializedSelection.current) {
-        hasInitializedSelection.current = true;
-      }
-      return;
-    }
-
-    const current = selectedReportId ? reports.find((report) => report.id === selectedReportId) : null;
-
-    if (!hasInitializedSelection.current) {
-      const first = reports[0];
-      hasInitializedSelection.current = true;
-      setSelectedReportId(first.id);
-      setDraft(draftFromReport(first));
-      setStatusMessage(`"${first.projectName}" 보고서를 불러왔습니다.`);
-      return;
-    }
-
-    if (selectedReportId && !current) {
-      const first = reports[0];
-      setSelectedReportId(first.id);
-      setDraft(draftFromReport(first));
-      setStatusMessage(`"${first.projectName}" 보고서를 불러왔습니다.`);
-    }
-  }, [reports, selectedReportId, tasksQuery.isLoading]);
-
   const setDraftField = <K extends keyof ReportDraft>(key: K, value: ReportDraft[K]) => {
     setDraft((current) => {
+      const next = { ...current, [key]: value } as ReportDraft;
+
       if (key === "projectId") {
-        return { ...current, projectId: value as string, pageId: "" };
+        const nextPages = pages.filter((page) => page.projectId === String(value));
+        next.pageId = nextPages[0]?.id ?? "";
       }
 
-      return { ...current, [key]: value };
+      if (key === "type1") {
+        const nextType2Options = buildTaskType2Options(taskTypes, String(value));
+        if (!nextType2Options.includes(next.type2)) {
+          next.type2 = nextType2Options[0] ?? "";
+        }
+      }
+
+      return next;
     });
   };
 
-  const setFilterField = <K extends keyof ReportFilters>(key: K, value: ReportFilters[K]) => {
-    setFilters((current: ReportFilters) => {
+  const setPeriodField = <K extends keyof ReportFilters>(key: K, value: ReportFilters[K]) => {
+    setPeriodFilters((current) => {
       if (key === "projectId") {
-        return { ...current, projectId: value as string, pageId: "" };
+        return {
+          ...current,
+          projectId: value as ReportFilters["projectId"],
+          pageId: "",
+        };
       }
 
       return { ...current, [key]: value };
@@ -276,36 +295,33 @@ export function useReportsSlice(): ReportsSlice {
   };
 
   const selectReport = (id: string) => {
-    const report = reports.find((item) => item.id === id) ?? null;
-    setSelectedReportId(report?.id ?? null);
-    if (report) {
-      setDraft(draftFromReport(report));
-      setStatusMessage(`"${report.projectName}" 보고서를 불러왔습니다.`);
+    const report = reports.find((item) => item.id === id);
+    if (!report) {
+      return;
     }
-    setPendingDeleteId(null);
+
+    setSelectedReportId(id);
+    setDraft(draftFromReport(report));
+    setProjectQuery(report.projectDisplayName);
+    setActiveTab("report");
+    setStatusMessage(`"${report.projectDisplayName}" 보고서를 불러왔습니다.`);
   };
 
   const startNewReport = () => {
     setSelectedReportId(null);
     setDraft(createEmptyReportDraft());
-    setPendingDeleteId(null);
-    setStatusMessage("새 업무보고를 작성할 수 있습니다.");
+    setProjectQuery("");
+    setActiveTab("report");
+    setStatusMessage("새 보고를 작성할 수 있습니다.");
   };
 
   const resetDraft = () => {
-    if (selectedReport) {
-      setDraft(draftFromReport(selectedReport));
-      setStatusMessage("선택한 보고서의 원본 값으로 되돌렸습니다.");
-      return;
-    }
-
-    setDraft(createEmptyReportDraft());
-    setStatusMessage("새 업무보고 초안으로 초기화했습니다.");
+    startNewReport();
   };
 
-  const saveDraft = () => {
-    void saveMutation.mutateAsync({
-      id: selectedReport?.id,
+  const saveDraft = async () => {
+    await saveMutation.mutateAsync({
+      id: selectedReportId ?? undefined,
       taskDate: draft.reportDate,
       projectId: draft.projectId,
       pageId: draft.pageId,
@@ -317,41 +333,39 @@ export function useReportsSlice(): ReportsSlice {
     });
   };
 
-  const promptDelete = (id: string) => {
-    setPendingDeleteId(id);
+  const jumpDraftDate = (offsetDays: number) => {
+    setDraftField("reportDate", shiftDateInput(draft.reportDate || getTodayInputValue(), offsetDays));
   };
 
-  const cancelDelete = () => {
-    setPendingDeleteId(null);
-  };
-
-  const confirmDelete = () => {
-    if (!pendingDeleteId) {
-      return;
-    }
-
-    void deleteMutation.mutateAsync(pendingDeleteId);
+  const clearPeriodFilters = () => {
+    setPeriodFilters(DEFAULT_REPORT_FILTERS);
   };
 
   return {
     reports,
-    filteredReports,
+    recentReports,
+    periodReports,
     selectedReport,
+    selectedReportId,
     draft,
-    filters,
-    statusMessage,
-    pendingDeleteId,
-    projects,
+    projectQuery,
+    projectOptions,
+    filteredProjectOptions,
     draftPages,
-    filterPages,
+    periodFilters,
+    type1Options,
+    type2Options,
+    statusMessage,
+    activeTab,
+    setActiveTab,
     setDraftField,
-    setFilterField,
+    setProjectQuery,
+    setPeriodField,
     selectReport,
     startNewReport,
-    saveDraft,
-    promptDelete,
-    cancelDelete,
-    confirmDelete,
     resetDraft,
+    saveDraft,
+    jumpDraftDate,
+    clearPeriodFilters,
   };
 }

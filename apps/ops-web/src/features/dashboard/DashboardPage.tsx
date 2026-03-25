@@ -5,30 +5,15 @@ import { formatDateLabel } from "../../lib/utils";
 import { useAuth } from "../auth/AuthContext";
 import styles from "./DashboardPage.module.css";
 
-function buildDueTag(dueDate: string | null) {
-  if (!dueDate) {
-    return { label: "일정 미정", state: "scheduled" as const };
-  }
-
-  const today = new Date();
-  const due = new Date(dueDate);
-  const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-  const startOfDue = new Date(due.getFullYear(), due.getMonth(), due.getDate());
-  const diffDays = Math.round((startOfDue.getTime() - startOfToday.getTime()) / 86400000);
-
-  if (diffDays < 0) {
-    return { label: `지남 ${Math.abs(diffDays)}일`, state: "overdue" as const };
-  }
-
-  if (diffDays === 0) {
-    return { label: "오늘 종료", state: "today" as const };
-  }
-
-  if (diffDays <= 3) {
-    return { label: `D-${diffDays}`, state: "soon" as const };
-  }
-
-  return { label: formatDateLabel(dueDate), state: "scheduled" as const };
+function buildMonthDays(referenceDate: Date) {
+  const year = referenceDate.getFullYear();
+  const month = referenceDate.getMonth();
+  const count = new Date(year, month + 1, 0).getDate();
+  return Array.from({ length: count }, (_, index) => {
+    const day = index + 1;
+    const value = new Date(year, month, day).toISOString().slice(0, 10);
+    return { day, value };
+  });
 }
 
 export function DashboardPage() {
@@ -41,39 +26,54 @@ export function DashboardPage() {
     enabled: Boolean(member),
   });
 
-  const statsQuery = useQuery({
-    queryKey: ["dashboard-stats", member?.id],
-    queryFn: async () => opsDataClient.getStats(member!),
+  const tasksQuery = useQuery({
+    queryKey: ["dashboard", "tasks", member?.id],
+    queryFn: async () => opsDataClient.getTasks(member!),
     enabled: Boolean(member),
   });
 
   const dashboard = dashboardQuery.data;
-  const stats = statsQuery.data;
+  const monthDays = buildMonthDays(new Date());
+  const tasksByDate = new Map(
+    (tasksQuery.data ?? []).map((task) => [task.taskDate, task]),
+  );
 
   return (
     <div className={styles.page}>
-      <section className={styles.summaryStrip} aria-label="대시보드 요약">
-        <article className={styles.kpiCard} data-tone="monitoring">
-          <span>진행중 모니터링</span>
-          <strong className="tabularNums">{stats?.monitoringInProgress ?? 0}</strong>
-          <p>현재 플래그가 켜진 페이지 수</p>
-        </article>
-        <article className={styles.kpiCard} data-tone="qa">
-          <span>진행중 QA</span>
-          <strong className="tabularNums">{stats?.qaInProgress ?? 0}</strong>
-          <p>현재 일정 안에 있는 QA 대상</p>
-        </article>
-        <article className={styles.kpiCard} data-tone="tasks">
-          <span>누적 업무 수</span>
-          <strong className="tabularNums">{stats?.totalTasks ?? 0}</strong>
-          <p>전체 업무보고 등록 건수</p>
-        </article>
-      </section>
+      <PageSection title="내 업무보고 작성현황" description="이번 달 작성 여부를 일자 단위로 확인합니다.">
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(72px, 1fr))",
+            gap: "0.75rem",
+          }}
+        >
+          {monthDays.map((day) => {
+            const exists = tasksByDate.has(day.value);
+            return (
+              <div
+                key={day.value}
+                style={{
+                  border: "1px solid var(--border-strong)",
+                  borderRadius: "0.875rem",
+                  padding: "0.75rem",
+                  background: exists
+                    ? "color-mix(in srgb, var(--accent-soft) 46%, white)"
+                    : "color-mix(in srgb, var(--surface-panel) 90%, white)",
+                }}
+              >
+                <strong style={{ display: "block", fontSize: "1.125rem" }}>{day.day}</strong>
+                <span style={{ fontSize: "0.875rem" }}>{exists ? "작성" : "미작성"}</span>
+              </div>
+            );
+          })}
+        </div>
+      </PageSection>
 
       <div className={styles.grid}>
         <PageSection
           title="진행중 모니터링"
-          description="현재 진행 페이지와 보고서 링크만 우선 제공합니다."
+          description="원본 기준으로 현재 진행 대상만 표 형태로 제공합니다."
         >
           {dashboardQuery.isLoading ? (
             <p className={styles.message}>대시보드 데이터를 불러오는 중입니다.</p>
@@ -129,7 +129,7 @@ export function DashboardPage() {
           )}
         </PageSection>
 
-        <PageSection title="진행중 QA" description="현재 진행 중인 QA 프로젝트와 종료 예정일을 먼저 확인합니다.">
+        <PageSection title="진행중 QA" description="원본 기준으로 현재 진행 중인 QA 목록을 표 형태로 제공합니다.">
           {dashboardQuery.isLoading ? (
             <p className={styles.message}>대시보드 데이터를 불러오는 중입니다.</p>
           ) : (
@@ -147,7 +147,6 @@ export function DashboardPage() {
                 </thead>
                 <tbody>
                   {dashboard?.qa.map((item) => {
-                    const dueTag = buildDueTag(item.dueDate);
                     return (
                       <tr key={item.pageId}>
                         <td>
@@ -157,14 +156,12 @@ export function DashboardPage() {
                           <strong>{item.projectName}</strong>
                         </td>
                         <td>{item.ownerName}</td>
-                        <td>
-                          <span className="uiDueTag" data-state={dueTag.state}>
-                            {dueTag.label}
-                          </span>
-                        </td>
-                        <td>
-                          {item.reportUrl ? (
-                            <a href={item.reportUrl} target="_blank" rel="noreferrer" className={styles.link}>
+                      <td>
+                        {item.dueDate ? formatDateLabel(item.dueDate) : "-"}
+                      </td>
+                      <td>
+                        {item.reportUrl ? (
+                          <a href={item.reportUrl} target="_blank" rel="noreferrer" className={styles.link}>
                               열기
                             </a>
                           ) : (

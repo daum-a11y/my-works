@@ -3,57 +3,103 @@
   gap: 1rem;
 }
 
-.cards {
+.hero {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1rem;
-}
-
-.card {
-  position: relative;
-  display: grid;
-  gap: 0.3rem;
-  padding: 1rem 1.1rem;
-  border-radius: var(--radius-lg);
+  gap: 0.45rem;
+  padding: 1.05rem 1.2rem;
   border: 1px solid var(--border-default);
-  background: linear-gradient(180deg, color-mix(in srgb, var(--surface-raised) 96%, white), color-mix(in srgb, var(--surface-panel) 92%, white));
-  box-shadow: var(--elevation-2);
-  overflow: hidden;
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--surface-raised) 98%, white);
+  box-shadow: var(--elevation-1);
 }
 
-.card::before {
-  content: "";
-  position: absolute;
-  inset: 0 0 auto;
-  height: 4px;
-  background: color-mix(in srgb, var(--border-strong) 72%, white);
-}
-
-.card[data-tone="monitoring"]::before {
-  background: linear-gradient(90deg, var(--accent), var(--accent-strong));
-}
-
-.card[data-tone="qa"]::before {
-  background: linear-gradient(90deg, var(--raw-indigo-500), var(--raw-indigo-600));
-}
-
-.card[data-tone="neutral"]::before {
-  background: linear-gradient(90deg, var(--raw-paper-4), var(--raw-ink-300));
-}
-
-.card span {
-  color: var(--text-tertiary);
+.kicker {
+  margin: 0;
+  color: var(--accent-strong);
   font-size: 0.78rem;
   font-weight: 800;
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
-.card strong {
+.title {
+  margin: 0.2rem 0 0;
   color: var(--text-primary);
   font-family: var(--font-display);
-  font-size: 1.85rem;
+  font-size: clamp(1.55rem, 2vw, 2.2rem);
+  line-height: 1.1;
   letter-spacing: -0.04em;
+}
+
+.lead {
+  margin: 0.35rem 0 0;
+  color: var(--text-tertiary);
+  line-height: 1.5;
+}
+
+.summaryLine {
+  margin: 0.2rem 0 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.chartSurface {
+  display: grid;
+  gap: 1rem;
+}
+
+.chart {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(78px, 1fr));
+  gap: 0.8rem;
+  align-items: end;
+}
+
+.chartColumn {
+  display: grid;
+  gap: 0.45rem;
+  align-content: end;
+  min-height: 220px;
+}
+
+.chartTrack {
+  display: flex;
+  align-items: flex-end;
+  min-height: 170px;
+}
+
+.chartBar {
+  width: 100%;
+  min-height: 14px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 0.45rem;
+  border-radius: 999px 999px 16px 16px;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 84%, white), var(--accent-strong));
+  color: var(--text-inverse);
+  box-shadow: var(--elevation-1);
+}
+
+.chartValue {
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.chartLabel {
+  color: var(--text-primary);
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.chartNote {
+  color: var(--text-tertiary);
+  font-size: 0.82rem;
+  text-align: center;
 }
 
 .tableWrap {
@@ -65,12 +111,13 @@
 
 .table {
   width: 100%;
+  min-width: 760px;
   border-collapse: collapse;
 }
 
 .table th,
 .table td {
-  padding: 0.8rem 0.65rem;
+  padding: 0.82rem 0.72rem;
   border-bottom: 1px solid color-mix(in srgb, var(--border-subtle) 90%, white);
   text-align: left;
   vertical-align: top;
@@ -94,9 +141,13 @@
   color: var(--text-tertiary);
 }
 
+.table tbody tr:hover {
+  background: color-mix(in srgb, var(--accent-soft) 18%, white);
+}
+
 .stackCell {
   display: grid;
-  gap: 0.38rem;
+  gap: 0.28rem;
 }
 
 .link {
@@ -104,17 +155,29 @@
   font-weight: 800;
 }
 
-.table tbody tr:hover {
-  background: color-mix(in srgb, var(--accent-soft) 18%, white);
-}
-
 .empty {
+  padding: 1rem;
+  border: 1px dashed var(--border-default);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--surface-canvas) 92%, white);
   color: var(--text-tertiary);
   text-align: center;
 }
 
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 @media (max-width: 720px) {
-  .cards {
-    grid-template-columns: 1fr;
+  .chart {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

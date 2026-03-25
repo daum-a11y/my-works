@@ -1,408 +1,389 @@
 import type { FormEvent } from "react";
 
 import {
-  REPORT_TYPE1_OPTIONS,
-  REPORT_TYPE2_OPTIONS,
   formatReportDate,
   formatReportHours,
+  getTodayInputValue,
+  type ReportViewModel,
 } from "./report-domain";
 import { useReportsSlice } from "./use-reports-slice";
 import styles from "./reports-page.module.css";
 
+function renderReportTable(
+  rows: ReportViewModel[],
+  options: {
+    onSelect: (id: string) => void;
+    selectedReportId: string | null;
+    emptyMessage: string;
+  },
+) {
+  const { onSelect, selectedReportId, emptyMessage } = options;
+
+  return (
+    <div className={styles.tableWrap}>
+      <table className={styles.table}>
+        <caption className={styles.srOnly}>업무 보고 목록</caption>
+        <thead>
+          <tr>
+            <th scope="col">일자</th>
+            <th scope="col">프로젝트 / 페이지</th>
+            <th scope="col">TYPE</th>
+            <th scope="col">시간</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((report) => {
+            const isSelected = selectedReportId === report.id;
+
+            return (
+              <tr key={report.id} data-active={isSelected || undefined}>
+                <td>
+                  <button type="button" className={styles.rowButton} onClick={() => onSelect(report.id)}>
+                    {formatReportDate(report.reportDate)}
+                  </button>
+                </td>
+                <td>
+                  <strong>{report.projectDisplayName}</strong>
+                  <span>{report.pageDisplayName}</span>
+                </td>
+                <td>
+                  <strong>{report.type1}</strong>
+                  <span>{report.type2}</span>
+                </td>
+                <td>{formatReportHours(report.workHours)}</td>
+              </tr>
+            );
+          })}
+          {!rows.length && (
+            <tr>
+              <td colSpan={4} className={styles.emptyState}>
+                {emptyMessage}
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 export function ReportsPage() {
   const {
-    filteredReports,
-    selectedReport,
+    activeTab,
+    clearPeriodFilters,
     draft,
-    filters,
-    statusMessage,
-    pendingDeleteId,
-    projects,
     draftPages,
-    filterPages,
-    setDraftField,
-    setFilterField,
-    selectReport,
-    startNewReport,
-    saveDraft,
-    promptDelete,
-    cancelDelete,
-    confirmDelete,
+    filteredProjectOptions,
+    jumpDraftDate,
+    periodFilters,
+    periodReports,
+    projectOptions,
+    projectQuery,
+    recentReports,
     resetDraft,
+    saveDraft,
+    selectReport,
+    selectedReport,
+    selectedReportId,
+    setActiveTab,
+    setDraftField,
+    setPeriodField,
+    setProjectQuery,
+    startNewReport,
+    statusMessage,
+    type1Options,
+    type2Options,
   } = useReportsSlice();
+
+  const selectedProject = projectOptions.find((project) => project.id === draft.projectId) ?? null;
 
   const onSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    saveDraft();
+    void saveDraft();
   };
 
   return (
     <section className={styles.page}>
       <header className={styles.hero}>
-        <div>
+        <div className={styles.heroMain}>
           <p className={styles.kicker}>업무보고</p>
-          <h1 className={styles.title}>실사용 보고서를 빠르게 기록하고 관리합니다.</h1>
+          <h1 className={styles.title}>개인 업무보고와 기간검색을 한 화면 안에서 처리합니다.</h1>
           <p className={styles.description}>
-            날짜, 프로젝트, 페이지, 업무 유형, 시간, 내용, 메모를 한 화면에서 바로 입력하고 수정합니다.
+            기본 입력과 TYPE 입력을 분리해 기록하고, 같은 화면에서 과거 보고를 불러오거나 기간별로 다시 확인할 수 있습니다.
           </p>
+          <p className={styles.status}>{statusMessage}</p>
         </div>
 
-        <div className={styles.heroAside} aria-label="보고 현황 요약">
-          <div>
-            <span className={styles.metricLabel}>표시 중</span>
-            <strong className={styles.metricValue}>{filteredReports.length}</strong>
-          </div>
-          <div>
-            <span className={styles.metricLabel}>선택 상태</span>
-            <strong className={styles.metricValue}>
-              {selectedReport ? "편집 중" : "새 보고"}
-            </strong>
-          </div>
-          <div>
-            <span className={styles.metricLabel}>상태</span>
-            <strong className={styles.metricValue}>
-              {selectedReport?.updatedAt ? "수정 가능" : "작성 가능"}
-            </strong>
-          </div>
+        <div className={styles.tabList} role="tablist" aria-label="보고 탭">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activeTab === "report"}
+            className={styles.tabButton}
+            data-active={activeTab === "report" || undefined}
+            onClick={() => setActiveTab("report")}
+          >
+            업무보고
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activeTab === "period"}
+            className={styles.tabButton}
+            data-active={activeTab === "period" || undefined}
+            onClick={() => setActiveTab("period")}
+          >
+            기간검색
+          </button>
         </div>
       </header>
 
-      <div className={styles.layout}>
-        <aside className={styles.sidebar}>
+      {activeTab === "report" ? (
+        <div className={styles.stack}>
           <section className={styles.panel}>
             <div className={styles.panelHead}>
               <div>
-                <p className={styles.panelEyebrow}>목록</p>
-                <h2 className={styles.panelTitle}>보고 내역</h2>
+                <p className={styles.panelEyebrow}>업무보고</p>
+                <h2 className={styles.panelTitle}>{selectedReport ? "보고 수정" : "새 보고 작성"}</h2>
               </div>
-              <button type="button" className={styles.secondaryButton} onClick={startNewReport}>
-                새 보고
-              </button>
-            </div>
 
-            <form className={styles.filterGrid} aria-label="보고 필터">
-              <label className={styles.field}>
-                <span>검색</span>
-                <input
-                  value={filters.query}
-                  onChange={(event) => setFilterField("query", event.target.value)}
-                  placeholder="프로젝트, 페이지, 내용"
-                />
-              </label>
-              <label className={styles.field}>
-                <span>프로젝트</span>
-                <select
-                  value={filters.projectId}
-                  onChange={(event) => setFilterField("projectId", event.target.value)}
-                >
-                  <option value="">전체</option>
-                  {projects.map((project) => (
-                    <option key={project.id} value={project.id}>
-                      {project.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className={styles.field}>
-                <span>페이지</span>
-                <select
-                  value={filters.pageId}
-                  onChange={(event) => setFilterField("pageId", event.target.value)}
-                  disabled={!filters.projectId}
-                >
-                  <option value="">전체</option>
-                  {filterPages.map((page) => (
-                    <option key={page.id} value={page.id}>
-                      {page.title}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className={styles.field}>
-                <span>유형 1</span>
-                <select
-                  value={filters.taskType1}
-                  onChange={(event) => setFilterField("taskType1", event.target.value)}
-                >
-                  <option value="">전체</option>
-                  {REPORT_TYPE1_OPTIONS.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className={styles.field}>
-                <span>유형 2</span>
-                <select
-                  value={filters.taskType2}
-                  onChange={(event) => setFilterField("taskType2", event.target.value)}
-                >
-                  <option value="">전체</option>
-                  {REPORT_TYPE2_OPTIONS.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className={styles.field}>
-                <span>최소 시간</span>
-                <input
-                  type="number"
-                  min="0"
-                  step="0.5"
-                  value={filters.minHours}
-                  onChange={(event) => setFilterField("minHours", event.target.value)}
-                />
-              </label>
-              <label className={styles.field}>
-                <span>최대 시간</span>
-                <input
-                  type="number"
-                  min="0"
-                  step="0.5"
-                  value={filters.maxHours}
-                  onChange={(event) => setFilterField("maxHours", event.target.value)}
-                />
-              </label>
-              <label className={styles.field}>
-                <span>시작일</span>
-                <input
-                  type="date"
-                  value={filters.startDate}
-                  onChange={(event) => setFilterField("startDate", event.target.value)}
-                />
-              </label>
-              <label className={styles.field}>
-                <span>종료일</span>
-                <input
-                  type="date"
-                  value={filters.endDate}
-                  onChange={(event) => setFilterField("endDate", event.target.value)}
-                />
-              </label>
-            </form>
-
-            <div className={styles.tableWrap}>
-              <table className={styles.table}>
-                <caption className={styles.srOnly}>보고 목록</caption>
-                <thead>
-                  <tr>
-                    <th scope="col">일자</th>
-                    <th scope="col">프로젝트 / 페이지</th>
-                    <th scope="col">유형</th>
-                    <th scope="col">시간</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredReports.map((report) => {
-                    const isActive = selectedReport?.id === report.id;
-                    return (
-                      <tr key={report.id} data-active={isActive || undefined}>
-                        <td>
-                          <button
-                            type="button"
-                            className={styles.rowButton}
-                            onClick={() => selectReport(report.id)}
-                          >
-                            {formatReportDate(report.reportDate)}
-                          </button>
-                        </td>
-                        <td>
-                          <strong>{report.projectName}</strong>
-                          <span>{report.pageName}</span>
-                        </td>
-                        <td>
-                          <strong>{report.type1}</strong>
-                          <span>{report.type2}</span>
-                        </td>
-                        <td>{formatReportHours(report.workHours)}</td>
-                      </tr>
-                    );
-                  })}
-                  {!filteredReports.length && (
-                    <tr>
-                      <td colSpan={4} className={styles.emptyState}>
-                        조건에 맞는 보고서가 없습니다.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </section>
-        </aside>
-
-        <main className={styles.editorColumn}>
-          <section className={styles.panel}>
-            <div className={styles.panelHead}>
-              <div>
-                <p className={styles.panelEyebrow}>편집</p>
-                <h2 className={styles.panelTitle}>
-                  {selectedReport ? "보고서 수정" : "새 보고서"}
-                </h2>
+              <div className={styles.buttonRow}>
+                <button type="button" className={styles.secondaryButton} onClick={startNewReport}>
+                  새 입력
+                </button>
+                <button type="button" className={styles.secondaryButton} onClick={resetDraft}>
+                  초기화
+                </button>
               </div>
-              <p className={styles.status} aria-live="polite">
-                {statusMessage}
-              </p>
             </div>
 
             <form className={styles.form} onSubmit={onSubmit}>
-              <div className={styles.formGrid}>
-                <label className={styles.field}>
-                  <span>업무 일자</span>
-                  <input
-                    type="date"
-                    value={draft.reportDate}
-                    onChange={(event) => setDraftField("reportDate", event.target.value)}
-                    required
-                  />
-                </label>
-                <label className={styles.field}>
-                  <span>업무 시간</span>
-                  <input
-                    type="number"
-                    min="0"
-                    step="0.5"
-                    value={draft.workHours}
-                    onChange={(event) => setDraftField("workHours", event.target.value)}
-                    required
-                  />
-                </label>
-                <label className={styles.field}>
-                  <span>프로젝트</span>
-                  <select
-                    value={draft.projectId}
-                    onChange={(event) => setDraftField("projectId", event.target.value)}
-                    required
-                  >
-                    <option value="">프로젝트 선택</option>
-                    {projects.map((project) => (
-                      <option key={project.id} value={project.id}>
-                        {project.name}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label className={styles.field}>
-                  <span>페이지</span>
-                  <select
-                    value={draft.pageId}
-                    onChange={(event) => setDraftField("pageId", event.target.value)}
-                    required
-                    disabled={!draft.projectId}
-                  >
-                    <option value="">페이지 선택</option>
-                    {draftPages.map((page) => (
-                      <option key={page.id} value={page.id}>
-                        {page.title}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label className={styles.field}>
-                  <span>유형 1</span>
-                  <select
-                    value={draft.type1}
-                    onChange={(event) =>
-                      setDraftField("type1", event.target.value as typeof draft.type1)
-                    }
-                  >
-                    {REPORT_TYPE1_OPTIONS.map((option) => (
-                      <option key={option} value={option}>
-                        {option}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label className={styles.field}>
-                  <span>유형 2</span>
-                  <select
-                    value={draft.type2}
-                    onChange={(event) =>
-                      setDraftField("type2", event.target.value as typeof draft.type2)
-                    }
-                  >
-                    {REPORT_TYPE2_OPTIONS.map((option) => (
-                      <option key={option} value={option}>
-                        {option}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              </div>
+              <fieldset className={styles.section}>
+                <legend className={styles.sectionTitle}>기본 입력</legend>
+                <div className={styles.formGrid}>
+                  <label className={styles.field}>
+                    <span>일자</span>
+                    <div className={styles.dateRow}>
+                      <input
+                        type="date"
+                        value={draft.reportDate}
+                        onChange={(event) => setDraftField("reportDate", event.target.value)}
+                      />
+                      <div className={styles.dateActions}>
+                        <button type="button" className={styles.chipButton} onClick={() => jumpDraftDate(-1)}>
+                          -1
+                        </button>
+                        <button type="button" className={styles.chipButton} onClick={() => jumpDraftDate(1)}>
+                          +1
+                        </button>
+                        <button type="button" className={styles.chipButton} onClick={() => jumpDraftDate(-7)}>
+                          -7
+                        </button>
+                        <button type="button" className={styles.chipButton} onClick={() => jumpDraftDate(7)}>
+                          +7
+                        </button>
+                        <button
+                          type="button"
+                          className={styles.chipButton}
+                          onClick={() => setDraftField("reportDate", getTodayInputValue())}
+                        >
+                          오늘
+                        </button>
+                      </div>
+                    </div>
+                  </label>
 
-              <label className={styles.field}>
-                <span>업무 내용</span>
-                <textarea
-                  rows={6}
-                  value={draft.content}
-                  onChange={(event) => setDraftField("content", event.target.value)}
-                  required
-                />
-              </label>
+                  <label className={styles.field}>
+                    <span>프로젝트 검색</span>
+                    <input
+                      value={projectQuery}
+                      onChange={(event) => setProjectQuery(event.target.value)}
+                      placeholder="서비스그룹 / 서비스명"
+                    />
+                  </label>
 
-              <label className={styles.field}>
-                <span>메모</span>
-                <textarea
-                  rows={4}
-                  value={draft.note}
-                  onChange={(event) => setDraftField("note", event.target.value)}
-                />
-              </label>
+                  <label className={styles.field}>
+                    <span>프로젝트 선택</span>
+                    <select
+                      value={draft.projectId}
+                      onChange={(event) => setDraftField("projectId", event.target.value)}
+                    >
+                      <option value="">선택</option>
+                      {filteredProjectOptions.map((project) => (
+                        <option key={project.id} value={project.id}>
+                          {project.label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+
+                  <label className={styles.field}>
+                    <span>페이지 선택</span>
+                    <select
+                      value={draft.pageId}
+                      onChange={(event) => setDraftField("pageId", event.target.value)}
+                      disabled={!draft.projectId}
+                    >
+                      <option value="">선택</option>
+                      {draftPages.map((page) => (
+                        <option key={page.id} value={page.id}>
+                          {page.title}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                </div>
+
+                <p className={styles.fieldHint}>
+                  {selectedProject ? selectedProject.label : "프로젝트를 먼저 선택하면 페이지 목록이 좁혀집니다."}
+                </p>
+              </fieldset>
+
+              <fieldset className={styles.section}>
+                <legend className={styles.sectionTitle}>TYPE 입력</legend>
+                <div className={styles.formGrid}>
+                  <label className={styles.field}>
+                    <span>TYPE 1</span>
+                    <select
+                      value={draft.type1}
+                      onChange={(event) => setDraftField("type1", event.target.value as typeof draft.type1)}
+                    >
+                      {type1Options.map((option) => (
+                        <option key={option} value={option}>
+                          {option}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+
+                  <label className={styles.field}>
+                    <span>TYPE 2</span>
+                    <select
+                      value={draft.type2}
+                      onChange={(event) => setDraftField("type2", event.target.value as typeof draft.type2)}
+                    >
+                      {type2Options.map((option) => (
+                        <option key={option} value={option}>
+                          {option}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+
+                  <label className={styles.field}>
+                    <span>시간</span>
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.5"
+                      value={draft.workHours}
+                      onChange={(event) => setDraftField("workHours", event.target.value)}
+                    />
+                  </label>
+                </div>
+              </fieldset>
+
+              <fieldset className={styles.section}>
+                <legend className={styles.sectionTitle}>업무 내용</legend>
+                <div className={styles.formGrid}>
+                  <label className={styles.field}>
+                    <span>업무</span>
+                    <textarea
+                      value={draft.content}
+                      onChange={(event) => setDraftField("content", event.target.value)}
+                      placeholder="무엇을 했는지 간단히 기록합니다."
+                    />
+                  </label>
+
+                  <label className={styles.field}>
+                    <span>메모</span>
+                    <textarea
+                      value={draft.note}
+                      onChange={(event) => setDraftField("note", event.target.value)}
+                      placeholder="추가 메모가 있으면 남깁니다."
+                    />
+                  </label>
+                </div>
+              </fieldset>
 
               <div className={styles.actionRow}>
                 <button type="submit" className={styles.primaryButton}>
                   저장
                 </button>
-                <button type="button" className={styles.secondaryButton} onClick={resetDraft}>
-                  초기화
+                <button type="button" className={styles.secondaryButton} onClick={startNewReport}>
+                  새 보고
                 </button>
-                {selectedReport && (
-                  <button
-                    type="button"
-                    className={styles.ghostDangerButton}
-                    onClick={() => promptDelete(selectedReport.id)}
-                  >
-                    삭제
-                  </button>
-                )}
               </div>
             </form>
           </section>
 
-          {pendingDeleteId && selectedReport?.id === pendingDeleteId && (
-            <section className={styles.dangerPanel} role="alert">
+          <section className={styles.panel}>
+            <div className={styles.panelHead}>
               <div>
-                <p className={styles.panelEyebrow}>삭제 확인</p>
-                <h2 className={styles.panelTitle}>이 보고서를 삭제합니다.</h2>
-                <p className={styles.description}>
-                  삭제 후에는 다시 불러올 수 없습니다. 선택한 보고서만 제거됩니다.
-                </p>
+                <p className={styles.panelEyebrow}>최근 보고</p>
+                <h2 className={styles.panelTitle}>불러올 보고서</h2>
               </div>
-              <div className={styles.actionRow}>
-                <button
-                  type="button"
-                  className={styles.ghostDangerButton}
-                  onClick={confirmDelete}
-                >
-                  삭제 확정
-                </button>
-                <button
-                  type="button"
-                  className={styles.secondaryButton}
-                  onClick={cancelDelete}
-                >
-                  취소
-                </button>
+              <p className={styles.panelMeta}>{recentReports.length}건</p>
+            </div>
+
+            {renderReportTable(recentReports, {
+              onSelect: selectReport,
+              selectedReportId,
+              emptyMessage: "아직 작성한 보고가 없습니다.",
+            })}
+          </section>
+        </div>
+      ) : (
+        <div className={styles.stack}>
+          <section className={styles.panel}>
+            <div className={styles.panelHead}>
+              <div>
+                <p className={styles.panelEyebrow}>기간검색</p>
+                <h2 className={styles.panelTitle}>날짜 범위로 보고를 찾습니다.</h2>
               </div>
-            </section>
-          )}
-        </main>
-      </div>
+              <button type="button" className={styles.secondaryButton} onClick={clearPeriodFilters}>
+                조건 초기화
+              </button>
+            </div>
+
+            <div className={styles.filterGrid}>
+                    <label className={styles.field}>
+                      <span>시작일</span>
+                      <input
+                        type="date"
+                        value={periodFilters.startDate}
+                  onChange={(event) => setPeriodField("startDate", event.target.value)}
+                />
+              </label>
+
+                    <label className={styles.field}>
+                      <span>종료일</span>
+                      <input
+                        type="date"
+                        value={periodFilters.endDate}
+                        onChange={(event) => setPeriodField("endDate", event.target.value)}
+                      />
+                    </label>
+                  </div>
+          </section>
+
+          <section className={styles.panel}>
+            <div className={styles.panelHead}>
+              <div>
+                <p className={styles.panelEyebrow}>검색 결과</p>
+                <h2 className={styles.panelTitle}>기간 내 보고</h2>
+              </div>
+              <p className={styles.panelMeta}>{periodReports.length}건</p>
+            </div>
+
+            {renderReportTable(periodReports, {
+              onSelect: selectReport,
+              selectedReportId,
+              emptyMessage: "선택한 기간에 해당하는 보고가 없습니다.",
+            })}
+          </section>
+        </div>
+      )}
     </section>
   );
 }
-
-export default ReportsPage;

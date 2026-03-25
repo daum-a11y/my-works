@@ -43,12 +43,38 @@ export interface AdminTaskSaveInput {
   note: string;
 }
 
-export interface AdminLookupOption {
+export interface AdminTaskTypeItem {
+  id: string;
+  type1: string;
+  type2: string;
+  displayLabel: string;
+  displayOrder: number;
+  requiresServiceGroup: boolean;
+  isActive: boolean;
+}
+
+export interface AdminTaskTypePayload {
+  id?: string;
+  type1: string;
+  type2: string;
+  displayLabel: string;
+  displayOrder: number;
+  requiresServiceGroup: boolean;
+  isActive: boolean;
+}
+
+export interface AdminServiceGroupItem {
   id: string;
   name: string;
+  displayOrder: number;
   isActive: boolean;
-  displayOrder?: number;
-  requiresServiceGroup?: boolean;
+}
+
+export interface AdminServiceGroupPayload {
+  id?: string;
+  name: string;
+  displayOrder: number;
+  isActive: boolean;
 }
 
 export interface AdminProjectOption {
@@ -73,8 +99,8 @@ export interface MemberAdminItem {
   legacyUserId: string;
   name: string;
   email: string;
-  department: string;
   role: "user" | "admin";
+  userActive: boolean;
   isActive: boolean;
   authEmail: string;
   queueReasons: string[];
@@ -87,9 +113,9 @@ export interface MemberAdminPayload {
   legacyUserId: string;
   name: string;
   email: string;
-  department: string;
   role: "user" | "admin";
-  isActive: boolean;
+  userActive: boolean;
+  isActive?: boolean;
 }
 
 function formatDate(date: Date) {

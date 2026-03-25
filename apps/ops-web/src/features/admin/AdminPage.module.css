@@ -7,13 +7,16 @@
   display: grid;
   gap: 0.45rem;
   padding: 1.2rem 1.35rem;
-  border: 1px solid var(--color-border, #d6dbe7);
-  border-radius: 1rem;
-  background: linear-gradient(135deg, rgba(29, 78, 216, 0.08), rgba(15, 118, 110, 0.08));
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--surface-raised) 98%, white);
+  box-shadow: var(--elevation-1);
 }
 
 .hero h2 {
   margin: 0;
+  color: var(--text-primary);
+  font-family: var(--font-display);
   font-size: 1.22rem;
   letter-spacing: -0.02em;
 }
@@ -22,7 +25,7 @@
 .muted,
 .helperText {
   margin: 0;
-  color: var(--color-text-muted, #5b6475);
+  color: var(--text-tertiary);
   line-height: 1.5;
 }
 
@@ -41,9 +44,10 @@
   display: grid;
   gap: 1rem;
   padding: 1.15rem;
-  border: 1px solid var(--color-border, #d6dbe7);
-  border-radius: 1rem;
-  background: var(--color-surface, #ffffff);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--surface-raised) 98%, white);
+  box-shadow: var(--elevation-1);
 }
 
 .panel h3,
@@ -88,10 +92,11 @@
 .field textarea {
   width: 100%;
   padding: 0.72rem 0.78rem;
-  border: 1px solid var(--color-border, #c6cfdf);
-  border-radius: 0.8rem;
-  background: #fff;
-  color: inherit;
+  border: 1px solid var(--border-default);
+  border-radius: var(--control-radius);
+  background: var(--control-bg);
+  color: var(--text-primary);
+  font: inherit;
 }
 
 .field textarea {
@@ -115,8 +120,9 @@
 
 .tableWrap {
   overflow: auto;
-  border: 1px solid var(--color-border, #d6dbe7);
-  border-radius: 0.9rem;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--surface-canvas) 88%, white);
 }
 
 .table {
@@ -128,17 +134,18 @@
 .table th,
 .table td {
   padding: 0.78rem 0.85rem;
-  border-bottom: 1px solid var(--color-border, #e4e8f0);
+  border-bottom: 1px solid color-mix(in srgb, var(--border-subtle) 90%, white);
   text-align: left;
   vertical-align: top;
 }
 
 .table th {
-  background: #f4f7fb;
-  font-size: 0.82rem;
+  background: color-mix(in srgb, var(--accent-soft) 28%, white);
+  font-size: 0.74rem;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--color-text-muted, #5b6475);
+  letter-spacing: 0.12em;
+  color: var(--text-tertiary);
+  font-weight: 800;
 }
 
 .rowButton {
@@ -157,7 +164,7 @@
 }
 
 .selectedRow {
-  background: rgba(29, 78, 216, 0.08);
+  background: color-mix(in srgb, var(--accent-soft) 24%, white);
 }
 
 .summaryGrid {
@@ -170,9 +177,9 @@
   display: grid;
   gap: 0.35rem;
   padding: 1rem;
-  border-radius: 0.9rem;
-  border: 1px solid var(--color-border, #d6dbe7);
-  background: #f9fbff;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-default);
+  background: color-mix(in srgb, var(--surface-raised) 96%, white);
 }
 
 .summaryCard strong {
@@ -194,20 +201,20 @@
   gap: 0.3rem;
   padding: 0.32rem 0.62rem;
   border-radius: 999px;
-  background: #eef4ff;
-  color: #20468c;
+  background: var(--state-info-bg);
+  color: var(--state-info-text);
   font-size: 0.8rem;
   font-weight: 600;
 }
 
 .warningBadge {
-  background: #fff5d9;
-  color: #8b5d00;
+  background: var(--state-warning-bg);
+  color: var(--state-warning-text);
 }
 
 .dangerBadge {
-  background: #ffe4e6;
-  color: #a61b36;
+  background: var(--state-danger-bg);
+  color: var(--state-danger-text);
 }
 
 .metaList {
@@ -225,7 +232,7 @@
 .emptyState {
   padding: 2rem 1rem;
   text-align: center;
-  color: var(--color-text-muted, #5b6475);
+  color: var(--text-tertiary);
 }
 
 @media (max-width: 1100px) {
@@ -242,6 +249,141 @@
   .filtersGrid,
   .formGrid,
   .summaryGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.tabList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.tabLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.55rem 0.9rem;
+  border: 1px solid var(--border-default);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface-raised) 98%, white);
+  color: var(--text-primary);
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.tabLinkActive {
+  border-color: var(--accent-strong);
+  background: var(--accent-strong);
+  color: #ffffff;
+}
+
+.sectionHeader {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.sectionActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.compactGrid {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.compactField {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.compactFieldWide {
+  grid-column: 1 / -1;
+}
+
+.validationLayout {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(18rem, 0.95fr) minmax(0, 1.05fr);
+}
+
+.validationList {
+  max-height: 32rem;
+  overflow: auto;
+}
+
+.validationItemButton {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  text-align: left;
+  color: inherit;
+  cursor: pointer;
+}
+
+.validationItemActive {
+  background: color-mix(in srgb, var(--accent-soft) 24%, white);
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 999px;
+  background: var(--state-info-bg);
+  color: var(--state-info-text);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.positivePill {
+  background: var(--state-success-bg);
+  color: var(--state-success-text);
+}
+
+.warningPill {
+  background: var(--state-warning-bg);
+  color: var(--state-warning-text);
+}
+
+.dangerPill {
+  background: var(--state-danger-bg);
+  color: var(--state-danger-text);
+}
+
+.inlineRowCell {
+  min-width: 8rem;
+}
+
+.inlineRowActions {
+  white-space: nowrap;
+}
+
+.smallText {
+  font-size: 0.86rem;
+}
+
+@media (max-width: 1100px) {
+  .validationLayout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .compactGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .compactGrid {
     grid-template-columns: minmax(0, 1fr);
   }
 }

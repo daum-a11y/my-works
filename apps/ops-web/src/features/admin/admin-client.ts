@@ -1,12 +1,14 @@
-import { env } from "../../lib/env";
 import { getSupabaseClient } from "../../lib/supabase";
 import type {
-  AdminLookupOption,
   AdminPageOption,
   AdminProjectOption,
+  AdminServiceGroupItem,
+  AdminServiceGroupPayload,
   AdminTaskSaveInput,
   AdminTaskSearchFilters,
   AdminTaskSearchItem,
+  AdminTaskTypeItem,
+  AdminTaskTypePayload,
   MemberAdminItem,
   MemberAdminPayload,
 } from "./admin-types";
@@ -16,15 +18,8 @@ function toNullableString(value: string) {
   return normalized.length > 0 ? normalized : null;
 }
 
-function mapLookup(record: Record<string, unknown>): AdminLookupOption {
-  return {
-    id: String(record.id ?? ""),
-    name: String(record.name ?? ""),
-    isActive: Boolean(record.is_active ?? true),
-    displayOrder: Number(record.display_order ?? 0),
-    requiresServiceGroup: Boolean(record.requires_service_group ?? false),
-  };
-}
+const TASK_SELECT_COLUMNS =
+  "id, member_id, task_date, project_id, project_page_id, task_type1, task_type2, hours, content, note, updated_at";
 
 function mapProject(record: Record<string, unknown>): AdminProjectOption {
   return {
@@ -68,36 +63,187 @@ function mapTask(record: Record<string, unknown>): AdminTaskSearchItem {
   };
 }
 
+function mapTaskType(record: Record<string, unknown>): AdminTaskTypeItem {
+  return {
+    id: String(record.id ?? ""),
+    type1: String(record.type1 ?? ""),
+    type2: String(record.type2 ?? ""),
+    displayLabel: String(record.display_label ?? `${record.type1 ?? ""} / ${record.type2 ?? ""}`),
+    displayOrder: Number(record.display_order ?? 0),
+    requiresServiceGroup: Boolean(record.requires_service_group ?? false),
+    isActive: Boolean(record.is_active ?? true),
+  };
+}
+
+function mapServiceGroup(record: Record<string, unknown>): AdminServiceGroupItem {
+  return {
+    id: String(record.id ?? ""),
+    name: String(record.name ?? ""),
+    displayOrder: Number(record.display_order ?? 0),
+    isActive: Boolean(record.is_active ?? true),
+  };
+}
+
 function mapMember(record: Record<string, unknown>): MemberAdminItem {
+  const active = Boolean(record.user_active ?? record.is_active ?? true);
+
   return {
     id: String(record.id ?? ""),
     authUserId: record.auth_user_id ? String(record.auth_user_id) : null,
     legacyUserId: String(record.legacy_user_id ?? ""),
     name: String(record.name ?? ""),
     email: String(record.email ?? ""),
-    department: String(record.department ?? ""),
     role: Number(record.user_level ?? 0) === 1 ? "admin" : "user",
-    isActive: Boolean(record.is_active ?? true),
-    authEmail: String(record.auth_email ?? ""),
-    queueReasons: Array.isArray(record.queue_reasons)
-      ? record.queue_reasons.map((item) => String(item))
-      : [],
+    userActive: active,
+    isActive: active,
+    authEmail: String(record.auth_email ?? record.email ?? ""),
+    queueReasons: [],
     updatedAt: String(record.updated_at ?? ""),
   };
 }
 
-function buildSearchRpcParams(filters: AdminTaskSearchFilters) {
+async function loadAdminReferenceMaps(supabase: NonNullable<ReturnType<typeof getSupabaseClient>>) {
+  const [membersResult, projectsResult, pagesResult, serviceGroupsResult] = await Promise.all([
+    supabase.from("members").select("id, name, email"),
+    supabase.from("projects").select("id, name, service_group_id"),
+    supabase.from("project_pages").select("id, project_id, title"),
+    supabase.from("service_groups").select("id, name"),
+  ]);
+
+  if (membersResult.error) throw membersResult.error;
+  if (projectsResult.error) throw projectsResult.error;
+  if (pagesResult.error) throw pagesResult.error;
+  if (serviceGroupsResult.error) throw serviceGroupsResult.error;
+
   return {
-    p_member_id: toNullableString(filters.memberId),
-    p_start_date: toNullableString(filters.startDate),
-    p_end_date: toNullableString(filters.endDate),
-    p_project_id: toNullableString(filters.projectId),
-    p_project_page_id: toNullableString(filters.pageId),
-    p_task_type1: toNullableString(filters.taskType1),
-    p_task_type2: toNullableString(filters.taskType2),
-    p_service_group_id: toNullableString(filters.serviceGroupId),
-    p_keyword: toNullableString(filters.keyword),
+    members: new Map((membersResult.data ?? []).map((record) => [String(record.id), record as Record<string, unknown>])),
+    projects: new Map((projectsResult.data ?? []).map((record) => [String(record.id), record as Record<string, unknown>])),
+    pages: new Map((pagesResult.data ?? []).map((record) => [String(record.id), record as Record<string, unknown>])),
+    serviceGroups: new Map(
+      (serviceGroupsResult.data ?? []).map((record) => [String(record.id), record as Record<string, unknown>]),
+    ),
   };
+}
+
+function enrichTaskRecords(
+  records: Record<string, unknown>[],
+  maps: Awaited<ReturnType<typeof loadAdminReferenceMaps>>,
+) {
+  return records.map((record) => {
+    const memberId = String(record.member_id ?? "");
+    const projectId = record.project_id ? String(record.project_id) : null;
+    const pageId = record.project_page_id ? String(record.project_page_id) : null;
+    const member = maps.members.get(memberId);
+    const project = projectId ? maps.projects.get(projectId) : undefined;
+    const page = pageId ? maps.pages.get(pageId) : undefined;
+    const serviceGroupId = project?.service_group_id ? String(project.service_group_id) : null;
+    const serviceGroup = serviceGroupId ? maps.serviceGroups.get(serviceGroupId) : undefined;
+
+    return mapTask({
+      ...record,
+      member_name: member?.name ?? "",
+      member_email: member?.email ?? "",
+      project_name: project?.name ?? "",
+      page_title: page?.title ?? "",
+      service_group_id: serviceGroupId,
+      service_group_name: serviceGroup?.name ?? "",
+    });
+  });
+}
+
+function filterAdminTasks(items: AdminTaskSearchItem[], filters: AdminTaskSearchFilters) {
+  const serviceGroupId = toNullableString(filters.serviceGroupId);
+  const keyword = toNullableString(filters.keyword)?.toLowerCase() ?? "";
+
+  return items.filter((item) => {
+    if (serviceGroupId && item.serviceGroupId !== serviceGroupId) {
+      return false;
+    }
+
+    if (keyword) {
+      const haystack = [
+        item.memberName,
+        item.memberEmail,
+        item.projectName,
+        item.pageTitle,
+        item.taskType1,
+        item.taskType2,
+        item.content,
+        item.note,
+      ]
+        .join(" ")
+        .toLowerCase();
+
+      if (!haystack.includes(keyword)) {
+        return false;
+      }
+    }
+
+    return true;
+  });
+}
+
+async function fetchAdminTasks(
+  supabase: NonNullable<ReturnType<typeof getSupabaseClient>>,
+  filters: AdminTaskSearchFilters,
+) {
+  let query = supabase
+    .from("tasks")
+    .select(TASK_SELECT_COLUMNS)
+    .order("task_date", { ascending: false })
+    .order("updated_at", { ascending: false });
+
+  const memberId = toNullableString(filters.memberId);
+  const startDate = toNullableString(filters.startDate);
+  const endDate = toNullableString(filters.endDate);
+  const projectId = toNullableString(filters.projectId);
+  const pageId = toNullableString(filters.pageId);
+  const taskType1 = toNullableString(filters.taskType1);
+  const taskType2 = toNullableString(filters.taskType2);
+
+  if (memberId) query = query.eq("member_id", memberId);
+  if (startDate) query = query.gte("task_date", startDate);
+  if (endDate) query = query.lte("task_date", endDate);
+  if (projectId) query = query.eq("project_id", projectId);
+  if (pageId) query = query.eq("project_page_id", pageId);
+  if (taskType1) query = query.eq("task_type1", taskType1);
+  if (taskType2) query = query.eq("task_type2", taskType2);
+
+  const { data, error } = await query;
+  if (error) throw error;
+
+  const maps = await loadAdminReferenceMaps(supabase);
+  return filterAdminTasks(
+    enrichTaskRecords((data ?? []) as Record<string, unknown>[], maps),
+    filters,
+  );
+}
+
+async function fetchAdminTaskById(supabase: NonNullable<ReturnType<typeof getSupabaseClient>>, taskId: string) {
+  const { data, error } = await supabase.from("tasks").select(TASK_SELECT_COLUMNS).eq("id", taskId).single();
+  if (error) throw error;
+  const maps = await loadAdminReferenceMaps(supabase);
+  return enrichTaskRecords([data as Record<string, unknown>], maps)[0];
+}
+
+async function resolveProjectId(
+  supabase: NonNullable<ReturnType<typeof getSupabaseClient>>,
+  projectId: string,
+  pageId: string,
+) {
+  const normalizedProjectId = toNullableString(projectId);
+  if (normalizedProjectId) {
+    return normalizedProjectId;
+  }
+
+  const normalizedPageId = toNullableString(pageId);
+  if (!normalizedPageId) {
+    return null;
+  }
+
+  const { data, error } = await supabase.from("project_pages").select("project_id").eq("id", normalizedPageId).single();
+  if (error) throw error;
+  return data?.project_id ? String(data.project_id) : null;
 }
 
 function createUnconfiguredAdminClient() {
@@ -105,10 +251,10 @@ function createUnconfiguredAdminClient() {
 
   return {
     async listTaskTypes() {
-      return [] as AdminLookupOption[];
+      return [] as AdminTaskTypeItem[];
     },
     async listServiceGroups() {
-      return [] as AdminLookupOption[];
+      return [] as AdminServiceGroupItem[];
     },
     async listProjects() {
       return [] as AdminProjectOption[];
@@ -125,13 +271,28 @@ function createUnconfiguredAdminClient() {
     async deleteTaskAdmin() {
       throw configurationError;
     },
-    async exportTasksAdmin() {
-      throw configurationError;
-    },
     async listMembersAdmin() {
       return [] as MemberAdminItem[];
     },
     async saveMemberAdmin() {
+      throw configurationError;
+    },
+    async deleteMemberAdmin() {
+      throw configurationError;
+    },
+    async resetMemberPasswordAdmin() {
+      throw configurationError;
+    },
+    async saveTaskTypeAdmin() {
+      throw configurationError;
+    },
+    async deleteTaskTypeAdmin() {
+      throw configurationError;
+    },
+    async saveServiceGroupAdmin() {
+      throw configurationError;
+    },
+    async deleteServiceGroupAdmin() {
       throw configurationError;
     },
   };
@@ -148,10 +309,10 @@ function createSupabaseAdminClient() {
     async listTaskTypes() {
       const { data, error } = await supabase
         .from("task_types")
-        .select("id, name, display_order, is_active, requires_service_group")
+        .select("id, type1, type2, display_label, display_order, is_active, requires_service_group")
         .order("display_order");
       if (error) throw error;
-      return (data ?? []).map((record) => mapLookup(record as Record<string, unknown>));
+      return (data ?? []).map((record) => mapTaskType(record as Record<string, unknown>));
     },
 
     async listServiceGroups() {
@@ -160,7 +321,7 @@ function createSupabaseAdminClient() {
         .select("id, name, display_order, is_active")
         .order("display_order");
       if (error) throw error;
-      return (data ?? []).map((record) => mapLookup(record as Record<string, unknown>));
+      return (data ?? []).map((record) => mapServiceGroup(record as Record<string, unknown>));
     },
 
     async listProjects() {
@@ -182,84 +343,177 @@ function createSupabaseAdminClient() {
     },
 
     async searchTasksAdmin(filters: AdminTaskSearchFilters) {
-      const { data, error } = await supabase.rpc("admin_search_tasks", buildSearchRpcParams(filters));
-      if (error) throw error;
-      return (data ?? []).map((record) => mapTask(record as Record<string, unknown>));
+      return fetchAdminTasks(supabase, filters);
     },
 
     async saveTaskAdmin(input: AdminTaskSaveInput) {
-      const { data, error } = await supabase.rpc("admin_save_task", {
-        p_task_id: input.id ?? null,
-        p_member_id: input.memberId,
-        p_task_date: input.taskDate,
-        p_project_id: toNullableString(input.projectId),
-        p_project_page_id: toNullableString(input.pageId),
-        p_task_type1: input.taskType1,
-        p_task_type2: input.taskType2,
-        p_hours: input.hours,
-        p_content: input.content,
-        p_note: input.note,
-      });
+      const record = {
+        member_id: input.memberId,
+        task_date: input.taskDate,
+        project_id: await resolveProjectId(supabase, input.projectId, input.pageId),
+        project_page_id: toNullableString(input.pageId),
+        task_type1: input.taskType1,
+        task_type2: input.taskType2,
+        hours: input.hours,
+        content: input.content,
+        note: input.note,
+      };
+
+      if (input.id) {
+        const { data, error } = await supabase
+          .from("tasks")
+          .update(record)
+          .eq("id", input.id)
+          .select("id")
+          .single();
+        if (error) throw error;
+        return fetchAdminTaskById(supabase, String(data.id));
+      }
+
+      const { data, error } = await supabase.from("tasks").insert(record).select("id").single();
       if (error) throw error;
-      return mapTask(data as Record<string, unknown>);
+      return fetchAdminTaskById(supabase, String(data.id));
     },
 
     async deleteTaskAdmin(taskId: string) {
-      const { error } = await supabase.rpc("admin_delete_task", { p_task_id: taskId });
+      const { error } = await supabase.from("tasks").delete().eq("id", taskId);
       if (error) throw error;
     },
 
-    async exportTasksAdmin(filters: AdminTaskSearchFilters) {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-
-      if (!session?.access_token) {
-        throw new Error("로그인 세션이 만료되었습니다.");
-      }
-
-      const response = await fetch(`${env.supabaseUrl}/functions/v1/export-tasks`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-          apikey: env.supabaseAnonKey,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(filters),
-      });
-
-      if (!response.ok) {
-        const message = await response.text();
-        throw new Error(message || "내보내기에 실패했습니다.");
-      }
-
-      return {
-        filename:
-          response.headers.get("content-disposition")?.match(/filename="?([^\"]+)"?/)?.[1] ??
-          `admin-tasks-${new Date().toISOString().slice(0, 10)}.csv`,
-        content: await response.text(),
-      };
-    },
-
     async listMembersAdmin() {
-      const { data, error } = await supabase.rpc("admin_list_members");
+      const { data, error } = await supabase
+        .from("members")
+        .select("id, auth_user_id, legacy_user_id, name, email, user_level, user_active, updated_at")
+        .order("legacy_user_id");
       if (error) throw error;
       return (data ?? []).map((record) => mapMember(record as Record<string, unknown>));
     },
 
     async saveMemberAdmin(payload: MemberAdminPayload) {
-      const { data, error } = await supabase.rpc("admin_upsert_member", {
-        p_member_id: payload.id ?? null,
-        p_auth_user_id: payload.authUserId ?? null,
-        p_legacy_user_id: payload.legacyUserId,
-        p_name: payload.name,
-        p_email: payload.email,
-        p_department: payload.department,
-        p_user_level: payload.role === "admin" ? 1 : 0,
-        p_is_active: payload.isActive,
-      });
+      const record = {
+        auth_user_id: payload.authUserId ?? null,
+        legacy_user_id: payload.legacyUserId,
+        name: payload.name,
+        email: payload.email,
+        user_level: payload.role === "admin" ? 1 : 0,
+        user_active: payload.userActive ?? payload.isActive ?? true,
+      };
+
+      if (payload.id) {
+        const { data, error } = await supabase
+          .from("members")
+          .update(record)
+          .eq("id", payload.id)
+          .select("id, auth_user_id, legacy_user_id, name, email, user_level, user_active, updated_at")
+          .single();
+        if (error) throw error;
+        return mapMember(data as Record<string, unknown>);
+      }
+
+      const { data, error } = await supabase
+        .from("members")
+        .insert(record)
+        .select("id, auth_user_id, legacy_user_id, name, email, user_level, user_active, updated_at")
+        .single();
       if (error) throw error;
       return mapMember(data as Record<string, unknown>);
+    },
+
+    async deleteMemberAdmin(memberId: string) {
+      const { error } = await supabase.from("members").delete().eq("id", memberId);
+      if (error) throw error;
+    },
+
+    async resetMemberPasswordAdmin(legacyUserId: string) {
+      const response = await fetch(`/api/v1/member/${encodeURIComponent(legacyUserId)}/password`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ user_pwd: "linkagelab" }),
+      });
+
+      if (!response.ok) {
+        const message = await response.text();
+        throw new Error(message || "비밀번호 초기화에 실패했습니다.");
+      }
+    },
+
+    async saveTaskTypeAdmin(payload: AdminTaskTypePayload) {
+      const { data, error } = await supabase
+        .from("task_types")
+        .upsert(
+          {
+            id: payload.id ?? undefined,
+            type1: payload.type1,
+            type2: payload.type2,
+            display_label: payload.displayLabel,
+            display_order: payload.displayOrder,
+            requires_service_group: payload.requiresServiceGroup,
+            is_active: payload.isActive,
+          },
+          { onConflict: "id" },
+        )
+        .select("id, type1, type2, display_label, display_order, requires_service_group, is_active")
+        .single();
+      if (error) throw error;
+      return mapTaskType(data as Record<string, unknown>);
+    },
+
+    async deleteTaskTypeAdmin(taskTypeId: string) {
+      const { error } = await supabase.from("task_types").delete().eq("id", taskTypeId);
+      if (error) throw error;
+    },
+
+    async replaceTaskTypeUsage(oldType1: string, oldType2: string, nextType1: string, nextType2: string) {
+      const { error } = await supabase
+        .from("tasks")
+        .update({
+          task_type1: nextType1,
+          task_type2: nextType2,
+        })
+        .eq("task_type1", oldType1)
+        .eq("task_type2", oldType2);
+
+      if (error) throw error;
+    },
+
+    async saveServiceGroupAdmin(payload: AdminServiceGroupPayload) {
+      const { data, error } = await supabase
+        .from("service_groups")
+        .upsert(
+          {
+            id: payload.id ?? undefined,
+            name: payload.name,
+            display_order: payload.displayOrder,
+            is_active: payload.isActive,
+          },
+          { onConflict: "id" },
+        )
+        .select("id, name, display_order, is_active")
+        .single();
+      if (error) throw error;
+      return mapServiceGroup(data as Record<string, unknown>);
+    },
+
+    async deleteServiceGroupAdmin(serviceGroupId: string) {
+      const { error } = await supabase.from("service_groups").delete().eq("id", serviceGroupId);
+      if (error) throw error;
+    },
+
+    async replaceServiceGroupUsage(oldServiceGroupId: string | null, nextServiceGroupId: string) {
+      if (!oldServiceGroupId) {
+        throw new Error("대체할 서비스그룹을 찾을 수 없습니다.");
+      }
+
+      const { error } = await supabase
+        .from("projects")
+        .update({
+          service_group_id: nextServiceGroupId,
+        })
+        .eq("service_group_id", oldServiceGroupId);
+
+      if (error) throw error;
     },
   };
 }

@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { downloadExcelFile } from "../../../lib/excel-export";
 import { adminDataClient } from "../admin-client";
+import { AdminSectionTabs } from "../AdminSectionTabs";
 import styles from "../AdminPage.module.css";
 import {
   createDefaultAdminTaskSearchFilters,
@@ -8,6 +10,10 @@ import {
   type AdminTaskSearchFilters,
   type AdminTaskSearchItem,
 } from "../admin-types";
+
+function getTodayInputValue() {
+  return new Date().toISOString().slice(0, 10);
+}
 
 function createDraft(task: AdminTaskSearchItem): AdminTaskSaveInput {
   return {
@@ -24,22 +30,50 @@ function createDraft(task: AdminTaskSearchItem): AdminTaskSaveInput {
   };
 }
 
-function downloadCsv(filename: string, content: string) {
-  const blob = new Blob([content], { type: "text/csv;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const anchor = document.createElement("a");
-  anchor.href = url;
-  anchor.download = filename;
-  document.body.append(anchor);
-  anchor.click();
-  anchor.remove();
-  URL.revokeObjectURL(url);
+function createEmptyDraft(memberId: string): AdminTaskSaveInput {
+  return {
+    memberId,
+    taskDate: getTodayInputValue(),
+    projectId: "",
+    pageId: "",
+    taskType1: "",
+    taskType2: "",
+    hours: 1,
+    content: "",
+    note: "",
+  };
+}
+
+function buildExportFilename(startDate: string, endDate: string) {
+  const compact = (value: string) => value.replaceAll("-", "").slice(2);
+
+  if (startDate && endDate && startDate === endDate) {
+    return `${compact(startDate)}_검색결과.xlsx`;
+  }
+
+  if (startDate && endDate) {
+    return `${compact(startDate)}~${compact(endDate)}_검색결과.xlsx`;
+  }
+
+  if (startDate && !endDate) {
+    return `${compact(startDate)}~${compact(startDate)}_검색결과.xlsx`;
+  }
+
+  if (!startDate && endDate) {
+    return `${compact(endDate)}~${compact(endDate)}_검색결과.xlsx`;
+  }
+
+  return "검색결과.xlsx";
 }
 
 export function AdminReportsPage() {
   const queryClient = useQueryClient();
   const [filters, setFilters] = useState<AdminTaskSearchFilters>(() => createDefaultAdminTaskSearchFilters());
   const [appliedFilters, setAppliedFilters] = useState<AdminTaskSearchFilters>(() => createDefaultAdminTaskSearchFilters());
+  const [memberFilterIds, setMemberFilterIds] = useState<string[]>([]);
+  const [appliedMemberFilterIds, setAppliedMemberFilterIds] = useState<string[]>([]);
+  const [serviceNameQuery, setServiceNameQuery] = useState("");
+  const [appliedServiceNameQuery, setAppliedServiceNameQuery] = useState("");
   const [selectedTaskId, setSelectedTaskId] = useState<string>("");
   const [draft, setDraft] = useState<AdminTaskSaveInput | null>(null);
 
@@ -75,27 +109,43 @@ export function AdminReportsPage() {
   const pages = pagesQuery.data ?? [];
   const tasks = searchQuery.data ?? [];
 
+  const filteredTasks = useMemo(() => {
+    const normalizedServiceName = appliedServiceNameQuery.trim().toLowerCase();
+
+    return tasks.filter((task) => {
+      if (appliedMemberFilterIds.length > 0 && !appliedMemberFilterIds.includes(task.memberId)) {
+        return false;
+      }
+
+      if (normalizedServiceName && !task.projectName.toLowerCase().includes(normalizedServiceName)) {
+        return false;
+      }
+
+      return true;
+    });
+  }, [appliedMemberFilterIds, appliedServiceNameQuery, tasks]);
+
   const visiblePages = useMemo(
     () => (filters.projectId ? pages.filter((page) => page.projectId === filters.projectId) : pages),
     [filters.projectId, pages],
   );
 
   const selectedTask = useMemo(
-    () => tasks.find((task) => task.id === selectedTaskId) ?? null,
-    [selectedTaskId, tasks],
+    () => filteredTasks.find((task) => task.id === selectedTaskId) ?? null,
+    [filteredTasks, selectedTaskId],
   );
 
   useEffect(() => {
-    if (tasks.length === 0) {
+    if (filteredTasks.length === 0) {
       setSelectedTaskId("");
       return;
     }
 
-    const hasSelectedTask = tasks.some((task) => task.id === selectedTaskId);
+    const hasSelectedTask = filteredTasks.some((task) => task.id === selectedTaskId);
     if (!hasSelectedTask) {
-      setSelectedTaskId(tasks[0].id);
+      setSelectedTaskId(filteredTasks[0].id);
     }
-  }, [selectedTaskId, tasks]);
+  }, [filteredTasks, selectedTaskId]);
 
   useEffect(() => {
     if (selectedTask) {
@@ -103,10 +153,14 @@ export function AdminReportsPage() {
       return;
     }
 
-    if (tasks.length === 0) {
+    if (selectedTaskId) {
+      return;
+    }
+
+    if (filteredTasks.length === 0) {
       setDraft(null);
     }
-  }, [selectedTask, tasks.length]);
+  }, [filteredTasks.length, selectedTask, selectedTaskId]);
 
   useEffect(() => {
     if (draft?.projectId && draft.pageId) {
@@ -135,24 +189,17 @@ export function AdminReportsPage() {
     },
   });
 
-  const exportMutation = useMutation({
-    mutationFn: () => adminDataClient.exportTasksAdmin(appliedFilters),
-    onSuccess: ({ filename, content }) => {
-      downloadCsv(filename, content);
-    },
-  });
-
   const taskType1Options = useMemo(() => {
-    const names = new Set(taskTypes.map((item) => item.name));
+    const names = new Set(taskTypes.map((item) => item.type1));
     if (draft?.taskType1) names.add(draft.taskType1);
     return Array.from(names);
   }, [draft?.taskType1, taskTypes]);
 
   const taskType2Options = useMemo(() => {
-    const names = new Set(taskTypes.map((item) => item.name));
+    const names = new Set(taskTypes.filter((item) => item.type1 === draft?.taskType1).map((item) => item.type2));
     if (draft?.taskType2) names.add(draft.taskType2);
     return Array.from(names);
-  }, [draft?.taskType2, taskTypes]);
+  }, [draft?.taskType1, draft?.taskType2, taskTypes]);
 
   const draftPages = useMemo(
     () => (draft?.projectId ? pages.filter((page) => page.projectId === draft.projectId) : pages),
@@ -182,6 +229,8 @@ export function AdminReportsPage() {
 
   const handleSearch = () => {
     setAppliedFilters({ ...filters });
+    setAppliedMemberFilterIds([...memberFilterIds]);
+    setAppliedServiceNameQuery(serviceNameQuery);
   };
 
   const handleSave = async () => {
@@ -199,19 +248,42 @@ export function AdminReportsPage() {
     await deleteMutation.mutateAsync(selectedTask.id);
   };
 
+  const handleExport = () => {
+    downloadExcelFile(buildExportFilename(appliedFilters.startDate, appliedFilters.endDate), "검색결과", filteredTasks, [
+      { header: "작성일", value: (task) => task.taskDate, width: 12 },
+      { header: "사용자", value: (task) => task.memberName, width: 14 },
+      { header: "이메일", value: (task) => task.memberEmail, width: 24 },
+      { header: "서비스그룹", value: (task) => task.serviceGroupName, width: 16 },
+      { header: "프로젝트", value: (task) => task.projectName, width: 24 },
+      { header: "페이지", value: (task) => task.pageTitle, width: 24 },
+      { header: "업무유형 1", value: (task) => task.taskType1, width: 14 },
+      { header: "업무유형 2", value: (task) => task.taskType2, width: 14 },
+      { header: "소요시간", value: (task) => task.hours, width: 12 },
+      { header: "업무내용", value: (task) => task.content, width: 40 },
+      { header: "비고", value: (task) => task.note, width: 28 },
+    ]);
+  };
+
+  const handleStartNewRow = () => {
+    const nextMemberId = memberFilterIds[0] ?? members[0]?.id ?? "";
+    setSelectedTaskId("");
+    setDraft(createEmptyDraft(nextMemberId));
+  };
+
   const searchError = searchQuery.error instanceof Error ? searchQuery.error.message : "";
   const mutationError =
     (saveMutation.error instanceof Error && saveMutation.error.message) ||
     (deleteMutation.error instanceof Error && deleteMutation.error.message) ||
-    (exportMutation.error instanceof Error && exportMutation.error.message) ||
     "";
 
   return (
     <section className={styles.page}>
+      <AdminSectionTabs active="summary" />
+
       <header className={styles.hero}>
         <h2>전체 업무보고 검색 및 관리자 수정</h2>
         <p>
-          개인 검색과 분리된 관리자 검색 화면입니다. 전체 사용자 기준으로 조회하고, 결과를 즉시 수정/삭제하거나 CSV로 내보낼 수 있습니다.
+          개인 검색과 분리된 관리자 검색 화면입니다. 전체 사용자 기준으로 조회하고, 결과를 즉시 수정/삭제하거나 엑셀 파일로 내려받을 수 있습니다.
         </p>
       </header>
 
@@ -219,14 +291,14 @@ export function AdminReportsPage() {
         <div className={styles.toolbar}>
           <div>
             <h3>검색 조건</h3>
-            <p className={styles.helperText}>기간, 사용자, 프로젝트, 업무유형, 서비스그룹 기준으로 전체 업무보고를 조회합니다.</p>
+            <p className={styles.helperText}>기간, 사용자, 업무유형, 서비스그룹, 서비스명 기준으로 전체 업무보고를 조회합니다.</p>
           </div>
           <div className={styles.actions}>
             <button type="button" onClick={handleSearch}>
               검색
             </button>
-            <button type="button" onClick={() => exportMutation.mutate()} disabled={exportMutation.isPending}>
-              CSV 내보내기
+            <button type="button" onClick={handleExport} disabled={filteredTasks.length === 0}>
+              엑셀파일로 내려받기
             </button>
           </div>
         </div>
@@ -254,44 +326,15 @@ export function AdminReportsPage() {
             <label htmlFor="admin-reports-member">사용자</label>
             <select
               id="admin-reports-member"
-              value={filters.memberId}
-              onChange={(event) => handleFilterField("memberId", event.target.value)}
+              multiple
+              value={memberFilterIds}
+              onChange={(event) =>
+                setMemberFilterIds(Array.from(event.currentTarget.selectedOptions, (option) => option.value))
+              }
             >
-              <option value="">전체</option>
               {members.map((member) => (
                 <option key={member.id} value={member.id}>
                   {member.name} · {member.legacyUserId}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className={styles.field}>
-            <label htmlFor="admin-reports-project">프로젝트</label>
-            <select
-              id="admin-reports-project"
-              value={filters.projectId}
-              onChange={(event) => handleFilterField("projectId", event.target.value)}
-            >
-              <option value="">전체</option>
-              {projects.map((project) => (
-                <option key={project.id} value={project.id}>
-                  {project.name}
-                  {project.isActive ? "" : " (비활성)"}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className={styles.field}>
-            <label htmlFor="admin-reports-page">페이지</label>
-            <select
-              id="admin-reports-page"
-              value={filters.pageId}
-              onChange={(event) => handleFilterField("pageId", event.target.value)}
-            >
-              <option value="">전체</option>
-              {visiblePages.map((page) => (
-                <option key={page.id} value={page.id}>
-                  {page.title}
                 </option>
               ))}
             </select>
@@ -305,8 +348,8 @@ export function AdminReportsPage() {
             >
               <option value="">전체</option>
               {taskTypes.map((type) => (
-                <option key={`type1-${type.id}`} value={type.name}>
-                  {type.name}
+                <option key={`type1-${type.id}`} value={type.type1}>
+                  {type.type1}
                 </option>
               ))}
             </select>
@@ -319,9 +362,11 @@ export function AdminReportsPage() {
               onChange={(event) => handleFilterField("taskType2", event.target.value)}
             >
               <option value="">전체</option>
-              {taskTypes.map((type) => (
-                <option key={`type2-${type.id}`} value={type.name}>
-                  {type.name}
+              {taskTypes
+                .filter((type) => !filters.taskType1 || type.type1 === filters.taskType1)
+                .map((type) => (
+                <option key={`type2-${type.id}`} value={type.type2}>
+                  {type.type2}
                 </option>
               ))}
             </select>
@@ -342,13 +387,13 @@ export function AdminReportsPage() {
             </select>
           </div>
           <div className={`${styles.field} ${styles.fullWidth}`}>
-            <label htmlFor="admin-reports-keyword">키워드</label>
+            <label htmlFor="admin-reports-service-name">서비스명</label>
             <input
-              id="admin-reports-keyword"
+              id="admin-reports-service-name"
               type="search"
-              value={filters.keyword}
-              placeholder="업무 내용, 메모, 프로젝트, 페이지, 사용자명 기준 검색"
-              onChange={(event) => handleFilterField("keyword", event.target.value)}
+              value={serviceNameQuery}
+              placeholder="서비스명 기준 검색"
+              onChange={(event) => setServiceNameQuery(event.target.value)}
             />
           </div>
         </div>
@@ -362,7 +407,12 @@ export function AdminReportsPage() {
             <div className={styles.toolbar}>
               <div>
                 <h3>검색 결과</h3>
-                <p className={styles.helperText}>총 {tasks.length}건</p>
+                <p className={styles.helperText}>총 {filteredTasks.length}건</p>
+              </div>
+              <div className={styles.actions}>
+                <button type="button" onClick={handleStartNewRow}>
+                  신규 행 추가
+                </button>
               </div>
             </div>
 
@@ -380,14 +430,14 @@ export function AdminReportsPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {tasks.length === 0 ? (
+                  {filteredTasks.length === 0 ? (
                     <tr>
                       <td colSpan={7}>
                         <div className={styles.emptyState}>검색 결과가 없습니다.</div>
                       </td>
                     </tr>
                   ) : (
-                    tasks.map((task) => (
+                    filteredTasks.map((task) => (
                       <tr key={task.id} className={task.id === selectedTaskId ? styles.selectedRow : undefined}>
                         <td>{task.taskDate}</td>
                         <td>
@@ -417,16 +467,21 @@ export function AdminReportsPage() {
         </div>
 
         <aside className={styles.panel}>
-          <div className={styles.toolbar}>
-            <div>
-              <h3>선택 항목 편집</h3>
-              <p className={styles.helperText}>관리자 권한으로 업무보고를 수정하거나 삭제합니다.</p>
-            </div>
-            {selectedTask && (
-              <button type="button" onClick={() => void handleDelete()} disabled={deleteMutation.isPending}>
-                삭제
-              </button>
-            )}
+            <div className={styles.toolbar}>
+              <div>
+                <h3>{selectedTask ? "선택 항목 편집" : "신규 행 입력"}</h3>
+                <p className={styles.helperText}>관리자 권한으로 업무보고를 수정하거나 삭제합니다.</p>
+              </div>
+              <div className={styles.actions}>
+                {selectedTask ? (
+                  <button type="button" onClick={() => void handleDelete()} disabled={deleteMutation.isPending}>
+                    삭제
+                  </button>
+                ) : null}
+                <button type="button" onClick={handleStartNewRow}>
+                  신규 행
+                </button>
+              </div>
           </div>
 
           {!draft ? (

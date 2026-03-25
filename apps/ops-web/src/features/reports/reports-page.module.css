@@ -7,18 +7,23 @@
 .hero {
   display: flex;
   justify-content: space-between;
+  align-items: flex-start;
   gap: 1.25rem;
-  align-items: stretch;
-  padding: clamp(1.2rem, 2vw, 1.8rem);
+  padding: 1.05rem 1.2rem;
   border: 1px solid var(--border-default);
-  border-radius: var(--radius-xl);
-  background:
-    linear-gradient(180deg, color-mix(in srgb, var(--surface-raised) 94%, white), color-mix(in srgb, var(--surface-panel) 90%, white));
-  box-shadow: var(--elevation-2);
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--surface-raised) 98%, white);
+  box-shadow: var(--elevation-1);
+}
+
+.heroMain {
+  max-width: 72ch;
+  display: grid;
+  gap: 0.7rem;
 }
 
 .kicker {
-  margin: 0 0 0.25rem;
+  margin: 0;
   color: var(--accent-strong);
   font-size: 0.78rem;
   font-weight: 800;
@@ -30,71 +35,66 @@
   margin: 0;
   color: var(--text-primary);
   font-family: var(--font-display);
-  font-size: clamp(2rem, 4vw, 3.2rem);
-  line-height: 1.04;
+  font-size: clamp(1.55rem, 2vw, 2.2rem);
+  line-height: 1.1;
   letter-spacing: -0.04em;
 }
 
 .description {
   max-width: 58ch;
-  margin: 0.7rem 0 0;
+  margin: 0;
   color: var(--text-secondary);
 }
 
-.heroAside {
-  min-width: 18rem;
-  display: grid;
-  gap: 0.7rem;
-}
-
-.metricLabel,
-.panelEyebrow {
-  display: block;
-  margin-bottom: 0.15rem;
+.status {
+  margin: 0;
   color: var(--text-tertiary);
-  font-size: 0.74rem;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  font-size: 0.95rem;
+  font-weight: 600;
 }
 
-.metricValue {
+.tabList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  align-items: center;
+}
+
+.tabButton {
+  border: 1px solid var(--button-secondary-border);
+  border-radius: 999px;
+  padding: 0.75rem 1rem;
+  background: var(--button-secondary-bg);
   color: var(--text-primary);
-  font-family: var(--font-display);
-  font-size: clamp(1.4rem, 2vw, 1.9rem);
-  letter-spacing: -0.03em;
+  font: inherit;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  transition: background-color 160ms ease, border-color 160ms ease, transform 160ms ease;
 }
 
-.heroAside > div {
-  padding: 1rem 1.05rem;
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-lg);
-  background: color-mix(in srgb, var(--surface-canvas) 92%, white);
+.tabButton:hover {
+  transform: translateY(-1px);
+  background: var(--button-secondary-hover);
 }
 
-.layout {
+.tabButton[data-active] {
+  border-color: color-mix(in srgb, var(--accent-strong) 28%, var(--button-secondary-border));
+  background: color-mix(in srgb, var(--accent-soft) 68%, white);
+  color: var(--accent-strong);
+}
+
+.stack {
   display: grid;
-  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
   gap: 1.25rem;
-  align-items: start;
-}
-
-.sidebar,
-.editorColumn {
-  min-width: 0;
-}
-
-.panel,
-.dangerPanel {
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-lg);
-  background:
-    linear-gradient(180deg, color-mix(in srgb, var(--surface-raised) 94%, white), color-mix(in srgb, var(--surface-panel) 90%, white));
-  box-shadow: var(--elevation-2);
 }
 
 .panel {
   padding: 1rem;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--surface-raised) 98%, white);
+  box-shadow: var(--elevation-1);
 }
 
 .panelHead {
@@ -105,6 +105,16 @@
   margin-bottom: 1rem;
 }
 
+.panelEyebrow {
+  display: block;
+  margin-bottom: 0.15rem;
+  color: var(--text-tertiary);
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
 .panelTitle {
   margin: 0;
   color: var(--text-primary);
@@ -112,22 +122,96 @@
   letter-spacing: -0.02em;
 }
 
-.status {
+.panelMeta {
   margin: 0;
   color: var(--text-tertiary);
-  text-align: right;
+  font-size: 0.92rem;
   font-weight: 600;
 }
 
-.filterGrid,
-.formGrid {
+.buttonRow,
+.actionRow,
+.dateActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  align-items: center;
+}
+
+.primaryButton,
+.secondaryButton,
+.chipButton {
+  border-radius: 999px;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background-color 160ms ease, border-color 160ms ease, transform 160ms ease, color 160ms ease;
+}
+
+.primaryButton {
+  border: 1px solid color-mix(in srgb, var(--accent-strong) 24%, var(--button-secondary-border));
+  padding: 0.75rem 1.1rem;
+  background: var(--accent-strong);
+  color: white;
+}
+
+.primaryButton:hover,
+.secondaryButton:hover,
+.chipButton:hover {
+  transform: translateY(-1px);
+}
+
+.secondaryButton {
+  border: 1px solid var(--button-secondary-border);
+  padding: 0.72rem 1rem;
+  background: var(--button-secondary-bg);
+  color: var(--text-primary);
+}
+
+.secondaryButton:hover {
+  background: var(--button-secondary-hover);
+}
+
+.chipButton {
+  border: 1px solid color-mix(in srgb, var(--border-default) 92%, white);
+  padding: 0.5rem 0.8rem;
+  background: color-mix(in srgb, var(--surface-canvas) 90%, white);
+  color: var(--text-primary);
+  font-size: 0.84rem;
+}
+
+.form {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.75rem;
+  gap: 1rem;
+}
+
+.section {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  display: grid;
+  gap: 0.85rem;
+}
+
+.sectionTitle {
+  padding: 0;
+  color: var(--text-primary);
+  font-size: 0.92rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .formGrid {
-  margin-bottom: 0.75rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+.filterGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem;
 }
 
 .field {
@@ -145,10 +229,10 @@
 .field :is(input, select, textarea) {
   width: 100%;
   min-height: var(--control-height-md);
+  padding: var(--control-padding-y) var(--control-padding-x);
   border: 1px solid var(--control-border);
   border-radius: var(--control-radius);
   background: var(--control-bg);
-  padding: var(--control-padding-y) var(--control-padding-x);
   color: var(--text-primary);
   font: inherit;
 }
@@ -160,7 +244,7 @@
 .field :is(input, select, textarea):focus-visible,
 .primaryButton:focus-visible,
 .secondaryButton:focus-visible,
-.ghostDangerButton:focus-visible,
+.chipButton:focus-visible,
 .rowButton:focus-visible {
   outline: 3px solid var(--focus-ring-color);
   box-shadow: var(--focus-ring-shadow);
@@ -168,11 +252,21 @@
 
 .field textarea {
   resize: vertical;
-  min-height: 8rem;
+  min-height: 7.5rem;
+}
+
+.fieldHint {
+  margin: 0;
+  color: var(--text-tertiary);
+  font-size: 0.88rem;
+}
+
+.dateRow {
+  display: grid;
+  gap: 0.55rem;
 }
 
 .tableWrap {
-  margin-top: 1rem;
   overflow: auto;
   border-radius: var(--radius-md);
   border: 1px solid color-mix(in srgb, var(--border-default) 86%, white);
@@ -182,7 +276,7 @@
 .table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 42rem;
+  min-width: 44rem;
 }
 
 .table th,
@@ -202,16 +296,8 @@
   background: color-mix(in srgb, var(--accent-soft) 32%, white);
 }
 
-.srOnly {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
+.table tbody tr[data-active] {
+  background: color-mix(in srgb, var(--accent-soft) 22%, white);
 }
 
 .table td strong,
@@ -228,10 +314,6 @@
   margin-top: 0.15rem;
 }
 
-.table tr[data-active] {
-  background: color-mix(in srgb, var(--accent-soft) 28%, white);
-}
-
 .rowButton {
   padding: 0;
   border: 0;
@@ -240,6 +322,7 @@
   font: inherit;
   font-weight: 800;
   cursor: pointer;
+  text-align: left;
 }
 
 .emptyState {
@@ -248,87 +331,52 @@
   color: var(--text-tertiary);
 }
 
-.form {
-  display: grid;
-  gap: 0.9rem;
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
-.actionRow {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.6rem;
-  align-items: center;
-}
-
-.primaryButton,
-.secondaryButton,
-.ghostDangerButton {
-  border-radius: 999px;
-  border: 1px solid transparent;
-  padding: 0.72rem 1rem;
-  font: inherit;
-  font-weight: 800;
-  cursor: pointer;
-  transition:
-    transform 160ms ease,
-    background-color 160ms ease,
-    border-color 160ms ease;
-}
-
-.primaryButton {
-  color: var(--text-inverse);
-  background: var(--button-primary-bg);
-}
-
-.secondaryButton {
-  color: var(--text-primary);
-  background: var(--button-secondary-bg);
-  border-color: var(--button-secondary-border);
-}
-
-.ghostDangerButton {
-  color: var(--state-danger-text);
-  background: var(--state-danger-bg);
-  border-color: var(--state-danger-border);
-}
-
-.primaryButton:hover,
-.secondaryButton:hover,
-.ghostDangerButton:hover {
-  transform: translateY(-1px);
-}
-
-.dangerPanel {
-  margin-top: 1rem;
-  padding: 1rem;
-  border-color: var(--state-danger-border);
-  background: linear-gradient(180deg, color-mix(in srgb, var(--state-danger-bg) 68%, white), color-mix(in srgb, var(--surface-panel) 92%, white));
-}
-
-@media (max-width: 980px) {
-  .hero,
-  .layout {
-    grid-template-columns: 1fr;
+@media (max-width: 960px) {
+  .hero {
     flex-direction: column;
   }
 
-  .heroAside {
-    min-width: 0;
+  .tabList {
     width: 100%;
   }
-}
 
-@media (max-width: 720px) {
-  .filterGrid,
+  .tabButton {
+    flex: 1 1 10rem;
+  }
+
   .formGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .filterGrid {
     grid-template-columns: 1fr;
   }
 
   .panelHead {
     flex-direction: column;
   }
+}
 
-  .status {
-    text-align: left;
+@media (max-width: 720px) {
+  .buttonRow,
+  .actionRow,
+  .dateActions {
+    width: 100%;
+  }
+
+  .chipButton {
+    flex: 1 1 calc(50% - 0.6rem);
   }
 }

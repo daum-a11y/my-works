@@ -1,0 +1,131 @@
+.page {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.header {
+  display: grid;
+  gap: 1rem;
+}
+
+.header p {
+  margin: 0;
+  color: var(--text-tertiary);
+}
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  padding: 0 1rem;
+  border-radius: 999px;
+  border: 1px solid var(--border-strong);
+  background: color-mix(in srgb, var(--surface-raised) 98%, white);
+  color: var(--text-primary);
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.tabActive {
+  background: var(--accent-strong);
+  border-color: var(--accent-strong);
+  color: white;
+}
+
+.toolbar {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.toolbar button,
+.toolbar select,
+.toolbar input {
+  min-height: 2.5rem;
+  padding: 0 0.875rem;
+  border-radius: 0.875rem;
+  border: 1px solid var(--border-strong);
+  background: color-mix(in srgb, var(--surface-raised) 98%, white);
+  color: var(--text-primary);
+}
+
+.metrics {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.metricCard {
+  display: grid;
+  gap: 0.25rem;
+  padding: 1rem 1.125rem;
+  border-radius: 1rem;
+  border: 1px solid var(--border-strong);
+  background: color-mix(in srgb, var(--surface-raised) 98%, white);
+}
+
+.metricCard span {
+  color: var(--text-tertiary);
+  font-size: 0.875rem;
+}
+
+.metricCard strong {
+  font-size: 1.125rem;
+}
+
+.tableWrap {
+  overflow: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  padding: 0.75rem 0.875rem;
+  border-bottom: 1px solid var(--border-default);
+  text-align: left;
+  vertical-align: top;
+}
+
+.calendar {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.calendarCell {
+  min-height: 84px;
+  padding: 0.75rem;
+  border-radius: 0.875rem;
+  border: 1px solid var(--border-strong);
+  background: color-mix(in srgb, var(--surface-raised) 98%, white);
+}
+
+.calendarCell[data-state="filled"] {
+  background: color-mix(in srgb, var(--accent-soft) 46%, white);
+}
+
+.calendarCell[data-state="partial"] {
+  background: color-mix(in srgb, var(--warning) 12%, white);
+}
+
+.calendarCell[data-state="empty"] {
+  background: var(--surface-disabled);
+}
+
+.empty {
+  padding: 1.5rem;
+  text-align: center;
+  color: var(--text-tertiary);
+}

@@ -1,21 +1,20 @@
 .shell {
   display: grid;
-  gap: 1.25rem;
+  gap: 1rem;
   color: var(--text-secondary);
 }
 
 .hero {
   display: grid;
   gap: 1rem;
-  padding: 1.4rem;
+  padding: 1.05rem 1.2rem;
   border: 1px solid var(--border-default);
-  border-radius: var(--radius-xl);
-  background: linear-gradient(180deg, color-mix(in srgb, var(--surface-raised) 94%, white), color-mix(in srgb, var(--surface-panel) 90%, white));
-  box-shadow: var(--elevation-2);
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--surface-raised) 98%, white);
+  box-shadow: var(--elevation-1);
 }
 
-.kicker,
-.detailKicker {
+.kicker {
   margin: 0;
   color: var(--accent-strong);
   font-size: 0.78rem;
@@ -24,191 +23,83 @@
   text-transform: uppercase;
 }
 
-.title,
-.detailTitle {
-  margin: 0.35rem 0 0;
+.title {
+  margin: 0.25rem 0 0;
   color: var(--text-primary);
   font-family: var(--font-display);
-  font-size: clamp(1.85rem, 2vw + 1rem, 2.9rem);
-  line-height: 1.08;
+  font-size: clamp(1.55rem, 2vw, 2.2rem);
+  line-height: 1.1;
   letter-spacing: -0.04em;
 }
 
-.lead,
-.detailSummary,
-.recordSummary {
+.lead {
   margin: 0.45rem 0 0;
   color: var(--text-tertiary);
   line-height: 1.5;
 }
 
-.summaryGrid {
+.toolbar {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(112px, 1fr));
+  gap: 0.65rem;
 }
 
-.statCard {
-  position: relative;
+.filterButton {
   display: grid;
-  gap: 0.28rem;
-  padding: 1rem;
-  border-radius: var(--radius-lg);
+  gap: 0.2rem;
+  align-items: start;
+  padding: 0.85rem 0.95rem;
   border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
   background: color-mix(in srgb, var(--surface-canvas) 92%, white);
+  color: inherit;
+  text-align: left;
   box-shadow: var(--elevation-1);
-  overflow: hidden;
+  transition: border-color 140ms ease, transform 140ms ease, box-shadow 140ms ease, background-color 140ms ease;
 }
 
-.statCard::before {
-  content: "";
-  position: absolute;
-  inset: 0 0 auto;
-  height: 4px;
-  background: linear-gradient(90deg, var(--accent), var(--accent-strong));
-}
-
-.statLabel,
-.sectionMeta {
-  display: block;
+.filterButton span {
   color: var(--text-tertiary);
-  font-size: 0.8rem;
-  font-weight: 700;
+  font-size: 0.78rem;
+  font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
-.statValue {
-  display: block;
-  margin-top: 0.3rem;
+.filterButton strong {
   color: var(--text-primary);
   font-family: var(--font-display);
-  font-size: 1.55rem;
-  line-height: 1;
+  font-size: 1.2rem;
   font-variant-numeric: tabular-nums;
 }
 
-.grid {
-  display: grid;
-  grid-template-columns: 0.95fr 1.45fr;
-  gap: 1rem;
-  align-items: start;
-}
-
-.listPane,
-.detailPane {
-  min-width: 0;
-  padding: 1rem;
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-lg);
-  background: linear-gradient(180deg, color-mix(in srgb, var(--surface-raised) 94%, white), color-mix(in srgb, var(--surface-panel) 90%, white));
-  box-shadow: var(--elevation-2);
-}
-
-.list {
-  display: grid;
-  gap: 0.75rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.listItemRow {
-  margin: 0;
-}
-
-.listItem {
-  width: 100%;
-  display: grid;
-  gap: 0.45rem;
-  padding: 1rem;
-  text-align: left;
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--border-default);
-  background: color-mix(in srgb, var(--surface-canvas) 92%, white);
-  color: inherit;
-  transition: border-color 140ms ease, transform 140ms ease, box-shadow 140ms ease, background-color 140ms ease;
-}
-
-.listItem:hover,
-.listItem:focus-visible,
-.primaryButton:focus-visible,
-.inlineFilter select:focus-visible,
-.field input:focus-visible,
-.field textarea:focus-visible,
-.field select:focus-visible {
+.filterButton:hover,
+.filterButton:focus-visible,
+.cellSelect:focus-visible,
+.cellTextarea:focus-visible,
+.checkboxInput:focus-visible,
+.saveButton:focus-visible {
   outline: 3px solid var(--focus-ring-color);
   box-shadow: var(--focus-ring-shadow);
 }
 
-.listItem:hover {
+.filterButton:hover {
   transform: translateY(-1px);
   border-color: var(--border-strong);
 }
 
-.listItemActive {
+.filterButtonActive {
   border-color: color-mix(in srgb, var(--accent) 22%, white);
-  background: color-mix(in srgb, var(--accent-soft) 36%, white);
+  background: color-mix(in srgb, var(--accent-soft) 34%, white);
 }
 
-.recordBadges {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem;
-}
-
-.recordCode {
-  display: block;
-  font-size: 0.82rem;
-  font-weight: 700;
-  color: var(--text-tertiary);
-}
-
-.recordTitle {
-  display: block;
-  color: var(--text-primary);
-  font-size: 1rem;
-}
-
-.recordMeta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  align-items: center;
-  margin-top: 0.1rem;
-  font-size: 0.9rem;
-  color: var(--text-tertiary);
-}
-
-.detailHeader {
-  display: grid;
-  gap: 1rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid color-mix(in srgb, var(--border-subtle) 90%, white);
-}
-
-.metaGrid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.75rem 1rem;
-  margin: 0;
-}
-
-.metaGrid dt {
-  font-size: 0.8rem;
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.metaGrid dd {
-  margin: 0.18rem 0 0;
-  color: var(--text-primary);
-  font-weight: 700;
-}
-
-.formSection {
-  margin-top: 1.25rem;
+.panel {
+  min-width: 0;
+  padding: 1rem;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--surface-raised) 98%, white);
+  box-shadow: var(--elevation-1);
 }
 
 .sectionHeader {
@@ -216,7 +107,7 @@
   align-items: baseline;
   justify-content: space-between;
   gap: 0.75rem;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.8rem;
 }
 
 .sectionTitle {
@@ -225,66 +116,98 @@
   font-size: 1.08rem;
 }
 
-.inlineFilter {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: var(--text-secondary);
-  font-size: 0.9rem;
+.sectionMeta {
+  color: var(--text-tertiary);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
-.inlineFilter select,
-.field input,
-.field textarea,
-.field select {
+.tableWrap {
+  overflow: auto;
+  border-radius: var(--radius-md);
+  border: 1px solid color-mix(in srgb, var(--border-default) 86%, white);
+  background: color-mix(in srgb, var(--surface-canvas) 88%, white);
+}
+
+.table {
+  width: 100%;
+  min-width: 1180px;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  padding: 0.82rem 0.72rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--border-subtle) 90%, white);
+  text-align: left;
+  vertical-align: top;
+}
+
+.table th {
+  color: var(--text-tertiary);
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  background: color-mix(in srgb, var(--accent-soft) 28%, white);
+}
+
+.table tbody tr:hover {
+  background: color-mix(in srgb, var(--accent-soft) 18%, white);
+}
+
+.projectCell {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.projectCell strong {
+  color: var(--text-primary);
+}
+
+.projectCell span,
+.subText {
+  color: var(--text-tertiary);
+  line-height: 1.5;
+}
+
+.cellSelect,
+.cellTextarea {
+  width: 100%;
   border: 1px solid var(--control-border);
   border-radius: var(--control-radius);
   padding: var(--control-padding-y) var(--control-padding-x);
   background: var(--control-bg);
   color: var(--text-primary);
   font: inherit;
+  min-width: 0;
 }
 
-.form {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.9rem 1rem;
+.cellTextarea {
+  min-height: 4.6rem;
+  resize: vertical;
 }
 
-.field,
-.fieldWide {
-  display: grid;
-  gap: 0.35rem;
-}
-
-.fieldWide {
-  grid-column: 1 / -1;
-}
-
-.field label,
-.fieldWide label {
-  font-size: 0.9rem;
-  font-weight: 700;
+.checkboxLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
   color: var(--text-primary);
+  font-weight: 700;
 }
 
-.field input,
-.field textarea,
-.field select,
-.inlineFilter select {
-  width: 100%;
+.checkboxInput {
+  inline-size: 1rem;
+  block-size: 1rem;
+  accent-color: var(--accent);
 }
 
-.actions {
-  grid-column: 1 / -1;
-  display: flex;
-  justify-content: flex-end;
-}
-
-.primaryButton {
+.saveButton {
   border: 0;
   border-radius: 999px;
-  padding: 0.78rem 1.15rem;
+  padding: 0.76rem 1.05rem;
   cursor: pointer;
   font: inherit;
   font-weight: 800;
@@ -293,31 +216,17 @@
   box-shadow: var(--elevation-1);
 }
 
-.toggleRow {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  margin-top: 0.25rem;
-}
-
-.toggleChip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  cursor: pointer;
-}
-
-.toggleInput {
-  inline-size: 1rem;
-  block-size: 1rem;
-  accent-color: var(--accent);
+.saveButton:disabled {
+  cursor: progress;
+  opacity: 0.78;
 }
 
 .empty {
-  padding: 2rem;
+  padding: 1.35rem;
   border: 1px dashed var(--border-default);
   border-radius: var(--radius-md);
   background: color-mix(in srgb, var(--surface-canvas) 92%, white);
+  color: var(--text-tertiary);
 }
 
 .srOnly {
@@ -332,20 +241,19 @@
   border: 0;
 }
 
-@media (max-width: 1180px) {
-  .grid {
-    grid-template-columns: 1fr;
-  }
-
-  .summaryGrid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+@media (max-width: 1024px) {
+  .toolbar {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 720px) {
-  .summaryGrid,
-  .metaGrid,
-  .form {
-    grid-template-columns: 1fr;
+  .toolbar {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .sectionHeader {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }

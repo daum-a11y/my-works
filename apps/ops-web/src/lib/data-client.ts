@@ -29,6 +29,7 @@ export interface OpsDataClient {
   getAllProjectPages(): Promise<ProjectPage[]>;
   saveProjectPage(input: SaveProjectPageInput): Promise<ProjectPage>;
   getTasks(member: Member): Promise<Task[]>;
+  getAllTasks(member: Member): Promise<Task[]>;
   saveTask(member: Member, input: SaveTaskInput): Promise<Task>;
   deleteTask(member: Member, taskId: string): Promise<void>;
   searchTasks(member: Member, filters: ReportFilters): Promise<Task[]>;
@@ -215,13 +216,22 @@ function createSupabaseClient(): OpsDataClient {
       if (error) throw error;
       return (data ?? []).map(mapTaskRecord);
     },
+    async getAllTasks(member) {
+      let query = supabase.from("tasks").select("*").order("task_date", { ascending: false });
+      if (member.role !== "admin") {
+        query = query.eq("member_id", member.id);
+      }
+      const { data, error } = await query;
+      if (error) throw error;
+      return (data ?? []).map(mapTaskRecord);
+    },
     async saveTask(member, input) {
       const { data, error } = await supabase
         .rpc("save_task", {
           p_task_id: input.id ?? null,
           p_task_date: input.taskDate,
-          p_project_id: input.projectId,
-          p_project_page_id: input.pageId,
+          p_project_id: input.projectId || null,
+          p_project_page_id: input.pageId || null,
           p_task_type1: input.taskType1,
           p_task_type2: input.taskType2,
           p_hours: input.hours,
@@ -320,6 +330,7 @@ function createUnconfiguredClient(): OpsDataClient {
     getAllProjectPages: fail,
     saveProjectPage: fail,
     getTasks: fail,
+    getAllTasks: fail,
     saveTask: fail,
     deleteTask: fail,
     searchTasks: fail,
@@ -335,7 +346,7 @@ function mapMemberRecord(record: Record<string, unknown>): Member {
     name: String(record.name ?? ""),
     email: String(record.email ?? ""),
     role: Number(record.user_level ?? 0) === 1 ? "admin" : "user",
-    isActive: Boolean(record.is_active ?? true),
+    isActive: Boolean(record.user_active ?? record.is_active ?? true),
     authUserId: record.auth_user_id ? String(record.auth_user_id) : null,
   };
 }

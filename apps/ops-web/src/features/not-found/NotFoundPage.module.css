@@ -1,0 +1,27 @@
+.page {
+  min-height: 60vh;
+  display: grid;
+  place-items: center;
+  gap: 0.75rem;
+  text-align: center;
+}
+
+.code {
+  margin: 0;
+  font-size: 5rem;
+  font-weight: 800;
+  color: var(--accent-strong);
+}
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  padding: 0 1.25rem;
+  border-radius: 999px;
+  background: var(--accent-strong);
+  color: white;
+  text-decoration: none;
+  font-weight: 700;
+}

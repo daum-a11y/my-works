@@ -8,14 +8,16 @@ const baseNavigation = [
   { to: "/reports", label: "업무보고", group: "업무보고" },
   { to: "/projects", label: "프로젝트", group: "프로젝트 관리" },
   { to: "/tracking", label: "트래킹", group: "프로젝트 관리" },
-  { to: "/reports/search", label: "개인 검색", group: "기타" },
+  { to: "/resource", label: "리소스", group: "리소스" },
   { to: "/stats/qa", label: "통계 · QA", group: "통계" },
   { to: "/stats/monitoring", label: "통계 · 모니터링", group: "통계" },
-  { to: "/settings/password", label: "비밀번호 변경", group: "계정" },
+  { to: "/profile", label: "프로필", group: "계정" },
 ] as const;
 
 const adminNavigation = [
   { to: "/admin/reports", label: "전체 업무검색", group: "관리자" },
+  { to: "/admin/type", label: "업무 타입", group: "관리자" },
+  { to: "/admin/group", label: "서비스 그룹", group: "관리자" },
   { to: "/admin/members", label: "사용자 관리", group: "관리자" },
 ] as const;
 

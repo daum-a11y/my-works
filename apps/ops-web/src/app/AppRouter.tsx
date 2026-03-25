@@ -2,12 +2,22 @@ import { BrowserRouter, Navigate, Outlet, Route, Routes } from "react-router-dom
 import { AuthProvider, useAuth } from "../features/auth/AuthContext";
 import { LoginPage } from "../features/auth/LoginPage";
 import { DashboardPage } from "../features/dashboard";
+import { AdminServiceGroupsPage } from "../features/admin/groups/AdminServiceGroupsPage";
 import { AdminMembersPage } from "../features/admin/members/AdminMembersPage";
 import { AdminReportsPage } from "../features/admin/reports/AdminReportsPage";
+import { AdminTaskTypesPage } from "../features/admin/types/AdminTaskTypesPage";
+import { NotFoundPage } from "../features/not-found";
 import { ProjectsFeature } from "../features/projects";
+import { ProfilePage } from "../features/profile";
 import { ReportsPage } from "../features/reports";
+import {
+  ResourceLayout,
+  ResourceMonthPage,
+  ResourceServicePage,
+  ResourceSummaryPage,
+  ResourceTypePage,
+} from "../features/resource";
 import { SearchPage } from "../features/search";
-import { PasswordSettingsPage } from "../features/settings";
 import { MonitoringStatsPage, QaStatsPage } from "../features/stats";
 import { TrackingFeature } from "../features/tracking";
 import { AppShell } from "./AppShell";
@@ -72,16 +82,28 @@ export function AppRouter() {
             <Route index element={<Navigate to="/dashboard" replace />} />
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/reports" element={<ReportsPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
             <Route path="/projects" element={<ProjectsFeature />} />
             <Route path="/tracking" element={<TrackingFeature />} />
             <Route path="/reports/search" element={<SearchPage />} />
+            <Route path="/resource" element={<ResourceLayout />}>
+              <Route index element={<Navigate to="summary" replace />} />
+              <Route path="summary" element={<ResourceSummaryPage />} />
+              <Route path="month" element={<ResourceMonthPage />} />
+              <Route path="month/:type" element={<ResourceMonthPage />} />
+              <Route path="type" element={<ResourceTypePage />} />
+              <Route path="svc" element={<ResourceServicePage />} />
+            </Route>
             <Route path="/stats/qa" element={<QaStatsPage />} />
             <Route path="/stats/monitoring" element={<MonitoringStatsPage />} />
-            <Route path="/settings/password" element={<PasswordSettingsPage />} />
+            <Route path="/settings/password" element={<Navigate to="/profile" replace />} />
             <Route element={<AdminRoute />}>
               <Route path="/admin/reports" element={<AdminReportsPage />} />
               <Route path="/admin/members" element={<AdminMembersPage />} />
+              <Route path="/admin/type" element={<AdminTaskTypesPage />} />
+              <Route path="/admin/group" element={<AdminServiceGroupsPage />} />
             </Route>
+            <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>
       </BrowserRouter>

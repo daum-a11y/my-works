@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "../auth/AuthContext";
 import { opsDataClient } from "../../lib/data-client";
-import { pageStatusOptions, type Member, type PageStatus, type Project, type ProjectPage } from "../../lib/domain";
+import { pageStatusOptions, type Member, type PageStatus, type ProjectPage } from "../../lib/domain";
 import styles from "./TrackingFeature.module.css";
 
 interface TrackingDraft {
@@ -13,6 +13,13 @@ interface TrackingDraft {
   monitoringInProgress: boolean;
   qaInProgress: boolean;
   note: string;
+}
+
+interface TrackingRow {
+  page: ProjectPage;
+  projectName: string;
+  platform: string;
+  ownerName: string;
 }
 
 function formatDateTime(value: string): string {
@@ -62,17 +69,12 @@ export function TrackingFeature() {
   });
 
   const saveMutation = useMutation({
-    mutationFn: async (draft: TrackingDraft) => {
-      const selected = pages.find((page) => page.id === draft.id);
-      if (!selected) {
-        throw new Error("페이지를 다시 선택해 주세요.");
-      }
-
+    mutationFn: async ({ page, draft }: { page: ProjectPage; draft: TrackingDraft }) => {
       return opsDataClient.saveProjectPage({
-        id: selected.id,
-        projectId: selected.projectId,
-        title: selected.title,
-        url: selected.url,
+        id: page.id,
+        projectId: page.projectId,
+        title: page.title,
+        url: page.url,
         ownerMemberId: draft.ownerMemberId || null,
         trackStatus: draft.trackStatus,
         monitoringInProgress: draft.monitoringInProgress,
@@ -97,82 +99,80 @@ export function TrackingFeature() {
   const projectsById = useMemo(() => new Map(projects.map((item) => [item.id, item])), [projects]);
 
   const [stateFilter, setStateFilter] = useState<"all" | PageStatus>("all");
-  const [selectedPageId, setSelectedPageId] = useState("");
-  const [draft, setDraft] = useState<TrackingDraft | null>(null);
-  const [statusMessage, setStatusMessage] = useState("페이지를 선택하면 트래킹 상태를 수정할 수 있습니다.");
+  const [drafts, setDrafts] = useState<Record<string, TrackingDraft>>({});
+  const [statusMessage, setStatusMessage] = useState("상단 상태 버튼으로 범위를 좁히고, 표에서 바로 수정합니다.");
 
-  const filteredPages = useMemo(() => {
+  const rows = useMemo<TrackingRow[]>(() => {
+    return pages
+      .map((page) => {
+        const project = projectsById.get(page.projectId);
+
+        return {
+          page,
+          projectName: project?.name ?? "미분류 프로젝트",
+          platform: project?.platform ?? "-",
+          ownerName: memberName(page.ownerMemberId, membersById),
+        };
+      })
+      .sort((left, right) => new Date(right.page.updatedAt).getTime() - new Date(left.page.updatedAt).getTime());
+  }, [membersById, pages, projectsById]);
+
+  const filteredRows = useMemo(() => {
     if (stateFilter === "all") {
-      return pages;
+      return rows;
     }
 
-    return pages.filter((page) => page.trackStatus === stateFilter);
-  }, [pages, stateFilter]);
+    return rows.filter((row) => row.page.trackStatus === stateFilter);
+  }, [rows, stateFilter]);
 
   useEffect(() => {
-    if (!filteredPages.length) {
-      setSelectedPageId("");
-      setDraft(null);
-      return;
-    }
+    setDrafts((current) => {
+      const next: Record<string, TrackingDraft> = {};
 
-    if (!selectedPageId || !filteredPages.some((page) => page.id === selectedPageId)) {
-      setSelectedPageId(filteredPages[0].id);
-    }
-  }, [filteredPages, selectedPageId]);
+      for (const row of rows) {
+        next[row.page.id] = {
+          ...toDraft(row.page),
+          ...(current[row.page.id] ?? {}),
+          id: row.page.id,
+          projectId: row.page.projectId,
+        };
+      }
 
-  const selectedPage = filteredPages.find((page) => page.id === selectedPageId) ?? filteredPages[0] ?? null;
-
-  useEffect(() => {
-    if (!selectedPage) {
-      setDraft(null);
-      return;
-    }
-
-    if (!draft || draft.id !== selectedPage.id) {
-      setDraft(toDraft(selectedPage));
-    }
-  }, [draft, selectedPage]);
-
-  const summary = useMemo(() => {
-    return {
-      total: pages.length,
-      improved: pages.filter((page) => page.trackStatus === "개선").length,
-      attention: pages.filter((page) => page.trackStatus === "미개선" || page.trackStatus === "일부" || page.trackStatus === "중지").length,
-    };
-  }, [pages]);
+      return next;
+    });
+  }, [rows]);
 
   if (query.isLoading) {
     return <section className={styles.empty}>트래킹 데이터를 불러오는 중입니다.</section>;
   }
 
-  if (!selectedPage || !draft) {
-    return <section className={styles.empty}>트래킹 데이터가 없습니다.</section>;
-  }
-
-  const handleSelect = (pageId: string) => {
-    const nextPage = filteredPages.find((page) => page.id === pageId);
-    if (!nextPage) {
-      return;
-    }
-
-    setSelectedPageId(pageId);
-    setDraft(toDraft(nextPage));
-    setStatusMessage(`"${nextPage.title}" 항목을 불러왔습니다.`);
+  const updateDraft = (page: ProjectPage, patch: Partial<TrackingDraft>) => {
+    setDrafts((current) => ({
+      ...current,
+      [page.id]: {
+        ...(current[page.id] ?? toDraft(page)),
+        ...patch,
+        id: page.id,
+        projectId: page.projectId,
+      },
+    }));
   };
 
-  const handleSave = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const handleSaveRow = async (row: TrackingRow) => {
+    const draft = drafts[row.page.id] ?? toDraft(row.page);
 
     try {
-      await saveMutation.mutateAsync(draft);
-      setStatusMessage(`"${selectedPage.title}" 트래킹 상태를 저장했습니다.`);
+      await saveMutation.mutateAsync({ page: row.page, draft });
+      setStatusMessage(`"${row.page.title}" 행을 저장했습니다.`);
     } catch (error) {
-      setStatusMessage(error instanceof Error ? error.message : "트래킹 저장에 실패했습니다.");
+      setStatusMessage(error instanceof Error ? error.message : "행 저장에 실패했습니다.");
     }
   };
 
-  const selectedProject = projectsById.get(selectedPage.projectId) ?? null;
+  const changeFilter = (value: "all" | PageStatus) => {
+    setStateFilter(value);
+    setStatusMessage(value === "all" ? "전체 항목을 표시합니다." : `${value} 상태만 표시합니다.`);
+  };
 
   return (
     <section className={styles.shell} aria-labelledby="tracking-heading">
@@ -180,196 +180,175 @@ export function TrackingFeature() {
         <div>
           <p className={styles.kicker}>트래킹</p>
           <h1 id="tracking-heading" className={styles.title}>
-            페이지별 트래킹 상태를 실제 데이터로 관리합니다.
+            상단 상태 버튼과 행 단위 편집으로 트래킹을 관리합니다.
           </h1>
           <p className={styles.lead}>
-            현재 로그인 세션 기준으로 볼 수 있는 페이지를 조회하고, 상태와 메모만 수정합니다.
+            선택 패널과 요약 카드를 없애고 원본 컬럼에 가까운 표 중심 흐름만 남겼습니다.
           </p>
         </div>
-        <aside className={styles.summaryGrid} aria-label="트래킹 요약">
-          <article className={styles.statCard}>
-            <span className={styles.statLabel}>전체</span>
-            <strong className={styles.statValue}>{summary.total}</strong>
-          </article>
-          <article className={styles.statCard}>
-            <span className={styles.statLabel}>개선</span>
-            <strong className={styles.statValue}>{summary.improved}</strong>
-          </article>
-          <article className={styles.statCard}>
-            <span className={styles.statLabel}>주의 필요</span>
-            <strong className={styles.statValue}>{summary.attention}</strong>
-          </article>
-        </aside>
+        <div className={styles.toolbar} role="group" aria-label="상태 필터">
+          <button
+            type="button"
+            className={`${styles.filterButton} ${stateFilter === "all" ? styles.filterButtonActive : ""}`}
+            onClick={() => changeFilter("all")}
+            aria-pressed={stateFilter === "all"}
+          >
+            <span>전체</span>
+            <strong>{rows.length}</strong>
+          </button>
+          {pageStatusOptions.map((option) => {
+            const active = stateFilter === option;
+            const count = rows.filter((row) => row.page.trackStatus === option).length;
+
+            return (
+              <button
+                key={option}
+                type="button"
+                className={`${styles.filterButton} ${active ? styles.filterButtonActive : ""}`}
+                onClick={() => changeFilter(option)}
+                aria-pressed={active}
+              >
+                <span>{option}</span>
+                <strong>{count}</strong>
+              </button>
+            );
+          })}
+        </div>
       </header>
 
-      <div className={styles.grid}>
-        <aside className={styles.listPane} aria-label="트래킹 목록">
-          <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>상태 목록</h2>
-            <div className={styles.inlineFilter}>
-              <label htmlFor="tracking-filter">상태 필터</label>
-              <select
-                id="tracking-filter"
-                value={stateFilter}
-                onChange={(event) => {
-                  const value = event.target.value;
-                  setStateFilter(value === "all" ? "all" : (value as PageStatus));
-                }}
-              >
-                <option value="all">전체</option>
-                {pageStatusOptions.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            </div>
+      <section className={styles.panel} aria-labelledby="tracking-table-heading">
+        <div className={styles.sectionHeader}>
+          <div>
+            <h2 id="tracking-table-heading" className={styles.sectionTitle}>
+              트래킹 표
+            </h2>
+            <span className={styles.sectionMeta}>{statusMessage}</span>
           </div>
-          <ul className={styles.list}>
-            {filteredPages.map((page) => {
-              const selected = page.id === selectedPage.id;
-              const project = projectsById.get(page.projectId);
-              return (
-                <li key={page.id} className={styles.listItemRow}>
-                  <button
-                    type="button"
-                    className={`${styles.listItem} ${selected ? styles.listItemActive : ""}`}
-                    onClick={() => handleSelect(page.id)}
-                    aria-current={selected ? "true" : undefined}
-                  >
-                    <div className={styles.recordBadges}>
-                      <span className="uiPlatformBadge">{project?.platform ?? "-"}</span>
-                    </div>
-                    <strong className={styles.recordTitle}>{page.title}</strong>
-                    <span className={styles.recordSummary}>{project?.name ?? "미분류 프로젝트"}</span>
-                    <div className={styles.recordMeta}>
-                      <span>{memberName(page.ownerMemberId, membersById)}</span>
-                      <span className="uiStatusBadge" data-status={page.trackStatus}>{page.trackStatus}</span>
-                    </div>
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
-        </aside>
+          <span className={styles.sectionMeta}>
+            표시 {filteredRows.length} / 전체 {rows.length}
+          </span>
+        </div>
+        <div className={styles.tableWrap}>
+          <table className={styles.table}>
+            <caption className={styles.srOnly}>트래킹 수정 표</caption>
+            <thead>
+              <tr>
+                <th scope="col">플랫폼</th>
+                <th scope="col">프로젝트 / 페이지</th>
+                <th scope="col">담당자</th>
+                <th scope="col">상태</th>
+                <th scope="col">모니터링</th>
+                <th scope="col">QA</th>
+                <th scope="col">메모</th>
+                <th scope="col">수정 시각</th>
+                <th scope="col">저장</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredRows.map((row) => {
+                const draft = drafts[row.page.id] ?? toDraft(row.page);
 
-        <article className={styles.detailPane}>
-          <header className={styles.detailHeader}>
-            <div>
-              <p className={styles.detailKicker}>선택된 트래킹 항목</p>
-              <h2 className={styles.detailTitle}>{selectedPage.title}</h2>
-              <p className={styles.detailSummary}>{selectedProject?.name ?? "미분류 프로젝트"}</p>
-            </div>
-            <dl className={styles.metaGrid}>
-              <div>
-                <dt>플랫폼</dt>
-                <dd>{selectedProject?.platform ?? "-"}</dd>
-              </div>
-              <div>
-                <dt>현재 상태</dt>
-                <dd>
-                  <span className="uiStatusBadge" data-status={selectedPage.trackStatus}>
-                    {selectedPage.trackStatus}
-                  </span>
-                </dd>
-              </div>
-              <div>
-                <dt>수정 시각</dt>
-                <dd>{formatDateTime(selectedPage.updatedAt)}</dd>
-              </div>
-              <div>
-                <dt>메모</dt>
-                <dd>{selectedPage.note || "-"}</dd>
-              </div>
-            </dl>
-          </header>
-
-          <section className={styles.formSection} aria-labelledby="tracking-editor-heading">
-            <div className={styles.sectionHeader}>
-              <h3 id="tracking-editor-heading" className={styles.sectionTitle}>
-                트래킹 편집기
-              </h3>
-              <span className={styles.sectionMeta}>{statusMessage}</span>
-            </div>
-            <form className={styles.form} onSubmit={handleSave}>
-              <div className={styles.field}>
-                <label htmlFor="project">프로젝트</label>
-                <input id="project" value={selectedProject?.name ?? "미분류 프로젝트"} readOnly />
-              </div>
-              <div className={styles.field}>
-                <label htmlFor="owner">담당자</label>
-                <select
-                  id="owner"
-                  value={draft.ownerMemberId}
-                  onChange={(event) => setDraft((current) => current ? { ...current, ownerMemberId: event.target.value } : current)}
-                >
-                  <option value="">미지정</option>
-                  {activeMembers.map((item) => (
-                    <option key={item.id} value={item.id}>
-                      {item.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className={styles.field}>
-                <label htmlFor="status">상태</label>
-                <select
-                  id="status"
-                  value={draft.trackStatus}
-                  onChange={(event) => setDraft((current) => current ? { ...current, trackStatus: event.target.value as PageStatus } : current)}
-                >
-                  {pageStatusOptions.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className={styles.field}>
-                <label htmlFor="page-title">페이지명</label>
-                <input id="page-title" value={selectedPage.title} readOnly />
-              </div>
-              <div className={styles.fieldWide}>
-                <label htmlFor="note">메모</label>
-                <textarea
-                  id="note"
-                  rows={4}
-                  value={draft.note}
-                  onChange={(event) => setDraft((current) => current ? { ...current, note: event.target.value } : current)}
-                />
-              </div>
-              <div className={styles.fieldWide}>
-                <span className={styles.sectionMeta}>진행 플래그</span>
-                <div className={styles.toggleRow}>
-                  <label className={styles.toggleChip}>
-                    <input
-                      className={styles.toggleInput}
-                      type="checkbox"
-                      checked={draft.monitoringInProgress}
-                      onChange={(event) => setDraft((current) => current ? { ...current, monitoringInProgress: event.target.checked } : current)}
-                    />
-                    <span className="uiFlagTag" data-flag="monitoring">모니터링 진행중</span>
-                  </label>
-                  <label className={styles.toggleChip}>
-                    <input
-                      className={styles.toggleInput}
-                      type="checkbox"
-                      checked={draft.qaInProgress}
-                      onChange={(event) => setDraft((current) => current ? { ...current, qaInProgress: event.target.checked } : current)}
-                    />
-                    <span className="uiFlagTag" data-flag="qa">QA 진행중</span>
-                  </label>
-                </div>
-              </div>
-              <div className={styles.actions}>
-                <button type="submit" className={styles.primaryButton} disabled={saveMutation.isPending}>
-                  {saveMutation.isPending ? "저장 중..." : "저장"}
-                </button>
-              </div>
-            </form>
-          </section>
-        </article>
-      </div>
+                return (
+                  <tr key={row.page.id}>
+                    <td>
+                      <span className="uiPlatformBadge">{row.platform}</span>
+                    </td>
+                    <td>
+                      <div className={styles.projectCell}>
+                        <strong>{row.projectName}</strong>
+                        <span>{row.page.title}</span>
+                        <span className={styles.subText}>{row.page.url || "URL 없음"}</span>
+                        <span className={styles.subText}>현재 담당: {row.ownerName}</span>
+                      </div>
+                    </td>
+                    <td>
+                      <select
+                        className={styles.cellSelect}
+                        value={draft.ownerMemberId}
+                        onChange={(event) => updateDraft(row.page, { ownerMemberId: event.target.value })}
+                      >
+                        <option value="">미지정</option>
+                        {activeMembers.map((item) => (
+                          <option key={item.id} value={item.id}>
+                            {item.name}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
+                    <td>
+                      <select
+                        className={styles.cellSelect}
+                        value={draft.trackStatus}
+                        onChange={(event) => updateDraft(row.page, { trackStatus: event.target.value as PageStatus })}
+                      >
+                        {pageStatusOptions.map((option) => (
+                          <option key={option} value={option}>
+                            {option}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
+                    <td>
+                      <label className={styles.checkboxLabel}>
+                        <input
+                          className={styles.checkboxInput}
+                          type="checkbox"
+                          checked={draft.monitoringInProgress}
+                          onChange={(event) =>
+                            updateDraft(row.page, { monitoringInProgress: event.target.checked })
+                          }
+                        />
+                        <span className="uiFlagTag" data-flag="monitoring">
+                          모니터링
+                        </span>
+                      </label>
+                    </td>
+                    <td>
+                      <label className={styles.checkboxLabel}>
+                        <input
+                          className={styles.checkboxInput}
+                          type="checkbox"
+                          checked={draft.qaInProgress}
+                          onChange={(event) => updateDraft(row.page, { qaInProgress: event.target.checked })}
+                        />
+                        <span className="uiFlagTag" data-flag="qa">
+                          QA
+                        </span>
+                      </label>
+                    </td>
+                    <td>
+                      <textarea
+                        className={styles.cellTextarea}
+                        rows={2}
+                        value={draft.note}
+                        onChange={(event) => updateDraft(row.page, { note: event.target.value })}
+                      />
+                    </td>
+                    <td className="tabularNums">{formatDateTime(row.page.updatedAt)}</td>
+                    <td>
+                      <button
+                        type="button"
+                        className={styles.saveButton}
+                        disabled={saveMutation.isPending}
+                        onClick={() => void handleSaveRow(row)}
+                      >
+                        {saveMutation.isPending ? "저장 중..." : "저장"}
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+              {!filteredRows.length ? (
+                <tr>
+                  <td colSpan={9} className={styles.empty}>
+                    선택한 상태의 트래킹 항목이 없습니다.
+                  </td>
+                </tr>
+              ) : null}
+            </tbody>
+          </table>
+        </div>
+      </section>
     </section>
   );
 }

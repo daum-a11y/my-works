@@ -1,15 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { adminDataClient } from "../admin-client";
+import { AdminSectionTabs } from "../AdminSectionTabs";
 import styles from "../AdminPage.module.css";
 import type { MemberAdminItem, MemberAdminPayload } from "../admin-types";
-
-const QUEUE_LABELS: Record<string, string> = {
-  auth_unlinked: "Auth 미연결",
-  email_mismatch: "이메일 불일치",
-  role_invalid: "권한값 점검 필요",
-  inactive_candidate: "비활성 사용자",
-};
 
 function createDraft(member?: MemberAdminItem): MemberAdminPayload {
   if (!member) {
@@ -17,8 +11,8 @@ function createDraft(member?: MemberAdminItem): MemberAdminPayload {
       legacyUserId: "",
       name: "",
       email: "",
-      department: "",
       role: "user",
+      userActive: true,
       isActive: true,
       authUserId: null,
     };
@@ -26,20 +20,21 @@ function createDraft(member?: MemberAdminItem): MemberAdminPayload {
 
   return {
     id: member.id,
+    authUserId: member.authUserId,
     legacyUserId: member.legacyUserId,
     name: member.name,
     email: member.email,
-    department: member.department,
     role: member.role,
-    isActive: member.isActive,
-    authUserId: member.authUserId,
+    userActive: member.userActive,
+    isActive: member.userActive,
   };
 }
 
 export function AdminMembersPage() {
   const queryClient = useQueryClient();
-  const [selectedMemberId, setSelectedMemberId] = useState<string>("");
-  const [draft, setDraft] = useState<MemberAdminPayload>(() => createDraft());
+  const [adding, setAdding] = useState(false);
+  const [editingMemberId, setEditingMemberId] = useState<string | null>(null);
+  const [draft, setDraft] = useState<MemberAdminPayload | null>(null);
 
   const membersQuery = useQuery({
     queryKey: ["admin", "members"],
@@ -48,56 +43,109 @@ export function AdminMembersPage() {
 
   const saveMutation = useMutation({
     mutationFn: (payload: MemberAdminPayload) => adminDataClient.saveMemberAdmin(payload),
-    onSuccess: (saved) => {
+    onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["admin", "members"] });
-      setSelectedMemberId(saved.id);
-      setDraft(createDraft(saved));
+      setAdding(false);
+      setEditingMemberId(null);
+      setDraft(null);
     },
   });
 
-  const members = membersQuery.data ?? [];
-  const selectedMember = useMemo(
-    () => members.find((member) => member.id === selectedMemberId) ?? null,
-    [members, selectedMemberId],
+  const deleteMutation = useMutation({
+    mutationFn: (memberId: string) => adminDataClient.deleteMemberAdmin(memberId),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["admin", "members"] });
+      setAdding(false);
+      setEditingMemberId(null);
+      setDraft(null);
+    },
+  });
+
+  const resetPasswordMutation = useMutation({
+    mutationFn: (legacyUserId: string) => adminDataClient.resetMemberPasswordAdmin(legacyUserId),
+  });
+
+  const members = useMemo(
+    () => [...(membersQuery.data ?? [])].sort((left, right) => left.legacyUserId.localeCompare(right.legacyUserId)),
+    [membersQuery.data],
   );
 
   useEffect(() => {
-    if (!selectedMemberId && members.length > 0) {
-      setSelectedMemberId(members[0].id);
+    if (!adding && !editingMemberId) {
+      setDraft(null);
     }
-  }, [members, selectedMemberId]);
+  }, [adding, editingMemberId]);
 
-  useEffect(() => {
-    if (selectedMember) {
-      setDraft(createDraft(selectedMember));
-    }
-  }, [selectedMember]);
-
-  const queueMembers = useMemo(
-    () => members.filter((member) => member.queueReasons.length > 0),
-    [members],
-  );
-
-  const handleDraftField = <K extends keyof MemberAdminPayload>(key: K, value: MemberAdminPayload[K]) => {
-    setDraft((current) => ({ ...current, [key]: value }));
+  const handleChange = <K extends keyof MemberAdminPayload>(key: K, value: MemberAdminPayload[K]) => {
+    setDraft((current) => (current ? { ...current, [key]: value } : current));
   };
 
-  const handleSave = async () => {
-    await saveMutation.mutateAsync(draft);
+  const startAdd = () => {
+    setAdding(true);
+    setEditingMemberId(null);
+    setDraft(createDraft());
+  };
+
+  const startEdit = (member: MemberAdminItem) => {
+    setAdding(false);
+    setEditingMemberId(member.id);
+    setDraft(createDraft(member));
+  };
+
+  const cancelDraft = () => {
+    setAdding(false);
+    setEditingMemberId(null);
+    setDraft(null);
+  };
+
+  const saveDraft = async () => {
+    if (!draft) return;
+    await saveMutation.mutateAsync({
+      ...draft,
+      userActive: draft.userActive ?? draft.isActive ?? true,
+      isActive: draft.userActive ?? draft.isActive ?? true,
+    });
+  };
+
+  const handleDelete = async (member: MemberAdminItem) => {
+    if (!window.confirm(`정말 ${member.name} 사용자를 삭제하시겠습니까?`)) {
+      return;
+    }
+
+    await deleteMutation.mutateAsync(member.id);
+  };
+
+  const handleResetPassword = async (member: MemberAdminItem) => {
+    if (!window.confirm(`${member.name}의 비밀번호를 초기화하시겠습니까? 초기 비밀번호는 linkagelab 입니다.`)) {
+      return;
+    }
+
+    await resetPasswordMutation.mutateAsync(member.legacyUserId);
   };
 
   const errorMessage =
     (membersQuery.error instanceof Error && membersQuery.error.message) ||
     (saveMutation.error instanceof Error && saveMutation.error.message) ||
+    (deleteMutation.error instanceof Error && deleteMutation.error.message) ||
+    (resetPasswordMutation.error instanceof Error && resetPasswordMutation.error.message) ||
     "";
+
+  const summary = useMemo(
+    () => ({
+      total: members.length,
+      admins: members.filter((member) => member.role === "admin").length,
+      active: members.filter((member) => member.userActive).length,
+    }),
+    [members],
+  );
 
   return (
     <section className={styles.page}>
+      <AdminSectionTabs active="users" />
+
       <header className={styles.hero}>
-        <h2>사용자 관리 및 신규 처리 대상</h2>
-        <p>
-          members 기준으로 사용자 정보를 관리하고, Auth 미연결/이메일 불일치/비활성 사용자 같은 운영 처리 대상을 함께 확인합니다.
-        </p>
+        <h2>사용자 관리</h2>
+        <p>사용자를 행 단위로 추가, 수정, 삭제하고 비밀번호를 초기화합니다.</p>
       </header>
 
       {errorMessage && <p className={styles.helperText}>{errorMessage}</p>}
@@ -105,215 +153,193 @@ export function AdminMembersPage() {
       <div className={styles.summaryGrid}>
         <div className={styles.summaryCard}>
           <span>전체 사용자</span>
-          <strong>{members.length}</strong>
+          <strong>{summary.total}</strong>
         </div>
         <div className={styles.summaryCard}>
-          <span>처리 대상</span>
-          <strong>{queueMembers.length}</strong>
+          <span>활성 사용자</span>
+          <strong>{summary.active}</strong>
         </div>
         <div className={styles.summaryCard}>
           <span>관리자</span>
-          <strong>{members.filter((member) => member.role === "admin").length}</strong>
+          <strong>{summary.admins}</strong>
         </div>
       </div>
 
-      <div className={styles.layout}>
-        <div className={styles.stack}>
-          <div className={styles.panel}>
-            <div className={styles.toolbar}>
-              <div>
-                <h3>사용자 목록</h3>
-                <p className={styles.helperText}>권한, 활성 여부, Auth 연결 상태를 한 번에 봅니다.</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  setSelectedMemberId("");
-                  setDraft(createDraft());
-                }}
-              >
-                신규 사용자
-              </button>
-            </div>
+      <div className={styles.panel}>
+        <div className={styles.sectionHeader}>
+          <div>
+            <h3>사용자 목록</h3>
+            <p className={styles.helperText}>Auth 진단 정보는 기본 표에서 제외했습니다.</p>
+          </div>
+          {!adding && (
+            <button type="button" onClick={startAdd}>
+              사용자 추가
+            </button>
+          )}
+        </div>
 
-            <div className={styles.tableWrap}>
-              <table className={styles.table}>
-                <thead>
-                  <tr>
-                    <th>사용자</th>
-                    <th>이메일</th>
-                    <th>부서</th>
-                    <th>권한</th>
-                    <th>활성</th>
-                    <th>Auth</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {members.length === 0 ? (
-                    <tr>
-                      <td colSpan={6}>
-                        <div className={styles.emptyState}>조회된 사용자가 없습니다.</div>
+        <div className={styles.tableWrap}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>이름</th>
+                <th>이메일</th>
+                <th>권한</th>
+                <th>활성</th>
+                <th>관리</th>
+              </tr>
+            </thead>
+            <tbody>
+              {adding && draft && (
+                <tr className={styles.inlineRow}>
+                  <td className={styles.inlineRowCell}>
+                    <input
+                      aria-label="신규 사용자 ID"
+                      value={draft.legacyUserId}
+                      onChange={(event) => handleChange("legacyUserId", event.target.value)}
+                    />
+                  </td>
+                  <td className={styles.inlineRowCell}>
+                    <input
+                      aria-label="신규 사용자 이름"
+                      value={draft.name}
+                      onChange={(event) => handleChange("name", event.target.value)}
+                    />
+                  </td>
+                  <td className={styles.inlineRowCell}>
+                    <input
+                      aria-label="신규 사용자 이메일"
+                      type="email"
+                      value={draft.email}
+                      onChange={(event) => handleChange("email", event.target.value)}
+                    />
+                  </td>
+                  <td className={styles.inlineRowCell}>
+                    <select aria-label="신규 사용자 권한" value={draft.role} onChange={(event) => handleChange("role", event.target.value as MemberAdminPayload["role"]) }>
+                      <option value="user">사용자</option>
+                      <option value="admin">관리자</option>
+                    </select>
+                  </td>
+                  <td className={styles.inlineRowCell}>
+                    <select
+                      aria-label="신규 사용자 활성 여부"
+                      value={draft.userActive ? "1" : "0"}
+                      onChange={(event) => {
+                        const nextActive = event.target.value === "1";
+                        handleChange("userActive", nextActive);
+                        handleChange("isActive", nextActive);
+                      }}
+                    >
+                      <option value="1">활성</option>
+                      <option value="0">비활성</option>
+                    </select>
+                  </td>
+                  <td className={styles.inlineRowActions}>
+                    <div className={styles.actions}>
+                      <button type="button" onClick={() => void saveDraft()} disabled={saveMutation.isPending}>
+                        저장
+                      </button>
+                      <button type="button" onClick={cancelDraft}>
+                        취소
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              )}
+
+              {members.length === 0 ? (
+                <tr>
+                  <td colSpan={6}>
+                    <div className={styles.emptyState}>조회된 사용자가 없습니다.</div>
+                  </td>
+                </tr>
+              ) : (
+                members.map((member) => {
+                  const isEditing = editingMemberId === member.id && draft;
+
+                  return isEditing && draft ? (
+                    <tr key={member.id} className={styles.inlineRow}>
+                      <td className={styles.inlineRowCell}>
+                        <input
+                          aria-label="ID 수정"
+                          value={draft.legacyUserId}
+                          onChange={(event) => handleChange("legacyUserId", event.target.value)}
+                        />
+                      </td>
+                      <td className={styles.inlineRowCell}>
+                        <input
+                          aria-label="이름 수정"
+                          value={draft.name}
+                          onChange={(event) => handleChange("name", event.target.value)}
+                        />
+                      </td>
+                      <td className={styles.inlineRowCell}>
+                        <input
+                          aria-label="이메일 수정"
+                          type="email"
+                          value={draft.email}
+                          onChange={(event) => handleChange("email", event.target.value)}
+                        />
+                      </td>
+                      <td className={styles.inlineRowCell}>
+                        <select aria-label="권한 수정" value={draft.role} onChange={(event) => handleChange("role", event.target.value as MemberAdminPayload["role"]) }>
+                          <option value="user">사용자</option>
+                          <option value="admin">관리자</option>
+                        </select>
+                      </td>
+                      <td className={styles.inlineRowCell}>
+                        <select
+                          aria-label="활성 수정"
+                          value={draft.userActive ? "1" : "0"}
+                          onChange={(event) => {
+                            const nextActive = event.target.value === "1";
+                            handleChange("userActive", nextActive);
+                            handleChange("isActive", nextActive);
+                          }}
+                        >
+                          <option value="1">활성</option>
+                          <option value="0">비활성</option>
+                        </select>
+                      </td>
+                      <td className={styles.inlineRowActions}>
+                        <div className={styles.actions}>
+                          <button type="button" onClick={() => void saveDraft()} disabled={saveMutation.isPending}>
+                            저장
+                          </button>
+                          <button type="button" onClick={cancelDraft}>
+                            취소
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ) : (
-                    members.map((member) => (
-                      <tr key={member.id} className={member.id === selectedMemberId ? styles.selectedRow : undefined}>
-                        <td>
-                          <button type="button" className={styles.rowButton} onClick={() => setSelectedMemberId(member.id)}>
-                            <strong>{member.name}</strong>
-                            <span>{member.legacyUserId}</span>
+                    <tr key={member.id}>
+                      <td>{member.legacyUserId}</td>
+                      <td>{member.name}</td>
+                      <td>{member.email}</td>
+                      <td>{member.role === "admin" ? "관리자" : "사용자"}</td>
+                      <td>{member.userActive ? "활성" : "비활성"}</td>
+                      <td className={styles.inlineRowActions}>
+                        <div className={styles.actions}>
+                          <button type="button" onClick={() => void handleResetPassword(member)} disabled={resetPasswordMutation.isPending}>
+                            비밀번호 초기화
                           </button>
-                        </td>
-                        <td>{member.email}</td>
-                        <td>{member.department || "-"}</td>
-                        <td>{member.role === "admin" ? "관리자" : "사용자"}</td>
-                        <td>{member.isActive ? "활성" : "비활성"}</td>
-                        <td>{member.authUserId ? "연결됨" : "미연결"}</td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <div className={styles.panel}>
-            <div className={styles.toolbar}>
-              <div>
-                <h3>신규 처리 대상</h3>
-                <p className={styles.helperText}>운영자 개입이 필요한 계정을 빠르게 추릴 수 있는 큐입니다.</p>
-              </div>
-            </div>
-            {queueMembers.length === 0 ? (
-              <div className={styles.emptyState}>현재 처리 대상이 없습니다.</div>
-            ) : (
-              <div className={styles.tableWrap}>
-                <table className={styles.table}>
-                  <thead>
-                    <tr>
-                      <th>사용자</th>
-                      <th>처리 사유</th>
-                      <th>Auth 이메일</th>
+                          <button type="button" onClick={() => startEdit(member)}>
+                            수정
+                          </button>
+                          <button type="button" onClick={() => void handleDelete(member)} disabled={deleteMutation.isPending}>
+                            삭제
+                          </button>
+                        </div>
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {queueMembers.map((member) => (
-                      <tr key={`queue-${member.id}`}>
-                        <td>
-                          <strong>{member.name}</strong>
-                          <div className={styles.muted}>{member.email}</div>
-                        </td>
-                        <td>
-                          <div className={styles.queueList}>
-                            {member.queueReasons.map((reason) => (
-                              <span key={`${member.id}-${reason}`} className={styles.queueItem}>
-                                {QUEUE_LABELS[reason] ?? reason}
-                              </span>
-                            ))}
-                          </div>
-                        </td>
-                        <td>{member.authEmail || "-"}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
         </div>
-
-        <aside className={styles.panel}>
-          <div className={styles.toolbar}>
-            <div>
-              <h3>{draft.id ? "사용자 상세 수정" : "신규 사용자 등록"}</h3>
-              <p className={styles.helperText}>부서/권한/활성 여부를 이 화면에서 관리합니다.</p>
-            </div>
-          </div>
-
-          <div className={styles.formGrid}>
-            <div className={styles.field}>
-              <label htmlFor="admin-member-legacy-id">레거시 사용자 ID</label>
-              <input
-                id="admin-member-legacy-id"
-                value={draft.legacyUserId}
-                onChange={(event) => handleDraftField("legacyUserId", event.target.value)}
-              />
-            </div>
-            <div className={styles.field}>
-              <label htmlFor="admin-member-name">이름</label>
-              <input
-                id="admin-member-name"
-                value={draft.name}
-                onChange={(event) => handleDraftField("name", event.target.value)}
-              />
-            </div>
-            <div className={styles.field}>
-              <label htmlFor="admin-member-email">이메일</label>
-              <input
-                id="admin-member-email"
-                type="email"
-                value={draft.email}
-                onChange={(event) => handleDraftField("email", event.target.value)}
-              />
-            </div>
-            <div className={styles.field}>
-              <label htmlFor="admin-member-department">부서</label>
-              <input
-                id="admin-member-department"
-                value={draft.department}
-                onChange={(event) => handleDraftField("department", event.target.value)}
-              />
-            </div>
-            <div className={styles.field}>
-              <label htmlFor="admin-member-role">권한</label>
-              <select
-                id="admin-member-role"
-                value={draft.role}
-                onChange={(event) => handleDraftField("role", event.target.value as MemberAdminPayload["role"])}
-              >
-                <option value="user">사용자</option>
-                <option value="admin">관리자</option>
-              </select>
-            </div>
-            <div className={`${styles.field} ${styles.checkbox}`}>
-              <input
-                id="admin-member-active"
-                type="checkbox"
-                checked={draft.isActive}
-                onChange={(event) => handleDraftField("isActive", event.target.checked)}
-              />
-              <label htmlFor="admin-member-active">활성 사용자</label>
-            </div>
-          </div>
-
-          <div className={styles.panel}>
-            <h4>Auth 연결 정보</h4>
-            <div className={styles.metaList}>
-              <div>
-                <span>Auth User ID</span>
-                <strong>{selectedMember?.authUserId || draft.authUserId || "미연결"}</strong>
-              </div>
-              <div>
-                <span>Auth 이메일</span>
-                <strong>{selectedMember?.authEmail || "-"}</strong>
-              </div>
-              <div>
-                <span>처리 사유</span>
-                <strong>
-                  {selectedMember?.queueReasons.length
-                    ? selectedMember.queueReasons.map((reason) => QUEUE_LABELS[reason] ?? reason).join(", ")
-                    : "없음"}
-                </strong>
-              </div>
-            </div>
-          </div>
-
-          <div className={styles.actions}>
-            <button type="button" onClick={() => void handleSave()} disabled={saveMutation.isPending}>
-              저장
-            </button>
-          </div>
-        </aside>
       </div>
     </section>
   );
