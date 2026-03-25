@@ -6,6 +6,7 @@
 
 - `src`: 앱 소스
 - `public`: 정적 자산
+- `supabase/legacy-supabase-migration.md`: 레거시 MariaDB dump를 Supabase로 옮기는 절차
 - `supabase/migrations`: 1차 스키마와 RLS 초안
 - `supabase/functions/export-tasks`: 업무보고 다운로드 함수 초안
 - `docs/legacy-cleanup-targets.md`: 신규 스키마에서 제외한 레거시 정리 대상

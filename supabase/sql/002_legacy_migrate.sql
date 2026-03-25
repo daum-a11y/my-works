@@ -1,11 +1,17 @@
 begin;
+set local statement_timeout = 0;
 
 create or replace function legacy_stage.blank_to_null(value text)
 returns text
 language sql
 immutable
 as $$
-  select nullif(btrim(value), '')
+  select case
+    when value is null then null
+    when btrim(value) = '' then null
+    when lower(btrim(value)) = 'null' then null
+    else btrim(value)
+  end
 $$;
 
 create or replace function legacy_stage.to_int(value text)
@@ -45,7 +51,9 @@ as $$
   select case
     when legacy_stage.blank_to_null(value) is null then null
     when legacy_stage.blank_to_null(value) in ('0000-00-00', '0000-00-00 00:00:00') then null
-    else substring(legacy_stage.blank_to_null(value) from 1 for 10)::date
+    when substring(legacy_stage.blank_to_null(value) from 1 for 10) ~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}$'
+      then substring(legacy_stage.blank_to_null(value) from 1 for 10)::date
+    else null
   end
 $$;
 
@@ -115,6 +123,46 @@ set legacy_user_num = excluded.legacy_user_num,
     report_required = excluded.report_required,
     email = members_target.email,
     updated_at = timezone('utc', now());
+
+with task_only_members as (
+  select distinct
+    legacy_stage.blank_to_null(task_user) as legacy_user_id
+  from legacy_stage.task_tbl
+  where legacy_stage.blank_to_null(task_user) is not null
+),
+missing_task_members as (
+  select
+    t.legacy_user_id
+  from task_only_members t
+  where not exists (
+    select 1
+    from public.members m
+    where lower(m.legacy_user_id) = lower(t.legacy_user_id)
+  )
+)
+insert into public.members (
+  legacy_user_num,
+  legacy_user_id,
+  name,
+  email,
+  user_level,
+  user_active,
+  joined_at,
+  report_required
+)
+select
+  null,
+  m.legacy_user_id,
+  m.legacy_user_id,
+  lower(m.legacy_user_id) || '@legacy-task.local',
+  0,
+  false,
+  timezone('utc', now()),
+  false
+from missing_task_members m;
+
+delete from legacy_stage.task_tbl
+where legacy_stage.blank_to_null(task_user) is null;
 
 truncate table legacy_xref.members;
 insert into legacy_xref.members (legacy_user_num, legacy_user_id, member_id)
@@ -243,9 +291,10 @@ where g.legacy_svc_num is not null;
 
 with raw_service_lookup as (
   select
-    svc_num,
+    min(svc_num) as svc_num,
     legacy_stage.normalize_service_name(svc_group, svc_name) as normalized_name
   from legacy_stage.svc_group_tbl
+  group by legacy_stage.normalize_service_name(svc_group, svc_name)
 ),
 source_projects as (
   select
@@ -294,9 +343,10 @@ where pr.legacy_project_id = s.legacy_project_id;
 
 with raw_service_lookup as (
   select
-    svc_num,
+    min(svc_num) as svc_num,
     legacy_stage.normalize_service_name(svc_group, svc_name) as normalized_name
   from legacy_stage.svc_group_tbl
+  group by legacy_stage.normalize_service_name(svc_group, svc_name)
 ),
 source_projects as (
   select
@@ -521,8 +571,8 @@ task_resolved as (
   select
     s.legacy_task_num,
     s.legacy_task_id,
-    member_x.member_id,
-    member_x.member_id as created_by_member_id,
+    member_x.id as member_id,
+    member_x.id as created_by_member_id,
     s.task_date,
     coalesce(project_num.project_id, page_num.project_id, page_match.project_id, project_match.project_id) as project_id,
     coalesce(page_num.project_page_id, page_match.project_page_id) as project_page_id,
@@ -556,8 +606,8 @@ task_resolved as (
       case when s.task_etc is not null then 'raw_note: ' || s.task_etc end
     ) as note
   from task_source s
-  join legacy_xref.members member_x
-    on member_x.legacy_user_id = s.member_legacy_user_id
+  join public.members member_x
+    on lower(member_x.legacy_user_id) = lower(s.member_legacy_user_id)
   left join lateral (
     select tt.type_num
     from legacy_stage.type_tbl tt
@@ -649,8 +699,8 @@ task_resolved as (
   select
     s.legacy_task_num,
     s.legacy_task_id,
-    member_x.member_id,
-    member_x.member_id as created_by_member_id,
+    member_x.id as member_id,
+    member_x.id as created_by_member_id,
     s.task_date,
     coalesce(project_num.project_id, page_num.project_id, page_match.project_id, project_match.project_id) as project_id,
     coalesce(page_num.project_page_id, page_match.project_page_id) as project_page_id,
@@ -684,8 +734,8 @@ task_resolved as (
       case when s.task_etc is not null then 'raw_note: ' || s.task_etc end
     ) as note
   from task_source s
-  join legacy_xref.members member_x
-    on member_x.legacy_user_id = s.member_legacy_user_id
+  join public.members member_x
+    on lower(member_x.legacy_user_id) = lower(s.member_legacy_user_id)
   left join lateral (
     select tt.type_num
     from legacy_stage.type_tbl tt

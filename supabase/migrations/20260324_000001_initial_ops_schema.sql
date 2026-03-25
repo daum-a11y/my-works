@@ -140,6 +140,8 @@ from public.project_pages;
 create index if not exists idx_tasks_member_date on public.tasks (member_id, task_date desc);
 create index if not exists idx_project_pages_owner on public.project_pages (owner_member_id);
 create index if not exists idx_projects_dates on public.projects (start_date, end_date);
+create index if not exists idx_projects_name on public.projects (name);
+create index if not exists idx_project_pages_lookup on public.project_pages (project_id, title, url);
 
 drop trigger if exists members_set_updated_at on public.members;
 create trigger members_set_updated_at
@@ -250,13 +252,13 @@ $$;
 
 create or replace function public.save_task(
   p_task_id uuid default null,
-  p_task_date date,
+  p_task_date date default null,
   p_project_id uuid default null,
   p_project_page_id uuid default null,
-  p_task_type1 text,
-  p_task_type2 text,
-  p_hours numeric,
-  p_content text,
+  p_task_type1 text default null,
+  p_task_type2 text default null,
+  p_hours numeric default null,
+  p_content text default null,
   p_note text default ''
 )
 returns public.tasks
@@ -270,6 +272,26 @@ declare
 begin
   if v_member_id is null then
     raise exception 'member not bound';
+  end if;
+
+  if p_task_date is null then
+    raise exception 'task_date required';
+  end if;
+
+  if coalesce(trim(p_task_type1), '') = '' then
+    raise exception 'task_type1 required';
+  end if;
+
+  if coalesce(trim(p_task_type2), '') = '' then
+    raise exception 'task_type2 required';
+  end if;
+
+  if p_hours is null then
+    raise exception 'hours required';
+  end if;
+
+  if coalesce(trim(p_content), '') = '' then
+    raise exception 'content required';
   end if;
 
   if p_task_id is null then
@@ -346,14 +368,14 @@ $$;
 
 create or replace function public.upsert_project(
   p_project_id uuid default null,
-  p_name text,
-  p_platform text,
+  p_name text default null,
+  p_platform text default null,
   p_service_group_id uuid default null,
   p_report_url text default '',
   p_reporter_member_id uuid default null,
   p_reviewer_member_id uuid default null,
-  p_start_date date,
-  p_end_date date,
+  p_start_date date default null,
+  p_end_date date default null,
   p_is_active boolean default true
 )
 returns public.projects
@@ -367,6 +389,22 @@ declare
 begin
   if v_member_id is null then
     raise exception 'member not bound';
+  end if;
+
+  if coalesce(trim(p_name), '') = '' then
+    raise exception 'name required';
+  end if;
+
+  if coalesce(trim(p_platform), '') = '' then
+    raise exception 'platform required';
+  end if;
+
+  if p_start_date is null then
+    raise exception 'start_date required';
+  end if;
+
+  if p_end_date is null then
+    raise exception 'end_date required';
   end if;
 
   if p_project_id is null then
@@ -427,8 +465,8 @@ $$;
 
 create or replace function public.upsert_project_page(
   p_page_id uuid default null,
-  p_project_id uuid,
-  p_title text,
+  p_project_id uuid default null,
+  p_title text default null,
   p_url text default '',
   p_owner_member_id uuid default null,
   p_track_status text default '미개선',
@@ -447,6 +485,14 @@ declare
 begin
   if v_member_id is null then
     raise exception 'member not bound';
+  end if;
+
+  if p_project_id is null then
+    raise exception 'project_id required';
+  end if;
+
+  if coalesce(trim(p_title), '') = '' then
+    raise exception 'title required';
   end if;
 
   if not exists (
@@ -755,8 +801,3 @@ with check (
 grant select on public.members_public_view to authenticated;
 grant select on public.active_members_public_view to authenticated;
 grant select on public.project_pages_public_view to authenticated;
-
-comment on table public.members is '1차 사용자/관리자 구분과 auth binding만 유지한다.';
-comment on table public.tasks is '개인 업무보고, 개인 검색/다운로드의 기준 테이블.';
-comment on table public.projects is '프로젝트 마스터. AppInfo/추천모니터링과 직접 연결된 테이블은 별도 생성하지 않는다.';
-comment on table public.project_pages is '페이지 마스터와 트래킹 상태. 대시보드/모니터링 통계의 직접 소스.';

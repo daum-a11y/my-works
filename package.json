@@ -8,6 +8,7 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
+    "legacy:stage": "bash scripts/load_legacy_stage.sh",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test"

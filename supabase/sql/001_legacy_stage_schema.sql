@@ -28,6 +28,9 @@ create table legacy_stage.type_tbl (
   type_active text
 );
 
+create index legacy_stage_type_tbl_type_idx
+  on legacy_stage.type_tbl (type_one, type_two);
+
 create table legacy_stage.svc_group_tbl (
   svc_num integer primary key,
   svc_group text not null,
@@ -70,6 +73,12 @@ create index legacy_stage_pj_tbl_name_idx
 create index legacy_stage_pj_tbl_service_idx
   on legacy_stage.pj_tbl (pj_sev_group, pj_sev_name);
 
+create index legacy_stage_pj_tbl_reporter_idx
+  on legacy_stage.pj_tbl (pj_reporter);
+
+create index legacy_stage_pj_tbl_reviewer_idx
+  on legacy_stage.pj_tbl (pj_reviewer);
+
 create table legacy_stage.pj_page_tbl (
   pj_page_num integer primary key,
   pj_unique_num integer not null,
@@ -98,6 +107,12 @@ create index legacy_stage_pj_page_tbl_project_idx
 
 create index legacy_stage_pj_page_tbl_name_idx
   on legacy_stage.pj_page_tbl (pj_page_name);
+
+create index legacy_stage_pj_page_tbl_owner_idx
+  on legacy_stage.pj_page_tbl (pj_page_id);
+
+create index legacy_stage_pj_page_tbl_url_idx
+  on legacy_stage.pj_page_tbl (pj_page_url);
 
 create table legacy_stage.task_tbl (
   task_num integer primary key,
@@ -134,6 +149,12 @@ create index legacy_stage_task_tbl_project_idx
 
 create index legacy_stage_task_tbl_name_idx
   on legacy_stage.task_tbl (task_pj_name, task_pj_page);
+
+create index legacy_stage_task_tbl_type_idx
+  on legacy_stage.task_tbl (task_type1, task_type2);
+
+create index legacy_stage_task_tbl_page_url_idx
+  on legacy_stage.task_tbl (task_pj_page_url);
 
 create table legacy_xref.members (
   legacy_user_num integer primary key,
