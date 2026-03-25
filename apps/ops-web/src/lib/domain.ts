@@ -1,0 +1,160 @@
+export type UserRole = "user" | "admin";
+
+export type PageStatus = "미개선" | "개선" | "일부" | "중지";
+
+export interface Member {
+  id: string;
+  legacyUserId: string;
+  name: string;
+  email: string;
+  role: UserRole;
+  isActive: boolean;
+  authUserId?: string | null;
+}
+
+export interface TaskType {
+  id: string;
+  legacyTypeId: string;
+  type1: string;
+  type2: string;
+  label: string;
+  displayOrder: number;
+}
+
+export interface ServiceGroup {
+  id: string;
+  legacyServiceGroupId: string;
+  name: string;
+  displayOrder: number;
+}
+
+export interface Project {
+  id: string;
+  legacyProjectId: string;
+  createdByMemberId: string | null;
+  name: string;
+  platform: string;
+  serviceGroupId: string | null;
+  reportUrl: string;
+  reporterMemberId: string | null;
+  reviewerMemberId: string | null;
+  startDate: string;
+  endDate: string;
+  isActive: boolean;
+}
+
+export interface ProjectPage {
+  id: string;
+  legacyPageId: string;
+  projectId: string;
+  title: string;
+  url: string;
+  ownerMemberId: string | null;
+  trackStatus: PageStatus;
+  monitoringInProgress: boolean;
+  qaInProgress: boolean;
+  note: string;
+  updatedAt: string;
+}
+
+export interface Task {
+  id: string;
+  legacyTaskId: string;
+  memberId: string;
+  taskDate: string;
+  projectId: string | null;
+  pageId: string | null;
+  taskType1: string;
+  taskType2: string;
+  hours: number;
+  content: string;
+  note: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ReportFilters {
+  query: string;
+  projectId: string;
+  pageId: string;
+  taskType1: string;
+  taskType2: string;
+  startDate: string;
+  endDate: string;
+  minHours: string;
+  maxHours: string;
+}
+
+export interface SaveTaskInput {
+  id?: string;
+  taskDate: string;
+  projectId: string | null;
+  pageId: string | null;
+  taskType1: string;
+  taskType2: string;
+  hours: number;
+  content: string;
+  note: string;
+}
+
+export interface SaveProjectInput {
+  id?: string;
+  name: string;
+  platform: string;
+  serviceGroupId: string | null;
+  reportUrl: string;
+  reporterMemberId: string | null;
+  reviewerMemberId: string | null;
+  startDate: string;
+  endDate: string;
+  isActive: boolean;
+}
+
+export interface SaveProjectPageInput {
+  id?: string;
+  projectId: string;
+  title: string;
+  url: string;
+  ownerMemberId: string | null;
+  trackStatus: PageStatus;
+  monitoringInProgress: boolean;
+  qaInProgress: boolean;
+  note: string;
+}
+
+export interface DashboardItem {
+  pageId: string;
+  projectName: string;
+  platform: string;
+  pageTitle: string;
+  ownerName: string;
+  statusLabel: string;
+  detail: string;
+  reportUrl: string;
+  dueDate: string | null;
+}
+
+export interface DashboardSnapshot {
+  monitoring: DashboardItem[];
+  qa: DashboardItem[];
+}
+
+export interface StatsSnapshot {
+  totalHours: number;
+  totalTasks: number;
+  monitoringInProgress: number;
+  qaInProgress: number;
+  statusBreakdown: Array<{ status: PageStatus; count: number }>;
+  typeBreakdown: Array<{ type: string; hours: number }>;
+}
+
+export interface OpsStore {
+  members: Member[];
+  taskTypes: TaskType[];
+  serviceGroups: ServiceGroup[];
+  projects: Project[];
+  projectPages: ProjectPage[];
+  tasks: Task[];
+}
+
+export const pageStatusOptions: PageStatus[] = ["미개선", "개선", "일부", "중지"];

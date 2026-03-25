@@ -1,0 +1,74 @@
+.field {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.label {
+  color: var(--text-primary);
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.control {
+  width: 100%;
+  min-height: var(--control-height-md);
+  padding: var(--control-padding-y) var(--control-padding-x);
+  border: 1px solid var(--control-border);
+  border-radius: var(--control-radius);
+  background: var(--control-bg);
+  color: var(--text-primary);
+  font: inherit;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    background-color 160ms ease,
+    color 160ms ease;
+}
+
+.control::placeholder {
+  color: var(--control-placeholder);
+}
+
+.control:hover:not(:disabled):not([readonly]) {
+  border-color: var(--border-strong);
+}
+
+.control[data-focus-visible],
+.control:focus-visible {
+  border-color: var(--border-focus);
+  box-shadow: var(--focus-ring-shadow);
+  outline: none;
+}
+
+.control[readonly] {
+  color: var(--text-secondary);
+  background: color-mix(in srgb, var(--surface-panel) 88%, white);
+}
+
+.control:disabled {
+  color: var(--text-tertiary);
+  background: var(--control-disabled-bg);
+  cursor: not-allowed;
+}
+
+.control[aria-invalid="true"] {
+  border-color: var(--state-danger-border);
+  background: color-mix(in srgb, var(--state-danger-bg) 62%, white);
+}
+
+.textarea {
+  min-height: 8rem;
+  resize: vertical;
+}
+
+.description {
+  color: var(--text-tertiary);
+  font-size: 0.87rem;
+}
+
+.error {
+  color: var(--state-danger-text);
+  font-size: 0.87rem;
+  font-weight: 700;
+}

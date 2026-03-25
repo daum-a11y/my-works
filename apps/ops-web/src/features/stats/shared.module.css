@@ -1,0 +1,120 @@
+.page {
+  display: grid;
+  gap: 1rem;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.card {
+  position: relative;
+  display: grid;
+  gap: 0.3rem;
+  padding: 1rem 1.1rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-default);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--surface-raised) 96%, white), color-mix(in srgb, var(--surface-panel) 92%, white));
+  box-shadow: var(--elevation-2);
+  overflow: hidden;
+}
+
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 4px;
+  background: color-mix(in srgb, var(--border-strong) 72%, white);
+}
+
+.card[data-tone="monitoring"]::before {
+  background: linear-gradient(90deg, var(--accent), var(--accent-strong));
+}
+
+.card[data-tone="qa"]::before {
+  background: linear-gradient(90deg, var(--raw-indigo-500), var(--raw-indigo-600));
+}
+
+.card[data-tone="neutral"]::before {
+  background: linear-gradient(90deg, var(--raw-paper-4), var(--raw-ink-300));
+}
+
+.card span {
+  color: var(--text-tertiary);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.card strong {
+  color: var(--text-primary);
+  font-family: var(--font-display);
+  font-size: 1.85rem;
+  letter-spacing: -0.04em;
+}
+
+.tableWrap {
+  overflow: auto;
+  border-radius: var(--radius-md);
+  border: 1px solid color-mix(in srgb, var(--border-default) 86%, white);
+  background: color-mix(in srgb, var(--surface-canvas) 88%, white);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  padding: 0.8rem 0.65rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--border-subtle) 90%, white);
+  text-align: left;
+  vertical-align: top;
+}
+
+.table th {
+  color: var(--text-tertiary);
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  background: color-mix(in srgb, var(--accent-soft) 28%, white);
+}
+
+.table td strong {
+  display: block;
+  color: var(--text-primary);
+}
+
+.table td span {
+  color: var(--text-tertiary);
+}
+
+.stackCell {
+  display: grid;
+  gap: 0.38rem;
+}
+
+.link {
+  color: var(--accent-strong);
+  font-weight: 800;
+}
+
+.table tbody tr:hover {
+  background: color-mix(in srgb, var(--accent-soft) 18%, white);
+}
+
+.empty {
+  color: var(--text-tertiary);
+  text-align: center;
+}
+
+@media (max-width: 720px) {
+  .cards {
+    grid-template-columns: 1fr;
+  }
+}

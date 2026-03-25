@@ -1,0 +1,12 @@
+{
+  "name": "my-works",
+  "private": true,
+  "packageManager": "pnpm@10.18.2",
+  "scripts": {
+    "build": "pnpm -r build",
+    "dev": "pnpm --filter ops-web dev",
+    "preview": "pnpm --filter ops-web preview",
+    "test": "pnpm --filter ops-web test",
+    "test:e2e": "pnpm --filter ops-web test:e2e"
+  }
+}
