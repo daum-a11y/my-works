@@ -19,6 +19,7 @@ import { getToday, sortStatus } from "./utils";
 export interface OpsDataClient {
   mode: "supabase" | "unconfigured";
   getMembers(): Promise<Member[]>;
+  getMemberByLegacyUserId(legacyUserId: string): Promise<Member | null>;
   getMemberByEmail(email: string): Promise<Member | null>;
   getMemberByAuthId(authUserId: string): Promise<Member | null>;
   bindAuthSessionMember(authUserId: string, email?: string | null): Promise<Member | null>;
@@ -133,6 +134,16 @@ function createSupabaseClient(): OpsDataClient {
       const { data, error } = await supabase.from("members_public_view").select("*").order("name");
       if (error) throw error;
       return (data ?? []).map(mapMemberRecord);
+    },
+    async getMemberByLegacyUserId(legacyUserId) {
+      const normalized = legacyUserId.trim();
+      const { data, error } = await supabase
+        .from("members")
+        .select("*")
+        .ilike("legacy_user_id", normalized)
+        .maybeSingle();
+      if (error) throw error;
+      return data ? mapMemberRecord(data) : null;
     },
     async getMemberByEmail(email) {
       const { data, error } = await supabase.from("members").select("*").eq("email", email).maybeSingle();
@@ -335,6 +346,7 @@ function createUnconfiguredClient(): OpsDataClient {
   return {
     mode: "unconfigured",
     getMembers: fail,
+    getMemberByLegacyUserId: fail,
     getMemberByEmail: fail,
     getMemberByAuthId: fail,
     bindAuthSessionMember: fail,

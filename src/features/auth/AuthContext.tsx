@@ -21,9 +21,9 @@ interface AuthSession {
 interface AuthContextValue {
   status: AuthStatus;
   session: AuthSession | null;
-  login(email: string, password: string): Promise<void>;
+  login(userId: string, password: string): Promise<void>;
   logout(): Promise<void>;
-  updatePassword(nextPassword: string): Promise<void>;
+  updatePassword(currentPassword: string, nextPassword: string): Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -141,7 +141,13 @@ export function AuthProvider({ children }: PropsWithChildren) {
     () => ({
       status,
       session,
-      async login(email, password) {
+      async login(userId, password) {
+        const normalizedUserId = userId.trim();
+
+        if (!normalizedUserId) {
+          throw new Error("아이디를 입력해 주세요.");
+        }
+
         if (!password.trim()) {
           throw new Error("비밀번호를 입력해 주세요.");
         }
@@ -150,12 +156,17 @@ export function AuthProvider({ children }: PropsWithChildren) {
           throw new Error("Supabase 환경변수가 설정되지 않았습니다.");
         }
 
+        const member = await opsDataClient.getMemberByLegacyUserId(normalizedUserId);
+        if (!member?.email) {
+          throw new Error("아이디 또는 비밀번호를 확인해 주세요.");
+        }
+
         const { error } = await supabase.auth.signInWithPassword({
-          email,
+          email: member.email,
           password,
         });
         if (error) {
-          throw new Error(error.message);
+          throw new Error("아이디 또는 비밀번호를 확인해 주세요.");
         }
       },
       async logout() {
@@ -167,13 +178,33 @@ export function AuthProvider({ children }: PropsWithChildren) {
 
         await supabase.auth.signOut();
       },
-      async updatePassword(nextPassword) {
+      async updatePassword(currentPassword, nextPassword) {
+        if (!currentPassword.trim()) {
+          throw new Error("현재 비밀번호를 입력해 주세요.");
+        }
+
         if (nextPassword.trim().length < 8) {
           throw new Error("비밀번호는 8자 이상이어야 합니다.");
         }
 
         if (!isSupabaseConfigured || !supabase) {
           throw new Error("Supabase 환경변수가 설정되지 않았습니다.");
+        }
+
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+
+        if (!user?.email) {
+          throw new Error("현재 로그인 사용자 정보를 확인할 수 없습니다.");
+        }
+
+        const { error: reauthError } = await supabase.auth.signInWithPassword({
+          email: user.email,
+          password: currentPassword,
+        });
+        if (reauthError) {
+          throw new Error("현재 비밀번호가 올바르지 않습니다.");
         }
 
         const { error } = await supabase.auth.updateUser({ password: nextPassword });

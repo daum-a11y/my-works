@@ -8,7 +8,6 @@ import { AdminReportsPage } from "../features/admin/reports/AdminReportsPage";
 import { AdminTaskTypesPage } from "../features/admin/types/AdminTaskTypesPage";
 import { NotFoundPage } from "../features/not-found";
 import { ProjectsFeature } from "../features/projects";
-import { ProfilePage } from "../features/profile";
 import { ReportsPage } from "../features/reports";
 import {
   ResourceLayout,
@@ -19,6 +18,7 @@ import {
 } from "../features/resource";
 import { SearchPage } from "../features/search";
 import { MonitoringStatsPage, QaStatsPage } from "../features/stats";
+import { PasswordSettingsPage } from "../features/settings";
 import { TrackingFeature } from "../features/tracking";
 import { AppShell } from "./AppShell";
 
@@ -82,7 +82,7 @@ export function AppRouter() {
             <Route index element={<Navigate to="/dashboard" replace />} />
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/reports" element={<ReportsPage />} />
-            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/profile" element={<Navigate to="/settings/password" replace />} />
             <Route path="/projects" element={<ProjectsFeature />} />
             <Route path="/tracking" element={<TrackingFeature />} />
             <Route path="/reports/search" element={<SearchPage />} />
@@ -96,7 +96,7 @@ export function AppRouter() {
             </Route>
             <Route path="/stats/qa" element={<QaStatsPage />} />
             <Route path="/stats/monitoring" element={<MonitoringStatsPage />} />
-            <Route path="/settings/password" element={<Navigate to="/profile" replace />} />
+            <Route path="/settings/password" element={<PasswordSettingsPage />} />
             <Route element={<AdminRoute />}>
               <Route path="/admin/reports" element={<AdminReportsPage />} />
               <Route path="/admin/members" element={<AdminMembersPage />} />

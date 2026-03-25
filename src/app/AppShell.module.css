@@ -54,24 +54,27 @@
   gap: 1rem;
 }
 
-.navGroup {
+.navList {
   display: grid;
-  gap: 0.55rem;
+  gap: 0.8rem;
+  padding: 0;
+  margin: 0;
+  list-style: none;
 }
 
-.navGroup p {
-  padding-inline: 0.45rem;
-  color: var(--text-tertiary);
-  font-size: 0.74rem;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+.sectionLabel {
+  display: block;
+  padding: 0.2rem 1.1rem 0.4rem;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  font-weight: 700;
 }
 
-.navGroup ul {
+.subNavList {
   display: grid;
   gap: 0.3rem;
   padding: 0;
+  margin: 0;
   list-style: none;
 }
 
@@ -155,14 +158,6 @@
   gap: 0.18rem;
 }
 
-.routeLabel {
-  color: var(--accent-strong);
-  font-size: 0.76rem;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
 .pageTitle {
   color: var(--text-primary);
   font-family: var(--font-display);
@@ -189,6 +184,29 @@
 .profile span {
   color: var(--text-tertiary);
   font-size: 0.84rem;
+}
+
+.headerAction,
+.headerActionActive {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.5rem;
+  padding: 0.65rem 0.95rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-default);
+  color: var(--text-secondary);
+  background: var(--surface-panel);
+}
+
+.headerAction:hover {
+  color: var(--text-primary);
+  background: var(--raw-paper-2);
+}
+
+.headerActionActive {
+  color: var(--text-primary);
+  border-color: color-mix(in srgb, var(--accent) 18%, white);
+  background: color-mix(in srgb, var(--accent-soft) 40%, white);
 }
 
 .main {

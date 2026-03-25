@@ -22,7 +22,7 @@ const passwordSchema = z
 type PasswordFormValues = z.infer<typeof passwordSchema>;
 
 export function PasswordSettingsPage() {
-  const { session, updatePassword } = useAuth();
+  const { updatePassword } = useAuth();
   const [message, setMessage] = useState("");
   const [messageTone, setMessageTone] = useState<"success" | "danger">("success");
   const {
@@ -36,25 +36,12 @@ export function PasswordSettingsPage() {
 
   return (
     <div className={styles.page}>
-      <PageSection
-        title="비밀번호 변경"
-        description="현재 비밀번호와 새 비밀번호를 입력해 계정 정보를 안전하게 갱신합니다."
-      >
-        <div className={styles.identity}>
-          <div>
-            <span>ID</span>
-            <strong>{session?.member.legacyUserId}</strong>
-          </div>
-          <div>
-            <span>이름</span>
-            <strong>{session?.member.name}</strong>
-          </div>
-        </div>
+      <PageSection title="비밀번호 변경">
         <form
           className={styles.form}
           onSubmit={handleSubmit(async (values) => {
             try {
-              await updatePassword(values.nextPassword);
+              await updatePassword(values.currentPassword, values.nextPassword);
               setMessageTone("success");
               setMessage("비밀번호를 변경했습니다.");
               reset();
@@ -72,14 +59,14 @@ export function PasswordSettingsPage() {
             {...register("currentPassword")}
           />
           <InputField
-            label="새 비밀번호"
+            label="변경할 비밀번호"
             type="password"
             autoComplete="new-password"
             errorMessage={errors.nextPassword?.message}
             {...register("nextPassword")}
           />
           <InputField
-            label="비밀번호 확인"
+            label="비밀번호 재확인"
             type="password"
             autoComplete="new-password"
             errorMessage={errors.confirmPassword?.message}
@@ -91,7 +78,7 @@ export function PasswordSettingsPage() {
             </p>
           ) : null}
           <Button type="submit" isDisabled={isSubmitting}>
-            {isSubmitting ? "저장 중..." : "저장"}
+            {isSubmitting ? "수정 중..." : "수정하기"}
           </Button>
         </form>
       </PageSection>
