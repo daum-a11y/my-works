@@ -11,8 +11,8 @@
 
 ## 완료
 
-- `Vite + React + TypeScript + pnpm` 기반 워크스페이스 초기화
-- `/apps/ops-web` 1차 사용자 앱 스캐폴드 구성
+- `Vite + React + TypeScript + pnpm` 기반 단일 앱 초기화
+- 루트 앱 스캐폴드 구성
 - `React Router`, `React Query`, `Supabase client`, `React Aria`, `CSS Modules` 연결
 - 1차 라우트 뼈대 구성
   - `/login`

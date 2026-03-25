@@ -101,7 +101,7 @@ Deno.serve(async (request) => {
 
   const { data: member, error: memberError } = await supabase
     .from("members")
-    .select("id, user_level, is_active")
+    .select("id, user_level, user_active")
     .eq("auth_user_id", user.id)
     .maybeSingle();
 
@@ -109,7 +109,7 @@ Deno.serve(async (request) => {
     return new Response(memberError.message, { status: 500, headers: corsHeaders });
   }
 
-  if (!member || Number(member.user_level ?? 0) !== 1 || member.is_active !== true) {
+  if (!member || Number(member.user_level ?? 0) !== 1 || member.user_active !== true) {
     return new Response("관리자만 내보내기를 사용할 수 있습니다.", { status: 403, headers: corsHeaders });
   }
 

@@ -101,15 +101,41 @@ create table if not exists public.tasks (
   updated_at timestamptz not null default timezone('utc', now())
 );
 
+create or replace view public.members_public_view as
+select
+  id,
+  legacy_user_id,
+  name,
+  email,
+  user_level,
+  user_active
+from public.members;
+
 create or replace view public.active_members_public_view as
 select
   id,
   legacy_user_id,
   name,
   email,
-  user_level
+  user_level,
+  user_active
 from public.members
 where user_active = true;
+
+create or replace view public.project_pages_public_view as
+select
+  id,
+  legacy_page_id,
+  project_id,
+  owner_member_id,
+  title,
+  url,
+  track_status,
+  monitoring_in_progress,
+  qa_in_progress,
+  note,
+  updated_at
+from public.project_pages;
 
 create index if not exists idx_tasks_member_date on public.tasks (member_id, task_date desc);
 create index if not exists idx_project_pages_owner on public.project_pages (owner_member_id);
@@ -149,6 +175,8 @@ create or replace function public.current_member_id()
 returns uuid
 language sql
 stable
+security definer
+set search_path = public
 as $$
   select id
   from public.members
@@ -160,6 +188,8 @@ create or replace function public.current_user_is_admin()
 returns boolean
 language sql
 stable
+security definer
+set search_path = public
 as $$
   select exists (
     select 1
@@ -168,6 +198,54 @@ as $$
       and user_level = 1
       and user_active = true
   )
+$$;
+
+create or replace function public.bind_auth_session_member(
+  p_auth_user_id uuid,
+  p_email text default null
+)
+returns public.members
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_member public.members;
+begin
+  if p_auth_user_id is null then
+    return null;
+  end if;
+
+  select *
+  into v_member
+  from public.members
+  where auth_user_id = p_auth_user_id
+  limit 1;
+
+  if v_member.id is not null then
+    return v_member;
+  end if;
+
+  if coalesce(trim(p_email), '') = '' then
+    return null;
+  end if;
+
+  update public.members
+  set
+    auth_user_id = p_auth_user_id,
+    updated_at = timezone('utc', now())
+  where id = (
+    select id
+    from public.members
+    where lower(email) = lower(trim(p_email))
+      and auth_user_id is null
+    order by created_at
+    limit 1
+  )
+  returning * into v_member;
+
+  return v_member;
+end;
 $$;
 
 create or replace function public.save_task(
@@ -371,6 +449,19 @@ begin
     raise exception 'member not bound';
   end if;
 
+  if not exists (
+    select 1
+    from public.projects
+    where id = p_project_id
+      and (
+        created_by_member_id = v_member_id
+        or reporter_member_id = v_member_id
+        or public.current_user_is_admin()
+      )
+  ) then
+    raise exception 'project not found';
+  end if;
+
   if p_page_id is null then
     insert into public.project_pages (
       project_id,
@@ -421,10 +512,98 @@ begin
 end;
 $$;
 
+create or replace function public.admin_search_tasks(
+  p_member_id uuid default null,
+  p_start_date date default null,
+  p_end_date date default null,
+  p_project_id uuid default null,
+  p_project_page_id uuid default null,
+  p_task_type1 text default null,
+  p_task_type2 text default null,
+  p_service_group_id uuid default null,
+  p_keyword text default null
+)
+returns table (
+  id uuid,
+  member_id uuid,
+  task_date date,
+  project_id uuid,
+  project_page_id uuid,
+  task_type1 text,
+  task_type2 text,
+  hours numeric,
+  content text,
+  note text,
+  updated_at timestamptz,
+  member_name text,
+  member_email text,
+  project_name text,
+  page_title text,
+  service_group_id uuid,
+  service_group_name text
+)
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select
+    t.id,
+    t.member_id,
+    t.task_date,
+    t.project_id,
+    t.project_page_id,
+    t.task_type1,
+    t.task_type2,
+    t.hours,
+    t.content,
+    t.note,
+    t.updated_at,
+    m.name as member_name,
+    m.email as member_email,
+    coalesce(p.name, '') as project_name,
+    coalesce(pp.title, '') as page_title,
+    p.service_group_id,
+    coalesce(sg.name, '') as service_group_name
+  from public.tasks t
+  join public.members m on m.id = t.member_id
+  left join public.projects p on p.id = t.project_id
+  left join public.project_pages pp on pp.id = t.project_page_id
+  left join public.service_groups sg on sg.id = p.service_group_id
+  where public.current_user_is_admin()
+    and (p_member_id is null or t.member_id = p_member_id)
+    and (p_start_date is null or t.task_date >= p_start_date)
+    and (p_end_date is null or t.task_date <= p_end_date)
+    and (p_project_id is null or t.project_id = p_project_id)
+    and (p_project_page_id is null or t.project_page_id = p_project_page_id)
+    and (p_task_type1 is null or t.task_type1 = p_task_type1)
+    and (p_task_type2 is null or t.task_type2 = p_task_type2)
+    and (p_service_group_id is null or p.service_group_id = p_service_group_id)
+    and (
+      p_keyword is null
+      or concat_ws(
+        ' ',
+        m.name,
+        m.email,
+        p.name,
+        pp.title,
+        t.task_type1,
+        t.task_type2,
+        t.content,
+        t.note
+      ) ilike '%' || p_keyword || '%'
+    )
+  order by t.task_date desc, t.updated_at desc
+$$;
+
+grant execute on function public.current_member_id() to authenticated;
+grant execute on function public.current_user_is_admin() to authenticated;
+grant execute on function public.bind_auth_session_member(uuid, text) to authenticated;
 grant execute on function public.save_task(uuid, date, uuid, uuid, text, text, numeric, text, text) to authenticated;
 grant execute on function public.delete_task(uuid) to authenticated;
 grant execute on function public.upsert_project(uuid, text, text, uuid, text, uuid, uuid, date, date, boolean) to authenticated;
 grant execute on function public.upsert_project_page(uuid, uuid, text, text, uuid, text, boolean, boolean, text) to authenticated;
+grant execute on function public.admin_search_tasks(uuid, date, date, uuid, uuid, text, text, uuid, text) to authenticated;
 
 alter table public.members enable row level security;
 alter table public.service_groups enable row level security;
@@ -439,12 +618,24 @@ for select
 to authenticated
 using (auth.uid() = auth_user_id or public.current_user_is_admin());
 
-create policy "members_self_update"
+create policy "members_admin_insert"
+on public.members
+for insert
+to authenticated
+with check (public.current_user_is_admin());
+
+create policy "members_admin_update"
 on public.members
 for update
 to authenticated
-using (auth.uid() = auth_user_id or public.current_user_is_admin())
-with check (auth.uid() = auth_user_id or public.current_user_is_admin());
+using (public.current_user_is_admin())
+with check (public.current_user_is_admin());
+
+create policy "members_admin_delete"
+on public.members
+for delete
+to authenticated
+using (public.current_user_is_admin());
 
 create policy "service_groups_active_select"
 on public.service_groups
@@ -452,11 +643,49 @@ for select
 to authenticated
 using (is_active = true or public.current_user_is_admin());
 
+create policy "service_groups_admin_insert"
+on public.service_groups
+for insert
+to authenticated
+with check (public.current_user_is_admin());
+
+create policy "service_groups_admin_update"
+on public.service_groups
+for update
+to authenticated
+using (public.current_user_is_admin())
+with check (public.current_user_is_admin());
+
+create policy "service_groups_admin_delete"
+on public.service_groups
+for delete
+to authenticated
+using (public.current_user_is_admin());
+
 create policy "task_types_active_select"
 on public.task_types
 for select
 to authenticated
 using (is_active = true or public.current_user_is_admin());
+
+create policy "task_types_admin_insert"
+on public.task_types
+for insert
+to authenticated
+with check (public.current_user_is_admin());
+
+create policy "task_types_admin_update"
+on public.task_types
+for update
+to authenticated
+using (public.current_user_is_admin())
+with check (public.current_user_is_admin());
+
+create policy "task_types_admin_delete"
+on public.task_types
+for delete
+to authenticated
+using (public.current_user_is_admin());
 
 create policy "projects_select_authenticated"
 on public.projects
@@ -523,7 +752,9 @@ with check (
   or public.current_user_is_admin()
 );
 
+grant select on public.members_public_view to authenticated;
 grant select on public.active_members_public_view to authenticated;
+grant select on public.project_pages_public_view to authenticated;
 
 comment on table public.members is '1차 사용자/관리자 구분과 auth binding만 유지한다.';
 comment on table public.tasks is '개인 업무보고, 개인 검색/다운로드의 기준 테이블.';

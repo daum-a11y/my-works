@@ -6,9 +6,7 @@ settings:
 
 importers:
 
-  .: {}
-
-  apps/ops-web:
+  .:
     dependencies:
       '@hookform/resolvers':
         specifier: ^5.2.2

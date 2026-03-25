@@ -1,0 +1,588 @@
+import type {
+  Project,
+  ProjectPage,
+  ReportFilters as OpsReportFilters,
+  ServiceGroup,
+  Task,
+  TaskType,
+} from "../../lib/domain";
+
+export type ReportFilters = OpsReportFilters;
+
+export const REPORT_TYPE1_OPTIONS = ["기획", "개발", "QA", "운영", "지원"] as const;
+
+export const REPORT_TYPE2_OPTIONS = ["작성", "수정", "검토", "배포", "점검", "회의", "지원"] as const;
+
+export const PERSONAL_REPORT_OWNER = {
+  id: "me",
+  name: "운영 사용자",
+} as const;
+
+export type ReportType1 = string;
+export type ReportType2 = string;
+
+export interface ReportRecord {
+  id: string;
+  ownerId: string;
+  ownerName: string;
+  reportDate: string;
+  projectId: string;
+  pageId: string;
+  projectName: string;
+  pageName: string;
+  type1: ReportType1;
+  type2: ReportType2;
+  workHours: number;
+  content: string;
+  note: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ReportDraft {
+  reportDate: string;
+  projectId: string;
+  pageId: string;
+  type1: ReportType1;
+  type2: ReportType2;
+  workHours: string;
+  content: string;
+  note: string;
+}
+
+export interface ProjectViewModel {
+  id: string;
+  project: Project;
+  serviceGroupId: string | null;
+  serviceGroupName: string;
+  serviceName: string;
+  label: string;
+  searchText: string;
+}
+
+export interface ProjectPageViewModel {
+  id: string;
+  page: ProjectPage;
+  projectName: string;
+  serviceGroupName: string;
+  label: string;
+  searchText: string;
+}
+
+export interface ReportViewModel extends ReportRecord {
+  serviceGroupName: string;
+  projectDisplayName: string;
+  pageDisplayName: string;
+  searchText: string;
+}
+
+export type ReportSortMode =
+  | "date-desc"
+  | "date-asc"
+  | "updated-desc"
+  | "updated-asc"
+  | "project-asc"
+  | "project-desc"
+  | "hours-desc"
+  | "hours-asc";
+
+export const DEFAULT_REPORT_FILTERS: ReportFilters = {
+  query: "",
+  projectId: "",
+  pageId: "",
+  taskType1: "",
+  taskType2: "",
+  startDate: "",
+  endDate: "",
+  minHours: "",
+  maxHours: "",
+};
+
+function isoToDateInput(value: string) {
+  return value.slice(0, 10);
+}
+
+function toLocalInputDate(value: Date) {
+  const year = value.getFullYear();
+  const month = `${value.getMonth() + 1}`.padStart(2, "0");
+  const day = `${value.getDate()}`.padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function parseDateInput(value: string) {
+  if (!value) {
+    return null;
+  }
+
+  const [yearText, monthText, dayText] = value.split("-");
+  const year = Number.parseInt(yearText ?? "", 10);
+  const month = Number.parseInt(monthText ?? "", 10);
+  const day = Number.parseInt(dayText ?? "", 10);
+
+  if (!Number.isFinite(year) || !Number.isFinite(month) || !Number.isFinite(day)) {
+    return null;
+  }
+
+  return new Date(year, month - 1, day, 12, 0, 0, 0);
+}
+
+function normalizeText(value: string) {
+  return value.trim().toLowerCase();
+}
+
+function compareStrings(left: string, right: string) {
+  return left.localeCompare(right, "ko");
+}
+
+function buildServiceGroupMap(serviceGroups: ServiceGroup[]) {
+  return new Map(serviceGroups.map((group) => [group.id, group] as const));
+}
+
+function buildProjectLookup(project: Project, serviceGroupName: string) {
+  const serviceName = project.name || "미지정 프로젝트";
+  const label = [serviceGroupName, serviceName].filter(Boolean).join(" / ") || serviceName;
+  const searchText = normalizeText([serviceGroupName, serviceName, project.platform, project.id].join(" "));
+
+  return {
+    id: project.id,
+    project,
+    serviceGroupId: project.serviceGroupId,
+    serviceGroupName,
+    serviceName,
+    label,
+    searchText,
+  } satisfies ProjectViewModel;
+}
+
+function buildPageLookup(
+  page: ProjectPage,
+  project: Project | undefined,
+  serviceGroupName: string,
+) {
+  const projectName = project?.name || "미분류 프로젝트";
+  const label = [serviceGroupName, projectName, page.title].filter(Boolean).join(" / ") || page.title;
+  const searchText = normalizeText(
+    [serviceGroupName, projectName, page.title, page.note, page.url, page.id].join(" "),
+  );
+
+  return {
+    id: page.id,
+    page,
+    projectName,
+    serviceGroupName,
+    label,
+    searchText,
+  } satisfies ProjectPageViewModel;
+}
+
+export function buildProjectViewModels(projects: Project[], serviceGroups: ServiceGroup[]) {
+  const serviceGroupsById = buildServiceGroupMap(serviceGroups);
+
+  return projects.map((project) => {
+    const serviceGroupName = project.serviceGroupId
+      ? serviceGroupsById.get(project.serviceGroupId)?.name ?? ""
+      : "";
+    return buildProjectLookup(project, serviceGroupName);
+  });
+}
+
+export function buildProjectPageViewModels(
+  pages: ProjectPage[],
+  projects: Project[],
+  serviceGroups: ServiceGroup[],
+) {
+  const projectsById = new Map(projects.map((project) => [project.id, project] as const));
+  const serviceGroupsById = buildServiceGroupMap(serviceGroups);
+
+  return pages.map((page) => {
+    const project = projectsById.get(page.projectId);
+    const serviceGroupName = project?.serviceGroupId
+      ? serviceGroupsById.get(project.serviceGroupId)?.name ?? ""
+      : "";
+    return buildPageLookup(page, project, serviceGroupName);
+  });
+}
+
+export function buildTaskType1Options(taskTypes: TaskType[]) {
+  const unique = new Set<string>();
+  for (const taskType of taskTypes) {
+    if (taskType.type1) {
+      unique.add(taskType.type1);
+    }
+  }
+
+  return unique.size ? Array.from(unique) : [...REPORT_TYPE1_OPTIONS];
+}
+
+export function buildTaskType2Options(taskTypes: TaskType[], selectedType1 = "") {
+  const filtered = selectedType1 ? taskTypes.filter((taskType) => taskType.type1 === selectedType1) : taskTypes;
+  const unique = new Set<string>();
+
+  for (const taskType of filtered) {
+    if (taskType.type2) {
+      unique.add(taskType.type2);
+    }
+  }
+
+  return unique.size ? Array.from(unique) : [...REPORT_TYPE2_OPTIONS];
+}
+
+export function validateTaskTypeSelection(taskTypes: TaskType[], type1: string, type2: string) {
+  const normalizedType1 = type1.trim();
+  const normalizedType2 = type2.trim();
+
+  if (!normalizedType1 || !normalizedType2) {
+    throw new Error("업무 유형을 모두 선택해 주세요.");
+  }
+
+  if (!taskTypes.length) {
+    throw new Error("업무 유형 기준 정보를 확인할 수 없습니다.");
+  }
+
+  const isValid = taskTypes.some(
+    (taskType) => taskType.type1 === normalizedType1 && taskType.type2 === normalizedType2,
+  );
+
+  if (!isValid) {
+    throw new Error("업무 유형 기준 정보와 일치하지 않습니다.");
+  }
+
+  return {
+    type1: normalizedType1,
+    type2: normalizedType2,
+  };
+}
+
+export function parseReportHoursInput(value: string) {
+  const normalizedValue = value.trim();
+  if (!normalizedValue) {
+    throw new Error("소요 시간을 입력해 주세요.");
+  }
+
+  const parsed = Number.parseFloat(normalizedValue);
+  if (!Number.isFinite(parsed) || parsed < 0) {
+    throw new Error("소요 시간은 0 이상의 숫자로 입력해 주세요.");
+  }
+
+  return parsed;
+}
+
+export function getTodayInputValue(referenceDate = new Date()) {
+  return toLocalInputDate(referenceDate);
+}
+
+export function shiftDateInput(value: string, offsetDays: number) {
+  const parsed = parseDateInput(value);
+  const next = parsed ?? new Date();
+  next.setDate(next.getDate() + offsetDays);
+  return toLocalInputDate(next);
+}
+
+export function createEmptyReportDraft(referenceDate = new Date()): ReportDraft {
+  return {
+    reportDate: getTodayInputValue(referenceDate),
+    projectId: "",
+    pageId: "",
+    type1: REPORT_TYPE1_OPTIONS[0],
+    type2: REPORT_TYPE2_OPTIONS[0],
+    workHours: "1.0",
+    content: "",
+    note: "",
+  };
+}
+
+export function draftFromReport(report: ReportRecord): ReportDraft {
+  return {
+    reportDate: isoToDateInput(report.reportDate),
+    projectId: report.projectId,
+    pageId: report.pageId,
+    type1: report.type1,
+    type2: report.type2,
+    workHours: report.workHours.toFixed(1),
+    content: report.content,
+    note: report.note,
+  };
+}
+
+export function buildReportFromDraft(
+  draft: ReportDraft,
+  taskTypes: TaskType[],
+  options: {
+    existing?: ReportRecord;
+    now?: Date;
+  } = {},
+): ReportRecord {
+  const now = options.now ?? new Date();
+  const existing = options.existing;
+  const taskType = validateTaskTypeSelection(taskTypes, draft.type1, draft.type2);
+
+  return {
+    id: existing?.id ?? `report-${now.getTime()}-${Math.random().toString(36).slice(2, 8)}`,
+    ownerId: existing?.ownerId ?? PERSONAL_REPORT_OWNER.id,
+    ownerName: existing?.ownerName ?? PERSONAL_REPORT_OWNER.name,
+    reportDate: draft.reportDate,
+    projectId: draft.projectId,
+    pageId: draft.pageId,
+    projectName: existing?.projectName ?? "",
+    pageName: existing?.pageName ?? "",
+    type1: taskType.type1,
+    type2: taskType.type2,
+    workHours: parseReportHoursInput(draft.workHours),
+    content: draft.content.trim(),
+    note: draft.note.trim(),
+    createdAt: existing?.createdAt ?? now.toISOString(),
+    updatedAt: now.toISOString(),
+  };
+}
+
+export function buildReportViewModel(
+  report: ReportRecord,
+  projectsById: Map<string, Project>,
+  serviceGroupsById: Map<string, ServiceGroup>,
+  pagesById: Map<string, ProjectPage>,
+) {
+  const project = report.projectId ? projectsById.get(report.projectId) ?? null : null;
+  const page = report.pageId ? pagesById.get(report.pageId) ?? null : null;
+  const serviceGroupName = project?.serviceGroupId
+    ? serviceGroupsById.get(project.serviceGroupId)?.name ?? ""
+    : "";
+  const projectDisplayName = [serviceGroupName, project?.name ?? report.projectName]
+    .filter(Boolean)
+    .join(" / ")
+    || project?.name
+    || report.projectName
+    || "미분류 프로젝트";
+  const pageDisplayName = page?.title || report.pageName || "미지정 페이지";
+  const searchText = normalizeText(
+    [
+      report.reportDate,
+      serviceGroupName,
+      project?.name ?? report.projectName,
+      pageDisplayName,
+      report.type1,
+      report.type2,
+      report.content,
+      report.note,
+    ].join(" "),
+  );
+
+  return {
+    ...report,
+    serviceGroupName,
+    projectDisplayName,
+    pageDisplayName,
+    searchText,
+  } satisfies ReportViewModel;
+}
+
+export function sortReportsByMode<T extends ReportRecord>(reports: readonly T[], mode: ReportSortMode) {
+  return [...reports].sort((left, right) => {
+    switch (mode) {
+      case "date-asc":
+        return left.reportDate.localeCompare(right.reportDate) || left.updatedAt.localeCompare(right.updatedAt);
+      case "updated-desc":
+        return right.updatedAt.localeCompare(left.updatedAt) || right.id.localeCompare(left.id);
+      case "updated-asc":
+        return left.updatedAt.localeCompare(right.updatedAt) || left.id.localeCompare(right.id);
+      case "project-asc":
+        return (
+          compareStrings(left.projectName || "", right.projectName || "") ||
+          compareStrings(left.pageName || "", right.pageName || "") ||
+          compareStrings(left.id, right.id)
+        );
+      case "project-desc":
+        return (
+          compareStrings(right.projectName || "", left.projectName || "") ||
+          compareStrings(right.pageName || "", left.pageName || "") ||
+          compareStrings(right.id, left.id)
+        );
+      case "hours-desc":
+        return right.workHours - left.workHours || right.updatedAt.localeCompare(left.updatedAt) || right.id.localeCompare(left.id);
+      case "hours-asc":
+        return left.workHours - right.workHours || left.updatedAt.localeCompare(right.updatedAt) || left.id.localeCompare(right.id);
+      case "date-desc":
+      default:
+        return right.reportDate.localeCompare(left.reportDate) || right.updatedAt.localeCompare(left.updatedAt) || right.id.localeCompare(left.id);
+    }
+  });
+}
+
+export function sortReportsDescending<T extends ReportRecord>(reports: readonly T[]) {
+  return sortReportsByMode(reports, "date-desc");
+}
+
+function buildReportSearchText(report: ReportRecord) {
+  return normalizeText(
+    [
+      report.reportDate,
+      report.projectName,
+      report.pageName,
+      report.type1,
+      report.type2,
+      report.content,
+      report.note,
+    ].join(" "),
+  );
+}
+
+export function reportMatchesFilters(report: ReportRecord, filters: ReportFilters) {
+  const searchText = normalizeText(filters.query);
+  const minHours = filters.minHours ? Number.parseFloat(filters.minHours) : null;
+  const maxHours = filters.maxHours ? Number.parseFloat(filters.maxHours) : null;
+
+  if (searchText && !buildReportSearchText(report).includes(searchText)) {
+    return false;
+  }
+
+  if (filters.projectId && report.projectId !== filters.projectId) {
+    return false;
+  }
+
+  if (filters.pageId && report.pageId !== filters.pageId) {
+    return false;
+  }
+
+  if (filters.taskType1 && report.type1 !== filters.taskType1) {
+    return false;
+  }
+
+  if (filters.taskType2 && report.type2 !== filters.taskType2) {
+    return false;
+  }
+
+  if (filters.startDate && report.reportDate < filters.startDate) {
+    return false;
+  }
+
+  if (filters.endDate && report.reportDate > filters.endDate) {
+    return false;
+  }
+
+  if (minHours !== null && report.workHours < minHours) {
+    return false;
+  }
+
+  if (maxHours !== null && report.workHours > maxHours) {
+    return false;
+  }
+
+  return true;
+}
+
+export function formatReportHours(value: number) {
+  return `${value.toFixed(1)}h`;
+}
+
+export function formatReportDate(value: string) {
+  return value.replaceAll("-", ".");
+}
+
+export function formatReportDateTime(value: string) {
+  if (!value) {
+    return "-";
+  }
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  return new Intl.DateTimeFormat("ko-KR", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  })
+    .format(date)
+    .replaceAll(". ", ".")
+    .replace(", ", " ");
+}
+
+function escapeHtml(value: string) {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
+export function buildReportDownloadHtml(reports: readonly ReportViewModel[], title: string) {
+  const rows = reports
+    .map(
+      (report) => `
+        <tr>
+          <td>${escapeHtml(formatReportDate(report.reportDate))}</td>
+          <td>${escapeHtml(report.projectDisplayName)}</td>
+          <td>${escapeHtml(report.pageDisplayName)}</td>
+          <td>${escapeHtml(report.type1)}</td>
+          <td>${escapeHtml(report.type2)}</td>
+          <td>${escapeHtml(formatReportHours(report.workHours))}</td>
+          <td>${escapeHtml(report.content)}</td>
+          <td>${escapeHtml(report.note)}</td>
+        </tr>`,
+    )
+    .join("");
+
+  return `<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>${escapeHtml(title)}</title>
+    <style>
+      body {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        margin: 0;
+        padding: 24px;
+        color: #1f2937;
+        background: #f7f5f1;
+      }
+      h1 {
+        margin: 0 0 16px;
+        font-size: 24px;
+      }
+      p {
+        margin: 0 0 20px;
+        color: #4b5563;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+      }
+      th,
+      td {
+        padding: 10px 12px;
+        border: 1px solid #d8d5cf;
+        text-align: left;
+        vertical-align: top;
+        font-size: 13px;
+      }
+      th {
+        background: #efebe5;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>${escapeHtml(title)}</h1>
+    <p>${escapeHtml(`${reports.length}건의 보고서`)}</p>
+    <table>
+      <thead>
+        <tr>
+          <th>일자</th>
+          <th>프로젝트</th>
+          <th>페이지</th>
+          <th>TYPE1</th>
+          <th>TYPE2</th>
+          <th>시간</th>
+          <th>내용</th>
+          <th>메모</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </body>
+</html>`;
+}
