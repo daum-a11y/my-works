@@ -166,7 +166,11 @@ export function TrackingFeature() {
   }, [rows]);
 
   if (query.isLoading) {
-    return <section className={styles.empty}>트래킹 데이터를 불러오는 중입니다.</section>;
+    return (
+      <div style={{ display: "flex", justifyContent: "center", padding: "4rem" }}>
+        <div style={{ width: "2rem", height: "2rem", border: "2px solid var(--border-subtle)", borderTopColor: "var(--accent-strong)", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
+      </div>
+    );
   }
 
   const updateDraft = (page: ProjectPage, patch: Partial<TrackingDraft>) => {

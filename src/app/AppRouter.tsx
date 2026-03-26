@@ -22,10 +22,28 @@ import { PasswordSettingsPage } from "../features/settings";
 import { TrackingFeature } from "../features/tracking";
 import { AppShell } from "./AppShell";
 
-function LoadingFallback({ message }: { message: string }) {
+function LoadingFallback() {
   return (
-    <div style={{ padding: "1.25rem", textAlign: "left" }}>
-      <strong>{message}</strong>
+    <div style={{ 
+      display: "flex", 
+      alignItems: "center", 
+      justifyContent: "center", 
+      minHeight: "100vh",
+      background: "#ffffff",
+    }}>
+      <div style={{
+        width: "2.5rem",
+        height: "2.5rem",
+        border: "3px solid var(--border-subtle)",
+        borderTopColor: "var(--accent-strong)",
+        borderRadius: "50%",
+        animation: "spin 0.8s linear infinite"
+      }} />
+      <style>{`
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 }
@@ -34,7 +52,7 @@ function GuardedLayout() {
   const { status } = useAuth();
 
   if (status === "loading") {
-    return <LoadingFallback message="인증 정보를 불러오는 중입니다." />;
+    return <LoadingFallback />;
   }
 
   if (status !== "authenticated") {
@@ -48,7 +66,7 @@ function AdminRoute() {
   const { status, session } = useAuth();
 
   if (status === "loading") {
-    return <LoadingFallback message="관리자 권한을 확인하는 중입니다." />;
+    return <LoadingFallback />;
   }
 
   if (status !== "authenticated" || !session) {

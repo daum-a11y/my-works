@@ -1,5 +1,18 @@
 import { useMemo } from "react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
+import { 
+  LayoutDashboard, 
+  FileText, 
+  Activity, 
+  Layers, 
+  Database, 
+  Search,
+  Settings,
+  Shield,
+  LogOut,
+  ChevronRight,
+  Users
+} from "lucide-react";
 import { useAuth } from "../features/auth/AuthContext";
 import styles from "./AppShell.module.css";
 
@@ -9,23 +22,35 @@ type NavigationItem = {
   children?: readonly { to: string; label: string }[];
 };
 
-const baseNavigation: readonly NavigationItem[] = [
-  { to: "/dashboard", label: "업무 현황" },
-  { to: "/reports", label: "업무보고 작성/리스트" },
-  { to: "/tracking", label: "모니터링 트래킹" },
-  { to: "/projects", label: "프로젝트 관리" },
-  { to: "/resource/summary", label: "리소스 판독: 요약" },
-  { to: "/resource/type", label: "리소스 판독: 업무유형" },
-  { to: "/resource/svc", label: "리소스 판독: 서비스그룹" },
-  { to: "/resource/month", label: "리소스 판독: 월간" },
-  { to: "/reports/search", label: "업무보고 검색" },
+const baseNavigation = [
+  { to: "/dashboard", label: "업무 현황", icon: LayoutDashboard },
+  { to: "/reports", label: "업무 보고", icon: FileText },
+  { to: "/tracking", label: "모니터링 현황", icon: Activity },
+  { to: "/projects", label: "프로젝트 관리", icon: Layers },
+  { 
+    label: "리소스 현황", 
+    icon: Database,
+    children: [
+      { to: "/resource/summary", label: "리소스 요약" },
+      { to: "/resource/type", label: "업무유형 집계" },
+      { to: "/resource/svc", label: "서비스그룹 집계" },
+      { to: "/resource/month", label: "월간 종합현황" },
+    ] 
+  },
+  { to: "/reports/search" , label: "업무 검색", icon: Search },
 ] as const;
 
-const adminNavigation: readonly NavigationItem[] = [
-  { to: "/admin/reports", label: "관리자: 전체 업무" },
-  { to: "/admin/type", label: "관리자: 업무 타입" },
-  { to: "/admin/group", label: "관리자: 서비스 그룹" },
-  { to: "/admin/members", label: "관리자: 사용자 관리" },
+const adminNavigation = [
+  { 
+    label: "관리자 설정", 
+    icon: Shield,
+    children: [
+      { to: "/admin/reports", label: "전체 업무 리스트" },
+      { to: "/admin/members", label: "사용자 계정 관리" },
+      { to: "/admin/type", label: "업무 타입 관리" },
+      { to: "/admin/group", label: "서비스그룹 관리" },
+    ]
+  },
 ] as const;
 
 function isCurrentPath(pathname: string, to: string) {
@@ -42,24 +67,32 @@ export function AppShell() {
     [isAdmin],
   );
 
-  const currentLabel = useMemo(() => {
+  const breadcrumbs = useMemo(() => {
+    const parts = [{ label: "My Works", to: "/dashboard" }];
+    
     if (location.pathname === "/settings/password") {
-      return "개인정보 수정";
+      parts.push({ label: "비밀번호 변경", to: "/settings/password" });
+      return parts;
     }
 
     for (const item of navigation) {
       if (item.to && isCurrentPath(location.pathname, item.to)) {
-        return item.label;
+        parts.push({ label: item.label, to: item.to });
+        break;
       }
 
-      for (const child of item.children ?? []) {
-        if (isCurrentPath(location.pathname, child.to)) {
-          return child.label;
+      if (item.children) {
+        for (const child of item.children) {
+          if (isCurrentPath(location.pathname, child.to)) {
+            parts.push({ label: item.label, to: "#" });
+            parts.push({ label: child.label, to: child.to });
+            return parts;
+          }
         }
       }
     }
 
-    return "My Works";
+    return parts;
   }, [location.pathname, navigation]);
 
   return (
@@ -76,17 +109,21 @@ export function AppShell() {
           <nav aria-label="주요 메뉴" className={styles.nav}>
             <ul className={styles.navList}>
               {navigation.map((item) => (
-                <li key={item.label}>
+                <li key={item.label} className={styles.navItem}>
                   {item.to ? (
                     <NavLink
                       to={item.to}
                       className={({ isActive }) => (isActive ? styles.activeLink : styles.link)}
                     >
-                      {item.label}
+                      {item.icon && <item.icon size={16} strokeWidth={2} />}
+                      <span>{item.label}</span>
                     </NavLink>
                   ) : (
-                    <>
-                      <span className={styles.sectionLabel}>{item.label}</span>
+                    <div className={styles.navGroup}>
+                      <div className={styles.navGroupHeader}>
+                        {item.icon && <item.icon size={16} strokeWidth={2} />}
+                        <span className={styles.sectionLabel}>{item.label}</span>
+                      </div>
                       <ul className={styles.subNavList}>
                         {item.children?.map((child) => (
                           <li key={child.to}>
@@ -99,7 +136,7 @@ export function AppShell() {
                           </li>
                         ))}
                       </ul>
-                    </>
+                    </div>
                   )}
                 </li>
               ))}
@@ -110,21 +147,41 @@ export function AppShell() {
         <div className={styles.content}>
           <header className={styles.header}>
             <div className={styles.headerTitle}>
-              <h1 className={styles.pageTitle}>{currentLabel}</h1>
+              <nav className={styles.breadcrumbs}>
+                <ol>
+                  {breadcrumbs.map((crumb, i) => (
+                    <li key={crumb.label}>
+                      {i > 0 && <ChevronRight size={14} className={styles.breadcrumbSeparator} />}
+                      <span className={i === breadcrumbs.length - 1 ? styles.lastCrumb : ""}>
+                        {crumb.label}
+                      </span>
+                    </li>
+                  ))}
+                </ol>
+              </nav>
             </div>
             <div className={styles.headerMeta}>
               <div className={styles.profile}>
-                <strong>{session?.member.name}</strong>
-                <span>{session?.member.legacyUserId}</span>
+                <div className={styles.profileIcon}><Users size={16} /></div>
+                <div className={styles.profileInfo}>
+                  <strong>{session?.member.name}</strong>
+                  <span>{session?.member.legacyUserId}</span>
+                </div>
               </div>
               <NavLink
                 to="/settings/password"
                 className={({ isActive }) => (isActive ? styles.headerActionActive : styles.headerAction)}
+                title="계정 설정"
               >
-                계정 설정
+                <Settings size={18} />
               </NavLink>
-              <button type="button" className={styles.headerButton} onClick={() => void logout()}>
-                로그아웃
+              <button 
+                type="button" 
+                className={styles.headerButton} 
+                onClick={() => void logout()}
+                title="로그아웃"
+              >
+                <LogOut size={18} />
               </button>
             </div>
           </header>

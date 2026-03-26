@@ -53,7 +53,7 @@ export function ResourceSummaryPage() {
 
   return (
     <>
-      <PageSection title="일간 작성현황" description="선택한 날짜 기준으로 사용자별 작성 건수와 시간을 확인합니다.">
+      <PageSection title="일간 작성현황">
         <div className={styles.toolbar}>
           <button type="button" onClick={() => filters.setSelectedDate(addDays(filters.selectedDate, -1))}>
             이전날
@@ -80,7 +80,9 @@ export function ResourceSummaryPage() {
         </div>
 
         {query.isLoading ? (
-          <div className={styles.empty}>리소스 데이터를 불러오는 중입니다.</div>
+          <div style={{ display: "flex", justifyContent: "center", padding: "4rem" }}>
+            <div style={{ width: "2.5rem", height: "2.5rem", border: "3px solid var(--border-subtle)", borderTopColor: "var(--accent-strong)", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
+          </div>
         ) : (
           <div className={styles.tableWrap}>
             <table className={styles.table}>
@@ -117,7 +119,7 @@ export function ResourceSummaryPage() {
         )}
       </PageSection>
 
-      <PageSection title="당일 업무 목록" description="선택한 날짜의 업무를 시간 순으로 표시합니다.">
+      <PageSection title="당일 업무 목록">
         <div className={styles.tableWrap}>
           <table className={styles.table}>
             <thead>

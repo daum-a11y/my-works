@@ -24,7 +24,7 @@ function buildCalendarCells(referenceDate: Date) {
   const leadingBlanks = firstDate.getDay();
 
   return [
-    ...Array.from({ length: leadingBlanks }, (_, index) => ({ key: `blank-${index}`, blank: true as const })),
+    ...Array.from({ length: leadingBlanks }, (_, index) => ({ key: `blank-${index}`, day: 0, value: "", blank: true as const })),
     ...monthDays.map((day) => ({ key: day.value, blank: false as const, ...day })),
   ];
 }
@@ -56,12 +56,12 @@ export function DashboardPage() {
   const urgentMonitoring = monitoring.slice(0, 4);
   const urgentQa = qa.slice(0, 4);
   const completionRate = totalCount ? Math.round((completedCount / totalCount) * 100) : 0;
+  const getDayState = (date: string) => (tasksByDate.has(date) ? "done" : "none");
 
   return (
     <div className={styles.page}>
       <header className={styles.header}>
         <div className={styles.headerCopy}>
-          <p className={styles.kicker}>상황판</p>
           <h1>이번 달 운영 현황</h1>
         </div>
         <dl className={styles.summaryStrip}>
@@ -82,36 +82,35 @@ export function DashboardPage() {
 
       <div className={styles.mainGrid}>
         <div className={styles.mainCol}>
-          <div className={styles.calendarPanel}>
+          <section className={styles.matrixSection}>
             <div className={styles.sectionHead}>
-              <h2>업무보고 달력</h2>
+              <h2>업무 보고 현황</h2>
             </div>
-            <div className={styles.calendar}>
-              {weekdayLabels.map((label) => (
-                <span key={label} className={styles.weekday}>
-                  {label}
-                </span>
-              ))}
-              {calendarCells.map((cell) => {
-                if (cell.blank) {
-                  return <div key={cell.key} className={styles.blankCell} aria-hidden="true" />;
-                }
-
-                const exists = tasksByDate.has(cell.value);
-                return (
-                  <div key={cell.key} className={styles.dayCard} data-state={exists ? "done" : "empty"}>
-                    <strong className={styles.dayNumber}>{cell.day}</strong>
-                    <span className={styles.dayState}>{exists ? "완료" : "누락"}</span>
-                  </div>
-                );
-              })}
+            <div className={styles.matrixWrap}>
+              <div className={styles.matrix}>
+                {weekdayLabels.map(l => <span key={l} className={styles.matrixWeekday}>{l}</span>)}
+                {calendarCells.map((cell) => {
+                  if (cell.blank) {
+                    return <div key={cell.key} className={styles.matrixBlank} />;
+                  }
+                  const state = getDayState(cell.value);
+                  return (
+                    <div 
+                      key={cell.key} 
+                      className={styles.matrixCell} 
+                      data-state={state}
+                    >
+                      <span className={styles.matrixDate}>{cell.day}</span>
+                      <div className={styles.statusDot} />
+                    </div>
+                  );
+                })}
+              </div>
             </div>
-          </div>
+          </section>
 
           <section className={styles.tableSection}>
-            <div className={styles.sectionHead}>
-              <h2>진행중 모니터링</h2>
-            </div>
+            <h2>진행중 모니터링</h2>
             <div className={styles.tableWrap}>
               <table className={styles.table}>
                 <caption className="srOnly">진행중 모니터링 목록</caption>
@@ -163,9 +162,7 @@ export function DashboardPage() {
           </section>
 
           <section className={styles.tableSection}>
-            <div className={styles.sectionHead}>
-              <h2>진행중 QA</h2>
-            </div>
+            <h2>진행중 QA</h2>
             <div className={styles.tableWrap}>
               <table className={styles.table}>
                 <caption className="srOnly">진행중 QA 목록</caption>
@@ -213,10 +210,7 @@ export function DashboardPage() {
 
         <aside className={styles.sideCol}>
           <section className={styles.priorityBlock}>
-            <div className={styles.sectionHead}>
-              <h2>모니터링 우선순위</h2>
-              <p>{monitoring.length}건</p>
-            </div>
+            <h2>모니터링 우선순위</h2>
             <ul className={styles.queueList}>
               {urgentMonitoring.map((item) => (
                 <li key={item.pageId}>
@@ -233,10 +227,7 @@ export function DashboardPage() {
           </section>
 
           <section className={styles.priorityBlock}>
-            <div className={styles.sectionHead}>
-              <h2>QA 종료 예정</h2>
-              <p>{qa.length}건</p>
-            </div>
+            <h2>QA 종료 예정</h2>
             <ul className={styles.queueList}>
               {urgentQa.map((item) => (
                 <li key={item.pageId}>

@@ -119,31 +119,35 @@
 
 .metrics {
   display: grid;
-  gap: 0.8rem;
-  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 1.5rem;
+  grid-template-columns: repeat(3, 1fr);
 }
 
 .metricCard {
-  display: grid;
-  gap: 0.2rem;
-  padding: 0.65rem 0.9rem;
-  border-inline-start: 3px solid var(--accent-strong);
   background: var(--surface-panel);
-  border-bottom: 1px solid var(--border-default);
+  padding: 1.5rem;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  box-shadow: var(--elevation-1);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  border-inline-start: 4px solid var(--accent-strong);
 }
 
 .metricCard span {
   color: var(--text-tertiary);
-  font-size: var(--text-meta-size);
-  line-height: var(--text-meta-line-height);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
 }
 
 .metricCard strong {
+  margin: 0;
   color: var(--text-primary);
-  font-size: var(--text-section-title-size);
-  font-weight: var(--text-section-title-weight);
-  line-height: var(--text-section-title-line-height);
-  letter-spacing: var(--text-section-title-tracking);
+  font-size: 1.75rem;
+  font-weight: 800;
 }
 
 .tableWrap {
@@ -200,20 +204,22 @@
 
 .calendar {
   display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 0;
-  overflow: hidden;
-  border: 1px solid var(--border-default);
-  background: var(--surface-canvas);
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.5rem;
 }
 
 .calendarCell {
-  min-height: 72px;
-  padding: 0.62rem;
-  border-inline-end: 1px solid var(--border-subtle);
-  border-bottom: 1px solid var(--border-subtle);
-  
-  background: transparent;
+  min-height: 80px;
+  padding: 0.75rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-panel);
+  transition: all 120ms ease;
+}
+
+.calendarCell:hover {
+  border-color: var(--accent-strong);
+  box-shadow: var(--elevation-1);
 }
 
 .calendarCell strong {
@@ -231,15 +237,17 @@
 }
 
 .calendarCell[data-state="filled"] {
-  background: var(--surface-active);
+  background: var(--state-success-bg);
+  border-color: var(--state-success-border);
 }
 
 .calendarCell[data-state="partial"] {
-  background: color-mix(in srgb, var(--warning) 4%, white);
+  background: var(--state-warning-bg);
+  border-color: var(--state-warning-border);
 }
 
 .calendarCell[data-state="empty"] {
-  background: transparent;
+  background: var(--surface-panel);
 }
 
 .calendar > :nth-child(7n) {

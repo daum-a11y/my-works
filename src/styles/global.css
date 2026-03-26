@@ -69,7 +69,7 @@ select {
   background: var(--text-primary);
   color: var(--text-inverse);
   transform: translateY(-180%);
-  transition: transform 180ms ease;
+  transition: none;
 }
 
 .skipLink:focus-visible {

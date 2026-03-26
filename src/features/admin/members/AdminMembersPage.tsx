@@ -160,7 +160,6 @@ export function AdminMembersPage() {
 
       <header className={styles.hero}>
         <h2>사용자 관리</h2>
-        <p>신규 가입자는 Auth 계정 생성 시 `members`에 자동 등록되고, 기존 이메일 일치 사용자는 자동 연결됩니다.</p>
       </header>
 
       {errorMessage && <p className={styles.helperText}>{errorMessage}</p>}
