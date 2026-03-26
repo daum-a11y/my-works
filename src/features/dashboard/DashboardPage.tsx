@@ -40,30 +40,14 @@ export function DashboardPage() {
 
   return (
     <div className={styles.page}>
-      <PageSection title="내 업무보고 작성현황" description="이번 달 작성 여부를 일자 단위로 확인합니다.">
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(72px, 1fr))",
-            gap: "0.75rem",
-          }}
-        >
+      <PageSection title="내 업무보고 작성현황">
+        <div className={styles.monthGrid}>
           {monthDays.map((day) => {
             const exists = tasksByDate.has(day.value);
             return (
-              <div
-                key={day.value}
-                style={{
-                  border: "1px solid var(--border-strong)",
-                  borderRadius: "0.875rem",
-                  padding: "0.75rem",
-                  background: exists
-                    ? "color-mix(in srgb, var(--accent-soft) 46%, white)"
-                    : "color-mix(in srgb, var(--surface-panel) 90%, white)",
-                }}
-              >
-                <strong style={{ display: "block", fontSize: "1.125rem" }}>{day.day}</strong>
-                <span style={{ fontSize: "0.875rem" }}>{exists ? "작성" : "미작성"}</span>
+              <div key={day.value} className={styles.dayCard} data-state={exists ? "done" : "empty"}>
+                <strong className={styles.dayNumber}>{day.day}</strong>
+                <span className={styles.dayState}>{exists ? "작성" : "미작성"}</span>
               </div>
             );
           })}
@@ -73,7 +57,6 @@ export function DashboardPage() {
       <div className={styles.grid}>
         <PageSection
           title="진행중 모니터링"
-          description="원본 기준으로 현재 진행 대상만 표 형태로 제공합니다."
         >
           {dashboardQuery.isLoading ? (
             <p className={styles.message}>대시보드 데이터를 불러오는 중입니다.</p>
@@ -129,7 +112,7 @@ export function DashboardPage() {
           )}
         </PageSection>
 
-        <PageSection title="진행중 QA" description="원본 기준으로 현재 진행 중인 QA 목록을 표 형태로 제공합니다.">
+        <PageSection title="진행중 QA">
           {dashboardQuery.isLoading ? (
             <p className={styles.message}>대시보드 데이터를 불러오는 중입니다.</p>
           ) : (

@@ -24,7 +24,7 @@ import { AppShell } from "./AppShell";
 
 function LoadingFallback({ message }: { message: string }) {
   return (
-    <div style={{ padding: "3rem", textAlign: "center" }}>
+    <div style={{ padding: "1.25rem", textAlign: "left" }}>
       <strong>{message}</strong>
     </div>
   );

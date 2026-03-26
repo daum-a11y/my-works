@@ -434,11 +434,8 @@ export function SearchPage() {
     <section className={styles.page}>
       <header className={styles.hero}>
         <div className={styles.heroMain}>
-          <p className={styles.kicker}>개인 검색</p>
-          <h1 className={styles.title}>기간을 지정해 검색하고, 결과를 바로 수정하거나 내려받습니다.</h1>
-          <p className={styles.description}>
-            조회 조건은 버튼으로 실행하고, 결과는 인라인 편집과 하단 추가 폼으로 다룹니다.
-          </p>
+          <p className={styles.kicker}>검색</p>
+          <h1 className={styles.title}>업무보고 검색</h1>
         </div>
       </header>
 
@@ -446,7 +443,7 @@ export function SearchPage() {
         <div className={styles.panelHead}>
           <div>
             <p className={styles.panelEyebrow}>검색 조건</p>
-            <h2 className={styles.panelTitle}>명시적 조회</h2>
+            <h2 className={styles.panelTitle}>검색</h2>
           </div>
 
           <div className={styles.toolbarActions}>
@@ -503,7 +500,7 @@ export function SearchPage() {
         <div className={styles.panelHead}>
           <div>
             <p className={styles.panelEyebrow}>검색 결과</p>
-            <h2 className={styles.panelTitle}>인라인 수정/삭제</h2>
+            <h2 className={styles.panelTitle}>검색 결과</h2>
           </div>
           <p className={styles.panelMeta}>{sortedReports.length}건</p>
         </div>
@@ -678,7 +675,7 @@ export function SearchPage() {
         <div className={styles.panelHead}>
           <div>
             <p className={styles.panelEyebrow}>하단 추가</p>
-            <h2 className={styles.panelTitle}>새 보고 입력</h2>
+            <h2 className={styles.panelTitle}>추가</h2>
           </div>
           <button type="button" className={styles.secondaryButton} onClick={() => setAddDraft(createEmptyReportDraft())}>
             입력 초기화

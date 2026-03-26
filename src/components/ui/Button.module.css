@@ -4,14 +4,13 @@
   justify-content: center;
   gap: 0.5rem;
   min-height: var(--control-height-md);
-  padding: 0.72rem 1.1rem;
+  padding: 0.48rem 0.78rem;
   border: 1px solid transparent;
-  border-radius: 999px;
+  border-radius: var(--radius-sm);
   font: inherit;
-  font-weight: 800;
-  letter-spacing: -0.01em;
+  font-weight: 700;
+  letter-spacing: -0.005em;
   transition:
-    transform 160ms ease,
     background 160ms ease,
     border-color 160ms ease,
     color 160ms ease,
@@ -19,18 +18,10 @@
     opacity 160ms ease;
 }
 
-.button[data-pressed] {
-  transform: translateY(1px);
-}
-
 .button[data-disabled] {
   opacity: 0.48;
   cursor: not-allowed;
   box-shadow: none;
-}
-
-.button:not([data-disabled]):hover {
-  transform: translateY(-1px);
 }
 
 .button:not([data-disabled]):focus-visible {
@@ -41,7 +32,7 @@
 .primary {
   color: var(--text-inverse);
   background: var(--button-primary-bg);
-  box-shadow: var(--elevation-1);
+  border-color: color-mix(in srgb, var(--button-primary-bg) 86%, white);
 }
 
 .primary:not([data-disabled]):hover {
@@ -71,5 +62,5 @@
 .danger {
   color: var(--text-inverse);
   background: var(--button-danger-bg);
-  box-shadow: var(--elevation-1);
+  border-color: color-mix(in srgb, var(--button-danger-bg) 82%, white);
 }

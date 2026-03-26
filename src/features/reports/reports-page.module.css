@@ -1,43 +1,38 @@
 .page {
   min-height: 100%;
   display: grid;
-  gap: 1.25rem;
+  gap: 1rem;
 }
 
 .hero {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 1.25rem;
-  padding: 1.05rem 1.2rem;
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-lg);
-  background: color-mix(in srgb, var(--surface-raised) 98%, white);
-  box-shadow: var(--elevation-1);
+  display: grid;
+  gap: 0.35rem;
+  padding: 0 0 0.85rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--border-default) 88%, white);
 }
 
 .heroMain {
-  max-width: 72ch;
   display: grid;
-  gap: 0.7rem;
+  gap: 0.2rem;
 }
 
 .kicker {
   margin: 0;
   color: var(--accent-strong);
-  font-size: 0.78rem;
-  font-weight: 800;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: none;
 }
 
 .title {
   margin: 0;
   color: var(--text-primary);
-  font-family: var(--font-display);
-  font-size: clamp(1.55rem, 2vw, 2.2rem);
-  line-height: 1.1;
-  letter-spacing: -0.04em;
+  font-family: var(--font-body);
+  font-size: 1.02rem;
+  line-height: 1.2;
+  font-weight: 800;
+  letter-spacing: -0.01em;
 }
 
 .description {
@@ -49,7 +44,7 @@
 .status {
   margin: 0;
   color: var(--text-tertiary);
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 600;
 }
 
@@ -62,39 +57,35 @@
 
 .tabButton {
   border: 1px solid var(--button-secondary-border);
-  border-radius: 999px;
-  padding: 0.75rem 1rem;
+  border-radius: var(--radius-sm);
+  padding: 0.48rem 0.72rem;
   background: var(--button-secondary-bg);
   color: var(--text-primary);
   font: inherit;
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: -0.01em;
   cursor: pointer;
-  transition: background-color 160ms ease, border-color 160ms ease, transform 160ms ease;
-}
-
-.tabButton:hover {
-  transform: translateY(-1px);
-  background: var(--button-secondary-hover);
+  transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease;
 }
 
 .tabButton[data-active] {
-  border-color: color-mix(in srgb, var(--accent-strong) 28%, var(--button-secondary-border));
-  background: color-mix(in srgb, var(--accent-soft) 68%, white);
-  color: var(--accent-strong);
+  border-color: color-mix(in srgb, var(--button-primary-bg) 16%, white);
+  background: color-mix(in srgb, var(--accent-soft) 12%, white);
+  color: var(--text-primary);
+  box-shadow: inset 3px 0 0 var(--accent);
 }
 
 .stack {
   display: grid;
-  gap: 1.25rem;
+  gap: 1rem;
 }
 
 .panel {
-  padding: 1rem;
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-lg);
-  background: color-mix(in srgb, var(--surface-raised) 98%, white);
-  box-shadow: var(--elevation-1);
+  padding: 0.9rem;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: var(--surface-panel);
+  box-shadow: none;
 }
 
 .panelHead {
@@ -102,24 +93,27 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 1rem;
-  margin-bottom: 1rem;
+  margin-bottom: 0.7rem;
+  padding-bottom: 0.65rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--border-subtle) 88%, white);
 }
 
 .panelEyebrow {
   display: block;
   margin-bottom: 0.15rem;
   color: var(--text-tertiary);
-  font-size: 0.74rem;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: none;
 }
 
 .panelTitle {
   margin: 0;
   color: var(--text-primary);
-  font-size: 1.15rem;
-  letter-spacing: -0.02em;
+  font-size: 0.96rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
 }
 
 .panelMeta {
@@ -134,36 +128,30 @@
 .dateActions {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.6rem;
+  gap: 0.5rem;
   align-items: center;
 }
 
 .primaryButton,
 .secondaryButton,
 .chipButton {
-  border-radius: 999px;
+  border-radius: var(--radius-sm);
   font: inherit;
-  font-weight: 800;
+  font-weight: 700;
   cursor: pointer;
-  transition: background-color 160ms ease, border-color 160ms ease, transform 160ms ease, color 160ms ease;
+  transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease;
 }
 
 .primaryButton {
-  border: 1px solid color-mix(in srgb, var(--accent-strong) 24%, var(--button-secondary-border));
-  padding: 0.75rem 1.1rem;
-  background: var(--accent-strong);
+  border: 1px solid color-mix(in srgb, var(--button-primary-bg) 86%, white);
+  padding: 0.52rem 0.82rem;
+  background: var(--button-primary-bg);
   color: white;
-}
-
-.primaryButton:hover,
-.secondaryButton:hover,
-.chipButton:hover {
-  transform: translateY(-1px);
 }
 
 .secondaryButton {
   border: 1px solid var(--button-secondary-border);
-  padding: 0.72rem 1rem;
+  padding: 0.48rem 0.72rem;
   background: var(--button-secondary-bg);
   color: var(--text-primary);
 }
@@ -173,16 +161,16 @@
 }
 
 .chipButton {
-  border: 1px solid color-mix(in srgb, var(--border-default) 92%, white);
-  padding: 0.5rem 0.8rem;
-  background: color-mix(in srgb, var(--surface-canvas) 90%, white);
+  border: 1px solid color-mix(in srgb, var(--border-default) 72%, white);
+  padding: 0.38rem 0.56rem;
+  background: var(--surface-canvas);
   color: var(--text-primary);
-  font-size: 0.84rem;
+  font-size: 0.8rem;
 }
 
 .form {
   display: grid;
-  gap: 1rem;
+  gap: 0.9rem;
 }
 
 .section {
@@ -190,7 +178,7 @@
   padding: 0;
   border: 0;
   display: grid;
-  gap: 0.85rem;
+  gap: 0.75rem;
 }
 
 .sectionTitle {
@@ -204,26 +192,28 @@
 
 .formGrid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.85rem;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: 0.75rem;
 }
 
 .filterGrid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.85rem;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: 0.75rem;
 }
 
 .field {
   display: grid;
-  gap: 0.35rem;
+  gap: 0.3rem;
   color: var(--text-secondary);
-  font-size: 0.93rem;
+  font-size: 0.9rem;
 }
 
 .field > span {
   color: var(--text-primary);
+  font-size: 0.84rem;
   font-weight: 700;
+  line-height: 1.3;
 }
 
 .field :is(input, select, textarea) {
@@ -269,35 +259,40 @@
 .tableWrap {
   overflow: auto;
   border-radius: var(--radius-md);
-  border: 1px solid color-mix(in srgb, var(--border-default) 86%, white);
-  background: color-mix(in srgb, var(--surface-canvas) 86%, white);
+  border: 1px solid color-mix(in srgb, var(--border-default) 92%, white);
+  background: var(--surface-canvas);
 }
 
 .table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 44rem;
+  min-width: 38rem;
 }
 
 .table th,
 .table td {
-  padding: 0.9rem 0.8rem;
+  padding: 0.72rem 0.65rem;
   border-bottom: 1px solid color-mix(in srgb, var(--border-subtle) 90%, white);
   vertical-align: top;
   text-align: left;
+  overflow-wrap: anywhere;
 }
 
 .table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
   color: var(--text-tertiary);
   font-size: 0.74rem;
   font-weight: 800;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  background: color-mix(in srgb, var(--accent-soft) 32%, white);
+  background: color-mix(in srgb, var(--surface-sidebar) 98%, white);
 }
 
 .table tbody tr[data-active] {
-  background: color-mix(in srgb, var(--accent-soft) 22%, white);
+  background: color-mix(in srgb, var(--accent-soft) 14%, white);
+  box-shadow: inset 3px 0 0 var(--accent);
 }
 
 .table td strong,
@@ -326,7 +321,7 @@
 }
 
 .emptyState {
-  padding: 1.8rem 1rem;
+  padding: 1.4rem 0.9rem;
   text-align: center;
   color: var(--text-tertiary);
 }
@@ -354,14 +349,6 @@
 
   .tabButton {
     flex: 1 1 10rem;
-  }
-
-  .formGrid {
-    grid-template-columns: 1fr;
-  }
-
-  .filterGrid {
-    grid-template-columns: 1fr;
   }
 
   .panelHead {

@@ -292,17 +292,13 @@ export function AdminReportsPage() {
       <AdminSectionTabs active="summary" />
 
       <header className={styles.hero}>
-        <h2>전체 업무보고 검색 및 관리자 수정</h2>
-        <p>
-          개인 검색과 분리된 관리자 검색 화면입니다. 전체 사용자 기준으로 조회하고, 결과를 즉시 수정/삭제하거나 엑셀 파일로 내려받을 수 있습니다.
-        </p>
+        <h2>전체 업무보고 검색</h2>
       </header>
 
       <div className={styles.panel}>
         <div className={styles.toolbar}>
           <div>
             <h3>검색 조건</h3>
-            <p className={styles.helperText}>기간, 사용자, 업무유형, 서비스그룹, 서비스명 기준으로 전체 업무보고를 조회합니다.</p>
           </div>
           <div className={styles.actions}>
             <button type="button" onClick={handleSearch}>
@@ -481,7 +477,6 @@ export function AdminReportsPage() {
             <div className={styles.toolbar}>
               <div>
                 <h3>{selectedTask ? "선택 항목 편집" : "신규 행 입력"}</h3>
-                <p className={styles.helperText}>관리자 권한으로 업무보고를 수정하거나 삭제합니다.</p>
               </div>
               <div className={styles.actions}>
                 {selectedTask ? (

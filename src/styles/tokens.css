@@ -1,6 +1,6 @@
 :root {
   color-scheme: light;
-  --font-display: "KoddiUD OnGothic", "IBM Plex Sans KR", "Pretendard Variable", "Noto Sans KR", sans-serif;
+  --font-display: "KoddiUD OnGothic", "SUIT Variable", "Spoqa Han Sans Neo", "Noto Sans KR", sans-serif;
   --font-body: "KoddiUD OnGothic", "SUIT Variable", "Spoqa Han Sans Neo", "Noto Sans KR", sans-serif;
 
   --raw-paper-0: oklch(0.992 0.004 82);
@@ -30,10 +30,10 @@
   --raw-red-200: oklch(0.94 0.018 26);
 
   --surface-canvas: var(--raw-paper-0);
-  --surface-sidebar: var(--raw-paper-1);
-  --surface-header: var(--raw-paper-1);
-  --surface-panel: var(--raw-paper-1);
-  --surface-raised: var(--raw-paper-0);
+  --surface-sidebar: oklch(0.974 0.004 246);
+  --surface-header: oklch(0.978 0.004 246);
+  --surface-panel: oklch(0.982 0.004 246);
+  --surface-raised: var(--surface-panel);
   --surface-field: var(--raw-paper-0);
   --surface-disabled: var(--raw-paper-2);
 
@@ -43,9 +43,9 @@
   --text-tertiary: var(--raw-ink-500);
   --text-inverse: var(--raw-paper-0);
 
-  --border-subtle: var(--raw-paper-3);
-  --border-default: var(--raw-paper-4);
-  --border-strong: var(--raw-ink-300);
+  --border-subtle: var(--raw-paper-2);
+  --border-default: var(--raw-paper-3);
+  --border-strong: var(--raw-paper-4);
   --border-focus: var(--raw-teal-600);
 
   --state-info-bg: var(--raw-indigo-200);
@@ -64,39 +64,39 @@
   --state-danger-border: var(--raw-red-600);
   --state-danger-text: color-mix(in srgb, var(--raw-red-600) 80%, var(--raw-ink-900));
 
-  --accent: var(--raw-teal-500);
-  --accent-strong: var(--raw-teal-600);
-  --accent-soft: var(--raw-teal-200);
-  --focus-ring-color: var(--raw-teal-600);
+  --accent: var(--raw-indigo-500);
+  --accent-strong: var(--raw-indigo-600);
+  --accent-soft: oklch(0.956 0.012 255);
+  --focus-ring-color: var(--raw-indigo-600);
   --focus-ring-shadow: 0 0 0 3px var(--focus-ring-color);
 
-  --control-height-sm: 2.5rem;
-  --control-height-md: 2.875rem;
-  --control-radius: 0.85rem;
-  --control-padding-x: 0.95rem;
-  --control-padding-y: 0.8rem;
+  --control-height-sm: 2.15rem;
+  --control-height-md: 2.35rem;
+  --control-radius: 0.45rem;
+  --control-padding-x: 0.72rem;
+  --control-padding-y: 0.52rem;
   --control-border: var(--border-default);
   --control-bg: var(--surface-field);
   --control-disabled-bg: var(--surface-disabled);
   --control-placeholder: color-mix(in srgb, var(--text-tertiary) 80%, white);
 
-  --button-primary-bg: var(--raw-ink-900);
-  --button-primary-bg-hover: var(--raw-ink-700);
-  --button-secondary-bg: var(--surface-panel);
+  --button-primary-bg: oklch(0.28 0.02 246);
+  --button-primary-bg-hover: oklch(0.33 0.02 246);
+  --button-secondary-bg: var(--surface-canvas);
   --button-secondary-border: var(--border-default);
-  --button-secondary-hover: var(--raw-paper-2);
-  --button-ghost-hover: var(--raw-paper-2);
+  --button-secondary-hover: var(--surface-panel);
+  --button-ghost-hover: var(--surface-panel);
   --button-danger-bg: var(--raw-red-600);
 
-  --radius-xs: 0.5rem;
-  --radius-sm: 0.8rem;
-  --radius-md: 1rem;
-  --radius-lg: 1.35rem;
-  --radius-xl: 1.75rem;
+  --radius-xs: 0.35rem;
+  --radius-sm: 0.45rem;
+  --radius-md: 0.6rem;
+  --radius-lg: 0.8rem;
+  --radius-xl: 1rem;
 
-  --elevation-1: 0 12px 28px -24px color-mix(in srgb, var(--raw-ink-900) 24%, transparent);
-  --elevation-2: 0 18px 36px -26px color-mix(in srgb, var(--raw-ink-900) 18%, transparent);
-  --elevation-3: 0 26px 64px -42px color-mix(in srgb, var(--raw-ink-900) 18%, transparent);
+  --elevation-1: 0 1px 2px color-mix(in srgb, var(--raw-ink-900) 4%, transparent);
+  --elevation-2: 0 2px 6px -5px color-mix(in srgb, var(--raw-ink-900) 8%, transparent);
+  --elevation-3: 0 6px 14px -12px color-mix(in srgb, var(--raw-ink-900) 10%, transparent);
 
   --space-2: 0.5rem;
   --space-3: 0.75rem;
@@ -104,8 +104,8 @@
   --space-5: 1.25rem;
   --space-6: 1.5rem;
 
-  --page-inline: clamp(1rem, 2vw, 2rem);
-  --page-block: clamp(1rem, 2vw, 1.75rem);
+  --page-inline: clamp(0.875rem, 1.4vw, 1.5rem);
+  --page-block: clamp(0.875rem, 1.2vw, 1.25rem);
 
   --surface-0: var(--surface-canvas);
   --surface-1: var(--surface-panel);

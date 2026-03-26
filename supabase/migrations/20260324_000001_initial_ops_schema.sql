@@ -202,6 +202,39 @@ as $$
   )
 $$;
 
+create or replace function public.next_member_legacy_user_id(p_email text)
+returns text
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_base text;
+  v_candidate text;
+  v_suffix integer := 0;
+begin
+  v_base := lower(regexp_replace(split_part(coalesce(trim(p_email), ''), '@', 1), '[^a-z0-9]+', '-', 'g'));
+  v_base := trim(both '-' from v_base);
+
+  if v_base = '' then
+    v_base := 'member';
+  end if;
+
+  v_candidate := v_base;
+
+  while exists (
+    select 1
+    from public.members
+    where legacy_user_id = v_candidate
+  ) loop
+    v_suffix := v_suffix + 1;
+    v_candidate := v_base || '-' || v_suffix::text;
+  end loop;
+
+  return v_candidate;
+end;
+$$;
+
 create or replace function public.bind_auth_session_member(
   p_auth_user_id uuid,
   p_email text default null
@@ -213,6 +246,10 @@ set search_path = public
 as $$
 declare
   v_member public.members;
+  v_email text := nullif(lower(trim(p_email)), '');
+  v_display_name text;
+  v_legacy_user_id text;
+  v_members_count integer;
 begin
   if p_auth_user_id is null then
     return null;
@@ -228,27 +265,81 @@ begin
     return v_member;
   end if;
 
-  if coalesce(trim(p_email), '') = '' then
+  if v_email is null then
     return null;
   end if;
 
   update public.members
   set
     auth_user_id = p_auth_user_id,
+    email = v_email,
     updated_at = timezone('utc', now())
   where id = (
     select id
     from public.members
-    where lower(email) = lower(trim(p_email))
+    where lower(email) = v_email
       and auth_user_id is null
     order by created_at
     limit 1
   )
   returning * into v_member;
 
+  if v_member.id is not null then
+    return v_member;
+  end if;
+
+  v_display_name := split_part(v_email, '@', 1);
+  v_legacy_user_id := public.next_member_legacy_user_id(v_email);
+
+  select count(*)
+  into v_members_count
+  from public.members;
+
+  insert into public.members (
+    auth_user_id,
+    legacy_user_id,
+    name,
+    email,
+    user_level,
+    user_active,
+    joined_at,
+    report_required
+  )
+  values (
+    p_auth_user_id,
+    v_legacy_user_id,
+    v_display_name,
+    v_email,
+    case when v_members_count = 0 then 1 else 0 end,
+    true,
+    timezone('utc', now()),
+    true
+  )
+  returning * into v_member;
+
   return v_member;
 end;
 $$;
+
+create or replace function public.handle_auth_user_created()
+returns trigger
+language plpgsql
+security definer
+set search_path = public, auth
+as $$
+begin
+  if new.email is not null then
+    perform public.bind_auth_session_member(new.id, new.email);
+  end if;
+
+  return new;
+end;
+$$;
+
+drop trigger if exists on_auth_user_created_bind_member on auth.users;
+create trigger on_auth_user_created_bind_member
+after insert on auth.users
+for each row execute function public.handle_auth_user_created();
 
 create or replace function public.save_task(
   p_task_id uuid default null,
@@ -644,6 +735,7 @@ $$;
 
 grant execute on function public.current_member_id() to authenticated;
 grant execute on function public.current_user_is_admin() to authenticated;
+grant execute on function public.next_member_legacy_user_id(text) to authenticated;
 grant execute on function public.bind_auth_session_member(uuid, text) to authenticated;
 grant execute on function public.save_task(uuid, date, uuid, uuid, text, text, numeric, text, text) to authenticated;
 grant execute on function public.delete_task(uuid) to authenticated;

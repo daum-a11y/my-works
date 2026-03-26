@@ -116,7 +116,7 @@ export function TrackingFeature() {
 
   const [stateFilter, setStateFilter] = useState<"all" | PageStatus>("all");
   const [drafts, setDrafts] = useState<Record<string, TrackingDraft>>({});
-  const [statusMessage, setStatusMessage] = useState("상단 상태 버튼으로 범위를 좁히고, 표에서 바로 수정합니다.");
+  const [statusMessage, setStatusMessage] = useState("");
 
   const rows = useMemo<TrackingRow[]>(() => {
     return pages
@@ -202,12 +202,7 @@ export function TrackingFeature() {
       <header className={styles.hero}>
         <div>
           <p className={styles.kicker}>트래킹</p>
-          <h1 id="tracking-heading" className={styles.title}>
-            상단 상태 버튼과 행 단위 편집으로 트래킹을 관리합니다.
-          </h1>
-          <p className={styles.lead}>
-            선택 패널과 요약 카드를 없애고 원본 컬럼에 가까운 표 중심 흐름만 남겼습니다.
-          </p>
+          <h1 id="tracking-heading" className={styles.title}>트래킹</h1>
         </div>
         <div className={styles.toolbar} role="group" aria-label="상태 필터">
           <button

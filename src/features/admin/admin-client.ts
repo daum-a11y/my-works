@@ -106,18 +106,35 @@ function mapServiceGroup(record: Record<string, unknown>): AdminServiceGroupItem
 
 function mapMember(record: Record<string, unknown>): MemberAdminItem {
   const active = Boolean(record.user_active ?? record.is_active ?? true);
+  const authUserId = record.auth_user_id ? String(record.auth_user_id) : null;
+  const legacyUserId = String(record.legacy_user_id ?? "").trim();
+  const email = String(record.email ?? "").trim();
+  const queueReasons: string[] = [];
+
+  if (!authUserId) {
+    queueReasons.push("auth_unlinked");
+  }
+  if (!legacyUserId) {
+    queueReasons.push("legacy_id_missing");
+  }
+  if (!email) {
+    queueReasons.push("email_missing");
+  }
+  if (!active) {
+    queueReasons.push("inactive_candidate");
+  }
 
   return {
     id: String(record.id ?? ""),
-    authUserId: record.auth_user_id ? String(record.auth_user_id) : null,
-    legacyUserId: String(record.legacy_user_id ?? ""),
+    authUserId,
+    legacyUserId,
     name: String(record.name ?? ""),
-    email: String(record.email ?? ""),
+    email,
     role: Number(record.user_level ?? 0) === 1 ? "admin" : "user",
     userActive: active,
     isActive: active,
     authEmail: String(record.auth_email ?? record.email ?? ""),
-    queueReasons: [],
+    queueReasons,
     updatedAt: String(record.updated_at ?? ""),
   };
 }

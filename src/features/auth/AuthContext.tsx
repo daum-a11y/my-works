@@ -21,7 +21,9 @@ interface AuthSession {
 interface AuthContextValue {
   status: AuthStatus;
   session: AuthSession | null;
-  login(userId: string, password: string): Promise<void>;
+  login(email: string, password: string): Promise<void>;
+  signUp(email: string, password: string): Promise<void>;
+  resetPassword(email: string): Promise<void>;
   logout(): Promise<void>;
   updatePassword(currentPassword: string, nextPassword: string): Promise<void>;
 }
@@ -141,11 +143,11 @@ export function AuthProvider({ children }: PropsWithChildren) {
     () => ({
       status,
       session,
-      async login(userId, password) {
-        const normalizedUserId = userId.trim();
+      async login(email, password) {
+        const normalizedEmail = email.trim().toLowerCase();
 
-        if (!normalizedUserId) {
-          throw new Error("아이디를 입력해 주세요.");
+        if (!normalizedEmail) {
+          throw new Error("이메일을 입력해 주세요.");
         }
 
         if (!password.trim()) {
@@ -156,17 +158,53 @@ export function AuthProvider({ children }: PropsWithChildren) {
           throw new Error("Supabase 환경변수가 설정되지 않았습니다.");
         }
 
-        const member = await opsDataClient.getMemberByLegacyUserId(normalizedUserId);
-        if (!member?.email) {
-          throw new Error("아이디 또는 비밀번호를 확인해 주세요.");
-        }
-
         const { error } = await supabase.auth.signInWithPassword({
-          email: member.email,
+          email: normalizedEmail,
           password,
         });
         if (error) {
-          throw new Error("아이디 또는 비밀번호를 확인해 주세요.");
+          throw new Error("이메일 또는 비밀번호를 확인해 주세요.");
+        }
+      },
+      async signUp(email, password) {
+        const normalizedEmail = email.trim().toLowerCase();
+
+        if (!normalizedEmail) {
+          throw new Error("이메일을 입력해 주세요.");
+        }
+
+        if (!password.trim()) {
+          throw new Error("비밀번호를 입력해 주세요.");
+        }
+
+        if (!isSupabaseConfigured || !supabase) {
+          throw new Error("Supabase 환경변수가 설정되지 않았습니다.");
+        }
+
+        const { error } = await supabase.auth.signUp({
+          email: normalizedEmail,
+          password,
+        });
+
+        if (error) {
+          throw new Error(error.message);
+        }
+      },
+      async resetPassword(email) {
+        const normalizedEmail = email.trim();
+
+        if (!normalizedEmail) {
+          throw new Error("이메일을 입력해 주세요.");
+        }
+
+        if (!isSupabaseConfigured || !supabase) {
+          throw new Error("Supabase 환경변수가 설정되지 않았습니다.");
+        }
+
+        const { error } = await supabase.auth.resetPasswordForEmail(normalizedEmail);
+
+        if (error) {
+          throw new Error(error.message);
         }
       },
       async logout() {

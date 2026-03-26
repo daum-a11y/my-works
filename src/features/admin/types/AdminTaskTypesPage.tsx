@@ -238,7 +238,6 @@ export function AdminTaskTypesPage() {
 
       <header className={styles.hero}>
         <h2>업무 타입 관리</h2>
-        <p>관리모드와 유효성검증모드를 전환해 업무 타입을 정리합니다.</p>
       </header>
 
       {errorMessage && <p className={styles.helperText}>{errorMessage}</p>}
@@ -247,7 +246,6 @@ export function AdminTaskTypesPage() {
         <div className={styles.sectionHeader}>
           <div>
             <h3>{mode === "manage" ? "관리모드" : "유효성검증모드"}</h3>
-            <p className={styles.helperText}>원본처럼 마스터 관리와 실제 사용 데이터 검증을 분리했습니다.</p>
           </div>
           <div className={styles.sectionActions}>
             <button type="button" onClick={() => setMode((current) => (current === "manage" ? "validate" : "manage"))}>

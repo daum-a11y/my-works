@@ -110,7 +110,7 @@ export function LoginPage() {
                   setErrorMessage("");
                   setNoticeMessage("");
                   await signUp(values.email, values.password);
-                  setNoticeMessage("회원가입 요청을 완료했습니다. 인증 메일이 오면 확인해 주세요.");
+                  setNoticeMessage("회원가입 요청을 완료했습니다. 인증 메일 확인 후 로그인하면 사용자 정보가 자동 연결됩니다.");
                 } catch (error) {
                   setErrorMessage(error instanceof Error ? error.message : "회원가입에 실패했습니다.");
                 } finally {

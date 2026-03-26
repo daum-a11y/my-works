@@ -216,12 +216,7 @@ export function ProjectsFeature() {
       <header className={styles.hero}>
         <div>
           <p className={styles.kicker}>프로젝트</p>
-          <h1 id="projects-heading" className={styles.title}>
-            원본 6개 탭과 표 중심 구조로 프로젝트를 보여줍니다.
-          </h1>
-          <p className={styles.lead}>
-            요약 카드, 단일 편집기, 새 페이지 버튼을 제거하고 탭, 표, 선택 프로젝트 상세 표만 남겼습니다.
-          </p>
+          <h1 id="projects-heading" className={styles.title}>프로젝트 관리</h1>
         </div>
         <div className={styles.tablist} role="tablist" aria-label="프로젝트 보기">
           {projectTabs.map((tab) => {

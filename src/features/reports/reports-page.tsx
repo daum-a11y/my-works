@@ -108,10 +108,7 @@ export function ReportsPage() {
       <header className={styles.hero}>
         <div className={styles.heroMain}>
           <p className={styles.kicker}>업무보고</p>
-          <h1 className={styles.title}>개인 업무보고와 기간검색을 한 화면 안에서 처리합니다.</h1>
-          <p className={styles.description}>
-            기본 입력과 TYPE 입력을 분리해 기록하고, 같은 화면에서 과거 보고를 불러오거나 기간별로 다시 확인할 수 있습니다.
-          </p>
+          <h1 className={styles.title}>업무보고</h1>
           <p className={styles.status}>{statusMessage}</p>
         </div>
 
@@ -145,7 +142,7 @@ export function ReportsPage() {
             <div className={styles.panelHead}>
               <div>
                 <p className={styles.panelEyebrow}>업무보고</p>
-                <h2 className={styles.panelTitle}>{selectedReport ? "보고 수정" : "새 보고 작성"}</h2>
+                <h2 className={styles.panelTitle}>{selectedReport ? "업무 수정" : "업무 입력"}</h2>
               </div>
 
               <div className={styles.buttonRow}>

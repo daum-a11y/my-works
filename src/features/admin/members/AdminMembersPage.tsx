@@ -5,6 +5,13 @@ import { AdminSectionTabs } from "../AdminSectionTabs";
 import styles from "../AdminPage.module.css";
 import type { MemberAdminItem, MemberAdminPayload } from "../admin-types";
 
+const QUEUE_REASON_LABEL: Record<string, string> = {
+  auth_unlinked: "Auth 미연결",
+  legacy_id_missing: "ID 미설정",
+  email_missing: "이메일 미설정",
+  inactive_candidate: "비활성 사용자",
+};
+
 function createDraft(member?: MemberAdminItem): MemberAdminPayload {
   if (!member) {
     return {
@@ -66,7 +73,14 @@ export function AdminMembersPage() {
   });
 
   const members = useMemo(
-    () => [...(membersQuery.data ?? [])].sort((left, right) => left.legacyUserId.localeCompare(right.legacyUserId)),
+    () =>
+      [...(membersQuery.data ?? [])].sort((left, right) => {
+        const queueDelta = right.queueReasons.length - left.queueReasons.length;
+        if (queueDelta !== 0) {
+          return queueDelta;
+        }
+        return left.legacyUserId.localeCompare(right.legacyUserId);
+      }),
     [membersQuery.data],
   );
 
@@ -135,6 +149,7 @@ export function AdminMembersPage() {
       total: members.length,
       admins: members.filter((member) => member.role === "admin").length,
       active: members.filter((member) => member.userActive).length,
+      pending: members.filter((member) => member.queueReasons.length > 0).length,
     }),
     [members],
   );
@@ -145,7 +160,7 @@ export function AdminMembersPage() {
 
       <header className={styles.hero}>
         <h2>사용자 관리</h2>
-        <p>사용자를 행 단위로 추가, 수정, 삭제하고 비밀번호 재설정 메일을 보냅니다.</p>
+        <p>신규 가입자는 Auth 계정 생성 시 `members`에 자동 등록되고, 기존 이메일 일치 사용자는 자동 연결됩니다.</p>
       </header>
 
       {errorMessage && <p className={styles.helperText}>{errorMessage}</p>}
@@ -163,13 +178,16 @@ export function AdminMembersPage() {
           <span>관리자</span>
           <strong>{summary.admins}</strong>
         </div>
+        <div className={styles.summaryCard}>
+          <span>처리 대상</span>
+          <strong>{summary.pending}</strong>
+        </div>
       </div>
 
       <div className={styles.panel}>
         <div className={styles.sectionHeader}>
           <div>
             <h3>사용자 목록</h3>
-            <p className={styles.helperText}>Auth 진단 정보는 기본 표에서 제외했습니다.</p>
           </div>
           {!adding && (
             <button type="button" onClick={startAdd}>
@@ -185,6 +203,8 @@ export function AdminMembersPage() {
                 <th>ID</th>
                 <th>이름</th>
                 <th>이메일</th>
+                <th>Auth 연결</th>
+                <th>처리 상태</th>
                 <th>권한</th>
                 <th>활성</th>
                 <th>관리</th>
@@ -214,6 +234,16 @@ export function AdminMembersPage() {
                       value={draft.email}
                       onChange={(event) => handleChange("email", event.target.value)}
                     />
+                  </td>
+                  <td className={styles.inlineRowCell}>
+                    <div className={styles.badges}>
+                      <span className={styles.badge}>가입 후 자동 연결</span>
+                    </div>
+                  </td>
+                  <td className={styles.inlineRowCell}>
+                    <div className={styles.queueList}>
+                      <span className={styles.queueItem}>신규 사용자 등록</span>
+                    </div>
                   </td>
                   <td className={styles.inlineRowCell}>
                     <select aria-label="신규 사용자 권한" value={draft.role} onChange={(event) => handleChange("role", event.target.value as MemberAdminPayload["role"]) }>
@@ -250,7 +280,7 @@ export function AdminMembersPage() {
 
               {members.length === 0 ? (
                 <tr>
-                  <td colSpan={6}>
+                  <td colSpan={8}>
                     <div className={styles.emptyState}>조회된 사용자가 없습니다.</div>
                   </td>
                 </tr>
@@ -281,6 +311,29 @@ export function AdminMembersPage() {
                           value={draft.email}
                           onChange={(event) => handleChange("email", event.target.value)}
                         />
+                      </td>
+                      <td className={styles.inlineRowCell}>
+                        <div className={styles.badges}>
+                          <span className={member.authUserId ? styles.badge : `${styles.badge} ${styles.warningBadge}`}>
+                            {member.authUserId ? "연결됨" : "미연결"}
+                          </span>
+                        </div>
+                        {member.authUserId ? <div className={styles.helperText}>{member.authUserId}</div> : null}
+                      </td>
+                      <td className={styles.inlineRowCell}>
+                        {member.queueReasons.length > 0 ? (
+                          <div className={styles.queueList}>
+                            {member.queueReasons.map((reason) => (
+                              <span key={reason} className={styles.queueItem}>
+                                {QUEUE_REASON_LABEL[reason] ?? reason}
+                              </span>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className={styles.badges}>
+                            <span className={styles.badge}>정상</span>
+                          </div>
+                        )}
                       </td>
                       <td className={styles.inlineRowCell}>
                         <select aria-label="권한 수정" value={draft.role} onChange={(event) => handleChange("role", event.target.value as MemberAdminPayload["role"]) }>
@@ -318,6 +371,29 @@ export function AdminMembersPage() {
                       <td>{member.legacyUserId}</td>
                       <td>{member.name}</td>
                       <td>{member.email}</td>
+                      <td>
+                        <div className={styles.badges}>
+                          <span className={member.authUserId ? styles.badge : `${styles.badge} ${styles.warningBadge}`}>
+                            {member.authUserId ? "연결됨" : "미연결"}
+                          </span>
+                        </div>
+                        {member.authUserId ? <div className={styles.helperText}>{member.authUserId}</div> : null}
+                      </td>
+                      <td>
+                        {member.queueReasons.length > 0 ? (
+                          <div className={styles.queueList}>
+                            {member.queueReasons.map((reason) => (
+                              <span key={reason} className={styles.queueItem}>
+                                {QUEUE_REASON_LABEL[reason] ?? reason}
+                              </span>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className={styles.badges}>
+                            <span className={styles.badge}>정상</span>
+                          </div>
+                        )}
+                      </td>
                       <td>{member.role === "admin" ? "관리자" : "사용자"}</td>
                       <td>{member.userActive ? "활성" : "비활성"}</td>
                       <td className={styles.inlineRowActions}>

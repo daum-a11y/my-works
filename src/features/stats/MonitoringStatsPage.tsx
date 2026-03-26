@@ -128,15 +128,14 @@ export function MonitoringStatsPage() {
     <div className={styles.page}>
       <header className={styles.hero}>
         <p className={styles.kicker}>모니터링 통계</p>
-        <h1 className={styles.title}>월별 차트, 월별 표, 하단 상세 목록으로 모니터링을 봅니다.</h1>
-        <p className={styles.lead}>현재 스키마에서 확인 가능한 수정 시각 기준으로 월별 분포를 맞췄습니다.</p>
+        <h1 className={styles.title}>모니터링 통계</h1>
         <p className={styles.summaryLine}>
           총 {monitoringRows.length}개 · 개선 {monitoringRows.filter((row) => row.page.trackStatus === "개선").length}개 ·
           주의 {monitoringRows.filter((row) => isAttentionStatus(row.page.trackStatus)).length}개
         </p>
       </header>
 
-      <PageSection title="월별 차트" description="모니터링 수정 시각을 기준으로 월별 분포를 확인합니다.">
+      <PageSection title="월별 차트">
         <div className={styles.chartSurface}>
           {monthlyRows.length ? (
             <div className={styles.chart} role="img" aria-label="모니터링 월별 차트">
@@ -164,7 +163,7 @@ export function MonitoringStatsPage() {
         </div>
       </PageSection>
 
-      <PageSection title="월별 표" description="월별 항목 수와 개선/주의 건수를 함께 표시합니다.">
+      <PageSection title="월별 표">
         <div className={styles.tableWrap}>
           <table className={styles.table}>
             <caption className={styles.srOnly}>모니터링 월별 표</caption>
@@ -197,7 +196,7 @@ export function MonitoringStatsPage() {
         </div>
       </PageSection>
 
-      <PageSection title="하단 상세 목록" description="진행중 모니터링 페이지를 상세 표로 확인합니다.">
+      <PageSection title="상세 목록">
         <div className={styles.tableWrap}>
           <table className={styles.table}>
             <caption className={styles.srOnly}>모니터링 상세 목록</caption>
