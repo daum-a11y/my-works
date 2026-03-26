@@ -4,7 +4,7 @@ import { downloadExcelFile } from "../../../lib/excel-export";
 import { toLocalDateInputValue } from "../../../lib/utils";
 import { parseReportHoursInput } from "../../reports/report-domain";
 import { adminDataClient } from "../admin-client";
-import { AdminSectionTabs } from "../AdminSectionTabs";
+
 import styles from "../AdminPage.module.css";
 import {
   createDefaultAdminTaskSearchFilters,
@@ -289,7 +289,7 @@ export function AdminReportsPage() {
 
   return (
     <section className={styles.page}>
-      <AdminSectionTabs active="summary" />
+      
 
       <header className={styles.hero}>
         <h2>전체 업무보고 검색</h2>

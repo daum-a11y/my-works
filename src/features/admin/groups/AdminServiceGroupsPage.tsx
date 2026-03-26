@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { adminDataClient } from "../admin-client";
-import { AdminSectionTabs } from "../AdminSectionTabs";
+
 import styles from "../AdminPage.module.css";
 import type { AdminServiceGroupItem, AdminServiceGroupPayload, AdminTaskSearchItem } from "../admin-types";
 
@@ -207,7 +207,7 @@ export function AdminServiceGroupsPage() {
 
   return (
     <section className={styles.page}>
-      <AdminSectionTabs active="service-groups" />
+      
 
       <header className={styles.hero}>
         <h2>서비스 그룹 관리</h2>

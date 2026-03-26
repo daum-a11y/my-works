@@ -13,22 +13,16 @@
 
 .control {
   width: 100%;
-  min-height: var(--control-height-md);
-  padding: var(--control-padding-y) var(--control-padding-x);
+  height: var(--control-height-md);
+  padding: 0 var(--control-padding-x);
   border: 1px solid var(--control-border);
-  border-radius: var(--control-radius);
   background: var(--control-bg);
   color: var(--text-primary);
   font-family: inherit;
   font-size: var(--text-body-size);
   font-weight: var(--text-body-weight);
-  line-height: var(--text-body-line-height);
-  letter-spacing: var(--text-body-tracking);
-  transition:
-    border-color 160ms ease,
-    box-shadow 160ms ease,
-    background-color 160ms ease,
-    color 160ms ease;
+  line-height: 1;
+  transition: none;
 }
 
 .control::placeholder {
@@ -37,19 +31,19 @@
 
 .control:hover:not(:disabled):not([readonly]) {
   border-color: var(--border-strong);
-  background: color-mix(in srgb, var(--control-bg) 94%, white);
+  background: var(--surface-hover);
 }
 
 .control[data-focus-visible],
 .control:focus-visible {
   border-color: var(--border-focus);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--focus-ring-color) 26%, white);
+  
   outline: none;
 }
 
 .control[readonly] {
   color: var(--text-secondary);
-  background: color-mix(in srgb, var(--surface-panel) 88%, white);
+  background: var(--surface-panel);
 }
 
 .control:disabled {
@@ -60,7 +54,7 @@
 
 .control[aria-invalid="true"] {
   border-color: var(--state-danger-border);
-  background: color-mix(in srgb, var(--state-danger-bg) 34%, white);
+  background: var(--surface-canvas);
 }
 
 .textarea {

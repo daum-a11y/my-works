@@ -18,7 +18,7 @@
   display: grid;
   gap: 0.18rem;
   padding: 0 0 0.65rem;
-  border-bottom: 1px solid color-mix(in srgb, var(--border-default) 76%, white);
+  border-bottom: 1px solid var(--border-default);
 }
 
 .hero h2 {
@@ -57,9 +57,9 @@
   gap: var(--space-3);
   padding: 0;
   border: 0;
-  border-radius: 0;
+  
   background: transparent;
-  box-shadow: none;
+  
 }
 
 .panel h3,
@@ -74,7 +74,7 @@
   gap: var(--space-3);
   align-items: center;
   padding-bottom: 0.7rem;
-  border-bottom: 1px solid color-mix(in srgb, var(--border-default) 74%, white);
+  border-bottom: 1px solid var(--border-default);
 }
 
 .actions {
@@ -89,7 +89,7 @@
   min-height: var(--control-height-sm);
   padding: var(--control-padding-y) var(--control-padding-x);
   border: 1px solid var(--button-secondary-border);
-  border-radius: var(--radius-sm);
+  
   background: var(--button-secondary-bg);
   color: var(--text-primary);
   font-family: inherit;
@@ -111,8 +111,8 @@
 .rowButton:focus-visible,
 .tabLink:focus-visible,
 .validationItemButton:focus-visible {
-  outline: 3px solid var(--focus-ring-color);
-  box-shadow: var(--focus-ring-shadow);
+  
+  
 }
 
 .filtersGrid,
@@ -143,7 +143,7 @@
   min-height: var(--control-height-md);
   padding: var(--control-padding-y) var(--control-padding-x);
   border: 1px solid var(--control-border);
-  border-radius: var(--control-radius);
+  
   background: var(--control-bg);
   color: var(--text-primary);
   font-family: inherit;
@@ -174,8 +174,8 @@
 
 .tableWrap {
   overflow: auto;
-  border: 1px solid color-mix(in srgb, var(--border-default) 74%, white);
-  background: color-mix(in srgb, var(--surface-canvas) 98%, white);
+  border: 1px solid var(--border-default);
+  background: var(--surface-canvas);
 }
 
 .table {
@@ -187,14 +187,14 @@
 .table th,
 .table td {
   padding: var(--space-3);
-  border-bottom: 1px solid color-mix(in srgb, var(--border-subtle) 90%, white);
+  border-bottom: 1px solid var(--border-subtle);
   text-align: left;
   vertical-align: top;
   overflow-wrap: anywhere;
 }
 
 .table th {
-  background: color-mix(in srgb, var(--surface-sidebar) 96%, white);
+  background: var(--surface-sidebar);
   font-size: var(--text-table-size);
   text-transform: uppercase;
   letter-spacing: var(--text-table-tracking);
@@ -222,8 +222,8 @@
 }
 
 .selectedRow {
-  background: color-mix(in srgb, var(--accent-soft) 10%, white);
-  box-shadow: inset 2px 0 0 var(--accent-strong);
+  background: var(--surface-active);
+  
 }
 
 .summaryGrid {
@@ -235,9 +235,10 @@
 .summaryCard {
   display: grid;
   gap: var(--space-2);
-  padding: 0.7rem 0.8rem 0.75rem 0.9rem;
-  border-inline-start: 3px solid color-mix(in srgb, var(--accent-strong) 72%, white);
-  background: color-mix(in srgb, var(--surface-panel) 95%, white);
+  padding: 0.75rem 1rem;
+  border-inline-start: 3px solid var(--accent-strong);
+  background: var(--surface-panel);
+  border-bottom: 1px solid var(--border-default);
 }
 
 .summaryCard strong {
@@ -260,8 +261,8 @@
   align-items: center;
   gap: calc(var(--space-2) / 2);
   padding: var(--space-2) var(--space-3);
-  border-radius: var(--radius-sm);
-  background: color-mix(in srgb, var(--state-info-bg) 30%, white);
+  
+  background: var(--surface-canvas);
   color: var(--state-info-text);
   font-size: var(--text-meta-size);
   font-weight: var(--text-meta-weight);
@@ -269,12 +270,12 @@
 }
 
 .warningBadge {
-  background: color-mix(in srgb, var(--state-warning-bg) 30%, white);
+  background: var(--surface-canvas);
   color: var(--state-warning-text);
 }
 
 .dangerBadge {
-  background: color-mix(in srgb, var(--state-danger-bg) 30%, white);
+  background: var(--surface-canvas);
   color: var(--state-danger-text);
 }
 
@@ -313,7 +314,7 @@
   flex-wrap: wrap;
   gap: 1rem;
   padding-bottom: 0.55rem;
-  border-bottom: 1px solid color-mix(in srgb, var(--border-default) 86%, white);
+  border-bottom: 1px solid var(--border-default);
 }
 
 .tabLink {
@@ -341,8 +342,8 @@
   position: sticky;
   top: calc(3.5rem + var(--page-block));
   padding: var(--space-4);
-  border-inline-start: 1px solid color-mix(in srgb, var(--border-default) 84%, white);
-  background: color-mix(in srgb, var(--surface-panel) 95%, white);
+  border-inline-start: 1px solid var(--border-default);
+  background: var(--surface-panel);
 }
 
 .sectionHeader {
@@ -397,7 +398,7 @@
 }
 
 .validationItemActive {
-  background: color-mix(in srgb, var(--accent-soft) 12%, white);
+  background: var(--surface-active);
 }
 
 .pill {
@@ -405,8 +406,8 @@
   align-items: center;
   gap: calc(var(--space-2) / 2);
   padding: var(--space-2) var(--space-3);
-  border-radius: var(--radius-sm);
-  background: color-mix(in srgb, var(--state-info-bg) 30%, white);
+  
+  background: var(--surface-canvas);
   color: var(--state-info-text);
   font-size: var(--text-meta-size);
   font-weight: var(--text-meta-weight);
@@ -414,17 +415,17 @@
 }
 
 .positivePill {
-  background: color-mix(in srgb, var(--state-success-bg) 30%, white);
+  background: var(--surface-canvas);
   color: var(--state-success-text);
 }
 
 .warningPill {
-  background: color-mix(in srgb, var(--state-warning-bg) 30%, white);
+  background: var(--surface-canvas);
   color: var(--state-warning-text);
 }
 
 .dangerPill {
-  background: color-mix(in srgb, var(--state-danger-bg) 30%, white);
+  background: var(--surface-canvas);
   color: var(--state-danger-text);
 }
 

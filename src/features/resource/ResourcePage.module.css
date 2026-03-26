@@ -7,7 +7,7 @@
   display: grid;
   gap: 0.18rem;
   padding-bottom: 0.7rem;
-  border-bottom: 1px solid color-mix(in srgb, var(--border-default) 76%, white);
+  border-bottom: 1px solid var(--border-default);
 }
 
 .headerCopy {
@@ -68,7 +68,7 @@
   padding: 0.72rem 0.8rem 0.8rem;
   border: 0;
   border-inline-start: 3px solid transparent;
-  background: color-mix(in srgb, var(--surface-panel) 94%, white);
+  background: var(--surface-panel);
   color: var(--text-secondary);
   text-decoration: none;
 }
@@ -88,8 +88,8 @@
 }
 
 .tabActive {
-  border-inline-start-color: var(--accent);
-  background: color-mix(in srgb, var(--accent-soft) 28%, white);
+  border-inline-start-color: var(--accent-strong);
+  background: var(--surface-active);
 }
 
 .toolbar {
@@ -98,7 +98,7 @@
   flex-wrap: wrap;
   align-items: center;
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid color-mix(in srgb, var(--border-default) 84%, white);
+  border-bottom: 1px solid var(--border-default);
 }
 
 .toolbar button,
@@ -106,7 +106,7 @@
 .toolbar input {
   min-height: var(--control-height-md);
   padding: 0 var(--control-padding-x);
-  border-radius: var(--control-radius);
+  
   border: 1px solid var(--control-border);
   background: var(--control-bg);
   color: var(--text-primary);
@@ -126,9 +126,10 @@
 .metricCard {
   display: grid;
   gap: 0.2rem;
-  padding: 0.65rem 0 0.65rem 0.9rem;
-  border-inline-start: 3px solid color-mix(in srgb, var(--accent-strong) 72%, white);
-  background: color-mix(in srgb, var(--surface-panel) 95%, white);
+  padding: 0.65rem 0.9rem;
+  border-inline-start: 3px solid var(--accent-strong);
+  background: var(--surface-panel);
+  border-bottom: 1px solid var(--border-default);
 }
 
 .metricCard span {
@@ -147,8 +148,8 @@
 
 .tableWrap {
   overflow: auto;
-  border: 1px solid color-mix(in srgb, var(--border-default) 78%, white);
-  background: color-mix(in srgb, var(--surface-canvas) 98%, white);
+  border: 1px solid var(--border-default);
+  background: var(--surface-canvas);
 }
 
 .table {
@@ -159,7 +160,7 @@
 .table th,
 .table td {
   padding: 0.68rem 0.72rem;
-  border-bottom: 1px solid color-mix(in srgb, var(--border-subtle) 92%, white);
+  border-bottom: 1px solid var(--border-subtle);
   text-align: left;
   vertical-align: top;
   overflow-wrap: anywhere;
@@ -172,7 +173,7 @@
   line-height: var(--text-table-line-height);
   letter-spacing: var(--text-table-tracking);
   text-transform: uppercase;
-  background: color-mix(in srgb, var(--surface-panel) 94%, white);
+  background: var(--surface-panel);
   position: sticky;
   top: 0;
   z-index: 1;
@@ -202,16 +203,16 @@
   grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 0;
   overflow: hidden;
-  border: 1px solid color-mix(in srgb, var(--border-default) 78%, white);
-  background: color-mix(in srgb, var(--surface-canvas) 98%, white);
+  border: 1px solid var(--border-default);
+  background: var(--surface-canvas);
 }
 
 .calendarCell {
   min-height: 72px;
   padding: 0.62rem;
-  border-inline-end: 1px solid color-mix(in srgb, var(--border-subtle) 90%, white);
-  border-bottom: 1px solid color-mix(in srgb, var(--border-subtle) 90%, white);
-  border-radius: 0;
+  border-inline-end: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-subtle);
+  
   background: transparent;
 }
 
@@ -230,7 +231,7 @@
 }
 
 .calendarCell[data-state="filled"] {
-  background: color-mix(in srgb, var(--accent-soft) 6%, white);
+  background: var(--surface-active);
 }
 
 .calendarCell[data-state="partial"] {

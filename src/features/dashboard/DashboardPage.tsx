@@ -63,7 +63,6 @@ export function DashboardPage() {
         <div className={styles.headerCopy}>
           <p className={styles.kicker}>상황판</p>
           <h1>이번 달 운영 현황</h1>
-          <p>누락 보고와 진행 이슈를 먼저 확인한 뒤 상세 목록으로 내려갑니다.</p>
         </div>
         <dl className={styles.summaryStrip}>
           <div>
@@ -81,35 +80,138 @@ export function DashboardPage() {
         </dl>
       </header>
 
-      <section className={styles.stage}>
-        <div className={styles.calendarPanel}>
-          <div className={styles.sectionHead}>
-            <h2>업무보고 달력</h2>
-            <p>총 {totalCount}일 기준으로 작성 여부를 바로 판독합니다.</p>
-          </div>
-          <div className={styles.calendar}>
-            {weekdayLabels.map((label) => (
-              <span key={label} className={styles.weekday}>
-                {label}
-              </span>
-            ))}
-            {calendarCells.map((cell) => {
-              if (cell.blank) {
-                return <div key={cell.key} className={styles.blankCell} aria-hidden="true" />;
-              }
+      <div className={styles.mainGrid}>
+        <div className={styles.mainCol}>
+          <div className={styles.calendarPanel}>
+            <div className={styles.sectionHead}>
+              <h2>업무보고 달력</h2>
+            </div>
+            <div className={styles.calendar}>
+              {weekdayLabels.map((label) => (
+                <span key={label} className={styles.weekday}>
+                  {label}
+                </span>
+              ))}
+              {calendarCells.map((cell) => {
+                if (cell.blank) {
+                  return <div key={cell.key} className={styles.blankCell} aria-hidden="true" />;
+                }
 
-              const exists = tasksByDate.has(cell.value);
-              return (
-                <div key={cell.key} className={styles.dayCard} data-state={exists ? "done" : "empty"}>
-                  <strong className={styles.dayNumber}>{cell.day}</strong>
-                  <span className={styles.dayState}>{exists ? "완료" : "누락"}</span>
-                </div>
-              );
-            })}
+                const exists = tasksByDate.has(cell.value);
+                return (
+                  <div key={cell.key} className={styles.dayCard} data-state={exists ? "done" : "empty"}>
+                    <strong className={styles.dayNumber}>{cell.day}</strong>
+                    <span className={styles.dayState}>{exists ? "완료" : "누락"}</span>
+                  </div>
+                );
+              })}
+            </div>
           </div>
+
+          <section className={styles.tableSection}>
+            <div className={styles.sectionHead}>
+              <h2>진행중 모니터링</h2>
+            </div>
+            <div className={styles.tableWrap}>
+              <table className={styles.table}>
+                <caption className="srOnly">진행중 모니터링 목록</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">플랫폼</th>
+                    <th scope="col">앱 / 페이지</th>
+                    <th scope="col">상태</th>
+                    <th scope="col">보고서</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {monitoring.map((item) => (
+                    <tr key={item.pageId}>
+                      <td>
+                        <span className="uiPlatformBadge">{item.platform}</span>
+                      </td>
+                      <td>
+                        <strong>{item.projectName}</strong>
+                        <span>{item.pageTitle}</span>
+                      </td>
+                      <td>
+                        <div className={styles.stackCell}>
+                          <span className="uiStatusBadge" data-status={item.statusLabel}>
+                            {item.statusLabel}
+                          </span>
+                          <span>{item.detail || "메모 없음"}</span>
+                        </div>
+                      </td>
+                      <td>
+                        {item.reportUrl ? (
+                          <a href={item.reportUrl} target="_blank" rel="noreferrer" className={styles.link}>
+                            열기
+                          </a>
+                        ) : (
+                          "-"
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                  {!monitoring.length ? (
+                    <tr>
+                      <td colSpan={4} className={styles.empty}>진행중 모니터링 항목이 없습니다.</td>
+                    </tr>
+                  ) : null}
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <section className={styles.tableSection}>
+            <div className={styles.sectionHead}>
+              <h2>진행중 QA</h2>
+            </div>
+            <div className={styles.tableWrap}>
+              <table className={styles.table}>
+                <caption className="srOnly">진행중 QA 목록</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">플랫폼</th>
+                    <th scope="col">앱이름</th>
+                    <th scope="col">리포터</th>
+                    <th scope="col">종료 예정</th>
+                    <th scope="col">보고서</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {qa.map((item) => (
+                    <tr key={item.pageId}>
+                      <td>
+                        <span className="uiPlatformBadge">{item.platform}</span>
+                      </td>
+                      <td>
+                        <strong>{item.projectName}</strong>
+                      </td>
+                      <td>{item.ownerName}</td>
+                      <td>{item.dueDate ? formatDateLabel(item.dueDate) : "-"}</td>
+                      <td>
+                        {item.reportUrl ? (
+                          <a href={item.reportUrl} target="_blank" rel="noreferrer" className={styles.link}>
+                            열기
+                          </a>
+                        ) : (
+                          "-"
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                  {!qa.length ? (
+                    <tr>
+                      <td colSpan={5} className={styles.empty}>진행중 QA 항목이 없습니다.</td>
+                    </tr>
+                  ) : null}
+                </tbody>
+              </table>
+            </div>
+          </section>
         </div>
 
-        <aside className={styles.priorityRail}>
+        <aside className={styles.sideCol}>
           <section className={styles.priorityBlock}>
             <div className={styles.sectionHead}>
               <h2>모니터링 우선순위</h2>
@@ -122,7 +224,11 @@ export function DashboardPage() {
                   <span>{item.pageTitle}</span>
                 </li>
               ))}
-              {!urgentMonitoring.length ? <li className={styles.emptyItem}>진행중 항목이 없습니다.</li> : null}
+              {!urgentMonitoring.length ? (
+                <li className={styles.emptyItem}>
+                  <span>진행중 항목이 없습니다.</span>
+                </li>
+              ) : null}
             </ul>
           </section>
 
@@ -138,116 +244,10 @@ export function DashboardPage() {
                   <span>{item.dueDate ? formatDateLabel(item.dueDate) : "종료일 미정"}</span>
                 </li>
               ))}
-              {!urgentQa.length ? <li className={styles.emptyItem}>진행중 QA가 없습니다.</li> : null}
+              {!urgentQa.length ? <li className={styles.emptyItem}><span>진행중 QA가 없습니다.</span></li> : null}
             </ul>
           </section>
         </aside>
-      </section>
-
-      <div className={styles.grid}>
-        <section className={styles.tableSection}>
-          <div className={styles.sectionHead}>
-            <h2>진행중 모니터링</h2>
-            <p>보고서 연결 상태와 메모를 함께 봅니다.</p>
-          </div>
-          <div className={styles.tableWrap}>
-            <table className={styles.table}>
-              <caption className="srOnly">진행중 모니터링 목록</caption>
-              <thead>
-                <tr>
-                  <th scope="col">플랫폼</th>
-                  <th scope="col">앱 / 페이지</th>
-                  <th scope="col">상태</th>
-                  <th scope="col">보고서</th>
-                </tr>
-              </thead>
-              <tbody>
-                {monitoring.map((item) => (
-                  <tr key={item.pageId}>
-                    <td>
-                      <span className="uiPlatformBadge">{item.platform}</span>
-                    </td>
-                    <td>
-                      <strong>{item.projectName}</strong>
-                      <span>{item.pageTitle}</span>
-                    </td>
-                    <td>
-                      <div className={styles.stackCell}>
-                        <span className="uiStatusBadge" data-status={item.statusLabel}>
-                          {item.statusLabel}
-                        </span>
-                        <span>{item.detail || "메모 없음"}</span>
-                      </div>
-                    </td>
-                    <td>
-                      {item.reportUrl ? (
-                        <a href={item.reportUrl} target="_blank" rel="noreferrer" className={styles.link}>
-                          열기
-                        </a>
-                      ) : (
-                        "-"
-                      )}
-                    </td>
-                  </tr>
-                ))}
-                {!monitoring.length ? (
-                  <tr>
-                    <td colSpan={4} className={styles.empty}>진행중 모니터링 항목이 없습니다.</td>
-                  </tr>
-                ) : null}
-              </tbody>
-            </table>
-          </div>
-        </section>
-
-        <section className={styles.tableSection}>
-          <div className={styles.sectionHead}>
-            <h2>진행중 QA</h2>
-            <p>종료 예정일과 보고서 링크를 우선 확인합니다.</p>
-          </div>
-          <div className={styles.tableWrap}>
-            <table className={styles.table}>
-              <caption className="srOnly">진행중 QA 목록</caption>
-              <thead>
-                <tr>
-                  <th scope="col">플랫폼</th>
-                  <th scope="col">앱이름</th>
-                  <th scope="col">리포터</th>
-                  <th scope="col">종료 예정</th>
-                  <th scope="col">보고서</th>
-                </tr>
-              </thead>
-              <tbody>
-                {qa.map((item) => (
-                  <tr key={item.pageId}>
-                    <td>
-                      <span className="uiPlatformBadge">{item.platform}</span>
-                    </td>
-                    <td>
-                      <strong>{item.projectName}</strong>
-                    </td>
-                    <td>{item.ownerName}</td>
-                    <td>{item.dueDate ? formatDateLabel(item.dueDate) : "-"}</td>
-                    <td>
-                      {item.reportUrl ? (
-                        <a href={item.reportUrl} target="_blank" rel="noreferrer" className={styles.link}>
-                          열기
-                        </a>
-                      ) : (
-                        "-"
-                      )}
-                    </td>
-                  </tr>
-                ))}
-                {!qa.length ? (
-                  <tr>
-                    <td colSpan={5} className={styles.empty}>진행중 QA 항목이 없습니다.</td>
-                  </tr>
-                ) : null}
-              </tbody>
-            </table>
-          </div>
-        </section>
       </div>
     </div>
   );

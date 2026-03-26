@@ -96,58 +96,53 @@ export function LoginPage() {
             </Button>
           </div>
           <div className={styles.actions}>
-            <Button
+            <button
               type="button"
-              tone="secondary"
-              isDisabled={!isSupabaseConfigured || isBusy}
-              onPress={async () => {
+              className={styles.textLink}
+              disabled={!isSupabaseConfigured || isBusy}
+              onClick={async () => {
                 const valid = await trigger();
-                if (!valid) {
-                  return;
-                }
-
+                if (!valid) return;
                 const values = getValues();
                 try {
                   setIsWorking(true);
                   setErrorMessage("");
                   setNoticeMessage("");
                   await signUp(values.email, values.password);
-                  setNoticeMessage("회원가입 요청을 완료했습니다. 인증 메일 확인 후 로그인하면 사용자 정보가 자동 연결됩니다.");
+                  setNoticeMessage("회원가입 요청을 완료했습니다. 자동 연결됩니다.");
                 } catch (error) {
-                  setErrorMessage(error instanceof Error ? error.message : "회원가입에 실패했습니다.");
+                  setErrorMessage(error instanceof Error ? error.message : "회원가입 실패.");
                 } finally {
                   setIsWorking(false);
                 }
               }}
             >
               회원가입
-            </Button>
-            <Button
+            </button>
+            <span className={styles.divider}>|</span>
+            <button
               type="button"
-              tone="ghost"
-              isDisabled={!isSupabaseConfigured || isBusy}
-              onPress={async () => {
+              className={styles.textLink}
+              disabled={!isSupabaseConfigured || isBusy}
+              onClick={async () => {
                 const validEmail = await trigger("email");
-                if (!validEmail) {
-                  return;
-                }
-
+                if (!validEmail) return;
                 const { email } = getValues();
                 try {
                   setIsWorking(true);
                   setErrorMessage("");
                   setNoticeMessage("");
                   await resetPassword(email);
-                  setNoticeMessage("비밀번호 재설정 메일을 보냈습니다. 메일함을 확인해 주세요.");
+                  setNoticeMessage("비밀번호 재설정 메일을 보냈습니다.");
                 } catch (error) {
-                  setErrorMessage(error instanceof Error ? error.message : "비밀번호 재설정 메일 발송에 실패했습니다.");
+                  setErrorMessage(error instanceof Error ? error.message : "메일 발송 실패.");
                 } finally {
                   setIsWorking(false);
                 }
               }}
             >
               비밀번호 찾기
-            </Button>
+            </button>
           </div>
         </form>
       </section>

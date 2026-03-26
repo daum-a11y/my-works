@@ -86,14 +86,11 @@ export function AppRouter() {
             <Route path="/projects" element={<ProjectsFeature />} />
             <Route path="/tracking" element={<TrackingFeature />} />
             <Route path="/reports/search" element={<SearchPage />} />
-            <Route path="/resource" element={<ResourceLayout />}>
-              <Route index element={<Navigate to="summary" replace />} />
-              <Route path="summary" element={<ResourceSummaryPage />} />
-              <Route path="month" element={<ResourceMonthPage />} />
-              <Route path="month/:type" element={<ResourceMonthPage />} />
-              <Route path="type" element={<ResourceTypePage />} />
-              <Route path="svc" element={<ResourceServicePage />} />
-            </Route>
+            <Route path="/resource/summary" element={<ResourceSummaryPage />} />
+            <Route path="/resource/month" element={<ResourceMonthPage />} />
+            <Route path="/resource/month/:type" element={<ResourceMonthPage />} />
+            <Route path="/resource/type" element={<ResourceTypePage />} />
+            <Route path="/resource/svc" element={<ResourceServicePage />} />
             <Route path="/stats/qa" element={<QaStatsPage />} />
             <Route path="/stats/monitoring" element={<MonitoringStatsPage />} />
             <Route path="/settings/password" element={<PasswordSettingsPage />} />

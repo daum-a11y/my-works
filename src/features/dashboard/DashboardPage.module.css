@@ -6,9 +6,9 @@
 .header {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  gap: 1rem;
-  padding-bottom: 0.7rem;
-  border-bottom: 1px solid color-mix(in srgb, var(--border-default) 76%, white);
+  gap: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid var(--border-strong);
 }
 
 .headerCopy,
@@ -51,8 +51,8 @@
 .summaryStrip div {
   display: grid;
   gap: 0.15rem;
-  padding-left: 0.8rem;
-  border-inline-start: 1px solid color-mix(in srgb, var(--border-default) 78%, white);
+  padding-left: 1.25rem;
+  border-inline-start: 1px solid var(--border-subtle);
 }
 
 .summaryStrip dt {
@@ -67,71 +67,73 @@
 .summaryStrip dd {
   margin: 0;
   color: var(--text-primary);
-  font-size: clamp(1.25rem, 2vw, 1.7rem);
+  font-size: clamp(1.75rem, 3vw, 2.25rem);
   font-weight: var(--font-weight-heavy);
+  font-variant-numeric: tabular-nums;
   line-height: 1;
 }
 
-.stage {
+.mainGrid {
   display: grid;
-  grid-template-columns: minmax(0, 1.75fr) minmax(16rem, 0.95fr);
-  gap: 1rem;
+  grid-template-columns: minmax(0, 1fr) 18rem;
+  gap: 2.5rem;
+  align-items: start;
 }
 
-.calendarPanel,
-.priorityBlock,
-.tableSection {
+.mainCol {
   display: grid;
-  gap: 0.7rem;
+  gap: 2.5rem;
 }
 
-.priorityRail {
+.sideCol {
   display: grid;
-  gap: 1rem;
+  gap: 2rem;
+  position: sticky;
+  top: 1rem;
 }
 
 .calendar {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
-  border-top: 1px solid color-mix(in srgb, var(--border-default) 76%, white);
+  gap: 1px;
+  background-color: var(--border-subtle);
+  border: 1px solid var(--border-subtle);
 }
 
 .weekday,
 .blankCell,
 .dayCard {
-  border-inline-end: 1px solid color-mix(in srgb, var(--border-subtle) 84%, white);
-  border-bottom: 1px solid color-mix(in srgb, var(--border-subtle) 84%, white);
+  background: var(--surface-default);
 }
 
 .weekday {
-  padding: 0.5rem 0.55rem;
+  padding: 0.5rem;
   color: var(--text-tertiary);
-  font-size: var(--text-kicker-size);
-  font-weight: var(--text-kicker-weight);
-  line-height: var(--text-kicker-line-height);
-  letter-spacing: 0.12em;
+  font-size: var(--text-meta-size);
+  font-weight: var(--font-weight-bold);
+  text-align: center;
   text-transform: uppercase;
 }
 
 .blankCell,
 .dayCard {
-  min-height: 4.9rem;
+  min-height: 5.5rem;
 }
 
 .blankCell {
-  background: color-mix(in srgb, var(--surface-panel) 56%, white);
+  background: var(--surface-active);
 }
 
 .dayCard {
   display: grid;
   align-content: start;
-  gap: 0.28rem;
-  padding: 0.45rem 0.55rem;
-  background: transparent;
+  gap: 0.5rem;
+  padding: 0.5rem;
 }
 
 .dayCard[data-state="done"] {
-  background: color-mix(in srgb, var(--accent-soft) 18%, white);
+  background: var(--state-success-bg);
+  border-left: 3px solid var(--state-success-border);
 }
 
 .dayNumber {
@@ -147,20 +149,25 @@
   line-height: var(--text-meta-line-height);
 }
 
+.dayCard[data-state="empty"] .dayState {
+  color: var(--accent-strong);
+  font-weight: var(--font-weight-bold);
+}
+
 .queueList {
   display: grid;
   gap: 0.1rem;
   padding: 0;
   margin: 0;
   list-style: none;
-  border-top: 1px solid color-mix(in srgb, var(--border-default) 76%, white);
+  border-top: 1px solid var(--border-default);
 }
 
 .queueList li {
   display: grid;
   gap: 0.08rem;
   padding: 0.55rem 0;
-  border-bottom: 1px solid color-mix(in srgb, var(--border-subtle) 86%, white);
+  border-bottom: 1px solid var(--border-default);
 }
 
 .queueList strong {
@@ -174,14 +181,15 @@
   line-height: var(--text-meta-line-height);
 }
 
-.grid {
+.tableSection {
   display: grid;
-  gap: 1rem;
+  gap: 0.7rem;
 }
 
 .tableWrap {
   overflow: auto;
-  border-top: 1px solid color-mix(in srgb, var(--border-default) 76%, white);
+  border: 1px solid var(--border-subtle);
+  
 }
 
 .table {
@@ -191,10 +199,11 @@
 
 .table th,
 .table td {
-  padding: 0.75rem 0.7rem;
-  border-bottom: 1px solid color-mix(in srgb, var(--border-subtle) 88%, white);
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--border-subtle);
   text-align: left;
   vertical-align: top;
+  font-variant-numeric: tabular-nums;
 }
 
 .table th {
@@ -234,12 +243,17 @@
 .empty {
   color: var(--text-tertiary);
   line-height: var(--text-body-line-height);
+  text-align: center;
+  padding: 2.5rem !important;
 }
 
-@media (max-width: 980px) {
+@media (max-width: 1024px) {
   .header,
-  .stage {
+  .mainGrid {
     grid-template-columns: 1fr;
+  }
+  .sideCol {
+    position: static;
   }
 }
 

@@ -5,18 +5,18 @@
   gap: var(--space-form-section-gap);
   min-height: 100vh;
   padding: 1.5rem;
-  background: var(--surface-canvas);
+  background: var(--surface-sidebar); /* Slightly deeper neutral for backdrop contrast */
 }
 
 .panel {
   display: grid;
   gap: var(--space-form-section-gap);
   width: min(100%, 22rem);
-  padding: 1.25rem;
+  padding: 2.25rem 2rem;
   background: var(--surface-panel);
   border: 1px solid var(--border-default);
-  border-radius: var(--radius-md);
-  box-shadow: var(--elevation-1);
+  border-top: 3px solid var(--accent-strong);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); /* Minimal industrial shadow for depth */
 }
 
 .hero {
@@ -30,9 +30,10 @@
   margin: 0;
   color: var(--text-primary);
   font-size: var(--text-page-title-size);
-  font-weight: var(--text-page-title-weight);
-  letter-spacing: var(--text-page-title-tracking);
+  font-weight: var(--font-weight-heavy);
+  letter-spacing: 0.12em;
   line-height: var(--text-page-title-line-height);
+  text-transform: uppercase;
 }
 
 .caption {
@@ -62,16 +63,37 @@
 .actions {
   display: flex;
   justify-content: center;
-  gap: 1rem;
-  padding-top: 0.15rem;
+  align-items: center;
+  gap: 0.5rem;
+  padding-top: 0.75rem;
+}
+
+.textLink {
+  background: transparent;
+  border: none;
+  color: var(--text-tertiary);
+  font-size: var(--text-meta-size);
+  font-weight: var(--font-weight-bold);
+  cursor: pointer;
+  padding: 0;
+  transition: color 120ms ease;
+}
+
+.textLink:hover {
+  color: var(--accent-strong);
+}
+
+.divider {
+  color: var(--border-default);
 }
 
 .notice,
 .error {
   display: grid;
   gap: 0.4rem;
-  padding: 0.7rem 0.8rem;
-  border: 1px solid;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border-subtle);
+  border-inline-start-width: 3px;
 }
 
 .notice {
@@ -79,20 +101,20 @@
 }
 
 .notice[data-state="info"] {
-  background: color-mix(in srgb, var(--state-info-bg) 42%, white);
-  border-color: var(--state-info-border);
+  background: var(--surface-panel);
+  border-inline-start-color: var(--state-info-text);
   color: var(--state-info-text);
 }
 
 .notice[data-state="success"] {
-  background: color-mix(in srgb, var(--state-success-bg) 42%, white);
-  border-color: var(--state-success-border);
+  background: var(--surface-panel);
+  border-inline-start-color: var(--state-success-text);
   color: var(--state-success-text);
 }
 
 .error {
-  background: color-mix(in srgb, var(--state-danger-bg) 42%, white);
-  border-color: var(--state-danger-border);
+  background: var(--surface-panel);
+  border-inline-start-color: var(--state-danger-text);
   color: var(--state-danger-text);
 }
 

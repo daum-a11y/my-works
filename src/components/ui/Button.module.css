@@ -3,33 +3,27 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  min-height: var(--control-height-md);
-  padding: 0.46rem 0.78rem;
+  height: var(--control-height-md);
+  padding: 0 1rem;
   border: 1px solid transparent;
-  border-radius: var(--radius-sm);
+  
   font-family: inherit;
   font-size: var(--text-form-size);
   font-weight: var(--text-form-weight);
-  letter-spacing: var(--text-form-tracking);
-  line-height: var(--text-form-line-height);
-  transition:
-    background 160ms ease,
-    border-color 160ms ease,
-    color 160ms ease,
-    box-shadow 160ms ease,
-    opacity 160ms ease;
+  line-height: 1;
+  
 }
 
 .button[data-disabled] {
   opacity: 0.62;
   cursor: not-allowed;
-  box-shadow: none;
+  
 }
 
 .button:not([data-disabled]):focus-visible {
   outline: 2px solid var(--focus-ring-color);
   outline-offset: 1px;
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--focus-ring-color) 24%, white);
+  
 }
 
 .primary {

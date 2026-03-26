@@ -8,7 +8,7 @@
   display: grid;
   gap: 0.35rem;
   padding: 0 0 0.7rem;
-  border-bottom: 1px solid color-mix(in srgb, var(--border-default) 76%, white);
+  border-bottom: 1px solid var(--border-default);
 }
 
 .heroMain {
@@ -71,7 +71,7 @@
   line-height: var(--text-form-line-height);
   letter-spacing: var(--text-form-tracking);
   cursor: pointer;
-  transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease;
+  
 }
 
 .tabButton[data-active] {
@@ -88,7 +88,7 @@
   padding: 0;
   border: 0;
   background: transparent;
-  box-shadow: none;
+  
 }
 
 .panelHead {
@@ -98,7 +98,7 @@
   gap: var(--space-4);
   margin-bottom: 0.7rem;
   padding-bottom: 0.7rem;
-  border-bottom: 1px solid color-mix(in srgb, var(--border-default) 74%, white);
+  border-bottom: 1px solid var(--border-default);
 }
 
 .panelEyebrow {
@@ -141,13 +141,13 @@
 .primaryButton,
 .secondaryButton,
 .chipButton {
-  border-radius: var(--radius-sm);
+  
   font: inherit;
   font-size: var(--text-form-size);
   font-weight: var(--text-form-weight);
   line-height: var(--text-form-line-height);
   cursor: pointer;
-  transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease;
+  
 }
 
 .primaryButton {
@@ -169,9 +169,9 @@
 }
 
 .chipButton {
-  border: 1px solid color-mix(in srgb, var(--border-default) 72%, white);
+  border: 1px solid var(--border-default);
   padding: var(--space-2);
-  background: color-mix(in srgb, var(--surface-canvas) 96%, white);
+  background: var(--surface-canvas);
   color: var(--text-primary);
   font-size: var(--text-meta-size);
   font-weight: var(--text-meta-weight);
@@ -234,7 +234,7 @@
   min-height: var(--control-height-md);
   padding: var(--control-padding-y) var(--control-padding-x);
   border: 1px solid var(--control-border);
-  border-radius: var(--control-radius);
+  
   background: var(--control-bg);
   color: var(--text-primary);
   font: inherit;
@@ -249,8 +249,8 @@
 .secondaryButton:focus-visible,
 .chipButton:focus-visible,
 .rowButton:focus-visible {
-  outline: 3px solid var(--focus-ring-color);
-  box-shadow: var(--focus-ring-shadow);
+  
+  
 }
 
 .field textarea {
@@ -272,7 +272,7 @@
 
 .tableWrap {
   overflow: auto;
-  border-top: 1px solid color-mix(in srgb, var(--border-default) 74%, white);
+  border-top: 1px solid var(--border-default);
   background: transparent;
 }
 
@@ -285,7 +285,7 @@
 .table th,
 .table td {
   padding: var(--space-3) var(--space-2);
-  border-bottom: 1px solid color-mix(in srgb, var(--border-subtle) 90%, white);
+  border-bottom: 1px solid var(--border-subtle);
   vertical-align: top;
   text-align: left;
   overflow-wrap: anywhere;
@@ -301,12 +301,12 @@
   line-height: var(--text-table-line-height);
   letter-spacing: var(--text-table-tracking);
   text-transform: uppercase;
-  background: color-mix(in srgb, var(--surface-canvas) 92%, white);
+  background: var(--surface-canvas);
 }
 
 .table tbody tr[data-active] {
-  background: color-mix(in srgb, var(--surface-panel) 92%, white);
-  box-shadow: inset 2px 0 0 color-mix(in srgb, var(--accent) 46%, white);
+  background: var(--surface-panel);
+  
 }
 
 .table td strong,

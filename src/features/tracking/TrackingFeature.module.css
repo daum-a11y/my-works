@@ -8,7 +8,7 @@
   display: grid;
   gap: var(--space-3);
   padding: 0 0 var(--space-3);
-  border-bottom: 1px solid color-mix(in srgb, var(--border-default) 80%, white);
+  border-bottom: 1px solid var(--border-default);
 }
 
 .kicker {
@@ -51,12 +51,12 @@
   gap: var(--space-3);
   padding: var(--space-3) var(--space-4);
   border: 1px solid var(--border-default);
-  border-radius: var(--radius-sm);
-  background: color-mix(in srgb, var(--surface-canvas) 96%, white);
+  
+  background: var(--surface-canvas);
   color: inherit;
   text-align: left;
-  box-shadow: none;
-  transition: border-color 140ms ease, background-color 140ms ease, color 140ms ease;
+  
+  
 }
 
 .filterButton span {
@@ -83,28 +83,28 @@
 .cellTextarea:focus-visible,
 .checkboxInput:focus-visible,
 .saveButton:focus-visible {
-  outline: 3px solid var(--focus-ring-color);
-  box-shadow: var(--focus-ring-shadow);
+  
+  
 }
 
 .filterButton:hover {
   border-color: var(--border-strong);
-  background: color-mix(in srgb, var(--surface-panel) 90%, white);
+  background: var(--surface-panel);
 }
 
 .filterButtonActive {
-  border-color: color-mix(in srgb, var(--border-strong) 70%, white);
-  background: color-mix(in srgb, var(--surface-canvas) 92%, white);
-  box-shadow: inset 0 -2px 0 color-mix(in srgb, var(--accent) 38%, white);
+  border-color: var(--border-strong);
+  background: var(--surface-canvas);
+  
 }
 
 .panel {
   min-width: 0;
   padding: var(--space-4);
-  border: 1px solid color-mix(in srgb, var(--border-default) 82%, white);
-  border-radius: var(--radius-sm);
-  background: color-mix(in srgb, var(--surface-canvas) 96%, white);
-  box-shadow: none;
+  border: 1px solid var(--border-default);
+  
+  background: var(--surface-canvas);
+  
 }
 
 .sectionHeader {
@@ -135,9 +135,9 @@
 
 .tableWrap {
   overflow: auto;
-  border-radius: var(--radius-sm);
-  border: 1px solid color-mix(in srgb, var(--border-default) 82%, white);
-  background: color-mix(in srgb, var(--surface-canvas) 97%, white);
+  
+  border: 1px solid var(--border-default);
+  background: var(--surface-canvas);
 }
 
 .table {
@@ -149,7 +149,7 @@
 .table th,
 .table td {
   padding: var(--space-3) var(--space-2);
-  border-bottom: 1px solid color-mix(in srgb, var(--border-subtle) 90%, white);
+  border-bottom: 1px solid var(--border-subtle);
   text-align: left;
   vertical-align: top;
   overflow-wrap: anywhere;
@@ -162,14 +162,14 @@
   line-height: var(--text-table-line-height);
   letter-spacing: var(--text-table-tracking);
   text-transform: uppercase;
-  background: color-mix(in srgb, var(--surface-canvas) 92%, white);
+  background: var(--surface-canvas);
   position: sticky;
   top: 0;
   z-index: 1;
 }
 
 .table tbody tr:hover {
-  background: color-mix(in srgb, var(--surface-panel) 92%, white);
+  background: var(--surface-panel);
 }
 
 .projectCell {
@@ -195,7 +195,7 @@
 .cellTextarea {
   width: 100%;
   border: 1px solid var(--control-border);
-  border-radius: var(--control-radius);
+  
   padding: var(--control-padding-y) var(--control-padding-x);
   background: var(--control-bg);
   color: var(--text-primary);
@@ -230,7 +230,7 @@
 
 .saveButton {
   border: 0;
-  border-radius: var(--radius-sm);
+  
   padding: var(--space-3) var(--space-4);
   cursor: pointer;
   font: inherit;
@@ -240,7 +240,7 @@
   letter-spacing: var(--text-form-tracking);
   background: var(--button-primary-bg);
   color: var(--text-inverse);
-  box-shadow: none;
+  
 }
 
 .saveButton:disabled {
@@ -251,8 +251,8 @@
 .empty {
   padding: var(--space-form-section-gap);
   border: 1px dashed var(--border-default);
-  border-radius: var(--radius-md);
-  background: color-mix(in srgb, var(--surface-canvas) 96%, white);
+  
+  background: var(--surface-canvas);
   color: var(--text-tertiary);
 }
 

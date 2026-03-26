@@ -11,40 +11,21 @@ type NavigationItem = {
 
 const baseNavigation: readonly NavigationItem[] = [
   { to: "/dashboard", label: "업무 현황" },
-  { to: "/reports", label: "업무보고" },
-  {
-    label: "프로젝트 관리",
-    children: [
-      { to: "/tracking", label: "모니터링 트래킹" },
-      { to: "/projects", label: "프로젝트 등록 & 리스트" },
-    ],
-  },
-  {
-    label: "기타",
-    children: [
-      { to: "/resource", label: "앱 운영정보" },
-      { to: "/reports/search", label: "업무보고 검색" },
-    ],
-  },
-  {
-    label: "통계",
-    children: [
-      { to: "/stats/qa", label: "QA" },
-      { to: "/stats/monitoring", label: "모니터링" },
-    ],
-  },
+  { to: "/reports", label: "업무보고 작성/리스트" },
+  { to: "/tracking", label: "모니터링 트래킹" },
+  { to: "/projects", label: "프로젝트 관리" },
+  { to: "/resource/summary", label: "리소스 판독: 요약" },
+  { to: "/resource/type", label: "리소스 판독: 업무유형" },
+  { to: "/resource/svc", label: "리소스 판독: 서비스그룹" },
+  { to: "/resource/month", label: "리소스 판독: 월간" },
+  { to: "/reports/search", label: "업무보고 검색" },
 ] as const;
 
 const adminNavigation: readonly NavigationItem[] = [
-  {
-    label: "관리자",
-    children: [
-      { to: "/admin/reports", label: "전체 업무검색" },
-      { to: "/admin/type", label: "업무 타입" },
-      { to: "/admin/group", label: "서비스 그룹" },
-      { to: "/admin/members", label: "사용자 관리" },
-    ],
-  },
+  { to: "/admin/reports", label: "관리자: 전체 업무" },
+  { to: "/admin/type", label: "관리자: 업무 타입" },
+  { to: "/admin/group", label: "관리자: 서비스 그룹" },
+  { to: "/admin/members", label: "관리자: 사용자 관리" },
 ] as const;
 
 function isCurrentPath(pathname: string, to: string) {

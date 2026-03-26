@@ -7,7 +7,7 @@
   display: grid;
   gap: 0.18rem;
   padding: 0 0 0.7rem;
-  border-bottom: 1px solid color-mix(in srgb, var(--border-default) 76%, white);
+  border-bottom: 1px solid var(--border-default);
 }
 
 .title {
@@ -46,8 +46,8 @@
   display: grid;
   gap: 0.2rem;
   padding: 0.72rem 0.8rem 0.78rem;
-  border-inline-start: 3px solid color-mix(in srgb, var(--accent-strong) 72%, white);
-  background: color-mix(in srgb, var(--surface-panel) 95%, white);
+  border-inline-start: 3px solid var(--border-strong);
+  background: var(--surface-panel);
 }
 
 .scoreCard span {
@@ -71,8 +71,8 @@
   display: grid;
   gap: 0.7rem;
   padding: 0.8rem;
-  border: 1px solid color-mix(in srgb, var(--border-default) 86%, white);
-  background: color-mix(in srgb, var(--surface-panel) 96%, white);
+  border: 1px solid var(--border-default);
+  background: var(--surface-panel);
 }
 
 .chart {
@@ -93,7 +93,7 @@
   display: flex;
   align-items: flex-end;
   min-height: 128px;
-  border-top: 1px solid color-mix(in srgb, var(--border-default) 76%, white);
+  border-top: 1px solid var(--border-default);
 }
 
 .chartBar {
@@ -103,10 +103,10 @@
   align-items: flex-start;
   justify-content: center;
   padding-top: 0.4rem;
-  border-radius: 0;
-  background: color-mix(in srgb, var(--accent-soft) 32%, white);
+  
+  background: var(--surface-active);
   color: var(--accent-strong);
-  box-shadow: none;
+  
 }
 
 .chartValue {
@@ -133,8 +133,8 @@
 
 .tableWrap {
   overflow: auto;
-  border: 1px solid color-mix(in srgb, var(--border-default) 76%, white);
-  background: color-mix(in srgb, var(--surface-canvas) 98%, white);
+  border: 1px solid var(--border-default);
+  background: var(--surface-canvas);
 }
 
 .table {
@@ -146,7 +146,7 @@
 .table th,
 .table td {
   padding: 0.68rem 0.62rem;
-  border-bottom: 1px solid color-mix(in srgb, var(--border-subtle) 90%, white);
+  border-bottom: 1px solid var(--border-subtle);
   text-align: left;
   vertical-align: top;
   overflow-wrap: anywhere;
@@ -159,7 +159,7 @@
   line-height: var(--text-table-line-height);
   letter-spacing: var(--text-table-tracking);
   text-transform: uppercase;
-  background: color-mix(in srgb, var(--surface-panel) 94%, white);
+  background: var(--surface-panel);
   position: sticky;
   top: 0;
   z-index: 1;
@@ -180,7 +180,7 @@
 }
 
 .table tbody tr:hover {
-  background: color-mix(in srgb, var(--surface-panel) 60%, white);
+  background: var(--surface-panel);
 }
 
 .stackCell {

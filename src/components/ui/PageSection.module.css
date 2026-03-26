@@ -10,8 +10,8 @@
 
 .panel {
   padding: 0.95rem 1rem 1rem;
-  border: 1px solid color-mix(in srgb, var(--border-default) 82%, white);
-  background: color-mix(in srgb, var(--surface-panel) 96%, white);
+  border: 1px solid var(--border-default);
+  background: var(--surface-panel);
 }
 
 .header {
@@ -20,7 +20,7 @@
   justify-content: space-between;
   gap: 0.9rem;
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid color-mix(in srgb, var(--border-default) 72%, white);
+  border-bottom: 1px solid var(--border-default);
 }
 
 .heading {

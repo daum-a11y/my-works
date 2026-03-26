@@ -65,7 +65,7 @@ select {
   top: 0.75rem;
   z-index: 999;
   padding: 0.7rem 0.95rem;
-  border-radius: var(--radius-sm);
+  border-radius: 0;
   background: var(--text-primary);
   color: var(--text-inverse);
   transform: translateY(-180%);
@@ -90,7 +90,7 @@ select {
   min-height: 1.55rem;
   padding: 0.16rem 0.48rem;
   border: 0;
-  border-radius: 0.45rem;
+  border-radius: 0;
   font-size: var(--text-badge-size);
   font-weight: var(--text-badge-weight);
   line-height: var(--text-badge-line-height);
@@ -99,12 +99,12 @@ select {
 }
 
 .uiPlatformBadge {
-  background: color-mix(in srgb, var(--raw-indigo-200) 68%, white);
+  background: var(--state-info-bg);
   color: var(--state-info-text);
 }
 
 .uiStatusBadge {
-  background: color-mix(in srgb, var(--surface-panel) 76%, var(--accent-soft));
+  background: var(--surface-active);
   color: var(--text-secondary);
 }
 
@@ -128,7 +128,7 @@ select {
 }
 
 .uiDueTag {
-  background: color-mix(in srgb, var(--surface-panel) 74%, var(--accent-soft));
+  background: var(--surface-active);
   color: var(--text-secondary);
 }
 
@@ -146,12 +146,12 @@ select {
 }
 
 .uiFlagTag {
-  background: color-mix(in srgb, var(--accent-soft) 52%, white);
+  background: var(--surface-active);
   color: var(--accent-strong);
 }
 
 .uiFlagTag[data-flag="qa"] {
-  background: color-mix(in srgb, var(--raw-indigo-200) 70%, white);
+  background: var(--state-info-bg);
   color: var(--state-info-text);
 }
 

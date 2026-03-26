@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { adminDataClient } from "../admin-client";
-import { AdminSectionTabs } from "../AdminSectionTabs";
+
 import styles from "../AdminPage.module.css";
 import type { MemberAdminItem, MemberAdminPayload } from "../admin-types";
 
@@ -156,7 +156,7 @@ export function AdminMembersPage() {
 
   return (
     <section className={styles.page}>
-      <AdminSectionTabs active="users" />
+      
 
       <header className={styles.hero}>
         <h2>사용자 관리</h2>
