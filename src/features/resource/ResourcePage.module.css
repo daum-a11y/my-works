@@ -125,14 +125,13 @@
 
 .metricCard {
   background: var(--surface-panel);
-  padding: 1.5rem;
+  padding: 0.8rem 1rem;
   border: 1px solid var(--border-default);
-  border-radius: var(--radius-md);
-  box-shadow: var(--elevation-1);
+  border-radius: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  border-inline-start: 4px solid var(--accent-strong);
+  gap: 0.2rem;
+  border-inline-start: 3px solid var(--accent-strong);
 }
 
 .metricCard span {
@@ -209,9 +208,9 @@
 }
 
 .calendarCell {
-  min-height: 80px;
-  padding: 0.75rem;
-  border-radius: var(--radius-sm);
+  min-height: 3.5rem;
+  padding: 0.5rem;
+  border-radius: 0;
   border: 1px solid var(--border-subtle);
   background: var(--surface-panel);
   transition: all 120ms ease;

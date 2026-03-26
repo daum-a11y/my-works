@@ -32,7 +32,7 @@ export function ResourceTypePage() {
   }, [data, filters.selectedMonth]);
 
   return (
-    <PageSection title="타입별 요약" description="선택 월 기준 업무 타입별 건수와 시간을 집계합니다.">
+    <PageSection title="타입별 요약">
       <div className={styles.toolbar}>
         <button type="button" onClick={() => filters.setSelectedMonth(shiftMonth(filters.selectedMonth, -1))}>
           이전달

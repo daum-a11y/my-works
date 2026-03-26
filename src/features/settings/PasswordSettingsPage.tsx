@@ -36,16 +36,10 @@ export function PasswordSettingsPage() {
   return (
     <div className={styles.page}>
       <header className={styles.header}>
-        <p className={styles.kicker}>설정</p>
-        <h1>계정 보안</h1>
-        <p>현재 비밀번호를 확인한 뒤 새 비밀번호로 변경합니다.</p>
+        <h1>비밀번호 변경</h1>
       </header>
 
-      <div className={styles.layout}>
-        <aside className={styles.sidebar}>
-          <h2>작업 기준</h2>
-          <p>비밀번호는 즉시 갱신되며 다음 로그인부터 새 값이 적용됩니다.</p>
-        </aside>
+
 
         <form
           className={styles.form}
@@ -91,7 +85,6 @@ export function PasswordSettingsPage() {
             {isSubmitting ? "변경 중..." : "비밀번호 변경"}
           </Button>
         </form>
-      </div>
     </div>
   );
 }

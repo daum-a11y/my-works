@@ -23,10 +23,7 @@ interface TrackingRow {
 }
 
 function sameDraft(left: TrackingDraft | undefined, right: TrackingDraft): boolean {
-  if (!left) {
-    return false;
-  }
-
+  if (!left) return false;
   return (
     left.id === right.id &&
     left.projectId === right.projectId &&
@@ -46,11 +43,8 @@ function formatDateTime(value: string): string {
 }
 
 function memberName(memberId: string | null | undefined, membersById: Map<string, Member>): string {
-  if (!memberId) {
-    return "미지정";
-  }
-
-  return membersById.get(memberId)?.name ?? "미지정";
+  if (!memberId) return "-";
+  return membersById.get(memberId)?.name ?? "-";
 }
 
 function toDraft(page: ProjectPage): TrackingDraft {
@@ -79,7 +73,6 @@ export function TrackingFeature() {
         opsDataClient.getProjectPages(member!),
         opsDataClient.getMembers(),
       ]);
-
       return { projects, pages, members };
     },
   });
@@ -87,10 +80,7 @@ export function TrackingFeature() {
   const saveMutation = useMutation({
     mutationFn: async ({ page, draft }: { page: ProjectPage; draft: TrackingDraft }) => {
       return opsDataClient.saveProjectPage({
-        id: page.id,
-        projectId: page.projectId,
-        title: page.title,
-        url: page.url,
+        ...page,
         ownerMemberId: draft.ownerMemberId || null,
         trackStatus: draft.trackStatus,
         monitoringInProgress: draft.monitoringInProgress,
@@ -100,9 +90,6 @@ export function TrackingFeature() {
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["tracking", member?.id] });
-      await queryClient.invalidateQueries({ queryKey: ["projects", member?.id] });
-      await queryClient.invalidateQueries({ queryKey: ["dashboard", member?.id] });
-      await queryClient.invalidateQueries({ queryKey: ["dashboard-stats", member?.id] });
     },
   });
 
@@ -116,16 +103,14 @@ export function TrackingFeature() {
 
   const [stateFilter, setStateFilter] = useState<"all" | PageStatus>("all");
   const [drafts, setDrafts] = useState<Record<string, TrackingDraft>>({});
-  const [statusMessage, setStatusMessage] = useState("");
 
   const rows = useMemo<TrackingRow[]>(() => {
     return pages
       .map((page) => {
         const project = projectsById.get(page.projectId);
-
         return {
           page,
-          projectName: project?.name ?? "미분류 프로젝트",
+          projectName: project?.name ?? "미분류",
           platform: project?.platform ?? "-",
           ownerName: memberName(page.ownerMemberId, membersById),
         };
@@ -134,243 +119,152 @@ export function TrackingFeature() {
   }, [membersById, pages, projectsById]);
 
   const filteredRows = useMemo(() => {
-    if (stateFilter === "all") {
-      return rows;
-    }
-
+    if (stateFilter === "all") return rows;
     return rows.filter((row) => row.page.trackStatus === stateFilter);
   }, [rows, stateFilter]);
 
   useEffect(() => {
     setDrafts((current) => {
       const next: Record<string, TrackingDraft> = {};
-      let changed = Object.keys(current).length !== rows.length;
-
       for (const row of rows) {
-        const draft = {
-          ...toDraft(row.page),
-          ...(current[row.page.id] ?? {}),
-          id: row.page.id,
-          projectId: row.page.projectId,
-        };
-
-        next[row.page.id] = draft;
-
-        if (!changed && !sameDraft(current[row.page.id], draft)) {
-          changed = true;
-        }
+        next[row.page.id] = current[row.page.id] ?? toDraft(row.page);
       }
-
-      return changed ? next : current;
+      return next;
     });
   }, [rows]);
 
-  if (query.isLoading) {
-    return (
-      <div style={{ display: "flex", justifyContent: "center", padding: "4rem" }}>
-        <div style={{ width: "2rem", height: "2rem", border: "2px solid var(--border-subtle)", borderTopColor: "var(--accent-strong)", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
-      </div>
-    );
-  }
+  if (query.isLoading) return null;
 
-  const updateDraft = (page: ProjectPage, patch: Partial<TrackingDraft>) => {
+  const updateDraft = (id: string, patch: Partial<TrackingDraft>) => {
     setDrafts((current) => ({
       ...current,
-      [page.id]: {
-        ...(current[page.id] ?? toDraft(page)),
-        ...patch,
-        id: page.id,
-        projectId: page.projectId,
-      },
+      [id]: { ...current[id], ...patch },
     }));
   };
 
   const handleSaveRow = async (row: TrackingRow) => {
-    const draft = drafts[row.page.id] ?? toDraft(row.page);
-
-    try {
-      await saveMutation.mutateAsync({ page: row.page, draft });
-      setStatusMessage(`"${row.page.title}" 행을 저장했습니다.`);
-    } catch (error) {
-      setStatusMessage(error instanceof Error ? error.message : "행 저장에 실패했습니다.");
-    }
-  };
-
-  const changeFilter = (value: "all" | PageStatus) => {
-    setStateFilter(value);
-    setStatusMessage(value === "all" ? "전체 항목을 표시합니다." : `${value} 상태만 표시합니다.`);
+    const draft = drafts[row.page.id];
+    if (!draft) return;
+    await saveMutation.mutateAsync({ page: row.page, draft });
   };
 
   return (
-    <section className={styles.shell} aria-labelledby="tracking-heading">
+    <section className={styles.shell}>
       <header className={styles.hero}>
-        <div>
-          <p className={styles.kicker}>트래킹</p>
           <h1 id="tracking-heading" className={styles.title}>트래킹</h1>
-        </div>
-        <div className={styles.toolbar} role="group" aria-label="상태 필터">
+        <div className={styles.toolbar}>
           <button
             type="button"
             className={`${styles.filterButton} ${stateFilter === "all" ? styles.filterButtonActive : ""}`}
-            onClick={() => changeFilter("all")}
-            aria-pressed={stateFilter === "all"}
+            onClick={() => setStateFilter("all")}
           >
             <span>전체</span>
             <strong>{rows.length}</strong>
           </button>
-          {pageStatusOptions.map((option) => {
-            const active = stateFilter === option;
-            const count = rows.filter((row) => row.page.trackStatus === option).length;
-
-            return (
-              <button
-                key={option}
-                type="button"
-                className={`${styles.filterButton} ${active ? styles.filterButtonActive : ""}`}
-                onClick={() => changeFilter(option)}
-                aria-pressed={active}
-              >
-                <span>{option}</span>
-                <strong>{count}</strong>
-              </button>
-            );
-          })}
+          {pageStatusOptions.map((option) => (
+            <button
+              key={option}
+              type="button"
+              className={`${styles.filterButton} ${stateFilter === option ? styles.filterButtonActive : ""}`}
+              onClick={() => setStateFilter(option)}
+            >
+              <span>{option}</span>
+              <strong>{rows.filter(r => r.page.trackStatus === option).length}</strong>
+            </button>
+          ))}
         </div>
       </header>
 
-      <section className={styles.panel} aria-labelledby="tracking-table-heading">
-        <div className={styles.sectionHeader}>
-          <div>
-            <h2 id="tracking-table-heading" className={styles.sectionTitle}>
-              트래킹 표
-            </h2>
-            <span className={styles.sectionMeta}>{statusMessage}</span>
-          </div>
-          <span className={styles.sectionMeta}>
-            표시 {filteredRows.length} / 전체 {rows.length}
-          </span>
-        </div>
-        <div className={styles.tableWrap}>
-          <table className={styles.table}>
-            <caption className={styles.srOnly}>트래킹 수정 표</caption>
-            <thead>
-              <tr>
-                <th scope="col">플랫폼</th>
-                <th scope="col">프로젝트 / 페이지</th>
-                <th scope="col">담당자</th>
-                <th scope="col">상태</th>
-                <th scope="col">모니터링</th>
-                <th scope="col">QA</th>
-                <th scope="col">메모</th>
-                <th scope="col">수정 시각</th>
-                <th scope="col">저장</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredRows.map((row) => {
-                const draft = drafts[row.page.id] ?? toDraft(row.page);
-
-                return (
-                  <tr key={row.page.id}>
-                    <td>
-                      <span className="uiPlatformBadge">{row.platform}</span>
-                    </td>
-                    <td>
-                      <div className={styles.projectCell}>
-                        <strong>{row.projectName}</strong>
-                        <span>{row.page.title}</span>
-                        <span className={styles.subText}>{row.page.url || "URL 없음"}</span>
-                        <span className={styles.subText}>현재 담당: {row.ownerName}</span>
-                      </div>
-                    </td>
-                    <td>
-                      <select
-                        className={styles.cellSelect}
-                        value={draft.ownerMemberId}
-                        onChange={(event) => updateDraft(row.page, { ownerMemberId: event.target.value })}
-                      >
-                        <option value="">미지정</option>
-                        {activeMembers.map((item) => (
-                          <option key={item.id} value={item.id}>
-                            {item.name}
-                          </option>
-                        ))}
-                      </select>
-                    </td>
-                    <td>
-                      <select
-                        className={styles.cellSelect}
-                        value={draft.trackStatus}
-                        onChange={(event) => updateDraft(row.page, { trackStatus: event.target.value as PageStatus })}
-                      >
-                        {pageStatusOptions.map((option) => (
-                          <option key={option} value={option}>
-                            {option}
-                          </option>
-                        ))}
-                      </select>
-                    </td>
-                    <td>
-                      <label className={styles.checkboxLabel}>
-                        <input
-                          className={styles.checkboxInput}
-                          type="checkbox"
-                          checked={draft.monitoringInProgress}
-                          onChange={(event) =>
-                            updateDraft(row.page, { monitoringInProgress: event.target.checked })
-                          }
-                        />
-                        <span className="uiFlagTag" data-flag="monitoring">
-                          모니터링
-                        </span>
-                      </label>
-                    </td>
-                    <td>
-                      <label className={styles.checkboxLabel}>
-                        <input
-                          className={styles.checkboxInput}
-                          type="checkbox"
-                          checked={draft.qaInProgress}
-                          onChange={(event) => updateDraft(row.page, { qaInProgress: event.target.checked })}
-                        />
-                        <span className="uiFlagTag" data-flag="qa">
-                          QA
-                        </span>
-                      </label>
-                    </td>
-                    <td>
-                      <textarea
-                        className={styles.cellTextarea}
-                        rows={2}
-                        value={draft.note}
-                        onChange={(event) => updateDraft(row.page, { note: event.target.value })}
-                      />
-                    </td>
-                    <td className="tabularNums">{formatDateTime(row.page.updatedAt)}</td>
-                    <td>
-                      <button
-                        type="button"
-                        className={styles.saveButton}
-                        disabled={saveMutation.isPending}
-                        onClick={() => void handleSaveRow(row)}
-                      >
-                        {saveMutation.isPending ? "저장 중..." : "저장"}
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
-              {!filteredRows.length ? (
-                <tr>
-                  <td colSpan={9} className={styles.empty}>
-                    선택한 상태의 트래킹 항목이 없습니다.
+      <div className={styles.tableWrap}>
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th scope="col" style={{ width: "80px" }}>PLAT</th>
+              <th scope="col">PROJECT / PAGE</th>
+              <th scope="col" style={{ width: "120px" }}>ASSIGNEE</th>
+              <th scope="col" style={{ width: "120px" }}>STATUS</th>
+              <th scope="col" style={{ width: "100px" }}>MNTR</th>
+              <th scope="col" style={{ width: "100px" }}>QA</th>
+              <th scope="col">NOTE</th>
+              <th scope="col" style={{ width: "140px" }}>UPDATED</th>
+              <th scope="col" style={{ width: "80px" }}>SAVE</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredRows.map((row) => {
+              const draft = drafts[row.page.id] || toDraft(row.page);
+              return (
+                <tr key={row.page.id}>
+                  <td>
+                    <span className="uiPlatformBadge">{row.platform}</span>
+                  </td>
+                  <td>
+                    <div className={styles.projectCell}>
+                      <strong>{row.projectName}</strong>
+                      <span className={styles.subText}>{row.page.title}</span>
+                      <span className={styles.subText}>{row.ownerName}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <select
+                      className={styles.cellSelect}
+                      value={draft.ownerMemberId}
+                      onChange={(e) => updateDraft(row.page.id, { ownerMemberId: e.target.value })}
+                    >
+                      <option value="">-</option>
+                      {activeMembers.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
+                    </select>
+                  </td>
+                  <td>
+                    <select
+                      className={styles.cellSelect}
+                      value={draft.trackStatus}
+                      onChange={(e) => updateDraft(row.page.id, { trackStatus: e.target.value as PageStatus })}
+                    >
+                      {pageStatusOptions.map((opt) => <option key={opt} value={opt}>{opt}</option>)}
+                    </select>
+                  </td>
+                  <td>
+                    <input
+                      className={styles.checkboxInput}
+                      type="checkbox"
+                      checked={draft.monitoringInProgress}
+                      onChange={(e) => updateDraft(row.page.id, { monitoringInProgress: e.target.checked })}
+                    />
+                  </td>
+                  <td>
+                    <input
+                      className={styles.checkboxInput}
+                      type="checkbox"
+                      checked={draft.qaInProgress}
+                      onChange={(e) => updateDraft(row.page.id, { qaInProgress: e.target.checked })}
+                    />
+                  </td>
+                  <td>
+                    <textarea
+                      className={styles.cellTextarea}
+                      rows={1}
+                      value={draft.note}
+                      onChange={(e) => updateDraft(row.page.id, { note: e.target.value })}
+                    />
+                  </td>
+                  <td className="tabularNums">{formatDateTime(row.page.updatedAt)}</td>
+                  <td>
+                    <button
+                      type="button"
+                      className={styles.saveButton}
+                      disabled={saveMutation.isPending}
+                      onClick={() => void handleSaveRow(row)}
+                    >
+                      SAVE
+                    </button>
                   </td>
                 </tr>
-              ) : null}
-            </tbody>
-          </table>
-        </div>
-      </section>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </section>
   );
 }

@@ -154,9 +154,6 @@ export function QaStatsPage() {
     <div className={styles.page}>
       <header className={styles.hero}>
         <h1 className={styles.title}>QA 통계</h1>
-        <p className={styles.summaryLine}>
-          총 {qaProjects.length}개 · 진행중 {activeCount}개 · 완료 {qaProjects.length - activeCount}개
-        </p>
       </header>
 
       <section className={styles.scoreboard}>

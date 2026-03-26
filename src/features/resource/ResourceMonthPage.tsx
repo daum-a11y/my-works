@@ -42,7 +42,7 @@ export function ResourceMonthPage() {
 
   return (
     <>
-      <PageSection title="월간 작성현황" description="사용자별 월간 작성 여부와 480분 기준 충족 일수를 확인합니다.">
+      <PageSection title="월간 작성현황">
         <div className={styles.toolbar}>
           <button type="button" onClick={() => filters.setSelectedMonth(shiftMonth(filters.selectedMonth, -1))}>
             이전달
@@ -91,7 +91,7 @@ export function ResourceMonthPage() {
         </div>
       </PageSection>
 
-      <PageSection title="일자별 상세" description="선택 월의 일자별 작성 건수와 시간을 목록으로 제공합니다.">
+      <PageSection title="일자별 상세">
         <div className={styles.tableWrap}>
           <table className={styles.table}>
             <thead>

@@ -52,44 +52,52 @@
   line-height: var(--text-meta-line-height);
 }
 
-.tabList {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.2rem;
-  align-items: center;
-}
-
-.tabButton {
-  border: 0;
-  border-bottom: 2px solid transparent;
-  padding: 0.35rem 0.65rem 0.4rem 0;
-  background: transparent;
-  color: var(--text-secondary);
-  font: inherit;
-  font-size: var(--text-form-size);
-  font-weight: var(--text-form-weight);
-  line-height: var(--text-form-line-height);
-  letter-spacing: var(--text-form-tracking);
-  cursor: pointer;
-  
-}
-
-.tabButton[data-active] {
-  border-bottom-color: color-mix(in srgb, var(--accent) 62%, white);
-  color: var(--accent-strong);
-}
-
 .stack {
   display: grid;
-  gap: 1rem;
+  gap: 2rem;
 }
 
 .panel {
-  padding: 0;
-  border: 0;
-  background: transparent;
-  
+  padding: 1.5rem;
+  background: var(--surface-panel);
+  border: 1px solid var(--border-default);
 }
+
+.panelTitle {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.filterRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.filterRow input {
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--border-default);
+  background: var(--surface-canvas);
+  color: var(--text-primary);
+  font-size: 0.8125rem;
+}
+
+.statusMsg {
+  font-size: 0.8125rem;
+  color: var(--accent-strong);
+}
+
+.subText {
+  display: block;
+  font-size: 0.75rem !important;
+  color: var(--text-tertiary) !important;
+  margin-top: 0.125rem !important;
+}
+
 
 .panelHead {
   display: flex;
@@ -139,30 +147,26 @@
 }
 
 .primaryButton,
-.secondaryButton,
-.chipButton {
-  
-  font: inherit;
-  font-size: var(--text-form-size);
-  font-weight: var(--text-form-weight);
-  line-height: var(--text-form-line-height);
+.secondaryButton {
+  padding: 0.5rem 1rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
   cursor: pointer;
-  
+  border-radius: 0;
 }
 
 .primaryButton {
-  border: 1px solid color-mix(in srgb, var(--button-primary-bg) 86%, white);
-  padding: var(--space-2) var(--space-3);
-  background: var(--button-primary-bg);
+  background: var(--accent-strong);
   color: white;
+  border: none;
 }
 
 .secondaryButton {
-  border: 1px solid var(--button-secondary-border);
-  padding: var(--space-2) var(--space-3);
-  background: var(--button-secondary-bg);
+  background: var(--surface-canvas);
   color: var(--text-primary);
+  border: 1px solid var(--border-default);
 }
+
 
 .secondaryButton:hover {
   background: var(--button-secondary-hover);

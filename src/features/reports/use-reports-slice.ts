@@ -91,7 +91,7 @@ export function useReportsSlice(): ReportsSlice {
   const [draft, setDraft] = useState<ReportDraft>(() => createEmptyReportDraft());
   const [projectQuery, setProjectQuery] = useState("");
   const [periodFilters, setPeriodFilters] = useState<ReportFilters>(DEFAULT_REPORT_FILTERS);
-  const [statusMessage, setStatusMessage] = useState("새 보고를 작성할 수 있습니다.");
+  const [statusMessage, setStatusMessage] = useState("");
 
   const tasksQuery = useQuery({
     queryKey: ["reports", "tasks", member?.id],
@@ -316,7 +316,7 @@ export function useReportsSlice(): ReportsSlice {
     setDraft(createEmptyReportDraft());
     setProjectQuery("");
     setActiveTab("report");
-    setStatusMessage("새 보고를 작성할 수 있습니다.");
+    setStatusMessage("");
   };
 
   const resetDraft = () => {

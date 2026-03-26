@@ -76,12 +76,12 @@ export function AppShell() {
     }
 
     for (const item of navigation) {
-      if (item.to && isCurrentPath(location.pathname, item.to)) {
+      if ("to" in item && item.to && isCurrentPath(location.pathname, item.to)) {
         parts.push({ label: item.label, to: item.to });
         break;
       }
 
-      if (item.children) {
+      if ("children" in item && item.children) {
         for (const child of item.children) {
           if (isCurrentPath(location.pathname, child.to)) {
             parts.push({ label: item.label, to: "#" });
@@ -110,7 +110,7 @@ export function AppShell() {
             <ul className={styles.navList}>
               {navigation.map((item) => (
                 <li key={item.label} className={styles.navItem}>
-                  {item.to ? (
+                  {"to" in item && item.to ? (
                     <NavLink
                       to={item.to}
                       className={({ isActive }) => (isActive ? styles.activeLink : styles.link)}
@@ -125,7 +125,7 @@ export function AppShell() {
                         <span className={styles.sectionLabel}>{item.label}</span>
                       </div>
                       <ul className={styles.subNavList}>
-                        {item.children?.map((child) => (
+                        {"children" in item && item.children?.map((child: any) => (
                           <li key={child.to}>
                             <NavLink
                               to={child.to}

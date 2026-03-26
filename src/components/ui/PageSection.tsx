@@ -4,14 +4,12 @@ import styles from "./PageSection.module.css";
 
 interface PageSectionProps extends ComponentPropsWithoutRef<"section"> {
   title: string;
-  description?: string;
   actions?: ReactNode;
   variant?: "plain" | "panel";
 }
 
 export function PageSection({
   title,
-  description,
   actions,
   className,
   children,
@@ -23,7 +21,6 @@ export function PageSection({
       <header className={styles.header}>
         <div className={styles.heading}>
           <h2>{title}</h2>
-          {description ? <p>{description}</p> : null}
         </div>
         {actions ? <div className={styles.actions}>{actions}</div> : null}
       </header>

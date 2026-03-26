@@ -21,14 +21,14 @@
   border-bottom: 1px solid var(--border-default);
 }
 
-.hero h2 {
+.hero h1 {
   margin: 0;
   color: var(--text-primary);
   font-family: var(--font-body);
-  font-size: var(--text-section-title-size);
-  font-weight: var(--text-section-title-weight);
-  line-height: var(--text-section-title-line-height);
-  letter-spacing: var(--text-section-title-tracking);
+  font-size: var(--text-page-title-size);
+  font-weight: var(--text-page-title-weight);
+  line-height: var(--text-page-title-line-height);
+  letter-spacing: var(--text-page-title-tracking);
 }
 
 .hero p,

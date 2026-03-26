@@ -159,7 +159,7 @@ export function AdminMembersPage() {
       
 
       <header className={styles.hero}>
-        <h2>사용자 관리</h2>
+        <h1>사용자 계정 관리</h1>
       </header>
 
       {errorMessage && <p className={styles.helperText}>{errorMessage}</p>}
@@ -185,14 +185,14 @@ export function AdminMembersPage() {
 
       <div className={styles.panel}>
         <div className={styles.sectionHeader}>
-          <div>
-            <h3>사용자 목록</h3>
+          <h2>사용자 목록</h2>
+          <div className={styles.sectionActions}>
+            {!adding && (
+              <button type="button" onClick={startAdd}>
+                사용자 추가
+              </button>
+            )}
           </div>
-          {!adding && (
-            <button type="button" onClick={startAdd}>
-              사용자 추가
-            </button>
-          )}
         </div>
 
         <div className={styles.tableWrap}>
@@ -317,7 +317,7 @@ export function AdminMembersPage() {
                             {member.authUserId ? "연결됨" : "미연결"}
                           </span>
                         </div>
-                        {member.authUserId ? <div className={styles.helperText}>{member.authUserId}</div> : null}
+                        {member.authUserId ? <div className={styles.smallText}>{member.authUserId}</div> : null}
                       </td>
                       <td className={styles.inlineRowCell}>
                         {member.queueReasons.length > 0 ? (
@@ -397,8 +397,8 @@ export function AdminMembersPage() {
                       <td>{member.userActive ? "활성" : "비활성"}</td>
                       <td className={styles.inlineRowActions}>
                         <div className={styles.actions}>
-                          <button type="button" onClick={() => void handleResetPassword(member)} disabled={resetPasswordMutation.isPending}>
-                            비밀번호 초기화
+                          <button type="button" className={styles.secondaryButton} onClick={() => void handleResetPassword(member)} disabled={resetPasswordMutation.isPending}>
+                            PW 초기화
                           </button>
                           <button type="button" onClick={() => startEdit(member)}>
                             수정

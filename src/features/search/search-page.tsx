@@ -116,7 +116,7 @@ export function SearchPage() {
   const [addDraft, setAddDraft] = useState<ReportDraft>(() => createEmptyReportDraft());
   const [editingReportId, setEditingReportId] = useState<string | null>(null);
   const [editingDraft, setEditingDraft] = useState<ReportDraft | null>(null);
-  const [statusMessage, setStatusMessage] = useState("기간을 지정한 뒤 검색 버튼을 누르세요.");
+  const [statusMessage, setStatusMessage] = useState("");
 
   const projectsQuery = useQuery({
     queryKey: ["search", "projects"],
@@ -312,6 +312,14 @@ export function SearchPage() {
     setStatusMessage(`"${report.projectDisplayName}" 보고서를 수정 중입니다.`);
   };
 
+  const startNewReport = () => {
+    setSelectedReportId(null);
+    setDraft(createEmptyReportDraft());
+    setProjectQuery("");
+    setActiveTab("report");
+    setStatusMessage("");
+  };
+
   const clearEditState = () => {
     setEditingReportId(null);
     setEditingDraft(null);
@@ -433,19 +441,23 @@ export function SearchPage() {
   return (
     <section className={styles.page}>
       <header className={styles.hero}>
-        <div className={styles.heroMain}>
-          <p className={styles.kicker}>검색</p>
-          <h1 className={styles.title}>업무보고 검색</h1>
+        <h1 className={styles.title}>업무보고 검색</h1>
+        <div className={styles.heroActions}>
+          <button type="button" className={styles.primaryButton} onClick={runSearch}>
+            검색 실행
+          </button>
+          <button type="button" className={styles.secondaryButton} onClick={clearSearch}>
+            초기화
+          </button>
+          <button type="button" className={styles.secondaryButton} onClick={handleDownload} disabled={!sortedReports.length}>
+            엑셀 내보내기
+          </button>
         </div>
       </header>
 
       <section className={styles.panel}>
         <div className={styles.panelHead}>
-          <div>
-            <p className={styles.panelEyebrow}>검색 조건</p>
-            <h2 className={styles.panelTitle}>검색</h2>
-          </div>
-
+          <h2>검색 필터</h2>
           <div className={styles.toolbarActions}>
             <button type="button" className={styles.secondaryButton} onClick={runSearch}>
               검색
@@ -498,11 +510,7 @@ export function SearchPage() {
 
       <section className={styles.panel}>
         <div className={styles.panelHead}>
-          <div>
-            <p className={styles.panelEyebrow}>검색 결과</p>
-            <h2 className={styles.panelTitle}>검색 결과</h2>
-          </div>
-          <p className={styles.panelMeta}>{sortedReports.length}건</p>
+          <h2>검색 결과 ({sortedReports.length})</h2>
         </div>
 
         <div className={styles.tableWrap}>
@@ -668,114 +676,6 @@ export function SearchPage() {
               )}
             </tbody>
           </table>
-        </div>
-      </section>
-
-      <section className={styles.panel}>
-        <div className={styles.panelHead}>
-          <div>
-            <p className={styles.panelEyebrow}>하단 추가</p>
-            <h2 className={styles.panelTitle}>추가</h2>
-          </div>
-          <button type="button" className={styles.secondaryButton} onClick={() => setAddDraft(createEmptyReportDraft())}>
-            입력 초기화
-          </button>
-        </div>
-
-        <div className={styles.formGrid}>
-          <label className={styles.field}>
-            <span>일자</span>
-            <input
-              type="date"
-              value={addDraft.reportDate}
-              onChange={(event) => applyAddDraftField("reportDate", event.target.value)}
-            />
-          </label>
-
-          <label className={styles.field}>
-            <span>프로젝트</span>
-            <select value={addDraft.projectId} onChange={(event) => applyAddDraftField("projectId", event.target.value)}>
-              <option value="">선택</option>
-              {projectOptions.map((project) => (
-                <option key={project.id} value={project.id}>
-                  {project.label}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <label className={styles.field}>
-            <span>페이지</span>
-            <select
-              value={addDraft.pageId}
-              onChange={(event) => applyAddDraftField("pageId", event.target.value)}
-              disabled={!addDraft.projectId}
-            >
-              <option value="">선택</option>
-              {filteredPagesForAdd.map((page) => (
-                <option key={page.id} value={page.id}>
-                  {page.title}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <label className={styles.field}>
-            <span>TYPE 1</span>
-            <select value={addDraft.type1} onChange={(event) => applyAddDraftField("type1", event.target.value as typeof addDraft.type1)}>
-              {type1Options.map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <label className={styles.field}>
-            <span>TYPE 2</span>
-            <select value={addDraft.type2} onChange={(event) => applyAddDraftField("type2", event.target.value as typeof addDraft.type2)}>
-              {buildTaskType2Options(taskTypes, addDraft.type1).map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <label className={styles.field}>
-            <span>시간</span>
-            <input
-              type="number"
-              min="0"
-              step="0.5"
-              value={addDraft.workHours}
-              onChange={(event) => applyAddDraftField("workHours", event.target.value)}
-            />
-          </label>
-
-          <label className={styles.field}>
-            <span>업무</span>
-            <textarea value={addDraft.content} onChange={(event) => applyAddDraftField("content", event.target.value)} />
-          </label>
-
-          <label className={styles.field}>
-            <span>메모</span>
-            <textarea value={addDraft.note} onChange={(event) => applyAddDraftField("note", event.target.value)} />
-          </label>
-        </div>
-
-        <div className={styles.actionRow}>
-          <button
-            type="button"
-            className={styles.primaryButton}
-            onClick={() => void handleSaveAdd()}
-            disabled={saveMutation.isPending}
-          >
-            추가
-          </button>
-          <button type="button" className={styles.secondaryButton} onClick={() => setAddDraft(createEmptyReportDraft())}>
-            다시 작성
-          </button>
         </div>
       </section>
     </section>

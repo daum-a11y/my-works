@@ -1,21 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { adminDataClient } from "../admin-client";
 
 import styles from "../AdminPage.module.css";
-import type { AdminServiceGroupItem, AdminServiceGroupPayload, AdminTaskSearchItem } from "../admin-types";
-
-const ALL_TASK_FILTERS = {
-  startDate: "1970-01-01",
-  endDate: "2099-12-31",
-  memberId: "",
-  projectId: "",
-  pageId: "",
-  taskType1: "",
-  taskType2: "",
-  serviceGroupId: "",
-  keyword: "",
-} as const;
+import type { AdminServiceGroupItem, AdminServiceGroupPayload } from "../admin-types";
 
 function createDraft(serviceGroup?: AdminServiceGroupItem): AdminServiceGroupPayload {
   if (!serviceGroup) {
@@ -34,33 +22,21 @@ function createDraft(serviceGroup?: AdminServiceGroupItem): AdminServiceGroupPay
   };
 }
 
-function groupKey(serviceGroupId: string | null, serviceGroupName: string) {
-  return serviceGroupId ?? `name:${serviceGroupName || "blank"}`;
-}
-
 export function AdminServiceGroupsPage() {
   const queryClient = useQueryClient();
   const [adding, setAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draft, setDraft] = useState<AdminServiceGroupPayload | null>(null);
-  const [selectedUsageKey, setSelectedUsageKey] = useState<string>("");
-  const [replacementGroupId, setReplacementGroupId] = useState<string>("");
 
   const serviceGroupsQuery = useQuery({
     queryKey: ["admin", "service-groups"],
     queryFn: () => adminDataClient.listServiceGroups(),
   });
 
-  const validationTasksQuery = useQuery({
-    queryKey: ["admin", "service-groups", "validation-tasks"],
-    queryFn: () => adminDataClient.searchTasksAdmin(ALL_TASK_FILTERS),
-  });
-
   const saveMutation = useMutation({
     mutationFn: (payload: AdminServiceGroupPayload) => adminDataClient.saveServiceGroupAdmin(payload),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["admin", "service-groups"] });
-      void queryClient.invalidateQueries({ queryKey: ["admin", "service-groups", "validation-tasks"] });
       setAdding(false);
       setEditingId(null);
       setDraft(null);
@@ -71,30 +47,9 @@ export function AdminServiceGroupsPage() {
     mutationFn: (serviceGroupId: string) => adminDataClient.deleteServiceGroupAdmin(serviceGroupId),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["admin", "service-groups"] });
-      void queryClient.invalidateQueries({ queryKey: ["admin", "service-groups", "validation-tasks"] });
       setAdding(false);
       setEditingId(null);
       setDraft(null);
-    },
-  });
-
-  const replaceMutation = useMutation({
-    mutationFn: async () => {
-      const selectedUsage = usageRows.find((row) => row.key === selectedUsageKey);
-      if (!selectedUsage) {
-        throw new Error("대상 서비스 그룹을 선택해 주십시오.");
-      }
-      if (!selectedUsage.serviceGroupId) {
-        throw new Error("식별 가능한 서비스 그룹만 변경할 수 있습니다.");
-      }
-      if (!replacementGroupId) {
-        throw new Error("변경할 서비스 그룹을 선택해 주십시오.");
-      }
-      await adminDataClient.replaceServiceGroupUsage(selectedUsage.serviceGroupId, replacementGroupId);
-    },
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ["admin", "service-groups", "validation-tasks"] });
-      void queryClient.invalidateQueries({ queryKey: ["admin", "service-groups"] });
     },
   });
 
@@ -103,55 +58,6 @@ export function AdminServiceGroupsPage() {
       [...(serviceGroupsQuery.data ?? [])].sort((left, right) => left.displayOrder - right.displayOrder || left.name.localeCompare(right.name)),
     [serviceGroupsQuery.data],
   );
-
-  const groupMap = useMemo(() => new Map(serviceGroups.map((item) => [item.id, item])), [serviceGroups]);
-
-  const usageRows = useMemo(() => {
-    const usageMap = new Map<string, { key: string; serviceGroupId: string | null; serviceGroupName: string; count: number; tasks: AdminTaskSearchItem[]; exists: boolean }>();
-
-    for (const task of validationTasksQuery.data ?? []) {
-      const key = groupKey(task.serviceGroupId, task.serviceGroupName);
-      const current = usageMap.get(key);
-      if (current) {
-        current.count += 1;
-        current.tasks.push(task);
-      } else {
-        usageMap.set(key, {
-          key,
-          serviceGroupId: task.serviceGroupId,
-          serviceGroupName: task.serviceGroupName,
-          count: 1,
-          tasks: [task],
-          exists: task.serviceGroupId ? groupMap.has(task.serviceGroupId) : false,
-        });
-      }
-    }
-
-    return Array.from(usageMap.values()).sort(
-      (left, right) => right.count - left.count || left.serviceGroupName.localeCompare(right.serviceGroupName),
-    );
-  }, [groupMap, validationTasksQuery.data]);
-
-  const selectedUsage = usageRows.find((row) => row.key === selectedUsageKey) ?? usageRows[0] ?? null;
-  const selectedUsageTasks = selectedUsage?.tasks ?? [];
-  const replacementOptions = serviceGroups.filter((item) => item.id !== selectedUsage?.serviceGroupId);
-
-  useEffect(() => {
-    if (!selectedUsageKey && usageRows.length > 0) {
-      setSelectedUsageKey(usageRows[0].key);
-    }
-  }, [selectedUsageKey, usageRows]);
-
-  useEffect(() => {
-    if (!replacementGroupId && replacementOptions.length > 0) {
-      setReplacementGroupId(replacementOptions[0].id);
-      return;
-    }
-
-    if (replacementGroupId && !replacementOptions.some((item) => item.id === replacementGroupId)) {
-      setReplacementGroupId(replacementOptions[0]?.id ?? "");
-    }
-  }, [replacementGroupId, replacementOptions]);
 
   const handleChange = <K extends keyof AdminServiceGroupPayload>(key: K, value: AdminServiceGroupPayload[K]) => {
     setDraft((current) => (current ? { ...current, [key]: value } : current));
@@ -192,35 +98,29 @@ export function AdminServiceGroupsPage() {
     await deleteMutation.mutateAsync(item.id);
   };
 
-  const handleApplyValidation = async () => {
-    await replaceMutation.mutateAsync();
-  };
-
   const errorMessage =
     (serviceGroupsQuery.error instanceof Error && serviceGroupsQuery.error.message) ||
     (saveMutation.error instanceof Error && saveMutation.error.message) ||
     (deleteMutation.error instanceof Error && deleteMutation.error.message) ||
-    ((validationTasksQuery.error instanceof Error && validationTasksQuery.error.message) ||
-      (replaceMutation.error instanceof Error && replaceMutation.error.message) ||
-      "");
+    "";
 
   return (
     <section className={styles.page}>
       
 
       <header className={styles.hero}>
-        <h2>서비스 그룹 관리</h2>
+        <h1>서비스 그룹 관리</h1>
       </header>
 
       {errorMessage && <p className={styles.helperText}>{errorMessage}</p>}
 
       <div className={styles.panel}>
         <div className={styles.sectionHeader}>
-          <h3>서비스 그룹 리스트</h3>
+          <h2>서비스 그룹 리스트</h2>
           <div className={styles.sectionActions}>
             {!adding && (
               <button type="button" onClick={startAdd} className={styles.primaryButton}>
-                서비스 그룹 추가
+                신규 그룹 추가
               </button>
             )}
           </div>

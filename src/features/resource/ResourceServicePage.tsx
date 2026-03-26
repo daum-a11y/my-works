@@ -38,7 +38,7 @@ export function ResourceServicePage() {
   }, [data, month]);
 
   return (
-    <PageSection title="그룹별 요약" description="선택 월 기준 서비스 그룹과 프로젝트 단위로 리소스를 집계합니다.">
+    <PageSection title="그룹별 요약">
       <div className={styles.toolbar}>
         <button type="button" onClick={() => setMonth(shiftMonth(month, -1))}>
           이전달

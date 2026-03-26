@@ -1,21 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { adminDataClient } from "../admin-client";
 
 import styles from "../AdminPage.module.css";
-import type { AdminTaskSearchItem, AdminTaskTypeItem, AdminTaskTypePayload } from "../admin-types";
-
-const ALL_TASK_FILTERS = {
-  startDate: "1970-01-01",
-  endDate: "2099-12-31",
-  memberId: "",
-  projectId: "",
-  pageId: "",
-  taskType1: "",
-  taskType2: "",
-  serviceGroupId: "",
-  keyword: "",
-} as const;
+import type { AdminTaskTypeItem, AdminTaskTypePayload } from "../admin-types";
 
 function createDraft(taskType?: AdminTaskTypeItem): AdminTaskTypePayload {
   if (!taskType) {
@@ -40,34 +28,21 @@ function createDraft(taskType?: AdminTaskTypeItem): AdminTaskTypePayload {
   };
 }
 
-function pairKey(type1: string, type2: string) {
-  return `${type1}||${type2}`;
-}
-
 export function AdminTaskTypesPage() {
   const queryClient = useQueryClient();
   const [adding, setAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draft, setDraft] = useState<AdminTaskTypePayload | null>(null);
-  const [selectedUsageKey, setSelectedUsageKey] = useState<string>("");
-  const [replacementType1, setReplacementType1] = useState<string>("");
-  const [replacementType2, setReplacementType2] = useState<string>("");
 
   const taskTypesQuery = useQuery({
     queryKey: ["admin", "task-types"],
     queryFn: () => adminDataClient.listTaskTypes(),
   });
 
-  const validationTasksQuery = useQuery({
-    queryKey: ["admin", "task-types", "validation-tasks"],
-    queryFn: () => adminDataClient.searchTasksAdmin(ALL_TASK_FILTERS),
-  });
-
   const saveMutation = useMutation({
     mutationFn: (payload: AdminTaskTypePayload) => adminDataClient.saveTaskTypeAdmin(payload),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["admin", "task-types"] });
-      void queryClient.invalidateQueries({ queryKey: ["admin", "task-types", "validation-tasks"] });
       setAdding(false);
       setEditingId(null);
       setDraft(null);
@@ -78,27 +53,9 @@ export function AdminTaskTypesPage() {
     mutationFn: (taskTypeId: string) => adminDataClient.deleteTaskTypeAdmin(taskTypeId),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["admin", "task-types"] });
-      void queryClient.invalidateQueries({ queryKey: ["admin", "task-types", "validation-tasks"] });
       setAdding(false);
       setEditingId(null);
       setDraft(null);
-    },
-  });
-
-  const replaceMutation = useMutation({
-    mutationFn: async () => {
-      const selectedUsage = usageRows.find((row) => row.key === selectedUsageKey);
-      if (!selectedUsage) {
-        throw new Error("대상 업무유형을 선택해 주십시오.");
-      }
-      if (!replacementType1 || !replacementType2) {
-        throw new Error("변경할 업무유형을 선택해 주십시오.");
-      }
-      await adminDataClient.replaceTaskTypeUsage(selectedUsage.type1, selectedUsage.type2, replacementType1, replacementType2);
-    },
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ["admin", "task-types", "validation-tasks"] });
-      void queryClient.invalidateQueries({ queryKey: ["admin", "task-types"] });
     },
   });
 
@@ -110,76 +67,6 @@ export function AdminTaskTypesPage() {
       ),
     [taskTypesQuery.data],
   );
-
-  const type1Options = useMemo(() => {
-    return Array.from(new Set(taskTypes.map((item) => item.type1))).sort((left, right) => left.localeCompare(right));
-  }, [taskTypes]);
-
-  const type2Options = useMemo(() => {
-    return taskTypes.filter((item) => item.type1 === replacementType1);
-  }, [replacementType1, taskTypes]);
-
-  const taskTypeMap = useMemo(() => new Map(taskTypes.map((item) => [pairKey(item.type1, item.type2), item])), [taskTypes]);
-
-  const usageRows = useMemo(() => {
-    const usageMap = new Map<string, { key: string; type1: string; type2: string; count: number; tasks: AdminTaskSearchItem[]; exists: boolean }>();
-
-    for (const task of validationTasksQuery.data ?? []) {
-      const key = pairKey(task.taskType1, task.taskType2);
-      const current = usageMap.get(key);
-      if (current) {
-        current.count += 1;
-        current.tasks.push(task);
-      } else {
-        usageMap.set(key, {
-          key,
-          type1: task.taskType1,
-          type2: task.taskType2,
-          count: 1,
-          tasks: [task],
-          exists: taskTypeMap.has(key),
-        });
-      }
-    }
-
-    return Array.from(usageMap.values()).sort(
-      (left, right) => right.count - left.count || left.type1.localeCompare(right.type1) || left.type2.localeCompare(right.type2),
-    );
-  }, [taskTypeMap, validationTasksQuery.data]);
-
-  const selectedUsage = usageRows.find((row) => row.key === selectedUsageKey) ?? usageRows[0] ?? null;
-  const selectedUsageTasks = selectedUsage?.tasks ?? [];
-  const validationError =
-    (validationTasksQuery.error instanceof Error && validationTasksQuery.error.message) ||
-    (replaceMutation.error instanceof Error && replaceMutation.error.message) ||
-    "";
-
-  useEffect(() => {
-    if (!selectedUsageKey && usageRows.length > 0) {
-      setSelectedUsageKey(usageRows[0].key);
-    }
-  }, [selectedUsageKey, usageRows]);
-
-  useEffect(() => {
-    if (!selectedUsage) {
-      return;
-    }
-
-    if (!replacementType1 || !type1Options.includes(replacementType1)) {
-      setReplacementType1(type1Options[0] ?? "");
-    }
-  }, [replacementType1, selectedUsage, type1Options]);
-
-  useEffect(() => {
-    if (!replacementType1) {
-      setReplacementType2("");
-      return;
-    }
-
-    if (!type2Options.some((item) => item.type2 === replacementType2)) {
-      setReplacementType2(type2Options[0]?.type2 ?? "");
-    }
-  }, [replacementType1, replacementType2, type2Options]);
 
   const handleChange = <K extends keyof AdminTaskTypePayload>(key: K, value: AdminTaskTypePayload[K]) => {
     setDraft((current) => (current ? { ...current, [key]: value } : current));
@@ -220,15 +107,10 @@ export function AdminTaskTypesPage() {
     await deleteMutation.mutateAsync(item.id);
   };
 
-  const handleApplyValidation = async () => {
-    await replaceMutation.mutateAsync();
-  };
-
   const errorMessage =
     (taskTypesQuery.error instanceof Error && taskTypesQuery.error.message) ||
     (saveMutation.error instanceof Error && saveMutation.error.message) ||
     (deleteMutation.error instanceof Error && deleteMutation.error.message) ||
-    validationError ||
     "";
 
   return (
@@ -236,18 +118,18 @@ export function AdminTaskTypesPage() {
       
 
       <header className={styles.hero}>
-        <h2>업무 타입 관리</h2>
+        <h1>업무 타입 관리</h1>
       </header>
 
       {errorMessage && <p className={styles.helperText}>{errorMessage}</p>}
 
       <div className={styles.panel}>
         <div className={styles.sectionHeader}>
-          <h3>업무 타입 리스트</h3>
+          <h2>업무 타입 리스트</h2>
           <div className={styles.sectionActions}>
             {!adding && (
               <button type="button" onClick={startAdd} className={styles.primaryButton}>
-                업무 타입 추가
+                신규 타입 추가
               </button>
             )}
           </div>

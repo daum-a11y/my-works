@@ -130,9 +130,6 @@ export function MonitoringStatsPage() {
     <div className={styles.page}>
       <header className={styles.hero}>
         <h1 className={styles.title}>모니터링 통계</h1>
-        <p className={styles.summaryLine}>
-          총 {monitoringRows.length}개 · 개선 {improvedCount}개 · 주의 {attentionCount}개
-        </p>
       </header>
 
       <section className={styles.scoreboard}>
