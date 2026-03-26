@@ -3,24 +3,24 @@
   --font-display: "KoddiUD OnGothic", "SUIT Variable", "Spoqa Han Sans Neo", "Noto Sans KR", sans-serif;
   --font-body: "KoddiUD OnGothic", "SUIT Variable", "Spoqa Han Sans Neo", "Noto Sans KR", sans-serif;
 
-  --raw-paper-0: oklch(0.992 0.004 82);
-  --raw-paper-1: oklch(0.978 0.006 82);
-  --raw-paper-2: oklch(0.958 0.008 82);
-  --raw-paper-3: oklch(0.936 0.011 82);
-  --raw-paper-4: oklch(0.904 0.014 82);
+  --raw-paper-0: oklch(0.986 0.006 250);
+  --raw-paper-1: oklch(0.976 0.008 250);
+  --raw-paper-2: oklch(0.956 0.012 250);
+  --raw-paper-3: oklch(0.91 0.017 250);
+  --raw-paper-4: oklch(0.846 0.022 250);
 
-  --raw-ink-900: oklch(0.24 0.022 246);
-  --raw-ink-700: oklch(0.35 0.018 246);
-  --raw-ink-500: oklch(0.5 0.014 246);
-  --raw-ink-300: oklch(0.7 0.01 246);
+  --raw-ink-900: oklch(0.23 0.028 253);
+  --raw-ink-700: oklch(0.34 0.024 253);
+  --raw-ink-500: oklch(0.49 0.019 253);
+  --raw-ink-300: oklch(0.69 0.014 253);
 
   --raw-teal-600: oklch(0.39 0.08 201);
   --raw-teal-500: oklch(0.47 0.087 201);
   --raw-teal-200: oklch(0.92 0.02 201);
 
-  --raw-indigo-600: oklch(0.38 0.074 255);
-  --raw-indigo-500: oklch(0.49 0.082 255);
-  --raw-indigo-200: oklch(0.92 0.018 255);
+  --raw-indigo-600: oklch(0.4 0.112 266);
+  --raw-indigo-500: oklch(0.53 0.118 266);
+  --raw-indigo-200: oklch(0.93 0.034 266);
 
   --raw-green-600: oklch(0.44 0.095 156);
   --raw-green-200: oklch(0.93 0.02 156);
@@ -29,13 +29,13 @@
   --raw-red-600: oklch(0.5 0.115 26);
   --raw-red-200: oklch(0.94 0.018 26);
 
-  --surface-canvas: var(--raw-paper-0);
-  --surface-sidebar: oklch(0.974 0.004 246);
-  --surface-header: oklch(0.978 0.004 246);
-  --surface-panel: oklch(0.982 0.004 246);
+  --surface-canvas: color-mix(in srgb, var(--raw-paper-1) 88%, white);
+  --surface-sidebar: color-mix(in srgb, var(--raw-paper-2) 78%, var(--raw-indigo-200));
+  --surface-header: color-mix(in srgb, var(--raw-paper-1) 82%, var(--raw-indigo-200));
+  --surface-panel: color-mix(in srgb, var(--raw-paper-0) 92%, var(--raw-indigo-200));
   --surface-raised: var(--surface-panel);
-  --surface-field: var(--raw-paper-0);
-  --surface-disabled: var(--raw-paper-2);
+  --surface-field: color-mix(in srgb, white 74%, var(--raw-indigo-200));
+  --surface-disabled: color-mix(in srgb, var(--raw-paper-2) 94%, var(--raw-paper-1));
 
   /* Primary text is L=0.24 against L=0.99 (~12:1), Secondary is L=0.35 (~8:1), Tertiary is L=0.50 (~4.5:1) */
   --text-primary: var(--raw-ink-900);
@@ -43,14 +43,14 @@
   --text-tertiary: var(--raw-ink-500);
   --text-inverse: var(--raw-paper-0);
 
-  --border-subtle: var(--raw-paper-2);
-  --border-default: var(--raw-paper-3);
-  --border-strong: var(--raw-paper-4);
-  --border-focus: var(--raw-teal-600);
+  --border-subtle: color-mix(in srgb, var(--raw-paper-3) 88%, var(--raw-indigo-200));
+  --border-default: color-mix(in srgb, var(--raw-paper-4) 88%, var(--raw-ink-300));
+  --border-strong: color-mix(in srgb, var(--raw-indigo-500) 28%, var(--raw-ink-500));
+  --border-focus: var(--raw-indigo-600);
 
-  --state-info-bg: var(--raw-indigo-200);
-  --state-info-border: var(--raw-indigo-500);
-  --state-info-text: color-mix(in srgb, var(--raw-indigo-600) 60%, var(--raw-ink-900));
+  --state-info-bg: color-mix(in srgb, var(--raw-indigo-200) 88%, white);
+  --state-info-border: color-mix(in srgb, var(--raw-indigo-500) 68%, var(--raw-indigo-600));
+  --state-info-text: color-mix(in srgb, var(--raw-indigo-600) 72%, var(--raw-ink-900));
   
   --state-success-bg: var(--raw-green-200);
   --state-success-border: var(--raw-green-600);
@@ -66,26 +66,26 @@
 
   --accent: var(--raw-indigo-500);
   --accent-strong: var(--raw-indigo-600);
-  --accent-soft: oklch(0.956 0.012 255);
+  --accent-soft: color-mix(in srgb, var(--raw-indigo-200) 88%, white);
   --focus-ring-color: var(--raw-indigo-600);
   --focus-ring-shadow: 0 0 0 3px var(--focus-ring-color);
 
-  --control-height-sm: 2.15rem;
-  --control-height-md: 2.35rem;
-  --control-radius: 0.45rem;
+  --control-height-sm: 2.125rem;
+  --control-height-md: 2.5rem;
+  --control-radius: 0.4rem;
   --control-padding-x: 0.72rem;
-  --control-padding-y: 0.52rem;
+  --control-padding-y: 0.44rem;
   --control-border: var(--border-default);
   --control-bg: var(--surface-field);
   --control-disabled-bg: var(--surface-disabled);
-  --control-placeholder: color-mix(in srgb, var(--text-tertiary) 80%, white);
+  --control-placeholder: color-mix(in srgb, var(--text-secondary) 72%, white);
 
-  --button-primary-bg: oklch(0.28 0.02 246);
-  --button-primary-bg-hover: oklch(0.33 0.02 246);
-  --button-secondary-bg: var(--surface-canvas);
+  --button-primary-bg: color-mix(in srgb, var(--raw-indigo-600) 82%, var(--raw-ink-900));
+  --button-primary-bg-hover: color-mix(in srgb, var(--raw-indigo-500) 72%, var(--raw-ink-900));
+  --button-secondary-bg: color-mix(in srgb, white 72%, var(--raw-indigo-200));
   --button-secondary-border: var(--border-default);
-  --button-secondary-hover: var(--surface-panel);
-  --button-ghost-hover: var(--surface-panel);
+  --button-secondary-hover: color-mix(in srgb, white 56%, var(--raw-indigo-200));
+  --button-ghost-hover: color-mix(in srgb, white 48%, var(--raw-indigo-200));
   --button-danger-bg: var(--raw-red-600);
 
   --radius-xs: 0.35rem;
@@ -103,9 +103,87 @@
   --space-4: 1rem;
   --space-5: 1.25rem;
   --space-6: 1.5rem;
+  --space-field-gap: 0.3rem;
+  --space-form-gap: 0.8rem;
+  --space-form-section-gap: 1rem;
 
   --page-inline: clamp(0.875rem, 1.4vw, 1.5rem);
   --page-block: clamp(0.875rem, 1.2vw, 1.25rem);
+
+  --font-size-page-title: 1.25rem;
+  --font-size-section-title: 1.125rem;
+  --font-size-body: 1rem;
+  --font-size-label: 0.9375rem;
+  --font-size-meta: 0.875rem;
+  --font-size-table: 0.8125rem;
+  --font-size-badge: 0.75rem;
+
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-heavy: 800;
+
+  --line-height-title: 1.2;
+  --line-height-label: 1.3;
+  --line-height-body: 1.5;
+  --line-height-meta: 1.4;
+  --line-height-tight: 1.15;
+
+  --letter-spacing-title: -0.015em;
+  --letter-spacing-title-strong: -0.02em;
+  --letter-spacing-label: -0.01em;
+  --letter-spacing-body: -0.01em;
+  --letter-spacing-meta: 0;
+  --letter-spacing-kicker: 0.08em;
+  --letter-spacing-table: 0.12em;
+
+  --text-page-title-size: var(--font-size-page-title);
+  --text-page-title-weight: var(--font-weight-heavy);
+  --text-page-title-line-height: var(--line-height-title);
+  --text-page-title-tracking: var(--letter-spacing-title-strong);
+
+  --text-section-title-size: var(--font-size-section-title);
+  --text-section-title-weight: var(--font-weight-heavy);
+  --text-section-title-line-height: var(--line-height-title);
+  --text-section-title-tracking: var(--letter-spacing-title);
+
+  --text-body-size: var(--font-size-body);
+  --text-body-weight: var(--font-weight-medium);
+  --text-body-line-height: var(--line-height-body);
+  --text-body-tracking: var(--letter-spacing-body);
+
+  --text-form-size: var(--font-size-body);
+  --text-form-weight: var(--font-weight-semibold);
+  --text-form-line-height: var(--line-height-body);
+  --text-form-tracking: var(--letter-spacing-label);
+
+  --text-meta-size: var(--font-size-meta);
+  --text-meta-weight: var(--font-weight-semibold);
+  --text-meta-line-height: var(--line-height-meta);
+  --text-meta-tracking: var(--letter-spacing-meta);
+
+  --text-table-size: var(--font-size-table);
+  --text-table-weight: var(--font-weight-heavy);
+  --text-table-line-height: var(--line-height-meta);
+  --text-table-tracking: var(--letter-spacing-table);
+
+  --text-kicker-size: var(--font-size-table);
+  --text-kicker-weight: var(--font-weight-bold);
+  --text-kicker-line-height: var(--line-height-meta);
+  --text-kicker-tracking: var(--letter-spacing-kicker);
+
+  --text-badge-size: var(--font-size-badge);
+  --text-badge-weight: var(--font-weight-heavy);
+  --text-badge-line-height: var(--line-height-title);
+  --text-badge-tracking: var(--letter-spacing-kicker);
+
+  --type-title-lg: var(--font-size-page-title);
+  --type-title-md: var(--font-size-section-title);
+  --type-body: var(--font-size-body);
+  --type-label: var(--font-size-label);
+  --type-meta: var(--font-size-meta);
+  --type-table: var(--font-size-table);
 
   --surface-0: var(--surface-canvas);
   --surface-1: var(--surface-panel);

@@ -123,17 +123,32 @@ export function MonitoringStatsPage() {
     }));
   }, [monitoringRows]);
   const maxCount = monthlyRows.reduce((max, row) => Math.max(max, row.count), 1);
+  const improvedCount = monitoringRows.filter((row) => row.page.trackStatus === "개선").length;
+  const attentionCount = monitoringRows.filter((row) => isAttentionStatus(row.page.trackStatus)).length;
 
   return (
     <div className={styles.page}>
       <header className={styles.hero}>
-        <p className={styles.kicker}>모니터링 통계</p>
         <h1 className={styles.title}>모니터링 통계</h1>
         <p className={styles.summaryLine}>
-          총 {monitoringRows.length}개 · 개선 {monitoringRows.filter((row) => row.page.trackStatus === "개선").length}개 ·
-          주의 {monitoringRows.filter((row) => isAttentionStatus(row.page.trackStatus)).length}개
+          총 {monitoringRows.length}개 · 개선 {improvedCount}개 · 주의 {attentionCount}개
         </p>
       </header>
+
+      <section className={styles.scoreboard}>
+        <article className={styles.scoreCard}>
+          <span>총 항목</span>
+          <strong>{monitoringRows.length}</strong>
+        </article>
+        <article className={styles.scoreCard}>
+          <span>개선</span>
+          <strong>{improvedCount}</strong>
+        </article>
+        <article className={styles.scoreCard}>
+          <span>주의</span>
+          <strong>{attentionCount}</strong>
+        </article>
+      </section>
 
       <PageSection title="월별 차트">
         <div className={styles.chartSurface}>

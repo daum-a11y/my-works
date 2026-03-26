@@ -10,7 +10,7 @@ type NavigationItem = {
 };
 
 const baseNavigation: readonly NavigationItem[] = [
-  { to: "/dashboard", label: "Dashboard" },
+  { to: "/dashboard", label: "업무 현황" },
   { to: "/reports", label: "업무보고" },
   {
     label: "프로젝트 관리",
@@ -140,9 +140,9 @@ export function AppShell() {
                 to="/settings/password"
                 className={({ isActive }) => (isActive ? styles.headerActionActive : styles.headerAction)}
               >
-                개인정보 수정
+                계정 설정
               </NavLink>
-              <button type="button" onClick={() => void logout()}>
+              <button type="button" className={styles.headerButton} onClick={() => void logout()}>
                 로그아웃
               </button>
             </div>

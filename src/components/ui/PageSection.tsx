@@ -6,11 +6,20 @@ interface PageSectionProps extends ComponentPropsWithoutRef<"section"> {
   title: string;
   description?: string;
   actions?: ReactNode;
+  variant?: "plain" | "panel";
 }
 
-export function PageSection({ title, description, actions, className, children, ...props }: PageSectionProps) {
+export function PageSection({
+  title,
+  description,
+  actions,
+  className,
+  children,
+  variant = "plain",
+  ...props
+}: PageSectionProps) {
   return (
-    <section className={clsx(styles.section, className)} {...props}>
+    <section className={clsx(styles.section, styles[variant], className)} {...props}>
       <header className={styles.header}>
         <div className={styles.heading}>
           <h2>{title}</h2>
@@ -18,7 +27,7 @@ export function PageSection({ title, description, actions, className, children, 
         </div>
         {actions ? <div className={styles.actions}>{actions}</div> : null}
       </header>
-      <div>{children}</div>
+      <div className={styles.content}>{children}</div>
     </section>
   );
 }

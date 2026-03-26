@@ -1,23 +1,24 @@
 .shell {
   display: grid;
-  gap: 0.9rem;
+  gap: var(--space-4);
   color: var(--text-secondary);
 }
 
 .hero {
   display: grid;
-  gap: 0.8rem;
-  padding: 0 0 0.85rem;
-  border-bottom: 1px solid color-mix(in srgb, var(--border-default) 88%, white);
+  gap: var(--space-3);
+  padding: 0 0 var(--space-3);
+  border-bottom: 1px solid color-mix(in srgb, var(--border-default) 80%, white);
 }
 
 .kicker,
 .detailKicker {
   margin: 0;
-  color: var(--accent-strong);
-  font-size: 0.76rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  color: var(--text-tertiary);
+  font-size: var(--text-kicker-size);
+  font-weight: var(--text-kicker-weight);
+  line-height: var(--text-kicker-line-height);
+  letter-spacing: var(--text-kicker-tracking);
   text-transform: none;
 }
 
@@ -26,10 +27,17 @@
   margin: 0.25rem 0 0;
   color: var(--text-primary);
   font-family: var(--font-body);
-  font-size: clamp(1.05rem, 1.2vw, 1.22rem);
-  font-weight: 800;
-  line-height: 1.2;
-  letter-spacing: -0.015em;
+  font-size: var(--text-page-title-size);
+  font-weight: var(--text-page-title-weight);
+  line-height: var(--text-page-title-line-height);
+  letter-spacing: var(--text-page-title-tracking);
+}
+
+.detailTitle {
+  font-size: var(--text-section-title-size);
+  font-weight: var(--text-section-title-weight);
+  line-height: var(--text-section-title-line-height);
+  letter-spacing: var(--text-section-title-tracking);
 }
 
 .lead,
@@ -37,24 +45,25 @@
 .subText {
   margin: 0.45rem 0 0;
   color: var(--text-tertiary);
-  line-height: 1.5;
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line-height);
 }
 
 .tablist {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.55rem;
+  gap: var(--space-2);
 }
 
 .tabButton {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.6rem;
-  padding: 0.62rem 0.72rem;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
   border: 1px solid var(--border-default);
   border-radius: var(--radius-sm);
-  background: var(--surface-canvas);
+  background: color-mix(in srgb, var(--surface-canvas) 96%, white);
   color: inherit;
   text-align: left;
   box-shadow: none;
@@ -63,16 +72,19 @@
 
 .tabButton span {
   color: var(--text-secondary);
-  font-size: 0.84rem;
-  font-weight: 800;
-  letter-spacing: -0.01em;
+  font-size: var(--text-form-size);
+  font-weight: var(--text-form-weight);
+  line-height: var(--text-form-line-height);
+  letter-spacing: var(--text-form-tracking);
   text-transform: none;
 }
 
 .tabButton strong {
   color: var(--text-primary);
   font-family: var(--font-body);
-  font-size: 0.82rem;
+  font-size: var(--text-meta-size);
+  font-weight: var(--text-meta-weight);
+  line-height: var(--text-meta-line-height);
   font-variant-numeric: tabular-nums;
 }
 
@@ -85,20 +97,21 @@
 
 .tabButton:hover {
   border-color: var(--border-strong);
-  background: color-mix(in srgb, var(--surface-sidebar) 55%, white);
+  background: color-mix(in srgb, var(--surface-panel) 90%, white);
 }
 
 .tabButtonActive {
-  border-color: color-mix(in srgb, var(--accent) 14%, white);
-  background: color-mix(in srgb, var(--accent-soft) 14%, white);
+  border-color: color-mix(in srgb, var(--border-strong) 70%, white);
+  background: color-mix(in srgb, var(--surface-canvas) 92%, white);
+  box-shadow: inset 0 -2px 0 color-mix(in srgb, var(--accent) 38%, white);
 }
 
 .panel {
   min-width: 0;
-  padding: 0.9rem;
-  border: 0;
-  border-radius: var(--radius-md);
-  background: var(--surface-panel);
+  padding: var(--space-4);
+  border: 1px solid color-mix(in srgb, var(--border-default) 82%, white);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--surface-canvas) 96%, white);
   box-shadow: none;
 }
 
@@ -106,30 +119,33 @@
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: 0.75rem;
-  margin-bottom: 0.8rem;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
 }
 
 .sectionTitle {
   margin: 0;
   color: var(--text-primary);
-  font-size: 0.98rem;
-  font-weight: 800;
+  font-size: var(--text-section-title-size);
+  font-weight: var(--text-section-title-weight);
+  line-height: var(--text-section-title-line-height);
+  letter-spacing: var(--text-section-title-tracking);
 }
 
 .sectionMeta {
   color: var(--text-tertiary);
-  font-size: 0.85rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
+  font-size: var(--text-meta-size);
+  font-weight: var(--text-meta-weight);
+  line-height: var(--text-meta-line-height);
+  letter-spacing: var(--text-meta-tracking);
   text-transform: uppercase;
 }
 
 .tableWrap {
   overflow: auto;
-  border-radius: var(--radius-md);
-  border: 1px solid color-mix(in srgb, var(--border-default) 72%, white);
-  background: var(--surface-canvas);
+  border-radius: var(--radius-sm);
+  border: 1px solid color-mix(in srgb, var(--border-default) 82%, white);
+  background: color-mix(in srgb, var(--surface-canvas) 97%, white);
 }
 
 .table {
@@ -140,7 +156,7 @@
 
 .table th,
 .table td {
-  padding: 0.68rem 0.62rem;
+  padding: var(--space-3) var(--space-2);
   border-bottom: 1px solid color-mix(in srgb, var(--border-subtle) 90%, white);
   text-align: left;
   vertical-align: top;
@@ -149,65 +165,68 @@
 
 .table th {
   color: var(--text-tertiary);
-  font-size: 0.74rem;
-  font-weight: 800;
-  letter-spacing: 0.12em;
+  font-size: var(--text-table-size);
+  font-weight: var(--text-table-weight);
+  line-height: var(--text-table-line-height);
+  letter-spacing: var(--text-table-tracking);
   text-transform: uppercase;
-  background: color-mix(in srgb, var(--surface-sidebar) 92%, white);
+  background: color-mix(in srgb, var(--surface-canvas) 92%, white);
   position: sticky;
   top: 0;
   z-index: 1;
 }
 
 .table tbody tr:hover {
-  background: color-mix(in srgb, var(--accent-soft) 18%, white);
+  background: color-mix(in srgb, var(--surface-panel) 92%, white);
 }
 
 .tableRowActive {
-  background: color-mix(in srgb, var(--accent-soft) 18%, white);
-  box-shadow: inset 3px 0 0 var(--accent);
+  background: color-mix(in srgb, var(--surface-panel) 90%, white);
+  box-shadow: inset 2px 0 0 color-mix(in srgb, var(--accent) 46%, white);
 }
 
 .stackCell {
   display: grid;
-  gap: 0.28rem;
+  gap: var(--space-2);
 }
 
 .statusTag {
   display: inline-flex;
   align-items: center;
-  padding: 0.26rem 0.52rem;
-  border-radius: 0.38rem;
-  background: color-mix(in srgb, var(--surface-canvas) 90%, white);
+  padding: var(--space-2) var(--space-2);
+  border: 1px solid color-mix(in srgb, var(--border-default) 82%, white);
+  border-radius: var(--radius-xs);
+  background: color-mix(in srgb, var(--surface-canvas) 96%, white);
   color: var(--text-primary);
-  font-size: 0.72rem;
-  font-weight: 800;
-  letter-spacing: 0.03em;
+  font-size: var(--text-badge-size);
+  font-weight: var(--text-badge-weight);
+  line-height: var(--text-badge-line-height);
+  letter-spacing: var(--text-badge-tracking);
 }
 
 .statusTag[data-tone="active"] {
-  background: color-mix(in srgb, var(--accent-soft) 38%, white);
+  border-color: color-mix(in srgb, var(--accent) 24%, var(--border-default));
   color: var(--accent-strong);
 }
 
 .statusTag[data-tone="monitoring"] {
-  background: color-mix(in srgb, var(--raw-indigo-200) 72%, white);
   color: var(--state-info-text);
+  border-color: color-mix(in srgb, var(--state-info-border) 22%, var(--border-default));
 }
 
 .statusTag[data-tone="qa"] {
-  background: color-mix(in srgb, var(--raw-indigo-200) 54%, white);
   color: var(--state-info-text);
+  border-color: color-mix(in srgb, var(--state-info-border) 18%, var(--border-default));
 }
 
 .statusTag[data-tone="attention"] {
-  background: color-mix(in srgb, var(--raw-paper-4) 68%, white);
-  color: var(--raw-ink-300);
+  color: var(--state-warning-text);
+  border-color: color-mix(in srgb, var(--state-warning-border) 22%, var(--border-default));
 }
 
 .statusTag[data-tone="closed"] {
-  background: color-mix(in srgb, var(--raw-paper-4) 84%, white);
   color: var(--text-secondary);
+  border-color: color-mix(in srgb, var(--border-default) 90%, white);
 }
 
 .inlineButton {
@@ -215,9 +234,12 @@
   background: none;
   color: var(--accent-strong);
   font: inherit;
-  font-weight: 800;
+  font-size: var(--text-form-size);
+  font-weight: var(--text-form-weight);
+  line-height: var(--text-form-line-height);
+  letter-spacing: var(--text-form-tracking);
   cursor: pointer;
-  padding: 0.35rem 0;
+  padding: var(--space-2) 0;
 }
 
 .inlineButton:hover {
@@ -227,48 +249,54 @@
 .detailHeader {
   display: grid;
   grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
-  gap: 1rem;
-  padding-bottom: 1rem;
-  margin-bottom: 1rem;
+  gap: var(--space-4);
+  padding-bottom: var(--space-4);
+  margin-bottom: var(--space-4);
   border-bottom: 1px solid color-mix(in srgb, var(--border-subtle) 90%, white);
 }
 
 .metaGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.75rem 1rem;
+  gap: var(--space-3) var(--space-4);
   margin: 0;
 }
 
 .metaGrid dt {
   color: var(--text-tertiary);
-  font-size: 0.78rem;
-  letter-spacing: 0.08em;
+  font-size: var(--text-meta-size);
+  font-weight: var(--text-meta-weight);
+  line-height: var(--text-meta-line-height);
+  letter-spacing: var(--text-meta-tracking);
   text-transform: uppercase;
 }
 
 .metaGrid dd {
   margin: 0.18rem 0 0;
   color: var(--text-primary);
-  font-weight: 700;
+  font-size: var(--text-body-size);
+  font-weight: var(--text-body-weight);
+  line-height: var(--text-body-line-height);
 }
 
 .flagRow {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.35rem;
+  gap: var(--space-2);
 }
 
 .linkText {
   color: var(--accent-strong);
-  font-weight: 800;
+  font-size: var(--text-form-size);
+  font-weight: var(--text-form-weight);
+  line-height: var(--text-form-line-height);
 }
 
 .empty {
-  padding: 1.35rem;
+  padding: var(--space-form-section-gap);
   border: 1px dashed var(--border-default);
   border-radius: var(--radius-md);
-  background: color-mix(in srgb, var(--surface-canvas) 92%, white);
+  background: color-mix(in srgb, var(--surface-canvas) 96%, white);
   color: var(--text-tertiary);
 }
 

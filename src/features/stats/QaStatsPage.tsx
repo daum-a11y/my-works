@@ -153,12 +153,26 @@ export function QaStatsPage() {
   return (
     <div className={styles.page}>
       <header className={styles.hero}>
-        <p className={styles.kicker}>QA 통계</p>
         <h1 className={styles.title}>QA 통계</h1>
         <p className={styles.summaryLine}>
           총 {qaProjects.length}개 · 진행중 {activeCount}개 · 완료 {qaProjects.length - activeCount}개
         </p>
       </header>
+
+      <section className={styles.scoreboard}>
+        <article className={styles.scoreCard}>
+          <span>총 QA</span>
+          <strong>{qaProjects.length}</strong>
+        </article>
+        <article className={styles.scoreCard}>
+          <span>진행중</span>
+          <strong>{activeCount}</strong>
+        </article>
+        <article className={styles.scoreCard}>
+          <span>완료</span>
+          <strong>{qaProjects.length - activeCount}</strong>
+        </article>
+      </section>
 
       <PageSection title="월별 차트">
         <div className={styles.chartSurface}>

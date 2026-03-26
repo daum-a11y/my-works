@@ -1,7 +1,7 @@
 :root {
   font-family: var(--font-body);
-  line-height: 1.5;
-  font-weight: 400;
+  line-height: var(--line-height-body);
+  font-weight: var(--font-weight-regular);
   color: var(--text-secondary);
   background: var(--surface-canvas);
   text-rendering: optimizeLegibility;
@@ -91,19 +91,20 @@ select {
   padding: 0.16rem 0.48rem;
   border: 0;
   border-radius: 0.45rem;
-  font-size: 0.72rem;
-  font-weight: 800;
-  letter-spacing: 0.03em;
+  font-size: var(--text-badge-size);
+  font-weight: var(--text-badge-weight);
+  line-height: var(--text-badge-line-height);
+  letter-spacing: var(--text-badge-tracking);
   white-space: nowrap;
 }
 
 .uiPlatformBadge {
-  background: color-mix(in srgb, var(--raw-indigo-200) 82%, white);
+  background: color-mix(in srgb, var(--raw-indigo-200) 68%, white);
   color: var(--state-info-text);
 }
 
 .uiStatusBadge {
-  background: color-mix(in srgb, var(--surface-panel) 90%, white);
+  background: color-mix(in srgb, var(--surface-panel) 76%, var(--accent-soft));
   color: var(--text-secondary);
 }
 
@@ -127,7 +128,7 @@ select {
 }
 
 .uiDueTag {
-  background: color-mix(in srgb, var(--surface-panel) 88%, white);
+  background: color-mix(in srgb, var(--surface-panel) 74%, var(--accent-soft));
   color: var(--text-secondary);
 }
 
@@ -145,7 +146,7 @@ select {
 }
 
 .uiFlagTag {
-  background: color-mix(in srgb, var(--accent-soft) 62%, white);
+  background: color-mix(in srgb, var(--accent-soft) 52%, white);
   color: var(--accent-strong);
 }
 

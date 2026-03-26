@@ -4,7 +4,6 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "../../components/ui/Button";
 import { InputField } from "../../components/ui/Field";
-import { PageSection } from "../../components/ui/PageSection";
 import { useAuth } from "../auth/AuthContext";
 import styles from "./PasswordSettingsPage.module.css";
 
@@ -36,7 +35,18 @@ export function PasswordSettingsPage() {
 
   return (
     <div className={styles.page}>
-      <PageSection title="비밀번호 변경">
+      <header className={styles.header}>
+        <p className={styles.kicker}>설정</p>
+        <h1>계정 보안</h1>
+        <p>현재 비밀번호를 확인한 뒤 새 비밀번호로 변경합니다.</p>
+      </header>
+
+      <div className={styles.layout}>
+        <aside className={styles.sidebar}>
+          <h2>작업 기준</h2>
+          <p>비밀번호는 즉시 갱신되며 다음 로그인부터 새 값이 적용됩니다.</p>
+        </aside>
+
         <form
           className={styles.form}
           onSubmit={handleSubmit(async (values) => {
@@ -78,10 +88,10 @@ export function PasswordSettingsPage() {
             </p>
           ) : null}
           <Button type="submit" isDisabled={isSubmitting}>
-            {isSubmitting ? "수정 중..." : "수정하기"}
+            {isSubmitting ? "변경 중..." : "비밀번호 변경"}
           </Button>
         </form>
-      </PageSection>
+      </div>
     </div>
   );
 }

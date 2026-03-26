@@ -47,10 +47,10 @@ export function LoginPage() {
 
   return (
     <main className={styles.page}>
-      <section className={styles.panel}>
+      <section className={styles.panel} aria-labelledby="login-title">
         <div className={styles.hero}>
           <h1>My Works</h1>
-          <p className={styles.caption}>로그인</p>
+          <p id="login-title" className={styles.caption}>로그인</p>
         </div>
         <form
           className={styles.form}
@@ -90,9 +90,11 @@ export function LoginPage() {
               {errorMessage}
             </p>
           ) : null}
-          <Button type="submit" isDisabled={!isSupabaseConfigured || isBusy}>
-            {isSubmitting ? "로그인 중..." : "로그인"}
-          </Button>
+          <div className={styles.submitRow}>
+            <Button type="submit" isDisabled={!isSupabaseConfigured || isBusy}>
+              {isSubmitting ? "로그인 중..." : "로그인"}
+            </Button>
+          </div>
           <div className={styles.actions}>
             <Button
               type="button"
