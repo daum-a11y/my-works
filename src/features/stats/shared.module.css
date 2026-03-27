@@ -76,6 +76,11 @@
   background: var(--surface-panel);
 }
 
+.chartFrame {
+  width: 100%;
+  height: 320px;
+}
+
 .chart {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(78px, 1fr));
@@ -136,6 +141,35 @@
   overflow: auto;
   border: 1px solid var(--border-default);
   background: var(--surface-canvas);
+}
+
+.detailGrid {
+  display: grid;
+  gap: 1rem;
+}
+
+.detailPanel {
+  display: grid;
+  gap: 0.7rem;
+  padding: 0.8rem;
+  border: 1px solid var(--border-default);
+  background: var(--surface-panel);
+}
+
+.detailTitle {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: var(--text-section-title-size);
+  font-weight: var(--text-section-title-weight);
+  line-height: var(--text-section-title-line-height);
+  letter-spacing: var(--text-section-title-tracking);
+}
+
+.detailMeta {
+  margin: 0;
+  color: var(--text-tertiary);
+  font-size: var(--text-meta-size);
+  line-height: var(--text-meta-line-height);
 }
 
 .table {

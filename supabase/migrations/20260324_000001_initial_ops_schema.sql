@@ -52,6 +52,7 @@ create table if not exists public.projects (
   id uuid primary key default gen_random_uuid(),
   legacy_project_id text,
   created_by_member_id uuid references public.members(id),
+  project_type1 text not null default '',
   name text not null,
   platform text not null,
   service_group_id uuid references public.service_groups(id),
@@ -108,7 +109,8 @@ select
   name,
   email,
   user_level,
-  user_active
+  user_active,
+  joined_at
 from public.members;
 
 create or replace view public.active_members_public_view as
@@ -118,7 +120,8 @@ select
   name,
   email,
   user_level,
-  user_active
+  user_active,
+  joined_at
 from public.members
 where user_active = true;
 
@@ -459,6 +462,7 @@ $$;
 
 create or replace function public.upsert_project(
   p_project_id uuid default null,
+  p_project_type1 text default '',
   p_name text default null,
   p_platform text default null,
   p_service_group_id uuid default null,
@@ -501,6 +505,7 @@ begin
   if p_project_id is null then
     insert into public.projects (
       created_by_member_id,
+      project_type1,
       name,
       platform,
       service_group_id,
@@ -513,6 +518,7 @@ begin
     )
     values (
       v_member_id,
+      coalesce(trim(p_project_type1), ''),
       p_name,
       p_platform,
       p_service_group_id,
@@ -527,6 +533,7 @@ begin
   else
     update public.projects
     set
+      project_type1 = coalesce(trim(p_project_type1), ''),
       name = p_name,
       platform = p_platform,
       service_group_id = p_service_group_id,
@@ -560,6 +567,7 @@ create or replace function public.upsert_project_page(
   p_title text default null,
   p_url text default '',
   p_owner_member_id uuid default null,
+  p_monitoring_month text default null,
   p_track_status text default '미개선',
   p_monitoring_in_progress boolean default false,
   p_qa_in_progress boolean default false,
@@ -605,6 +613,7 @@ begin
       owner_member_id,
       title,
       url,
+      monitoring_month,
       track_status,
       monitoring_in_progress,
       qa_in_progress,
@@ -615,6 +624,7 @@ begin
       coalesce(p_owner_member_id, v_member_id),
       p_title,
       coalesce(p_url, ''),
+      p_monitoring_month,
       p_track_status,
       p_monitoring_in_progress,
       p_qa_in_progress,
@@ -628,6 +638,7 @@ begin
       owner_member_id = coalesce(p_owner_member_id, owner_member_id),
       title = p_title,
       url = coalesce(p_url, ''),
+      monitoring_month = p_monitoring_month,
       track_status = p_track_status,
       monitoring_in_progress = p_monitoring_in_progress,
       qa_in_progress = p_qa_in_progress,
@@ -739,8 +750,8 @@ grant execute on function public.next_member_legacy_user_id(text) to authenticat
 grant execute on function public.bind_auth_session_member(uuid, text) to authenticated;
 grant execute on function public.save_task(uuid, date, uuid, uuid, text, text, numeric, text, text) to authenticated;
 grant execute on function public.delete_task(uuid) to authenticated;
-grant execute on function public.upsert_project(uuid, text, text, uuid, text, uuid, uuid, date, date, boolean) to authenticated;
-grant execute on function public.upsert_project_page(uuid, uuid, text, text, uuid, text, boolean, boolean, text) to authenticated;
+grant execute on function public.upsert_project(uuid, text, text, text, uuid, text, uuid, uuid, date, date, boolean) to authenticated;
+grant execute on function public.upsert_project_page(uuid, uuid, text, text, uuid, text, text, boolean, boolean, text) to authenticated;
 grant execute on function public.admin_search_tasks(uuid, date, date, uuid, uuid, text, text, uuid, text) to authenticated;
 
 alter table public.members enable row level security;

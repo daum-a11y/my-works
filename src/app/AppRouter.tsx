@@ -19,7 +19,6 @@ import {
 import { SearchPage } from "../features/search";
 import { MonitoringStatsPage, QaStatsPage } from "../features/stats";
 import { PasswordSettingsPage } from "../features/settings";
-import { TrackingFeature } from "../features/tracking";
 import { AppShell } from "./AppShell";
 
 function LoadingFallback() {
@@ -102,7 +101,6 @@ export function AppRouter() {
             <Route path="/reports" element={<ReportsPage />} />
             <Route path="/profile" element={<Navigate to="/settings/password" replace />} />
             <Route path="/projects" element={<ProjectsFeature />} />
-            <Route path="/tracking" element={<TrackingFeature />} />
             <Route path="/reports/search" element={<SearchPage />} />
             <Route path="/resource/summary" element={<ResourceSummaryPage />} />
             <Route path="/resource/month" element={<ResourceMonthPage />} />

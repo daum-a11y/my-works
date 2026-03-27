@@ -11,6 +11,7 @@ import {
   type SaveTaskInput,
   type ServiceGroup,
   type StatsSnapshot,
+  type TaskActivity,
   type Task,
   type TaskType,
 } from "./domain";
@@ -27,11 +28,14 @@ export interface OpsDataClient {
   getServiceGroups(): Promise<ServiceGroup[]>;
   getProjects(): Promise<Project[]>;
   saveProject(input: SaveProjectInput): Promise<Project>;
+  deleteProject(projectId: string): Promise<void>;
   getProjectPages(member: Member): Promise<ProjectPage[]>;
   getAllProjectPages(): Promise<ProjectPage[]>;
   saveProjectPage(input: SaveProjectPageInput): Promise<ProjectPage>;
+  deleteProjectPage(pageId: string): Promise<void>;
   getTasks(member: Member): Promise<Task[]>;
   getAllTasks(member: Member): Promise<Task[]>;
+  getTaskActivities(): Promise<TaskActivity[]>;
   saveTask(member: Member, input: SaveTaskInput): Promise<Task>;
   deleteTask(member: Member, taskId: string): Promise<void>;
   searchTasks(member: Member, filters: ReportFilters): Promise<Task[]>;
@@ -186,6 +190,7 @@ function createSupabaseClient(): OpsDataClient {
       const { data, error } = await supabase
         .rpc("upsert_project", {
           p_project_id: input.id ?? null,
+          p_project_type1: input.projectType1,
           p_name: input.name,
           p_platform: input.platform,
           p_service_group_id: input.serviceGroupId,
@@ -199,6 +204,10 @@ function createSupabaseClient(): OpsDataClient {
         .single();
       if (error) throw error;
       return mapProjectRecord(requireRecord(data, "프로젝트 저장 결과를 확인할 수 없습니다."));
+    },
+    async deleteProject(projectId) {
+      const { error } = await supabase.from("projects").delete().eq("id", projectId);
+      if (error) throw error;
     },
     async getProjectPages(member) {
       const { data, error } = await supabase
@@ -224,6 +233,7 @@ function createSupabaseClient(): OpsDataClient {
           p_title: input.title,
           p_url: input.url,
           p_owner_member_id: input.ownerMemberId,
+          p_monitoring_month: input.monitoringMonth ?? null,
           p_track_status: input.trackStatus,
           p_monitoring_in_progress: input.monitoringInProgress,
           p_qa_in_progress: input.qaInProgress,
@@ -232,6 +242,10 @@ function createSupabaseClient(): OpsDataClient {
         .single();
       if (error) throw error;
       return mapProjectPageRecord(requireRecord(data, "프로젝트 페이지 저장 결과를 확인할 수 없습니다."));
+    },
+    async deleteProjectPage(pageId) {
+      const { error } = await supabase.from("project_pages").delete().eq("id", pageId);
+      if (error) throw error;
     },
     async getTasks(member) {
       const { data, error } = await supabase
@@ -250,6 +264,11 @@ function createSupabaseClient(): OpsDataClient {
       const { data, error } = await query;
       if (error) throw error;
       return (data ?? []).map(mapTaskRecord);
+    },
+    async getTaskActivities() {
+      const { data, error } = await supabase.from("tasks").select("member_id, task_date, hours");
+      if (error) throw error;
+      return (data ?? []).map(mapTaskActivityRecord);
     },
     async saveTask(member, input) {
       const { data, error } = await supabase
@@ -354,11 +373,14 @@ function createUnconfiguredClient(): OpsDataClient {
     getServiceGroups: fail,
     getProjects: fail,
     saveProject: fail,
+    deleteProject: fail,
     getProjectPages: fail,
     getAllProjectPages: fail,
     saveProjectPage: fail,
+    deleteProjectPage: fail,
     getTasks: fail,
     getAllTasks: fail,
+    getTaskActivities: fail,
     saveTask: fail,
     deleteTask: fail,
     searchTasks: fail,
@@ -375,7 +397,16 @@ function mapMemberRecord(record: Record<string, unknown>): Member {
     email: String(record.email ?? ""),
     role: Number(record.user_level ?? 0) === 1 ? "admin" : "user",
     isActive: Boolean(record.user_active ?? record.is_active ?? true),
+    joinedAt: String(record.joined_at ?? record.created_at ?? getToday()),
     authUserId: record.auth_user_id ? String(record.auth_user_id) : null,
+  };
+}
+
+function mapTaskActivityRecord(record: Record<string, unknown>): TaskActivity {
+  return {
+    memberId: String(record.member_id ?? ""),
+    taskDate: String(record.task_date ?? getToday()),
+    hours: Number(record.hours ?? 0),
   };
 }
 
@@ -404,6 +435,7 @@ function mapProjectRecord(record: Record<string, unknown>): Project {
     id: String(record.id),
     legacyProjectId: String(record.legacy_project_id ?? ""),
     createdByMemberId: record.created_by_member_id ? String(record.created_by_member_id) : null,
+    projectType1: String(record.project_type1 ?? ""),
     name: String(record.name ?? ""),
     platform: String(record.platform ?? ""),
     serviceGroupId: record.service_group_id ? String(record.service_group_id) : null,
@@ -424,6 +456,7 @@ function mapProjectPageRecord(record: Record<string, unknown>): ProjectPage {
     title: String(record.title ?? ""),
     url: String(record.url ?? ""),
     ownerMemberId: record.owner_member_id ? String(record.owner_member_id) : null,
+    monitoringMonth: String(record.monitoring_month ?? ""),
     trackStatus: String(record.track_status ?? "미개선") as ProjectPage["trackStatus"],
     monitoringInProgress: Boolean(record.monitoring_in_progress ?? false),
     qaInProgress: Boolean(record.qa_in_progress ?? false),

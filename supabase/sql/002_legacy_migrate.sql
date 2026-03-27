@@ -300,6 +300,7 @@ source_projects as (
   select
     p.pj_num as legacy_project_num,
     p.pj_num::text as legacy_project_id,
+    coalesce(legacy_stage.blank_to_null(p.pj_group_type1), '') as project_type1,
     coalesce(legacy_stage.blank_to_null(p.pj_name), '[프로젝트 ' || p.pj_num::text || ']') as name,
     coalesce(legacy_stage.blank_to_null(p.pj_platform), '미분류') as platform,
     coalesce(legacy_stage.blank_to_null(p.pj_page_report_url), '') as report_url,
@@ -325,6 +326,7 @@ source_projects as (
 )
 update public.projects pr
 set created_by_member_id = reporter_x.member_id,
+    project_type1 = s.project_type1,
     name = s.name,
     platform = s.platform,
     service_group_id = svc_x.service_group_id,
@@ -352,6 +354,7 @@ source_projects as (
   select
     p.pj_num as legacy_project_num,
     p.pj_num::text as legacy_project_id,
+    coalesce(legacy_stage.blank_to_null(p.pj_group_type1), '') as project_type1,
     coalesce(legacy_stage.blank_to_null(p.pj_name), '[프로젝트 ' || p.pj_num::text || ']') as name,
     coalesce(legacy_stage.blank_to_null(p.pj_platform), '미분류') as platform,
     coalesce(legacy_stage.blank_to_null(p.pj_page_report_url), '') as report_url,
@@ -378,6 +381,7 @@ source_projects as (
 insert into public.projects (
   legacy_project_id,
   created_by_member_id,
+  project_type1,
   name,
   platform,
   service_group_id,
@@ -391,6 +395,7 @@ insert into public.projects (
 select
   s.legacy_project_id,
   reporter_x.member_id,
+  s.project_type1,
   s.name,
   s.platform,
   svc_x.service_group_id,

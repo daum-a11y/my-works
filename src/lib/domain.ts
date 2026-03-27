@@ -9,6 +9,7 @@ export interface Member {
   email: string;
   role: UserRole;
   isActive: boolean;
+  joinedAt: string;
   authUserId?: string | null;
 }
 
@@ -32,6 +33,7 @@ export interface Project {
   id: string;
   legacyProjectId: string;
   createdByMemberId: string | null;
+  projectType1: string;
   name: string;
   platform: string;
   serviceGroupId: string | null;
@@ -50,6 +52,7 @@ export interface ProjectPage {
   title: string;
   url: string;
   ownerMemberId: string | null;
+  monitoringMonth: string;
   trackStatus: PageStatus;
   monitoringInProgress: boolean;
   qaInProgress: boolean;
@@ -71,6 +74,12 @@ export interface Task {
   note: string;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface TaskActivity {
+  memberId: string;
+  taskDate: string;
+  hours: number;
 }
 
 export interface ReportFilters {
@@ -99,6 +108,7 @@ export interface SaveTaskInput {
 
 export interface SaveProjectInput {
   id?: string;
+  projectType1: string;
   name: string;
   platform: string;
   serviceGroupId: string | null;
@@ -116,6 +126,7 @@ export interface SaveProjectPageInput {
   title: string;
   url: string;
   ownerMemberId: string | null;
+  monitoringMonth?: string;
   trackStatus: PageStatus;
   monitoringInProgress: boolean;
   qaInProgress: boolean;

@@ -70,14 +70,14 @@ export function ResourceMonthPage() {
         </div>
 
         <div className={styles.metrics}>
-          <article className={styles.metricCard}>
-            <span>월 합계 시간</span>
+          <div className={styles.metricItem}>
+            <span>월 합계</span>
             <strong>{createHoursLabel(totalHours)}</strong>
-          </article>
-          <article className={styles.metricCard}>
-            <span>480분 이상</span>
-            <strong>{over480Count}일</strong>
-          </article>
+          </div>
+          <div className={styles.metricItem}>
+            <span>480분+</span>
+            <strong>{over480Count}d</strong>
+          </div>
         </div>
 
         <div className={styles.calendar}>

@@ -3,12 +3,12 @@ import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { 
   LayoutDashboard, 
   FileText, 
-  Activity, 
   Layers, 
   Database, 
   Search,
-  Settings,
   Shield,
+  BarChart3,
+  Settings,
   LogOut,
   ChevronRight,
   Users
@@ -23,9 +23,8 @@ type NavigationItem = {
 };
 
 const baseNavigation = [
-  { to: "/dashboard", label: "업무 현황", icon: LayoutDashboard },
-  { to: "/reports", label: "업무 보고", icon: FileText },
-  { to: "/tracking", label: "모니터링 현황", icon: Activity },
+  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/reports", label: "업무보고", icon: FileText },
   { to: "/projects", label: "프로젝트 관리", icon: Layers },
   { 
     label: "리소스 현황", 
@@ -37,19 +36,27 @@ const baseNavigation = [
       { to: "/resource/month", label: "월간 종합현황" },
     ] 
   },
-  { to: "/reports/search" , label: "업무 검색", icon: Search },
+  {
+    label: "통계",
+    icon: BarChart3,
+    children: [
+      { to: "/stats/qa", label: "QA" },
+      { to: "/stats/monitoring", label: "모니터링" },
+    ]
+  },
+  { to: "/reports/search" , label: "업무보고 검색", icon: Search },
 ] as const;
 
 const adminNavigation = [
-  { 
-    label: "관리자 설정", 
+  {
+    label: "관리자 설정",
     icon: Shield,
     children: [
       { to: "/admin/reports", label: "전체 업무 리스트" },
       { to: "/admin/members", label: "사용자 계정 관리" },
       { to: "/admin/type", label: "업무 타입 관리" },
       { to: "/admin/group", label: "서비스그룹 관리" },
-    ]
+    ],
   },
 ] as const;
 

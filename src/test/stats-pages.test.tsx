@@ -55,8 +55,17 @@ describe("Stats pages", () => {
         legacyUserId: "legacy-1",
         name: "운영 사용자",
         email: "operator@example.com",
+        joinedAt: "2026-03-01",
         role: "user",
         isActive: true,
+      },
+    ]);
+    mockOpsDataClient.getServiceGroups.mockResolvedValue([
+      {
+        id: "service-group-1",
+        legacyServiceGroupId: "legacy-service-group-1",
+        name: "서비스그룹A",
+        displayOrder: 1,
       },
     ]);
     mockOpsDataClient.getProjects.mockResolvedValue([
@@ -65,6 +74,7 @@ describe("Stats pages", () => {
         legacyProjectId: "legacy-project-1",
         createdByMemberId: null,
         name: "QA 대상",
+        projectType1: "QA",
         platform: "iOS",
         serviceGroupId: null,
         reportUrl: "",
@@ -79,6 +89,7 @@ describe("Stats pages", () => {
         legacyProjectId: "legacy-project-2",
         createdByMemberId: null,
         name: "제외 대상",
+        projectType1: "운영",
         platform: "Android",
         serviceGroupId: null,
         reportUrl: "",
@@ -101,6 +112,7 @@ describe("Stats pages", () => {
         monitoringInProgress: true,
         qaInProgress: true,
         note: "",
+        monitoringMonth: "2603",
         updatedAt: "2026-03-24T09:00:00.000Z",
       },
       {
@@ -114,12 +126,13 @@ describe("Stats pages", () => {
         monitoringInProgress: false,
         qaInProgress: false,
         note: "",
+        monitoringMonth: "",
         updatedAt: "2026-03-24T09:00:00.000Z",
       },
     ]);
   });
 
-  it("limits monitoring stats to monitoring_in_progress pages", async () => {
+  it("shows only monitoring rows with monitoring month", async () => {
     const queryClient = new QueryClient();
 
     render(
@@ -129,13 +142,16 @@ describe("Stats pages", () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByText("모니터링 페이지")).toBeInTheDocument();
+      expect(screen.getAllByText("모니터링 페이지").length).toBeGreaterThan(0);
     });
 
+    expect(screen.getByRole("heading", { name: "모니터링 통계" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "최근 월별 모니터링 통계" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "모니터링 통계 테이블" })).toBeInTheDocument();
     expect(screen.queryByText("제외 페이지")).not.toBeInTheDocument();
   });
 
-  it("limits QA stats to projects linked by qa_in_progress pages", async () => {
+  it("shows only QA projects by project type", async () => {
     const queryClient = new QueryClient();
 
     render(
@@ -145,9 +161,12 @@ describe("Stats pages", () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByText("QA 대상")).toBeInTheDocument();
+      expect(screen.getAllByText("QA 대상").length).toBeGreaterThan(0);
     });
 
+    expect(screen.getByRole("heading", { name: "QA 통계" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "최근 월별 QA 통계" })).toBeInTheDocument();
+    expect(screen.getAllByRole("heading", { name: "QA 목록" }).length).toBeGreaterThan(0);
     expect(screen.queryByText("제외 대상")).not.toBeInTheDocument();
   });
 });

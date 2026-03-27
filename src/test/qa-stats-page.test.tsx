@@ -13,8 +13,8 @@ const member = {
 };
 
 const getProjects = vi.fn();
-const getAllProjectPages = vi.fn();
 const getMembers = vi.fn();
+const getServiceGroups = vi.fn();
 
 vi.mock("../features/auth/AuthContext", () => ({
   useAuth: () => ({ session: { member } }),
@@ -23,22 +23,47 @@ vi.mock("../features/auth/AuthContext", () => ({
 vi.mock("../lib/data-client", () => ({
   opsDataClient: {
     getProjects: (...args: unknown[]) => getProjects(...args),
-    getAllProjectPages: (...args: unknown[]) => getAllProjectPages(...args),
     getMembers: (...args: unknown[]) => getMembers(...args),
+    getServiceGroups: (...args: unknown[]) => getServiceGroups(...args),
   },
 }));
 
 describe("QaStatsPage", () => {
-  it("shows only projects linked to qa_in_progress pages", async () => {
+  it("shows only QA projects by project type", async () => {
     getProjects.mockResolvedValue([
-      { id: "project-1", legacyProjectId: "", createdByMemberId: null, name: "접근성 포털", platform: "WEB", serviceGroupId: null, reportUrl: "", reporterMemberId: "member-1", reviewerMemberId: null, startDate: "2026-03-01", endDate: "2026-03-31", isActive: true },
-      { id: "project-2", legacyProjectId: "", createdByMemberId: null, name: "앱 운영", platform: "APP", serviceGroupId: null, reportUrl: "", reporterMemberId: "member-1", reviewerMemberId: null, startDate: "2026-03-01", endDate: "2026-03-31", isActive: true },
-    ]);
-    getAllProjectPages.mockResolvedValue([
-      { id: "page-1", legacyPageId: "", projectId: "project-1", title: "메인", url: "", ownerMemberId: "member-1", trackStatus: "미개선", monitoringInProgress: false, qaInProgress: true, note: "", updatedAt: "2026-03-24T00:00:00.000Z" },
-      { id: "page-2", legacyPageId: "", projectId: "project-2", title: "설정", url: "", ownerMemberId: "member-1", trackStatus: "미개선", monitoringInProgress: false, qaInProgress: false, note: "", updatedAt: "2026-03-24T00:00:00.000Z" },
+      {
+        id: "project-1",
+        legacyProjectId: "",
+        createdByMemberId: null,
+        name: "접근성 포털",
+        projectType1: "QA",
+        platform: "WEB",
+        serviceGroupId: null,
+        reportUrl: "",
+        reporterMemberId: "member-1",
+        reviewerMemberId: null,
+        startDate: "2026-03-01",
+        endDate: "2026-03-31",
+        isActive: true,
+      },
+      {
+        id: "project-2",
+        legacyProjectId: "",
+        createdByMemberId: null,
+        name: "앱 운영",
+        projectType1: "운영",
+        platform: "APP",
+        serviceGroupId: null,
+        reportUrl: "",
+        reporterMemberId: "member-1",
+        reviewerMemberId: null,
+        startDate: "2026-03-01",
+        endDate: "2026-03-31",
+        isActive: true,
+      },
     ]);
     getMembers.mockResolvedValue([{ ...member, authUserId: "auth-1" }]);
+    getServiceGroups.mockResolvedValue([]);
 
     const queryClient = new QueryClient({
       defaultOptions: {
@@ -53,7 +78,7 @@ describe("QaStatsPage", () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByText("접근성 포털")).toBeInTheDocument();
+      expect(screen.getAllByText("접근성 포털").length).toBeGreaterThan(0);
     });
 
     expect(screen.queryByText("앱 운영")).not.toBeInTheDocument();

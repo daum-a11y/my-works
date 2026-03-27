@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { Area, AreaChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { PageSection } from "../../components/ui/PageSection";
 import { opsDataClient } from "../../lib/data-client";
 import { type PageStatus, type ProjectPage } from "../../lib/domain";
@@ -11,25 +12,58 @@ interface MonitoringRow {
   projectName: string;
   platform: string;
   assigneeName: string;
+  reportUrl: string;
 }
 
 interface MonthlyMonitoringRow {
   monthKey: string;
   label: string;
   count: number;
-  improved: number;
-  attention: number;
+  sent: number;
+  unsent: number;
+  stopped: number;
+  fullFix: number;
+  partialFix: number;
 }
 
-function formatDateTime(value: string): string {
-  return new Intl.DateTimeFormat("ko-KR", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(new Date(value));
+interface MonitoringSection {
+  title: string;
+  rows: MonitoringRow[];
+}
+
+function parseIssueCount(note: string, key: "highest" | "high" | "normal") {
+  const matched = note.match(new RegExp(`${key}:\\s*(\\d+)`));
+  return matched ? matched[1] : "-";
+}
+
+function hasAgitDate(note: string) {
+  return /agit_date:\s*\d{4}-\d{2}-\d{2}/.test(note);
+}
+
+function formatTrackStatus(value: PageStatus) {
+  switch (value) {
+    case "개선":
+      return "전체 수정";
+    case "일부":
+      return "일부 수정";
+    case "중지":
+      return "중지";
+    case "미개선":
+    default:
+      return "미수정";
+  }
 }
 
 function monthKeyFromDate(value: string): string {
   return value.slice(0, 7);
+}
+
+function monthKeyFromMonitoringMonth(value: string): string {
+  const digits = value.replace(/\D/g, "");
+  if (digits.length === 4) {
+    return `20${digits.slice(0, 2)}-${digits.slice(2, 4)}`;
+  }
+  return "";
 }
 
 function formatMonthLabel(monthKey: string): string {
@@ -60,8 +94,20 @@ function buildMonthRange(monthKeys: string[]): string[] {
   return range;
 }
 
-function isAttentionStatus(status: PageStatus): boolean {
-  return status === "미개선" || status === "일부" || status === "중지";
+function isStoppedStatus(status: PageStatus): boolean {
+  return status === "중지";
+}
+
+function isFullFixStatus(status: PageStatus): boolean {
+  return status === "개선";
+}
+
+function isPartialFixStatus(status: PageStatus): boolean {
+  return status === "일부";
+}
+
+function sortRows(left: MonitoringRow, right: MonitoringRow) {
+  return new Date(right.page.updatedAt).getTime() - new Date(left.page.updatedAt).getTime();
 }
 
 export function MonitoringStatsPage() {
@@ -80,51 +126,112 @@ export function MonitoringStatsPage() {
       const membersById = new Map(members.map((item) => [item.id, item.name]));
 
       return pages
-        .filter((page) => page.monitoringInProgress)
+        .filter((page) => Boolean(page.monitoringMonth))
         .map((page) => ({
           page,
           projectName: projectsById.get(page.projectId)?.name ?? "미분류 프로젝트",
           platform: projectsById.get(page.projectId)?.platform ?? "-",
           assigneeName: page.ownerMemberId ? membersById.get(page.ownerMemberId) ?? "미지정" : "미지정",
+          reportUrl: projectsById.get(page.projectId)?.reportUrl ?? page.url,
         }))
-        .sort((left, right) => new Date(right.page.updatedAt).getTime() - new Date(left.page.updatedAt).getTime());
+        .sort(sortRows);
     },
     enabled: Boolean(member),
   });
 
   const monitoringRows = useMemo<MonitoringRow[]>(() => monitoringQuery.data ?? [], [monitoringQuery.data]);
+  const activeRows = useMemo(() => {
+    const today = new Date();
+    const currentMonth = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}`;
+    const previous = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+    const previousMonth = `${previous.getFullYear()}-${String(previous.getMonth() + 1).padStart(2, "0")}`;
+
+    return monitoringRows.filter((row) => {
+      const monthKey = monthKeyFromMonitoringMonth(row.page.monitoringMonth);
+      return (monthKey === currentMonth || monthKey === previousMonth)
+        && !hasAgitDate(row.page.note)
+        && row.page.trackStatus !== "중지";
+    });
+  }, [monitoringRows]);
+
   const monthlyRows = useMemo<MonthlyMonitoringRow[]>(() => {
     if (!monitoringRows.length) {
       return [];
     }
 
-    const grouped = new Map<string, { count: number; improved: number; attention: number }>();
-    const monthKeys = monitoringRows.map((row) => monthKeyFromDate(row.page.updatedAt));
+    const grouped = new Map<
+      string,
+      { count: number; sent: number; unsent: number; stopped: number; fullFix: number; partialFix: number }
+    >();
+    const monthKeys = monitoringRows
+      .map((row) => monthKeyFromMonitoringMonth(row.page.monitoringMonth))
+      .filter(Boolean);
 
     for (const row of monitoringRows) {
-      const monthKey = monthKeyFromDate(row.page.updatedAt);
-      const current = grouped.get(monthKey) ?? { count: 0, improved: 0, attention: 0 };
+      const monthKey = monthKeyFromMonitoringMonth(row.page.monitoringMonth);
+      if (!monthKey) {
+        continue;
+      }
+      const current = grouped.get(monthKey) ?? {
+        count: 0,
+        sent: 0,
+        unsent: 0,
+        stopped: 0,
+        fullFix: 0,
+        partialFix: 0,
+      };
+
       current.count += 1;
-      if (row.page.trackStatus === "개선") {
-        current.improved += 1;
-      }
-      if (isAttentionStatus(row.page.trackStatus)) {
-        current.attention += 1;
-      }
+      current.sent += row.page.trackStatus !== "미개선" && !isStoppedStatus(row.page.trackStatus) ? 1 : 0;
+      current.unsent += row.page.trackStatus === "미개선" ? 1 : 0;
+      current.stopped += isStoppedStatus(row.page.trackStatus) ? 1 : 0;
+      current.fullFix += isFullFixStatus(row.page.trackStatus) ? 1 : 0;
+      current.partialFix += isPartialFixStatus(row.page.trackStatus) ? 1 : 0;
       grouped.set(monthKey, current);
     }
 
-    return buildMonthRange(monthKeys).map((monthKey) => ({
-      monthKey,
-      label: formatMonthLabel(monthKey),
-      count: grouped.get(monthKey)?.count ?? 0,
-      improved: grouped.get(monthKey)?.improved ?? 0,
-      attention: grouped.get(monthKey)?.attention ?? 0,
-    }));
+    return buildMonthRange(monthKeys).map((monthKey) => {
+      const current = grouped.get(monthKey) ?? {
+        count: 0,
+        sent: 0,
+        unsent: 0,
+        stopped: 0,
+        fullFix: 0,
+        partialFix: 0,
+      };
+
+      return {
+        monthKey,
+        label: formatMonthLabel(monthKey),
+        ...current,
+      };
+    });
   }, [monitoringRows]);
-  const maxCount = monthlyRows.reduce((max, row) => Math.max(max, row.count), 1);
-  const improvedCount = monitoringRows.filter((row) => row.page.trackStatus === "개선").length;
-  const attentionCount = monitoringRows.filter((row) => isAttentionStatus(row.page.trackStatus)).length;
+
+  const detailSections = useMemo<MonitoringSection[]>(() => {
+    const today = new Date();
+    const sections: MonitoringSection[] = [
+      {
+        title: "진행중 모니터링",
+        rows: activeRows,
+      },
+    ];
+
+    for (let offset = 0; offset < 5; offset += 1) {
+      const monthDate = new Date(today.getFullYear(), today.getMonth() - offset, 1);
+      const monthKey = `${monthDate.getFullYear()}-${String(monthDate.getMonth() + 1).padStart(2, "0")}`;
+      const monthLabel = formatMonthLabel(monthKey);
+
+      sections.push({
+        title: `${monthLabel} 진행한 모니터링`,
+        rows: monitoringRows
+          .filter((row) => monthKeyFromMonitoringMonth(row.page.monitoringMonth) === monthKey)
+          .sort(sortRows),
+      });
+    }
+
+    return sections;
+  }, [activeRows, monitoringRows]);
 
   return (
     <div className={styles.page}>
@@ -132,42 +239,23 @@ export function MonitoringStatsPage() {
         <h1 className={styles.title}>모니터링 통계</h1>
       </header>
 
-      <section className={styles.scoreboard}>
-        <article className={styles.scoreCard}>
-          <span>총 항목</span>
-          <strong>{monitoringRows.length}</strong>
-        </article>
-        <article className={styles.scoreCard}>
-          <span>개선</span>
-          <strong>{improvedCount}</strong>
-        </article>
-        <article className={styles.scoreCard}>
-          <span>주의</span>
-          <strong>{attentionCount}</strong>
-        </article>
-      </section>
-
-      <PageSection title="월별 차트">
+      <PageSection title="최근 월별 모니터링 통계">
         <div className={styles.chartSurface}>
           {monthlyRows.length ? (
-            <div className={styles.chart} role="img" aria-label="모니터링 월별 차트">
-              {monthlyRows.map((row) => {
-                const height = maxCount ? Math.max((row.count / maxCount) * 100, row.count ? 14 : 8) : 8;
-
-                return (
-                  <div key={row.monthKey} className={styles.chartColumn}>
-                    <div className={styles.chartTrack}>
-                      <div className={styles.chartBar} style={{ height: `${height}%` }}>
-                        <strong className={styles.chartValue}>{row.count}</strong>
-                      </div>
-                    </div>
-                    <span className={styles.chartLabel}>{row.label}</span>
-                    <span className={styles.chartNote}>
-                      개선 {row.improved}개 · 주의 {row.attention}개
-                    </span>
-                  </div>
-                );
-              })}
+            <div className={styles.chartFrame} role="img" aria-label="모니터링 월별 차트">
+              <ResponsiveContainer width="100%" height={320}>
+                <AreaChart data={monthlyRows} margin={{ top: 12, right: 12, left: 0, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="label" tickLine={false} axisLine={false} />
+                  <YAxis allowDecimals={false} tickLine={false} axisLine={false} />
+                  <Tooltip />
+                  <Legend />
+                  <Area type="monotone" dataKey="count" name="총모니터링수" stroke="#2563eb" fill="#93c5fd" />
+                  <Area type="monotone" dataKey="sent" name="전달 수" stroke="#16a34a" fill="#86efac" />
+                  <Area type="monotone" dataKey="fullFix" name="완전 개선수" stroke="#f59e0b" fill="#fde68a" />
+                  <Area type="monotone" dataKey="partialFix" name="일부 개선수" stroke="#dc2626" fill="#fecaca" />
+                </AreaChart>
+              </ResponsiveContainer>
             </div>
           ) : (
             <p className={styles.empty}>모니터링 데이터가 없습니다.</p>
@@ -175,16 +263,19 @@ export function MonitoringStatsPage() {
         </div>
       </PageSection>
 
-      <PageSection title="월별 표">
+      <PageSection title="모니터링 통계 테이블">
         <div className={styles.tableWrap}>
           <table className={styles.table}>
             <caption className={styles.srOnly}>모니터링 월별 표</caption>
             <thead>
               <tr>
-                <th scope="col">월</th>
-                <th scope="col">항목 수</th>
-                <th scope="col">개선</th>
-                <th scope="col">주의</th>
+                <th scope="col">해당월</th>
+                <th scope="col">총 진행</th>
+                <th scope="col">전달</th>
+                <th scope="col">미전달</th>
+                <th scope="col">중지</th>
+                <th scope="col">전체 수정</th>
+                <th scope="col">일부 수정</th>
               </tr>
             </thead>
             <tbody>
@@ -192,13 +283,16 @@ export function MonitoringStatsPage() {
                 <tr key={row.monthKey}>
                   <td>{row.label}</td>
                   <td className="tabularNums">{row.count}</td>
-                  <td className="tabularNums">{row.improved}</td>
-                  <td className="tabularNums">{row.attention}</td>
+                  <td className="tabularNums">{row.sent}</td>
+                  <td className="tabularNums">{row.unsent}</td>
+                  <td className="tabularNums">{row.stopped}</td>
+                  <td className="tabularNums">{row.fullFix}</td>
+                  <td className="tabularNums">{row.partialFix}</td>
                 </tr>
               ))}
               {!monthlyRows.length ? (
                 <tr>
-                  <td colSpan={4} className={styles.empty}>
+                  <td colSpan={7} className={styles.empty}>
                     월별 데이터가 없습니다.
                   </td>
                 </tr>
@@ -208,61 +302,71 @@ export function MonitoringStatsPage() {
         </div>
       </PageSection>
 
-      <PageSection title="상세 목록">
-        <div className={styles.tableWrap}>
-          <table className={styles.table}>
-            <caption className={styles.srOnly}>모니터링 상세 목록</caption>
-            <thead>
-              <tr>
-                <th scope="col">플랫폼</th>
-                <th scope="col">앱 / 페이지</th>
-                <th scope="col">담당자</th>
-                <th scope="col">상태</th>
-                <th scope="col">메모</th>
-                <th scope="col">수정 시각</th>
-                <th scope="col">보고서</th>
-              </tr>
-            </thead>
-            <tbody>
-              {monitoringRows.map((row) => (
-                <tr key={row.page.id}>
-                  <td>
-                    <span className="uiPlatformBadge">{row.platform}</span>
-                  </td>
-                  <td>
-                    <div className={styles.stackCell}>
-                      <strong>{row.projectName}</strong>
-                      <span>{row.page.title}</span>
-                    </div>
-                  </td>
-                  <td>{row.assigneeName}</td>
-                  <td>
-                    <span className="uiStatusBadge" data-status={row.page.trackStatus}>
-                      {row.page.trackStatus}
-                    </span>
-                  </td>
-                  <td>{row.page.note || "-"}</td>
-                  <td className="tabularNums">{formatDateTime(row.page.updatedAt)}</td>
-                  <td>
-                    {row.page.url ? (
-                      <a href={row.page.url} target="_blank" rel="noreferrer" className={styles.link}>
-                        열기
-                      </a>
-                    ) : (
-                      "-"
-                    )}
-                  </td>
-                </tr>
-              ))}
-              {!monitoringRows.length ? (
-                <tr>
-                  <td colSpan={7} className={styles.empty}>
-                    진행중 모니터링 항목이 없습니다.
-                  </td>
-                </tr>
-              ) : null}
-            </tbody>
-          </table>
+      <PageSection title="모니터링 목록">
+        <div className={styles.detailGrid}>
+          {detailSections.map((section) => (
+            <article key={section.title} className={styles.detailPanel}>
+              <div>
+                <h3 className={styles.detailTitle}>{section.title}</h3>
+              </div>
+              <div className={styles.tableWrap}>
+                <table className={styles.table}>
+                  <caption className={styles.srOnly}>{section.title}</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">플랫폼</th>
+                      <th scope="col">앱이름</th>
+                      <th scope="col">페이지</th>
+                      <th scope="col">담당자</th>
+                      <th scope="col">상태</th>
+                      <th scope="col">수정된 highest 이슈수</th>
+                      <th scope="col">수정된 high 이슈수</th>
+                      <th scope="col">수정된 normal 이슈수</th>
+                      <th scope="col">비고</th>
+                      <th scope="col">보고서</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {section.rows.map((row) => (
+                    <tr key={row.page.id}>
+                        <td>
+                          <span className="uiPlatformBadge">{row.platform}</span>
+                        </td>
+                        <td>{row.projectName}</td>
+                        <td>{row.page.title}</td>
+                        <td>{row.assigneeName}</td>
+                        <td>
+                          <span className="uiStatusBadge" data-status={row.page.trackStatus}>
+                            {formatTrackStatus(row.page.trackStatus)}
+                          </span>
+                        </td>
+                        <td>{parseIssueCount(row.page.note, "highest")}</td>
+                        <td>{parseIssueCount(row.page.note, "high")}</td>
+                        <td>{parseIssueCount(row.page.note, "normal")}</td>
+                        <td>{row.page.note || "-"}</td>
+                        <td>
+                          {row.reportUrl ? (
+                            <a href={row.reportUrl} target="_blank" rel="noreferrer" className={styles.link}>
+                              Click
+                            </a>
+                          ) : (
+                            "-"
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                    {!section.rows.length ? (
+                      <tr>
+                        <td colSpan={10} className={styles.empty}>
+                          진행한 것이 없습니다.
+                        </td>
+                      </tr>
+                    ) : null}
+                  </tbody>
+                </table>
+              </div>
+            </article>
+          ))}
         </div>
       </PageSection>
     </div>

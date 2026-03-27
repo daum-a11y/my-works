@@ -57,6 +57,18 @@
   gap: 2rem;
 }
 
+.gridLayout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(18rem, 0.9fr);
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.sideStack {
+  display: grid;
+  gap: 1rem;
+}
+
 .panel {
   padding: 1.5rem;
   background: var(--surface-panel);
@@ -129,6 +141,13 @@
   letter-spacing: var(--text-section-title-tracking);
 }
 
+.dateText {
+  margin: 0.25rem 0 0;
+  color: var(--text-primary);
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
 .panelMeta {
   margin: 0;
   color: var(--text-tertiary);
@@ -144,6 +163,28 @@
   flex-wrap: wrap;
   gap: var(--space-2);
   align-items: center;
+}
+
+.tabRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.tabButton {
+  padding: 0.45rem 0.8rem;
+  border: 1px solid var(--border-default);
+  background: var(--surface-canvas);
+  color: var(--text-primary);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.tabButtonActive {
+  background: var(--accent-strong);
+  color: white;
+  border-color: var(--accent-strong);
 }
 
 .primaryButton,
@@ -231,6 +272,11 @@
   font-weight: var(--text-form-weight);
   line-height: var(--text-form-line-height);
   letter-spacing: var(--text-form-tracking);
+}
+
+.searchButtonField {
+  display: grid;
+  align-content: end;
 }
 
 .field :is(input, select, textarea) {
@@ -346,6 +392,73 @@
   text-align: left;
 }
 
+.summaryGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.summaryCard {
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.9rem;
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-canvas);
+}
+
+.summaryCard span {
+  color: var(--text-tertiary);
+  font-size: var(--text-meta-size);
+}
+
+.summaryCard strong {
+  color: var(--text-primary);
+  font-size: var(--text-section-title-size);
+}
+
+.summaryMessage {
+  margin: 0 0 1rem;
+  color: var(--text-primary);
+  line-height: var(--text-body-line-height);
+}
+
+.summaryList {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.summaryItem {
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.75rem 0;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.summaryItem strong,
+.summaryItem span {
+  display: block;
+}
+
+.summaryItem span {
+  color: var(--text-tertiary);
+  font-size: var(--text-meta-size);
+}
+
+.summaryText {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: var(--text-meta-size);
+  line-height: var(--text-body-line-height);
+}
+
+.emptyNote {
+  margin: 0;
+  color: var(--text-tertiary);
+  font-size: var(--text-meta-size);
+  line-height: var(--text-body-line-height);
+}
+
 .emptyState {
   padding: var(--space-6) var(--space-4);
   text-align: center;
@@ -370,6 +483,10 @@
     flex-direction: column;
   }
 
+  .gridLayout {
+    grid-template-columns: 1fr;
+  }
+
   .tabList {
     width: 100%;
   }
@@ -388,6 +505,10 @@
   .actionRow,
   .dateActions {
     width: 100%;
+  }
+
+  .summaryGrid {
+    grid-template-columns: 1fr;
   }
 
   .chipButton {

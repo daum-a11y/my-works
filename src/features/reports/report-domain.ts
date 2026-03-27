@@ -45,6 +45,11 @@ export interface ReportDraft {
   pageId: string;
   type1: ReportType1;
   type2: ReportType2;
+  platform: string;
+  serviceGroupName: string;
+  serviceName: string;
+  manualPageName: string;
+  pageUrl: string;
   workHours: string;
   content: string;
   note: string;
@@ -70,9 +75,12 @@ export interface ProjectPageViewModel {
 }
 
 export interface ReportViewModel extends ReportRecord {
+  platform: string;
   serviceGroupName: string;
+  serviceName: string;
   projectDisplayName: string;
   pageDisplayName: string;
+  pageUrl: string;
   searchText: string;
 }
 
@@ -130,6 +138,48 @@ function normalizeText(value: string) {
   return value.trim().toLowerCase();
 }
 
+export function parseLegacyTaskMeta(note: string) {
+  const meta = new Map<string, string>();
+  const rawLines: string[] = [];
+
+  for (const line of note.split("\n")) {
+    const trimmed = line.trim();
+    const separator = trimmed.indexOf(": ");
+
+    if (separator > 0) {
+      const key = trimmed.slice(0, separator);
+      const value = trimmed.slice(separator + 2).trim();
+
+      if (
+        key === "platform" ||
+        key === "service_group" ||
+        key === "service_name" ||
+        key === "project_name" ||
+        key === "page_name" ||
+        key === "page_url" ||
+        key === "raw_note"
+      ) {
+        meta.set(key, value);
+        continue;
+      }
+    }
+
+    if (trimmed) {
+      rawLines.push(trimmed);
+    }
+  }
+
+  return {
+    platform: meta.get("platform") ?? "",
+    serviceGroupName: meta.get("service_group") ?? "",
+    serviceName: meta.get("service_name") ?? "",
+    projectName: meta.get("project_name") ?? "",
+    pageName: meta.get("page_name") ?? "",
+    pageUrl: meta.get("page_url") ?? "",
+    rawNote: meta.get("raw_note") ?? rawLines.join("\n"),
+  };
+}
+
 function compareStrings(left: string, right: string) {
   return left.localeCompare(right, "ko");
 }
@@ -138,10 +188,34 @@ function buildServiceGroupMap(serviceGroups: ServiceGroup[]) {
   return new Map(serviceGroups.map((group) => [group.id, group] as const));
 }
 
-function buildProjectLookup(project: Project, serviceGroupName: string) {
-  const serviceName = project.name || "미지정 프로젝트";
-  const label = [serviceGroupName, serviceName].filter(Boolean).join(" / ") || serviceName;
-  const searchText = normalizeText([serviceGroupName, serviceName, project.platform, project.id].join(" "));
+function splitServiceGroupName(value: string) {
+  const normalized = value.trim();
+  if (!normalized) {
+    return {
+      serviceGroupName: "",
+      serviceName: "",
+    };
+  }
+
+  const separator = normalized.indexOf(" / ");
+  if (separator < 0) {
+    return {
+      serviceGroupName: normalized,
+      serviceName: "",
+    };
+  }
+
+  return {
+    serviceGroupName: normalized.slice(0, separator),
+    serviceName: normalized.slice(separator + 3),
+  };
+}
+
+function buildProjectLookup(project: Project, normalizedServiceName: string) {
+  const { serviceGroupName, serviceName } = splitServiceGroupName(normalizedServiceName);
+  const projectName = project.name || "미지정 프로젝트";
+  const label = [serviceGroupName, projectName].filter(Boolean).join(" / ") || projectName;
+  const searchText = normalizeText([serviceGroupName, serviceName, projectName, project.platform, project.id].join(" "));
 
   return {
     id: project.id,
@@ -215,6 +289,10 @@ export function buildTaskType1Options(taskTypes: TaskType[]) {
 }
 
 export function buildTaskType2Options(taskTypes: TaskType[], selectedType1 = "") {
+  if (!selectedType1) {
+    return [];
+  }
+
   const filtered = selectedType1 ? taskTypes.filter((taskType) => taskType.type1 === selectedType1) : taskTypes;
   const unique = new Set<string>();
 
@@ -256,12 +334,16 @@ export function validateTaskTypeSelection(taskTypes: TaskType[], type1: string, 
 export function parseReportHoursInput(value: string) {
   const normalizedValue = value.trim();
   if (!normalizedValue) {
-    throw new Error("소요 시간을 입력해 주세요.");
+    throw new Error("소요 시간을 분 단위로 입력해 주세요.");
   }
 
-  const parsed = Number.parseFloat(normalizedValue);
+  const parsed = Number.parseInt(normalizedValue, 10);
   if (!Number.isFinite(parsed) || parsed < 0) {
-    throw new Error("소요 시간은 0 이상의 숫자로 입력해 주세요.");
+    throw new Error("소요 시간은 0 이상의 분으로 입력해 주세요.");
+  }
+
+  if (!/^\d+$/.test(normalizedValue)) {
+    throw new Error("소요 시간은 분 단위 정수로 입력해 주세요.");
   }
 
   return parsed;
@@ -283,24 +365,35 @@ export function createEmptyReportDraft(referenceDate = new Date()): ReportDraft 
     reportDate: getTodayInputValue(referenceDate),
     projectId: "",
     pageId: "",
-    type1: REPORT_TYPE1_OPTIONS[0],
-    type2: REPORT_TYPE2_OPTIONS[0],
-    workHours: "1.0",
+    type1: "",
+    type2: "",
+    platform: "",
+    serviceGroupName: "",
+    serviceName: "",
+    manualPageName: "",
+    pageUrl: "",
+    workHours: "60",
     content: "",
     note: "",
   };
 }
 
 export function draftFromReport(report: ReportRecord): ReportDraft {
+  const meta = parseLegacyTaskMeta(report.note);
   return {
     reportDate: isoToDateInput(report.reportDate),
     projectId: report.projectId,
     pageId: report.pageId,
     type1: report.type1,
     type2: report.type2,
-    workHours: report.workHours.toFixed(1),
+    platform: meta.platform,
+    serviceGroupName: meta.serviceGroupName,
+    serviceName: meta.serviceName,
+    manualPageName: meta.pageName,
+    pageUrl: meta.pageUrl,
+    workHours: String(report.workHours),
     content: report.content,
-    note: report.note,
+    note: meta.rawNote,
   };
 }
 
@@ -341,24 +434,27 @@ export function buildReportViewModel(
   serviceGroupsById: Map<string, ServiceGroup>,
   pagesById: Map<string, ProjectPage>,
 ) {
+  const meta = parseLegacyTaskMeta(report.note);
   const project = report.projectId ? projectsById.get(report.projectId) ?? null : null;
   const page = report.pageId ? pagesById.get(report.pageId) ?? null : null;
-  const serviceGroupName = project?.serviceGroupId
-    ? serviceGroupsById.get(project.serviceGroupId)?.name ?? ""
-    : "";
-  const projectDisplayName = [serviceGroupName, project?.name ?? report.projectName]
-    .filter(Boolean)
-    .join(" / ")
-    || project?.name
-    || report.projectName
-    || "미분류 프로젝트";
-  const pageDisplayName = page?.title || report.pageName || "미지정 페이지";
+  const splitProjectService = project?.serviceGroupId
+    ? splitServiceGroupName(serviceGroupsById.get(project.serviceGroupId)?.name ?? "")
+    : null;
+  const serviceGroupName = splitProjectService?.serviceGroupName || meta.serviceGroupName;
+  const platform = project?.platform ?? meta.platform;
+  const serviceName = splitProjectService?.serviceName || meta.serviceName;
+  const resolvedProjectName = project?.name ?? meta.projectName ?? report.projectName ?? "";
+  const projectDisplayName = resolvedProjectName || "미분류 프로젝트";
+  const pageDisplayName = page?.title || meta.pageName || report.pageName || "미지정 페이지";
+  const pageUrl = page?.url || meta.pageUrl || "";
   const searchText = normalizeText(
     [
       report.reportDate,
+      platform,
       serviceGroupName,
-      project?.name ?? report.projectName,
+      serviceName,
       pageDisplayName,
+      pageUrl,
       report.type1,
       report.type2,
       report.content,
@@ -368,9 +464,13 @@ export function buildReportViewModel(
 
   return {
     ...report,
+    note: meta.rawNote,
+    platform,
     serviceGroupName,
+    serviceName,
     projectDisplayName,
     pageDisplayName,
+    pageUrl,
     searchText,
   } satisfies ReportViewModel;
 }
@@ -417,6 +517,7 @@ function buildReportSearchText(report: ReportRecord) {
       report.reportDate,
       report.projectName,
       report.pageName,
+      // Search stays permissive; page URL is only present on view models.
       report.type1,
       report.type2,
       report.content,
@@ -470,7 +571,7 @@ export function reportMatchesFilters(report: ReportRecord, filters: ReportFilter
 }
 
 export function formatReportHours(value: number) {
-  return `${value.toFixed(1)}h`;
+  return `${value}분`;
 }
 
 export function formatReportDate(value: string) {

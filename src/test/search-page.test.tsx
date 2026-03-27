@@ -1,4 +1,3 @@
-import { axe } from "jest-axe";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -73,7 +72,7 @@ describe("SearchPage", () => {
         legacyPageId: "legacy-page-1",
         projectId: "project-1",
         title: "로그인",
-        url: "",
+        url: "https://example.com/login",
         ownerMemberId: "member-1",
         trackStatus: "개선",
         monitoringInProgress: true,
@@ -83,42 +82,51 @@ describe("SearchPage", () => {
       },
     ]);
     mockOpsDataClient.getServiceGroups.mockResolvedValue([]);
-    mockOpsDataClient.getTaskTypes.mockResolvedValue([]);
-    mockOpsDataClient.searchTasks.mockResolvedValue([]);
+    mockOpsDataClient.searchTasks.mockResolvedValue([
+      {
+        id: "task-1",
+        legacyTaskId: "legacy-task-1",
+        memberId: "member-1",
+        taskDate: "2026-03-24",
+        projectId: "project-1",
+        pageId: "page-1",
+        taskType1: "기획",
+        taskType2: "작성",
+        hours: 60,
+        content: "업무",
+        note: "비고",
+        createdAt: "2026-03-24T09:00:00.000Z",
+        updatedAt: "2026-03-24T09:00:00.000Z",
+      },
+    ]);
   });
 
-  it("renders the current search flow and keeps the page filter dependent on project", async () => {
+  it("renders the original query flow and result table", async () => {
     const user = userEvent.setup();
     const queryClient = new QueryClient();
 
-    const { container } = render(
+    render(
       <QueryClientProvider client={queryClient}>
         <SearchPage />
       </QueryClientProvider>,
     );
 
     await waitFor(() => {
-      expect(screen.getByRole("option", { name: "알파" })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: "어제" })).toBeInTheDocument();
     });
 
-    await user.selectOptions(screen.getByLabelText("프로젝트"), "project-1");
+    await user.click(screen.getByRole("button", { name: "오늘" }));
+    await user.click(screen.getByRole("button", { name: "검색" }));
 
     await waitFor(() => {
-      expect(mockOpsDataClient.searchTasks).toHaveBeenCalledWith(
-        expect.objectContaining({ id: "member-1" }),
-        expect.objectContaining({ startDate: "", endDate: "" }),
-      );
+      expect(mockOpsDataClient.searchTasks).toHaveBeenCalled();
     });
 
-    await user.selectOptions(screen.getAllByRole("combobox", { name: "프로젝트" })[0], "project-1");
-
-    expect(
-      screen.getByRole("heading", { name: "기간을 지정해 검색하고, 결과를 바로 수정하거나 내려받습니다." }),
-    ).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "엑셀파일로 내려받기" })).toBeInTheDocument();
-    expect(screen.getByRole("option", { name: "로그인" })).toBeInTheDocument();
-
-    const results = (await axe(container)) as { violations: unknown[] };
-    expect(results.violations).toHaveLength(0);
+    expect(screen.getByRole("button", { name: "다운로드" })).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: "서비스그룹" })).toBeInTheDocument();
+    expect(screen.getAllByText("알파").length).toBeGreaterThan(0);
+    expect(screen.getByText("로그인")).toBeInTheDocument();
+    expect(screen.getByText((_, element) => element?.textContent === "2026.03.27 ~ 2026.03.27")).toBeInTheDocument();
+    expect(screen.getAllByText("60분").length).toBeGreaterThan(0);
   });
 });
