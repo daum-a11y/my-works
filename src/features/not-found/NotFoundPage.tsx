@@ -26,8 +26,8 @@ export function NotFoundPage() {
               className={styles.logo}
               src="/img/my-works-logo-200x60.png"
               alt="My Works"
-              width="200"
-              height="60"
+              width="100"
+              height="30"
             />
           </h1>
           <p className={styles.caption}>404</p>

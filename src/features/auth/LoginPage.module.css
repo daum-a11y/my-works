@@ -40,18 +40,17 @@
 
 .introBlock {
   gap: 6px;
-  padding: 0 0 15px 9px;
+  padding: 0 0 20px 9px;
   border-bottom: 1px solid var(--border-default);
 }
 
 .formBlock {
   gap: 0;
-  padding-left: 9px;
+  padding: 8px 0 0 9px;
 }
 
 .logo {
   display: block;
-  width: min(100%, 200px);
   height: auto;
 }
 
@@ -78,7 +77,7 @@
 .submitRow {
   display: flex;
   justify-content: stretch;
-  padding-top: 3px;
+  padding-top: 12px;
 }
 
 .submitRow > * {
@@ -142,7 +141,7 @@
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  padding-top: 7px;
+  padding-top: 12px;
   border-top: 1px solid var(--border-subtle);
 }
 
