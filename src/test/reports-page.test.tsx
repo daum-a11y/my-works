@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 import { ReportsPage } from "../features/reports";
 
@@ -146,7 +147,11 @@ describe("ReportsPage", () => {
       isSaving: false,
     });
 
-    render(<ReportsPage />);
+    render(
+      <MemoryRouter>
+        <ReportsPage />
+      </MemoryRouter>,
+    );
 
     expect(screen.getByRole("button", { name: "기본 입력" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "TYPE 입력" })).toBeInTheDocument();

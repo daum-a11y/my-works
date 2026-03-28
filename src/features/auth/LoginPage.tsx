@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "./AuthContext";
 import { isSupabaseConfigured } from "../../lib/env";
 import { Button } from "../../components/ui/Button";
@@ -17,9 +17,14 @@ const loginSchema = z.object({
 type LoginFormValues = z.infer<typeof loginSchema>;
 
 export function LoginPage() {
-  const { login, signUp, resetPassword, session, status } = useAuth();
+  const { login, resetPassword, session, status } = useAuth();
+  const location = useLocation();
   const [errorMessage, setErrorMessage] = useState("");
-  const [noticeMessage, setNoticeMessage] = useState("");
+  const [noticeMessage, setNoticeMessage] = useState(
+    typeof location.state === "object" && location.state && "noticeMessage" in location.state
+      ? String(location.state.noticeMessage)
+      : "",
+  );
   const [isWorking, setIsWorking] = useState(false);
   const {
     register,
@@ -101,30 +106,6 @@ export function LoginPage() {
               className={styles.textLink}
               disabled={!isSupabaseConfigured || isBusy}
               onClick={async () => {
-                const valid = await trigger();
-                if (!valid) return;
-                const values = getValues();
-                try {
-                  setIsWorking(true);
-                  setErrorMessage("");
-                  setNoticeMessage("");
-                  await signUp(values.email, values.password);
-                  setNoticeMessage("회원가입 요청을 완료했습니다. 자동 연결됩니다.");
-                } catch (error) {
-                  setErrorMessage(error instanceof Error ? error.message : "회원가입 실패.");
-                } finally {
-                  setIsWorking(false);
-                }
-              }}
-            >
-              회원가입
-            </button>
-            <span className={styles.divider}>|</span>
-            <button
-              type="button"
-              className={styles.textLink}
-              disabled={!isSupabaseConfigured || isBusy}
-              onClick={async () => {
                 const validEmail = await trigger("email");
                 if (!validEmail) return;
                 const { email } = getValues();
@@ -133,7 +114,7 @@ export function LoginPage() {
                   setErrorMessage("");
                   setNoticeMessage("");
                   await resetPassword(email);
-                  setNoticeMessage("비밀번호 재설정 메일을 보냈습니다.");
+                  setNoticeMessage("메일을 확인해 비밀번호를 재설정해 주세요.");
                 } catch (error) {
                   setErrorMessage(error instanceof Error ? error.message : "메일 발송 실패.");
                 } finally {
@@ -147,7 +128,7 @@ export function LoginPage() {
         </form>
       </section>
       {!isSupabaseConfigured ? (
-        <div className={styles.notice} data-state="info">
+        <div className={`${styles.notice} ${styles.configNotice}`} data-state="info">
           <strong>환경 설정 필요</strong>
           <p>`VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`가 설정되어야 로그인할 수 있습니다.</p>
         </div>

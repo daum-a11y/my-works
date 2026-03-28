@@ -139,6 +139,13 @@ export interface MemberAdminPayload {
   isActive?: boolean;
 }
 
+export interface MemberInvitePayload {
+  email: string;
+  legacyUserId: string;
+  name: string;
+  role: "user" | "admin";
+}
+
 import { toLocalDateInputValue } from "../../lib/utils";
 
 function formatDate(date: Date) {

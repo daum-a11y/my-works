@@ -4,90 +4,193 @@
   --font-body: "KoddiUD OnGothic", "SUIT Variable", "Spoqa Han Sans Neo", "Noto Sans KR", sans-serif;
   --font-mono: "JetBrains Mono", "SF Mono", "Menlo", monospace;
 
-  /* Clinical Industrial Grayscale */
-  --raw-paper-0: oklch(1 0 0);
-  --raw-paper-1: oklch(0.99 0 0);
-  --raw-paper-2: oklch(0.98 0 0);
-  --raw-paper-3: oklch(0.97 0 0);
-  
-  --raw-slate-950: oklch(0.15 0.01 265);
-  --raw-slate-900: oklch(0.2 0.02 265);
-  --raw-slate-800: oklch(0.3 0.02 265);
-  --raw-slate-400: oklch(0.7 0.01 265);
-  --raw-slate-200: oklch(0.92 0.01 265);
+  /* Industrial neutrals with a cool slate bias */
+  --raw-paper-0: oklch(0.995 0.004 250);
+  --raw-paper-1: oklch(0.985 0.005 250);
+  --raw-paper-2: oklch(0.972 0.007 250);
+  --raw-paper-3: oklch(0.952 0.008 250);
 
-  --raw-indigo-600: oklch(0.48 0.15 266);
-  --raw-indigo-500: oklch(0.58 0.13 266);
+  --raw-slate-950: oklch(0.2 0.018 258);
+  --raw-slate-900: oklch(0.26 0.018 258);
+  --raw-slate-800: oklch(0.39 0.02 258);
+  --raw-slate-700: oklch(0.49 0.018 258);
+  --raw-slate-500: oklch(0.64 0.014 258);
+  --raw-slate-400: oklch(0.72 0.012 258);
+  --raw-slate-300: oklch(0.82 0.01 258);
+  --raw-slate-200: oklch(0.9 0.008 258);
 
-  /* Industrial Surfaces */
+  --raw-indigo-700: oklch(0.44 0.13 271);
+  --raw-indigo-600: oklch(0.5 0.12 271);
+  --raw-indigo-500: oklch(0.59 0.1 271);
+  --raw-indigo-100: oklch(0.95 0.02 271);
+  --raw-green-600: oklch(0.52 0.11 155);
+  --raw-green-100: oklch(0.95 0.025 155);
+  --raw-amber-600: oklch(0.6 0.12 85);
+  --raw-amber-100: oklch(0.96 0.025 85);
+  --raw-red-600: oklch(0.56 0.15 28);
+  --raw-red-100: oklch(0.96 0.028 28);
+
+  /* Surfaces */
   --surface-canvas: var(--raw-paper-1);
-  --surface-sidebar: var(--raw-paper-2);
+  --surface-canvas-strong: var(--raw-paper-2);
+  --surface-sidebar: color-mix(in oklab, var(--raw-paper-2) 92%, var(--raw-slate-200));
   --surface-header: var(--raw-paper-0);
   --surface-panel: var(--raw-paper-0);
+  --surface-panel-strong: color-mix(in oklab, var(--raw-paper-0) 88%, var(--raw-slate-200));
   --surface-field: var(--raw-paper-0);
-  --surface-hover: oklch(0.96 0 0);
-  --surface-active: oklch(0.93 0 0);
-  --surface-disabled: oklch(0.95 0 0);
+  --surface-hover: color-mix(in oklab, var(--raw-paper-2) 86%, var(--raw-indigo-100));
+  --surface-active: color-mix(in oklab, var(--raw-paper-3) 76%, var(--raw-indigo-100));
+  --surface-disabled: color-mix(in oklab, var(--raw-paper-1) 84%, var(--raw-slate-200));
 
-  /* Sharp Typography */
+  /* Type */
   --text-primary: var(--raw-slate-900);
   --text-secondary: var(--raw-slate-800);
-  --text-tertiary: var(--raw-slate-400);
-  --text-inverse: oklch(1 0 0);
+  --text-tertiary: var(--raw-slate-700);
+  --text-muted: var(--raw-slate-500);
+  --text-inverse: oklch(0.99 0.004 250);
 
-  /* Hairline Borders */
-  --border-subtle: oklch(0.94 0 0);
-  --border-default: oklch(0.9 0 0);
-  --border-strong: oklch(0.4 0 0);
+  /* Borders */
+  --border-subtle: color-mix(in oklab, var(--raw-slate-200) 72%, var(--raw-paper-1));
+  --border-default: color-mix(in oklab, var(--raw-slate-300) 78%, var(--raw-paper-1));
+  --border-strong: var(--raw-slate-500);
   --border-focus: var(--raw-indigo-600);
-  
-  --elevation-1: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
-  --elevation-2: 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+  --state-info-border: color-mix(in oklab, var(--raw-indigo-500) 34%, var(--border-default));
+  --state-success-border: color-mix(in oklab, var(--raw-green-600) 34%, var(--border-default));
+  --state-warning-border: color-mix(in oklab, var(--raw-amber-600) 34%, var(--border-default));
+  --state-danger-border: color-mix(in oklab, var(--raw-red-600) 34%, var(--border-default));
 
-  /* Industrial Non-Radius */
-  --radius-xs: 0;
-  --radius-sm: 0;
-  --radius-md: 0;
-  --radius-lg: 0;
-  --radius-xl: 0;
+  --elevation-1: 0 1px 1px rgba(17, 24, 39, 0.04), 0 6px 18px rgba(17, 24, 39, 0.03);
+  --elevation-2: 0 4px 16px rgba(17, 24, 39, 0.06), 0 18px 36px rgba(17, 24, 39, 0.05);
 
-  /* Spacing */
-  --control-height-sm: 24px;
-  --control-height-md: 32px;
-  --control-radius: 0;
-  --control-padding-x: 10px;
+  /* Tight industrial radii */
+  --radius-xs: 2px;
+  --radius-sm: 2px;
+  --radius-md: 3px;
+  --radius-lg: 4px;
+  --radius-xl: 6px;
+
+  /* Controls */
+  --control-height-sm: 32px;
+  --control-height-md: 40px;
+  --control-radius: var(--radius-sm);
+  --control-padding-y: 0.5rem;
+  --control-padding-x: 0.75rem;
   --control-border: var(--border-default);
   --control-bg: var(--surface-field);
+  --control-placeholder: var(--text-muted);
+  --control-disabled-bg: var(--surface-disabled);
 
   --accent-strong: var(--raw-indigo-600);
+  --accent-soft: var(--raw-indigo-100);
+  --accent: var(--accent-strong);
+  --accent-foreground: var(--text-inverse);
   --focus-ring-color: var(--raw-indigo-600);
-  --focus-ring-shadow: 0 0 0 1px white, 0 0 0 3px var(--focus-ring-color);
+  --focus-ring-shadow: 0 0 0 1px var(--surface-panel), 0 0 0 3px color-mix(in oklab, var(--focus-ring-color) 72%, white);
 
   --button-primary-bg: var(--raw-indigo-600);
-  --button-primary-bg-hover: var(--raw-indigo-500);
+  --button-primary-bg-hover: var(--raw-indigo-700);
+  --button-secondary-bg: var(--surface-panel);
+  --button-secondary-border: var(--border-default);
+  --button-secondary-hover: var(--surface-hover);
+  --button-ghost-hover: var(--surface-hover);
+  --button-danger-bg: color-mix(in oklab, var(--raw-red-600) 92%, black 8%);
 
-  --state-info-bg: oklch(0.97 0.02 266);
-  --state-info-text: var(--raw-indigo-600);
-  --state-success-bg: oklch(0.97 0.02 156);
-  --state-success-text: oklch(0.4 0.1 156);
-  --state-warning-bg: oklch(0.97 0.02 84);
-  --state-warning-text: oklch(0.45 0.1 84);
-  --state-danger-bg: oklch(0.97 0.02 26);
-  --state-danger-text: oklch(0.45 0.1 26);
+  --shell-rail-width: 12.75rem;
+  --shell-header-height: 3.75rem;
 
-  --page-inline: 1rem;
-  --page-block: 1rem;
+  --state-info-bg: var(--raw-indigo-100);
+  --state-info-text: var(--raw-indigo-700);
+  --state-success-bg: var(--raw-green-100);
+  --state-success-text: var(--raw-green-600);
+  --state-warning-bg: var(--raw-amber-100);
+  --state-warning-text: var(--raw-amber-600);
+  --state-danger-bg: var(--raw-red-100);
+  --state-danger-text: var(--raw-red-600);
+  --state-info-fg: var(--state-info-text);
+  --state-success-fg: var(--state-success-text);
+  --state-warning-fg: var(--state-warning-text);
+  --state-danger-fg: var(--state-danger-text);
 
-  /* High-Density Typography Scale */
-  --text-page-title-size: 1.125rem;
+  --surface-default: var(--surface-panel);
+
+  /* Semantic content themes */
+  --theme-resource-surface: color-mix(in oklab, var(--surface-canvas) 74%, var(--raw-amber-100));
+  --theme-resource-border: color-mix(in oklab, var(--raw-amber-600) 24%, var(--border-default));
+  --theme-resource-accent: color-mix(in oklab, var(--raw-amber-600) 78%, var(--raw-slate-800));
+
+  --theme-stats-surface: color-mix(in oklab, var(--surface-canvas) 74%, var(--raw-indigo-100));
+  --theme-stats-border: color-mix(in oklab, var(--raw-indigo-600) 24%, var(--border-default));
+  --theme-stats-accent: var(--raw-indigo-600);
+
+  --theme-project-surface: color-mix(in oklab, var(--surface-canvas) 76%, var(--raw-green-100));
+  --theme-project-border: color-mix(in oklab, var(--raw-green-600) 22%, var(--border-default));
+  --theme-project-accent: color-mix(in oklab, var(--raw-green-600) 82%, var(--raw-slate-800));
+
+  --theme-admin-surface: color-mix(in oklab, var(--surface-canvas) 78%, var(--raw-slate-200));
+  --theme-admin-border: color-mix(in oklab, var(--raw-slate-700) 18%, var(--border-default));
+  --theme-admin-accent: color-mix(in oklab, var(--raw-slate-800) 90%, var(--raw-indigo-500));
+
+  --chart-series-primary-stroke: var(--raw-indigo-600);
+  --chart-series-primary-fill: color-mix(in oklab, var(--raw-indigo-100) 76%, white);
+  --chart-series-success-stroke: var(--raw-green-600);
+  --chart-series-success-fill: color-mix(in oklab, var(--raw-green-100) 78%, white);
+  --chart-series-warning-stroke: var(--raw-amber-600);
+  --chart-series-warning-fill: color-mix(in oklab, var(--raw-amber-100) 78%, white);
+  --chart-series-danger-stroke: var(--raw-red-600);
+  --chart-series-danger-fill: color-mix(in oklab, var(--raw-red-100) 76%, white);
+
+  --page-inline: clamp(1rem, 1.4vw, 1.5rem);
+  --page-block: clamp(0.95rem, 1.2vw, 1.25rem);
+
+  /* Spacing */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-field-gap: 0.4rem;
+  --space-form-gap: 0.85rem;
+  --space-form-section-gap: 1rem;
+
+  /* High-density type scale */
+  --text-page-title-size: clamp(1.75rem, 2vw, 2.15rem);
+  --text-page-title-weight: 800;
+  --text-page-title-line-height: 1.04;
+  --text-page-title-tracking: -0.04em;
   --text-section-title-size: 0.9375rem;
+  --text-section-title-weight: 700;
+  --text-section-title-line-height: 1.2;
+  --text-section-title-tracking: -0.01em;
   --text-body-size: 0.875rem;
-  --text-form-size: 0.8125rem;
-  --text-label-size: 0.75rem;
-  --text-meta-size: 0.6875rem;
-  --text-table-size: 0.75rem;
-  --text-badge-size: 0.625rem;
-  
+  --text-body-weight: 500;
+  --text-body-line-height: 1.52;
+  --text-body-tracking: -0.01em;
+  --text-form-size: 0.875rem;
+  --text-form-weight: 600;
+  --text-form-line-height: 1.35;
+  --text-form-tracking: -0.01em;
+  --text-label-size: 0.875rem;
+  --text-label-weight: 700;
+  --text-label-line-height: 1.2;
+  --text-label-tracking: 0.06em;
+  --text-meta-size: 0.75rem;
+  --text-meta-weight: 500;
+  --text-meta-line-height: 1.45;
+  --text-meta-tracking: 0;
+  --text-table-size: 0.875rem;
+  --text-table-weight: 700;
+  --text-table-line-height: 1.2;
+  --text-table-tracking: 0.06em;
+  --text-badge-size: 0.75rem;
+  --text-badge-weight: 700;
+  --text-badge-line-height: 1.1;
+  --text-badge-tracking: 0.06em;
+  --text-kicker-size: 0.75rem;
+  --text-kicker-weight: 700;
+  --text-kicker-line-height: 1.2;
+  --text-kicker-tracking: 0.09em;
+
   --font-weight-regular: 400;
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
@@ -96,4 +199,5 @@
 
   --line-height-body: 1.4;
   --line-height-tight: 1;
+  --letter-spacing-title-strong: -0.04em;
 }

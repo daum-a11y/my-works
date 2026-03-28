@@ -1,32 +1,57 @@
 .page {
   display: grid;
-  gap: 2rem;
+  gap: 1.35rem;
 }
 
-.topGrid {
+.pageIntro {
   display: grid;
-  gap: 1.5rem;
-  grid-template-columns: minmax(0, 1fr) minmax(18rem, 0.8fr);
-  align-items: start;
+  gap: 0.35rem;
+  padding: 0 0 0.95rem;
+  border-bottom: 1px solid var(--border-default);
 }
 
-.calendarSection {
-  display: grid;
-  gap: 0.7rem;
-}
-
-.calendarSection h2 {
+.pageIntro h1 {
   margin: 0;
-  font-size: 0.8125rem;
-  font-weight: 700;
-  color: var(--text-tertiary);
-  text-transform: uppercase;
+  color: var(--text-primary);
+  font-size: var(--text-page-title-size);
+  font-weight: var(--text-page-title-weight);
+  line-height: var(--text-page-title-line-height);
+  letter-spacing: var(--text-page-title-tracking);
+}
+
+.topGrid,
+.calendarSection,
+.tableSection {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.sectionHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.sectionHead h2 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: var(--text-section-title-size);
+  font-weight: var(--text-section-title-weight);
+  line-height: var(--text-section-title-line-height);
+  letter-spacing: var(--text-section-title-tracking);
+}
+
+.calendarWrap,
+.tableWrap,
+.empty {
+  background: var(--surface-panel);
+  border: 1px solid var(--border-default);
+  box-shadow: var(--elevation-1);
 }
 
 .calendarWrap {
   padding: 0.75rem;
-  background: var(--surface-panel);
-  border: 1px solid var(--border-default);
 }
 
 .calendarTable {
@@ -35,107 +60,97 @@
   table-layout: fixed;
 }
 
-.calendarTable th {
-  background: var(--surface-sidebar);
-  padding: 0.4rem;
-  text-align: center;
-  font-size: 0.75rem;
+.calendarTable caption {
+  margin-bottom: 0.6rem;
+  padding: 0.3rem 0 0.8rem;
+  color: var(--text-primary);
+  font-size: var(--text-body-size);
   font-weight: 700;
-  color: var(--text-tertiary);
+  line-height: 1.3;
+}
+
+.calendarTable th {
+  padding: 0.45rem;
+  background: var(--surface-canvas-strong);
   border: 1px solid var(--border-default);
+  color: var(--text-muted);
+  font-size: var(--text-table-size);
+  font-weight: var(--text-table-weight);
+  line-height: var(--text-table-line-height);
+  letter-spacing: var(--text-table-tracking);
   text-transform: uppercase;
 }
 
 .calendarBlank {
-  background: var(--surface-canvas);
-  border: 1px solid var(--border-default);
+  background: color-mix(in oklab, var(--surface-canvas) 84%, var(--surface-panel));
+  border: 1px solid var(--border-subtle);
 }
 
 .calendarCell {
-  min-height: 2.8rem;
-  padding: 0.4rem 0.5rem;
+  min-height: 4rem;
+  padding: 0.5rem;
   background: var(--surface-panel);
-  border: 1px solid var(--border-default);
+  border: 1px solid var(--border-subtle);
   vertical-align: top;
 }
 
 .calendarLink {
+  display: inline-flex;
   color: inherit;
   text-decoration: none;
 }
 
+.calendarLink:hover .calendarDate {
+  color: var(--accent-strong);
+}
+
 .calendarDate {
-  font-size: 0.75rem;
+  color: var(--text-primary);
+  font-size: var(--text-body-size);
   font-weight: 700;
-  color: var(--text-secondary);
+  line-height: 1.25;
 }
 
 .badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 3rem;
-  margin-top: 0.35rem;
-  padding: 0.15rem 0.45rem;
-  border-radius: 999px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  line-height: 1.2;
+  min-width: 3.4rem;
+  margin-top: 0.45rem;
+  padding: 0.22rem 0.45rem;
+  font-size: var(--text-badge-size);
+  font-weight: var(--text-badge-weight);
+  line-height: var(--text-badge-line-height);
+  letter-spacing: var(--text-badge-tracking);
+  border: 1px solid transparent;
 }
 
 .badgeSuccess {
-  color: oklch(0.38 0.11 156);
-  background: oklch(0.95 0.05 156);
+  background: var(--state-success-bg);
+  border-color: var(--state-success-border);
+  color: var(--state-success-text);
 }
 
 .badgeWarning {
-  color: oklch(0.44 0.11 80);
-  background: oklch(0.96 0.07 80);
+  background: var(--state-warning-bg);
+  border-color: var(--state-warning-border);
+  color: var(--state-warning-text);
 }
 
 .badgeDanger {
-  color: oklch(0.47 0.16 28);
-  background: oklch(0.96 0.05 28);
+  background: var(--state-danger-bg);
+  border-color: var(--state-danger-border);
+  color: var(--state-danger-text);
 }
 
 .badgeWeekend {
-  color: oklch(0.4 0.09 255);
-  background: oklch(0.95 0.03 255);
-}
-
-.noticeSection {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 100%;
-}
-
-.noticeImageWrap {
-  width: 100%;
-  margin: 0;
-  text-align: center;
-}
-
-.noticeImage {
-  max-width: 90%;
-}
-
-.tableSection {
-  display: grid;
-  gap: 0.7rem;
-}
-
-.tableSection h2 {
-  margin: 0;
-  font-size: 0.8125rem;
-  font-weight: 700;
-  color: var(--text-tertiary);
-  text-transform: uppercase;
+  background: var(--state-info-bg);
+  border-color: var(--state-info-border);
+  color: var(--state-info-text);
 }
 
 .tableWrap {
   overflow: auto;
-  border: 1px solid var(--border-subtle);
 }
 
 .table {
@@ -145,7 +160,7 @@
 
 .table th,
 .table td {
-  padding: 0.85rem 1rem;
+  padding: 0.9rem 1rem;
   border-bottom: 1px solid var(--border-subtle);
   text-align: left;
   vertical-align: top;
@@ -153,7 +168,8 @@
 }
 
 .table th {
-  color: var(--text-tertiary);
+  background: var(--surface-canvas-strong);
+  color: var(--text-muted);
   font-size: var(--text-table-size);
   font-weight: var(--text-table-weight);
   line-height: var(--text-table-line-height);
@@ -161,20 +177,31 @@
   text-transform: uppercase;
 }
 
+.table td {
+  color: var(--text-primary);
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line-height);
+}
+
 .link {
   color: var(--accent-strong);
-  font-weight: var(--font-weight-bold);
+  font-size: var(--text-form-size);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.link:hover {
+  text-decoration: underline;
 }
 
 .empty {
+  padding: 1rem;
   color: var(--text-tertiary);
+  font-size: var(--text-body-size);
   line-height: var(--text-body-line-height);
   text-align: center;
-  padding: 2.5rem !important;
 }
 
-@media (max-width: 900px) {
-  .topGrid {
-    grid-template-columns: 1fr;
-  }
+.table .empty {
+  padding: 2.25rem !important;
 }

@@ -2,7 +2,7 @@
   min-height: 52vh;
   display: grid;
   grid-template-columns: minmax(6rem, 8rem) minmax(0, 28rem);
-  gap: 1rem;
+  gap: 1.25rem;
   align-content: start;
   padding: clamp(1.5rem, 3vw, 2.5rem) 0;
 }
@@ -56,9 +56,9 @@
   align-items: center;
   justify-content: center;
   justify-self: start;
-  min-height: 2.1rem;
-  padding: 0.2rem 0;
-  border-bottom: 1px solid color-mix(in srgb, var(--accent) 72%, white);
+  min-height: var(--control-height-sm);
+  padding: 0 0.1rem;
+  border-bottom: 1px solid color-mix(in oklab, var(--accent-strong) 36%, var(--border-default));
   color: var(--accent-strong);
   text-decoration: none;
   font-size: var(--text-form-size);

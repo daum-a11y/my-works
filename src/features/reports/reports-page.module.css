@@ -1,13 +1,13 @@
 .page {
   min-height: 100%;
   display: grid;
-  gap: 1rem;
+  gap: 1.25rem;
 }
 
 .hero {
   display: grid;
-  gap: 0.35rem;
-  padding: 0 0 0.7rem;
+  gap: 0.3rem;
+  padding: 0 0 0.9rem;
   border-bottom: 1px solid var(--border-default);
 }
 
@@ -36,31 +36,15 @@
   letter-spacing: var(--text-page-title-tracking);
 }
 
-.description {
-  max-width: 58ch;
-  margin: 0;
-  color: var(--text-secondary);
-  font-size: var(--text-body-size);
-  line-height: var(--text-body-line-height);
-}
-
-.status {
-  margin: 0;
-  color: var(--text-tertiary);
-  font-size: var(--text-meta-size);
-  font-weight: var(--text-meta-weight);
-  line-height: var(--text-meta-line-height);
-}
-
 .stack {
   display: grid;
-  gap: 2rem;
+  gap: 1.25rem;
 }
 
 .gridLayout {
   display: grid;
   grid-template-columns: minmax(0, 1.6fr) minmax(18rem, 0.9fr);
-  gap: 1.25rem;
+  gap: 1rem;
   align-items: start;
 }
 
@@ -70,54 +54,19 @@
 }
 
 .panel {
-  padding: 1.5rem;
+  padding: 1rem;
   background: var(--surface-panel);
   border: 1px solid var(--border-default);
+  box-shadow: var(--elevation-1);
 }
-
-.panelTitle {
-  margin: 0;
-  font-size: 0.875rem;
-  font-weight: 700;
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.filterRow {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.filterRow input {
-  padding: 0.25rem 0.5rem;
-  border: 1px solid var(--border-default);
-  background: var(--surface-canvas);
-  color: var(--text-primary);
-  font-size: 0.8125rem;
-}
-
-.statusMsg {
-  font-size: 0.8125rem;
-  color: var(--accent-strong);
-}
-
-.subText {
-  display: block;
-  font-size: 0.75rem !important;
-  color: var(--text-tertiary) !important;
-  margin-top: 0.125rem !important;
-}
-
 
 .panelHead {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: var(--space-4);
-  margin-bottom: 0.7rem;
-  padding-bottom: 0.7rem;
+  margin-bottom: 0.8rem;
+  padding-bottom: 0.8rem;
   border-bottom: 1px solid var(--border-default);
 }
 
@@ -144,8 +93,9 @@
 .dateText {
   margin: 0.25rem 0 0;
   color: var(--text-primary);
-  font-size: 1rem;
-  line-height: 1.4;
+  font-size: var(--text-body-size);
+  font-weight: 700;
+  line-height: var(--text-body-line-height);
 }
 
 .panelMeta {
@@ -168,55 +118,58 @@
 .tabRow {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: var(--space-2);
 }
 
 .tabButton {
-  padding: 0.45rem 0.8rem;
+  min-height: var(--control-height-sm);
+  padding: 0 0.8rem;
   border: 1px solid var(--border-default);
-  background: var(--surface-canvas);
+  background: var(--surface-panel);
   color: var(--text-primary);
-  font-size: 0.8125rem;
-  font-weight: 700;
+  font-size: var(--text-form-size);
+  font-weight: var(--text-form-weight);
   cursor: pointer;
 }
 
 .tabButtonActive {
-  background: var(--accent-strong);
-  color: white;
-  border-color: var(--accent-strong);
+  background: color-mix(in oklab, var(--accent-soft) 62%, var(--surface-panel));
+  color: var(--accent-strong);
+  border-color: color-mix(in oklab, var(--accent-strong) 34%, var(--border-default));
 }
 
 .primaryButton,
 .secondaryButton {
-  padding: 0.5rem 1rem;
-  font-size: 0.8125rem;
-  font-weight: 700;
+  min-height: var(--control-height-md);
+  padding: 0 var(--space-3);
+  font-size: var(--text-form-size);
+  font-weight: var(--text-form-weight);
   cursor: pointer;
-  border-radius: 0;
+  line-height: var(--text-form-line-height);
+  letter-spacing: var(--text-form-tracking);
 }
 
 .primaryButton {
   background: var(--accent-strong);
-  color: white;
-  border: none;
+  color: var(--text-inverse);
+  border: 1px solid color-mix(in oklab, var(--accent-strong) 82%, black 18%);
 }
 
 .secondaryButton {
-  background: var(--surface-canvas);
+  background: var(--surface-panel);
   color: var(--text-primary);
   border: 1px solid var(--border-default);
 }
-
 
 .secondaryButton:hover {
   background: var(--button-secondary-hover);
 }
 
 .chipButton {
+  min-height: var(--control-height-sm);
   border: 1px solid var(--border-default);
-  padding: var(--space-2);
-  background: var(--surface-canvas);
+  padding: 0 var(--space-2);
+  background: var(--surface-panel);
   color: var(--text-primary);
   font-size: var(--text-meta-size);
   font-weight: var(--text-meta-weight);
@@ -284,7 +237,6 @@
   min-height: var(--control-height-md);
   padding: var(--control-padding-y) var(--control-padding-x);
   border: 1px solid var(--control-border);
-  
   background: var(--control-bg);
   color: var(--text-primary);
   font: inherit;
@@ -322,8 +274,8 @@
 
 .tableWrap {
   overflow: auto;
-  border-top: 1px solid var(--border-default);
-  background: transparent;
+  border: 1px solid var(--border-default);
+  background: var(--surface-panel);
 }
 
 .table {
@@ -345,18 +297,17 @@
   position: sticky;
   top: 0;
   z-index: 1;
-  color: var(--text-tertiary);
+  color: var(--text-muted);
   font-size: var(--text-table-size);
   font-weight: var(--text-table-weight);
   line-height: var(--text-table-line-height);
   letter-spacing: var(--text-table-tracking);
   text-transform: uppercase;
-  background: var(--surface-canvas);
+  background: var(--surface-canvas-strong);
 }
 
 .table tbody tr[data-active] {
-  background: var(--surface-panel);
-  
+  background: color-mix(in oklab, var(--accent-soft) 36%, var(--surface-panel));
 }
 
 .table td strong,
@@ -395,30 +346,31 @@
 .summaryGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.75rem;
-  margin-bottom: 1rem;
+  gap: 0.65rem;
+  margin-bottom: 0.9rem;
 }
 
 .summaryCard {
   display: grid;
-  gap: 0.25rem;
-  padding: 0.9rem;
-  border: 1px solid var(--border-subtle);
-  background: var(--surface-canvas);
+  gap: 0.2rem;
+  padding: 0.8rem;
+  border: 1px solid var(--border-default);
+  background: color-mix(in oklab, var(--surface-canvas) 72%, var(--surface-panel));
 }
 
 .summaryCard span {
-  color: var(--text-tertiary);
+  color: var(--text-muted);
   font-size: var(--text-meta-size);
 }
 
 .summaryCard strong {
   color: var(--text-primary);
   font-size: var(--text-section-title-size);
+  line-height: var(--text-section-title-line-height);
 }
 
 .summaryMessage {
-  margin: 0 0 1rem;
+  margin: 0 0 0.9rem;
   color: var(--text-primary);
   line-height: var(--text-body-line-height);
 }
@@ -431,7 +383,7 @@
 .summaryItem {
   display: grid;
   gap: 0.25rem;
-  padding: 0.75rem 0;
+  padding: 0.7rem 0;
   border-top: 1px solid var(--border-subtle);
 }
 

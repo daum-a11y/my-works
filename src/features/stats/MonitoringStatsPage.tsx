@@ -279,10 +279,10 @@ export function MonitoringStatsPage() {
                   <YAxis allowDecimals={false} tickLine={false} axisLine={false} />
                   <Tooltip />
                   <Legend />
-                  <Area type="monotone" dataKey="count" name="총모니터링수" stroke="#2563eb" fill="#93c5fd" />
-                  <Area type="monotone" dataKey="sent" name="전달 수" stroke="#16a34a" fill="#86efac" />
-                  <Area type="monotone" dataKey="fullFix" name="완전 개선수" stroke="#f59e0b" fill="#fde68a" />
-                  <Area type="monotone" dataKey="partialFix" name="일부 개선수" stroke="#dc2626" fill="#fecaca" />
+                  <Area type="monotone" dataKey="count" name="총모니터링수" stroke="var(--chart-series-primary-stroke)" fill="var(--chart-series-primary-fill)" />
+                  <Area type="monotone" dataKey="sent" name="전달 수" stroke="var(--chart-series-success-stroke)" fill="var(--chart-series-success-fill)" />
+                  <Area type="monotone" dataKey="fullFix" name="완전 개선수" stroke="var(--chart-series-warning-stroke)" fill="var(--chart-series-warning-fill)" />
+                  <Area type="monotone" dataKey="partialFix" name="일부 개선수" stroke="var(--chart-series-danger-stroke)" fill="var(--chart-series-danger-fill)" />
                 </AreaChart>
               </ResponsiveContainer>
             </div>

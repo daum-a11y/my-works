@@ -1,6 +1,7 @@
 import { BrowserRouter, Navigate, Outlet, Route, Routes } from "react-router-dom";
 import { AuthProvider, useAuth } from "../features/auth/AuthContext";
 import { LoginPage } from "../features/auth/LoginPage";
+import { PasswordRecoveryPage } from "../features/auth/PasswordRecoveryPage";
 import { DashboardPage } from "../features/dashboard";
 import { AdminServiceGroupsPage } from "../features/admin/groups/AdminServiceGroupsPage";
 import { AdminMembersPage } from "../features/admin/members/AdminMembersPage";
@@ -82,7 +83,11 @@ function AdminRoute() {
 }
 
 function LoginRoute() {
-  const { status, session } = useAuth();
+  const { status, session, isRecoverySession } = useAuth();
+
+  if (isRecoverySession) {
+    return <Navigate to="/auth/recovery" replace />;
+  }
 
   if (status === "authenticated" && session) {
     return <Navigate to="/dashboard" replace />;
@@ -97,6 +102,7 @@ export function AppRouter() {
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<LoginRoute />} />
+          <Route path="/auth/recovery" element={<PasswordRecoveryPage />} />
           <Route element={<GuardedLayout />}>
             <Route index element={<Navigate to="/dashboard" replace />} />
             <Route path="/dashboard" element={<DashboardPage />} />

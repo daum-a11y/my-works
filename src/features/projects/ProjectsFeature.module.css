@@ -1,6 +1,6 @@
 .shell {
   display: grid;
-  gap: var(--space-4);
+  gap: 1.25rem;
   color: var(--text-secondary);
 }
 
@@ -66,10 +66,10 @@
 .field select,
 .field textarea {
   width: 100%;
-  min-height: 2.75rem;
-  padding: 0.65rem 0.85rem;
-  border: 1px solid var(--border-default);
-  background: var(--surface-canvas);
+  min-height: var(--control-height-md);
+  padding: var(--control-padding-y) var(--control-padding-x);
+  border: 1px solid var(--control-border);
+  background: var(--control-bg);
   color: var(--text-primary);
   font: inherit;
 }
@@ -108,8 +108,8 @@
 .statusMessage {
   margin: 0;
   padding: var(--space-3) var(--space-4);
-  border: 1px solid var(--border-default);
-  background: var(--surface-panel);
+  border: 1px solid var(--theme-project-border);
+  background: color-mix(in oklab, var(--theme-project-surface) 62%, var(--surface-panel));
   color: var(--text-secondary);
 }
 
@@ -119,24 +119,26 @@
 .actionButton,
 .iconButton {
   border: 1px solid var(--border-default);
-  background: var(--surface-canvas);
+  background: var(--surface-panel);
   color: var(--text-primary);
   font: inherit;
   cursor: pointer;
 }
 
 .primaryButton {
-  padding: 0.75rem 1rem;
-  border-color: var(--accent-strong);
-  background: var(--accent-strong);
-  color: white;
-  font-weight: 700;
+  min-height: var(--control-height-md);
+  padding: 0 var(--control-padding-x);
+  border-color: color-mix(in oklab, var(--theme-project-accent) 82%, black 18%);
+  background: var(--theme-project-accent);
+  color: var(--text-inverse);
+  font-weight: var(--text-form-weight);
 }
 
 .secondaryButton,
 .scopeButton,
 .actionButton {
-  padding: 0.7rem 0.95rem;
+  min-height: var(--control-height-sm);
+  padding: 0 var(--control-padding-x);
 }
 
 .scopeButton:hover,
@@ -150,7 +152,7 @@
 .tableWrap {
   overflow: auto;
   border: 1px solid var(--border-default);
-  background: var(--surface-canvas);
+  background: var(--surface-panel);
 }
 
 .table {
@@ -169,24 +171,24 @@
 }
 
 .table th {
-  color: var(--text-tertiary);
+  color: var(--text-muted);
   font-size: var(--text-table-size);
   font-weight: var(--text-table-weight);
   line-height: var(--text-table-line-height);
   letter-spacing: var(--text-table-tracking);
   text-transform: uppercase;
-  background: var(--surface-canvas);
+  background: color-mix(in oklab, var(--theme-project-surface) 30%, var(--surface-canvas-strong));
   position: sticky;
   top: 0;
   z-index: 1;
 }
 
 .table tbody tr:hover {
-  background: var(--surface-panel);
+  background: color-mix(in oklab, var(--theme-project-surface) 34%, var(--surface-panel));
 }
 
 .rowSelected {
-  background: var(--surface-panel);
+  background: color-mix(in oklab, var(--theme-project-surface) 42%, var(--surface-panel));
 }
 
 .platformBadge {
@@ -194,7 +196,7 @@
   align-items: center;
   padding: 0.35rem 0.6rem;
   border: 1px solid var(--border-default);
-  background: var(--surface-canvas);
+  background: color-mix(in oklab, var(--theme-project-surface) 54%, var(--surface-panel));
   color: var(--text-primary);
   font-size: var(--text-badge-size);
   font-weight: var(--text-badge-weight);
@@ -233,24 +235,26 @@
 }
 
 .deleteButton {
-  padding: 0.7rem 0.95rem;
-  border: 1px solid color-mix(in srgb, #b91c1c 42%, var(--border-default));
-  background: color-mix(in srgb, #b91c1c 10%, var(--surface-canvas));
-  color: #b91c1c;
+  min-height: var(--control-height-sm);
+  padding: 0 var(--control-padding-x);
+  border: 1px solid var(--state-danger-border);
+  background: color-mix(in oklab, var(--state-danger-bg) 72%, var(--surface-panel));
+  color: var(--state-danger-text);
   font: inherit;
   font-weight: 700;
   cursor: pointer;
 }
 
 .deleteButton:hover {
-  background: color-mix(in srgb, #b91c1c 16%, var(--surface-panel));
+  background: color-mix(in oklab, var(--state-danger-bg) 86%, var(--surface-panel));
 }
 
 .modal {
   width: 100%;
   border: 1px solid var(--border-default);
-  background: var(--surface-canvas);
+  background: var(--surface-panel);
   margin-top: var(--space-4);
+  box-shadow: var(--elevation-1);
 }
 
 .modalHeader {
@@ -327,7 +331,7 @@
 .pageCard {
   padding: var(--space-3);
   border: 1px solid var(--border-default);
-  background: var(--surface-canvas);
+  background: var(--surface-panel);
 }
 
 .pageFormPanel {

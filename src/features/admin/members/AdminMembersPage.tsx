@@ -46,6 +46,7 @@ export function AdminMembersPage() {
   const [adding, setAdding] = useState(false);
   const [editingMemberId, setEditingMemberId] = useState<string | null>(null);
   const [draft, setDraft] = useState<MemberAdminPayload | null>(null);
+  const [statusMessage, setStatusMessage] = useState("");
 
   useEffect(() => {
     document.title = "사용자 관리 | My Works";
@@ -58,12 +59,11 @@ export function AdminMembersPage() {
 
   const saveMutation = useMutation({
     mutationFn: (payload: MemberAdminPayload) => adminDataClient.saveMemberAdmin(payload),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ["admin", "members"] });
-      setAdding(false);
-      setEditingMemberId(null);
-      setDraft(null);
-    },
+  });
+
+  const inviteMutation = useMutation({
+    mutationFn: (payload: { email: string; legacyUserId: string; name: string; role: "user" | "admin" }) =>
+      adminDataClient.inviteMemberAdmin(payload),
   });
 
   const deleteMutation = useMutation({
@@ -74,10 +74,6 @@ export function AdminMembersPage() {
       setEditingMemberId(null);
       setDraft(null);
     },
-  });
-
-  const resetPasswordMutation = useMutation({
-    mutationFn: (email: string) => adminDataClient.resetMemberPasswordAdmin(email),
   });
 
   useEffect(() => {
@@ -93,29 +89,64 @@ export function AdminMembersPage() {
   };
 
   const startAdd = () => {
+    setStatusMessage("");
     setAdding(true);
     setEditingMemberId(null);
     setDraft(createDraft());
   };
 
   const startEdit = (member: MemberAdminItem) => {
+    setStatusMessage("");
     setAdding(false);
     setEditingMemberId(member.id);
     setDraft(createDraft(member));
   };
 
   const cancelDraft = () => {
+    setStatusMessage("");
     setAdding(false);
     setEditingMemberId(null);
     setDraft(null);
   };
 
   const saveDraft = async () => {
-    if (!draft || saveMutation.isPending) {
+    if (!draft || saveMutation.isPending || inviteMutation.isPending) {
       return;
     }
 
-    await saveMutation.mutateAsync(normalizeDraft(draft));
+    const normalizedDraft = normalizeDraft(draft);
+    const isCreate = !normalizedDraft.id;
+
+    setStatusMessage("");
+
+    await saveMutation.mutateAsync(normalizedDraft);
+
+    try {
+      if (isCreate) {
+        await inviteMutation.mutateAsync({
+          email: normalizedDraft.email,
+          legacyUserId: normalizedDraft.legacyUserId,
+          name: normalizedDraft.name,
+          role: normalizedDraft.role,
+        });
+        setStatusMessage("사용자를 추가하고 초대 메일을 보냈습니다.");
+      } else {
+        setStatusMessage("사용자 정보를 저장했습니다.");
+      }
+    } catch (error) {
+      setStatusMessage("");
+      throw new Error(
+        error instanceof Error
+          ? `사용자는 저장했지만 초대 메일 발송에 실패했습니다. ${error.message}`
+          : "사용자는 저장했지만 초대 메일 발송에 실패했습니다.",
+      );
+    } finally {
+      void queryClient.invalidateQueries({ queryKey: ["admin", "members"] });
+    }
+
+    setAdding(false);
+    setEditingMemberId(null);
+    setDraft(null);
   };
 
   const handleDelete = async (member: MemberAdminItem) => {
@@ -126,19 +157,26 @@ export function AdminMembersPage() {
     await deleteMutation.mutateAsync(member.id);
   };
 
-  const handleResetPassword = async (member: MemberAdminItem) => {
-    if (!window.confirm(`${member.name}에게 비밀번호 재설정 메일을 보내시겠습니까?`)) {
+  const handleInvite = async (member: MemberAdminItem) => {
+    setStatusMessage("");
+    if (!window.confirm(`${member.name}에게 초대 메일을 보내시겠습니까?`)) {
       return;
     }
 
-    await resetPasswordMutation.mutateAsync(member.email);
+    await inviteMutation.mutateAsync({
+      email: member.email,
+      legacyUserId: member.legacyUserId,
+      name: member.name,
+      role: member.role,
+    });
+    setStatusMessage("초대 메일을 보냈습니다.");
   };
 
   const errorMessage =
     (membersQuery.error instanceof Error && membersQuery.error.message) ||
     (saveMutation.error instanceof Error && saveMutation.error.message) ||
+    (inviteMutation.error instanceof Error && inviteMutation.error.message) ||
     (deleteMutation.error instanceof Error && deleteMutation.error.message) ||
-    (resetPasswordMutation.error instanceof Error && resetPasswordMutation.error.message) ||
     "";
 
   return (
@@ -154,6 +192,7 @@ export function AdminMembersPage() {
         </div>
       </header>
 
+      {statusMessage ? <p className={styles.statusText}>{statusMessage}</p> : null}
       {errorMessage ? <p className={styles.helperText}>{errorMessage}</p> : null}
 
       <div className={styles.panel}>
@@ -164,6 +203,7 @@ export function AdminMembersPage() {
               <tr>
                 <th>ID</th>
                 <th>이름</th>
+                <th>이메일</th>
                 <th>권한</th>
                 <th>활성여부</th>
                 <th>등록일</th>
@@ -185,13 +225,13 @@ export function AdminMembersPage() {
 
               {membersQuery.isLoading ? (
                 <tr>
-                  <td colSpan={7} className={styles.emptyCell}>
+                  <td colSpan={8} className={styles.emptyCell}>
                     불러오는 중...
                   </td>
                 </tr>
               ) : members.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className={styles.emptyCell}>
+                  <td colSpan={8} className={styles.emptyCell}>
                     조회된 사용자가 없습니다.
                   </td>
                 </tr>
@@ -207,10 +247,10 @@ export function AdminMembersPage() {
                     onSave={() => void saveDraft()}
                     onCancel={cancelDraft}
                     onDelete={() => void handleDelete(member)}
-                    onResetPassword={() => void handleResetPassword(member)}
-                    isSaving={saveMutation.isPending}
+                    onInvite={() => void handleInvite(member)}
+                    isSaving={saveMutation.isPending || inviteMutation.isPending}
                     isDeleting={deleteMutation.isPending}
-                    isResetting={resetPasswordMutation.isPending}
+                    isInviting={inviteMutation.isPending}
                   />
                 ))
               )}

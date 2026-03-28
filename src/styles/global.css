@@ -89,7 +89,7 @@ select {
   justify-content: center;
   min-height: 1.55rem;
   padding: 0.16rem 0.48rem;
-  border: 0;
+  border: 1px solid transparent;
   border-radius: 0;
   font-size: var(--text-badge-size);
   font-weight: var(--text-badge-weight);
@@ -100,11 +100,13 @@ select {
 
 .uiPlatformBadge {
   background: var(--state-info-bg);
+  border-color: var(--state-info-border);
   color: var(--state-info-text);
 }
 
 .uiStatusBadge {
   background: var(--surface-active);
+  border-color: var(--border-default);
   color: var(--text-secondary);
 }
 
@@ -129,6 +131,7 @@ select {
 
 .uiDueTag {
   background: var(--surface-active);
+  border-color: var(--border-default);
   color: var(--text-secondary);
 }
 

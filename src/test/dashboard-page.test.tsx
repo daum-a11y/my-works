@@ -1,5 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen, waitFor } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { DashboardPage } from "../features/dashboard";
 
@@ -52,6 +53,7 @@ describe("DashboardPage", () => {
     });
 
     mockOpsDataClient.getDashboard.mockReset();
+    mockOpsDataClient.getTasks.mockReset();
     mockOpsDataClient.getDashboard.mockResolvedValue({
       monitoring: [
         {
@@ -80,6 +82,7 @@ describe("DashboardPage", () => {
         },
       ],
     });
+    mockOpsDataClient.getTasks.mockResolvedValue([]);
   });
 
   it("renders only the original dashboard lists", async () => {
@@ -87,7 +90,9 @@ describe("DashboardPage", () => {
 
     render(
       <QueryClientProvider client={queryClient}>
-        <DashboardPage />
+        <MemoryRouter>
+          <DashboardPage />
+        </MemoryRouter>
       </QueryClientProvider>,
     );
 

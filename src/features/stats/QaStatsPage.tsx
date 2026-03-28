@@ -236,9 +236,9 @@ export function QaStatsPage() {
                   <YAxis allowDecimals={false} tickLine={false} axisLine={false} />
                   <Tooltip />
                   <Legend />
-                  <Area type="monotone" dataKey="count" name="전체 QA" stroke="#2563eb" fill="#93c5fd" />
-                  <Area type="monotone" dataKey="completed" name="완료 QA" stroke="#16a34a" fill="#86efac" />
-                  <Area type="monotone" dataKey="active" name="진행 QA" stroke="#f59e0b" fill="#fde68a" />
+                  <Area type="monotone" dataKey="count" name="전체 QA" stroke="var(--chart-series-primary-stroke)" fill="var(--chart-series-primary-fill)" />
+                  <Area type="monotone" dataKey="completed" name="완료 QA" stroke="var(--chart-series-success-stroke)" fill="var(--chart-series-success-fill)" />
+                  <Area type="monotone" dataKey="active" name="진행 QA" stroke="var(--chart-series-warning-stroke)" fill="var(--chart-series-warning-fill)" />
                 </AreaChart>
               </ResponsiveContainer>
             </div>

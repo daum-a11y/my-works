@@ -14,7 +14,7 @@ export function DashboardPage() {
   const selectedMonth = getCurrentMonth();
 
   useEffect(() => {
-    document.title = "Dashboard | My Works";
+    document.title = "대시보드 | My Works";
   }, []);
 
   const dashboardQuery = useQuery({
@@ -63,10 +63,14 @@ export function DashboardPage() {
 
   return (
     <div className={styles.page}>
-      <h1>Dashboard</h1>
+      <section className={styles.pageIntro}>
+        <h1>대시보드</h1>
+      </section>
       <section className={styles.topGrid}>
         <section className={styles.calendarSection}>
-          <h2>내 업무보고 작성현황</h2>
+          <div className={styles.sectionHead}>
+            <h2>내 업무보고 작성현황</h2>
+          </div>
           {monthState ? (
             <div className={styles.calendarWrap}>
               <table className={styles.calendarTable}>
@@ -132,16 +136,12 @@ export function DashboardPage() {
             <div className={styles.empty}>유저정보가 없습니다.</div>
           )}
         </section>
-
-        <section className={styles.noticeSection} aria-label="대시보드 안내">
-          <p className={styles.noticeImageWrap}>
-            <img src="/img/dash01.png" alt="언젠간 할 날이 오겠지..." className={styles.noticeImage} />
-          </p>
-        </section>
       </section>
 
       <section className={styles.tableSection}>
-        <h2>진행중 모니터링 목록</h2>
+        <div className={styles.sectionHead}>
+          <h2>진행중 모니터링 목록</h2>
+        </div>
         <div className={styles.tableWrap}>
           <table className={styles.table}>
             <caption className="srOnly">진행중 모니터링 목록</caption>
@@ -164,7 +164,7 @@ export function DashboardPage() {
                   <td>
                     {item.reportUrl ? (
                       <a href={item.reportUrl} target="_blank" rel="noreferrer" className={styles.link}>
-                        Click
+                        열기
                       </a>
                     ) : (
                       "-"
@@ -185,7 +185,9 @@ export function DashboardPage() {
       </section>
 
       <section className={styles.tableSection}>
-        <h2>진행중 QA 목록</h2>
+        <div className={styles.sectionHead}>
+          <h2>진행중 QA 목록</h2>
+        </div>
         <div className={styles.tableWrap}>
           <table className={styles.table}>
             <caption className="srOnly">진행중 QA 목록</caption>
@@ -210,7 +212,7 @@ export function DashboardPage() {
                   <td>
                     {item.reportUrl ? (
                       <a href={item.reportUrl} target="_blank" rel="noreferrer" className={styles.link}>
-                        Click
+                        열기
                       </a>
                     ) : (
                       "-"

@@ -126,7 +126,7 @@ describe("SearchPage", () => {
     expect(screen.getByRole("columnheader", { name: "서비스그룹" })).toBeInTheDocument();
     expect(screen.getAllByText("알파").length).toBeGreaterThan(0);
     expect(screen.getByText("로그인")).toBeInTheDocument();
-    expect(screen.getByText((_, element) => element?.textContent === "2026.03.27 ~ 2026.03.27")).toBeInTheDocument();
+    expect(screen.getByText((_, element) => element?.textContent === "2026.03.28 ~ 2026.03.28")).toBeInTheDocument();
     expect(screen.getAllByText("60분").length).toBeGreaterThan(0);
   });
 });

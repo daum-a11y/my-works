@@ -11,8 +11,10 @@ import { getSupabaseClient } from "../../lib/supabase";
 import { isSupabaseConfigured } from "../../lib/env";
 import { opsDataClient } from "../../lib/data-client";
 import { type Member } from "../../lib/domain";
+import { getPasswordRecoveryRedirectUrl, isPasswordRecoveryUrl } from "./auth-urls";
 
 type AuthStatus = "loading" | "guest" | "authenticated";
+type AuthFlow = "default" | "recovery";
 
 interface AuthSession {
   member: Member;
@@ -20,9 +22,10 @@ interface AuthSession {
 
 interface AuthContextValue {
   status: AuthStatus;
+  authFlow: AuthFlow;
+  isRecoverySession: boolean;
   session: AuthSession | null;
   login(email: string, password: string): Promise<void>;
-  signUp(email: string, password: string): Promise<void>;
   resetPassword(email: string): Promise<void>;
   logout(): Promise<void>;
   updatePassword(nextPassword: string): Promise<void>;
@@ -47,6 +50,7 @@ async function getMemberForSupabaseSession(userId: string, email?: string | null
 
 export function AuthProvider({ children }: PropsWithChildren) {
   const [status, setStatus] = useState<AuthStatus>("loading");
+  const [authFlow, setAuthFlow] = useState<AuthFlow>("default");
   const [session, setSession] = useState<AuthSession | null>(null);
   const supabase = getSupabaseClient();
 
@@ -65,6 +69,16 @@ export function AuthProvider({ children }: PropsWithChildren) {
 
         if (!activeSession?.user) {
           startTransition(() => {
+            setAuthFlow("default");
+            setStatus("guest");
+            setSession(null);
+          });
+          return;
+        }
+
+        if (isPasswordRecoveryUrl()) {
+          startTransition(() => {
+            setAuthFlow("recovery");
             setStatus("guest");
             setSession(null);
           });
@@ -76,6 +90,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
         if (!member || !member.isActive) {
           await supabase.auth.signOut();
           startTransition(() => {
+            setAuthFlow("default");
             setStatus("guest");
             setSession(null);
           });
@@ -83,11 +98,13 @@ export function AuthProvider({ children }: PropsWithChildren) {
         }
 
         startTransition(() => {
+          setAuthFlow("default");
           setSession({ member });
           setStatus("authenticated");
         });
         return;
       }
+      setAuthFlow("default");
       setStatus("guest");
       setSession(null);
     }
@@ -102,14 +119,24 @@ export function AuthProvider({ children }: PropsWithChildren) {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+    } = supabase.auth.onAuthStateChange((event, nextSession) => {
       void (async () => {
         if (!mounted) {
           return;
         }
 
+        if (event === "PASSWORD_RECOVERY") {
+          startTransition(() => {
+            setAuthFlow("recovery");
+            setSession(null);
+            setStatus("guest");
+          });
+          return;
+        }
+
         if (!nextSession?.user) {
           startTransition(() => {
+            setAuthFlow("default");
             setSession(null);
             setStatus("guest");
           });
@@ -120,6 +147,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
         if (!member || !member.isActive) {
           await supabase.auth.signOut();
           startTransition(() => {
+            setAuthFlow("default");
             setSession(null);
             setStatus("guest");
           });
@@ -127,6 +155,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
         }
 
         startTransition(() => {
+          setAuthFlow("default");
           setSession({ member });
           setStatus("authenticated");
         });
@@ -142,6 +171,8 @@ export function AuthProvider({ children }: PropsWithChildren) {
   const value = useMemo<AuthContextValue>(
     () => ({
       status,
+      authFlow,
+      isRecoverySession: authFlow === "recovery",
       session,
       async login(email, password) {
         const normalizedEmail = email.trim().toLowerCase();
@@ -166,42 +197,20 @@ export function AuthProvider({ children }: PropsWithChildren) {
           throw new Error("이메일 또는 비밀번호를 확인해 주세요.");
         }
       },
-      async signUp(email, password) {
+      async resetPassword(email) {
         const normalizedEmail = email.trim().toLowerCase();
 
         if (!normalizedEmail) {
           throw new Error("이메일을 입력해 주세요.");
         }
 
-        if (!password.trim()) {
-          throw new Error("비밀번호를 입력해 주세요.");
-        }
-
         if (!isSupabaseConfigured || !supabase) {
           throw new Error("Supabase 환경변수가 설정되지 않았습니다.");
         }
 
-        const { error } = await supabase.auth.signUp({
-          email: normalizedEmail,
-          password,
+        const { error } = await supabase.auth.resetPasswordForEmail(normalizedEmail, {
+          redirectTo: getPasswordRecoveryRedirectUrl(),
         });
-
-        if (error) {
-          throw new Error(error.message);
-        }
-      },
-      async resetPassword(email) {
-        const normalizedEmail = email.trim();
-
-        if (!normalizedEmail) {
-          throw new Error("이메일을 입력해 주세요.");
-        }
-
-        if (!isSupabaseConfigured || !supabase) {
-          throw new Error("Supabase 환경변수가 설정되지 않았습니다.");
-        }
-
-        const { error } = await supabase.auth.resetPasswordForEmail(normalizedEmail);
 
         if (error) {
           throw new Error(error.message);
@@ -209,11 +218,13 @@ export function AuthProvider({ children }: PropsWithChildren) {
       },
       async logout() {
         if (!isSupabaseConfigured || !supabase) {
+          setAuthFlow("default");
           setSession(null);
           setStatus("guest");
           return;
         }
 
+        setAuthFlow("default");
         await supabase.auth.signOut();
       },
       async updatePassword(nextPassword) {
@@ -231,7 +242,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
         }
       },
     }),
-    [session, status, supabase],
+    [authFlow, session, status, supabase],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

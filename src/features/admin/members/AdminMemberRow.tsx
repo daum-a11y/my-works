@@ -13,10 +13,10 @@ type AdminMemberRowProps = {
   onSave?: () => void;
   onCancel?: () => void;
   onDelete?: () => void;
-  onResetPassword?: () => void;
+  onInvite?: () => void;
   isSaving?: boolean;
   isDeleting?: boolean;
-  isResetting?: boolean;
+  isInviting?: boolean;
 };
 
 function getRoleLabel(role: MemberAdminPayload["role"]) {
@@ -52,10 +52,10 @@ export function AdminMemberRow({
   onSave,
   onCancel,
   onDelete,
-  onResetPassword,
+  onInvite,
   isSaving,
   isDeleting,
-  isResetting,
+  isInviting,
 }: AdminMemberRowProps) {
   if (mode === "view") {
     if (!member) {
@@ -66,14 +66,15 @@ export function AdminMemberRow({
       <tr>
         <td>{member.legacyUserId}</td>
         <td>{member.name}</td>
+        <td>{member.email || "-"}</td>
         <td>{getRoleLabel(member.role)}</td>
         <td>{getActiveLabel(member.userActive)}</td>
         <td>{formatMemberDate(member.joinedAt)}</td>
         <td>{formatMemberDate(member.lastLoginAt)}</td>
         <td>
           <div className={styles.buttonRow}>
-            <button type="button" className={styles.secondaryButton} onClick={onResetPassword} disabled={isResetting}>
-              PW 초기화
+            <button type="button" className={styles.secondaryButton} onClick={onInvite} disabled={isInviting}>
+              초대 메일
             </button>
             <button type="button" className={styles.secondaryButton} onClick={onStartEdit}>
               수정
@@ -124,6 +125,15 @@ export function AdminMemberRow({
         />
       </td>
       <td className={styles.cell}>
+        <input
+          aria-label={mode === "create" ? "이메일" : "이메일 수정"}
+          className={styles.input}
+          type="email"
+          value={draft.email}
+          onChange={(event) => onDraftChange?.("email", event.target.value)}
+        />
+      </td>
+      <td className={styles.cell}>
         <select
           aria-label={mode === "create" ? "권한" : "권한 수정"}
           className={styles.select}
@@ -154,7 +164,7 @@ export function AdminMemberRow({
       <td>
         <div className={styles.buttonRow}>
           <button type="button" className={styles.primaryButton} onClick={onSave} disabled={isSaving}>
-            {mode === "create" ? "저장" : "변경"}
+            {mode === "create" ? "저장 및 초대" : "변경"}
           </button>
           <button type="button" className={styles.secondaryButton} onClick={onCancel}>
             취소

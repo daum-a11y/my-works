@@ -1,4 +1,5 @@
 import { getSupabaseClient } from "../../lib/supabase";
+import { getPasswordRecoveryRedirectUrl } from "../auth/auth-urls";
 import { parseLegacyTaskMeta } from "../reports/report-domain";
 import type {
   AdminPageOption,
@@ -11,6 +12,7 @@ import type {
   AdminTaskTypeItem,
   AdminTaskTypePayload,
   MemberAdminItem,
+  MemberInvitePayload,
   MemberAdminPayload,
 } from "./admin-types";
 
@@ -25,8 +27,8 @@ interface AdminDataClient {
   deleteTaskAdmin(taskId: string): Promise<void>;
   listMembersAdmin(): Promise<MemberAdminItem[]>;
   saveMemberAdmin(payload: MemberAdminPayload): Promise<MemberAdminItem>;
+  inviteMemberAdmin(payload: MemberInvitePayload): Promise<void>;
   deleteMemberAdmin(memberId: string): Promise<void>;
-  resetMemberPasswordAdmin(email: string): Promise<void>;
   saveTaskTypeAdmin(payload: AdminTaskTypePayload): Promise<AdminTaskTypeItem>;
   deleteTaskTypeAdmin(taskTypeId: string): Promise<void>;
   replaceTaskTypeUsage(oldType1: string, oldType2: string, nextType1: string, nextType2: string): Promise<void>;
@@ -384,10 +386,10 @@ function createUnconfiguredAdminClient(): AdminDataClient {
     async saveMemberAdmin() {
       throw configurationError;
     },
-    async deleteMemberAdmin() {
+    async inviteMemberAdmin() {
       throw configurationError;
     },
-    async resetMemberPasswordAdmin() {
+    async deleteMemberAdmin() {
       throw configurationError;
     },
     async saveTaskTypeAdmin() {
@@ -536,21 +538,30 @@ function createSupabaseAdminClient(): AdminDataClient {
       return mapMember(data as Record<string, unknown>);
     },
 
-    async deleteMemberAdmin(memberId: string) {
-      const { error } = await supabase.from("members").delete().eq("id", memberId);
-      if (error) throw error;
-    },
-
-    async resetMemberPasswordAdmin(email: string) {
-      const normalizedEmail = email.trim();
-      if (!normalizedEmail) {
-        throw new Error("비밀번호 재설정 이메일을 보낼 주소가 없습니다.");
+    async inviteMemberAdmin(payload: MemberInvitePayload) {
+      const email = payload.email.trim().toLowerCase();
+      if (!email) {
+        throw new Error("초대 메일을 보낼 이메일을 입력해 주세요.");
       }
 
-      const { error } = await supabase.auth.resetPasswordForEmail(normalizedEmail);
+      const { error } = await supabase.functions.invoke("invite-member", {
+        body: {
+          email,
+          legacyUserId: payload.legacyUserId.trim(),
+          name: payload.name.trim(),
+          role: payload.role,
+          redirectTo: getPasswordRecoveryRedirectUrl(),
+        },
+      });
+
       if (error) {
         throw error;
       }
+    },
+
+    async deleteMemberAdmin(memberId: string) {
+      const { error } = await supabase.from("members").delete().eq("id", memberId);
+      if (error) throw error;
     },
 
     async saveTaskTypeAdmin(payload: AdminTaskTypePayload) {

@@ -1,6 +1,6 @@
 .page {
   display: grid;
-  gap: 1rem;
+  gap: 1.25rem;
 }
 
 .hero {
@@ -31,6 +31,10 @@
 .panel {
   display: grid;
   gap: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--border-default);
+  background: var(--surface-panel);
+  box-shadow: var(--elevation-1);
 }
 
 .helperText {
@@ -40,10 +44,17 @@
   line-height: var(--text-meta-line-height);
 }
 
+.statusText {
+  margin: 0;
+  color: var(--state-success-text);
+  font-size: var(--text-meta-size);
+  line-height: var(--text-meta-line-height);
+}
+
 .tableWrap {
   overflow: auto;
   border: 1px solid var(--border-default);
-  background: var(--surface-canvas);
+  background: var(--surface-panel);
 }
 
 .table {
@@ -65,8 +76,8 @@
   position: sticky;
   top: 0;
   z-index: 1;
-  background: var(--surface-sidebar);
-  color: var(--text-tertiary);
+  background: color-mix(in oklab, var(--theme-admin-surface) 34%, var(--surface-canvas-strong));
+  color: var(--text-muted);
   font-size: var(--text-table-size);
   font-weight: var(--text-table-weight);
   line-height: var(--text-table-line-height);
@@ -80,7 +91,7 @@
 }
 
 .editingRow {
-  background: var(--surface-active);
+  background: color-mix(in oklab, var(--theme-admin-surface) 44%, var(--surface-active));
 }
 
 .cell {
@@ -108,7 +119,7 @@
 .secondaryButton,
 .dangerButton {
   min-height: var(--control-height-sm);
-  padding: var(--control-padding-y) var(--control-padding-x);
+  padding: 0 var(--control-padding-x);
   border: 1px solid transparent;
   font: inherit;
   cursor: pointer;
@@ -127,7 +138,7 @@
 }
 
 .dangerButton {
-  border-color: var(--danger-border, #b42318);
-  background: var(--danger-bg, #fff5f5);
-  color: var(--danger-text, #7a271a);
+  border-color: var(--state-danger-border);
+  background: color-mix(in oklab, var(--state-danger-bg) 72%, var(--surface-panel));
+  color: var(--state-danger-text);
 }
