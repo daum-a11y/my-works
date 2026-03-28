@@ -222,11 +222,11 @@ export function AdminReportsPage() {
     queryFn: () => adminDataClient.searchTasksAdmin(appliedFilters),
   });
 
-  const members = membersQuery.data ?? [];
-  const taskTypes = taskTypesQuery.data ?? [];
-  const serviceGroups = serviceGroupsQuery.data ?? [];
-  const projects = projectsQuery.data ?? [];
-  const tasks = searchQuery.data ?? [];
+  const members = useMemo(() => membersQuery.data ?? [], [membersQuery.data]);
+  const taskTypes = useMemo(() => taskTypesQuery.data ?? [], [taskTypesQuery.data]);
+  const serviceGroups = useMemo(() => serviceGroupsQuery.data ?? [], [serviceGroupsQuery.data]);
+  const projects = useMemo(() => projectsQuery.data ?? [], [projectsQuery.data]);
+  const tasks = useMemo(() => searchQuery.data ?? [], [searchQuery.data]);
   const membersById = useMemo(
     () => new Map(members.map((member) => [member.id, member] as const)),
     [members],

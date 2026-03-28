@@ -125,10 +125,10 @@ export function SearchPage() {
     enabled: Boolean(member),
   });
 
-  const projects = projectsQuery.data ?? [];
-  const serviceGroups = serviceGroupsQuery.data ?? [];
-  const pages = pagesQuery.data ?? [];
-  const tasks = tasksQuery.data ?? [];
+  const projects = useMemo(() => projectsQuery.data ?? [], [projectsQuery.data]);
+  const serviceGroups = useMemo(() => serviceGroupsQuery.data ?? [], [serviceGroupsQuery.data]);
+  const pages = useMemo(() => pagesQuery.data ?? [], [pagesQuery.data]);
+  const tasks = useMemo(() => tasksQuery.data ?? [], [tasksQuery.data]);
 
   const projectsById = useMemo(
     () => new Map(projects.map((project) => [project.id, project] as const)),

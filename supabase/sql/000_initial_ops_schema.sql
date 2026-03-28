@@ -74,14 +74,14 @@ create table if not exists public.project_pages (
   title text not null,
   url text not null default '',
   monitoring_month text,
-  track_status text not null default '미개선',
+  track_status text not null default '미수정',
   monitoring_in_progress boolean not null default false,
   qa_in_progress boolean not null default false,
   note text not null default '',
   updated_at timestamptz not null default timezone('utc', now()),
   created_at timestamptz not null default timezone('utc', now()),
   constraint project_pages_track_status_check
-    check (track_status in ('미개선', '개선', '일부', '중지'))
+    check (track_status in ('미수정', '전체 수정', '일부 수정'))
 );
 
 create table if not exists public.tasks (
@@ -572,7 +572,7 @@ create or replace function public.upsert_project_page(
   p_url text default '',
   p_owner_member_id uuid default null,
   p_monitoring_month text default null,
-  p_track_status text default '미개선',
+  p_track_status text default '미수정',
   p_monitoring_in_progress boolean default false,
   p_qa_in_progress boolean default false,
   p_note text default ''

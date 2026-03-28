@@ -54,7 +54,7 @@ const initialPageDraft = (projectId = '', ownerMemberId = ''): PageFormState => 
   title: '',
   url: '',
   ownerMemberId,
-  trackStatus: '미개선',
+  trackStatus: '미수정',
   monitoringInProgress: false,
   qaInProgress: false,
   note: '',
@@ -184,10 +184,10 @@ export function ProjectEditorPage() {
     },
   });
 
-  const projects = query.data?.projects ?? [];
-  const pages = query.data?.pages ?? [];
-  const members = query.data?.members ?? [];
-  const serviceGroups = query.data?.serviceGroups ?? [];
+  const projects = useMemo(() => query.data?.projects ?? [], [query.data?.projects]);
+  const pages = useMemo(() => query.data?.pages ?? [], [query.data?.pages]);
+  const members = useMemo(() => query.data?.members ?? [], [query.data?.members]);
+  const serviceGroups = useMemo(() => query.data?.serviceGroups ?? [], [query.data?.serviceGroups]);
 
   const selectedProject = useMemo(
     () => projects.find((project) => project.id === projectId) ?? null,
@@ -222,7 +222,7 @@ export function ProjectEditorPage() {
     );
     setNewPageDraft(initialPageDraft(selectedProject.id, selectedProject.reporterMemberId ?? ''));
     setPageAddOpen(false);
-  }, [isEditMode, selectedProject?.id, selectedProject?.reporterMemberId, selectedProjectPages]);
+  }, [isEditMode, selectedProject, selectedProjectPages]);
 
   useEffect(() => {
     if (isEditMode) {

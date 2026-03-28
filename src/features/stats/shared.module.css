@@ -139,6 +139,36 @@
   line-height: var(--text-meta-line-height);
 }
 
+.viewToggle {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.viewToggleButton,
+.viewToggleActive {
+  min-height: var(--control-height-sm);
+  padding: 0 13px;
+  border: 1px solid var(--border-default);
+  font-size: var(--text-form-size);
+  font-weight: var(--text-form-weight);
+  line-height: var(--text-form-line-height);
+  letter-spacing: var(--text-form-tracking);
+  cursor: pointer;
+}
+
+.viewToggleButton {
+  background: var(--surface-panel);
+  color: var(--text-primary);
+}
+
+.viewToggleActive {
+  background: color-mix(in oklab, var(--accent-soft) 62%, var(--surface-panel));
+  color: var(--accent-strong);
+  border-color: color-mix(in oklab, var(--accent-strong) 34%, var(--border-default));
+}
+
 .chartFrame {
   width: 100%;
   height: 320px;
@@ -203,6 +233,126 @@
   overflow: auto;
   border: 1px solid var(--border-default);
   background: var(--surface-panel);
+}
+
+.inlineSelect,
+.inlineTextarea {
+  width: 100%;
+  border: 1px solid var(--control-border);
+  background: var(--control-bg);
+  color: var(--text-primary);
+  font: inherit;
+}
+
+.inlineSelect {
+  min-height: var(--control-height-md);
+  padding: 0 var(--control-padding-x);
+}
+
+.inlineTextarea {
+  min-height: 88px;
+  padding: var(--control-padding-y) var(--control-padding-x);
+  resize: vertical;
+}
+
+.inlineActions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.inlineActionPrimary,
+.inlineActionSecondary {
+  min-height: var(--control-height-sm);
+  padding: 0 12px;
+  border: 1px solid var(--border-default);
+  border-radius: 0;
+  font-size: var(--text-form-size);
+  font-weight: 600;
+  line-height: var(--text-form-line-height);
+  letter-spacing: var(--text-form-tracking);
+  cursor: pointer;
+  transition:
+    background-color 140ms ease,
+    border-color 140ms ease,
+    color 140ms ease;
+}
+
+.inlineActionPrimary {
+  background: color-mix(in oklab, var(--accent-soft) 62%, var(--surface-panel));
+  border-color: color-mix(in oklab, var(--accent-strong) 34%, var(--border-default));
+  color: var(--accent-strong);
+}
+
+.inlineActionSecondary {
+  background: var(--surface-panel);
+  color: var(--text-secondary);
+}
+
+.inlineActionPrimary:hover {
+  background: color-mix(in oklab, var(--accent-soft) 74%, var(--surface-panel));
+  border-color: color-mix(in oklab, var(--accent-strong) 46%, var(--border-default));
+}
+
+.inlineActionSecondary:hover {
+  background: color-mix(in oklab, var(--surface-active) 78%, var(--surface-panel));
+  border-color: color-mix(in oklab, var(--border-default) 72%, var(--text-secondary));
+  color: var(--text-secondary);
+}
+
+.noteCell {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.noteToggle {
+  min-height: 28px;
+  padding: 0 9px;
+  border: 1px solid color-mix(in oklab, var(--border-default) 86%, var(--surface-panel));
+  border-radius: 999px;
+  min-width: 0;
+  background: color-mix(in oklab, var(--surface-panel) 72%, var(--surface-active));
+  color: var(--text-secondary);
+  white-space: nowrap;
+  font-weight: var(--text-form-weight);
+}
+
+.noteToggle:hover {
+  background: color-mix(in oklab, var(--accent-soft) 32%, var(--surface-panel));
+  border-color: color-mix(in oklab, var(--theme-stats-accent) 24%, var(--border-default));
+  color: var(--text-primary);
+}
+
+.noteToggleActive {
+  background: color-mix(in oklab, var(--accent-soft) 56%, var(--surface-panel));
+  border-color: color-mix(in oklab, var(--theme-stats-accent) 34%, var(--border-default));
+  color: var(--theme-stats-accent);
+  font-weight: var(--font-weight-heavy);
+}
+
+.notePopover {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 20;
+  width: min(320px, 46vw);
+  padding: 12px 14px;
+  border: 1px solid color-mix(in oklab, var(--accent-strong) 18%, var(--border-default));
+  border-radius: 10px;
+  background: color-mix(in oklab, var(--surface-panel) 92%, white 8%);
+  box-shadow: var(--elevation-2);
+  color: var(--text-secondary);
+  white-space: pre-wrap;
+  line-height: 1.5;
+}
+
+.inlineActionPrimary:focus-visible,
+.inlineActionSecondary:focus-visible,
+.noteToggle:focus-visible {
+  outline: 2px solid color-mix(in oklab, var(--theme-stats-accent) 34%, transparent);
+  outline-offset: 2px;
 }
 
 .detailGrid {

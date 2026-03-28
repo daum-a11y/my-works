@@ -62,9 +62,8 @@ export function isAdmin(member: Member | null | undefined): boolean {
 
 export function sortStatus(status: PageStatus): number {
   return {
-    미개선: 0,
-    일부: 1,
-    개선: 2,
-    중지: 3,
+    미수정: 0,
+    '일부 수정': 1,
+    '전체 수정': 2,
   }[status];
 }

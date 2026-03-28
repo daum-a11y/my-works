@@ -137,7 +137,7 @@ describe('Projects routes', () => {
         title: '로그인',
         url: 'https://example.com/login',
         ownerMemberId: 'member-1',
-        trackStatus: '개선',
+        trackStatus: '전체 수정',
         monitoringInProgress: true,
         qaInProgress: false,
         note: '메모',
@@ -166,7 +166,7 @@ describe('Projects routes', () => {
       title: '신규 페이지',
       url: 'https://example.com/new',
       ownerMemberId: 'member-1',
-      trackStatus: '미개선',
+      trackStatus: '미수정',
       monitoringInProgress: false,
       qaInProgress: false,
       note: '',
@@ -209,6 +209,8 @@ describe('Projects routes', () => {
       'href',
       'https://example.com/report',
     );
+    expect(screen.getByText('legacy-1(운영 사용자)')).toBeInTheDocument();
+    expect(screen.getByText('legacy-2(리뷰어)')).toBeInTheDocument();
   });
 
   it('filters projects by the selected start and end date', async () => {
@@ -243,6 +245,14 @@ describe('Projects routes', () => {
     });
 
     await user.type(screen.getByLabelText('검색어'), '리뷰어');
+    await user.click(screen.getByRole('button', { name: '검색' }));
+
+    await waitFor(() => {
+      expect(screen.getByText('알파')).toBeInTheDocument();
+    });
+
+    await user.clear(screen.getByLabelText('검색어'));
+    await user.type(screen.getByLabelText('검색어'), 'legacy-2');
     await user.click(screen.getByRole('button', { name: '검색' }));
 
     await waitFor(() => {
@@ -289,7 +299,7 @@ describe('Projects routes', () => {
         url: `https://example.com/page-${index + 1}`,
         ownerMemberId: 'member-1',
         monitoringMonth: '2026-03',
-        trackStatus: '개선',
+        trackStatus: '전체 수정',
         monitoringInProgress: false,
         qaInProgress: false,
         note: '',

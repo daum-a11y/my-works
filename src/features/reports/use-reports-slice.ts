@@ -223,12 +223,12 @@ export function useReportsSlice(): ReportsSlice {
     enabled: Boolean(member),
   });
 
-  const projects = projectsQuery.data ?? [];
-  const serviceGroups = serviceGroupsQuery.data ?? [];
-  const pages = pagesQuery.data ?? [];
-  const taskTypes = taskTypesQuery.data ?? [];
-  const taskActivities = taskActivitiesQuery.data ?? [];
-  const tasks = tasksQuery.data ?? [];
+  const projects = useMemo(() => projectsQuery.data ?? [], [projectsQuery.data]);
+  const serviceGroups = useMemo(() => serviceGroupsQuery.data ?? [], [serviceGroupsQuery.data]);
+  const pages = useMemo(() => pagesQuery.data ?? [], [pagesQuery.data]);
+  const taskTypes = useMemo(() => taskTypesQuery.data ?? [], [taskTypesQuery.data]);
+  const taskActivities = useMemo(() => taskActivitiesQuery.data ?? [], [taskActivitiesQuery.data]);
+  const tasks = useMemo(() => tasksQuery.data ?? [], [tasksQuery.data]);
 
   const projectsById = useMemo(
     () => new Map(projects.map((project) => [project.id, project] as const)),

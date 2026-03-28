@@ -2,6 +2,7 @@ import { getSupabaseClient } from './supabase';
 import {
   type DashboardSnapshot,
   type Member,
+  normalizePageStatus,
   type OpsStore,
   type Project,
   type ProjectPage,
@@ -47,7 +48,7 @@ function isDashboardMonitoringPage(page: ProjectPage, reference = new Date()) {
   return (
     (monthKey === getCurrentMonthKey(reference) || monthKey === getPreviousMonthKey(reference)) &&
     !hasAgitDate(page.note) &&
-    page.trackStatus !== '중지'
+    page.trackStatus !== '미수정'
   );
 }
 
@@ -538,7 +539,7 @@ function mapProjectPageRecord(record: Record<string, unknown>): ProjectPage {
     url: String(record.url ?? ''),
     ownerMemberId: record.owner_member_id ? String(record.owner_member_id) : null,
     monitoringMonth: String(record.monitoring_month ?? ''),
-    trackStatus: String(record.track_status ?? '미개선') as ProjectPage['trackStatus'],
+    trackStatus: normalizePageStatus(String(record.track_status ?? '미수정')),
     monitoringInProgress: Boolean(record.monitoring_in_progress ?? false),
     qaInProgress: Boolean(record.qa_in_progress ?? false),
     note: String(record.note ?? ''),

@@ -22,12 +22,18 @@ function normalizeText(value: string) {
   return value.trim().toLowerCase();
 }
 
-function memberName(memberId: string | null | undefined, membersById: Map<string, Member>) {
+function memberDisplay(memberId: string | null | undefined, membersById: Map<string, Member>) {
   if (!memberId) {
     return '-';
   }
 
-  return membersById.get(memberId)?.name ?? '-';
+  const member = membersById.get(memberId);
+
+  if (!member) {
+    return memberId;
+  }
+
+  return `${member.legacyUserId}(${member.name})`;
 }
 
 function serviceGroupName(
@@ -123,10 +129,10 @@ export function ProjectsFeature() {
     },
   });
 
-  const projects = query.data?.projects ?? [];
-  const pages = query.data?.pages ?? [];
-  const members = query.data?.members ?? [];
-  const serviceGroups = query.data?.serviceGroups ?? [];
+  const projects = useMemo(() => query.data?.projects ?? [], [query.data?.projects]);
+  const pages = useMemo(() => query.data?.pages ?? [], [query.data?.pages]);
+  const members = useMemo(() => query.data?.members ?? [], [query.data?.members]);
+  const serviceGroups = useMemo(() => query.data?.serviceGroups ?? [], [query.data?.serviceGroups]);
 
   const membersById = useMemo(
     () => new Map(members.map((item) => [item.id, item] as const)),
@@ -160,8 +166,8 @@ export function ProjectsFeature() {
       }
 
       const groupLabel = serviceGroupName(project.serviceGroupId, serviceGroupsById);
-      const reporterLabel = memberName(project.reporterMemberId, membersById);
-      const reviewerLabel = memberName(project.reviewerMemberId, membersById);
+      const reporterLabel = memberDisplay(project.reporterMemberId, membersById);
+      const reviewerLabel = memberDisplay(project.reviewerMemberId, membersById);
       return projectSearchText(project, groupLabel, reporterLabel, reviewerLabel).includes(
         queryText,
       );
@@ -346,8 +352,8 @@ export function ProjectsFeature() {
                   </td>
                   <td className={styles.dateCell}>{formatDateLabel(project.startDate)}</td>
                   <td className={styles.dateCell}>{formatDateLabel(project.endDate)}</td>
-                  <td>{memberName(project.reporterMemberId, membersById)}</td>
-                  <td>{memberName(project.reviewerMemberId, membersById)}</td>
+                  <td>{memberDisplay(project.reporterMemberId, membersById)}</td>
+                  <td>{memberDisplay(project.reviewerMemberId, membersById)}</td>
                   <td>
                     <Link to={`/projects/${project.id}/edit`} className={styles.actionButton}>
                       수정

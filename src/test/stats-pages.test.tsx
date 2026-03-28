@@ -127,10 +127,10 @@ describe('Stats pages', () => {
         title: '모니터링 페이지',
         url: '',
         ownerMemberId: 'member-1',
-        trackStatus: '개선',
+        trackStatus: '전체 수정',
         monitoringInProgress: true,
         qaInProgress: true,
-        note: '',
+        note: '진행 내역\n공유 메모',
         monitoringMonth: '2603',
         updatedAt: '2026-03-24T09:00:00.000Z',
       },
@@ -141,7 +141,7 @@ describe('Stats pages', () => {
         title: '과거 모니터링 페이지',
         url: '',
         ownerMemberId: 'member-1',
-        trackStatus: '미개선',
+        trackStatus: '미수정',
         monitoringInProgress: false,
         qaInProgress: false,
         note: '',
@@ -155,7 +155,7 @@ describe('Stats pages', () => {
         title: '제외 페이지',
         url: '',
         ownerMemberId: 'member-1',
-        trackStatus: '미개선',
+        trackStatus: '미수정',
         monitoringInProgress: false,
         qaInProgress: false,
         note: '',
@@ -163,6 +163,20 @@ describe('Stats pages', () => {
         updatedAt: '2026-03-24T09:00:00.000Z',
       },
     ]);
+    mockOpsDataClient.saveProjectPage.mockImplementation(async (input) => ({
+      id: input.id ?? 'page-1',
+      legacyPageId: 'legacy-page-1',
+      projectId: input.projectId,
+      title: input.title,
+      url: input.url,
+      ownerMemberId: input.ownerMemberId,
+      trackStatus: input.trackStatus,
+      monitoringInProgress: input.monitoringInProgress,
+      qaInProgress: input.qaInProgress,
+      note: input.note,
+      monitoringMonth: input.monitoringMonth ?? '2603',
+      updatedAt: '2026-03-24T09:00:00.000Z',
+    }));
   });
 
   it('shows only monitoring rows with monitoring month', async () => {
@@ -179,8 +193,17 @@ describe('Stats pages', () => {
     });
 
     expect(screen.getByRole('heading', { name: '모니터링 통계' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: '최근 월별 모니터링 통계' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: '모니터링 통계 테이블' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: '월별 모니터링 현황' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '그래프' })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: '표' })).toHaveAttribute('aria-pressed', 'false');
+    expect(screen.getAllByText('2026/03').length).toBeGreaterThan(0);
+    expect(screen.getByRole('columnheader', { name: '서비스그룹' })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: '프로젝트명' })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: '페이지명' })).toBeInTheDocument();
+    expect(screen.getByText('legacy-1(운영 사용자)')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '모니터링 페이지 내용 보기' })).toBeInTheDocument();
+    expect(screen.queryByText(/적용 기간/)).not.toBeInTheDocument();
+    expect(screen.queryByText('2025-10 ~ 2026-03')).not.toBeInTheDocument();
     expect(screen.queryByText('제외 페이지')).not.toBeInTheDocument();
     expect((screen.getByLabelText('모니터링 시작월') as HTMLInputElement).value).toBe('2025-10');
     expect((screen.getByLabelText('모니터링 종료월') as HTMLInputElement).value).toBe('2026-03');
@@ -216,6 +239,39 @@ describe('Stats pages', () => {
     expect(screen.getByText('과거 모니터링 페이지')).toBeInTheDocument();
   });
 
+  it('edits monitoring status and note from the stats table', async () => {
+    const queryClient = new QueryClient();
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <MonitoringStatsPage />
+      </QueryClientProvider>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getAllByText('모니터링 페이지').length).toBeGreaterThan(0);
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: '수정' }));
+    fireEvent.change(screen.getByLabelText('모니터링 페이지 상태'), {
+      target: { value: '일부 수정' },
+    });
+    fireEvent.change(screen.getByLabelText('모니터링 페이지 비고'), {
+      target: { value: '남은 이슈 공유' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: '저장' }));
+
+    await waitFor(() => {
+      expect(mockOpsDataClient.saveProjectPage).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: 'page-1',
+          trackStatus: '일부 수정',
+          note: '남은 이슈 공유',
+        }),
+      );
+    });
+  });
+
   it('shows only QA projects by project type', async () => {
     const queryClient = new QueryClient();
 
@@ -230,8 +286,18 @@ describe('Stats pages', () => {
     });
 
     expect(screen.getByRole('heading', { name: 'QA 통계' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: '최근 월별 QA 통계' })).toBeInTheDocument();
-    expect(screen.getAllByRole('heading', { name: 'QA 목록' }).length).toBeGreaterThan(0);
+    expect(screen.getByRole('heading', { name: '월별 QA 현황' })).toBeInTheDocument();
+    expect(screen.getAllByRole('heading', { name: 'QA 프로젝트 목록' }).length).toBeGreaterThan(0);
+    expect(screen.getByRole('button', { name: '그래프' })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: '표' })).toHaveAttribute('aria-pressed', 'false');
+    expect(screen.getAllByText('2026/03').length).toBeGreaterThan(0);
+    expect(screen.getByRole('columnheader', { name: '서비스그룹' })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: '프로젝트명' })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: '리포터' })).toBeInTheDocument();
+    expect(screen.getByText('legacy-1(운영 사용자)')).toBeInTheDocument();
+    expect(screen.queryByText('iOS')).not.toBeInTheDocument();
+    expect(screen.queryByText(/적용 기간/)).not.toBeInTheDocument();
+    expect(screen.queryByText('2025-10 ~ 2026-03')).not.toBeInTheDocument();
     expect(screen.queryByText('제외 대상')).not.toBeInTheDocument();
     expect((screen.getByLabelText('QA 시작월') as HTMLInputElement).value).toBe('2025-10');
     expect((screen.getByLabelText('QA 종료월') as HTMLInputElement).value).toBe('2026-03');

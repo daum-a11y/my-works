@@ -118,9 +118,22 @@
   color: var(--text-primary);
   font-family: inherit;
   font-size: var(--text-form-size);
-  font-weight: var(--text-form-weight);
   line-height: var(--text-form-line-height);
   letter-spacing: var(--text-form-tracking);
+}
+
+.toolbar button {
+  font-weight: var(--text-form-weight);
+}
+
+.toolbar select,
+.toolbar input {
+  font-weight: var(--text-input-weight);
+}
+
+.toolbar input::placeholder {
+  color: var(--control-placeholder);
+  font-weight: var(--text-placeholder-weight);
 }
 
 .callout {

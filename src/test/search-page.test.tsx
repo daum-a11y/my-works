@@ -3,6 +3,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { SearchPage } from '../features/search/search-page';
+import { getToday } from '../lib/utils';
 
 const mockUseAuth = vi.hoisted(() => vi.fn());
 const mockOpsDataClient = vi.hoisted(() => ({
@@ -74,7 +75,7 @@ describe('SearchPage', () => {
         title: '로그인',
         url: 'https://example.com/login',
         ownerMemberId: 'member-1',
-        trackStatus: '개선',
+        trackStatus: '전체 수정',
         monitoringInProgress: true,
         qaInProgress: false,
         note: '',
@@ -122,13 +123,14 @@ describe('SearchPage', () => {
       expect(mockOpsDataClient.searchTasks).toHaveBeenCalled();
     });
 
+    expect(mockOpsDataClient.searchTasks).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'member-1' }),
+      expect.objectContaining({ startDate: getToday(), endDate: getToday() }),
+    );
     expect(screen.getByRole('button', { name: '다운로드' })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: '서비스그룹' })).toBeInTheDocument();
     expect(screen.getAllByText('알파').length).toBeGreaterThan(0);
     expect(screen.getByText('로그인')).toBeInTheDocument();
-    expect(
-      screen.getByText((_, element) => element?.textContent === '2026.03.28 ~ 2026.03.28'),
-    ).toBeInTheDocument();
     expect(screen.getAllByText('60분').length).toBeGreaterThan(0);
   });
 });

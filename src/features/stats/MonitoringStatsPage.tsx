@@ -1,10 +1,11 @@
 import { useMemo, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Area,
   AreaChart,
   CartesianGrid,
   Legend,
+  Line,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -12,16 +13,17 @@ import {
 } from 'recharts';
 import { PageSection } from '../../components/ui/PageSection';
 import { opsDataClient } from '../../lib/data-client';
-import { type PageStatus, type ProjectPage } from '../../lib/domain';
+import { pageStatusOptions, type PageStatus, type ProjectPage } from '../../lib/domain';
 import { getCurrentMonth, shiftMonth } from '../resource/resource-shared';
 import { useAuth } from '../auth/AuthContext';
 import styles from './shared.module.css';
 
 interface MonitoringRow {
   page: ProjectPage;
+  serviceGroupName: string;
   projectName: string;
   platform: string;
-  assigneeName: string;
+  assigneeDisplay: string;
   reportUrl: string;
 }
 
@@ -29,30 +31,13 @@ interface MonthlyMonitoringRow {
   monthKey: string;
   label: string;
   count: number;
-  sent: number;
-  unsent: number;
-  stopped: number;
-  fullFix: number;
-  partialFix: number;
-}
-
-function parseIssueCount(note: string, key: 'highest' | 'high' | 'normal') {
-  const matched = note.match(new RegExp(`${key}:\\s*(\\d+)`));
-  return matched ? matched[1] : '-';
+  untouched: number;
+  partial: number;
+  completed: number;
 }
 
 function formatTrackStatus(value: PageStatus) {
-  switch (value) {
-    case '개선':
-      return '전체 수정';
-    case '일부':
-      return '일부 수정';
-    case '중지':
-      return '중지';
-    case '미개선':
-    default:
-      return '미수정';
-  }
+  return value;
 }
 
 function monthKeyFromMonitoringMonth(value: string): string {
@@ -65,10 +50,7 @@ function monthKeyFromMonitoringMonth(value: string): string {
 
 function formatMonthLabel(monthKey: string): string {
   const [year, month] = monthKey.split('-').map(Number);
-  return new Intl.DateTimeFormat('ko-KR', {
-    year: 'numeric',
-    month: 'short',
-  }).format(new Date(year, month - 1, 1));
+  return `${year}/${String(month).padStart(2, '0')}`;
 }
 
 function buildMonthRange(monthKeys: string[]): string[] {
@@ -91,48 +73,59 @@ function buildMonthRange(monthKeys: string[]): string[] {
   return range;
 }
 
-function isStoppedStatus(status: PageStatus): boolean {
-  return status === '중지';
-}
-
-function isFullFixStatus(status: PageStatus): boolean {
-  return status === '개선';
-}
-
-function isPartialFixStatus(status: PageStatus): boolean {
-  return status === '일부';
-}
-
 function sortRows(left: MonitoringRow, right: MonitoringRow) {
   return new Date(right.page.updatedAt).getTime() - new Date(left.page.updatedAt).getTime();
+}
+
+function memberDisplay(
+  memberId: string | null | undefined,
+  membersById: Map<string, { legacyUserId: string; name: string }>,
+) {
+  if (!memberId) {
+    return '미지정';
+  }
+
+  const member = membersById.get(memberId);
+
+  if (!member) {
+    return memberId;
+  }
+
+  return `${member.legacyUserId}(${member.name})`;
 }
 
 export function MonitoringStatsPage() {
   const { session } = useAuth();
   const member = session?.member;
+  const queryClient = useQueryClient();
   const defaultEndMonth = getCurrentMonth();
   const defaultStartMonth = shiftMonth(defaultEndMonth, -5);
 
   const monitoringQuery = useQuery({
     queryKey: ['monitoring-detail', member?.id],
     queryFn: async () => {
-      const [pages, projects, members] = await Promise.all([
+      const [pages, projects, members, serviceGroups] = await Promise.all([
         opsDataClient.getAllProjectPages(),
         opsDataClient.getProjects(),
         opsDataClient.getMembers(),
+        opsDataClient.getServiceGroups(),
       ]);
       const projectsById = new Map(projects.map((project) => [project.id, project]));
-      const membersById = new Map(members.map((item) => [item.id, item.name]));
+      const membersById = new Map(
+        members.map((item) => [item.id, { legacyUserId: item.legacyUserId, name: item.name }]),
+      );
+      const serviceGroupsById = new Map(serviceGroups.map((item) => [item.id, item.name]));
 
       return pages
         .filter((page) => Boolean(page.monitoringMonth))
         .map((page) => ({
           page,
+          serviceGroupName: projectsById.get(page.projectId)?.serviceGroupId
+            ? (serviceGroupsById.get(projectsById.get(page.projectId)?.serviceGroupId ?? '') ?? '-')
+            : '-',
           projectName: projectsById.get(page.projectId)?.name ?? '미분류 프로젝트',
           platform: projectsById.get(page.projectId)?.platform ?? '-',
-          assigneeName: page.ownerMemberId
-            ? (membersById.get(page.ownerMemberId) ?? '미지정')
-            : '미지정',
+          assigneeDisplay: memberDisplay(page.ownerMemberId, membersById),
           reportUrl: projectsById.get(page.projectId)?.reportUrl ?? page.url,
         }))
         .sort(sortRows);
@@ -148,6 +141,47 @@ export function MonitoringStatsPage() {
   const [draftEndMonth, setDraftEndMonth] = useState(defaultEndMonth);
   const [startMonth, setStartMonth] = useState(defaultStartMonth);
   const [endMonth, setEndMonth] = useState(defaultEndMonth);
+  const [summaryView, setSummaryView] = useState<'chart' | 'table'>('chart');
+  const [editingPageId, setEditingPageId] = useState<string | null>(null);
+  const [draftStatus, setDraftStatus] = useState<PageStatus>('미수정');
+  const [draftNote, setDraftNote] = useState('');
+  const [hoveredNotePageId, setHoveredNotePageId] = useState<string | null>(null);
+  const [pinnedNotePageId, setPinnedNotePageId] = useState<string | null>(null);
+
+  const savePageMutation = useMutation({
+    mutationFn: async (page: ProjectPage) =>
+      opsDataClient.saveProjectPage({
+        id: page.id,
+        projectId: page.projectId,
+        title: page.title,
+        url: page.url,
+        ownerMemberId: page.ownerMemberId,
+        monitoringMonth: page.monitoringMonth,
+        trackStatus: draftStatus,
+        monitoringInProgress: page.monitoringInProgress,
+        qaInProgress: page.qaInProgress,
+        note: draftNote.trim(),
+      }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['monitoring-detail', member?.id] });
+      setEditingPageId(null);
+    },
+  });
+
+  const startEdit = (row: MonitoringRow) => {
+    setEditingPageId(row.page.id);
+    setDraftStatus(row.page.trackStatus);
+    setDraftNote(row.page.note);
+  };
+
+  const cancelEdit = () => {
+    setEditingPageId(null);
+    setDraftStatus('미수정');
+    setDraftNote('');
+  };
+
+  const isNoteOpen = (pageId: string) =>
+    hoveredNotePageId === pageId || pinnedNotePageId === pageId;
 
   const handleSearch = () => {
     const nextStart =
@@ -170,19 +204,6 @@ export function MonitoringStatsPage() {
     setStartMonth(defaultStartMonth);
     setEndMonth(defaultEndMonth);
   };
-
-  const appliedPeriodLabel = useMemo(() => {
-    if (!startMonth && !endMonth) {
-      return '전체 기간';
-    }
-    if (startMonth && endMonth) {
-      return `${formatMonthLabel(startMonth)} ~ ${formatMonthLabel(endMonth)}`;
-    }
-    if (startMonth) {
-      return `${formatMonthLabel(startMonth)} 이후`;
-    }
-    return `${formatMonthLabel(endMonth)} 이전`;
-  }, [defaultEndMonth, defaultStartMonth, endMonth, startMonth]);
 
   const filteredRows = useMemo(() => {
     return monitoringRows.filter((row) => {
@@ -209,11 +230,9 @@ export function MonitoringStatsPage() {
       string,
       {
         count: number;
-        sent: number;
-        unsent: number;
-        stopped: number;
-        fullFix: number;
-        partialFix: number;
+        untouched: number;
+        partial: number;
+        completed: number;
       }
     >();
     const monthKeys = filteredRows
@@ -227,37 +246,30 @@ export function MonitoringStatsPage() {
       }
       const current = grouped.get(monthKey) ?? {
         count: 0,
-        sent: 0,
-        unsent: 0,
-        stopped: 0,
-        fullFix: 0,
-        partialFix: 0,
+        untouched: 0,
+        partial: 0,
+        completed: 0,
       };
-
       current.count += 1;
-      current.sent +=
-        row.page.trackStatus !== '미개선' && !isStoppedStatus(row.page.trackStatus) ? 1 : 0;
-      current.unsent += row.page.trackStatus === '미개선' ? 1 : 0;
-      current.stopped += isStoppedStatus(row.page.trackStatus) ? 1 : 0;
-      current.fullFix += isFullFixStatus(row.page.trackStatus) ? 1 : 0;
-      current.partialFix += isPartialFixStatus(row.page.trackStatus) ? 1 : 0;
+      if (row.page.trackStatus === '전체 수정') {
+        current.completed += 1;
+      } else if (row.page.trackStatus === '일부 수정') {
+        current.partial += 1;
+      } else {
+        current.untouched += 1;
+      }
       grouped.set(monthKey, current);
     }
 
     return buildMonthRange(monthKeys).map((monthKey) => {
-      const current = grouped.get(monthKey) ?? {
-        count: 0,
-        sent: 0,
-        unsent: 0,
-        stopped: 0,
-        fullFix: 0,
-        partialFix: 0,
-      };
-
+      const current = grouped.get(monthKey);
       return {
         monthKey,
         label: formatMonthLabel(monthKey),
-        ...current,
+        count: current?.count ?? 0,
+        untouched: current?.untouched ?? 0,
+        partial: current?.partial ?? 0,
+        completed: current?.completed ?? 0,
       };
     });
   }, [filteredRows]);
@@ -303,134 +315,216 @@ export function MonitoringStatsPage() {
             </button>
           </div>
         </form>
-        <p className={styles.filterSummary}>적용 기간: {appliedPeriodLabel}</p>
       </PageSection>
 
-      <PageSection title="최근 월별 모니터링 통계">
-        <div className={styles.chartSurface}>
-          {monthlyRows.length ? (
-            <div className={styles.chartFrame} role="img" aria-label="모니터링 월별 차트">
-              <ResponsiveContainer width="100%" height={320}>
-                <AreaChart data={monthlyRows} margin={{ top: 12, right: 12, left: 0, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="label" tickLine={false} axisLine={false} />
-                  <YAxis allowDecimals={false} tickLine={false} axisLine={false} />
-                  <Tooltip />
-                  <Legend />
-                  <Area
-                    type="monotone"
-                    dataKey="count"
-                    name="총모니터링수"
-                    stroke="var(--chart-series-primary-stroke)"
-                    fill="var(--chart-series-primary-fill)"
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="sent"
-                    name="전달 수"
-                    stroke="var(--chart-series-success-stroke)"
-                    fill="var(--chart-series-success-fill)"
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="fullFix"
-                    name="완전 개선수"
-                    stroke="var(--chart-series-warning-stroke)"
-                    fill="var(--chart-series-warning-fill)"
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="partialFix"
-                    name="일부 개선수"
-                    stroke="var(--chart-series-danger-stroke)"
-                    fill="var(--chart-series-danger-fill)"
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          ) : (
-            <p className={styles.empty}>모니터링 데이터가 없습니다.</p>
-          )}
+      <PageSection title="월별 모니터링 현황">
+        <div className={styles.viewToggle} role="tablist" aria-label="모니터링 월별 요약 보기">
+          <button
+            type="button"
+            className={summaryView === 'table' ? styles.viewToggleActive : styles.viewToggleButton}
+            aria-pressed={summaryView === 'table'}
+            onClick={() => setSummaryView('table')}
+          >
+            표
+          </button>
+          <button
+            type="button"
+            className={summaryView === 'chart' ? styles.viewToggleActive : styles.viewToggleButton}
+            aria-pressed={summaryView === 'chart'}
+            onClick={() => setSummaryView('chart')}
+          >
+            그래프
+          </button>
         </div>
-      </PageSection>
-
-      <PageSection title="모니터링 통계 테이블">
-        <div className={styles.tableWrap}>
-          <table className={styles.table}>
-            <caption className={styles.srOnly}>모니터링 월별 표</caption>
-            <thead>
-              <tr>
-                <th scope="col">해당월</th>
-                <th scope="col">총 진행</th>
-                <th scope="col">전달</th>
-                <th scope="col">미전달</th>
-                <th scope="col">중지</th>
-                <th scope="col">전체 수정</th>
-                <th scope="col">일부 수정</th>
-              </tr>
-            </thead>
-            <tbody>
-              {monthlyRows.map((row) => (
-                <tr key={row.monthKey}>
-                  <td>{row.label}</td>
-                  <td className="tabularNums">{row.count}</td>
-                  <td className="tabularNums">{row.sent}</td>
-                  <td className="tabularNums">{row.unsent}</td>
-                  <td className="tabularNums">{row.stopped}</td>
-                  <td className="tabularNums">{row.fullFix}</td>
-                  <td className="tabularNums">{row.partialFix}</td>
-                </tr>
-              ))}
-              {!monthlyRows.length ? (
+        {summaryView === 'chart' ? (
+          <div className={styles.chartSurface}>
+            {monthlyRows.length ? (
+              <div className={styles.chartFrame} role="img" aria-label="모니터링 월별 차트">
+                <ResponsiveContainer width="100%" height={320}>
+                  <AreaChart data={monthlyRows} margin={{ top: 12, right: 12, left: 0, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="label" tickLine={false} axisLine={false} />
+                    <YAxis allowDecimals={false} tickLine={false} axisLine={false} />
+                    <Tooltip />
+                    <Legend />
+                    <Area
+                      type="monotone"
+                      dataKey="untouched"
+                      name="미수정"
+                      stackId="monitoring-status"
+                      stroke="var(--chart-series-danger-stroke)"
+                      fill="var(--chart-series-danger-fill)"
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="partial"
+                      name="일부 수정"
+                      stackId="monitoring-status"
+                      stroke="var(--chart-series-warning-stroke)"
+                      fill="var(--chart-series-warning-fill)"
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="completed"
+                      name="전체 수정"
+                      stackId="monitoring-status"
+                      stroke="var(--chart-series-success-stroke)"
+                      fill="var(--chart-series-success-fill)"
+                    ></Area>
+                    <Line
+                      type="monotone"
+                      dataKey="count"
+                      name="총 모니터링 수"
+                      stroke="var(--chart-series-primary-stroke)"
+                      strokeWidth={2}
+                      dot={false}
+                      activeDot={false}
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            ) : (
+              <p className={styles.empty}>모니터링 데이터가 없습니다.</p>
+            )}
+          </div>
+        ) : (
+          <div className={styles.tableWrap}>
+            <table className={styles.table}>
+              <caption className={styles.srOnly}>모니터링 월별 표</caption>
+              <thead>
                 <tr>
-                  <td colSpan={7} className={styles.empty}>
-                    월별 데이터가 없습니다.
-                  </td>
+                  <th scope="col">해당월</th>
+                  <th scope="col">미수정</th>
+                  <th scope="col">일부 수정</th>
+                  <th scope="col">전체 수정</th>
+                  <th scope="col">총 모니터링 수</th>
                 </tr>
-              ) : null}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {monthlyRows.map((row) => (
+                  <tr key={row.monthKey}>
+                    <td>{row.label}</td>
+                    <td className="tabularNums">{row.untouched}</td>
+                    <td className="tabularNums">{row.partial}</td>
+                    <td className="tabularNums">{row.completed}</td>
+                    <td className="tabularNums">{row.count}</td>
+                  </tr>
+                ))}
+                {!monthlyRows.length ? (
+                  <tr>
+                    <td colSpan={5} className={styles.empty}>
+                      월별 데이터가 없습니다.
+                    </td>
+                  </tr>
+                ) : null}
+              </tbody>
+            </table>
+          </div>
+        )}
       </PageSection>
 
-      <PageSection title="모니터링 목록">
+      <PageSection title="모니터링 페이지 목록">
         <div className={styles.tableWrap}>
           <table className={styles.table}>
-            <caption className={styles.srOnly}>필터링된 모니터링 목록</caption>
+            <caption className={styles.srOnly}>필터링된 모니터링 페이지 목록</caption>
             <thead>
               <tr>
                 <th scope="col">해당월</th>
                 <th scope="col">플랫폼</th>
-                <th scope="col">앱이름</th>
-                <th scope="col">페이지</th>
+                <th scope="col">서비스그룹</th>
+                <th scope="col">프로젝트명</th>
+                <th scope="col">페이지명</th>
                 <th scope="col">담당자</th>
                 <th scope="col">상태</th>
-                <th scope="col">수정된 highest 이슈수</th>
-                <th scope="col">수정된 high 이슈수</th>
-                <th scope="col">수정된 normal 이슈수</th>
                 <th scope="col">비고</th>
-                <th scope="col">보고서</th>
+                <th scope="col">보고서URL</th>
+                <th scope="col">수정</th>
               </tr>
             </thead>
             <tbody>
               {filteredRows.map((row) => (
                 <tr key={row.page.id}>
                   <td>{formatMonthLabel(monthKeyFromMonitoringMonth(row.page.monitoringMonth))}</td>
-                  <td>
-                    <span className="uiPlatformBadge">{row.platform}</span>
-                  </td>
+                  <td>{row.platform}</td>
+                  <td>{row.serviceGroupName}</td>
                   <td>{row.projectName}</td>
                   <td>{row.page.title}</td>
-                  <td>{row.assigneeName}</td>
+                  <td>{row.assigneeDisplay}</td>
                   <td>
-                    <span className="uiStatusBadge" data-status={row.page.trackStatus}>
-                      {formatTrackStatus(row.page.trackStatus)}
-                    </span>
+                    {editingPageId === row.page.id ? (
+                      <select
+                        aria-label={`${row.page.title} 상태`}
+                        className={styles.inlineSelect}
+                        value={draftStatus}
+                        onChange={(event) => setDraftStatus(event.target.value as PageStatus)}
+                      >
+                        {pageStatusOptions.map((status) => (
+                          <option key={status} value={status}>
+                            {formatTrackStatus(status)}
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      <span className="uiStatusBadge" data-status={row.page.trackStatus}>
+                        {formatTrackStatus(row.page.trackStatus)}
+                      </span>
+                    )}
                   </td>
-                  <td>{parseIssueCount(row.page.note, 'highest')}</td>
-                  <td>{parseIssueCount(row.page.note, 'high')}</td>
-                  <td>{parseIssueCount(row.page.note, 'normal')}</td>
-                  <td>{row.page.note || '-'}</td>
+                  <td>
+                    {editingPageId === row.page.id ? (
+                      <textarea
+                        aria-label={`${row.page.title} 비고`}
+                        className={styles.inlineTextarea}
+                        value={draftNote}
+                        onChange={(event) => setDraftNote(event.target.value)}
+                        rows={3}
+                      />
+                    ) : row.page.note ? (
+                      <div
+                        className={styles.noteCell}
+                        onMouseEnter={() => setHoveredNotePageId(row.page.id)}
+                        onMouseLeave={() =>
+                          setHoveredNotePageId((current) =>
+                            current === row.page.id && pinnedNotePageId !== row.page.id
+                              ? null
+                              : current,
+                          )
+                        }
+                        onFocusCapture={() => setHoveredNotePageId(row.page.id)}
+                        onBlurCapture={(event) => {
+                          if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+                            setHoveredNotePageId((current) =>
+                              current === row.page.id && pinnedNotePageId !== row.page.id
+                                ? null
+                                : current,
+                            );
+                          }
+                        }}
+                      >
+                        <button
+                          type="button"
+                          className={`${styles.noteToggle} ${isNoteOpen(row.page.id) ? styles.noteToggleActive : ''}`.trim()}
+                          aria-expanded={isNoteOpen(row.page.id)}
+                          aria-label={`${row.page.title} 내용 보기`}
+                          onClick={() => {
+                            setPinnedNotePageId((current) =>
+                              current === row.page.id ? null : row.page.id,
+                            );
+                            setHoveredNotePageId(row.page.id);
+                          }}
+                        >
+                          내용 보기
+                        </button>
+                        {isNoteOpen(row.page.id) ? (
+                          <div className={styles.notePopover} role="tooltip">
+                            {row.page.note}
+                          </div>
+                        ) : null}
+                      </div>
+                    ) : (
+                      '-'
+                    )}
+                  </td>
                   <td>
                     {row.reportUrl ? (
                       <a
@@ -439,17 +533,47 @@ export function MonitoringStatsPage() {
                         rel="noreferrer"
                         className={styles.link}
                       >
-                        Click
+                        링크
                       </a>
                     ) : (
                       '-'
+                    )}
+                  </td>
+                  <td>
+                    {editingPageId === row.page.id ? (
+                      <div className={styles.inlineActions}>
+                        <button
+                          type="button"
+                          className={styles.inlineActionPrimary}
+                          onClick={() => savePageMutation.mutate(row.page)}
+                          disabled={savePageMutation.isPending}
+                        >
+                          저장
+                        </button>
+                        <button
+                          type="button"
+                          className={styles.inlineActionSecondary}
+                          onClick={cancelEdit}
+                          disabled={savePageMutation.isPending}
+                        >
+                          취소
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        className={styles.inlineActionPrimary}
+                        onClick={() => startEdit(row)}
+                      >
+                        수정
+                      </button>
                     )}
                   </td>
                 </tr>
               ))}
               {!filteredRows.length ? (
                 <tr>
-                  <td colSpan={11} className={styles.empty}>
+                  <td colSpan={10} className={styles.empty}>
                     조건에 맞는 모니터링 내역이 없습니다.
                   </td>
                 </tr>

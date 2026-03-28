@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
 import { ReportsPage } from '../features/reports';
+import { getToday } from '../lib/utils';
 
 const mockUseReportsSlice = vi.fn();
 
@@ -11,7 +12,7 @@ vi.mock('../features/reports/use-reports-slice', () => ({
 
 describe('ReportsPage', () => {
   it('renders the input tabs, today summary, and date search table', async () => {
-    const today = new Date().toISOString().slice(0, 10);
+    const today = getToday();
 
     mockUseReportsSlice.mockReturnValue({
       activeTab: 'report',
@@ -142,7 +143,7 @@ describe('ReportsPage', () => {
           title: '메인',
           url: 'https://example.com',
           ownerMemberId: null,
-          trackStatus: '미개선',
+          trackStatus: '미수정',
           monitoringInProgress: false,
           qaInProgress: false,
           note: '',

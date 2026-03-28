@@ -54,6 +54,13 @@ input,
 textarea,
 select {
   background: var(--control-bg);
+  font-weight: var(--text-input-weight);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--control-placeholder);
+  font-weight: var(--text-placeholder-weight);
 }
 
 button,
@@ -114,20 +121,19 @@ select {
   color: var(--text-secondary);
 }
 
-.uiStatusBadge[data-status='개선'] {
+.uiStatusBadge[data-status='전체 수정'] {
   background: var(--state-success-bg);
   border-color: var(--state-success-border);
   color: var(--state-success-text);
 }
 
-.uiStatusBadge[data-status='일부'] {
+.uiStatusBadge[data-status='일부 수정'] {
   background: var(--state-warning-bg);
   border-color: var(--state-warning-border);
   color: var(--state-warning-text);
 }
 
-.uiStatusBadge[data-status='미개선'],
-.uiStatusBadge[data-status='중지'] {
+.uiStatusBadge[data-status='미수정'] {
   background: var(--state-danger-bg);
   border-color: var(--state-danger-border);
   color: var(--state-danger-text);

@@ -234,7 +234,7 @@ export function AdminReportEditorPage() {
     enabled: isEdit,
   });
 
-  const members = membersQuery.data ?? [];
+  const members = useMemo(() => membersQuery.data ?? [], [membersQuery.data]);
   const taskTypes = useMemo(() => toTaskTypes(taskTypesQuery.data ?? []), [taskTypesQuery.data]);
   const serviceGroups = useMemo(
     () => toServiceGroups(serviceGroupsQuery.data ?? []),

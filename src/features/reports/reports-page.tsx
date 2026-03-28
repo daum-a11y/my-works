@@ -332,7 +332,7 @@ export function ReportsPage() {
     appliedDashboardDateRef.current = reportDateFromDashboard;
     setActiveTab('report');
     setDraftField('reportDate', reportDateFromDashboard);
-  }, [reportDateFromDashboard]);
+  }, [reportDateFromDashboard, setActiveTab, setDraftField]);
   const todayReports = useMemo(
     () => reports.filter((report) => report.reportDate === todayInputValue),
     [reports, todayInputValue],

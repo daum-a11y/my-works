@@ -123,6 +123,7 @@ describe('QaStatsPage', () => {
       expect(screen.getAllByText('메이커스 25년 3차').length).toBeGreaterThan(0);
     });
 
+    expect(screen.getByText('user1(운영자)')).toBeInTheDocument();
     expect(screen.queryByText('2025년 6월 다음앱 정기모니터링')).not.toBeInTheDocument();
     expect(screen.queryByText('앱 운영')).not.toBeInTheDocument();
   });

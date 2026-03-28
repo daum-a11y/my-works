@@ -20,6 +20,7 @@ import styles from './AppShell.module.css';
 const baseNavigation = [
   { to: '/dashboard', label: '대시보드', icon: LayoutDashboard },
   { to: '/reports', label: '업무보고', icon: FileText },
+  { to: '/reports/search', label: '업무보고 검색', icon: Search },
   { to: '/projects', label: '프로젝트 관리', icon: Layers },
   {
     label: '리소스 현황',
@@ -35,11 +36,10 @@ const baseNavigation = [
     label: '통계',
     icon: BarChart3,
     children: [
-      { to: '/stats/qa', label: 'QA' },
-      { to: '/stats/monitoring', label: '모니터링' },
+      { to: '/stats/qa', label: 'QA 통계' },
+      { to: '/stats/monitoring', label: '모니터링 통계' },
     ],
   },
-  { to: '/reports/search', label: '업무보고 검색', icon: Search },
 ] as const;
 
 const adminNavigation = [

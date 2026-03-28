@@ -77,7 +77,11 @@ export function UserProfilePage() {
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
-        handleCancel();
+        setEditing(false);
+        setDraft({ next: '', confirm: '' });
+        setSubmitError('');
+        setStep('form');
+        setIsSubmitting(false);
       }
     };
 

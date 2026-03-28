@@ -440,10 +440,9 @@ with source_project_pages as (
     coalesce(legacy_stage.blank_to_null(p.pj_page_url), '') as url,
     legacy_stage.blank_to_null(p.pj_page_date) as monitoring_month,
     case coalesce(legacy_stage.to_int(p.pj_page_track_end), 0)
-      when 1 then '개선'
-      when 2 then '일부'
-      when 3 then '중지'
-      else '미개선'
+      when 1 then '전체 수정'
+      when 2 then '일부 수정'
+      else '미수정'
     end as track_status,
     concat_ws(E'\n',
       case when legacy_stage.blank_to_null(p.pj_page_etc) is not null then 'page_etc: ' || legacy_stage.blank_to_null(p.pj_page_etc) end,
@@ -453,9 +452,6 @@ with source_project_pages as (
       case when legacy_stage.to_date_ymd(p.pj_page_track2) is not null then 'track2: ' || legacy_stage.to_date_ymd(p.pj_page_track2)::text end,
       case when legacy_stage.to_date_ymd(p.pj_page_track3) is not null then 'track3: ' || legacy_stage.to_date_ymd(p.pj_page_track3)::text end,
       case when legacy_stage.to_date_ymd(p.pj_page_track4) is not null then 'track4: ' || legacy_stage.to_date_ymd(p.pj_page_track4)::text end,
-      case when legacy_stage.to_int(p.pj_page_highest) is not null then 'highest: ' || legacy_stage.to_int(p.pj_page_highest)::text end,
-      case when legacy_stage.to_int(p.pj_page_high) is not null then 'high: ' || legacy_stage.to_int(p.pj_page_high)::text end,
-      case when legacy_stage.to_int(p.pj_page_normal) is not null then 'normal: ' || legacy_stage.to_int(p.pj_page_normal)::text end,
       case when legacy_stage.blank_to_null(p.pj_page_track_etc) is not null then 'track_etc: ' || legacy_stage.blank_to_null(p.pj_page_track_etc) end,
       case when legacy_stage.to_date_ymd(p.pj_page_report) is not null then 'report_date: ' || legacy_stage.to_date_ymd(p.pj_page_report)::text end,
       case when legacy_stage.to_date_ymd(p.pj_page_creat) is not null then 'created_date: ' || legacy_stage.to_date_ymd(p.pj_page_creat)::text end
@@ -488,10 +484,9 @@ with source_project_pages as (
     coalesce(legacy_stage.blank_to_null(p.pj_page_url), '') as url,
     legacy_stage.blank_to_null(p.pj_page_date) as monitoring_month,
     case coalesce(legacy_stage.to_int(p.pj_page_track_end), 0)
-      when 1 then '개선'
-      when 2 then '일부'
-      when 3 then '중지'
-      else '미개선'
+      when 1 then '전체 수정'
+      when 2 then '일부 수정'
+      else '미수정'
     end as track_status,
     concat_ws(E'\n',
       case when legacy_stage.blank_to_null(p.pj_page_etc) is not null then 'page_etc: ' || legacy_stage.blank_to_null(p.pj_page_etc) end,
@@ -501,9 +496,6 @@ with source_project_pages as (
       case when legacy_stage.to_date_ymd(p.pj_page_track2) is not null then 'track2: ' || legacy_stage.to_date_ymd(p.pj_page_track2)::text end,
       case when legacy_stage.to_date_ymd(p.pj_page_track3) is not null then 'track3: ' || legacy_stage.to_date_ymd(p.pj_page_track3)::text end,
       case when legacy_stage.to_date_ymd(p.pj_page_track4) is not null then 'track4: ' || legacy_stage.to_date_ymd(p.pj_page_track4)::text end,
-      case when legacy_stage.to_int(p.pj_page_highest) is not null then 'highest: ' || legacy_stage.to_int(p.pj_page_highest)::text end,
-      case when legacy_stage.to_int(p.pj_page_high) is not null then 'high: ' || legacy_stage.to_int(p.pj_page_high)::text end,
-      case when legacy_stage.to_int(p.pj_page_normal) is not null then 'normal: ' || legacy_stage.to_int(p.pj_page_normal)::text end,
       case when legacy_stage.blank_to_null(p.pj_page_track_etc) is not null then 'track_etc: ' || legacy_stage.blank_to_null(p.pj_page_track_etc) end,
       case when legacy_stage.to_date_ymd(p.pj_page_report) is not null then 'report_date: ' || legacy_stage.to_date_ymd(p.pj_page_report)::text end,
       case when legacy_stage.to_date_ymd(p.pj_page_creat) is not null then 'created_date: ' || legacy_stage.to_date_ymd(p.pj_page_creat)::text end

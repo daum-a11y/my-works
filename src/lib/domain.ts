@@ -1,6 +1,22 @@
 export type UserRole = 'user' | 'admin';
 
-export type PageStatus = '미개선' | '개선' | '일부' | '중지';
+export type PageStatus = '미수정' | '전체 수정' | '일부 수정';
+
+export function normalizePageStatus(value: string | null | undefined): PageStatus {
+  switch (value) {
+    case '전체 수정':
+    case '개선':
+      return '전체 수정';
+    case '일부 수정':
+    case '일부':
+      return '일부 수정';
+    case '미수정':
+    case '미개선':
+    case '중지':
+    default:
+      return '미수정';
+  }
+}
 
 export interface Member {
   id: string;
@@ -166,4 +182,4 @@ export interface OpsStore {
   tasks: Task[];
 }
 
-export const pageStatusOptions: PageStatus[] = ['미개선', '개선', '일부', '중지'];
+export const pageStatusOptions: PageStatus[] = ['미수정', '전체 수정', '일부 수정'];

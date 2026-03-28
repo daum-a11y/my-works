@@ -51,4 +51,29 @@ describe('AppShell', () => {
       expect(logout).toHaveBeenCalledTimes(1);
     });
   });
+
+  it('uses the same stats labels in the sidebar and breadcrumbs', () => {
+    mockUseAuth.mockReturnValue({
+      session: {
+        member: {
+          name: '홍길동',
+          legacyUserId: 'hong.gd',
+          role: 'admin',
+        },
+      },
+      logout: vi.fn(),
+    });
+
+    render(
+      <MemoryRouter initialEntries={['/stats/monitoring']}>
+        <Routes>
+          <Route path="/" element={<AppShell />}>
+            <Route path="stats/monitoring" element={<div>monitoring-stats-page</div>} />
+          </Route>
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    expect(screen.getAllByText('모니터링 통계').length).toBeGreaterThan(0);
+  });
 });

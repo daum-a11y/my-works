@@ -1,4 +1,5 @@
 import { getSupabaseClient } from '../../lib/supabase';
+import { normalizePageStatus } from '../../lib/domain';
 import { getPasswordRecoveryRedirectUrl } from '../auth/auth-urls';
 import { parseLegacyTaskMeta } from '../reports/report-domain';
 import type {
@@ -71,7 +72,7 @@ function mapPage(record: Record<string, unknown>): AdminPageOption {
     projectId: String(record.project_id ?? ''),
     title: String(record.title ?? ''),
     url: String(record.url ?? ''),
-    trackStatus: String(record.track_status ?? '미개선'),
+    trackStatus: normalizePageStatus(String(record.track_status ?? '미수정')),
     monitoringInProgress: Boolean(record.monitoring_in_progress ?? false),
     qaInProgress: Boolean(record.qa_in_progress ?? false),
   };

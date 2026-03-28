@@ -20,7 +20,7 @@
   color: var(--text-primary);
   font-family: inherit;
   font-size: var(--text-body-size);
-  font-weight: var(--text-body-weight);
+  font-weight: var(--text-input-weight);
   line-height: 1;
   transition:
     border-color 160ms cubic-bezier(0.25, 1, 0.5, 1),
@@ -31,6 +31,7 @@
 
 .control::placeholder {
   color: var(--control-placeholder);
+  font-weight: var(--text-placeholder-weight);
 }
 
 .control:hover:not(:disabled):not([readonly]) {

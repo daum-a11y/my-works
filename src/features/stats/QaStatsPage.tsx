@@ -20,10 +20,9 @@ interface QaProject {
   id: string;
   type1: string;
   name: string;
-  platform: string;
   serviceGroupName: string;
   reportUrl: string;
-  reporterName: string;
+  reporterDisplay: string;
   startDate: string;
   endDate: string;
   isActive: boolean;
@@ -34,7 +33,6 @@ interface MonthlyQaRow {
   label: string;
   count: number;
   completed: number;
-  active: number;
 }
 
 function monthKeyFromDate(value: string): string {
@@ -43,10 +41,7 @@ function monthKeyFromDate(value: string): string {
 
 function formatMonthLabel(monthKey: string): string {
   const [year, month] = monthKey.split('-').map(Number);
-  return new Intl.DateTimeFormat('ko-KR', {
-    year: 'numeric',
-    month: 'short',
-  }).format(new Date(year, month - 1, 1));
+  return `${year}/${String(month).padStart(2, '0')}`;
 }
 
 function buildMonthRange(monthKeys: string[]): string[] {
@@ -78,11 +73,29 @@ function isQaProject(project: QaProject) {
   return normalizedType === 'QA' || normalizedType === '접근성테스트';
 }
 
+function memberDisplay(
+  memberId: string | null | undefined,
+  membersById: Map<string, { legacyUserId: string; name: string }>,
+) {
+  if (!memberId) {
+    return '미지정';
+  }
+
+  const member = membersById.get(memberId);
+
+  if (!member) {
+    return memberId;
+  }
+
+  return `${member.legacyUserId}(${member.name})`;
+}
+
 export function QaStatsPage() {
   const { session } = useAuth();
   const member = session?.member;
   const defaultEndMonth = getCurrentMonth();
   const defaultStartMonth = shiftMonth(defaultEndMonth, -5);
+  const today = useMemo(() => new Date().toISOString().slice(0, 10), []);
 
   const projectsQuery = useQuery({
     queryKey: ['qa-projects', member?.id],
@@ -93,7 +106,9 @@ export function QaStatsPage() {
         opsDataClient.getServiceGroups(),
       ]);
 
-      const membersById = new Map(members.map((item) => [item.id, item.name]));
+      const membersById = new Map(
+        members.map((item) => [item.id, { legacyUserId: item.legacyUserId, name: item.name }]),
+      );
       const serviceGroupsById = new Map(serviceGroups.map((item) => [item.id, item.name]));
 
       return projects
@@ -101,14 +116,11 @@ export function QaStatsPage() {
           id: project.id,
           type1: project.projectType1,
           name: project.name,
-          platform: project.platform,
           serviceGroupName: project.serviceGroupId
             ? (serviceGroupsById.get(project.serviceGroupId) ?? '-')
             : '-',
           reportUrl: project.reportUrl,
-          reporterName: project.reporterMemberId
-            ? (membersById.get(project.reporterMemberId) ?? '미지정')
-            : '미지정',
+          reporterDisplay: memberDisplay(project.reporterMemberId, membersById),
           startDate: project.startDate,
           endDate: project.endDate,
           isActive: Boolean(project.isActive),
@@ -120,11 +132,11 @@ export function QaStatsPage() {
   });
 
   const qaProjects = useMemo(() => projectsQuery.data ?? [], [projectsQuery.data]);
-  const today = useMemo(() => new Date().toISOString().slice(0, 10), []);
   const [draftStartMonth, setDraftStartMonth] = useState(defaultStartMonth);
   const [draftEndMonth, setDraftEndMonth] = useState(defaultEndMonth);
   const [startMonth, setStartMonth] = useState(defaultStartMonth);
   const [endMonth, setEndMonth] = useState(defaultEndMonth);
+  const [summaryView, setSummaryView] = useState<'chart' | 'table'>('chart');
 
   const handleSearch = () => {
     const nextStart =
@@ -148,19 +160,6 @@ export function QaStatsPage() {
     setEndMonth(defaultEndMonth);
   };
 
-  const appliedPeriodLabel = useMemo(() => {
-    if (!startMonth && !endMonth) {
-      return '전체 기간';
-    }
-    if (startMonth && endMonth) {
-      return `${formatMonthLabel(startMonth)} ~ ${formatMonthLabel(endMonth)}`;
-    }
-    if (startMonth) {
-      return `${formatMonthLabel(startMonth)} 이후`;
-    }
-    return `${formatMonthLabel(endMonth)} 이전`;
-  }, [defaultEndMonth, defaultStartMonth, endMonth, startMonth]);
-
   const filteredProjects = useMemo(() => {
     return qaProjects.filter((project) => {
       const monthKey = monthKeyFromDate(project.endDate);
@@ -179,18 +178,15 @@ export function QaStatsPage() {
       return [];
     }
 
-    const grouped = new Map<string, { count: number; completed: number; active: number }>();
+    const grouped = new Map<string, { count: number; completed: number }>();
     const monthKeys = filteredProjects.map((project) => monthKeyFromDate(project.endDate));
 
     for (const project of filteredProjects) {
       const monthKey = monthKeyFromDate(project.endDate);
-      const current = grouped.get(monthKey) ?? { count: 0, completed: 0, active: 0 };
+      const current = grouped.get(monthKey) ?? { count: 0, completed: 0 };
       current.count += 1;
       if (project.endDate <= today) {
         current.completed += 1;
-      }
-      if (project.endDate > today && project.startDate <= today) {
-        current.active += 1;
       }
       grouped.set(monthKey, current);
     }
@@ -198,14 +194,12 @@ export function QaStatsPage() {
     return buildMonthRange(monthKeys).map((monthKey) => {
       const count = grouped.get(monthKey)?.count ?? 0;
       const completed = grouped.get(monthKey)?.completed ?? 0;
-      const active = grouped.get(monthKey)?.active ?? 0;
 
       return {
         monthKey,
         label: formatMonthLabel(monthKey),
         count,
         completed,
-        active,
       };
     });
   }, [filteredProjects, today]);
@@ -251,107 +245,111 @@ export function QaStatsPage() {
             </button>
           </div>
         </form>
-        <p className={styles.filterSummary}>적용 기간: {appliedPeriodLabel}</p>
       </PageSection>
 
-      <PageSection title="최근 월별 QA 통계">
-        <div className={styles.chartSurface}>
-          {monthlyRows.length ? (
-            <div className={styles.chartFrame} role="img" aria-label="QA 월별 차트">
-              <ResponsiveContainer width="100%" height={320}>
-                <AreaChart data={monthlyRows} margin={{ top: 12, right: 12, left: 0, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="label" tickLine={false} axisLine={false} />
-                  <YAxis allowDecimals={false} tickLine={false} axisLine={false} />
-                  <Tooltip />
-                  <Legend />
-                  <Area
-                    type="monotone"
-                    dataKey="count"
-                    name="전체 QA"
-                    stroke="var(--chart-series-primary-stroke)"
-                    fill="var(--chart-series-primary-fill)"
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="completed"
-                    name="완료 QA"
-                    stroke="var(--chart-series-success-stroke)"
-                    fill="var(--chart-series-success-fill)"
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="active"
-                    name="진행 QA"
-                    stroke="var(--chart-series-warning-stroke)"
-                    fill="var(--chart-series-warning-fill)"
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          ) : (
-            <p className={styles.empty}>QA 데이터가 없습니다.</p>
-          )}
+      <PageSection title="월별 QA 현황">
+        <div className={styles.viewToggle} role="tablist" aria-label="QA 월별 요약 보기">
+          <button
+            type="button"
+            className={summaryView === 'table' ? styles.viewToggleActive : styles.viewToggleButton}
+            aria-pressed={summaryView === 'table'}
+            onClick={() => setSummaryView('table')}
+          >
+            표
+          </button>
+          <button
+            type="button"
+            className={summaryView === 'chart' ? styles.viewToggleActive : styles.viewToggleButton}
+            aria-pressed={summaryView === 'chart'}
+            onClick={() => setSummaryView('chart')}
+          >
+            그래프
+          </button>
         </div>
-      </PageSection>
-
-      <PageSection title="QA 통계 테이블">
-        <div className={styles.tableWrap}>
-          <table className={styles.table}>
-            <caption className={styles.srOnly}>QA 월별 표</caption>
-            <thead>
-              <tr>
-                <th scope="col">해당월</th>
-                <th scope="col">총 진행</th>
-                <th scope="col">진행 완료</th>
-                <th scope="col">진행 중</th>
-              </tr>
-            </thead>
-            <tbody>
-              {monthlyRows.map((row) => (
-                <tr key={row.monthKey}>
-                  <td>{row.label}</td>
-                  <td className="tabularNums">{row.count}</td>
-                  <td className="tabularNums">{row.completed}</td>
-                  <td className="tabularNums">{row.active}</td>
-                </tr>
-              ))}
-              {!monthlyRows.length ? (
+        {summaryView === 'chart' ? (
+          <div className={styles.chartSurface}>
+            {monthlyRows.length ? (
+              <div className={styles.chartFrame} role="img" aria-label="QA 월별 차트">
+                <ResponsiveContainer width="100%" height={320}>
+                  <AreaChart data={monthlyRows} margin={{ top: 12, right: 12, left: 0, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="label" tickLine={false} axisLine={false} />
+                    <YAxis allowDecimals={false} tickLine={false} axisLine={false} />
+                    <Tooltip />
+                    <Legend />
+                    <Area
+                      type="monotone"
+                      dataKey="count"
+                      name="총 QA"
+                      stroke="var(--chart-series-primary-stroke)"
+                      fill="var(--chart-series-primary-fill)"
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="completed"
+                      name="완료 QA"
+                      stroke="var(--chart-series-success-stroke)"
+                      fill="var(--chart-series-success-fill)"
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            ) : (
+              <p className={styles.empty}>QA 데이터가 없습니다.</p>
+            )}
+          </div>
+        ) : (
+          <div className={styles.tableWrap}>
+            <table className={styles.table}>
+              <caption className={styles.srOnly}>QA 월별 표</caption>
+              <thead>
                 <tr>
-                  <td colSpan={4} className={styles.empty}>
-                    월별 데이터가 없습니다.
-                  </td>
+                  <th scope="col">해당월</th>
+                  <th scope="col">총 QA</th>
+                  <th scope="col">완료 QA</th>
                 </tr>
-              ) : null}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {monthlyRows.map((row) => (
+                  <tr key={row.monthKey}>
+                    <td>{row.label}</td>
+                    <td className="tabularNums">{row.count}</td>
+                    <td className="tabularNums">{row.completed}</td>
+                  </tr>
+                ))}
+                {!monthlyRows.length ? (
+                  <tr>
+                    <td colSpan={3} className={styles.empty}>
+                      월별 데이터가 없습니다.
+                    </td>
+                  </tr>
+                ) : null}
+              </tbody>
+            </table>
+          </div>
+        )}
       </PageSection>
 
-      <PageSection title="QA 목록">
+      <PageSection title="QA 프로젝트 목록">
         <div className={styles.tableWrap}>
           <table className={styles.table}>
-            <caption className={styles.srOnly}>필터링된 QA 목록</caption>
+            <caption className={styles.srOnly}>필터링된 QA 프로젝트 목록</caption>
             <thead>
               <tr>
-                <th scope="col">종료월</th>
-                <th scope="col">플랫폼</th>
-                <th scope="col">서비스</th>
-                <th scope="col">앱이름</th>
-                <th scope="col">담당자</th>
-                <th scope="col">보고서</th>
+                <th scope="col">QA종료일</th>
+                <th scope="col">서비스그룹</th>
+                <th scope="col">프로젝트명</th>
+                <th scope="col">리포터</th>
+                <th scope="col">보고서URL</th>
               </tr>
             </thead>
             <tbody>
               {filteredProjects.map((project) => (
                 <tr key={project.id}>
                   <td>{formatMonthLabel(monthKeyFromDate(project.endDate))}</td>
-                  <td>
-                    <span className="uiPlatformBadge">{project.platform}</span>
-                  </td>
                   <td>{project.serviceGroupName}</td>
                   <td>{project.name}</td>
-                  <td>{project.reporterName}</td>
+                  <td>{project.reporterDisplay}</td>
                   <td>
                     {project.reportUrl ? (
                       <a
@@ -360,7 +358,7 @@ export function QaStatsPage() {
                         rel="noreferrer"
                         className={styles.link}
                       >
-                        Click
+                        링크
                       </a>
                     ) : (
                       '-'
@@ -370,7 +368,7 @@ export function QaStatsPage() {
               ))}
               {!filteredProjects.length ? (
                 <tr>
-                  <td colSpan={6} className={styles.empty}>
+                  <td colSpan={5} className={styles.empty}>
                     조건에 맞는 QA 내역이 없습니다.
                   </td>
                 </tr>
