@@ -1,5 +1,6 @@
 import { BrowserRouter, Navigate, Outlet, Route, Routes } from "react-router-dom";
 import { AuthProvider, useAuth } from "../features/auth/AuthContext";
+import { ForgotPasswordPage } from "../features/auth/ForgotPasswordPage";
 import { LoginPage } from "../features/auth/LoginPage";
 import { PasswordRecoveryPage } from "../features/auth/PasswordRecoveryPage";
 import { DashboardPage } from "../features/dashboard";
@@ -102,6 +103,7 @@ export function AppRouter() {
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<LoginRoute />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/auth/recovery" element={<PasswordRecoveryPage />} />
           <Route element={<GuardedLayout />}>
             <Route index element={<Navigate to="/dashboard" replace />} />
@@ -129,8 +131,8 @@ export function AppRouter() {
               <Route path="/admin/type" element={<AdminTaskTypesPage />} />
               <Route path="/admin/group" element={<AdminServiceGroupsPage />} />
             </Route>
-            <Route path="*" element={<NotFoundPage />} />
           </Route>
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

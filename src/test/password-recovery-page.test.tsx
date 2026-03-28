@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { PasswordRecoveryPage } from "../features/auth/PasswordRecoveryPage";
 import { LoginPage } from "../features/auth/LoginPage";
 
@@ -16,6 +16,10 @@ vi.mock("../lib/env", () => ({
 }));
 
 describe("PasswordRecoveryPage", () => {
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
+
   beforeEach(() => {
     mockUseAuth.mockReset();
   });
@@ -77,7 +81,9 @@ describe("PasswordRecoveryPage", () => {
       expect(updatePassword).toHaveBeenCalledWith("new-password-123");
     });
 
-    expect(logout).toHaveBeenCalled();
+    await waitFor(() => {
+      expect(logout).toHaveBeenCalled();
+    });
     expect(await screen.findByText("비밀번호가 변경되었습니다. 다시 로그인해 주세요.")).toBeInTheDocument();
   });
 });

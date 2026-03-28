@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Navigate, useLocation } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "./AuthContext";
 import { isSupabaseConfigured } from "../../lib/env";
 import { Button } from "../../components/ui/Button";
@@ -17,25 +17,25 @@ const loginSchema = z.object({
 type LoginFormValues = z.infer<typeof loginSchema>;
 
 export function LoginPage() {
-  const { login, resetPassword, session, status } = useAuth();
+  const { login, session, status } = useAuth();
+  const navigate = useNavigate();
   const location = useLocation();
+  const locationState =
+    typeof location.state === "object" && location.state ? (location.state as { noticeMessage?: string; emailPrefill?: string }) : {};
   const [errorMessage, setErrorMessage] = useState("");
   const [noticeMessage, setNoticeMessage] = useState(
-    typeof location.state === "object" && location.state && "noticeMessage" in location.state
-      ? String(location.state.noticeMessage)
-      : "",
+    typeof locationState.noticeMessage === "string" ? locationState.noticeMessage : "",
   );
   const [isWorking, setIsWorking] = useState(false);
   const {
     register,
     handleSubmit,
-    getValues,
-    trigger,
+    setFocus,
     formState: { errors, isSubmitting },
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: "",
+      email: typeof locationState.emailPrefill === "string" ? locationState.emailPrefill : "",
       password: "",
     },
   });
@@ -48,12 +48,18 @@ export function LoginPage() {
     document.title = "My Works · 로그인";
   }, []);
 
+  useEffect(() => {
+    if (noticeMessage) {
+      setFocus(locationState.emailPrefill ? "password" : "email");
+    }
+  }, [locationState.emailPrefill, noticeMessage, setFocus]);
+
   const isBusy = isSubmitting || isWorking;
 
   return (
     <main className={styles.page}>
       <section className={styles.panel} aria-labelledby="login-title">
-        <div className={styles.hero}>
+        <div className={styles.introBlock}>
           <h1 className={styles.logoHeading}>
             <img
               className={styles.logo}
@@ -65,75 +71,67 @@ export function LoginPage() {
           </h1>
           <p id="login-title" className={styles.caption}>로그인</p>
         </div>
-        <form
-          className={styles.form}
-          onSubmit={handleSubmit(async (values) => {
-            try {
-              setErrorMessage("");
-              setNoticeMessage("");
-              await login(values.email, values.password);
-            } catch (error) {
-              setErrorMessage(error instanceof Error ? error.message : "로그인에 실패했습니다.");
-            }
-          })}
-        >
-          <InputField
-            label="이메일"
-            type="email"
-            autoComplete="username"
-            errorMessage={errors.email?.message}
-            disabled={!isSupabaseConfigured || isBusy}
-            {...register("email")}
-          />
-          <InputField
-            label="비밀번호"
-            type="password"
-            autoComplete="current-password"
-            errorMessage={errors.password?.message}
-            disabled={!isSupabaseConfigured || isBusy}
-            {...register("password")}
-          />
-          {noticeMessage ? (
-            <p className={styles.notice} data-state="success" role="status">
-              {noticeMessage}
-            </p>
-          ) : null}
-          {errorMessage ? (
-            <p className={styles.error} role="alert">
-              {errorMessage}
-            </p>
-          ) : null}
-          <div className={styles.submitRow}>
-            <Button type="submit" isDisabled={!isSupabaseConfigured || isBusy}>
-              {isSubmitting ? "로그인 중..." : "로그인"}
-            </Button>
-          </div>
-          <div className={styles.actions}>
-            <button
-              type="button"
-              className={styles.textLink}
+
+        <div className={styles.formBlock}>
+          <form
+            className={styles.form}
+            onSubmit={handleSubmit(async (values) => {
+              try {
+                setErrorMessage("");
+                setNoticeMessage("");
+                await login(values.email, values.password);
+              } catch (error) {
+                setErrorMessage(error instanceof Error ? error.message : "로그인에 실패했습니다.");
+              }
+            })}
+          >
+            <InputField
+              label="이메일"
+              type="email"
+              autoComplete="username"
+              errorMessage={errors.email?.message}
               disabled={!isSupabaseConfigured || isBusy}
-              onClick={async () => {
-                const validEmail = await trigger("email");
-                if (!validEmail) return;
-                const { email } = getValues();
-                try {
-                  setIsWorking(true);
-                  setErrorMessage("");
-                  setNoticeMessage("");
-                  await resetPassword(email);
-                  setNoticeMessage("메일을 확인해 비밀번호를 재설정해 주세요.");
-                } catch (error) {
-                  setErrorMessage(error instanceof Error ? error.message : "메일 발송 실패.");
-                } finally {
-                  setIsWorking(false);
-                }
-              }}
-            >
-              비밀번호 찾기
-            </button>
-          </div>
-        </form>
+              {...register("email")}
+            />
+            <InputField
+              label="비밀번호"
+              type="password"
+              autoComplete="current-password"
+              errorMessage={errors.password?.message}
+              disabled={!isSupabaseConfigured || isBusy}
+              {...register("password")}
+            />
+            {noticeMessage ? (
+              <div className={styles.notice} data-state="success" role="status">
+                <strong className={styles.noticeTitle}>비밀번호 변경 완료</strong>
+                <p>{noticeMessage}</p>
+              </div>
+            ) : null}
+            {errorMessage ? (
+              <div className={styles.error} role="alert">
+                <strong className={styles.noticeTitle}>로그인 확인 필요</strong>
+                <p>{errorMessage}</p>
+              </div>
+            ) : null}
+            <div className={styles.submitRow}>
+              <Button type="submit" isDisabled={!isSupabaseConfigured || isBusy}>
+                {isSubmitting ? "로그인 중..." : "로그인"}
+              </Button>
+            </div>
+            <div className={styles.recoveryPanel}>
+              <button
+                type="button"
+                className={styles.recoveryButton}
+                disabled={!isSupabaseConfigured || isBusy}
+                onClick={() => {
+                  navigate("/forgot-password");
+                }}
+              >
+                비밀번호 찾기
+              </button>
+            </div>
+          </form>
+        </div>
       </section>
       {!isSupabaseConfigured ? (
         <div className={`${styles.notice} ${styles.configNotice}`} data-state="info">

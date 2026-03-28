@@ -1,6 +1,6 @@
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { MemoryRouter } from "react-router-dom";
+import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { LoginPage } from "../features/auth/LoginPage";
 
@@ -48,9 +48,8 @@ describe("LoginPage", () => {
     expect(screen.queryByRole("button", { name: "회원가입" })).not.toBeInTheDocument();
   });
 
-  it("sends a password reset email and shows the updated success message", async () => {
+  it("moves to the dedicated forgot password page", async () => {
     const user = userEvent.setup();
-    const resetPassword = vi.fn().mockResolvedValue(undefined);
 
     mockUseAuth.mockReturnValue({
       status: "guest",
@@ -58,24 +57,21 @@ describe("LoginPage", () => {
       isRecoverySession: false,
       session: null,
       login: vi.fn(),
-      resetPassword,
+      resetPassword: vi.fn(),
       logout: vi.fn(),
       updatePassword: vi.fn(),
     });
 
     render(
-      <MemoryRouter>
-        <LoginPage />
+      <MemoryRouter initialEntries={["/login"]}>
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/forgot-password" element={<div>forgot-password-page</div>} />
+        </Routes>
       </MemoryRouter>,
     );
 
-    await user.type(screen.getByRole("textbox", { name: "이메일" }), "crew@example.com");
     await user.click(screen.getByRole("button", { name: "비밀번호 찾기" }));
-
-    await waitFor(() => {
-      expect(resetPassword).toHaveBeenCalledWith("crew@example.com");
-    });
-
-    expect(screen.getByText("메일을 확인해 비밀번호를 재설정해 주세요.")).toBeInTheDocument();
+    expect(await screen.findByText("forgot-password-page")).toBeInTheDocument();
   });
 });
