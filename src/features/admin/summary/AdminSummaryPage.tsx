@@ -12,10 +12,9 @@ export function AdminSummaryPage() {
         <h1>관리자</h1>
       </header>
 
-      <div className={styles.panel} style={{ textAlign: "center" }}>
-        <img src="/img/emot_021.png" alt="또 바뀌었나요" style={{ maxWidth: "180px", marginInline: "auto" }} />
-        <p style={{ marginBottom: "0.75rem" }}>에라이... 나도 몰라</p>
-        <p>나를 찾지 마세요.</p>
+      <div className={`${styles.panel} ${styles.emptyStatePanel}`}>
+        <strong>좌측 관리자 메뉴에서 관리 항목을 선택해 주세요.</strong>
+        <p className={styles.muted}>전체 업무검색, 사용자, 업무 타입, 서비스그룹 관리 화면으로 이동할 수 있습니다.</p>
       </div>
     </section>
   );

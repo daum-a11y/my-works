@@ -10,4 +10,4 @@ test-results
 !.env.example
 .idea
 output/playwright*
-
+.playwright-cli

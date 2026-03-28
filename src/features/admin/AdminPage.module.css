@@ -61,6 +61,26 @@
   box-shadow: var(--elevation-1);
 }
 
+.emptyStatePanel {
+  min-height: 16rem;
+  place-items: center;
+  align-content: center;
+  justify-items: center;
+  text-align: center;
+}
+
+.emptyStatePanel strong {
+  color: var(--text-primary);
+  font-size: var(--text-section-title-size);
+  font-weight: var(--text-section-title-weight);
+  line-height: var(--text-section-title-line-height);
+  letter-spacing: var(--text-section-title-tracking);
+}
+
+.emptyStatePanel p {
+  max-width: 42ch;
+}
+
 .panel h3,
 .panel h4 {
   margin: 0;

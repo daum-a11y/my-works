@@ -96,7 +96,7 @@ export function ResourceSummaryPage() {
 
   return (
     <div className={styles.splitGrid}>
-      <PageSection title="일간">
+      <PageSection title="일간" variant="panel">
         <div className={styles.toolbar}>
           <button type="button" onClick={() => setSelectedDate(getPreviousBusinessDay(new Date(selectedDate)))}>
             이전날
@@ -139,10 +139,10 @@ export function ResourceSummaryPage() {
         </div>
       </PageSection>
 
-      <PageSection title="월간">
+      <PageSection title="월간" variant="panel">
         {data?.member.role === "admin" ? (
           <div className={styles.callout}>
-            팀원 전체 한 번에 출력하는 쿼리만들어주시면 이름 선택없이 이용할 수 있게 할 수 있습니다
+            조회 대상 사용자를 선택한 뒤 월간 현황을 확인할 수 있습니다.
           </div>
         ) : null}
 
@@ -223,7 +223,7 @@ export function ResourceSummaryPage() {
             </table>
           </div>
         ) : (
-          <div className={styles.empty}>유저정보가 없습니다.</div>
+          <div className={styles.empty}>사용자 정보가 없습니다.</div>
         )}
       </PageSection>
     </div>

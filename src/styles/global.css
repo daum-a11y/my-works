@@ -42,7 +42,7 @@ select,
 }
 
 ::selection {
-  background: color-mix(in srgb, var(--accent-soft) 82%, white);
+  background: color-mix(in oklab, var(--accent-soft) 82%, white);
   color: var(--text-primary);
 }
 

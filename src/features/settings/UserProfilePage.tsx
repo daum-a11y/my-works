@@ -66,7 +66,7 @@ export function UserProfilePage() {
 
   return (
     <div className={styles.page}>
-      <section>
+      <section className={styles.summaryCard}>
         <h2 className={styles.title}>프로필</h2>
 
         <table className={styles.profileTable}>
@@ -84,9 +84,11 @@ export function UserProfilePage() {
         </table>
 
         {!editing ? (
-          <button ref={editButtonRef} type="button" className={styles.editButton} onClick={handleEdit}>
-            비밀번호 변경
-          </button>
+          <div className={styles.summaryActions}>
+            <button ref={editButtonRef} type="button" className={styles.editButton} onClick={handleEdit}>
+              비밀번호 변경
+            </button>
+          </div>
         ) : null}
       </section>
 

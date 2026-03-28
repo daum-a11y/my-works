@@ -235,7 +235,7 @@ export function ResourceMonthPage() {
       </div>
 
       {query.isPending ? (
-        <div className={styles.empty}>로딩중</div>
+        <div className={styles.empty}>데이터를 불러오는 중입니다.</div>
       ) : (
         <>
           <div className={styles.badgeRow}>
@@ -310,6 +310,7 @@ export function ResourceMonthPage() {
           <div className={styles.splitGrid}>
             <PageSection
               title="업무타입별 월간 리소스"
+              variant="panel"
               actions={
                 <button type="button" onClick={() => setWorkFold((current) => !current)} disabled={!typeRows.length}>
                   {workFold ? "펼치기" : "접기"}
@@ -371,6 +372,7 @@ export function ResourceMonthPage() {
 
             <PageSection
               title="서비스그룹별 월간 리소스"
+              variant="panel"
               actions={
                 <button type="button" onClick={() => setSvcFold((current) => !current)} disabled={!serviceDetailRows.length}>
                   {svcFold ? "펼치기" : "접기"}
@@ -432,7 +434,7 @@ export function ResourceMonthPage() {
             </PageSection>
           </div>
 
-          <PageSection title="월간 리소스 보고서양식">
+          <PageSection title="월간 리소스 보고서양식" variant="panel">
             <div className={styles.tableWrap}>
               <table className={styles.table}>
                 <thead>
