@@ -2,6 +2,7 @@
   display: grid;
   grid-template-columns: var(--shell-rail-width) minmax(0, 1fr);
   min-height: 100vh;
+  min-width: 1200px;
   background:
     linear-gradient(90deg, var(--surface-sidebar) 0, var(--surface-sidebar) var(--shell-rail-width), transparent var(--shell-rail-width)),
     linear-gradient(180deg, color-mix(in oklab, var(--surface-canvas) 88%, var(--accent-soft)) 0%, var(--surface-canvas) 24%, var(--surface-canvas) 100%);
@@ -29,14 +30,22 @@
   background: color-mix(in oklab, var(--surface-sidebar) 92%, white);
 }
 
-.brand strong {
-  display: inline-flex;
+.brandLink {
+  display: flex;
   align-items: center;
-  color: var(--text-primary);
-  font-size: 1rem;
-  font-weight: 800;
-  letter-spacing: -0.04em;
-  text-transform: uppercase;
+  min-width: 0;
+  padding: 0.1rem 0;
+}
+
+.brandLogo {
+  display: block;
+  height: auto;
+  opacity: 1;
+}
+
+.brandLink:hover .brandLogo,
+.brandLink:focus-visible .brandLogo {
+  opacity: 1;
 }
 
 .nav {
@@ -182,6 +191,13 @@
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
+}
+
+.breadcrumbHome {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: var(--text-muted);
 }
 
 .headerMeta {

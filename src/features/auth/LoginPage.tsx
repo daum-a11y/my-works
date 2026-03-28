@@ -54,7 +54,15 @@ export function LoginPage() {
     <main className={styles.page}>
       <section className={styles.panel} aria-labelledby="login-title">
         <div className={styles.hero}>
-          <h1>My Works</h1>
+          <h1 className={styles.logoHeading}>
+            <img
+              className={styles.logo}
+              src="/img/my-works-logo-200x60.png"
+              alt="My Works"
+              width="200"
+              height="60"
+            />
+          </h1>
           <p id="login-title" className={styles.caption}>로그인</p>
         </div>
         <form

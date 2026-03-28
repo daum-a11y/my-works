@@ -1,14 +1,15 @@
 import { useMemo, useState } from "react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
-import { 
-  LayoutDashboard, 
-  FileText, 
-  Layers, 
-  Database, 
+import {
+  LayoutDashboard,
+  FileText,
+  Layers,
+  Database,
   Search,
   Shield,
   BarChart3,
-  ChevronRight
+  ChevronRight,
+  House,
 } from "lucide-react";
 import { useAuth } from "../features/auth/AuthContext";
 import styles from "./AppShell.module.css";
@@ -23,15 +24,15 @@ const baseNavigation = [
   { to: "/dashboard", label: "대시보드", icon: LayoutDashboard },
   { to: "/reports", label: "업무보고", icon: FileText },
   { to: "/projects", label: "프로젝트 관리", icon: Layers },
-  { 
-    label: "리소스 현황", 
+  {
+    label: "리소스 현황",
     icon: Database,
     children: [
       { to: "/resource/summary", label: "리소스 요약" },
       { to: "/resource/type", label: "업무유형 집계" },
       { to: "/resource/svc", label: "서비스그룹 집계" },
       { to: "/resource/month", label: "월간 종합현황" },
-    ] 
+    ]
   },
   {
     label: "통계",
@@ -75,8 +76,8 @@ export function AppShell() {
   );
 
   const breadcrumbs = useMemo(() => {
-    const parts = [{ label: "My Works", to: "/dashboard" }];
-    
+    const parts = [{ label: "홈", to: "/dashboard" }];
+
     if (location.pathname === "/profile" || location.pathname === "/password-change") {
       parts.push({ label: "프로필", to: "/profile" });
       return parts;
@@ -127,7 +128,15 @@ export function AppShell() {
       <div className={styles.layout}>
         <aside className={styles.sidebar}>
           <div className={styles.brand}>
-            <strong>My Works</strong>
+            <NavLink to="/dashboard" className={styles.brandLink} aria-label="MY WORKS 홈">
+              <img
+                className={styles.brandLogo}
+                src="/img/my-works-logo-200x60.png"
+                alt="MY WORKS"
+                width="100"
+                height="30"
+              />
+            </NavLink>
           </div>
 
           <nav aria-label="주요 메뉴" className={styles.nav}>
@@ -177,7 +186,13 @@ export function AppShell() {
                     <li key={crumb.label}>
                       {i > 0 && <ChevronRight size={14} className={styles.breadcrumbSeparator} />}
                       <span className={i === breadcrumbs.length - 1 ? styles.lastCrumb : ""}>
-                        {crumb.label}
+                        {i === 0 ? (
+                          <span className={styles.breadcrumbHome} aria-label="홈">
+                            <House size={14} strokeWidth={2.2} aria-hidden="true" />
+                          </span>
+                        ) : (
+                          crumb.label
+                        )}
                       </span>
                     </li>
                   ))}
@@ -205,8 +220,8 @@ export function AppShell() {
                     <span className={styles.headerActionLabel}>프로필</span>
                   </span>
                 </NavLink>
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   className={`${styles.headerButton} ${styles.headerButtonDanger}`}
                   onClick={() => void handleLogout()}
                   aria-label="로그아웃"

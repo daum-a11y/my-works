@@ -40,7 +40,7 @@ describe("LoginPage", () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByRole("heading", { name: "My Works" })).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: "My Works" })).toBeInTheDocument();
     expect(screen.getByLabelText("이메일")).toBeInTheDocument();
     expect(screen.getByLabelText("비밀번호")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "로그인" })).toBeInTheDocument();

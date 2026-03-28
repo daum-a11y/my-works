@@ -26,14 +26,14 @@
   border-bottom: 1px solid var(--border-default);
 }
 
-.hero h1 {
+.logoHeading {
   margin: 0;
-  color: var(--text-primary);
-  font-size: 1.9rem;
-  font-weight: 800;
-  line-height: 0.98;
-  letter-spacing: -0.05em;
-  text-transform: uppercase;
+}
+
+.logo {
+  display: block;
+  width: min(100%, 200px);
+  height: auto;
 }
 
 .caption {
