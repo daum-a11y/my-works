@@ -250,9 +250,10 @@
 
 .profileInfo strong {
   color: var(--text-primary);
-  font-size: 13px;
-  font-weight: 600;
-  line-height: 1.2;
+  font-size: var(--text-form-size);
+  font-weight: var(--text-form-weight);
+  line-height: var(--text-form-line-height);
+  letter-spacing: var(--text-form-tracking);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -359,9 +360,10 @@
 
 .userMenuIdentityText span {
   color: var(--text-muted);
-  font-size: 13px;
-  font-weight: 600;
-  line-height: 1.2;
+  font-size: var(--text-body-size);
+  font-weight: var(--text-body-weight);
+  line-height: var(--text-body-line-height);
+  letter-spacing: var(--text-body-tracking);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -416,8 +418,10 @@
   margin: 0;
   max-width: 256px;
   color: var(--state-danger-text);
-  font-size: var(--text-meta-size);
-  line-height: 1.35;
+  font-size: var(--text-body-size);
+  font-weight: var(--text-body-weight);
+  line-height: var(--text-body-line-height);
+  letter-spacing: var(--text-body-tracking);
   align-self: center;
 }
 

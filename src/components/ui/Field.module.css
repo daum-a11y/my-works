@@ -70,13 +70,16 @@
 
 .description {
   color: var(--text-tertiary);
-  font-size: var(--text-meta-size);
-  line-height: var(--text-meta-line-height);
+  font-size: var(--text-body-size);
+  font-weight: var(--text-body-weight);
+  line-height: var(--text-body-line-height);
+  letter-spacing: var(--text-body-tracking);
 }
 
 .error {
   color: var(--state-danger-text);
-  font-size: var(--text-meta-size);
+  font-size: var(--text-body-size);
   font-weight: var(--text-form-weight);
-  line-height: var(--text-meta-line-height);
+  line-height: var(--text-body-line-height);
+  letter-spacing: var(--text-body-tracking);
 }

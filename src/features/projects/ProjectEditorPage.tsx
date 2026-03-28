@@ -604,10 +604,10 @@ export function ProjectEditorPage() {
       </section>
 
       {isEditMode && selectedProject ? (
-        <section className={styles.modal} aria-label="페이지 리스트 패널">
+        <section className={styles.modal} aria-label="페이지 목록 패널">
           <section className={styles.pageSection}>
             <div className={styles.sectionHeader}>
-              <h2 className={styles.sectionTitle}>페이지 리스트</h2>
+              <h2 className={styles.sectionTitle}>페이지 목록</h2>
               <button
                 type="button"
                 className={styles.secondaryButton}
@@ -626,21 +626,23 @@ export function ProjectEditorPage() {
               <form className={styles.pageFormPanel} onSubmit={handlePageAdd}>
                 <div className={styles.pageFormGrid}>
                   <label className={styles.field}>
-                    <span>페이지명</span>
+                    <span className={styles.srOnly}>페이지명</span>
                     <input
                       value={newPageDraft.title}
+                      placeholder="페이지명"
                       onChange={(event) => handleNewPageDraftChange({ title: event.target.value })}
                     />
                   </label>
                   <label className={styles.field}>
-                    <span>페이지URL</span>
+                    <span className={styles.srOnly}>페이지URL</span>
                     <input
                       value={newPageDraft.url}
+                      placeholder="페이지URL"
                       onChange={(event) => handleNewPageDraftChange({ url: event.target.value })}
                     />
                   </label>
                 </div>
-                <div className={styles.formActions}>
+                <div className={`${styles.formActions} ${styles.pageTableActions}`}>
                   <button
                     type="submit"
                     className={styles.primaryButton}
@@ -652,58 +654,78 @@ export function ProjectEditorPage() {
               </form>
             ) : null}
 
-            <ul className={styles.pageList}>
-              {selectedProjectPages.map((page) => {
-                const draft = pageDrafts[page.id] ?? toPageDraft(page);
+            {selectedProjectPages.length ? (
+              <div className={styles.pageTableWrap}>
+                <table className={styles.pageTable}>
+                  <caption className={styles.srOnly}>페이지 리스트</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">페이지명</th>
+                      <th scope="col">페이지URL</th>
+                      <th scope="col">작업</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {selectedProjectPages.map((page) => {
+                      const draft = pageDrafts[page.id] ?? toPageDraft(page);
 
-                return (
-                  <li key={page.id} className={styles.pageCard}>
-                    <div className={styles.pageFormGrid}>
-                      <label className={styles.field}>
-                        <span>페이지명</span>
-                        <input
-                          value={draft.title}
-                          onChange={(event) =>
-                            handlePageDraftChange(page.id, { title: event.target.value })
-                          }
-                        />
-                      </label>
-                      <label className={styles.field}>
-                        <span>페이지URL</span>
-                        <input
-                          value={draft.url}
-                          onChange={(event) =>
-                            handlePageDraftChange(page.id, { url: event.target.value })
-                          }
-                        />
-                      </label>
-                    </div>
-                    <div className={styles.formActions}>
-                      <button
-                        type="button"
-                        className={styles.secondaryButton}
-                        onClick={() => void handlePageSave(page.id)}
-                      >
-                        수정
-                      </button>
-                      {canDeletePage(page, member?.id ?? null, member?.role) ? (
-                        <button
-                          type="button"
-                          className={styles.deleteButton}
-                          onClick={() => void handlePageDelete(page)}
-                        >
-                          삭제
-                        </button>
-                      ) : null}
-                    </div>
-                  </li>
-                );
-              })}
-
-              {!selectedProjectPages.length ? (
-                <li className={styles.emptyState}>등록된 페이지가 없습니다.</li>
-              ) : null}
-            </ul>
+                      return (
+                        <tr key={page.id}>
+                          <td>
+                            <label className={styles.srOnly} htmlFor={`page-title-${page.id}`}>
+                              페이지명
+                            </label>
+                            <input
+                              id={`page-title-${page.id}`}
+                              value={draft.title}
+                              placeholder="페이지명"
+                              onChange={(event) =>
+                                handlePageDraftChange(page.id, { title: event.target.value })
+                              }
+                            />
+                          </td>
+                          <td>
+                            <label className={styles.srOnly} htmlFor={`page-url-${page.id}`}>
+                              페이지URL
+                            </label>
+                            <input
+                              id={`page-url-${page.id}`}
+                              value={draft.url}
+                              placeholder="페이지URL"
+                              onChange={(event) =>
+                                handlePageDraftChange(page.id, { url: event.target.value })
+                              }
+                            />
+                          </td>
+                          <td>
+                            <div className={styles.pageTableActions}>
+                              <button
+                                type="button"
+                                className={styles.secondaryButton}
+                                onClick={() => void handlePageSave(page.id)}
+                              >
+                                수정
+                              </button>
+                              {canDeletePage(page, member?.id ?? null, member?.role) ? (
+                                <button
+                                  type="button"
+                                  className={styles.deleteButton}
+                                  onClick={() => void handlePageDelete(page)}
+                                >
+                                  삭제
+                                </button>
+                              ) : null}
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className={styles.emptyState}>등록된 페이지가 없습니다.</div>
+            )}
           </section>
         </section>
       ) : null}

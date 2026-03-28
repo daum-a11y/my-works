@@ -71,7 +71,10 @@
 .helperText {
   margin: 0;
   color: var(--text-tertiary);
-  font-size: var(--text-meta-size);
+  font-size: var(--text-body-size);
+  font-weight: var(--text-body-weight);
+  line-height: var(--text-body-line-height);
+  letter-spacing: var(--text-body-tracking);
 }
 
 .actions,
@@ -190,6 +193,10 @@
   padding: 32px 16px;
   color: var(--text-secondary);
   text-align: center;
+  font-size: var(--text-body-size);
+  font-weight: var(--text-body-weight);
+  line-height: var(--text-body-line-height);
+  letter-spacing: var(--text-body-tracking);
 }
 
 .muted {

@@ -190,6 +190,8 @@ describe('Projects routes', () => {
     const aYearAgo = new Date(today);
     aYearAgo.setFullYear(aYearAgo.getFullYear() - 1);
 
+    expect(screen.getByRole('columnheader', { name: '페이지 수' })).toBeInTheDocument();
+    expect(screen.getByRole('cell', { name: '1' })).toBeInTheDocument();
     expect(screen.getByLabelText('시작일')).toHaveValue(toLocalDateInputValue(aYearAgo));
     expect(screen.getByLabelText('종료일')).toHaveValue(toLocalDateInputValue(today));
     expect(screen.getByRole('link', { name: '프로젝트 추가' })).toHaveAttribute(

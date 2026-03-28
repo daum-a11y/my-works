@@ -99,16 +99,18 @@ export function ProjectsFeature() {
     queryKey: ['projects', member?.id],
     enabled: Boolean(member),
     queryFn: async () => {
-      const [projects, members, serviceGroups] = await Promise.all([
+      const [projects, pages, members, serviceGroups] = await Promise.all([
         opsDataClient.getProjects(),
+        opsDataClient.getProjectPages(),
         opsDataClient.getMembers(),
         opsDataClient.getServiceGroups(),
       ]);
-      return { projects, members, serviceGroups };
+      return { projects, pages, members, serviceGroups };
     },
   });
 
   const projects = query.data?.projects ?? [];
+  const pages = query.data?.pages ?? [];
   const members = query.data?.members ?? [];
   const serviceGroups = query.data?.serviceGroups ?? [];
 
@@ -120,6 +122,15 @@ export function ProjectsFeature() {
     () => new Map(serviceGroups.map((item) => [item.id, item.name] as const)),
     [serviceGroups],
   );
+  const pageCountByProjectId = useMemo(() => {
+    const counts = new Map<string, number>();
+
+    pages.forEach((page) => {
+      counts.set(page.projectId, (counts.get(page.projectId) ?? 0) + 1);
+    });
+
+    return counts;
+  }, [pages]);
 
   const filteredProjects = useMemo(() => {
     const sorted = sortProjects(projects);
@@ -214,6 +225,7 @@ export function ProjectsFeature() {
               <th scope="col">플랫폼</th>
               <th scope="col">서비스그룹</th>
               <th scope="col">프로젝트명</th>
+              <th scope="col">페이지 수</th>
               <th scope="col">보고서URL</th>
               <th scope="col">QA시작일</th>
               <th scope="col">QA종료일</th>
@@ -232,6 +244,7 @@ export function ProjectsFeature() {
                   <td>{project.platform}</td>
                   <td>{groupLabel}</td>
                   <td>{project.name}</td>
+                  <td>{pageCountByProjectId.get(project.id) ?? 0}</td>
                   <td>
                     {project.reportUrl ? (
                       <a
@@ -260,7 +273,7 @@ export function ProjectsFeature() {
             })}
             {!filteredProjects.length ? (
               <tr>
-                <td colSpan={10} className={styles.emptyState}>
+                <td colSpan={11} className={styles.emptyState}>
                   검색 결과가 없습니다. 새 프로젝트를 등록하거나 기간을 조정하십시오.
                 </td>
               </tr>

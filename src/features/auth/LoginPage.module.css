@@ -131,23 +131,26 @@
 
 .notice strong,
 .error strong {
-  font-size: var(--text-meta-size);
+  font-size: var(--text-body-size);
   font-weight: var(--text-form-weight);
-  line-height: var(--text-meta-line-height);
+  line-height: var(--text-body-line-height);
+  letter-spacing: var(--text-body-tracking);
 }
 
 .notice p,
 .error p {
   margin: 0;
-  font-size: var(--text-meta-size);
-  line-height: var(--text-meta-line-height);
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line-height);
+  letter-spacing: var(--text-body-tracking);
 }
 
 .noticeTitle {
   color: inherit;
-  font-size: var(--text-meta-size);
+  font-size: var(--text-body-size);
   font-weight: 700;
-  line-height: var(--text-meta-line-height);
+  line-height: var(--text-body-line-height);
+  letter-spacing: var(--text-body-tracking);
 }
 
 .recoveryPanel {
@@ -162,8 +165,10 @@
   background: transparent;
   border: 0;
   color: var(--text-tertiary);
-  font-size: var(--text-meta-size);
-  font-weight: 700;
+  font-size: var(--text-form-size);
+  font-weight: var(--text-form-weight);
+  line-height: var(--text-form-line-height);
+  letter-spacing: var(--text-form-tracking);
   padding: 0;
   cursor: pointer;
   transition:

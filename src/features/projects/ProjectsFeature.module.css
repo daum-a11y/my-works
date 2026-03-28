@@ -471,33 +471,109 @@
   margin: 0;
   color: var(--text-primary);
   font-size: var(--text-section-title-size);
-  font-weight: var(--text-section-title-weight);
+  font-weight: var(--font-weight-semibold);
   line-height: var(--text-section-title-line-height);
   letter-spacing: var(--text-section-title-tracking);
-}
-
-.pageFormPanel,
-.pageCard {
-  padding: var(--space-3);
-  border: 1px solid var(--border-default);
-  background: var(--surface-panel);
 }
 
 .pageFormPanel {
   margin-bottom: var(--space-3);
 }
 
-.pageList {
+.pageFormGrid {
   display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: var(--space-3);
-  margin: 0;
-  padding: 0;
-  list-style: none;
 }
 
-.pageCard {
-  display: grid;
-  gap: var(--space-3);
+.pageFormPanel .formActions {
+  margin-top: 0;
+}
+
+.pageTableWrap {
+  overflow: auto;
+  border: 1px solid var(--border-default);
+  background: var(--surface-panel);
+}
+
+.pageTable {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.pageTable th,
+.pageTable td {
+  padding: var(--space-3) var(--space-2);
+  border-bottom: 1px solid var(--border-subtle);
+  text-align: left;
+  vertical-align: middle;
+}
+
+.pageTable th {
+  color: var(--text-muted);
+  font-size: var(--text-table-size);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--text-table-line-height);
+  letter-spacing: var(--text-table-tracking);
+  text-transform: uppercase;
+  background: var(--surface-canvas-strong);
+}
+
+.pageTable th:last-child,
+.pageTable td:last-child {
+  text-align: left;
+  width: 136px;
+}
+
+.pageTable th:first-child,
+.pageTable td:first-child {
+  width: 36%;
+}
+
+.pageTable th:nth-child(2),
+.pageTable td:nth-child(2) {
+  width: auto;
+}
+
+.pageTable td :is(input, select, textarea),
+.pageFormPanel .field :is(input, select, textarea) {
+  min-height: var(--control-height-sm);
+  padding: var(--control-padding-y) var(--control-padding-x);
+  border: 1px solid var(--control-border);
+  background: var(--control-bg);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: var(--text-form-size);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--text-form-line-height);
+  letter-spacing: var(--text-form-tracking);
+  width: 100%;
+  min-width: 0;
+}
+
+.pageTable td :is(input, select, textarea)::placeholder,
+.pageFormPanel .field :is(input, select, textarea)::placeholder {
+  color: var(--control-placeholder);
+}
+
+.pageTable td :is(input, select, textarea):focus-visible,
+.pageFormPanel .field :is(input, select, textarea):focus-visible {
+  outline: 2px solid var(--focus-ring-color);
+  outline-offset: 1px;
+}
+
+.pageTableActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  white-space: nowrap;
+}
+
+.pageTableActions .secondaryButton,
+.pageTableActions .deleteButton,
+.pageFormPanel .formActions .primaryButton {
+  font-weight: var(--font-weight-regular);
 }
 
 .pageMeta {

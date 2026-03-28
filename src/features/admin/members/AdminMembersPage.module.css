@@ -40,15 +40,19 @@
 .helperText {
   margin: 0;
   color: var(--text-tertiary);
-  font-size: var(--text-meta-size);
-  line-height: var(--text-meta-line-height);
+  font-size: var(--text-body-size);
+  font-weight: var(--text-body-weight);
+  line-height: var(--text-body-line-height);
+  letter-spacing: var(--text-body-tracking);
 }
 
 .statusText {
   margin: 0;
   color: var(--state-success-text);
-  font-size: var(--text-meta-size);
-  line-height: var(--text-meta-line-height);
+  font-size: var(--text-body-size);
+  font-weight: var(--text-body-weight);
+  line-height: var(--text-body-line-height);
+  letter-spacing: var(--text-body-tracking);
 }
 
 .tableWrap {
@@ -88,6 +92,10 @@
   padding: 32px 16px;
   text-align: center !important;
   color: var(--text-tertiary);
+  font-size: var(--text-body-size);
+  font-weight: var(--text-body-weight);
+  line-height: var(--text-body-line-height);
+  letter-spacing: var(--text-body-tracking);
 }
 
 .editingRow {

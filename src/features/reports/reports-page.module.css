@@ -413,7 +413,10 @@
   padding: var(--space-6) var(--space-4);
   text-align: center;
   color: var(--text-tertiary);
+  font-size: var(--text-body-size);
+  font-weight: var(--text-body-weight);
   line-height: var(--text-body-line-height);
+  letter-spacing: var(--text-body-tracking);
 }
 
 .srOnly {
