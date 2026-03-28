@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import {
   LayoutDashboard,
@@ -9,7 +9,10 @@ import {
   Shield,
   BarChart3,
   ChevronRight,
+  ChevronDown,
   House,
+  LogOut,
+  UserRound,
 } from "lucide-react";
 import { useAuth } from "../features/auth/AuthContext";
 import styles from "./AppShell.module.css";
@@ -69,6 +72,8 @@ export function AppShell() {
   const isAdmin = session?.member.role === "admin";
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [logoutError, setLogoutError] = useState<string>("");
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement | null>(null);
 
   const navigation = useMemo(
     () => (isAdmin ? [...baseNavigation, ...adminNavigation] : [...baseNavigation]),
@@ -103,6 +108,35 @@ export function AppShell() {
     return parts;
   }, [location.pathname, navigation]);
 
+  useEffect(() => {
+    setIsUserMenuOpen(false);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (!isUserMenuOpen) {
+      return;
+    }
+
+    function handlePointerDown(event: PointerEvent) {
+      if (!userMenuRef.current?.contains(event.target as Node)) {
+        setIsUserMenuOpen(false);
+      }
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setIsUserMenuOpen(false);
+      }
+    }
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isUserMenuOpen]);
+
   async function handleLogout() {
     if (isLoggingOut) {
       return;
@@ -119,6 +153,8 @@ export function AppShell() {
       setIsLoggingOut(false);
     }
   }
+
+  const userInitials = (session?.member?.legacyUserId || session?.member?.name || "").slice(0, 2);
 
   return (
     <>
@@ -200,41 +236,60 @@ export function AppShell() {
               </nav>
             </div>
             <div className={styles.headerMeta}>
-              <div className={styles.profile}>
-                <div className={styles.profileIcon}>
-                  {(session?.member?.legacyUserId || session?.member?.name || "").slice(0, 2)}
-                </div>
-                <div className={styles.profileInfo}>
-                  <strong>{session?.member.name}</strong>
-                  <span>{session?.member.legacyUserId}</span>
-                </div>
-              </div>
-              <div className={styles.headerActions}>
-                <NavLink
-                  to="/profile"
-                  className={({ isActive }) => (isActive ? styles.headerActionActive : styles.headerAction)}
-                  title="프로필"
-                  aria-label="프로필"
-                >
-                  <span className={styles.headerActionContent}>
-                    <span className={styles.headerActionLabel}>프로필</span>
-                  </span>
-                </NavLink>
+              <div className={styles.userMenu} ref={userMenuRef}>
                 <button
                   type="button"
-                  className={`${styles.headerButton} ${styles.headerButtonDanger}`}
-                  onClick={() => void handleLogout()}
-                  aria-label="로그아웃"
-                  title="로그아웃"
-                  disabled={isLoggingOut}
-                  aria-busy={isLoggingOut || undefined}
+                  className={styles.userMenuTrigger}
+                  aria-haspopup="menu"
+                  aria-expanded={isUserMenuOpen}
+                  aria-label={`${session?.member.name ?? "사용자"} 메뉴`}
+                  onClick={() => setIsUserMenuOpen((open) => !open)}
                 >
-                  <span className={styles.headerActionContent}>
-                    <span className={styles.headerActionLabel}>
-                      {isLoggingOut ? "로그아웃 중…" : "로그아웃"}
-                    </span>
-                  </span>
+                  <div className={styles.profileIcon} aria-hidden="true">
+                    {userInitials}
+                  </div>
+                  <div className={styles.profileInfo}>
+                    <strong>{session?.member.legacyUserId}</strong>
+                  </div>
+                  <ChevronDown
+                    size={15}
+                    strokeWidth={2.2}
+                    className={isUserMenuOpen ? styles.userMenuChevronOpen : styles.userMenuChevron}
+                    aria-hidden="true"
+                  />
                 </button>
+                {isUserMenuOpen ? (
+                  <div className={styles.userMenuPanel} role="menu" aria-label="사용자 메뉴">
+                    <div className={styles.userMenuIdentity}>
+                      <div className={styles.userMenuIdentityAvatar} aria-hidden="true">
+                        {userInitials}
+                      </div>
+                      <div className={styles.userMenuIdentityText}>
+                        <strong>{session?.member.legacyUserId}</strong>
+                        <span>{session?.member.name}</span>
+                      </div>
+                    </div>
+                    <NavLink
+                      to="/profile"
+                      role="menuitem"
+                      className={({ isActive }) => (isActive ? styles.userMenuItemActive : styles.userMenuItem)}
+                    >
+                      <UserRound size={15} strokeWidth={2} aria-hidden="true" />
+                      <span>프로필</span>
+                    </NavLink>
+                    <button
+                      type="button"
+                      role="menuitem"
+                      className={`${styles.userMenuItem} ${styles.userMenuItemDanger}`}
+                      onClick={() => void handleLogout()}
+                      disabled={isLoggingOut}
+                      aria-busy={isLoggingOut || undefined}
+                    >
+                      <LogOut size={15} strokeWidth={2} aria-hidden="true" />
+                      <span>{isLoggingOut ? "로그아웃 중…" : "로그아웃"}</span>
+                    </button>
+                  </div>
+                ) : null}
               </div>
               {logoutError ? (
                 <p className={styles.headerStatus} role="alert" aria-live="polite">
