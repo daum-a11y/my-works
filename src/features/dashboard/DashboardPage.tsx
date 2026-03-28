@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { opsDataClient } from '../../lib/data-client';
@@ -8,6 +8,7 @@ import {
   filterTasksByMonth,
   getCurrentMonth,
   minutesFromHours,
+  shiftMonth,
 } from '../resource/resource-shared';
 import styles from './DashboardPage.module.css';
 
@@ -16,7 +17,7 @@ const weekdayLabels = ['일', '월', '화', '수', '목', '금', '토'];
 export function DashboardPage() {
   const { session } = useAuth();
   const member = session?.member;
-  const selectedMonth = getCurrentMonth();
+  const [selectedMonth, setSelectedMonth] = useState(() => getCurrentMonth());
 
   useEffect(() => {
     document.title = '대시보드 | My Works';
@@ -35,8 +36,7 @@ export function DashboardPage() {
   });
 
   const dashboard = dashboardQuery.data;
-  const monitoring = dashboard?.monitoring ?? [];
-  const qa = dashboard?.qa ?? [];
+  const inProgressProjects = dashboard?.inProgressProjects ?? [];
   const monthState = useMemo(() => {
     if (!member) {
       return null;
@@ -75,15 +75,37 @@ export function DashboardPage() {
         <section className={styles.calendarSection}>
           {monthState && (
             <div className={styles.sectionHead}>
-              <h2>
-                {monthState.year}년 {monthState.month}월
-              </h2>
+              <div className={styles.calendarHeading}>
+                <h2>
+                  {monthState.year}년 {monthState.month}월
+                </h2>
+                <div className={styles.calendarNav} aria-label="업무일지 월 이동">
+                  <button
+                    type="button"
+                    className={styles.calendarNavButton}
+                    onClick={() => setSelectedMonth((current) => shiftMonth(current, -1))}
+                    aria-label="이전달 보기"
+                  >
+                    <span aria-hidden="true">&lt;</span>
+                    이전달
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.calendarNavButton}
+                    onClick={() => setSelectedMonth((current) => shiftMonth(current, 1))}
+                    aria-label="다음달 보기"
+                  >
+                    다음달
+                    <span aria-hidden="true">&gt;</span>
+                  </button>
+                </div>
+              </div>
             </div>
           )}
           {monthState ? (
             <div className={styles.calendarWrap}>
               <table className={styles.calendarTable}>
-                <caption>업무일지 작성시간 현황</caption>
+                <caption>업무일지 작성 현황</caption>
                 <thead>
                   <tr>
                     {weekdayLabels.map((label) => (
@@ -171,100 +193,38 @@ export function DashboardPage() {
 
       <section className={styles.tableSection}>
         <div className={styles.sectionHead}>
-          <h2>진행중 모니터링 목록</h2>
+          <h2>진행중인 프로젝트 목록</h2>
         </div>
         <div className={styles.tableWrap}>
           <table className={styles.table}>
-            <caption className="srOnly">진행중 모니터링 목록</caption>
+            <caption className="srOnly">진행중인 프로젝트 목록</caption>
             <thead>
               <tr>
+                <th scope="col">타입1</th>
                 <th scope="col">플랫폼</th>
-                <th scope="col">앱이름</th>
-                <th scope="col">내용</th>
-                <th scope="col">보고서</th>
+                <th scope="col">서비스그룹</th>
+                <th scope="col">프로젝트명</th>
+                <th scope="col">시작일</th>
+                <th scope="col">종료일</th>
               </tr>
             </thead>
             <tbody>
-              {monitoring.map((item) => (
-                <tr key={item.pageId}>
+              {inProgressProjects.map((item) => (
+                <tr key={item.projectId}>
+                  <td>{item.type1}</td>
                   <td>
                     <span className="uiPlatformBadge">{item.platform}</span>
                   </td>
+                  <td>{item.serviceGroupName}</td>
                   <td>{item.projectName}</td>
-                  <td>{item.pageTitle || '-'}</td>
-                  <td>
-                    {item.reportUrl ? (
-                      <a
-                        href={item.reportUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className={styles.link}
-                      >
-                        열기
-                      </a>
-                    ) : (
-                      '-'
-                    )}
-                  </td>
+                  <td>{item.startDate}</td>
+                  <td>{item.endDate}</td>
                 </tr>
               ))}
-              {!monitoring.length ? (
+              {!inProgressProjects.length ? (
                 <tr>
-                  <td colSpan={4} className={styles.empty}>
-                    진행중 모니터링 항목이 없습니다.
-                  </td>
-                </tr>
-              ) : null}
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <section className={styles.tableSection}>
-        <div className={styles.sectionHead}>
-          <h2>진행중 QA 목록</h2>
-        </div>
-        <div className={styles.tableWrap}>
-          <table className={styles.table}>
-            <caption className="srOnly">진행중 QA 목록</caption>
-            <thead>
-              <tr>
-                <th scope="col">플랫폼</th>
-                <th scope="col">앱이름</th>
-                <th scope="col">리포터</th>
-                <th scope="col">종료 예정</th>
-                <th scope="col">보고서</th>
-              </tr>
-            </thead>
-            <tbody>
-              {qa.map((item) => (
-                <tr key={item.pageId}>
-                  <td>
-                    <span className="uiPlatformBadge">{item.platform}</span>
-                  </td>
-                  <td>{item.projectName}</td>
-                  <td>{item.ownerName}</td>
-                  <td>{item.dueDate || '-'}</td>
-                  <td>
-                    {item.reportUrl ? (
-                      <a
-                        href={item.reportUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className={styles.link}
-                      >
-                        열기
-                      </a>
-                    ) : (
-                      '-'
-                    )}
-                  </td>
-                </tr>
-              ))}
-              {!qa.length ? (
-                <tr>
-                  <td colSpan={5} className={styles.empty}>
-                    진행중 QA 항목이 없습니다.
+                  <td colSpan={6} className={styles.empty}>
+                    진행중인 프로젝트가 없습니다.
                   </td>
                 </tr>
               ) : null}

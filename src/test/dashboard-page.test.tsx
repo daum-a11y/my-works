@@ -1,8 +1,9 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { DashboardPage } from '../features/dashboard';
+import { getCurrentMonth, shiftMonth } from '../features/resource/resource-shared';
 
 const mockUseAuth = vi.hoisted(() => vi.fn());
 const mockOpsDataClient = vi.hoisted(() => ({
@@ -55,37 +56,22 @@ describe('DashboardPage', () => {
     mockOpsDataClient.getDashboard.mockReset();
     mockOpsDataClient.getTasks.mockReset();
     mockOpsDataClient.getDashboard.mockResolvedValue({
-      monitoring: [
+      inProgressProjects: [
         {
-          pageId: 'page-1',
+          projectId: 'project-1',
+          type1: 'QA',
           projectName: '알파',
           platform: 'iOS',
-          pageTitle: '로그인',
-          ownerName: '운영 사용자',
-          statusLabel: '개선',
-          detail: '상태 메모',
-          reportUrl: 'https://example.com/report',
-          dueDate: null,
-        },
-      ],
-      qa: [
-        {
-          pageId: 'page-2',
-          projectName: '베타',
-          platform: 'Android',
-          pageTitle: '메인',
-          ownerName: '리포터',
-          statusLabel: '미개선',
-          detail: '',
-          reportUrl: '',
-          dueDate: '2026-03-31',
+          serviceGroupName: '커머스',
+          startDate: '2026-03-01',
+          endDate: '2026-03-31',
         },
       ],
     });
     mockOpsDataClient.getTasks.mockResolvedValue([]);
   });
 
-  it('renders only the original dashboard lists', async () => {
+  it('renders the in-progress project list', async () => {
     const queryClient = new QueryClient();
 
     render(
@@ -101,9 +87,37 @@ describe('DashboardPage', () => {
     });
 
     expect(screen.getByText('알파')).toBeInTheDocument();
-    expect(screen.getByText('로그인')).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: '진행중 모니터링 목록' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: '진행중 QA 목록' })).toBeInTheDocument();
+    expect(screen.getByText('커머스')).toBeInTheDocument();
+    expect(screen.getByText('2026-03-01')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: '진행중인 프로젝트 목록' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: '진행중 모니터링 목록' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: '진행중 QA 목록' })).not.toBeInTheDocument();
     expect(screen.queryByText('업무 보고 현황')).not.toBeInTheDocument();
+  });
+
+  it('moves the worklog calendar between previous and next months', async () => {
+    const queryClient = new QueryClient();
+    const currentMonth = getCurrentMonth();
+    const previousMonth = shiftMonth(currentMonth, -1);
+    const currentHeading = `${Number(currentMonth.slice(0, 4))}년 ${Number(currentMonth.slice(5, 7))}월`;
+    const previousHeading = `${Number(previousMonth.slice(0, 4))}년 ${Number(previousMonth.slice(5, 7))}월`;
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter>
+          <DashboardPage />
+        </MemoryRouter>
+      </QueryClientProvider>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getAllByRole('heading', { name: currentHeading }).length).toBeGreaterThan(0);
+    });
+
+    fireEvent.click(screen.getAllByRole('button', { name: '이전달 보기' })[0]);
+    expect(screen.getAllByRole('heading', { name: previousHeading }).length).toBeGreaterThan(0);
+
+    fireEvent.click(screen.getAllByRole('button', { name: '다음달 보기' })[0]);
+    expect(screen.getAllByRole('heading', { name: currentHeading }).length).toBeGreaterThan(0);
   });
 });

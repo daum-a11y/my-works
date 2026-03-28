@@ -42,6 +42,46 @@
   letter-spacing: var(--text-section-title-tracking);
 }
 
+.calendarHeading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+}
+
+.calendarNav {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.calendarNavButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--border-default);
+  background: var(--surface-panel);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: var(--text-form-size);
+  font-weight: var(--text-form-weight);
+  line-height: 1;
+  cursor: pointer;
+}
+
+.calendarNavButton:hover {
+  border-color: var(--border-strong);
+  background: color-mix(in oklab, var(--surface-panel) 78%, var(--surface-canvas-strong));
+}
+
+.calendarNavButton:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
 .calendarWrap,
 .tableWrap,
 .empty {

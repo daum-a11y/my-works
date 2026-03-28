@@ -15,7 +15,7 @@ import {
   type Task,
   type TaskType,
 } from './domain';
-import { getToday, sortStatus } from './utils';
+import { getToday } from './utils';
 
 function monthKeyFromMonitoringMonth(value: string): string {
   const digits = value.replace(/\D/g, '');
@@ -91,36 +91,24 @@ export interface OpsDataClient {
 }
 
 function buildDashboard(store: OpsStore): DashboardSnapshot {
-  const membersById = new Map(store.members.map((member) => [member.id, member.name]));
-  const projectsById = new Map(store.projects.map((project) => [project.id, project]));
-  const pages = [...store.projectPages].sort(
-    (left, right) => sortStatus(left.trackStatus) - sortStatus(right.trackStatus),
-  );
-
-  const toItem = (page: ProjectPage) => {
-    const project = projectsById.get(page.projectId);
-    return {
-      pageId: page.id,
-      projectName: project?.name ?? '미분류 프로젝트',
-      platform: project?.platform ?? '-',
-      pageTitle: page.title,
-      ownerName: project?.reporterMemberId
-        ? (membersById.get(project.reporterMemberId) ?? '미지정')
-        : page.ownerMemberId
-          ? (membersById.get(page.ownerMemberId) ?? '미지정')
-          : '미지정',
-      statusLabel: page.trackStatus,
-      detail: page.note,
-      reportUrl: project?.reportUrl ?? '',
-      dueDate: project?.endDate ?? null,
-    };
-  };
+  const serviceGroupsById = new Map(store.serviceGroups.map((group) => [group.id, group.name]));
+  const today = new Date().toISOString().slice(0, 10);
 
   return {
-    monitoring: pages.filter((page) => isDashboardMonitoringPage(page)).map(toItem),
-    qa: pages
-      .filter((page) => isDashboardQaPage(page, projectsById.get(page.projectId)))
-      .map(toItem),
+    inProgressProjects: [...store.projects]
+      .filter((project) => project.startDate <= today && project.endDate >= today)
+      .sort((left, right) => left.endDate.localeCompare(right.endDate))
+      .map((project) => ({
+        projectId: project.id,
+        type1: project.projectType1 || '-',
+        platform: project.platform || '-',
+        serviceGroupName: project.serviceGroupId
+          ? (serviceGroupsById.get(project.serviceGroupId) ?? '-')
+          : '-',
+        projectName: project.name || '미분류 프로젝트',
+        startDate: project.startDate,
+        endDate: project.endDate,
+      })),
   };
 }
 
@@ -404,25 +392,25 @@ function createSupabaseClient(): OpsDataClient {
     },
     async getDashboard() {
       const [
-        { data: pages, error: pagesError },
         { data: projects, error: projectError },
         { data: members, error: membersError },
+        { data: serviceGroups, error: serviceGroupsError },
       ] = await Promise.all([
-        supabase.from('project_pages_public_view').select('*'),
         supabase.from('projects').select('*'),
         supabase.from('members_public_view').select('*'),
+        supabase.from('service_groups').select('*'),
       ]);
 
-      if (pagesError) throw pagesError;
       if (projectError) throw projectError;
       if (membersError) throw membersError;
+      if (serviceGroupsError) throw serviceGroupsError;
 
       return buildDashboard({
         members: (members ?? []).map(mapMemberRecord),
         taskTypes: [],
-        serviceGroups: [],
+        serviceGroups: (serviceGroups ?? []).map(mapServiceGroupRecord),
         projects: (projects ?? []).map(mapProjectRecord),
-        projectPages: (pages ?? []).map(mapProjectPageRecord),
+        projectPages: [],
         tasks: [],
       });
     },

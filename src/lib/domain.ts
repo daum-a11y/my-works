@@ -134,21 +134,18 @@ export interface SaveProjectPageInput {
   note: string;
 }
 
-export interface DashboardItem {
-  pageId: string;
+export interface DashboardProjectItem {
+  projectId: string;
+  type1: string;
   projectName: string;
   platform: string;
-  pageTitle: string;
-  ownerName: string;
-  statusLabel: string;
-  detail: string;
-  reportUrl: string;
-  dueDate: string | null;
+  serviceGroupName: string;
+  startDate: string;
+  endDate: string;
 }
 
 export interface DashboardSnapshot {
-  monitoring: DashboardItem[];
-  qa: DashboardItem[];
+  inProgressProjects: DashboardProjectItem[];
 }
 
 export interface StatsSnapshot {
