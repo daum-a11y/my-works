@@ -1,17 +1,17 @@
-import { useEffect, useMemo, useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { adminDataClient } from "../admin-client";
-import type { AdminServiceGroupItem, AdminServiceGroupPayload } from "../admin-types";
-import styles from "./AdminServiceGroupsPage.module.css";
+import { useEffect, useMemo, useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { adminDataClient } from '../admin-client';
+import type { AdminServiceGroupItem, AdminServiceGroupPayload } from '../admin-types';
+import styles from './AdminServiceGroupsPage.module.css';
 
 type DraftState = AdminServiceGroupPayload;
 
 function createDraft(item?: AdminServiceGroupItem): DraftState {
   if (!item) {
     return {
-      name: "",
-      svcGroup: "",
-      svcName: "",
+      name: '',
+      svcGroup: '',
+      svcName: '',
       svcType: 3,
       svcActive: true,
       displayOrder: 0,
@@ -33,16 +33,16 @@ function createDraft(item?: AdminServiceGroupItem): DraftState {
 }
 
 function typeLabel(value: number) {
-  if (value === 1) return "카카오";
-  if (value === 2) return "공동체";
-  return "외부";
+  if (value === 1) return '카카오';
+  if (value === 2) return '공동체';
+  return '외부';
 }
 
 function groupServiceGroups(items: readonly AdminServiceGroupItem[]) {
   const grouped = new Map<string, AdminServiceGroupItem[]>();
 
   for (const item of items) {
-    const key = item.svcGroup || "-";
+    const key = item.svcGroup || '-';
     const rows = grouped.get(key) ?? [];
     rows.push(item);
     grouped.set(key, rows);
@@ -61,14 +61,15 @@ export function AdminServiceGroupsPage() {
   const [draft, setDraft] = useState<DraftState | null>(null);
 
   const serviceGroupsQuery = useQuery({
-    queryKey: ["admin", "service-groups"],
+    queryKey: ['admin', 'service-groups'],
     queryFn: () => adminDataClient.listServiceGroups(),
   });
 
   const saveMutation = useMutation({
-    mutationFn: (payload: AdminServiceGroupPayload) => adminDataClient.saveServiceGroupAdmin(payload),
+    mutationFn: (payload: AdminServiceGroupPayload) =>
+      adminDataClient.saveServiceGroupAdmin(payload),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ["admin", "service-groups"] });
+      void queryClient.invalidateQueries({ queryKey: ['admin', 'service-groups'] });
       setAdding(false);
       setEditingId(null);
       setDraft(null);
@@ -78,7 +79,7 @@ export function AdminServiceGroupsPage() {
   const deleteMutation = useMutation({
     mutationFn: (serviceGroupId: string) => adminDataClient.deleteServiceGroupAdmin(serviceGroupId),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ["admin", "service-groups"] });
+      void queryClient.invalidateQueries({ queryKey: ['admin', 'service-groups'] });
       setAdding(false);
       setEditingId(null);
       setDraft(null);
@@ -88,14 +89,16 @@ export function AdminServiceGroupsPage() {
   const serviceGroups = useMemo(
     () =>
       [...(serviceGroupsQuery.data ?? [])].sort(
-        (left, right) => (left.legacySvcNum ?? left.displayOrder) - (right.legacySvcNum ?? right.displayOrder) || left.name.localeCompare(right.name),
+        (left, right) =>
+          (left.legacySvcNum ?? left.displayOrder) - (right.legacySvcNum ?? right.displayOrder) ||
+          left.name.localeCompare(right.name),
       ),
     [serviceGroupsQuery.data],
   );
   const groupedServiceGroups = useMemo(() => groupServiceGroups(serviceGroups), [serviceGroups]);
 
   useEffect(() => {
-    document.title = "서비스그룹 - 관리 | My Works";
+    document.title = '서비스그룹 - 관리 | My Works';
   }, []);
 
   const handleDraftChange = <K extends keyof DraftState>(key: K, value: DraftState[K]) => {
@@ -129,7 +132,7 @@ export function AdminServiceGroupsPage() {
   };
 
   const handleDelete = async (item: AdminServiceGroupItem) => {
-    if (!window.confirm("정말 삭제 하시겠습니까? 복구할 수 없습니다.")) {
+    if (!window.confirm('정말 삭제 하시겠습니까? 복구할 수 없습니다.')) {
       return;
     }
 
@@ -140,7 +143,7 @@ export function AdminServiceGroupsPage() {
     (serviceGroupsQuery.error instanceof Error && serviceGroupsQuery.error.message) ||
     (saveMutation.error instanceof Error && saveMutation.error.message) ||
     (deleteMutation.error instanceof Error && deleteMutation.error.message) ||
-    "";
+    '';
 
   return (
     <section className={styles.page}>
@@ -183,7 +186,7 @@ export function AdminServiceGroupsPage() {
                     type="text"
                     autoFocus
                     value={draft.svcGroup}
-                    onChange={(event) => handleDraftChange("svcGroup", event.target.value)}
+                    onChange={(event) => handleDraftChange('svcGroup', event.target.value)}
                   />
                 </td>
                 <td>
@@ -192,7 +195,7 @@ export function AdminServiceGroupsPage() {
                     className={styles.input}
                     type="text"
                     value={draft.svcName}
-                    onChange={(event) => handleDraftChange("svcName", event.target.value)}
+                    onChange={(event) => handleDraftChange('svcName', event.target.value)}
                   />
                 </td>
                 <td>
@@ -200,7 +203,7 @@ export function AdminServiceGroupsPage() {
                     aria-label="서비스 분류"
                     className={styles.select}
                     value={String(draft.svcType)}
-                    onChange={(event) => handleDraftChange("svcType", Number(event.target.value))}
+                    onChange={(event) => handleDraftChange('svcType', Number(event.target.value))}
                   >
                     <option value="1">카카오</option>
                     <option value="2">공동체</option>
@@ -215,7 +218,12 @@ export function AdminServiceGroupsPage() {
                 </td>
                 <td>
                   <div className={styles.actions}>
-                    <button type="button" className={styles.primaryAction} onClick={() => void saveDraft()} disabled={saveMutation.isPending}>
+                    <button
+                      type="button"
+                      className={styles.primaryAction}
+                      onClick={() => void saveDraft()}
+                      disabled={saveMutation.isPending}
+                    >
                       저장
                     </button>
                     <button type="button" className={styles.secondaryAction} onClick={cancelDraft}>
@@ -243,7 +251,7 @@ export function AdminServiceGroupsPage() {
                         className={styles.select}
                         autoFocus
                         value={draft.svcGroup}
-                        onChange={(event) => handleDraftChange("svcGroup", event.target.value)}
+                        onChange={(event) => handleDraftChange('svcGroup', event.target.value)}
                       >
                         {groupedServiceGroups.map((option) => (
                           <option key={option.svcGroup} value={option.svcGroup}>
@@ -256,7 +264,7 @@ export function AdminServiceGroupsPage() {
                         className={styles.input}
                         type="text"
                         value={draft.svcName}
-                        onChange={(event) => handleDraftChange("svcName", event.target.value)}
+                        onChange={(event) => handleDraftChange('svcName', event.target.value)}
                       />
                     </td>
                     <td>
@@ -264,7 +272,9 @@ export function AdminServiceGroupsPage() {
                         aria-label="서비스 분류"
                         className={styles.select}
                         value={String(draft.svcType)}
-                        onChange={(event) => handleDraftChange("svcType", Number(event.target.value))}
+                        onChange={(event) =>
+                          handleDraftChange('svcType', Number(event.target.value))
+                        }
                       >
                         <option value="1">카카오</option>
                         <option value="2">공동체</option>
@@ -275,11 +285,11 @@ export function AdminServiceGroupsPage() {
                       <select
                         aria-label="서비스 분류"
                         className={styles.select}
-                        value={draft.svcActive ? "1" : "0"}
+                        value={draft.svcActive ? '1' : '0'}
                         onChange={(event) => {
-                          const nextActive = event.target.value === "1";
-                          handleDraftChange("svcActive", nextActive);
-                          handleDraftChange("isActive", nextActive);
+                          const nextActive = event.target.value === '1';
+                          handleDraftChange('svcActive', nextActive);
+                          handleDraftChange('isActive', nextActive);
                         }}
                       >
                         <option value="1">활성</option>
@@ -288,31 +298,49 @@ export function AdminServiceGroupsPage() {
                     </td>
                     <td>
                       <div className={styles.actions}>
-                        <button type="button" className={styles.primaryAction} onClick={() => void saveDraft()} disabled={saveMutation.isPending}>
+                        <button
+                          type="button"
+                          className={styles.primaryAction}
+                          onClick={() => void saveDraft()}
+                          disabled={saveMutation.isPending}
+                        >
                           변경
                         </button>
-                        <button type="button" className={styles.secondaryAction} onClick={cancelDraft}>
+                        <button
+                          type="button"
+                          className={styles.secondaryAction}
+                          onClick={cancelDraft}
+                        >
                           취소
                         </button>
                       </div>
                     </td>
                   </tr>
                 ) : (
-                  <tr key={item.id} className={item.svcActive ? "" : styles.inactiveRow}>
+                  <tr key={item.id} className={item.svcActive ? '' : styles.inactiveRow}>
                     {rowIndex === 0 ? (
                       <td rowSpan={group.rows.length} scope="row">
                         {group.svcGroup}
                       </td>
                     ) : null}
-                    <td>{item.svcName || "-"}</td>
+                    <td>{item.svcName || '-'}</td>
                     <td>{typeLabel(item.svcType)}</td>
-                    <td>{item.svcActive ? "활성" : "비활성"}</td>
+                    <td>{item.svcActive ? '활성' : '비활성'}</td>
                     <td>
                       <div className={styles.actions}>
-                        <button type="button" className={styles.secondaryAction} onClick={() => startEdit(item)}>
+                        <button
+                          type="button"
+                          className={styles.secondaryAction}
+                          onClick={() => startEdit(item)}
+                        >
                           수정
                         </button>
-                        <button type="button" className={styles.secondaryAction} onClick={() => void handleDelete(item)} disabled={deleteMutation.isPending}>
+                        <button
+                          type="button"
+                          className={styles.secondaryAction}
+                          onClick={() => void handleDelete(item)}
+                          disabled={deleteMutation.isPending}
+                        >
                           삭제
                         </button>
                       </div>

@@ -1,10 +1,10 @@
-import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useMemo, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 
-import { useAuth } from "../auth/AuthContext";
-import { opsDataClient } from "../../lib/data-client";
-import { downloadExcelFile } from "../../lib/excel-export";
-import type { Project, ProjectPage, Task } from "../../lib/domain";
+import { useAuth } from '../auth/AuthContext';
+import { opsDataClient } from '../../lib/data-client';
+import { downloadExcelFile } from '../../lib/excel-export';
+import type { Project, ProjectPage, Task } from '../../lib/domain';
 import {
   buildReportViewModel,
   DEFAULT_REPORT_FILTERS,
@@ -14,8 +14,8 @@ import {
   shiftDateInput,
   sortReportsDescending,
   type ReportViewModel,
-} from "../reports/report-domain";
-import styles from "./search-page.module.css";
+} from '../reports/report-domain';
+import styles from './search-page.module.css';
 
 interface SearchDraft {
   startDate: string;
@@ -23,11 +23,11 @@ interface SearchDraft {
 }
 
 function formatLongCompactDate(value: string) {
-  return value ? value.replaceAll("-", "") : "";
+  return value ? value.replaceAll('-', '') : '';
 }
 
 function parseLongCompactDate(value: string) {
-  const digits = value.replace(/\D/g, "");
+  const digits = value.replace(/\D/g, '');
 
   if (digits.length === 8) {
     return `${digits.slice(0, 4)}-${digits.slice(4, 6)}-${digits.slice(6, 8)}`;
@@ -37,7 +37,7 @@ function parseLongCompactDate(value: string) {
 }
 
 function buildExportFilename(startDate: string, endDate: string) {
-  const compact = (value: string) => value.replaceAll("-", "").slice(2);
+  const compact = (value: string) => value.replaceAll('-', '').slice(2);
 
   if (startDate && endDate && startDate === endDate) {
     return `${compact(startDate)}_검색결과.xlsx`;
@@ -55,7 +55,7 @@ function buildExportFilename(startDate: string, endDate: string) {
     return `${compact(endDate)}~${compact(endDate)}_검색결과.xlsx`;
   }
 
-  return "검색결과.xlsx";
+  return '검색결과.xlsx';
 }
 
 function toReportRecord(
@@ -64,20 +64,20 @@ function toReportRecord(
   projectsById: Map<string, Project>,
   pagesById: Map<string, ProjectPage>,
 ) {
-  const project = task.projectId ? projectsById.get(task.projectId) ?? null : null;
-  const page = task.pageId ? pagesById.get(task.pageId) ?? null : null;
+  const project = task.projectId ? (projectsById.get(task.projectId) ?? null) : null;
+  const page = task.pageId ? (pagesById.get(task.pageId) ?? null) : null;
 
   return {
     id: task.id,
     ownerId: member.id,
     ownerName: member.name,
     reportDate: task.taskDate,
-    projectId: task.projectId ?? "",
-    pageId: task.pageId ?? "",
-    projectName: project?.name ?? "",
-    pageName: page?.title ?? "",
-    type1: task.taskType1 as ReportViewModel["type1"],
-    type2: task.taskType2 as ReportViewModel["type2"],
+    projectId: task.projectId ?? '',
+    pageId: task.pageId ?? '',
+    projectName: project?.name ?? '',
+    pageName: page?.title ?? '',
+    type1: task.taskType1 as ReportViewModel['type1'],
+    type2: task.taskType2 as ReportViewModel['type2'],
     workHours: task.hours,
     content: task.content,
     note: task.note,
@@ -91,31 +91,31 @@ export function SearchPage() {
   const member = session?.member ?? null;
 
   const [searchDraft, setSearchDraft] = useState<SearchDraft>({
-    startDate: "",
-    endDate: "",
+    startDate: '',
+    endDate: '',
   });
   const [appliedSearch, setAppliedSearch] = useState<SearchDraft>(searchDraft);
 
   const projectsQuery = useQuery({
-    queryKey: ["search", "projects"],
+    queryKey: ['search', 'projects'],
     queryFn: async () => opsDataClient.getProjects(),
     enabled: Boolean(member),
   });
 
   const serviceGroupsQuery = useQuery({
-    queryKey: ["search", "service-groups"],
+    queryKey: ['search', 'service-groups'],
     queryFn: async () => opsDataClient.getServiceGroups(),
     enabled: Boolean(member),
   });
 
   const pagesQuery = useQuery({
-    queryKey: ["search", "pages", member?.id],
+    queryKey: ['search', 'pages', member?.id],
     queryFn: async () => opsDataClient.getProjectPages(member!),
     enabled: Boolean(member),
   });
 
   const tasksQuery = useQuery({
-    queryKey: ["search", "tasks", member?.id, appliedSearch.startDate, appliedSearch.endDate],
+    queryKey: ['search', 'tasks', member?.id, appliedSearch.startDate, appliedSearch.endDate],
     queryFn: async () =>
       opsDataClient.searchTasks(member!, {
         ...DEFAULT_REPORT_FILTERS,
@@ -134,10 +134,7 @@ export function SearchPage() {
     () => new Map(projects.map((project) => [project.id, project] as const)),
     [projects],
   );
-  const pagesById = useMemo(
-    () => new Map(pages.map((page) => [page.id, page] as const)),
-    [pages],
-  );
+  const pagesById = useMemo(() => new Map(pages.map((page) => [page.id, page] as const)), [pages]);
   const serviceGroupsById = useMemo(
     () => new Map(serviceGroups.map((group) => [group.id, group] as const)),
     [serviceGroups],
@@ -149,7 +146,12 @@ export function SearchPage() {
     }
 
     return tasks.map((task) =>
-      buildReportViewModel(toReportRecord(task, member, projectsById, pagesById), projectsById, serviceGroupsById, pagesById),
+      buildReportViewModel(
+        toReportRecord(task, member, projectsById, pagesById),
+        projectsById,
+        serviceGroupsById,
+        pagesById,
+      ),
     );
   }, [member, tasks, projectsById, pagesById, serviceGroupsById]);
 
@@ -172,28 +174,37 @@ export function SearchPage() {
 
   const handleDownload = () => {
     if (!appliedSearch.startDate) {
-      window.alert("시작일을 지정해주세요.");
+      window.alert('시작일을 지정해주세요.');
       return;
     }
 
     if (!appliedSearch.endDate) {
-      window.alert("종료일을 지정해주세요.");
+      window.alert('종료일을 지정해주세요.');
       return;
     }
 
-    downloadExcelFile(buildExportFilename(appliedSearch.startDate, appliedSearch.endDate), "검색결과", sortedReports, [
-      { header: "일자", value: (report) => formatReportDate(report.reportDate), width: 12 },
-      { header: "타입1", value: (report) => report.type1, width: 12 },
-      { header: "타입2", value: (report) => report.type2, width: 12 },
-      { header: "플랫폼", value: (report) => report.platform || "-", width: 14 },
-      { header: "서비스그룹", value: (report) => report.serviceGroupName || "-", width: 16 },
-      { header: "서비스명", value: (report) => report.serviceName || "-", width: 18 },
-      { header: "프로젝트명", value: (report) => report.projectDisplayName, width: 24 },
-      { header: "페이지&내용", value: (report) => `${report.pageDisplayName} ${report.content}`.trim(), width: 36 },
-      { header: "URL", value: (report) => report.pageUrl || "-", width: 32 },
-      { header: "총시간", value: (report) => formatReportHours(report.workHours), width: 12 },
-      { header: "비고", value: (report) => report.note || "-", width: 24 },
-    ]);
+    downloadExcelFile(
+      buildExportFilename(appliedSearch.startDate, appliedSearch.endDate),
+      '검색결과',
+      sortedReports,
+      [
+        { header: '일자', value: (report) => formatReportDate(report.reportDate), width: 12 },
+        { header: '타입1', value: (report) => report.type1, width: 12 },
+        { header: '타입2', value: (report) => report.type2, width: 12 },
+        { header: '플랫폼', value: (report) => report.platform || '-', width: 14 },
+        { header: '서비스그룹', value: (report) => report.serviceGroupName || '-', width: 16 },
+        { header: '서비스명', value: (report) => report.serviceName || '-', width: 18 },
+        { header: '프로젝트명', value: (report) => report.projectDisplayName, width: 24 },
+        {
+          header: '페이지&내용',
+          value: (report) => `${report.pageDisplayName} ${report.content}`.trim(),
+          width: 36,
+        },
+        { header: 'URL', value: (report) => report.pageUrl || '-', width: 32 },
+        { header: '총시간', value: (report) => formatReportHours(report.workHours), width: 12 },
+        { header: '비고', value: (report) => report.note || '-', width: 24 },
+      ],
+    );
   };
 
   return (
@@ -210,16 +221,29 @@ export function SearchPage() {
             <h2 className={styles.panelTitle}>일자별 등록 업무 검색</h2>
           </div>
           <div className={styles.toolbarActions}>
-            <button type="button" className={styles.secondaryButton} onClick={() => applyPresetDate(-1)}>
+            <button
+              type="button"
+              className={styles.secondaryButton}
+              onClick={() => applyPresetDate(-1)}
+            >
               어제
             </button>
-            <button type="button" className={styles.secondaryButton} onClick={() => applyPresetDate(0)}>
+            <button
+              type="button"
+              className={styles.secondaryButton}
+              onClick={() => applyPresetDate(0)}
+            >
               오늘
             </button>
             <button type="button" className={styles.primaryButton} onClick={runSearch}>
               검색
             </button>
-            <button type="button" className={styles.secondaryButton} onClick={handleDownload} disabled={!sortedReports.length}>
+            <button
+              type="button"
+              className={styles.secondaryButton}
+              onClick={handleDownload}
+              disabled={!sortedReports.length}
+            >
               다운로드
             </button>
           </div>
@@ -232,7 +256,12 @@ export function SearchPage() {
               type="text"
               placeholder="YYYYMMDD"
               value={formatLongCompactDate(searchDraft.startDate)}
-              onChange={(event) => setSearchDraft((current) => ({ ...current, startDate: parseLongCompactDate(event.target.value) }))}
+              onChange={(event) =>
+                setSearchDraft((current) => ({
+                  ...current,
+                  startDate: parseLongCompactDate(event.target.value),
+                }))
+              }
             />
           </label>
 
@@ -242,7 +271,12 @@ export function SearchPage() {
               type="text"
               placeholder="YYYYMMDD"
               value={formatLongCompactDate(searchDraft.endDate)}
-              onChange={(event) => setSearchDraft((current) => ({ ...current, endDate: parseLongCompactDate(event.target.value) }))}
+              onChange={(event) =>
+                setSearchDraft((current) => ({
+                  ...current,
+                  endDate: parseLongCompactDate(event.target.value),
+                }))
+              }
             />
           </label>
         </div>
@@ -284,20 +318,20 @@ export function SearchPage() {
                     <strong>{report.type2}</strong>
                   </td>
                   <td>
-                    <strong>{report.platform || "-"}</strong>
+                    <strong>{report.platform || '-'}</strong>
                   </td>
                   <td>
-                    <strong>{report.serviceGroupName || "-"}</strong>
+                    <strong>{report.serviceGroupName || '-'}</strong>
                   </td>
                   <td>
-                    <strong>{report.serviceName || "-"}</strong>
+                    <strong>{report.serviceName || '-'}</strong>
                   </td>
                   <td>
                     <strong>{report.projectDisplayName}</strong>
                   </td>
                   <td>
                     <strong>{report.pageDisplayName}</strong>
-                    <span>{report.content || "-"}</span>
+                    <span>{report.content || '-'}</span>
                   </td>
                   <td>
                     {report.pageUrl ? (
@@ -305,17 +339,18 @@ export function SearchPage() {
                         링크
                       </a>
                     ) : (
-                      "-"
+                      '-'
                     )}
                   </td>
                   <td className="tabularNums">{formatReportHours(report.workHours)}</td>
-                  <td>{report.note || "-"}</td>
+                  <td>{report.note || '-'}</td>
                 </tr>
               ))}
               {sortedReports.length ? (
                 <tr>
                   <td colSpan={9} className={styles.emptyState}>
-                    {formatReportDate(appliedSearch.startDate)} ~ {formatReportDate(appliedSearch.endDate)}
+                    {formatReportDate(appliedSearch.startDate)} ~{' '}
+                    {formatReportDate(appliedSearch.endDate)}
                   </td>
                   <td className="tabularNums">{formatReportHours(totalMinutes)}</td>
                   <td />

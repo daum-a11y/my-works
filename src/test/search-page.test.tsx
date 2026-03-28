@@ -1,12 +1,12 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render, screen, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import { SearchPage } from "../features/search/search-page";
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { SearchPage } from '../features/search/search-page';
 
 const mockUseAuth = vi.hoisted(() => vi.fn());
 const mockOpsDataClient = vi.hoisted(() => ({
-  mode: "supabase" as const,
+  mode: 'supabase' as const,
   getMembers: vi.fn(),
   getMemberByEmail: vi.fn(),
   getMemberByAuthId: vi.fn(),
@@ -26,25 +26,25 @@ const mockOpsDataClient = vi.hoisted(() => ({
   getStats: vi.fn(),
 }));
 
-vi.mock("../features/auth/AuthContext", () => ({
+vi.mock('../features/auth/AuthContext', () => ({
   useAuth: mockUseAuth,
 }));
 
-vi.mock("../lib/data-client", () => ({
+vi.mock('../lib/data-client', () => ({
   opsDataClient: mockOpsDataClient,
 }));
 
-describe("SearchPage", () => {
+describe('SearchPage', () => {
   beforeEach(() => {
     mockUseAuth.mockReturnValue({
-      status: "authenticated",
+      status: 'authenticated',
       session: {
         member: {
-          id: "member-1",
-          legacyUserId: "legacy-1",
-          name: "운영 사용자",
-          email: "operator@example.com",
-          role: "user",
+          id: 'member-1',
+          legacyUserId: 'legacy-1',
+          name: '운영 사용자',
+          email: 'operator@example.com',
+          role: 'user',
           isActive: true,
         },
       },
@@ -52,56 +52,56 @@ describe("SearchPage", () => {
 
     mockOpsDataClient.getProjects.mockResolvedValue([
       {
-        id: "project-1",
-        legacyProjectId: "legacy-project-1",
+        id: 'project-1',
+        legacyProjectId: 'legacy-project-1',
         createdByMemberId: null,
-        name: "알파",
-        platform: "iOS",
+        name: '알파',
+        platform: 'iOS',
         serviceGroupId: null,
-        reportUrl: "",
+        reportUrl: '',
         reporterMemberId: null,
         reviewerMemberId: null,
-        startDate: "2026-03-01",
-        endDate: "2026-03-31",
+        startDate: '2026-03-01',
+        endDate: '2026-03-31',
         isActive: true,
       },
     ]);
     mockOpsDataClient.getProjectPages.mockResolvedValue([
       {
-        id: "page-1",
-        legacyPageId: "legacy-page-1",
-        projectId: "project-1",
-        title: "로그인",
-        url: "https://example.com/login",
-        ownerMemberId: "member-1",
-        trackStatus: "개선",
+        id: 'page-1',
+        legacyPageId: 'legacy-page-1',
+        projectId: 'project-1',
+        title: '로그인',
+        url: 'https://example.com/login',
+        ownerMemberId: 'member-1',
+        trackStatus: '개선',
         monitoringInProgress: true,
         qaInProgress: false,
-        note: "",
-        updatedAt: "2026-03-24T09:00:00.000Z",
+        note: '',
+        updatedAt: '2026-03-24T09:00:00.000Z',
       },
     ]);
     mockOpsDataClient.getServiceGroups.mockResolvedValue([]);
     mockOpsDataClient.searchTasks.mockResolvedValue([
       {
-        id: "task-1",
-        legacyTaskId: "legacy-task-1",
-        memberId: "member-1",
-        taskDate: "2026-03-24",
-        projectId: "project-1",
-        pageId: "page-1",
-        taskType1: "기획",
-        taskType2: "작성",
+        id: 'task-1',
+        legacyTaskId: 'legacy-task-1',
+        memberId: 'member-1',
+        taskDate: '2026-03-24',
+        projectId: 'project-1',
+        pageId: 'page-1',
+        taskType1: '기획',
+        taskType2: '작성',
         hours: 60,
-        content: "업무",
-        note: "비고",
-        createdAt: "2026-03-24T09:00:00.000Z",
-        updatedAt: "2026-03-24T09:00:00.000Z",
+        content: '업무',
+        note: '비고',
+        createdAt: '2026-03-24T09:00:00.000Z',
+        updatedAt: '2026-03-24T09:00:00.000Z',
       },
     ]);
   });
 
-  it("renders the original query flow and result table", async () => {
+  it('renders the original query flow and result table', async () => {
     const user = userEvent.setup();
     const queryClient = new QueryClient();
 
@@ -112,21 +112,23 @@ describe("SearchPage", () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByRole("button", { name: "어제" })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: '어제' })).toBeInTheDocument();
     });
 
-    await user.click(screen.getByRole("button", { name: "오늘" }));
-    await user.click(screen.getByRole("button", { name: "검색" }));
+    await user.click(screen.getByRole('button', { name: '오늘' }));
+    await user.click(screen.getByRole('button', { name: '검색' }));
 
     await waitFor(() => {
       expect(mockOpsDataClient.searchTasks).toHaveBeenCalled();
     });
 
-    expect(screen.getByRole("button", { name: "다운로드" })).toBeInTheDocument();
-    expect(screen.getByRole("columnheader", { name: "서비스그룹" })).toBeInTheDocument();
-    expect(screen.getAllByText("알파").length).toBeGreaterThan(0);
-    expect(screen.getByText("로그인")).toBeInTheDocument();
-    expect(screen.getByText((_, element) => element?.textContent === "2026.03.28 ~ 2026.03.28")).toBeInTheDocument();
-    expect(screen.getAllByText("60분").length).toBeGreaterThan(0);
+    expect(screen.getByRole('button', { name: '다운로드' })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: '서비스그룹' })).toBeInTheDocument();
+    expect(screen.getAllByText('알파').length).toBeGreaterThan(0);
+    expect(screen.getByText('로그인')).toBeInTheDocument();
+    expect(
+      screen.getByText((_, element) => element?.textContent === '2026.03.28 ~ 2026.03.28'),
+    ).toBeInTheDocument();
+    expect(screen.getAllByText('60분').length).toBeGreaterThan(0);
   });
 });

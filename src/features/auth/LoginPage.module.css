@@ -5,8 +5,17 @@
   gap: var(--space-form-section-gap);
   min-height: 100vh;
   background:
-    radial-gradient(circle at top left, color-mix(in oklab, var(--accent-soft) 58%, var(--surface-canvas)) 0, transparent 34%),
-    linear-gradient(180deg, color-mix(in oklab, var(--surface-canvas) 88%, var(--accent-soft)) 0%, var(--surface-canvas) 24%, var(--surface-canvas) 100%);
+    radial-gradient(
+      circle at top left,
+      color-mix(in oklab, var(--accent-soft) 58%, var(--surface-canvas)) 0,
+      transparent 34%
+    ),
+    linear-gradient(
+      180deg,
+      color-mix(in oklab, var(--surface-canvas) 88%, var(--accent-soft)) 0%,
+      var(--surface-canvas) 24%,
+      var(--surface-canvas) 100%
+    );
   padding: clamp(20px, 4vw, 44px);
 }
 
@@ -25,11 +34,15 @@
 }
 
 .panel::before {
-  content: "";
+  content: '';
   position: absolute;
   inset: 0 auto 0 0;
   width: 5px;
-  background: linear-gradient(180deg, var(--accent-strong) 0%, color-mix(in oklab, var(--accent-strong) 42%, var(--surface-panel)) 100%);
+  background: linear-gradient(
+    180deg,
+    var(--accent-strong) 0%,
+    color-mix(in oklab, var(--accent-strong) 42%, var(--surface-panel)) 100%
+  );
 }
 
 .introBlock,
@@ -98,13 +111,13 @@
   width: 100%;
 }
 
-.notice[data-state="info"] {
+.notice[data-state='info'] {
   background: color-mix(in oklab, var(--state-info-bg) 58%, var(--surface-panel));
   border-inline-start-color: var(--state-info-text);
   color: var(--state-info-text);
 }
 
-.notice[data-state="success"] {
+.notice[data-state='success'] {
   background: color-mix(in oklab, var(--state-success-bg) 58%, var(--surface-panel));
   border-inline-start-color: var(--state-success-text);
   color: var(--state-success-text);

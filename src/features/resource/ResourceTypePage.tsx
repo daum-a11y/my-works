@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
-import { PageSection } from "../../components/ui/PageSection";
-import { countWorkingDays, formatMm, useResourceDataset } from "./resource-shared";
-import styles from "./ResourcePage.module.css";
+import { useEffect, useMemo, useState } from 'react';
+import { PageSection } from '../../components/ui/PageSection';
+import { countWorkingDays, formatMm, useResourceDataset } from './resource-shared';
+import styles from './ResourcePage.module.css';
 
 export function ResourceTypePage() {
   const query = useResourceDataset();
@@ -9,7 +9,7 @@ export function ResourceTypePage() {
   const [fold, setFold] = useState(false);
 
   useEffect(() => {
-    document.title = "요약 - 투입리소스 | My Works";
+    document.title = '요약 - 투입리소스 | My Works';
   }, []);
 
   const rows = useMemo(() => {
@@ -17,7 +17,10 @@ export function ResourceTypePage() {
       return [];
     }
 
-    const source = data.member.role === "admin" ? data.tasks : data.tasks.filter((task) => task.memberId === data.member.id);
+    const source =
+      data.member.role === 'admin'
+        ? data.tasks
+        : data.tasks.filter((task) => task.memberId === data.member.id);
     const grouped = new Map<string, Map<string, number>>();
 
     for (const task of source) {
@@ -38,7 +41,9 @@ export function ResourceTypePage() {
       }>
     >();
 
-    for (const [month, types] of Array.from(grouped.entries()).sort(([left], [right]) => left.localeCompare(right))) {
+    for (const [month, types] of Array.from(grouped.entries()).sort(([left], [right]) =>
+      left.localeCompare(right),
+    )) {
       const year = month.slice(0, 4);
       const months = years.get(year) ?? [];
       months.push({
@@ -65,7 +70,7 @@ export function ResourceTypePage() {
     <PageSection title="전체 기간">
       <div className={styles.tableActionRow}>
         <button type="button" onClick={() => setFold((current) => !current)}>
-          {fold ? "펼치기" : "접기"}
+          {fold ? '펼치기' : '접기'}
         </button>
       </div>
 
@@ -106,7 +111,12 @@ function TypeYearRows({
     yearTotalMinutes: number;
     detailRowCount: number;
     foldRowCount: number;
-    months: Array<{ month: string; totalMinutes: number; workingDays: number; items: Array<{ type: string; minutes: number }> }>;
+    months: Array<{
+      month: string;
+      totalMinutes: number;
+      workingDays: number;
+      items: Array<{ type: string; minutes: number }>;
+    }>;
   };
   fold: boolean;
 }) {
@@ -157,7 +167,12 @@ function MonthDetailRows({
   yearRowSpan,
 }: {
   year: string;
-  month: { month: string; totalMinutes: number; workingDays: number; items: Array<{ type: string; minutes: number }> };
+  month: {
+    month: string;
+    totalMinutes: number;
+    workingDays: number;
+    items: Array<{ type: string; minutes: number }>;
+  };
   showYear: boolean;
   yearRowSpan: number;
 }) {

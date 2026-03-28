@@ -1,8 +1,10 @@
 :root {
   color-scheme: light;
-  --font-display: "KoddiUD OnGothic", "SUIT Variable", "Spoqa Han Sans Neo", "Noto Sans KR", sans-serif;
-  --font-body: "KoddiUD OnGothic", "SUIT Variable", "Spoqa Han Sans Neo", "Noto Sans KR", sans-serif;
-  --font-mono: "JetBrains Mono", "SF Mono", "Menlo", monospace;
+  --font-display:
+    'KoddiUD OnGothic', 'SUIT Variable', 'Spoqa Han Sans Neo', 'Noto Sans KR', sans-serif;
+  --font-body:
+    'KoddiUD OnGothic', 'SUIT Variable', 'Spoqa Han Sans Neo', 'Noto Sans KR', sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', 'Menlo', monospace;
 
   /* Industrial neutrals with a cool slate bias */
   --raw-paper-0: oklch(0.995 0.004 250);
@@ -85,7 +87,9 @@
   --accent: var(--accent-strong);
   --accent-foreground: var(--text-inverse);
   --focus-ring-color: var(--raw-indigo-600);
-  --focus-ring-shadow: 0 0 0 1px var(--surface-panel), 0 0 0 3px color-mix(in oklab, var(--focus-ring-color) 72%, white);
+  --focus-ring-shadow:
+    0 0 0 1px var(--surface-panel),
+    0 0 0 3px color-mix(in oklab, var(--focus-ring-color) 72%, white);
 
   --button-primary-bg: var(--raw-indigo-600);
   --button-primary-bg-hover: var(--raw-indigo-700);

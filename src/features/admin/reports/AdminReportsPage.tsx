@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom";
-import { downloadExcelFile } from "../../../lib/excel-export";
-import { toLocalDateInputValue } from "../../../lib/utils";
-import { adminDataClient } from "../admin-client";
+import { useEffect, useMemo, useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
+import { downloadExcelFile } from '../../../lib/excel-export';
+import { toLocalDateInputValue } from '../../../lib/utils';
+import { adminDataClient } from '../admin-client';
 import type {
   AdminProjectOption,
   AdminServiceGroupItem,
@@ -11,24 +11,24 @@ import type {
   AdminTaskSearchItem,
   AdminTaskTypeItem,
   MemberAdminItem,
-} from "../admin-types";
-import styles from "./AdminReportsPage.module.css";
+} from '../admin-types';
+import styles from './AdminReportsPage.module.css';
 
 type SortKey =
-  | "id"
-  | "taskDate"
-  | "member"
-  | "taskType1"
-  | "taskType2"
-  | "platform"
-  | "serviceGroup"
-  | "serviceName"
-  | "projectName"
-  | "pageTitle"
-  | "hours"
-  | "note";
+  | 'id'
+  | 'taskDate'
+  | 'member'
+  | 'taskType1'
+  | 'taskType2'
+  | 'platform'
+  | 'serviceGroup'
+  | 'serviceName'
+  | 'projectName'
+  | 'pageTitle'
+  | 'hours'
+  | 'note';
 
-type SortDirection = "asc" | "desc";
+type SortDirection = 'asc' | 'desc';
 
 interface SortState {
   key: SortKey;
@@ -36,8 +36,8 @@ interface SortState {
 }
 
 const defaultSort: SortState = {
-  key: "taskDate",
-  direction: "desc",
+  key: 'taskDate',
+  direction: 'desc',
 };
 
 function getTodayInputValue() {
@@ -45,7 +45,7 @@ function getTodayInputValue() {
 }
 
 function buildExportFilename(startDate: string, endDate: string) {
-  const compact = (value: string) => value.replaceAll("-", "").slice(2);
+  const compact = (value: string) => value.replaceAll('-', '').slice(2);
 
   if (startDate && endDate && startDate === endDate) {
     return `${compact(startDate)}_검색결과.xlsx`;
@@ -63,19 +63,19 @@ function buildExportFilename(startDate: string, endDate: string) {
     return `${compact(endDate)}~${compact(endDate)}_검색결과.xlsx`;
   }
 
-  return "검색결과.xlsx";
+  return '검색결과.xlsx';
 }
 
 function formatSummaryMinutes(minutes: number) {
-  return `${minutes.toFixed(0).replace(/(\d)(?=(\d{3})+(?:\.\d+)?$)/g, "$1,")}분`;
+  return `${minutes.toFixed(0).replace(/(\d)(?=(\d{3})+(?:\.\d+)?$)/g, '$1,')}분`;
 }
 
 function formatTimeCell(value: number) {
-  return Number.isFinite(value) ? String(value) : "";
+  return Number.isFinite(value) ? String(value) : '';
 }
 
 function compareText(left: string, right: string) {
-  return left.localeCompare(right, "ko");
+  return left.localeCompare(right, 'ko');
 }
 
 function getSortValue(
@@ -84,29 +84,29 @@ function getSortValue(
   key: SortKey,
 ) {
   switch (key) {
-    case "id":
+    case 'id':
       return task.id;
-    case "member":
+    case 'member':
       return membersById.get(task.memberId)?.legacyUserId ?? task.memberId;
-    case "taskType1":
+    case 'taskType1':
       return task.taskType1;
-    case "taskType2":
+    case 'taskType2':
       return task.taskType2;
-    case "platform":
+    case 'platform':
       return task.platform;
-    case "serviceGroup":
+    case 'serviceGroup':
       return task.serviceGroupName;
-    case "serviceName":
+    case 'serviceName':
       return task.serviceName;
-    case "projectName":
+    case 'projectName':
       return task.projectName;
-    case "pageTitle":
+    case 'pageTitle':
       return task.pageTitle;
-    case "hours":
+    case 'hours':
       return task.hours;
-    case "note":
+    case 'note':
       return task.note;
-    case "taskDate":
+    case 'taskDate':
     default:
       return task.taskDate;
   }
@@ -117,17 +117,17 @@ function sortTasks(
   sort: SortState,
   membersById: Map<string, MemberAdminItem>,
 ) {
-  const direction = sort.direction === "asc" ? 1 : -1;
+  const direction = sort.direction === 'asc' ? 1 : -1;
 
   return [...tasks].sort((left, right) => {
     const leftValue = getSortValue(left, membersById, sort.key);
     const rightValue = getSortValue(right, membersById, sort.key);
 
-    if (typeof leftValue === "number" && typeof rightValue === "number") {
+    if (typeof leftValue === 'number' && typeof rightValue === 'number') {
       return (leftValue - rightValue) * direction;
     }
 
-    return compareText(String(leftValue ?? ""), String(rightValue ?? "")) * direction;
+    return compareText(String(leftValue ?? ''), String(rightValue ?? '')) * direction;
   });
 }
 
@@ -136,12 +136,16 @@ function getTaskType1Options(taskTypes: readonly AdminTaskTypeItem[], currentVal
   if (currentValue) {
     names.add(currentValue);
   }
-  names.add("project");
+  names.add('project');
   return Array.from(names);
 }
 
-function getTaskType2Options(taskTypes: readonly AdminTaskTypeItem[], type1?: string, currentValue?: string) {
-  if (!type1 || type1 === "project") {
+function getTaskType2Options(
+  taskTypes: readonly AdminTaskTypeItem[],
+  type1?: string,
+  currentValue?: string,
+) {
+  if (!type1 || type1 === 'project') {
     return currentValue ? [currentValue] : [];
   }
 
@@ -164,7 +168,7 @@ function SortButton({
   onChange: (next: SortState) => void;
 }) {
   const active = sortState.key === sortKey;
-  const nextDirection: SortDirection = active && sortState.direction === "asc" ? "desc" : "asc";
+  const nextDirection: SortDirection = active && sortState.direction === 'asc' ? 'desc' : 'asc';
 
   return (
     <button
@@ -174,7 +178,9 @@ function SortButton({
       aria-label={`${label} 정렬`}
     >
       <span>{label}</span>
-      <span className={styles.sortArrow}>{active && sortState.direction === "asc" ? "▲" : "▼"}</span>
+      <span className={styles.sortArrow}>
+        {active && sortState.direction === 'asc' ? '▲' : '▼'}
+      </span>
     </button>
   );
 }
@@ -183,34 +189,36 @@ export function AdminReportsPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [filters, setFilters] = useState<AdminTaskSearchFilters>(() => createDefaultFilters());
-  const [appliedFilters, setAppliedFilters] = useState<AdminTaskSearchFilters>(() => createDefaultFilters());
+  const [appliedFilters, setAppliedFilters] = useState<AdminTaskSearchFilters>(() =>
+    createDefaultFilters(),
+  );
   const [memberFilterIds, setMemberFilterIds] = useState<string[]>([]);
   const [appliedMemberFilterIds, setAppliedMemberFilterIds] = useState<string[]>([]);
   const [sortState, setSortState] = useState<SortState>(defaultSort);
-  const [localMutationError, setLocalMutationError] = useState("");
+  const [localMutationError, setLocalMutationError] = useState('');
 
   useEffect(() => {
-    document.title = "전체 업무보고 검색 | My Works";
+    document.title = '전체 업무보고 검색 | My Works';
   }, []);
 
   const membersQuery = useQuery({
-    queryKey: ["admin", "members"],
+    queryKey: ['admin', 'members'],
     queryFn: () => adminDataClient.listMembersAdmin(),
   });
   const taskTypesQuery = useQuery({
-    queryKey: ["admin", "task-types"],
+    queryKey: ['admin', 'task-types'],
     queryFn: () => adminDataClient.listTaskTypes(),
   });
   const serviceGroupsQuery = useQuery({
-    queryKey: ["admin", "service-groups"],
+    queryKey: ['admin', 'service-groups'],
     queryFn: () => adminDataClient.listServiceGroups(),
   });
   const projectsQuery = useQuery({
-    queryKey: ["admin", "projects"],
+    queryKey: ['admin', 'projects'],
     queryFn: () => adminDataClient.listProjects(),
   });
   const searchQuery = useQuery({
-    queryKey: ["admin", "task-search", appliedFilters],
+    queryKey: ['admin', 'task-search', appliedFilters],
     queryFn: () => adminDataClient.searchTasksAdmin(appliedFilters),
   });
 
@@ -219,19 +227,27 @@ export function AdminReportsPage() {
   const serviceGroups = serviceGroupsQuery.data ?? [];
   const projects = projectsQuery.data ?? [];
   const tasks = searchQuery.data ?? [];
-  const membersById = useMemo(() => new Map(members.map((member) => [member.id, member] as const)), [members]);
+  const membersById = useMemo(
+    () => new Map(members.map((member) => [member.id, member] as const)),
+    [members],
+  );
 
   const visibleProjects = useMemo(
-    () => (filters.serviceGroupId ? projects.filter((project) => project.serviceGroupId === filters.serviceGroupId) : projects),
+    () =>
+      filters.serviceGroupId
+        ? projects.filter((project) => project.serviceGroupId === filters.serviceGroupId)
+        : projects,
     [filters.serviceGroupId, projects],
   );
 
-  const taskType1Options = useMemo(() => getTaskType1Options(taskTypes, filters.taskType1), [filters.taskType1, taskTypes]);
-  const taskType2Options = useMemo(() => getTaskType2Options(taskTypes, filters.taskType1, filters.taskType2), [
-    filters.taskType1,
-    filters.taskType2,
-    taskTypes,
-  ]);
+  const taskType1Options = useMemo(
+    () => getTaskType1Options(taskTypes, filters.taskType1),
+    [filters.taskType1, taskTypes],
+  );
+  const taskType2Options = useMemo(
+    () => getTaskType2Options(taskTypes, filters.taskType1, filters.taskType2),
+    [filters.taskType1, filters.taskType2, taskTypes],
+  );
 
   const filteredTasks = useMemo(() => {
     return tasks.filter((task) => {
@@ -243,30 +259,41 @@ export function AdminReportsPage() {
     });
   }, [appliedMemberFilterIds, tasks]);
 
-  const sortedTasks = useMemo(() => sortTasks(filteredTasks, sortState, membersById), [filteredTasks, membersById, sortState]);
-  const totalMinutes = useMemo(() => sortedTasks.reduce((sum, task) => sum + task.hours, 0), [sortedTasks]);
+  const sortedTasks = useMemo(
+    () => sortTasks(filteredTasks, sortState, membersById),
+    [filteredTasks, membersById, sortState],
+  );
+  const totalMinutes = useMemo(
+    () => sortedTasks.reduce((sum, task) => sum + task.hours, 0),
+    [sortedTasks],
+  );
 
   const deleteMutation = useMutation({
     mutationFn: (taskId: string) => adminDataClient.deleteTaskAdmin(taskId),
     onSuccess: () => {
-      setLocalMutationError("");
-      void queryClient.invalidateQueries({ queryKey: ["admin", "task-search"] });
+      setLocalMutationError('');
+      void queryClient.invalidateQueries({ queryKey: ['admin', 'task-search'] });
     },
     onError: (error) => {
-      setLocalMutationError(error instanceof Error ? error.message : "업무보고를 삭제하지 못했습니다.");
+      setLocalMutationError(
+        error instanceof Error ? error.message : '업무보고를 삭제하지 못했습니다.',
+      );
     },
   });
 
-  const handleFilterField = <K extends keyof AdminTaskSearchFilters>(key: K, value: AdminTaskSearchFilters[K]) => {
+  const handleFilterField = <K extends keyof AdminTaskSearchFilters>(
+    key: K,
+    value: AdminTaskSearchFilters[K],
+  ) => {
     setFilters((current) => {
       const next = { ...current, [key]: value };
 
-      if (key === "serviceGroupId") {
-        next.projectId = "";
+      if (key === 'serviceGroupId') {
+        next.projectId = '';
       }
 
-      if (key === "taskType1") {
-        next.taskType2 = "";
+      if (key === 'taskType1') {
+        next.taskType2 = '';
       }
 
       return next;
@@ -275,8 +302,8 @@ export function AdminReportsPage() {
 
   const handleSearch = () => {
     if (filters.startDate && filters.endDate && filters.startDate > filters.endDate) {
-      window.alert("시작일이 종료일보다 늦습니다.");
-      const input = document.getElementById("admin-reports-start-date");
+      window.alert('시작일이 종료일보다 늦습니다.');
+      const input = document.getElementById('admin-reports-start-date');
       input?.focus();
       return;
     }
@@ -298,36 +325,46 @@ export function AdminReportsPage() {
   };
 
   const handleExport = () => {
-    downloadExcelFile(buildExportFilename(appliedFilters.startDate, appliedFilters.endDate), "검색결과", sortedTasks, [
-      { header: "#", value: (task) => task.id, width: 8 },
-      { header: "일자", value: (task) => task.taskDate, width: 12 },
-      {
-        header: "ID",
-        value: (task) => membersById.get(task.memberId)?.legacyUserId ?? task.memberId,
-        width: 18,
-      },
-      { header: "type 1", value: (task) => task.taskType1, width: 14 },
-      { header: "type 2", value: (task) => task.taskType2, width: 14 },
-      { header: "플랫폼", value: (task) => task.platform, width: 12 },
-      { header: "서비스그룹", value: (task) => task.serviceGroupName, width: 16 },
-      { header: "서비스명", value: (task) => task.serviceName, width: 20 },
-      { header: "프로젝트명", value: (task) => task.projectName, width: 22 },
-      { header: "페이지명", value: (task) => task.pageTitle, width: 22 },
-      { header: "링크", value: (task) => task.pageUrl, width: 28 },
-      { header: "시간", value: (task) => task.hours, width: 10 },
-      { header: "비고", value: (task) => task.note, width: 28 },
-    ]);
+    downloadExcelFile(
+      buildExportFilename(appliedFilters.startDate, appliedFilters.endDate),
+      '검색결과',
+      sortedTasks,
+      [
+        { header: '#', value: (task) => task.id, width: 8 },
+        { header: '일자', value: (task) => task.taskDate, width: 12 },
+        {
+          header: 'ID',
+          value: (task) => membersById.get(task.memberId)?.legacyUserId ?? task.memberId,
+          width: 18,
+        },
+        { header: 'type 1', value: (task) => task.taskType1, width: 14 },
+        { header: 'type 2', value: (task) => task.taskType2, width: 14 },
+        { header: '플랫폼', value: (task) => task.platform, width: 12 },
+        { header: '서비스그룹', value: (task) => task.serviceGroupName, width: 16 },
+        { header: '서비스명', value: (task) => task.serviceName, width: 20 },
+        { header: '프로젝트명', value: (task) => task.projectName, width: 22 },
+        { header: '페이지명', value: (task) => task.pageTitle, width: 22 },
+        { header: '링크', value: (task) => task.pageUrl, width: 28 },
+        { header: '시간', value: (task) => task.hours, width: 10 },
+        { header: '비고', value: (task) => task.note, width: 28 },
+      ],
+    );
   };
 
   const deleteTask = async (taskId: string) => {
-    if (deleteMutation.isPending || !window.confirm("정말 삭제 하시겠습니까? 복구할 수 없습니다.")) {
+    if (
+      deleteMutation.isPending ||
+      !window.confirm('정말 삭제 하시겠습니까? 복구할 수 없습니다.')
+    ) {
       return;
     }
 
     await deleteMutation.mutateAsync(taskId);
   };
 
-  const selectAllUserChecked = members.length > 0 && (memberFilterIds.length === 0 || memberFilterIds.length === members.length);
+  const selectAllUserChecked =
+    members.length > 0 &&
+    (memberFilterIds.length === 0 || memberFilterIds.length === members.length);
   const loading =
     membersQuery.isLoading ||
     taskTypesQuery.isLoading ||
@@ -340,8 +377,11 @@ export function AdminReportsPage() {
     (serviceGroupsQuery.error instanceof Error && serviceGroupsQuery.error.message) ||
     (projectsQuery.error instanceof Error && projectsQuery.error.message) ||
     (searchQuery.error instanceof Error && searchQuery.error.message) ||
-    "";
-  const mutationError = localMutationError || (deleteMutation.error instanceof Error && deleteMutation.error.message) || "";
+    '';
+  const mutationError =
+    localMutationError ||
+    (deleteMutation.error instanceof Error && deleteMutation.error.message) ||
+    '';
 
   return (
     <section className={styles.page}>
@@ -356,8 +396,12 @@ export function AdminReportsPage() {
         <div className={styles.panelHeader}>
           <h2>검색 조건</h2>
           <div className={styles.actions}>
-            <button type="button" onClick={handleSearch} disabled={loading || searchQuery.isFetching}>
-              {searchQuery.isFetching ? "검색 중..." : "검색"}
+            <button
+              type="button"
+              onClick={handleSearch}
+              disabled={loading || searchQuery.isFetching}
+            >
+              {searchQuery.isFetching ? '검색 중...' : '검색'}
             </button>
           </div>
         </div>
@@ -369,7 +413,7 @@ export function AdminReportsPage() {
               id="admin-reports-start-date"
               type="date"
               value={filters.startDate}
-              onChange={(event) => handleFilterField("startDate", event.target.value)}
+              onChange={(event) => handleFilterField('startDate', event.target.value)}
             />
           </div>
           <div className={styles.field}>
@@ -378,14 +422,16 @@ export function AdminReportsPage() {
               id="admin-reports-end-date"
               type="date"
               value={filters.endDate}
-              onChange={(event) => handleFilterField("endDate", event.target.value)}
+              onChange={(event) => handleFilterField('endDate', event.target.value)}
             />
           </div>
           <div className={styles.dateActions}>
             <button
               type="button"
               className={styles.secondaryButton}
-              onClick={() => applyQuickDate(shiftDay(filters.startDate || getTodayInputValue(), -1))}
+              onClick={() =>
+                applyQuickDate(shiftDay(filters.startDate || getTodayInputValue(), -1))
+              }
               disabled={!filters.startDate && !filters.endDate}
             >
               전날
@@ -411,7 +457,7 @@ export function AdminReportsPage() {
             <select
               id="admin-reports-task-type-1"
               value={filters.taskType1}
-              onChange={(event) => handleFilterField("taskType1", event.target.value)}
+              onChange={(event) => handleFilterField('taskType1', event.target.value)}
             >
               <option value=""></option>
               {taskType1Options.map((type1) => (
@@ -426,8 +472,8 @@ export function AdminReportsPage() {
             <select
               id="admin-reports-task-type-2"
               value={filters.taskType2}
-              onChange={(event) => handleFilterField("taskType2", event.target.value)}
-              disabled={!filters.taskType1 || filters.taskType1 === "project"}
+              onChange={(event) => handleFilterField('taskType2', event.target.value)}
+              disabled={!filters.taskType1 || filters.taskType1 === 'project'}
             >
               <option value=""></option>
               {taskType2Options.map((type2) => (
@@ -442,7 +488,7 @@ export function AdminReportsPage() {
             <select
               id="admin-reports-service-group"
               value={filters.serviceGroupId}
-              onChange={(event) => handleFilterField("serviceGroupId", event.target.value)}
+              onChange={(event) => handleFilterField('serviceGroupId', event.target.value)}
             >
               <option value="">전체</option>
               {serviceGroups.map((group: AdminServiceGroupItem) => (
@@ -457,7 +503,7 @@ export function AdminReportsPage() {
             <select
               id="admin-reports-service-name"
               value={filters.projectId}
-              onChange={(event) => handleFilterField("projectId", event.target.value)}
+              onChange={(event) => handleFilterField('projectId', event.target.value)}
               disabled={!filters.serviceGroupId}
             >
               <option value=""></option>
@@ -476,7 +522,9 @@ export function AdminReportsPage() {
                 type="checkbox"
                 checked={selectAllUserChecked}
                 onChange={(event) => {
-                  setMemberFilterIds(event.target.checked ? members.map((member) => member.id) : []);
+                  setMemberFilterIds(
+                    event.target.checked ? members.map((member) => member.id) : [],
+                  );
                 }}
               />
               <span>전체</span>
@@ -490,7 +538,9 @@ export function AdminReportsPage() {
                   checked={memberFilterIds.includes(member.id)}
                   onChange={(event) => {
                     setMemberFilterIds((current) =>
-                      event.target.checked ? [...current, member.id] : current.filter((id) => id !== member.id),
+                      event.target.checked
+                        ? [...current, member.id]
+                        : current.filter((id) => id !== member.id),
                     );
                   }}
                 />
@@ -501,21 +551,25 @@ export function AdminReportsPage() {
         </div>
       </div>
 
-      {(queryError || mutationError) && <p className={styles.helperText}>{queryError || mutationError}</p>}
+      {(queryError || mutationError) && (
+        <p className={styles.helperText}>{queryError || mutationError}</p>
+      )}
 
       <div className={styles.panel}>
         <div className={styles.panelHeader}>
           <div>
             <h2>검색 결과</h2>
-            <p className={styles.subText}>총 {sortedTasks.length}건, {formatSummaryMinutes(totalMinutes)}</p>
+            <p className={styles.subText}>
+              총 {sortedTasks.length}건, {formatSummaryMinutes(totalMinutes)}
+            </p>
           </div>
           <div className={styles.actions}>
             <button
               type="button"
               onClick={() =>
-                navigate("/admin/reports/new", {
+                navigate('/admin/reports/new', {
                   state: {
-                    memberId: memberFilterIds.length === 1 ? memberFilterIds[0] : "",
+                    memberId: memberFilterIds.length === 1 ? memberFilterIds[0] : '',
                   },
                 })
               }
@@ -534,38 +588,93 @@ export function AdminReportsPage() {
             <thead>
               <tr>
                 <th>
-                  <SortButton label="#" sortKey="id" sortState={sortState} onChange={setSortState} />
+                  <SortButton
+                    label="#"
+                    sortKey="id"
+                    sortState={sortState}
+                    onChange={setSortState}
+                  />
                 </th>
                 <th>
-                  <SortButton label="일자" sortKey="taskDate" sortState={sortState} onChange={setSortState} />
+                  <SortButton
+                    label="일자"
+                    sortKey="taskDate"
+                    sortState={sortState}
+                    onChange={setSortState}
+                  />
                 </th>
                 <th>
-                  <SortButton label="ID" sortKey="member" sortState={sortState} onChange={setSortState} />
+                  <SortButton
+                    label="ID"
+                    sortKey="member"
+                    sortState={sortState}
+                    onChange={setSortState}
+                  />
                 </th>
                 <th>
-                  <SortButton label="type 1" sortKey="taskType1" sortState={sortState} onChange={setSortState} />
+                  <SortButton
+                    label="type 1"
+                    sortKey="taskType1"
+                    sortState={sortState}
+                    onChange={setSortState}
+                  />
                 </th>
                 <th>
-                  <SortButton label="type 2" sortKey="taskType2" sortState={sortState} onChange={setSortState} />
+                  <SortButton
+                    label="type 2"
+                    sortKey="taskType2"
+                    sortState={sortState}
+                    onChange={setSortState}
+                  />
                 </th>
                 <th>
-                  <SortButton label="플랫폼" sortKey="platform" sortState={sortState} onChange={setSortState} />
+                  <SortButton
+                    label="플랫폼"
+                    sortKey="platform"
+                    sortState={sortState}
+                    onChange={setSortState}
+                  />
                 </th>
                 <th>
-                  <SortButton label="서비스그룹" sortKey="serviceGroup" sortState={sortState} onChange={setSortState} />
+                  <SortButton
+                    label="서비스그룹"
+                    sortKey="serviceGroup"
+                    sortState={sortState}
+                    onChange={setSortState}
+                  />
                 </th>
                 <th>
-                  <SortButton label="서비스명" sortKey="serviceName" sortState={sortState} onChange={setSortState} />
+                  <SortButton
+                    label="서비스명"
+                    sortKey="serviceName"
+                    sortState={sortState}
+                    onChange={setSortState}
+                  />
                 </th>
                 <th>
-                  <SortButton label="프로젝트명" sortKey="projectName" sortState={sortState} onChange={setSortState} />
+                  <SortButton
+                    label="프로젝트명"
+                    sortKey="projectName"
+                    sortState={sortState}
+                    onChange={setSortState}
+                  />
                 </th>
                 <th>
-                  <SortButton label="페이지명" sortKey="pageTitle" sortState={sortState} onChange={setSortState} />
+                  <SortButton
+                    label="페이지명"
+                    sortKey="pageTitle"
+                    sortState={sortState}
+                    onChange={setSortState}
+                  />
                 </th>
                 <th>링크</th>
                 <th>
-                  <SortButton label="시간" sortKey="hours" sortState={sortState} onChange={setSortState} />
+                  <SortButton
+                    label="시간"
+                    sortKey="hours"
+                    sortState={sortState}
+                    onChange={setSortState}
+                  />
                 </th>
                 <th>비고</th>
                 <th>관리</th>
@@ -592,28 +701,35 @@ export function AdminReportsPage() {
                       </td>
                       <td>{task.taskType1}</td>
                       <td>{task.taskType2}</td>
-                      <td>{task.platform || "-"}</td>
-                      <td>{task.serviceGroupName || "-"}</td>
-                      <td>{task.serviceName || "-"}</td>
-                      <td>{task.projectName || "-"}</td>
-                      <td>{task.pageTitle || "-"}</td>
+                      <td>{task.platform || '-'}</td>
+                      <td>{task.serviceGroupName || '-'}</td>
+                      <td>{task.serviceName || '-'}</td>
+                      <td>{task.projectName || '-'}</td>
+                      <td>{task.pageTitle || '-'}</td>
                       <td>
                         {task.pageUrl ? (
                           <a href={task.pageUrl} target="_blank" rel="noreferrer">
                             {task.pageUrl}
                           </a>
                         ) : (
-                          "-"
+                          '-'
                         )}
                       </td>
                       <td>{formatTimeCell(task.hours)}</td>
-                      <td>{task.note || "-"}</td>
+                      <td>{task.note || '-'}</td>
                       <td>
                         <div className={styles.rowActions}>
-                          <button type="button" onClick={() => navigate(`/admin/reports/${task.id}/edit`)}>
+                          <button
+                            type="button"
+                            onClick={() => navigate(`/admin/reports/${task.id}/edit`)}
+                          >
                             수정
                           </button>
-                          <button type="button" onClick={() => void deleteTask(task.id)} disabled={deleteMutation.isPending}>
+                          <button
+                            type="button"
+                            onClick={() => void deleteTask(task.id)}
+                            disabled={deleteMutation.isPending}
+                          >
                             삭제
                           </button>
                         </div>
@@ -635,18 +751,18 @@ function createDefaultFilters(): AdminTaskSearchFilters {
   return {
     startDate: today,
     endDate: today,
-    memberId: "",
-    projectId: "",
-    pageId: "",
-    taskType1: "",
-    taskType2: "",
-    serviceGroupId: "",
-    keyword: "",
+    memberId: '',
+    projectId: '',
+    pageId: '',
+    taskType1: '',
+    taskType2: '',
+    serviceGroupId: '',
+    keyword: '',
   };
 }
 
 function shiftDay(dateValue: string, offset: number) {
-  const [year, month, day] = dateValue.split("-").map((value) => Number.parseInt(value, 10));
+  const [year, month, day] = dateValue.split('-').map((value) => Number.parseInt(value, 10));
   if (!Number.isFinite(year) || !Number.isFinite(month) || !Number.isFinite(day)) {
     return getTodayInputValue();
   }

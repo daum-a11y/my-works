@@ -1,7 +1,7 @@
-import { useEffect, useId, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "../auth/AuthContext";
-import styles from "./PasswordSettingsPage.module.css";
+import { useEffect, useId, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../auth/AuthContext';
+import styles from './PasswordSettingsPage.module.css';
 
 type PasswordDraft = {
   next: string;
@@ -13,22 +13,22 @@ type PasswordErrors = {
   confirm: string;
 };
 
-type PasswordStep = "form" | "confirm" | "done";
+type PasswordStep = 'form' | 'confirm' | 'done';
 
 function getRoleLabel(role?: string) {
-  return role === "admin" ? "관리자" : "구성원";
+  return role === 'admin' ? '관리자' : '구성원';
 }
 
 function getPasswordErrors(draft: PasswordDraft): PasswordErrors {
-  let next = "";
-  let confirm = "";
+  let next = '';
+  let confirm = '';
 
   if (draft.next && draft.next.trim().length < 8) {
-    next = "8자 이상 입력해 주세요.";
+    next = '8자 이상 입력해 주세요.';
   }
 
   if (draft.confirm && draft.next !== draft.confirm) {
-    confirm = "비밀번호가 다릅니다.";
+    confirm = '비밀번호가 다릅니다.';
   }
 
   return { next, confirm };
@@ -39,9 +39,9 @@ export function UserProfilePage() {
   const { session, updatePassword, logout } = useAuth();
   const member = session?.member;
   const [editing, setEditing] = useState(false);
-  const [step, setStep] = useState<PasswordStep>("form");
-  const [draft, setDraft] = useState<PasswordDraft>({ next: "", confirm: "" });
-  const [submitError, setSubmitError] = useState("");
+  const [step, setStep] = useState<PasswordStep>('form');
+  const [draft, setDraft] = useState<PasswordDraft>({ next: '', confirm: '' });
+  const [submitError, setSubmitError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const nextInputRef = useRef<HTMLInputElement | null>(null);
   const editButtonRef = useRef<HTMLButtonElement | null>(null);
@@ -50,15 +50,18 @@ export function UserProfilePage() {
 
   const errors = getPasswordErrors(draft);
   const canSubmit =
-    draft.next.trim().length >= 8 && draft.confirm.trim().length > 0 && draft.next === draft.confirm && !isSubmitting;
+    draft.next.trim().length >= 8 &&
+    draft.confirm.trim().length > 0 &&
+    draft.next === draft.confirm &&
+    !isSubmitting;
 
   useEffect(() => {
-    document.title = "프로필 | My Works";
+    document.title = '프로필 | My Works';
   }, []);
 
   useEffect(() => {
     if (editing) {
-      if (step === "form") {
+      if (step === 'form') {
         nextInputRef.current?.focus();
       }
       return;
@@ -68,30 +71,30 @@ export function UserProfilePage() {
   }, [editing, step]);
 
   useEffect(() => {
-    if (!editing || step !== "form" || isSubmitting) {
+    if (!editing || step !== 'form' || isSubmitting) {
       return;
     }
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
+      if (event.key === 'Escape') {
         handleCancel();
       }
     };
 
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, [editing, isSubmitting, step]);
 
   const resetDraft = () => {
-    setDraft({ next: "", confirm: "" });
-    setSubmitError("");
-    setStep("form");
+    setDraft({ next: '', confirm: '' });
+    setSubmitError('');
+    setStep('form');
     setIsSubmitting(false);
   };
 
   const handleEdit = () => {
-    setSubmitError("");
-    setStep("form");
+    setSubmitError('');
+    setStep('form');
     setEditing(true);
   };
 
@@ -103,49 +106,53 @@ export function UserProfilePage() {
   const handleChange = async () => {
     if (!canSubmit) {
       if (!draft.next.trim()) {
-        setSubmitError("새 비밀번호를 입력해 주세요.");
+        setSubmitError('새 비밀번호를 입력해 주세요.');
         return;
       }
 
       if (draft.next.trim().length < 8) {
-        setSubmitError("8자 이상 입력해 주세요.");
+        setSubmitError('8자 이상 입력해 주세요.');
         return;
       }
 
       if (!draft.confirm.trim()) {
-        setSubmitError("비밀번호 확인을 입력해 주세요.");
+        setSubmitError('비밀번호 확인을 입력해 주세요.');
         return;
       }
 
-      setSubmitError("비밀번호가 다릅니다.");
+      setSubmitError('비밀번호가 다릅니다.');
       return;
     }
 
-    setSubmitError("");
-    setStep("confirm");
+    setSubmitError('');
+    setStep('confirm');
   };
 
   const handleConfirmChange = async () => {
     try {
       setIsSubmitting(true);
-      setSubmitError("");
+      setSubmitError('');
       await updatePassword(draft.next);
-      setStep("done");
+      setStep('done');
       setIsSubmitting(false);
     } catch (error) {
-      setSubmitError(error instanceof Error ? error.message : "비밀번호 변경에 실패했습니다. 다시 시도해 주세요.");
+      setSubmitError(
+        error instanceof Error
+          ? error.message
+          : '비밀번호 변경에 실패했습니다. 다시 시도해 주세요.',
+      );
       setIsSubmitting(false);
-      setStep("form");
+      setStep('form');
     }
   };
 
   const handleMoveToLogin = async () => {
     await logout();
-    navigate("/login", {
+    navigate('/login', {
       replace: true,
       state: {
-        noticeMessage: "비밀번호가 변경되었습니다. 로그인해 주세요.",
-        emailPrefill: member?.email ?? "",
+        noticeMessage: '비밀번호가 변경되었습니다. 로그인해 주세요.',
+        emailPrefill: member?.email ?? '',
       },
     });
   };
@@ -153,15 +160,24 @@ export function UserProfilePage() {
   return (
     <section className={styles.page} aria-labelledby="profile-title">
       <header className={styles.hero}>
-        <h1 id="profile-title" className={styles.pageTitle}>프로필</h1>
+        <h1 id="profile-title" className={styles.pageTitle}>
+          프로필
+        </h1>
       </header>
 
       <div className={styles.workspace}>
         <section className={styles.panel} aria-labelledby="profile-summary-title">
           <div className={styles.panelHeader}>
-            <h2 id="profile-summary-title" className={styles.panelTitle}>계정</h2>
+            <h2 id="profile-summary-title" className={styles.panelTitle}>
+              계정
+            </h2>
             {!editing ? (
-              <button ref={editButtonRef} type="button" className={styles.primaryButton} onClick={handleEdit}>
+              <button
+                ref={editButtonRef}
+                type="button"
+                className={styles.primaryButton}
+                onClick={handleEdit}
+              >
                 비밀번호 변경
               </button>
             ) : null}
@@ -170,15 +186,15 @@ export function UserProfilePage() {
           <dl className={styles.profileList}>
             <div className={styles.profileRow}>
               <dt>ID</dt>
-              <dd>{member?.legacyUserId ?? "-"}</dd>
+              <dd>{member?.legacyUserId ?? '-'}</dd>
             </div>
             <div className={styles.profileRow}>
               <dt>이름</dt>
-              <dd>{member?.name ?? "-"}</dd>
+              <dd>{member?.name ?? '-'}</dd>
             </div>
             <div className={styles.profileRow}>
               <dt>이메일</dt>
-              <dd>{member?.email ?? "-"}</dd>
+              <dd>{member?.email ?? '-'}</dd>
             </div>
             <div className={styles.profileRow}>
               <dt>권한</dt>
@@ -191,7 +207,7 @@ export function UserProfilePage() {
       {editing ? (
         <div
           className={styles.modalScrim}
-          onClick={step === "form" && !isSubmitting ? handleCancel : undefined}
+          onClick={step === 'form' && !isSubmitting ? handleCancel : undefined}
         >
           <section
             className={styles.modal}
@@ -201,10 +217,12 @@ export function UserProfilePage() {
             onClick={(event) => event.stopPropagation()}
           >
             <div className={styles.panelHeader}>
-              <h2 id="password-change-title" className={styles.panelTitle}>비밀번호 변경</h2>
+              <h2 id="password-change-title" className={styles.panelTitle}>
+                비밀번호 변경
+              </h2>
             </div>
 
-            {step === "form" ? (
+            {step === 'form' ? (
               <form
                 className={styles.form}
                 onSubmit={(event) => {
@@ -220,16 +238,20 @@ export function UserProfilePage() {
                     type="password"
                     autoComplete="new-password"
                     aria-label="새 비밀번호"
-                    aria-invalid={errors.next ? "true" : "false"}
+                    aria-invalid={errors.next ? 'true' : 'false'}
                     aria-describedby={errors.next ? nextHintId : undefined}
                     value={draft.next}
                     onChange={(event) => {
-                      setSubmitError("");
+                      setSubmitError('');
                       setDraft((current) => ({ ...current, next: event.target.value }));
                     }}
                   />
-                  <span id={nextHintId} className={styles.fieldMessage} data-state={errors.next ? "danger" : "empty"}>
-                    {errors.next || " "}
+                  <span
+                    id={nextHintId}
+                    className={styles.fieldMessage}
+                    data-state={errors.next ? 'danger' : 'empty'}
+                  >
+                    {errors.next || ' '}
                   </span>
                 </label>
 
@@ -240,20 +262,20 @@ export function UserProfilePage() {
                     type="password"
                     autoComplete="new-password"
                     aria-label="새 비밀번호 확인"
-                    aria-invalid={errors.confirm ? "true" : "false"}
+                    aria-invalid={errors.confirm ? 'true' : 'false'}
                     aria-describedby={errors.confirm ? confirmHintId : undefined}
                     value={draft.confirm}
                     onChange={(event) => {
-                      setSubmitError("");
+                      setSubmitError('');
                       setDraft((current) => ({ ...current, confirm: event.target.value }));
                     }}
                   />
                   <span
                     id={confirmHintId}
                     className={styles.fieldMessage}
-                    data-state={errors.confirm ? "danger" : "empty"}
+                    data-state={errors.confirm ? 'danger' : 'empty'}
                   >
-                    {errors.confirm || " "}
+                    {errors.confirm || ' '}
                   </span>
                 </label>
 
@@ -263,18 +285,25 @@ export function UserProfilePage() {
                   </div>
                   <div className={styles.actions}>
                     <button type="submit" className={styles.primaryButton} disabled={!canSubmit}>
-                      {isSubmitting ? "변경 중..." : "변경"}
+                      {isSubmitting ? '변경 중...' : '변경'}
                     </button>
-                    <button type="button" className={styles.secondaryButton} onClick={handleCancel} disabled={isSubmitting}>
+                    <button
+                      type="button"
+                      className={styles.secondaryButton}
+                      onClick={handleCancel}
+                      disabled={isSubmitting}
+                    >
                       취소
                     </button>
                   </div>
                 </div>
               </form>
-            ) : step === "confirm" ? (
+            ) : step === 'confirm' ? (
               <div className={styles.confirmState}>
                 <div className={styles.stateBlock} data-state="confirm">
-                  <p className={styles.confirmMessage}>비밀번호를 정말 변경하시겠습니까? 되돌릴 수 없습니다.</p>
+                  <p className={styles.confirmMessage}>
+                    비밀번호를 정말 변경하시겠습니까? 되돌릴 수 없습니다.
+                  </p>
                 </div>
                 <div className={styles.actions}>
                   <button
@@ -283,12 +312,12 @@ export function UserProfilePage() {
                     onClick={() => void handleConfirmChange()}
                     disabled={isSubmitting}
                   >
-                    {isSubmitting ? "변경 중..." : "변경"}
+                    {isSubmitting ? '변경 중...' : '변경'}
                   </button>
                   <button
                     type="button"
                     className={styles.secondaryButton}
-                    onClick={() => setStep("form")}
+                    onClick={() => setStep('form')}
                     disabled={isSubmitting}
                   >
                     취소
@@ -301,7 +330,11 @@ export function UserProfilePage() {
                   <p className={styles.doneMessage}>비밀번호가 변경되었습니다.</p>
                 </div>
                 <div className={styles.actions}>
-                  <button type="button" className={styles.primaryButton} onClick={() => void handleMoveToLogin()}>
+                  <button
+                    type="button"
+                    className={styles.primaryButton}
+                    onClick={() => void handleMoveToLogin()}
+                  >
                     로그인
                   </button>
                 </div>

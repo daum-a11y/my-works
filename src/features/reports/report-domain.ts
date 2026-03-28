@@ -3,19 +3,26 @@ import type {
   ProjectPage,
   ReportFilters as OpsReportFilters,
   ServiceGroup,
-  Task,
   TaskType,
-} from "../../lib/domain";
+} from '../../lib/domain';
 
 export type ReportFilters = OpsReportFilters;
 
-export const REPORT_TYPE1_OPTIONS = ["기획", "개발", "QA", "운영", "지원"] as const;
+export const REPORT_TYPE1_OPTIONS = ['기획', '개발', 'QA', '운영', '지원'] as const;
 
-export const REPORT_TYPE2_OPTIONS = ["작성", "수정", "검토", "배포", "점검", "회의", "지원"] as const;
+export const REPORT_TYPE2_OPTIONS = [
+  '작성',
+  '수정',
+  '검토',
+  '배포',
+  '점검',
+  '회의',
+  '지원',
+] as const;
 
 export const PERSONAL_REPORT_OWNER = {
-  id: "me",
-  name: "운영 사용자",
+  id: 'me',
+  name: '운영 사용자',
 } as const;
 
 export type ReportType1 = string;
@@ -85,25 +92,25 @@ export interface ReportViewModel extends ReportRecord {
 }
 
 export type ReportSortMode =
-  | "date-desc"
-  | "date-asc"
-  | "updated-desc"
-  | "updated-asc"
-  | "project-asc"
-  | "project-desc"
-  | "hours-desc"
-  | "hours-asc";
+  | 'date-desc'
+  | 'date-asc'
+  | 'updated-desc'
+  | 'updated-asc'
+  | 'project-asc'
+  | 'project-desc'
+  | 'hours-desc'
+  | 'hours-asc';
 
 export const DEFAULT_REPORT_FILTERS: ReportFilters = {
-  query: "",
-  projectId: "",
-  pageId: "",
-  taskType1: "",
-  taskType2: "",
-  startDate: "",
-  endDate: "",
-  minHours: "",
-  maxHours: "",
+  query: '',
+  projectId: '',
+  pageId: '',
+  taskType1: '',
+  taskType2: '',
+  startDate: '',
+  endDate: '',
+  minHours: '',
+  maxHours: '',
 };
 
 function isoToDateInput(value: string) {
@@ -112,8 +119,8 @@ function isoToDateInput(value: string) {
 
 function toLocalInputDate(value: Date) {
   const year = value.getFullYear();
-  const month = `${value.getMonth() + 1}`.padStart(2, "0");
-  const day = `${value.getDate()}`.padStart(2, "0");
+  const month = `${value.getMonth() + 1}`.padStart(2, '0');
+  const day = `${value.getDate()}`.padStart(2, '0');
   return `${year}-${month}-${day}`;
 }
 
@@ -122,10 +129,10 @@ function parseDateInput(value: string) {
     return null;
   }
 
-  const [yearText, monthText, dayText] = value.split("-");
-  const year = Number.parseInt(yearText ?? "", 10);
-  const month = Number.parseInt(monthText ?? "", 10);
-  const day = Number.parseInt(dayText ?? "", 10);
+  const [yearText, monthText, dayText] = value.split('-');
+  const year = Number.parseInt(yearText ?? '', 10);
+  const month = Number.parseInt(monthText ?? '', 10);
+  const day = Number.parseInt(dayText ?? '', 10);
 
   if (!Number.isFinite(year) || !Number.isFinite(month) || !Number.isFinite(day)) {
     return null;
@@ -142,22 +149,22 @@ export function parseLegacyTaskMeta(note: string) {
   const meta = new Map<string, string>();
   const rawLines: string[] = [];
 
-  for (const line of note.split("\n")) {
+  for (const line of note.split('\n')) {
     const trimmed = line.trim();
-    const separator = trimmed.indexOf(": ");
+    const separator = trimmed.indexOf(': ');
 
     if (separator > 0) {
       const key = trimmed.slice(0, separator);
       const value = trimmed.slice(separator + 2).trim();
 
       if (
-        key === "platform" ||
-        key === "service_group" ||
-        key === "service_name" ||
-        key === "project_name" ||
-        key === "page_name" ||
-        key === "page_url" ||
-        key === "raw_note"
+        key === 'platform' ||
+        key === 'service_group' ||
+        key === 'service_name' ||
+        key === 'project_name' ||
+        key === 'page_name' ||
+        key === 'page_url' ||
+        key === 'raw_note'
       ) {
         meta.set(key, value);
         continue;
@@ -170,18 +177,18 @@ export function parseLegacyTaskMeta(note: string) {
   }
 
   return {
-    platform: meta.get("platform") ?? "",
-    serviceGroupName: meta.get("service_group") ?? "",
-    serviceName: meta.get("service_name") ?? "",
-    projectName: meta.get("project_name") ?? "",
-    pageName: meta.get("page_name") ?? "",
-    pageUrl: meta.get("page_url") ?? "",
-    rawNote: meta.get("raw_note") ?? rawLines.join("\n"),
+    platform: meta.get('platform') ?? '',
+    serviceGroupName: meta.get('service_group') ?? '',
+    serviceName: meta.get('service_name') ?? '',
+    projectName: meta.get('project_name') ?? '',
+    pageName: meta.get('page_name') ?? '',
+    pageUrl: meta.get('page_url') ?? '',
+    rawNote: meta.get('raw_note') ?? rawLines.join('\n'),
   };
 }
 
 function compareStrings(left: string, right: string) {
-  return left.localeCompare(right, "ko");
+  return left.localeCompare(right, 'ko');
 }
 
 function buildServiceGroupMap(serviceGroups: ServiceGroup[]) {
@@ -192,16 +199,16 @@ function splitServiceGroupName(value: string) {
   const normalized = value.trim();
   if (!normalized) {
     return {
-      serviceGroupName: "",
-      serviceName: "",
+      serviceGroupName: '',
+      serviceName: '',
     };
   }
 
-  const separator = normalized.indexOf(" / ");
+  const separator = normalized.indexOf(' / ');
   if (separator < 0) {
     return {
       serviceGroupName: normalized,
-      serviceName: "",
+      serviceName: '',
     };
   }
 
@@ -213,9 +220,11 @@ function splitServiceGroupName(value: string) {
 
 function buildProjectLookup(project: Project, normalizedServiceName: string) {
   const { serviceGroupName, serviceName } = splitServiceGroupName(normalizedServiceName);
-  const projectName = project.name || "미지정 프로젝트";
-  const label = [serviceGroupName, projectName].filter(Boolean).join(" / ") || projectName;
-  const searchText = normalizeText([serviceGroupName, serviceName, projectName, project.platform, project.id].join(" "));
+  const projectName = project.name || '미지정 프로젝트';
+  const label = [serviceGroupName, projectName].filter(Boolean).join(' / ') || projectName;
+  const searchText = normalizeText(
+    [serviceGroupName, serviceName, projectName, project.platform, project.id].join(' '),
+  );
 
   return {
     id: project.id,
@@ -233,10 +242,11 @@ function buildPageLookup(
   project: Project | undefined,
   serviceGroupName: string,
 ) {
-  const projectName = project?.name || "미분류 프로젝트";
-  const label = [serviceGroupName, projectName, page.title].filter(Boolean).join(" / ") || page.title;
+  const projectName = project?.name || '미분류 프로젝트';
+  const label =
+    [serviceGroupName, projectName, page.title].filter(Boolean).join(' / ') || page.title;
   const searchText = normalizeText(
-    [serviceGroupName, projectName, page.title, page.note, page.url, page.id].join(" "),
+    [serviceGroupName, projectName, page.title, page.note, page.url, page.id].join(' '),
   );
 
   return {
@@ -254,8 +264,8 @@ export function buildProjectViewModels(projects: Project[], serviceGroups: Servi
 
   return projects.map((project) => {
     const serviceGroupName = project.serviceGroupId
-      ? serviceGroupsById.get(project.serviceGroupId)?.name ?? ""
-      : "";
+      ? (serviceGroupsById.get(project.serviceGroupId)?.name ?? '')
+      : '';
     return buildProjectLookup(project, serviceGroupName);
   });
 }
@@ -271,8 +281,8 @@ export function buildProjectPageViewModels(
   return pages.map((page) => {
     const project = projectsById.get(page.projectId);
     const serviceGroupName = project?.serviceGroupId
-      ? serviceGroupsById.get(project.serviceGroupId)?.name ?? ""
-      : "";
+      ? (serviceGroupsById.get(project.serviceGroupId)?.name ?? '')
+      : '';
     return buildPageLookup(page, project, serviceGroupName);
   });
 }
@@ -288,12 +298,14 @@ export function buildTaskType1Options(taskTypes: TaskType[]) {
   return unique.size ? Array.from(unique) : [...REPORT_TYPE1_OPTIONS];
 }
 
-export function buildTaskType2Options(taskTypes: TaskType[], selectedType1 = "") {
+export function buildTaskType2Options(taskTypes: TaskType[], selectedType1 = '') {
   if (!selectedType1) {
     return [];
   }
 
-  const filtered = selectedType1 ? taskTypes.filter((taskType) => taskType.type1 === selectedType1) : taskTypes;
+  const filtered = selectedType1
+    ? taskTypes.filter((taskType) => taskType.type1 === selectedType1)
+    : taskTypes;
   const unique = new Set<string>();
 
   for (const taskType of filtered) {
@@ -310,11 +322,11 @@ export function validateTaskTypeSelection(taskTypes: TaskType[], type1: string, 
   const normalizedType2 = type2.trim();
 
   if (!normalizedType1 || !normalizedType2) {
-    throw new Error("업무 유형을 모두 선택해 주세요.");
+    throw new Error('업무 유형을 모두 선택해 주세요.');
   }
 
   if (!taskTypes.length) {
-    throw new Error("업무 유형 기준 정보를 확인할 수 없습니다.");
+    throw new Error('업무 유형 기준 정보를 확인할 수 없습니다.');
   }
 
   const isValid = taskTypes.some(
@@ -322,7 +334,7 @@ export function validateTaskTypeSelection(taskTypes: TaskType[], type1: string, 
   );
 
   if (!isValid) {
-    throw new Error("업무 유형 기준 정보와 일치하지 않습니다.");
+    throw new Error('업무 유형 기준 정보와 일치하지 않습니다.');
   }
 
   return {
@@ -334,16 +346,16 @@ export function validateTaskTypeSelection(taskTypes: TaskType[], type1: string, 
 export function parseReportHoursInput(value: string) {
   const normalizedValue = value.trim();
   if (!normalizedValue) {
-    throw new Error("소요 시간을 분 단위로 입력해 주세요.");
+    throw new Error('소요 시간을 분 단위로 입력해 주세요.');
   }
 
   const parsed = Number.parseInt(normalizedValue, 10);
   if (!Number.isFinite(parsed) || parsed < 0) {
-    throw new Error("소요 시간은 0 이상의 분으로 입력해 주세요.");
+    throw new Error('소요 시간은 0 이상의 분으로 입력해 주세요.');
   }
 
   if (!/^\d+$/.test(normalizedValue)) {
-    throw new Error("소요 시간은 분 단위 정수로 입력해 주세요.");
+    throw new Error('소요 시간은 분 단위 정수로 입력해 주세요.');
   }
 
   return parsed;
@@ -363,18 +375,18 @@ export function shiftDateInput(value: string, offsetDays: number) {
 export function createEmptyReportDraft(referenceDate = new Date()): ReportDraft {
   return {
     reportDate: getTodayInputValue(referenceDate),
-    projectId: "",
-    pageId: "",
-    type1: "",
-    type2: "",
-    platform: "",
-    serviceGroupName: "",
-    serviceName: "",
-    manualPageName: "",
-    pageUrl: "",
-    workHours: "60",
-    content: "",
-    note: "",
+    projectId: '',
+    pageId: '',
+    type1: '',
+    type2: '',
+    platform: '',
+    serviceGroupName: '',
+    serviceName: '',
+    manualPageName: '',
+    pageUrl: '',
+    workHours: '60',
+    content: '',
+    note: '',
   };
 }
 
@@ -416,8 +428,8 @@ export function buildReportFromDraft(
     reportDate: draft.reportDate,
     projectId: draft.projectId,
     pageId: draft.pageId,
-    projectName: existing?.projectName ?? "",
-    pageName: existing?.pageName ?? "",
+    projectName: existing?.projectName ?? '',
+    pageName: existing?.pageName ?? '',
     type1: taskType.type1,
     type2: taskType.type2,
     workHours: parseReportHoursInput(draft.workHours),
@@ -435,18 +447,18 @@ export function buildReportViewModel(
   pagesById: Map<string, ProjectPage>,
 ) {
   const meta = parseLegacyTaskMeta(report.note);
-  const project = report.projectId ? projectsById.get(report.projectId) ?? null : null;
-  const page = report.pageId ? pagesById.get(report.pageId) ?? null : null;
+  const project = report.projectId ? (projectsById.get(report.projectId) ?? null) : null;
+  const page = report.pageId ? (pagesById.get(report.pageId) ?? null) : null;
   const splitProjectService = project?.serviceGroupId
-    ? splitServiceGroupName(serviceGroupsById.get(project.serviceGroupId)?.name ?? "")
+    ? splitServiceGroupName(serviceGroupsById.get(project.serviceGroupId)?.name ?? '')
     : null;
   const serviceGroupName = splitProjectService?.serviceGroupName || meta.serviceGroupName;
   const platform = project?.platform ?? meta.platform;
   const serviceName = splitProjectService?.serviceName || meta.serviceName;
-  const resolvedProjectName = project?.name ?? meta.projectName ?? report.projectName ?? "";
-  const projectDisplayName = resolvedProjectName || "미분류 프로젝트";
-  const pageDisplayName = page?.title || meta.pageName || report.pageName || "미지정 페이지";
-  const pageUrl = page?.url || meta.pageUrl || "";
+  const resolvedProjectName = project?.name ?? meta.projectName ?? report.projectName ?? '';
+  const projectDisplayName = resolvedProjectName || '미분류 프로젝트';
+  const pageDisplayName = page?.title || meta.pageName || report.pageName || '미지정 페이지';
+  const pageUrl = page?.url || meta.pageUrl || '';
   const searchText = normalizeText(
     [
       report.reportDate,
@@ -459,7 +471,7 @@ export function buildReportViewModel(
       report.type2,
       report.content,
       report.note,
-    ].join(" "),
+    ].join(' '),
   );
 
   return {
@@ -475,40 +487,58 @@ export function buildReportViewModel(
   } satisfies ReportViewModel;
 }
 
-export function sortReportsByMode<T extends ReportRecord>(reports: readonly T[], mode: ReportSortMode) {
+export function sortReportsByMode<T extends ReportRecord>(
+  reports: readonly T[],
+  mode: ReportSortMode,
+) {
   return [...reports].sort((left, right) => {
     switch (mode) {
-      case "date-asc":
-        return left.reportDate.localeCompare(right.reportDate) || left.updatedAt.localeCompare(right.updatedAt);
-      case "updated-desc":
-        return right.updatedAt.localeCompare(left.updatedAt) || right.id.localeCompare(left.id);
-      case "updated-asc":
-        return left.updatedAt.localeCompare(right.updatedAt) || left.id.localeCompare(right.id);
-      case "project-asc":
+      case 'date-asc':
         return (
-          compareStrings(left.projectName || "", right.projectName || "") ||
-          compareStrings(left.pageName || "", right.pageName || "") ||
+          left.reportDate.localeCompare(right.reportDate) ||
+          left.updatedAt.localeCompare(right.updatedAt)
+        );
+      case 'updated-desc':
+        return right.updatedAt.localeCompare(left.updatedAt) || right.id.localeCompare(left.id);
+      case 'updated-asc':
+        return left.updatedAt.localeCompare(right.updatedAt) || left.id.localeCompare(right.id);
+      case 'project-asc':
+        return (
+          compareStrings(left.projectName || '', right.projectName || '') ||
+          compareStrings(left.pageName || '', right.pageName || '') ||
           compareStrings(left.id, right.id)
         );
-      case "project-desc":
+      case 'project-desc':
         return (
-          compareStrings(right.projectName || "", left.projectName || "") ||
-          compareStrings(right.pageName || "", left.pageName || "") ||
+          compareStrings(right.projectName || '', left.projectName || '') ||
+          compareStrings(right.pageName || '', left.pageName || '') ||
           compareStrings(right.id, left.id)
         );
-      case "hours-desc":
-        return right.workHours - left.workHours || right.updatedAt.localeCompare(left.updatedAt) || right.id.localeCompare(left.id);
-      case "hours-asc":
-        return left.workHours - right.workHours || left.updatedAt.localeCompare(right.updatedAt) || left.id.localeCompare(right.id);
-      case "date-desc":
+      case 'hours-desc':
+        return (
+          right.workHours - left.workHours ||
+          right.updatedAt.localeCompare(left.updatedAt) ||
+          right.id.localeCompare(left.id)
+        );
+      case 'hours-asc':
+        return (
+          left.workHours - right.workHours ||
+          left.updatedAt.localeCompare(right.updatedAt) ||
+          left.id.localeCompare(right.id)
+        );
+      case 'date-desc':
       default:
-        return right.reportDate.localeCompare(left.reportDate) || right.updatedAt.localeCompare(left.updatedAt) || right.id.localeCompare(left.id);
+        return (
+          right.reportDate.localeCompare(left.reportDate) ||
+          right.updatedAt.localeCompare(left.updatedAt) ||
+          right.id.localeCompare(left.id)
+        );
     }
   });
 }
 
 export function sortReportsDescending<T extends ReportRecord>(reports: readonly T[]) {
-  return sortReportsByMode(reports, "date-desc");
+  return sortReportsByMode(reports, 'date-desc');
 }
 
 function buildReportSearchText(report: ReportRecord) {
@@ -522,7 +552,7 @@ function buildReportSearchText(report: ReportRecord) {
       report.type2,
       report.content,
       report.note,
-    ].join(" "),
+    ].join(' '),
   );
 }
 
@@ -575,12 +605,12 @@ export function formatReportHours(value: number) {
 }
 
 export function formatReportDate(value: string) {
-  return value.replaceAll("-", ".");
+  return value.replaceAll('-', '.');
 }
 
 export function formatReportDateTime(value: string) {
   if (!value) {
-    return "-";
+    return '-';
   }
 
   const date = new Date(value);
@@ -588,25 +618,25 @@ export function formatReportDateTime(value: string) {
     return value;
   }
 
-  return new Intl.DateTimeFormat("ko-KR", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
+  return new Intl.DateTimeFormat('ko-KR', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
   })
     .format(date)
-    .replaceAll(". ", ".")
-    .replace(", ", " ");
+    .replaceAll('. ', '.')
+    .replace(', ', ' ');
 }
 
 function escapeHtml(value: string) {
   return value
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#39;");
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
 }
 
 export function buildReportDownloadHtml(reports: readonly ReportViewModel[], title: string) {
@@ -624,7 +654,7 @@ export function buildReportDownloadHtml(reports: readonly ReportViewModel[], tit
           <td>${escapeHtml(report.note)}</td>
         </tr>`,
     )
-    .join("");
+    .join('');
 
   return `<!doctype html>
 <html lang="ko">

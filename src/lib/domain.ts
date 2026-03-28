@@ -1,6 +1,6 @@
-export type UserRole = "user" | "admin";
+export type UserRole = 'user' | 'admin';
 
-export type PageStatus = "미개선" | "개선" | "일부" | "중지";
+export type PageStatus = '미개선' | '개선' | '일부' | '중지';
 
 export interface Member {
   id: string;
@@ -169,4 +169,4 @@ export interface OpsStore {
   tasks: Task[];
 }
 
-export const pageStatusOptions: PageStatus[] = ["미개선", "개선", "일부", "중지"];
+export const pageStatusOptions: PageStatus[] = ['미개선', '개선', '일부', '중지'];

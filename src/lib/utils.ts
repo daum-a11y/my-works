@@ -1,4 +1,4 @@
-import { type Member, type PageStatus } from "./domain";
+import { type Member, type PageStatus } from './domain';
 
 export function createId(prefix: string): string {
   return `${prefix}-${crypto.randomUUID()}`;
@@ -11,10 +11,10 @@ export function formatDateLabel(value: string): string {
     return value;
   }
 
-  return new Intl.DateTimeFormat("ko-KR", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
+  return new Intl.DateTimeFormat('ko-KR', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
   }).format(date);
 }
 
@@ -24,8 +24,8 @@ export function formatHours(value: number): string {
 
 export function toLocalDateInputValue(value: Date): string {
   const year = value.getFullYear();
-  const month = `${value.getMonth() + 1}`.padStart(2, "0");
-  const day = `${value.getDate()}`.padStart(2, "0");
+  const month = `${value.getMonth() + 1}`.padStart(2, '0');
+  const day = `${value.getDate()}`.padStart(2, '0');
   return `${year}-${month}-${day}`;
 }
 
@@ -34,10 +34,10 @@ export function parseLocalDateInput(value: string): Date | null {
     return null;
   }
 
-  const [yearText, monthText, dayText] = value.split("-");
-  const year = Number.parseInt(yearText ?? "", 10);
-  const month = Number.parseInt(monthText ?? "", 10);
-  const day = Number.parseInt(dayText ?? "", 10);
+  const [yearText, monthText, dayText] = value.split('-');
+  const year = Number.parseInt(yearText ?? '', 10);
+  const month = Number.parseInt(monthText ?? '', 10);
+  const day = Number.parseInt(dayText ?? '', 10);
 
   if (!Number.isFinite(year) || !Number.isFinite(month) || !Number.isFinite(day)) {
     return null;
@@ -57,7 +57,7 @@ export function addDays(baseDate: string, offset: number): string {
 }
 
 export function isAdmin(member: Member | null | undefined): boolean {
-  return member?.role === "admin";
+  return member?.role === 'admin';
 }
 
 export function sortStatus(status: PageStatus): number {

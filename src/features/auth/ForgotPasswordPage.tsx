@@ -1,16 +1,16 @@
-import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useNavigate } from "react-router-dom";
-import { Button } from "../../components/ui/Button";
-import { InputField } from "../../components/ui/Field";
-import { isSupabaseConfigured } from "../../lib/env";
-import { useAuth } from "./AuthContext";
-import styles from "./ForgotPasswordPage.module.css";
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useNavigate } from 'react-router-dom';
+import { Button } from '../../components/ui/Button';
+import { InputField } from '../../components/ui/Field';
+import { isSupabaseConfigured } from '../../lib/env';
+import { useAuth } from './AuthContext';
+import styles from './ForgotPasswordPage.module.css';
 
 const forgotPasswordSchema = z.object({
-  email: z.string().email("이메일 형식으로 입력해 주세요."),
+  email: z.string().email('이메일 형식으로 입력해 주세요.'),
 });
 
 type ForgotPasswordValues = z.infer<typeof forgotPasswordSchema>;
@@ -18,8 +18,8 @@ type ForgotPasswordValues = z.infer<typeof forgotPasswordSchema>;
 export function ForgotPasswordPage() {
   const navigate = useNavigate();
   const { resetPassword } = useAuth();
-  const [errorMessage, setErrorMessage] = useState("");
-  const [noticeMessage, setNoticeMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState('');
+  const [noticeMessage, setNoticeMessage] = useState('');
   const {
     register,
     handleSubmit,
@@ -27,12 +27,12 @@ export function ForgotPasswordPage() {
   } = useForm<ForgotPasswordValues>({
     resolver: zodResolver(forgotPasswordSchema),
     defaultValues: {
-      email: "",
+      email: '',
     },
   });
 
   useEffect(() => {
-    document.title = "My Works · 비밀번호 찾기";
+    document.title = 'My Works · 비밀번호 찾기';
   }, []);
 
   return (
@@ -48,7 +48,9 @@ export function ForgotPasswordPage() {
               height="30"
             />
           </h1>
-          <p id="forgot-password-title" className={styles.caption}>비밀번호 찾기</p>
+          <p id="forgot-password-title" className={styles.caption}>
+            비밀번호 찾기
+          </p>
         </div>
         <div className={styles.formBlock}>
           <div className={styles.hero}>
@@ -60,12 +62,12 @@ export function ForgotPasswordPage() {
             className={styles.form}
             onSubmit={handleSubmit(async (values) => {
               try {
-                setErrorMessage("");
-                setNoticeMessage("");
+                setErrorMessage('');
+                setNoticeMessage('');
                 await resetPassword(values.email);
-                setNoticeMessage("메일을 확인해 비밀번호를 재설정해 주세요.");
+                setNoticeMessage('메일을 확인해 비밀번호를 재설정해 주세요.');
               } catch (error) {
-                setErrorMessage(error instanceof Error ? error.message : "메일 발송 실패.");
+                setErrorMessage(error instanceof Error ? error.message : '메일 발송 실패.');
               }
             })}
           >
@@ -75,7 +77,7 @@ export function ForgotPasswordPage() {
               autoComplete="username"
               errorMessage={errors.email?.message}
               disabled={!isSupabaseConfigured || isSubmitting}
-              {...register("email")}
+              {...register('email')}
             />
             {noticeMessage ? (
               <div className={styles.notice} data-state="success" role="status">
@@ -91,11 +93,11 @@ export function ForgotPasswordPage() {
             ) : null}
             <div className={styles.actions}>
               <Button type="submit" isDisabled={!isSupabaseConfigured || isSubmitting}>
-                {isSubmitting ? "메일 발송 중..." : "재설정 메일 보내기"}
+                {isSubmitting ? '메일 발송 중...' : '재설정 메일 보내기'}
               </Button>
             </div>
             <div className={styles.recoveryPanel}>
-              <button type="button" className={styles.backLink} onClick={() => navigate("/login")}>
+              <button type="button" className={styles.backLink} onClick={() => navigate('/login')}>
                 로그인으로 돌아가기
               </button>
             </div>

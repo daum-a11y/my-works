@@ -1,11 +1,20 @@
-import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { Area, AreaChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { PageSection } from "../../components/ui/PageSection";
-import { opsDataClient } from "../../lib/data-client";
-import { getCurrentMonth, shiftMonth } from "../resource/resource-shared";
-import { useAuth } from "../auth/AuthContext";
-import styles from "./shared.module.css";
+import { useMemo, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import {
+  Area,
+  AreaChart,
+  CartesianGrid,
+  Legend,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
+import { PageSection } from '../../components/ui/PageSection';
+import { opsDataClient } from '../../lib/data-client';
+import { getCurrentMonth, shiftMonth } from '../resource/resource-shared';
+import { useAuth } from '../auth/AuthContext';
+import styles from './shared.module.css';
 
 interface QaProject {
   id: string;
@@ -33,10 +42,10 @@ function monthKeyFromDate(value: string): string {
 }
 
 function formatMonthLabel(monthKey: string): string {
-  const [year, month] = monthKey.split("-").map(Number);
-  return new Intl.DateTimeFormat("ko-KR", {
-    year: "numeric",
-    month: "short",
+  const [year, month] = monthKey.split('-').map(Number);
+  return new Intl.DateTimeFormat('ko-KR', {
+    year: 'numeric',
+    month: 'short',
   }).format(new Date(year, month - 1, 1));
 }
 
@@ -46,14 +55,14 @@ function buildMonthRange(monthKeys: string[]): string[] {
   }
 
   const uniqueKeys = [...new Set(monthKeys)].sort();
-  const [startYear, startMonth] = uniqueKeys[0].split("-").map(Number);
-  const [endYear, endMonth] = uniqueKeys[uniqueKeys.length - 1].split("-").map(Number);
+  const [startYear, startMonth] = uniqueKeys[0].split('-').map(Number);
+  const [endYear, endMonth] = uniqueKeys[uniqueKeys.length - 1].split('-').map(Number);
   const range: string[] = [];
   let cursor = new Date(startYear, startMonth - 1, 1);
   const end = new Date(endYear, endMonth - 1, 1);
 
   while (cursor <= end) {
-    range.push(`${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, "0")}`);
+    range.push(`${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, '0')}`);
     cursor = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1);
   }
 
@@ -66,7 +75,7 @@ function sortProjects(left: QaProject, right: QaProject) {
 
 function isQaProject(project: QaProject) {
   const normalizedType = project.type1.trim();
-  return normalizedType === "QA" || normalizedType === "접근성테스트";
+  return normalizedType === 'QA' || normalizedType === '접근성테스트';
 }
 
 export function QaStatsPage() {
@@ -76,7 +85,7 @@ export function QaStatsPage() {
   const defaultStartMonth = shiftMonth(defaultEndMonth, -5);
 
   const projectsQuery = useQuery({
-    queryKey: ["qa-projects", member?.id],
+    queryKey: ['qa-projects', member?.id],
     queryFn: async () => {
       const [projects, members, serviceGroups] = await Promise.all([
         opsDataClient.getProjects(),
@@ -93,9 +102,13 @@ export function QaStatsPage() {
           type1: project.projectType1,
           name: project.name,
           platform: project.platform,
-          serviceGroupName: project.serviceGroupId ? serviceGroupsById.get(project.serviceGroupId) ?? "-" : "-",
+          serviceGroupName: project.serviceGroupId
+            ? (serviceGroupsById.get(project.serviceGroupId) ?? '-')
+            : '-',
           reportUrl: project.reportUrl,
-          reporterName: project.reporterMemberId ? membersById.get(project.reporterMemberId) ?? "미지정" : "미지정",
+          reporterName: project.reporterMemberId
+            ? (membersById.get(project.reporterMemberId) ?? '미지정')
+            : '미지정',
           startDate: project.startDate,
           endDate: project.endDate,
           isActive: Boolean(project.isActive),
@@ -114,8 +127,14 @@ export function QaStatsPage() {
   const [endMonth, setEndMonth] = useState(defaultEndMonth);
 
   const handleSearch = () => {
-    const nextStart = draftStartMonth && draftEndMonth && draftStartMonth > draftEndMonth ? draftEndMonth : draftStartMonth;
-    const nextEnd = draftStartMonth && draftEndMonth && draftStartMonth > draftEndMonth ? draftStartMonth : draftEndMonth;
+    const nextStart =
+      draftStartMonth && draftEndMonth && draftStartMonth > draftEndMonth
+        ? draftEndMonth
+        : draftStartMonth;
+    const nextEnd =
+      draftStartMonth && draftEndMonth && draftStartMonth > draftEndMonth
+        ? draftStartMonth
+        : draftEndMonth;
     setStartMonth(nextStart);
     setEndMonth(nextEnd);
     setDraftStartMonth(nextStart);
@@ -131,7 +150,7 @@ export function QaStatsPage() {
 
   const appliedPeriodLabel = useMemo(() => {
     if (!startMonth && !endMonth) {
-      return "전체 기간";
+      return '전체 기간';
     }
     if (startMonth && endMonth) {
       return `${formatMonthLabel(startMonth)} ~ ${formatMonthLabel(endMonth)}`;
@@ -207,11 +226,21 @@ export function QaStatsPage() {
         >
           <label className={styles.filterField}>
             <span>시작월</span>
-            <input type="month" aria-label="QA 시작월" value={draftStartMonth} onChange={(event) => setDraftStartMonth(event.target.value)} />
+            <input
+              type="month"
+              aria-label="QA 시작월"
+              value={draftStartMonth}
+              onChange={(event) => setDraftStartMonth(event.target.value)}
+            />
           </label>
           <label className={styles.filterField}>
             <span>종료월</span>
-            <input type="month" aria-label="QA 종료월" value={draftEndMonth} onChange={(event) => setDraftEndMonth(event.target.value)} />
+            <input
+              type="month"
+              aria-label="QA 종료월"
+              value={draftEndMonth}
+              onChange={(event) => setDraftEndMonth(event.target.value)}
+            />
           </label>
           <div className={styles.filterActions}>
             <button type="submit" className={styles.filterButton}>
@@ -236,9 +265,27 @@ export function QaStatsPage() {
                   <YAxis allowDecimals={false} tickLine={false} axisLine={false} />
                   <Tooltip />
                   <Legend />
-                  <Area type="monotone" dataKey="count" name="전체 QA" stroke="var(--chart-series-primary-stroke)" fill="var(--chart-series-primary-fill)" />
-                  <Area type="monotone" dataKey="completed" name="완료 QA" stroke="var(--chart-series-success-stroke)" fill="var(--chart-series-success-fill)" />
-                  <Area type="monotone" dataKey="active" name="진행 QA" stroke="var(--chart-series-warning-stroke)" fill="var(--chart-series-warning-fill)" />
+                  <Area
+                    type="monotone"
+                    dataKey="count"
+                    name="전체 QA"
+                    stroke="var(--chart-series-primary-stroke)"
+                    fill="var(--chart-series-primary-fill)"
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="completed"
+                    name="완료 QA"
+                    stroke="var(--chart-series-success-stroke)"
+                    fill="var(--chart-series-success-fill)"
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="active"
+                    name="진행 QA"
+                    stroke="var(--chart-series-warning-stroke)"
+                    fill="var(--chart-series-warning-fill)"
+                  />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
@@ -307,11 +354,16 @@ export function QaStatsPage() {
                   <td>{project.reporterName}</td>
                   <td>
                     {project.reportUrl ? (
-                      <a href={project.reportUrl} target="_blank" rel="noreferrer" className={styles.link}>
+                      <a
+                        href={project.reportUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className={styles.link}
+                      >
                         Click
                       </a>
                     ) : (
-                      "-"
+                      '-'
                     )}
                   </td>
                 </tr>

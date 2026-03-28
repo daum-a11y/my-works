@@ -1,17 +1,17 @@
-import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Navigate, useLocation, useNavigate } from "react-router-dom";
-import { useAuth } from "./AuthContext";
-import { isSupabaseConfigured } from "../../lib/env";
-import { Button } from "../../components/ui/Button";
-import { InputField } from "../../components/ui/Field";
-import styles from "./LoginPage.module.css";
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from './AuthContext';
+import { isSupabaseConfigured } from '../../lib/env';
+import { Button } from '../../components/ui/Button';
+import { InputField } from '../../components/ui/Field';
+import styles from './LoginPage.module.css';
 
 const loginSchema = z.object({
-  email: z.string().email("이메일 형식으로 입력해 주세요."),
-  password: z.string().min(1, "비밀번호를 입력해 주세요."),
+  email: z.string().email('이메일 형식으로 입력해 주세요.'),
+  password: z.string().min(1, '비밀번호를 입력해 주세요.'),
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
@@ -21,12 +21,13 @@ export function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const locationState =
-    typeof location.state === "object" && location.state ? (location.state as { noticeMessage?: string; emailPrefill?: string }) : {};
-  const [errorMessage, setErrorMessage] = useState("");
+    typeof location.state === 'object' && location.state
+      ? (location.state as { noticeMessage?: string; emailPrefill?: string })
+      : {};
+  const [errorMessage, setErrorMessage] = useState('');
   const [noticeMessage, setNoticeMessage] = useState(
-    typeof locationState.noticeMessage === "string" ? locationState.noticeMessage : "",
+    typeof locationState.noticeMessage === 'string' ? locationState.noticeMessage : '',
   );
-  const [isWorking, setIsWorking] = useState(false);
   const {
     register,
     handleSubmit,
@@ -35,26 +36,26 @@ export function LoginPage() {
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: typeof locationState.emailPrefill === "string" ? locationState.emailPrefill : "",
-      password: "",
+      email: typeof locationState.emailPrefill === 'string' ? locationState.emailPrefill : '',
+      password: '',
     },
   });
 
-  if (status === "authenticated" && session) {
-    return <Navigate to="/dashboard" replace />;
-  }
-
   useEffect(() => {
-    document.title = "My Works · 로그인";
+    document.title = 'My Works · 로그인';
   }, []);
 
   useEffect(() => {
     if (noticeMessage) {
-      setFocus(locationState.emailPrefill ? "password" : "email");
+      setFocus(locationState.emailPrefill ? 'password' : 'email');
     }
   }, [locationState.emailPrefill, noticeMessage, setFocus]);
 
-  const isBusy = isSubmitting || isWorking;
+  if (status === 'authenticated' && session) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  const isBusy = isSubmitting;
 
   return (
     <main className={styles.page}>
@@ -69,7 +70,9 @@ export function LoginPage() {
               height="30"
             />
           </h1>
-          <p id="login-title" className={styles.caption}>로그인</p>
+          <p id="login-title" className={styles.caption}>
+            로그인
+          </p>
         </div>
 
         <div className={styles.formBlock}>
@@ -77,11 +80,11 @@ export function LoginPage() {
             className={styles.form}
             onSubmit={handleSubmit(async (values) => {
               try {
-                setErrorMessage("");
-                setNoticeMessage("");
+                setErrorMessage('');
+                setNoticeMessage('');
                 await login(values.email, values.password);
               } catch (error) {
-                setErrorMessage(error instanceof Error ? error.message : "로그인에 실패했습니다.");
+                setErrorMessage(error instanceof Error ? error.message : '로그인에 실패했습니다.');
               }
             })}
           >
@@ -91,7 +94,7 @@ export function LoginPage() {
               autoComplete="username"
               errorMessage={errors.email?.message}
               disabled={!isSupabaseConfigured || isBusy}
-              {...register("email")}
+              {...register('email')}
             />
             <InputField
               label="비밀번호"
@@ -99,7 +102,7 @@ export function LoginPage() {
               autoComplete="current-password"
               errorMessage={errors.password?.message}
               disabled={!isSupabaseConfigured || isBusy}
-              {...register("password")}
+              {...register('password')}
             />
             {noticeMessage ? (
               <div className={styles.notice} data-state="success" role="status">
@@ -115,7 +118,7 @@ export function LoginPage() {
             ) : null}
             <div className={styles.submitRow}>
               <Button type="submit" isDisabled={!isSupabaseConfigured || isBusy}>
-                {isSubmitting ? "로그인 중..." : "로그인"}
+                {isSubmitting ? '로그인 중...' : '로그인'}
               </Button>
             </div>
             <div className={styles.recoveryPanel}>
@@ -124,7 +127,7 @@ export function LoginPage() {
                 className={styles.recoveryButton}
                 disabled={!isSupabaseConfigured || isBusy}
                 onClick={() => {
-                  navigate("/forgot-password");
+                  navigate('/forgot-password');
                 }}
               >
                 비밀번호 찾기

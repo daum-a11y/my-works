@@ -1,4 +1,4 @@
-import { getSupabaseClient } from "./supabase";
+import { getSupabaseClient } from './supabase';
 import {
   type DashboardSnapshot,
   type Member,
@@ -14,15 +14,15 @@ import {
   type TaskActivity,
   type Task,
   type TaskType,
-} from "./domain";
-import { getToday, sortStatus } from "./utils";
+} from './domain';
+import { getToday, sortStatus } from './utils';
 
 function monthKeyFromMonitoringMonth(value: string): string {
-  const digits = value.replace(/\D/g, "");
+  const digits = value.replace(/\D/g, '');
   if (digits.length === 4) {
     return `20${digits.slice(0, 2)}-${digits.slice(2, 4)}`;
   }
-  return "";
+  return '';
 }
 
 function hasAgitDate(note: string) {
@@ -30,12 +30,12 @@ function hasAgitDate(note: string) {
 }
 
 function getCurrentMonthKey(reference = new Date()) {
-  return `${reference.getFullYear()}-${String(reference.getMonth() + 1).padStart(2, "0")}`;
+  return `${reference.getFullYear()}-${String(reference.getMonth() + 1).padStart(2, '0')}`;
 }
 
 function getPreviousMonthKey(reference = new Date()) {
   const previous = new Date(reference.getFullYear(), reference.getMonth() - 1, 1);
-  return `${previous.getFullYear()}-${String(previous.getMonth() + 1).padStart(2, "0")}`;
+  return `${previous.getFullYear()}-${String(previous.getMonth() + 1).padStart(2, '0')}`;
 }
 
 function isDashboardMonitoringPage(page: ProjectPage, reference = new Date()) {
@@ -47,11 +47,15 @@ function isDashboardMonitoringPage(page: ProjectPage, reference = new Date()) {
   return (
     (monthKey === getCurrentMonthKey(reference) || monthKey === getPreviousMonthKey(reference)) &&
     !hasAgitDate(page.note) &&
-    page.trackStatus !== "중지"
+    page.trackStatus !== '중지'
   );
 }
 
-function isDashboardQaPage(page: ProjectPage, project: Project | undefined, reference = new Date()) {
+function isDashboardQaPage(
+  page: ProjectPage,
+  project: Project | undefined,
+  reference = new Date(),
+) {
   if (!project) {
     return false;
   }
@@ -61,7 +65,7 @@ function isDashboardQaPage(page: ProjectPage, project: Project | undefined, refe
 }
 
 export interface OpsDataClient {
-  mode: "supabase" | "unconfigured";
+  mode: 'supabase' | 'unconfigured';
   getMembers(): Promise<Member[]>;
   getMemberByLegacyUserId(legacyUserId: string): Promise<Member | null>;
   getMemberByEmail(email: string): Promise<Member | null>;
@@ -89,34 +93,38 @@ export interface OpsDataClient {
 function buildDashboard(store: OpsStore): DashboardSnapshot {
   const membersById = new Map(store.members.map((member) => [member.id, member.name]));
   const projectsById = new Map(store.projects.map((project) => [project.id, project]));
-  const pages = [...store.projectPages].sort((left, right) => sortStatus(left.trackStatus) - sortStatus(right.trackStatus));
+  const pages = [...store.projectPages].sort(
+    (left, right) => sortStatus(left.trackStatus) - sortStatus(right.trackStatus),
+  );
 
   const toItem = (page: ProjectPage) => {
     const project = projectsById.get(page.projectId);
     return {
       pageId: page.id,
-      projectName: project?.name ?? "미분류 프로젝트",
-      platform: project?.platform ?? "-",
+      projectName: project?.name ?? '미분류 프로젝트',
+      platform: project?.platform ?? '-',
       pageTitle: page.title,
       ownerName: project?.reporterMemberId
-        ? membersById.get(project.reporterMemberId) ?? "미지정"
+        ? (membersById.get(project.reporterMemberId) ?? '미지정')
         : page.ownerMemberId
-          ? membersById.get(page.ownerMemberId) ?? "미지정"
-          : "미지정",
+          ? (membersById.get(page.ownerMemberId) ?? '미지정')
+          : '미지정',
       statusLabel: page.trackStatus,
       detail: page.note,
-      reportUrl: project?.reportUrl ?? "",
+      reportUrl: project?.reportUrl ?? '',
       dueDate: project?.endDate ?? null,
     };
   };
 
   return {
     monitoring: pages.filter((page) => isDashboardMonitoringPage(page)).map(toItem),
-    qa: pages.filter((page) => isDashboardQaPage(page, projectsById.get(page.projectId))).map(toItem),
+    qa: pages
+      .filter((page) => isDashboardQaPage(page, projectsById.get(page.projectId)))
+      .map(toItem),
   };
 }
 
-function buildStats(store: Pick<OpsStore, "projectPages" | "projects" | "tasks">): StatsSnapshot {
+function buildStats(store: Pick<OpsStore, 'projectPages' | 'projects' | 'tasks'>): StatsSnapshot {
   const totalHours = store.tasks.reduce((sum, task) => sum + task.hours, 0);
   const statusMap = new Map<string, number>();
   const typeMap = new Map<string, number>();
@@ -133,10 +141,13 @@ function buildStats(store: Pick<OpsStore, "projectPages" | "projects" | "tasks">
   return {
     totalHours,
     totalTasks: store.tasks.length,
-    monitoringInProgress: store.projectPages.filter((page) => isDashboardMonitoringPage(page)).length,
-    qaInProgress: store.projectPages.filter((page) => isDashboardQaPage(page, projectsById.get(page.projectId))).length,
+    monitoringInProgress: store.projectPages.filter((page) => isDashboardMonitoringPage(page))
+      .length,
+    qaInProgress: store.projectPages.filter((page) =>
+      isDashboardQaPage(page, projectsById.get(page.projectId)),
+    ).length,
     statusBreakdown: Array.from(statusMap.entries()).map(([status, count]) => ({
-      status: status as StatsSnapshot["statusBreakdown"][number]["status"],
+      status: status as StatsSnapshot['statusBreakdown'][number]['status'],
       count,
     })),
     typeBreakdown: Array.from(typeMap.entries()).map(([type, hours]) => ({ type, hours })),
@@ -152,7 +163,7 @@ function requireData<T>(data: T | null, message: string): T {
 }
 
 function requireRecord(data: unknown, message: string): Record<string, unknown> {
-  if (!data || typeof data !== "object" || Array.isArray(data)) {
+  if (!data || typeof data !== 'object' || Array.isArray(data)) {
     throw new Error(message);
   }
 
@@ -164,77 +175,90 @@ function buildTaskSearchText(
   projectsById: Map<string, Project>,
   pagesById: Map<string, ProjectPage>,
 ) {
-  const projectName = task.projectId ? projectsById.get(task.projectId)?.name ?? "" : "";
-  const pageName = task.pageId ? pagesById.get(task.pageId)?.title ?? "" : "";
+  const projectName = task.projectId ? (projectsById.get(task.projectId)?.name ?? '') : '';
+  const pageName = task.pageId ? (pagesById.get(task.pageId)?.title ?? '') : '';
 
   return [projectName, pageName, task.content, task.note, task.taskType1, task.taskType2]
-    .join(" ")
+    .join(' ')
     .trim()
     .toLowerCase();
 }
 
 function createSupabaseClient(): OpsDataClient {
-  const supabase = requireData(getSupabaseClient(), "Supabase is not configured.");
+  const supabase = requireData(getSupabaseClient(), 'Supabase is not configured.');
   const taskSelectColumns =
-    "id, legacy_task_id, member_id, task_date, project_id, project_page_id, task_type1, task_type2, hours, content, note, created_at, updated_at";
+    'id, legacy_task_id, member_id, task_date, project_id, project_page_id, task_type1, task_type2, hours, content, note, created_at, updated_at';
 
   return {
-    mode: "supabase",
+    mode: 'supabase',
     async getMembers() {
-      const { data, error } = await supabase.from("members_public_view").select("*").order("name");
+      const { data, error } = await supabase.from('members_public_view').select('*').order('name');
       if (error) throw error;
       return (data ?? []).map(mapMemberRecord);
     },
     async getMemberByLegacyUserId(legacyUserId) {
       const normalized = legacyUserId.trim();
       const { data, error } = await supabase
-        .from("members")
-        .select("*")
-        .ilike("legacy_user_id", normalized)
+        .from('members')
+        .select('*')
+        .ilike('legacy_user_id', normalized)
         .maybeSingle();
       if (error) throw error;
       return data ? mapMemberRecord(data) : null;
     },
     async getMemberByEmail(email) {
-      const { data, error } = await supabase.from("members").select("*").eq("email", email).maybeSingle();
+      const { data, error } = await supabase
+        .from('members')
+        .select('*')
+        .eq('email', email)
+        .maybeSingle();
       if (error) throw error;
       return data ? mapMemberRecord(data) : null;
     },
     async getMemberByAuthId(authUserId) {
-      const { data, error } = await supabase.from("members").select("*").eq("auth_user_id", authUserId).maybeSingle();
+      const { data, error } = await supabase
+        .from('members')
+        .select('*')
+        .eq('auth_user_id', authUserId)
+        .maybeSingle();
       if (error) throw error;
       return data ? mapMemberRecord(data) : null;
     },
     async bindAuthSessionMember(authUserId, email) {
-      const { data, error } = await supabase.rpc("bind_auth_session_member", {
+      const { data, error } = await supabase.rpc('bind_auth_session_member', {
         p_auth_user_id: authUserId,
         p_email: email ?? null,
       });
       if (error) throw error;
-      return data ? mapMemberRecord(requireRecord(data, "사용자 연결 결과를 확인할 수 없습니다.")) : null;
+      return data
+        ? mapMemberRecord(requireRecord(data, '사용자 연결 결과를 확인할 수 없습니다.'))
+        : null;
     },
     async getTaskTypes() {
-      const { data, error } = await supabase.from("task_types").select("*").order("display_order");
+      const { data, error } = await supabase.from('task_types').select('*').order('display_order');
       if (error) throw error;
       return (data ?? []).map(mapTaskTypeRecord);
     },
     async getServiceGroups() {
-      const { data, error } = await supabase.from("service_groups").select("*").order("display_order");
+      const { data, error } = await supabase
+        .from('service_groups')
+        .select('*')
+        .order('display_order');
       if (error) throw error;
       return (data ?? []).map(mapServiceGroupRecord);
     },
     async getProjects() {
       const { data, error } = await supabase
-        .from("projects")
-        .select("*")
-        .order("is_active", { ascending: false })
-        .order("name");
+        .from('projects')
+        .select('*')
+        .order('is_active', { ascending: false })
+        .order('name');
       if (error) throw error;
       return (data ?? []).map(mapProjectRecord);
     },
     async saveProject(input) {
       const { data, error } = await supabase
-        .rpc("upsert_project", {
+        .rpc('upsert_project', {
           p_project_id: input.id ?? null,
           p_project_type1: input.projectType1,
           p_name: input.name,
@@ -249,31 +273,31 @@ function createSupabaseClient(): OpsDataClient {
         })
         .single();
       if (error) throw error;
-      return mapProjectRecord(requireRecord(data, "프로젝트 저장 결과를 확인할 수 없습니다."));
+      return mapProjectRecord(requireRecord(data, '프로젝트 저장 결과를 확인할 수 없습니다.'));
     },
     async deleteProject(projectId) {
-      const { error } = await supabase.from("projects").delete().eq("id", projectId);
+      const { error } = await supabase.from('projects').delete().eq('id', projectId);
       if (error) throw error;
     },
-    async getProjectPages(member) {
+    async getProjectPages() {
       const { data, error } = await supabase
-        .from("project_pages_public_view")
-        .select("*")
-        .order("updated_at", { ascending: false });
+        .from('project_pages_public_view')
+        .select('*')
+        .order('updated_at', { ascending: false });
       if (error) throw error;
       return (data ?? []).map(mapProjectPageRecord);
     },
     async getAllProjectPages() {
       const { data, error } = await supabase
-        .from("project_pages_public_view")
-        .select("*")
-        .order("updated_at", { ascending: false });
+        .from('project_pages_public_view')
+        .select('*')
+        .order('updated_at', { ascending: false });
       if (error) throw error;
       return (data ?? []).map(mapProjectPageRecord);
     },
     async saveProjectPage(input) {
       const { data, error } = await supabase
-        .rpc("upsert_project_page", {
+        .rpc('upsert_project_page', {
           p_page_id: input.id ?? null,
           p_project_id: input.projectId,
           p_title: input.title,
@@ -287,38 +311,43 @@ function createSupabaseClient(): OpsDataClient {
         })
         .single();
       if (error) throw error;
-      return mapProjectPageRecord(requireRecord(data, "프로젝트 페이지 저장 결과를 확인할 수 없습니다."));
+      return mapProjectPageRecord(
+        requireRecord(data, '프로젝트 페이지 저장 결과를 확인할 수 없습니다.'),
+      );
     },
     async deleteProjectPage(pageId) {
-      const { error } = await supabase.from("project_pages").delete().eq("id", pageId);
+      const { error } = await supabase.from('project_pages').delete().eq('id', pageId);
       if (error) throw error;
     },
     async getTasks(member) {
       const { data, error } = await supabase
-        .from("tasks")
+        .from('tasks')
         .select(taskSelectColumns)
-        .eq("member_id", member.id)
-        .order("task_date", { ascending: false });
+        .eq('member_id', member.id)
+        .order('task_date', { ascending: false });
       if (error) throw error;
       return (data ?? []).map(mapTaskRecord);
     },
     async getAllTasks(member) {
-      let query = supabase.from("tasks").select(taskSelectColumns).order("task_date", { ascending: false });
-      if (member.role !== "admin") {
-        query = query.eq("member_id", member.id);
+      let query = supabase
+        .from('tasks')
+        .select(taskSelectColumns)
+        .order('task_date', { ascending: false });
+      if (member.role !== 'admin') {
+        query = query.eq('member_id', member.id);
       }
       const { data, error } = await query;
       if (error) throw error;
       return (data ?? []).map(mapTaskRecord);
     },
     async getTaskActivities() {
-      const { data, error } = await supabase.from("tasks").select("member_id, task_date, hours");
+      const { data, error } = await supabase.from('tasks').select('member_id, task_date, hours');
       if (error) throw error;
       return (data ?? []).map(mapTaskActivityRecord);
     },
-    async saveTask(member, input) {
+    async saveTask(input) {
       const { data, error } = await supabase
-        .rpc("save_task", {
+        .rpc('save_task', {
           p_task_id: input.id ?? null,
           p_task_date: input.taskDate,
           p_project_id: input.projectId || null,
@@ -331,28 +360,28 @@ function createSupabaseClient(): OpsDataClient {
         })
         .single();
       if (error) throw error;
-      return mapTaskRecord(requireRecord(data, "업무보고 저장 결과를 확인할 수 없습니다."));
+      return mapTaskRecord(requireRecord(data, '업무보고 저장 결과를 확인할 수 없습니다.'));
     },
-    async deleteTask(member, taskId) {
-      const { error } = await supabase.rpc("delete_task", {
+    async deleteTask(taskId) {
+      const { error } = await supabase.rpc('delete_task', {
         p_task_id: taskId,
       });
       if (error) throw error;
     },
     async searchTasks(member, filters) {
       let query = supabase
-        .from("tasks")
+        .from('tasks')
         .select(taskSelectColumns)
-        .eq("member_id", member.id)
-        .order("task_date", { ascending: false });
-      if (filters.startDate) query = query.gte("task_date", filters.startDate);
-      if (filters.endDate) query = query.lte("task_date", filters.endDate);
-      if (filters.projectId) query = query.eq("project_id", filters.projectId);
-      if (filters.pageId) query = query.eq("project_page_id", filters.pageId);
-      if (filters.taskType1) query = query.eq("task_type1", filters.taskType1);
-      if (filters.taskType2) query = query.eq("task_type2", filters.taskType2);
-      if (filters.minHours) query = query.gte("hours", Number.parseFloat(filters.minHours));
-      if (filters.maxHours) query = query.lte("hours", Number.parseFloat(filters.maxHours));
+        .eq('member_id', member.id)
+        .order('task_date', { ascending: false });
+      if (filters.startDate) query = query.gte('task_date', filters.startDate);
+      if (filters.endDate) query = query.lte('task_date', filters.endDate);
+      if (filters.projectId) query = query.eq('project_id', filters.projectId);
+      if (filters.pageId) query = query.eq('project_page_id', filters.pageId);
+      if (filters.taskType1) query = query.eq('task_type1', filters.taskType1);
+      if (filters.taskType2) query = query.eq('task_type2', filters.taskType2);
+      if (filters.minHours) query = query.gte('hours', Number.parseFloat(filters.minHours));
+      if (filters.maxHours) query = query.lte('hours', Number.parseFloat(filters.maxHours));
       const { data, error } = await query;
       if (error) throw error;
       const tasks = (data ?? []).map(mapTaskRecord);
@@ -361,7 +390,10 @@ function createSupabaseClient(): OpsDataClient {
         return tasks;
       }
 
-      const [projects, pages] = await Promise.all([this.getProjects(), this.getProjectPages(member)]);
+      const [projects, pages] = await Promise.all([
+        this.getProjects(),
+        this.getProjectPages(member),
+      ]);
       const projectsById = new Map(projects.map((project) => [project.id, project] as const));
       const pagesById = new Map(pages.map((page) => [page.id, page] as const));
       const normalizedQuery = filters.query.trim().toLowerCase();
@@ -371,12 +403,15 @@ function createSupabaseClient(): OpsDataClient {
       );
     },
     async getDashboard() {
-      const [{ data: pages, error: pagesError }, { data: projects, error: projectError }, { data: members, error: membersError }] =
-        await Promise.all([
-          supabase.from("project_pages_public_view").select("*"),
-          supabase.from("projects").select("*"),
-          supabase.from("members_public_view").select("*"),
-        ]);
+      const [
+        { data: pages, error: pagesError },
+        { data: projects, error: projectError },
+        { data: members, error: membersError },
+      ] = await Promise.all([
+        supabase.from('project_pages_public_view').select('*'),
+        supabase.from('projects').select('*'),
+        supabase.from('members_public_view').select('*'),
+      ]);
 
       if (pagesError) throw pagesError;
       if (projectError) throw projectError;
@@ -392,10 +427,14 @@ function createSupabaseClient(): OpsDataClient {
       });
     },
     async getStats() {
-      const [{ data: pages, error: pagesError }, { data: tasks, error: tasksError }, { data: projects, error: projectsError }] = await Promise.all([
-        supabase.from("project_pages_public_view").select("*"),
-        supabase.from("tasks").select(taskSelectColumns),
-        supabase.from("projects").select("*"),
+      const [
+        { data: pages, error: pagesError },
+        { data: tasks, error: tasksError },
+        { data: projects, error: projectsError },
+      ] = await Promise.all([
+        supabase.from('project_pages_public_view').select('*'),
+        supabase.from('tasks').select(taskSelectColumns),
+        supabase.from('projects').select('*'),
       ]);
       if (pagesError) throw pagesError;
       if (tasksError) throw tasksError;
@@ -412,11 +451,11 @@ function createSupabaseClient(): OpsDataClient {
 
 function createUnconfiguredClient(): OpsDataClient {
   const fail = async (): Promise<never> => {
-    throw new Error("Supabase 환경변수가 설정되지 않았습니다.");
+    throw new Error('Supabase 환경변수가 설정되지 않았습니다.');
   };
 
   return {
-    mode: "unconfigured",
+    mode: 'unconfigured',
     getMembers: fail,
     getMemberByLegacyUserId: fail,
     getMemberByEmail: fail,
@@ -445,10 +484,10 @@ function createUnconfiguredClient(): OpsDataClient {
 function mapMemberRecord(record: Record<string, unknown>): Member {
   return {
     id: String(record.id),
-    legacyUserId: String(record.legacy_user_id ?? ""),
-    name: String(record.name ?? ""),
-    email: String(record.email ?? ""),
-    role: Number(record.user_level ?? 0) === 1 ? "admin" : "user",
+    legacyUserId: String(record.legacy_user_id ?? ''),
+    name: String(record.name ?? ''),
+    email: String(record.email ?? ''),
+    role: Number(record.user_level ?? 0) === 1 ? 'admin' : 'user',
     isActive: Boolean(record.user_active ?? record.is_active ?? true),
     joinedAt: String(record.joined_at ?? record.created_at ?? getToday()),
     authUserId: record.auth_user_id ? String(record.auth_user_id) : null,
@@ -457,7 +496,7 @@ function mapMemberRecord(record: Record<string, unknown>): Member {
 
 function mapTaskActivityRecord(record: Record<string, unknown>): TaskActivity {
   return {
-    memberId: String(record.member_id ?? ""),
+    memberId: String(record.member_id ?? ''),
     taskDate: String(record.task_date ?? getToday()),
     hours: Number(record.hours ?? 0),
   };
@@ -466,10 +505,10 @@ function mapTaskActivityRecord(record: Record<string, unknown>): TaskActivity {
 function mapTaskTypeRecord(record: Record<string, unknown>): TaskType {
   return {
     id: String(record.id),
-    legacyTypeId: String(record.legacy_type_id ?? ""),
-    type1: String(record.type1 ?? ""),
-    type2: String(record.type2 ?? ""),
-    label: String(record.display_label ?? `${record.type1 ?? ""} / ${record.type2 ?? ""}`),
+    legacyTypeId: String(record.legacy_type_id ?? ''),
+    type1: String(record.type1 ?? ''),
+    type2: String(record.type2 ?? ''),
+    label: String(record.display_label ?? `${record.type1 ?? ''} / ${record.type2 ?? ''}`),
     displayOrder: Number(record.display_order ?? 0),
     requiresServiceGroup: Boolean(record.requires_service_group ?? false),
   };
@@ -478,8 +517,8 @@ function mapTaskTypeRecord(record: Record<string, unknown>): TaskType {
 function mapServiceGroupRecord(record: Record<string, unknown>): ServiceGroup {
   return {
     id: String(record.id),
-    legacyServiceGroupId: String(record.legacy_service_group_id ?? ""),
-    name: String(record.name ?? ""),
+    legacyServiceGroupId: String(record.legacy_service_group_id ?? ''),
+    name: String(record.name ?? ''),
     displayOrder: Number(record.display_order ?? 0),
   };
 }
@@ -487,13 +526,13 @@ function mapServiceGroupRecord(record: Record<string, unknown>): ServiceGroup {
 function mapProjectRecord(record: Record<string, unknown>): Project {
   return {
     id: String(record.id),
-    legacyProjectId: String(record.legacy_project_id ?? ""),
+    legacyProjectId: String(record.legacy_project_id ?? ''),
     createdByMemberId: record.created_by_member_id ? String(record.created_by_member_id) : null,
-    projectType1: String(record.project_type1 ?? ""),
-    name: String(record.name ?? ""),
-    platform: String(record.platform ?? ""),
+    projectType1: String(record.project_type1 ?? ''),
+    name: String(record.name ?? ''),
+    platform: String(record.platform ?? ''),
     serviceGroupId: record.service_group_id ? String(record.service_group_id) : null,
-    reportUrl: String(record.report_url ?? ""),
+    reportUrl: String(record.report_url ?? ''),
     reporterMemberId: record.reporter_member_id ? String(record.reporter_member_id) : null,
     reviewerMemberId: record.reviewer_member_id ? String(record.reviewer_member_id) : null,
     startDate: String(record.start_date ?? getToday()),
@@ -505,16 +544,16 @@ function mapProjectRecord(record: Record<string, unknown>): Project {
 function mapProjectPageRecord(record: Record<string, unknown>): ProjectPage {
   return {
     id: String(record.id),
-    legacyPageId: String(record.legacy_page_id ?? ""),
-    projectId: String(record.project_id ?? ""),
-    title: String(record.title ?? ""),
-    url: String(record.url ?? ""),
+    legacyPageId: String(record.legacy_page_id ?? ''),
+    projectId: String(record.project_id ?? ''),
+    title: String(record.title ?? ''),
+    url: String(record.url ?? ''),
     ownerMemberId: record.owner_member_id ? String(record.owner_member_id) : null,
-    monitoringMonth: String(record.monitoring_month ?? ""),
-    trackStatus: String(record.track_status ?? "미개선") as ProjectPage["trackStatus"],
+    monitoringMonth: String(record.monitoring_month ?? ''),
+    trackStatus: String(record.track_status ?? '미개선') as ProjectPage['trackStatus'],
     monitoringInProgress: Boolean(record.monitoring_in_progress ?? false),
     qaInProgress: Boolean(record.qa_in_progress ?? false),
-    note: String(record.note ?? ""),
+    note: String(record.note ?? ''),
     updatedAt: String(record.updated_at ?? getToday()),
   };
 }
@@ -522,19 +561,21 @@ function mapProjectPageRecord(record: Record<string, unknown>): ProjectPage {
 function mapTaskRecord(record: Record<string, unknown>): Task {
   return {
     id: String(record.id),
-    legacyTaskId: String(record.legacy_task_id ?? ""),
-    memberId: String(record.member_id ?? ""),
+    legacyTaskId: String(record.legacy_task_id ?? ''),
+    memberId: String(record.member_id ?? ''),
     taskDate: String(record.task_date ?? getToday()),
     projectId: record.project_id ? String(record.project_id) : null,
     pageId: record.project_page_id ? String(record.project_page_id) : null,
-    taskType1: String(record.task_type1 ?? ""),
-    taskType2: String(record.task_type2 ?? ""),
+    taskType1: String(record.task_type1 ?? ''),
+    taskType2: String(record.task_type2 ?? ''),
     hours: Number(record.hours ?? 0),
-    content: String(record.content ?? ""),
-    note: String(record.note ?? ""),
+    content: String(record.content ?? ''),
+    note: String(record.note ?? ''),
     createdAt: String(record.created_at ?? getToday()),
     updatedAt: String(record.updated_at ?? getToday()),
   };
 }
 
-export const opsDataClient: OpsDataClient = getSupabaseClient() ? createSupabaseClient() : createUnconfiguredClient();
+export const opsDataClient: OpsDataClient = getSupabaseClient()
+  ? createSupabaseClient()
+  : createUnconfiguredClient();

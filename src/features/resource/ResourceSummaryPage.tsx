@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
-import { PageSection } from "../../components/ui/PageSection";
+import { useEffect, useMemo, useState } from 'react';
+import { PageSection } from '../../components/ui/PageSection';
 import {
   buildCalendarWeeks,
   filterTasksByMonth,
@@ -8,20 +8,20 @@ import {
   getPreviousBusinessDay,
   shiftMonth,
   useResourceDataset,
-} from "./resource-shared";
-import styles from "./ResourcePage.module.css";
+} from './resource-shared';
+import styles from './ResourcePage.module.css';
 
-const weekdayLabels = ["일", "월", "화", "수", "목", "금", "토"];
+const weekdayLabels = ['일', '월', '화', '수', '목', '금', '토'];
 
 export function ResourceSummaryPage() {
   const query = useResourceDataset();
   const data = query.data;
   const [selectedDate, setSelectedDate] = useState(() => getPreviousBusinessDay());
   const [selectedMonth, setSelectedMonth] = useState(() => getCurrentMonth());
-  const [selectedMemberId, setSelectedMemberId] = useState("");
+  const [selectedMemberId, setSelectedMemberId] = useState('');
 
   useEffect(() => {
-    document.title = "투입리소스 | My Works";
+    document.title = '투입리소스 | My Works';
   }, []);
 
   useEffect(() => {
@@ -29,8 +29,8 @@ export function ResourceSummaryPage() {
       return;
     }
 
-    if (data.member.role === "admin") {
-      setSelectedMemberId((current) => current || data.members[0]?.id || "");
+    if (data.member.role === 'admin') {
+      setSelectedMemberId((current) => current || data.members[0]?.id || '');
       return;
     }
 
@@ -43,7 +43,7 @@ export function ResourceSummaryPage() {
     }
 
     const visibleMembers =
-      data.member.role === "admin"
+      data.member.role === 'admin'
         ? data.members
         : data.members.filter((member) => member.id === data.member.id);
     const weekday = new Date(selectedDate).getDay();
@@ -68,7 +68,9 @@ export function ResourceSummaryPage() {
       return null;
     }
 
-    const tasks = filterTasksByMonth(data.tasks, selectedMonth).filter((task) => task.memberId === selectedMemberId);
+    const tasks = filterTasksByMonth(data.tasks, selectedMonth).filter(
+      (task) => task.memberId === selectedMemberId,
+    );
     const summary = new Map<number, number>();
 
     for (const task of tasks) {
@@ -77,7 +79,7 @@ export function ResourceSummaryPage() {
     }
 
     const today = new Date();
-    const currentYearMonth = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}`;
+    const currentYearMonth = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
     const currentMonth = currentYearMonth === selectedMonth;
     const future = selectedMonth > currentYearMonth;
 
@@ -98,11 +100,23 @@ export function ResourceSummaryPage() {
     <div className={styles.splitGrid}>
       <PageSection title="일간" variant="panel">
         <div className={styles.toolbar}>
-          <button type="button" onClick={() => setSelectedDate(getPreviousBusinessDay(new Date(selectedDate)))}>
+          <button
+            type="button"
+            onClick={() => setSelectedDate(getPreviousBusinessDay(new Date(selectedDate)))}
+          >
             이전날
           </button>
-          <input aria-label="일간 날짜 선택" type="date" value={selectedDate} onChange={(event) => setSelectedDate(event.target.value)} />
-          <button type="button" onClick={() => setSelectedDate(getNextBusinessDay(new Date(selectedDate)))} disabled={isFutureDaily}>
+          <input
+            aria-label="일간 날짜 선택"
+            type="date"
+            value={selectedDate}
+            onChange={(event) => setSelectedDate(event.target.value)}
+          />
+          <button
+            type="button"
+            onClick={() => setSelectedDate(getNextBusinessDay(new Date(selectedDate)))}
+            disabled={isFutureDaily}
+          >
             다음날
           </button>
         </div>
@@ -123,7 +137,13 @@ export function ResourceSummaryPage() {
                   : row.minutes < 480
                     ? styles.resultBadgeDanger
                     : styles.resultBadgeSuccess;
-                const value = row.isWeekend ? (row.minutes > 0 ? `${row.minutes} 분` : "") : row.minutes < 480 ? `${(480 - row.minutes) * -1} 분` : "PASS";
+                const value = row.isWeekend
+                  ? row.minutes > 0
+                    ? `${row.minutes} 분`
+                    : ''
+                  : row.minutes < 480
+                    ? `${(480 - row.minutes) * -1} 분`
+                    : 'PASS';
 
                 return (
                   <tr key={row.id}>
@@ -140,7 +160,7 @@ export function ResourceSummaryPage() {
       </PageSection>
 
       <PageSection title="월간" variant="panel">
-        {data?.member.role === "admin" ? (
+        {data?.member.role === 'admin' ? (
           <div className={styles.callout}>
             조회 대상 사용자를 선택한 뒤 월간 현황을 확인할 수 있습니다.
           </div>
@@ -150,8 +170,12 @@ export function ResourceSummaryPage() {
           <button type="button" onClick={() => setSelectedMonth(shiftMonth(selectedMonth, -1))}>
             이전달
           </button>
-          {data?.member.role === "admin" ? (
-            <select aria-label="아이디" value={selectedMemberId} onChange={(event) => setSelectedMemberId(event.target.value)}>
+          {data?.member.role === 'admin' ? (
+            <select
+              aria-label="아이디"
+              value={selectedMemberId}
+              onChange={(event) => setSelectedMemberId(event.target.value)}
+            >
               {data.members.map((member) => (
                 <option key={member.id} value={member.id}>
                   {member.legacyUserId} ({member.name})
@@ -171,13 +195,13 @@ export function ResourceSummaryPage() {
                 {monthState.year}년 {monthState.month}월 업무일지 작성시간 현황
               </caption>
               <colgroup>
-                <col style={{ width: "13%" }} />
-                <col style={{ width: "14.8%" }} />
-                <col style={{ width: "14.8%" }} />
-                <col style={{ width: "14.8%" }} />
-                <col style={{ width: "14.8%" }} />
-                <col style={{ width: "14.8%" }} />
-                <col style={{ width: "13%" }} />
+                <col style={{ width: '13%' }} />
+                <col style={{ width: '14.8%' }} />
+                <col style={{ width: '14.8%' }} />
+                <col style={{ width: '14.8%' }} />
+                <col style={{ width: '14.8%' }} />
+                <col style={{ width: '14.8%' }} />
+                <col style={{ width: '13%' }} />
               </colgroup>
               <thead>
                 <tr>
@@ -198,20 +222,31 @@ export function ResourceSummaryPage() {
                       const isWeekend = cell.weekday === 0 || cell.weekday === 6;
                       const showBusinessState =
                         isWeekend === false &&
-                        ((monthState.currentMonth && monthState.today >= cell.day) || (!monthState.future && !monthState.currentMonth));
+                        ((monthState.currentMonth && monthState.today >= cell.day) ||
+                          (!monthState.future && !monthState.currentMonth));
 
                       return (
                         <td key={cell.date} className={isWeekend ? styles.weekendCell : undefined}>
-                          <span className={styles.dayLabel}>{cell.day}일</span>{" "}
+                          <span className={styles.dayLabel}>{cell.day}일</span>{' '}
                           {isWeekend ? (
-                            minutes > 0 ? <span className={`${styles.resultBadge} ${styles.resultBadgeWeekend}`}>{minutes}분</span> : null
+                            minutes > 0 ? (
+                              <span
+                                className={`${styles.resultBadge} ${styles.resultBadgeWeekend}`}
+                              >
+                                {minutes}분
+                              </span>
+                            ) : null
                           ) : showBusinessState ? (
                             minutes > 0 ? (
-                              <span className={`${styles.resultBadge} ${minutes >= 480 ? styles.resultBadgeSuccess : styles.resultBadgeWarning}`}>
+                              <span
+                                className={`${styles.resultBadge} ${minutes >= 480 ? styles.resultBadgeSuccess : styles.resultBadgeWarning}`}
+                              >
                                 {(480 - minutes) * -1}분
                               </span>
                             ) : (
-                              <span className={`${styles.resultBadge} ${styles.resultBadgeDanger}`}>-480분</span>
+                              <span className={`${styles.resultBadge} ${styles.resultBadgeDanger}`}>
+                                -480분
+                              </span>
                             )
                           ) : null}
                         </td>

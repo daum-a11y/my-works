@@ -1,12 +1,21 @@
-import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { Area, AreaChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { PageSection } from "../../components/ui/PageSection";
-import { opsDataClient } from "../../lib/data-client";
-import { type PageStatus, type ProjectPage } from "../../lib/domain";
-import { getCurrentMonth, shiftMonth } from "../resource/resource-shared";
-import { useAuth } from "../auth/AuthContext";
-import styles from "./shared.module.css";
+import { useMemo, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import {
+  Area,
+  AreaChart,
+  CartesianGrid,
+  Legend,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
+import { PageSection } from '../../components/ui/PageSection';
+import { opsDataClient } from '../../lib/data-client';
+import { type PageStatus, type ProjectPage } from '../../lib/domain';
+import { getCurrentMonth, shiftMonth } from '../resource/resource-shared';
+import { useAuth } from '../auth/AuthContext';
+import styles from './shared.module.css';
 
 interface MonitoringRow {
   page: ProjectPage;
@@ -27,38 +36,38 @@ interface MonthlyMonitoringRow {
   partialFix: number;
 }
 
-function parseIssueCount(note: string, key: "highest" | "high" | "normal") {
+function parseIssueCount(note: string, key: 'highest' | 'high' | 'normal') {
   const matched = note.match(new RegExp(`${key}:\\s*(\\d+)`));
-  return matched ? matched[1] : "-";
+  return matched ? matched[1] : '-';
 }
 
 function formatTrackStatus(value: PageStatus) {
   switch (value) {
-    case "개선":
-      return "전체 수정";
-    case "일부":
-      return "일부 수정";
-    case "중지":
-      return "중지";
-    case "미개선":
+    case '개선':
+      return '전체 수정';
+    case '일부':
+      return '일부 수정';
+    case '중지':
+      return '중지';
+    case '미개선':
     default:
-      return "미수정";
+      return '미수정';
   }
 }
 
 function monthKeyFromMonitoringMonth(value: string): string {
-  const digits = value.replace(/\D/g, "");
+  const digits = value.replace(/\D/g, '');
   if (digits.length === 4) {
     return `20${digits.slice(0, 2)}-${digits.slice(2, 4)}`;
   }
-  return "";
+  return '';
 }
 
 function formatMonthLabel(monthKey: string): string {
-  const [year, month] = monthKey.split("-").map(Number);
-  return new Intl.DateTimeFormat("ko-KR", {
-    year: "numeric",
-    month: "short",
+  const [year, month] = monthKey.split('-').map(Number);
+  return new Intl.DateTimeFormat('ko-KR', {
+    year: 'numeric',
+    month: 'short',
   }).format(new Date(year, month - 1, 1));
 }
 
@@ -68,14 +77,14 @@ function buildMonthRange(monthKeys: string[]): string[] {
   }
 
   const uniqueKeys = [...new Set(monthKeys)].sort();
-  const [startYear, startMonth] = uniqueKeys[0].split("-").map(Number);
-  const [endYear, endMonth] = uniqueKeys[uniqueKeys.length - 1].split("-").map(Number);
+  const [startYear, startMonth] = uniqueKeys[0].split('-').map(Number);
+  const [endYear, endMonth] = uniqueKeys[uniqueKeys.length - 1].split('-').map(Number);
   const range: string[] = [];
   let cursor = new Date(startYear, startMonth - 1, 1);
   const end = new Date(endYear, endMonth - 1, 1);
 
   while (cursor <= end) {
-    range.push(`${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, "0")}`);
+    range.push(`${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, '0')}`);
     cursor = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1);
   }
 
@@ -83,15 +92,15 @@ function buildMonthRange(monthKeys: string[]): string[] {
 }
 
 function isStoppedStatus(status: PageStatus): boolean {
-  return status === "중지";
+  return status === '중지';
 }
 
 function isFullFixStatus(status: PageStatus): boolean {
-  return status === "개선";
+  return status === '개선';
 }
 
 function isPartialFixStatus(status: PageStatus): boolean {
-  return status === "일부";
+  return status === '일부';
 }
 
 function sortRows(left: MonitoringRow, right: MonitoringRow) {
@@ -105,7 +114,7 @@ export function MonitoringStatsPage() {
   const defaultStartMonth = shiftMonth(defaultEndMonth, -5);
 
   const monitoringQuery = useQuery({
-    queryKey: ["monitoring-detail", member?.id],
+    queryKey: ['monitoring-detail', member?.id],
     queryFn: async () => {
       const [pages, projects, members] = await Promise.all([
         opsDataClient.getAllProjectPages(),
@@ -119,9 +128,11 @@ export function MonitoringStatsPage() {
         .filter((page) => Boolean(page.monitoringMonth))
         .map((page) => ({
           page,
-          projectName: projectsById.get(page.projectId)?.name ?? "미분류 프로젝트",
-          platform: projectsById.get(page.projectId)?.platform ?? "-",
-          assigneeName: page.ownerMemberId ? membersById.get(page.ownerMemberId) ?? "미지정" : "미지정",
+          projectName: projectsById.get(page.projectId)?.name ?? '미분류 프로젝트',
+          platform: projectsById.get(page.projectId)?.platform ?? '-',
+          assigneeName: page.ownerMemberId
+            ? (membersById.get(page.ownerMemberId) ?? '미지정')
+            : '미지정',
           reportUrl: projectsById.get(page.projectId)?.reportUrl ?? page.url,
         }))
         .sort(sortRows);
@@ -129,15 +140,24 @@ export function MonitoringStatsPage() {
     enabled: Boolean(member),
   });
 
-  const monitoringRows = useMemo<MonitoringRow[]>(() => monitoringQuery.data ?? [], [monitoringQuery.data]);
+  const monitoringRows = useMemo<MonitoringRow[]>(
+    () => monitoringQuery.data ?? [],
+    [monitoringQuery.data],
+  );
   const [draftStartMonth, setDraftStartMonth] = useState(defaultStartMonth);
   const [draftEndMonth, setDraftEndMonth] = useState(defaultEndMonth);
   const [startMonth, setStartMonth] = useState(defaultStartMonth);
   const [endMonth, setEndMonth] = useState(defaultEndMonth);
 
   const handleSearch = () => {
-    const nextStart = draftStartMonth && draftEndMonth && draftStartMonth > draftEndMonth ? draftEndMonth : draftStartMonth;
-    const nextEnd = draftStartMonth && draftEndMonth && draftStartMonth > draftEndMonth ? draftStartMonth : draftEndMonth;
+    const nextStart =
+      draftStartMonth && draftEndMonth && draftStartMonth > draftEndMonth
+        ? draftEndMonth
+        : draftStartMonth;
+    const nextEnd =
+      draftStartMonth && draftEndMonth && draftStartMonth > draftEndMonth
+        ? draftStartMonth
+        : draftEndMonth;
     setStartMonth(nextStart);
     setEndMonth(nextEnd);
     setDraftStartMonth(nextStart);
@@ -153,7 +173,7 @@ export function MonitoringStatsPage() {
 
   const appliedPeriodLabel = useMemo(() => {
     if (!startMonth && !endMonth) {
-      return "전체 기간";
+      return '전체 기간';
     }
     if (startMonth && endMonth) {
       return `${formatMonthLabel(startMonth)} ~ ${formatMonthLabel(endMonth)}`;
@@ -187,7 +207,14 @@ export function MonitoringStatsPage() {
 
     const grouped = new Map<
       string,
-      { count: number; sent: number; unsent: number; stopped: number; fullFix: number; partialFix: number }
+      {
+        count: number;
+        sent: number;
+        unsent: number;
+        stopped: number;
+        fullFix: number;
+        partialFix: number;
+      }
     >();
     const monthKeys = filteredRows
       .map((row) => monthKeyFromMonitoringMonth(row.page.monitoringMonth))
@@ -208,8 +235,9 @@ export function MonitoringStatsPage() {
       };
 
       current.count += 1;
-      current.sent += row.page.trackStatus !== "미개선" && !isStoppedStatus(row.page.trackStatus) ? 1 : 0;
-      current.unsent += row.page.trackStatus === "미개선" ? 1 : 0;
+      current.sent +=
+        row.page.trackStatus !== '미개선' && !isStoppedStatus(row.page.trackStatus) ? 1 : 0;
+      current.unsent += row.page.trackStatus === '미개선' ? 1 : 0;
       current.stopped += isStoppedStatus(row.page.trackStatus) ? 1 : 0;
       current.fullFix += isFullFixStatus(row.page.trackStatus) ? 1 : 0;
       current.partialFix += isPartialFixStatus(row.page.trackStatus) ? 1 : 0;
@@ -250,11 +278,21 @@ export function MonitoringStatsPage() {
         >
           <label className={styles.filterField}>
             <span>시작월</span>
-            <input type="month" aria-label="모니터링 시작월" value={draftStartMonth} onChange={(event) => setDraftStartMonth(event.target.value)} />
+            <input
+              type="month"
+              aria-label="모니터링 시작월"
+              value={draftStartMonth}
+              onChange={(event) => setDraftStartMonth(event.target.value)}
+            />
           </label>
           <label className={styles.filterField}>
             <span>종료월</span>
-            <input type="month" aria-label="모니터링 종료월" value={draftEndMonth} onChange={(event) => setDraftEndMonth(event.target.value)} />
+            <input
+              type="month"
+              aria-label="모니터링 종료월"
+              value={draftEndMonth}
+              onChange={(event) => setDraftEndMonth(event.target.value)}
+            />
           </label>
           <div className={styles.filterActions}>
             <button type="submit" className={styles.filterButton}>
@@ -279,10 +317,34 @@ export function MonitoringStatsPage() {
                   <YAxis allowDecimals={false} tickLine={false} axisLine={false} />
                   <Tooltip />
                   <Legend />
-                  <Area type="monotone" dataKey="count" name="총모니터링수" stroke="var(--chart-series-primary-stroke)" fill="var(--chart-series-primary-fill)" />
-                  <Area type="monotone" dataKey="sent" name="전달 수" stroke="var(--chart-series-success-stroke)" fill="var(--chart-series-success-fill)" />
-                  <Area type="monotone" dataKey="fullFix" name="완전 개선수" stroke="var(--chart-series-warning-stroke)" fill="var(--chart-series-warning-fill)" />
-                  <Area type="monotone" dataKey="partialFix" name="일부 개선수" stroke="var(--chart-series-danger-stroke)" fill="var(--chart-series-danger-fill)" />
+                  <Area
+                    type="monotone"
+                    dataKey="count"
+                    name="총모니터링수"
+                    stroke="var(--chart-series-primary-stroke)"
+                    fill="var(--chart-series-primary-fill)"
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="sent"
+                    name="전달 수"
+                    stroke="var(--chart-series-success-stroke)"
+                    fill="var(--chart-series-success-fill)"
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="fullFix"
+                    name="완전 개선수"
+                    stroke="var(--chart-series-warning-stroke)"
+                    fill="var(--chart-series-warning-fill)"
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="partialFix"
+                    name="일부 개선수"
+                    stroke="var(--chart-series-danger-stroke)"
+                    fill="var(--chart-series-danger-fill)"
+                  />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
@@ -365,17 +427,22 @@ export function MonitoringStatsPage() {
                       {formatTrackStatus(row.page.trackStatus)}
                     </span>
                   </td>
-                  <td>{parseIssueCount(row.page.note, "highest")}</td>
-                  <td>{parseIssueCount(row.page.note, "high")}</td>
-                  <td>{parseIssueCount(row.page.note, "normal")}</td>
-                  <td>{row.page.note || "-"}</td>
+                  <td>{parseIssueCount(row.page.note, 'highest')}</td>
+                  <td>{parseIssueCount(row.page.note, 'high')}</td>
+                  <td>{parseIssueCount(row.page.note, 'normal')}</td>
+                  <td>{row.page.note || '-'}</td>
                   <td>
                     {row.reportUrl ? (
-                      <a href={row.reportUrl} target="_blank" rel="noreferrer" className={styles.link}>
+                      <a
+                        href={row.reportUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className={styles.link}
+                      >
                         Click
                       </a>
                     ) : (
-                      "-"
+                      '-'
                     )}
                   </td>
                 </tr>

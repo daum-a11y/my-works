@@ -1,17 +1,17 @@
-import { useEffect, useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { adminDataClient } from "../admin-client";
-import type { MemberAdminItem, MemberAdminPayload } from "../admin-types";
-import { AdminMemberRow } from "./AdminMemberRow";
-import styles from "./AdminMembersPage.module.css";
+import { useEffect, useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { adminDataClient } from '../admin-client';
+import type { MemberAdminItem, MemberAdminPayload } from '../admin-types';
+import { AdminMemberRow } from './AdminMemberRow';
+import styles from './AdminMembersPage.module.css';
 
 function createDraft(member?: MemberAdminItem): MemberAdminPayload {
   if (!member) {
     return {
-      legacyUserId: "",
-      name: "",
-      email: "",
-      role: "user",
+      legacyUserId: '',
+      name: '',
+      email: '',
+      role: 'user',
       userActive: true,
       isActive: true,
       authUserId: null,
@@ -46,14 +46,14 @@ export function AdminMembersPage() {
   const [adding, setAdding] = useState(false);
   const [editingMemberId, setEditingMemberId] = useState<string | null>(null);
   const [draft, setDraft] = useState<MemberAdminPayload | null>(null);
-  const [statusMessage, setStatusMessage] = useState("");
+  const [statusMessage, setStatusMessage] = useState('');
 
   useEffect(() => {
-    document.title = "사용자 관리 | My Works";
+    document.title = '사용자 관리 | My Works';
   }, []);
 
   const membersQuery = useQuery({
-    queryKey: ["admin", "members"],
+    queryKey: ['admin', 'members'],
     queryFn: () => adminDataClient.listMembersAdmin(),
   });
 
@@ -62,14 +62,18 @@ export function AdminMembersPage() {
   });
 
   const inviteMutation = useMutation({
-    mutationFn: (payload: { email: string; legacyUserId: string; name: string; role: "user" | "admin" }) =>
-      adminDataClient.inviteMemberAdmin(payload),
+    mutationFn: (payload: {
+      email: string;
+      legacyUserId: string;
+      name: string;
+      role: 'user' | 'admin';
+    }) => adminDataClient.inviteMemberAdmin(payload),
   });
 
   const deleteMutation = useMutation({
     mutationFn: (memberId: string) => adminDataClient.deleteMemberAdmin(memberId),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ["admin", "members"] });
+      void queryClient.invalidateQueries({ queryKey: ['admin', 'members'] });
       setAdding(false);
       setEditingMemberId(null);
       setDraft(null);
@@ -84,26 +88,29 @@ export function AdminMembersPage() {
 
   const members = membersQuery.data ?? [];
 
-  const handleFieldChange = <K extends keyof MemberAdminPayload>(key: K, value: MemberAdminPayload[K]) => {
+  const handleFieldChange = <K extends keyof MemberAdminPayload>(
+    key: K,
+    value: MemberAdminPayload[K],
+  ) => {
     setDraft((current) => (current ? { ...current, [key]: value } : current));
   };
 
   const startAdd = () => {
-    setStatusMessage("");
+    setStatusMessage('');
     setAdding(true);
     setEditingMemberId(null);
     setDraft(createDraft());
   };
 
   const startEdit = (member: MemberAdminItem) => {
-    setStatusMessage("");
+    setStatusMessage('');
     setAdding(false);
     setEditingMemberId(member.id);
     setDraft(createDraft(member));
   };
 
   const cancelDraft = () => {
-    setStatusMessage("");
+    setStatusMessage('');
     setAdding(false);
     setEditingMemberId(null);
     setDraft(null);
@@ -117,7 +124,7 @@ export function AdminMembersPage() {
     const normalizedDraft = normalizeDraft(draft);
     const isCreate = !normalizedDraft.id;
 
-    setStatusMessage("");
+    setStatusMessage('');
 
     await saveMutation.mutateAsync(normalizedDraft);
 
@@ -129,19 +136,19 @@ export function AdminMembersPage() {
           name: normalizedDraft.name,
           role: normalizedDraft.role,
         });
-        setStatusMessage("사용자를 추가하고 초대 메일을 보냈습니다.");
+        setStatusMessage('사용자를 추가하고 초대 메일을 보냈습니다.');
       } else {
-        setStatusMessage("사용자 정보를 저장했습니다.");
+        setStatusMessage('사용자 정보를 저장했습니다.');
       }
     } catch (error) {
-      setStatusMessage("");
+      setStatusMessage('');
       throw new Error(
         error instanceof Error
           ? `사용자는 저장했지만 초대 메일 발송에 실패했습니다. ${error.message}`
-          : "사용자는 저장했지만 초대 메일 발송에 실패했습니다.",
+          : '사용자는 저장했지만 초대 메일 발송에 실패했습니다.',
       );
     } finally {
-      void queryClient.invalidateQueries({ queryKey: ["admin", "members"] });
+      void queryClient.invalidateQueries({ queryKey: ['admin', 'members'] });
     }
 
     setAdding(false);
@@ -158,7 +165,7 @@ export function AdminMembersPage() {
   };
 
   const handleInvite = async (member: MemberAdminItem) => {
-    setStatusMessage("");
+    setStatusMessage('');
     if (!window.confirm(`${member.name}에게 초대 메일을 보내시겠습니까?`)) {
       return;
     }
@@ -169,7 +176,7 @@ export function AdminMembersPage() {
       name: member.name,
       role: member.role,
     });
-    setStatusMessage("초대 메일을 보냈습니다.");
+    setStatusMessage('초대 메일을 보냈습니다.');
   };
 
   const errorMessage =
@@ -177,7 +184,7 @@ export function AdminMembersPage() {
     (saveMutation.error instanceof Error && saveMutation.error.message) ||
     (inviteMutation.error instanceof Error && inviteMutation.error.message) ||
     (deleteMutation.error instanceof Error && deleteMutation.error.message) ||
-    "";
+    '';
 
   return (
     <section className={styles.page}>
@@ -239,7 +246,7 @@ export function AdminMembersPage() {
                 members.map((member) => (
                   <AdminMemberRow
                     key={member.id}
-                    mode={editingMemberId === member.id ? "edit" : "view"}
+                    mode={editingMemberId === member.id ? 'edit' : 'view'}
                     member={member}
                     draft={editingMemberId === member.id ? draft : null}
                     onDraftChange={handleFieldChange}

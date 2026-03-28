@@ -1,20 +1,20 @@
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import { MemoryRouter, Route, Routes } from "react-router-dom";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { ForgotPasswordPage } from "../features/auth/ForgotPasswordPage";
+import { cleanup, render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { ForgotPasswordPage } from '../features/auth/ForgotPasswordPage';
 
 const mockUseAuth = vi.hoisted(() => vi.fn());
 
-vi.mock("../features/auth/AuthContext", () => ({
+vi.mock('../features/auth/AuthContext', () => ({
   useAuth: mockUseAuth,
 }));
 
-vi.mock("../lib/env", () => ({
+vi.mock('../lib/env', () => ({
   isSupabaseConfigured: true,
 }));
 
-describe("ForgotPasswordPage", () => {
+describe('ForgotPasswordPage', () => {
   afterEach(() => {
     cleanup();
   });
@@ -22,8 +22,8 @@ describe("ForgotPasswordPage", () => {
   beforeEach(() => {
     mockUseAuth.mockReset();
     mockUseAuth.mockReturnValue({
-      status: "guest",
-      authFlow: "default",
+      status: 'guest',
+      authFlow: 'default',
       isRecoverySession: false,
       session: null,
       login: vi.fn(),
@@ -33,13 +33,13 @@ describe("ForgotPasswordPage", () => {
     });
   });
 
-  it("sends a password reset email from the dedicated page", async () => {
+  it('sends a password reset email from the dedicated page', async () => {
     const user = userEvent.setup();
     const resetPassword = vi.fn().mockResolvedValue(undefined);
 
     mockUseAuth.mockReturnValue({
-      status: "guest",
-      authFlow: "default",
+      status: 'guest',
+      authFlow: 'default',
       isRecoverySession: false,
       session: null,
       login: vi.fn(),
@@ -49,20 +49,20 @@ describe("ForgotPasswordPage", () => {
     });
 
     render(
-      <MemoryRouter initialEntries={["/forgot-password"]}>
+      <MemoryRouter initialEntries={['/forgot-password']}>
         <Routes>
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         </Routes>
       </MemoryRouter>,
     );
 
-    await user.type(screen.getByRole("textbox", { name: "이메일" }), "crew@example.com");
-    await user.click(screen.getByRole("button", { name: "재설정 메일 보내기" }));
+    await user.type(screen.getByRole('textbox', { name: '이메일' }), 'crew@example.com');
+    await user.click(screen.getByRole('button', { name: '재설정 메일 보내기' }));
 
     await waitFor(() => {
-      expect(resetPassword).toHaveBeenCalledWith("crew@example.com");
+      expect(resetPassword).toHaveBeenCalledWith('crew@example.com');
     });
 
-    expect(screen.getByText("메일을 확인해 비밀번호를 재설정해 주세요.")).toBeInTheDocument();
+    expect(screen.getByText('메일을 확인해 비밀번호를 재설정해 주세요.')).toBeInTheDocument();
   });
 });

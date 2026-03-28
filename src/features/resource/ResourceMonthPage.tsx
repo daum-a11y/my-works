@@ -1,6 +1,6 @@
-import { Fragment, useEffect, useMemo, useState } from "react";
-import { Link, useParams } from "react-router-dom";
-import { PageSection } from "../../components/ui/PageSection";
+import { Fragment, useEffect, useMemo, useState } from 'react';
+import { Link, useParams } from 'react-router-dom';
+import { PageSection } from '../../components/ui/PageSection';
 import {
   buildProjectMaps,
   buildTaskTypeRequirementMap,
@@ -14,8 +14,8 @@ import {
   isServiceTask,
   shiftMonth,
   useResourceDataset,
-} from "./resource-shared";
-import styles from "./ResourcePage.module.css";
+} from './resource-shared';
+import styles from './ResourcePage.module.css';
 
 interface TypeRow {
   type1: string;
@@ -50,7 +50,7 @@ interface ServiceDetailRow {
 }
 
 function parseMonth(value: string) {
-  const [year, month] = value.split("-").map(Number);
+  const [year, month] = value.split('-').map(Number);
   return { year, month };
 }
 
@@ -63,24 +63,34 @@ export function ResourceMonthPage() {
   const [svcFold, setSvcFold] = useState(false);
 
   useEffect(() => {
-    document.title = "월간 투입리소스 | My Works";
+    document.title = '월간 투입리소스 | My Works';
   }, []);
 
-  const monthTasks = useMemo(() => filterTasksByMonth(data?.tasks ?? [], selectedMonth), [data?.tasks, selectedMonth]);
-  const requirementMap = useMemo(() => buildTaskTypeRequirementMap(data?.taskTypes ?? []), [data?.taskTypes]);
+  const monthTasks = useMemo(
+    () => filterTasksByMonth(data?.tasks ?? [], selectedMonth),
+    [data?.tasks, selectedMonth],
+  );
+  const requirementMap = useMemo(
+    () => buildTaskTypeRequirementMap(data?.taskTypes ?? []),
+    [data?.taskTypes],
+  );
   const { projectsById, serviceGroupsById } = useMemo(
     () => buildProjectMaps(data?.projects ?? [], data?.serviceGroups ?? []),
     [data?.projects, data?.serviceGroups],
   );
 
   const typeRows = useMemo<TypeRow[]>(() => {
-    const grouped = new Map<string, Map<string, { minutes: number; requiresServiceGroup: boolean }>>();
+    const grouped = new Map<
+      string,
+      Map<string, { minutes: number; requiresServiceGroup: boolean }>
+    >();
 
     for (const task of monthTasks) {
-      const type1 = task.taskType1 || "미분류";
-      const type2 = task.taskType2 || "미분류";
+      const type1 = task.taskType1 || '미분류';
+      const type2 = task.taskType2 || '미분류';
       const requiresServiceGroup = isServiceTask(task, requirementMap);
-      const items = grouped.get(type1) ?? new Map<string, { minutes: number; requiresServiceGroup: boolean }>();
+      const items =
+        grouped.get(type1) ?? new Map<string, { minutes: number; requiresServiceGroup: boolean }>();
       const current = items.get(type2) ?? { minutes: 0, requiresServiceGroup };
       current.minutes += Math.round(task.hours);
       current.requiresServiceGroup = current.requiresServiceGroup || requiresServiceGroup;
@@ -98,7 +108,8 @@ export function ResourceMonthPage() {
           }))
           .sort(
             (left, right) =>
-              Number(right.requiresServiceGroup) - Number(left.requiresServiceGroup) || left.type2.localeCompare(right.type2),
+              Number(right.requiresServiceGroup) - Number(left.requiresServiceGroup) ||
+              left.type2.localeCompare(right.type2),
           );
 
         return {
@@ -110,7 +121,8 @@ export function ResourceMonthPage() {
       })
       .sort(
         (left, right) =>
-          Number(right.requiresServiceGroup) - Number(left.requiresServiceGroup) || left.type1.localeCompare(right.type1),
+          Number(right.requiresServiceGroup) - Number(left.requiresServiceGroup) ||
+          left.type1.localeCompare(right.type1),
       );
   }, [monthTasks, requirementMap]);
 
@@ -150,7 +162,7 @@ export function ResourceMonthPage() {
       const info = getTaskServiceInfo(task, projectsById, serviceGroupsById);
       const names = grouped.get(info.group) ?? new Map<string, Map<string, number>>();
       const typeMap = names.get(info.name) ?? new Map<string, number>();
-      const type1 = task.taskType1 || "미분류";
+      const type1 = task.taskType1 || '미분류';
       typeMap.set(type1, (typeMap.get(type1) ?? 0) + Math.round(task.hours));
       names.set(info.name, typeMap);
       grouped.set(info.group, names);
@@ -192,17 +204,27 @@ export function ResourceMonthPage() {
 
   const totalMinutes = typeRows.reduce((sum, row) => sum + row.totalMinutes, 0);
   const unpaidLeaveMinutes =
-    typeRows.find((row) => row.type1 === "휴무")?.items.find((item) => item.type2 === "무급휴가")?.minutes ?? 0;
-  const holidayMinutes = Math.max(0, (typeRows.find((row) => row.type1 === "휴무")?.totalMinutes ?? 0) - unpaidLeaveMinutes);
-  const bufferMinutes = typeRows.find((row) => row.type1 === "기타버퍼")?.totalMinutes ?? 0;
+    typeRows.find((row) => row.type1 === '휴무')?.items.find((item) => item.type2 === '무급휴가')
+      ?.minutes ?? 0;
+  const holidayMinutes = Math.max(
+    0,
+    (typeRows.find((row) => row.type1 === '휴무')?.totalMinutes ?? 0) - unpaidLeaveMinutes,
+  );
+  const bufferMinutes = typeRows.find((row) => row.type1 === '기타버퍼')?.totalMinutes ?? 0;
   const adjustedTotalMinutes = totalMinutes - unpaidLeaveMinutes;
   const projectMinutes = serviceSummaryRows.reduce((sum, row) => sum + row.totalMinutes, 0);
-  const nonProjectMinutes = Math.max(0, adjustedTotalMinutes - holidayMinutes - bufferMinutes - projectMinutes);
+  const nonProjectMinutes = Math.max(
+    0,
+    adjustedTotalMinutes - holidayMinutes - bufferMinutes - projectMinutes,
+  );
   const unpaidRows = typeRows
     .filter((row) => !row.requiresServiceGroup)
     .map((row) => ({
       type1: row.type1,
-      totalMinutes: row.type1 === "휴무" ? Math.max(0, row.totalMinutes - unpaidLeaveMinutes) : row.totalMinutes,
+      totalMinutes:
+        row.type1 === '휴무'
+          ? Math.max(0, row.totalMinutes - unpaidLeaveMinutes)
+          : row.totalMinutes,
     }))
     .filter((row) => row.totalMinutes > 0);
 
@@ -219,7 +241,7 @@ export function ResourceMonthPage() {
       <div className={styles.monthNav}>
         <div className={styles.monthNavSide}>
           <Link className={styles.monthNavButton} to={`/resource/month/${beforeMonth}`}>
-            {beforeMonth.replace("-", "/")}
+            {beforeMonth.replace('-', '/')}
           </Link>
         </div>
         <div className={styles.monthNavCenter}>
@@ -229,7 +251,7 @@ export function ResourceMonthPage() {
         </div>
         <div className={`${styles.monthNavSide} ${styles.monthNavSideRight}`}>
           <Link className={styles.monthNavButton} to={`/resource/month/${afterMonth}`}>
-            {afterMonth.replace("-", "/")}
+            {afterMonth.replace('-', '/')}
           </Link>
         </div>
       </div>
@@ -239,10 +261,20 @@ export function ResourceMonthPage() {
       ) : (
         <>
           <div className={styles.badgeRow}>
-            <span className={`${styles.infoBadge} ${styles.infoBadgeAccent}`}>WD {workingDays}일</span>
-            <span className={styles.infoBadge}>총 {formatMm(adjustedTotalMinutes, workingDays)} MM</span>
-            <span className={styles.infoBadge}>휴무 제외 {formatMm(adjustedTotalMinutes - holidayMinutes, workingDays)} MM</span>
-            {unpaidLeaveMinutes > 0 ? <span className={styles.infoBadge}>무급휴가 {formatMm(unpaidLeaveMinutes, workingDays)} MM</span> : null}
+            <span className={`${styles.infoBadge} ${styles.infoBadgeAccent}`}>
+              WD {workingDays}일
+            </span>
+            <span className={styles.infoBadge}>
+              총 {formatMm(adjustedTotalMinutes, workingDays)} MM
+            </span>
+            <span className={styles.infoBadge}>
+              휴무 제외 {formatMm(adjustedTotalMinutes - holidayMinutes, workingDays)} MM
+            </span>
+            {unpaidLeaveMinutes > 0 ? (
+              <span className={styles.infoBadge}>
+                무급휴가 {formatMm(unpaidLeaveMinutes, workingDays)} MM
+              </span>
+            ) : null}
           </div>
 
           <div className={styles.progressBar}>
@@ -268,7 +300,9 @@ export function ResourceMonthPage() {
                 </div>
                 <div
                   className={`${styles.progressSegment} ${styles.progressNormal}`}
-                  style={{ width: `${Math.ceil((nonProjectMinutes / adjustedTotalMinutes) * 100)}%` }}
+                  style={{
+                    width: `${Math.ceil((nonProjectMinutes / adjustedTotalMinutes) * 100)}%`,
+                  }}
                   title={`일반 (비프로젝트) ${formatMm(nonProjectMinutes, workingDays)}MM`}
                 >
                   일반 (비프로젝트)
@@ -301,7 +335,11 @@ export function ResourceMonthPage() {
               return (
                 <span key={member.id} className={`${styles.memberBadge} ${className}`}>
                   {member.legacyUserId}
-                  {diffMinutes > 0 ? `  +${diffMinutes}분` : diffMinutes === 0 ? "" : `  ${diffMinutes}분`}
+                  {diffMinutes > 0
+                    ? `  +${diffMinutes}분`
+                    : diffMinutes === 0
+                      ? ''
+                      : `  ${diffMinutes}분`}
                 </span>
               );
             })}
@@ -312,8 +350,12 @@ export function ResourceMonthPage() {
               title="업무타입별 월간 리소스"
               variant="panel"
               actions={
-                <button type="button" onClick={() => setWorkFold((current) => !current)} disabled={!typeRows.length}>
-                  {workFold ? "펼치기" : "접기"}
+                <button
+                  type="button"
+                  onClick={() => setWorkFold((current) => !current)}
+                  disabled={!typeRows.length}
+                >
+                  {workFold ? '펼치기' : '접기'}
                 </button>
               }
             >
@@ -344,15 +386,24 @@ export function ResourceMonthPage() {
                           <th>합계</th>
                           <td className={styles.numberCell}>{row.totalMinutes}</td>
                           <td className={styles.numberCell}>{formatMd(row.totalMinutes)}</td>
-                          <td className={styles.numberCell}>{formatMm(row.totalMinutes, workingDays)}</td>
+                          <td className={styles.numberCell}>
+                            {formatMm(row.totalMinutes, workingDays)}
+                          </td>
                         </tr>
                         {!workFold
                           ? row.items.map((item) => (
-                              <tr key={`${row.type1}-${item.type2}`} className={item.requiresServiceGroup ? undefined : styles.lightGrayRow}>
+                              <tr
+                                key={`${row.type1}-${item.type2}`}
+                                className={
+                                  item.requiresServiceGroup ? undefined : styles.lightGrayRow
+                                }
+                              >
                                 <th>{item.type2}</th>
                                 <td className={styles.numberCell}>{item.minutes}</td>
                                 <td className={styles.numberCell}>{formatMd(item.minutes)}</td>
-                                <td className={styles.numberCell}>{formatMm(item.minutes, workingDays)}</td>
+                                <td className={styles.numberCell}>
+                                  {formatMm(item.minutes, workingDays)}
+                                </td>
                               </tr>
                             ))
                           : null}
@@ -374,8 +425,12 @@ export function ResourceMonthPage() {
               title="서비스그룹별 월간 리소스"
               variant="panel"
               actions={
-                <button type="button" onClick={() => setSvcFold((current) => !current)} disabled={!serviceDetailRows.length}>
-                  {svcFold ? "펼치기" : "접기"}
+                <button
+                  type="button"
+                  onClick={() => setSvcFold((current) => !current)}
+                  disabled={!serviceDetailRows.length}
+                >
+                  {svcFold ? '펼치기' : '접기'}
                 </button>
               }
             >
@@ -401,7 +456,10 @@ export function ResourceMonthPage() {
                   </tfoot>
                   <tbody>
                     {serviceDetailRows.map((group) => {
-                      const detailLength = group.names.reduce((sum, name) => sum + name.items.length, 0);
+                      const detailLength = group.names.reduce(
+                        (sum, name) => sum + name.items.length,
+                        0,
+                      );
 
                       return (
                         <Fragment key={group.group}>
@@ -410,17 +468,23 @@ export function ResourceMonthPage() {
                             <th colSpan={2}>합계</th>
                             <td className={styles.numberCell}>{group.totalMinutes}</td>
                             <td className={styles.numberCell}>{formatMd(group.totalMinutes)}</td>
-                            <td className={styles.numberCell}>{formatMm(group.totalMinutes, workingDays)}</td>
+                            <td className={styles.numberCell}>
+                              {formatMm(group.totalMinutes, workingDays)}
+                            </td>
                           </tr>
                           {!svcFold
                             ? group.names.map((name) =>
                                 name.items.map((item, index) => (
                                   <tr key={`${group.group}-${name.name}-${item.type1}`}>
-                                    {index === 0 ? <th rowSpan={name.items.length}>{name.name}</th> : null}
+                                    {index === 0 ? (
+                                      <th rowSpan={name.items.length}>{name.name}</th>
+                                    ) : null}
                                     <th>{item.type1}</th>
                                     <td className={styles.numberCell}>{item.minutes}</td>
                                     <td className={styles.numberCell}>{formatMd(item.minutes)}</td>
-                                    <td className={styles.numberCell}>{formatMm(item.minutes, workingDays)}</td>
+                                    <td className={styles.numberCell}>
+                                      {formatMm(item.minutes, workingDays)}
+                                    </td>
                                   </tr>
                                 )),
                               )
@@ -447,7 +511,9 @@ export function ResourceMonthPage() {
                 <tfoot>
                   <tr className={styles.sumRow}>
                     <th colSpan={2}>합계</th>
-                    <td className={styles.numberCell}>{formatMm(adjustedTotalMinutes, workingDays)}</td>
+                    <td className={styles.numberCell}>
+                      {formatMm(adjustedTotalMinutes, workingDays)}
+                    </td>
                   </tr>
                 </tfoot>
                 <tbody>
@@ -456,12 +522,16 @@ export function ResourceMonthPage() {
                       <tr>
                         <th rowSpan={group.names.length + 1}>{group.group}</th>
                         <th>합계</th>
-                        <td className={styles.numberCell}>{formatMm(group.totalMinutes, workingDays)}</td>
+                        <td className={styles.numberCell}>
+                          {formatMm(group.totalMinutes, workingDays)}
+                        </td>
                       </tr>
                       {group.names.map((name) => (
                         <tr key={`${group.group}-${name.name}`} className={styles.summaryStrongRow}>
                           <th>{name.name}</th>
-                          <td className={styles.numberCell}>{formatMm(name.minutes, workingDays)}</td>
+                          <td className={styles.numberCell}>
+                            {formatMm(name.minutes, workingDays)}
+                          </td>
                         </tr>
                       ))}
                     </Fragment>
@@ -469,7 +539,9 @@ export function ResourceMonthPage() {
                   {unpaidRows.map((row) => (
                     <tr key={row.type1} className={styles.summaryStrongRow}>
                       <th colSpan={2}>{row.type1}</th>
-                      <td className={styles.numberCell}>{formatMm(row.totalMinutes, workingDays)}</td>
+                      <td className={styles.numberCell}>
+                        {formatMm(row.totalMinutes, workingDays)}
+                      </td>
                     </tr>
                   ))}
                 </tbody>

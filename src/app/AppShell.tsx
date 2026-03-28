@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { NavLink, Outlet, useLocation } from "react-router-dom";
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard,
   FileText,
@@ -13,51 +13,45 @@ import {
   House,
   LogOut,
   UserRound,
-} from "lucide-react";
-import { useAuth } from "../features/auth/AuthContext";
-import styles from "./AppShell.module.css";
-
-type NavigationItem = {
-  label: string;
-  to?: string;
-  children?: readonly { to: string; label: string }[];
-};
+} from 'lucide-react';
+import { useAuth } from '../features/auth/AuthContext';
+import styles from './AppShell.module.css';
 
 const baseNavigation = [
-  { to: "/dashboard", label: "대시보드", icon: LayoutDashboard },
-  { to: "/reports", label: "업무보고", icon: FileText },
-  { to: "/projects", label: "프로젝트 관리", icon: Layers },
+  { to: '/dashboard', label: '대시보드', icon: LayoutDashboard },
+  { to: '/reports', label: '업무보고', icon: FileText },
+  { to: '/projects', label: '프로젝트 관리', icon: Layers },
   {
-    label: "리소스 현황",
+    label: '리소스 현황',
     icon: Database,
     children: [
-      { to: "/resource/summary", label: "리소스 요약" },
-      { to: "/resource/type", label: "업무유형 집계" },
-      { to: "/resource/svc", label: "서비스그룹 집계" },
-      { to: "/resource/month", label: "월간 종합현황" },
-    ]
+      { to: '/resource/summary', label: '리소스 요약' },
+      { to: '/resource/type', label: '업무유형 집계' },
+      { to: '/resource/svc', label: '서비스그룹 집계' },
+      { to: '/resource/month', label: '월간 종합현황' },
+    ],
   },
   {
-    label: "통계",
+    label: '통계',
     icon: BarChart3,
     children: [
-      { to: "/stats/qa", label: "QA" },
-      { to: "/stats/monitoring", label: "모니터링" },
-    ]
+      { to: '/stats/qa', label: 'QA' },
+      { to: '/stats/monitoring', label: '모니터링' },
+    ],
   },
-  { to: "/reports/search" , label: "업무보고 검색", icon: Search },
+  { to: '/reports/search', label: '업무보고 검색', icon: Search },
 ] as const;
 
 const adminNavigation = [
   {
-    label: "관리자 설정",
+    label: '관리자 설정',
     icon: Shield,
     children: [
-      { to: "/admin/summary", label: "관리자 요약" },
-      { to: "/admin/reports", label: "전체 업무검색" },
-      { to: "/admin/members", label: "사용자" },
-      { to: "/admin/type", label: "업무 타입 관리" },
-      { to: "/admin/group", label: "서비스그룹 관리" },
+      { to: '/admin/summary', label: '관리자 요약' },
+      { to: '/admin/reports', label: '전체 업무검색' },
+      { to: '/admin/members', label: '사용자' },
+      { to: '/admin/type', label: '업무 타입 관리' },
+      { to: '/admin/group', label: '서비스그룹 관리' },
     ],
   },
 ] as const;
@@ -69,9 +63,9 @@ function isCurrentPath(pathname: string, to: string) {
 export function AppShell() {
   const location = useLocation();
   const { session, logout } = useAuth();
-  const isAdmin = session?.member.role === "admin";
+  const isAdmin = session?.member.role === 'admin';
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const [logoutError, setLogoutError] = useState<string>("");
+  const [logoutError, setLogoutError] = useState<string>('');
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement | null>(null);
 
@@ -81,23 +75,23 @@ export function AppShell() {
   );
 
   const breadcrumbs = useMemo(() => {
-    const parts = [{ label: "홈", to: "/dashboard" }];
+    const parts = [{ label: '홈', to: '/dashboard' }];
 
-    if (location.pathname === "/profile" || location.pathname === "/password-change") {
-      parts.push({ label: "프로필", to: "/profile" });
+    if (location.pathname === '/profile' || location.pathname === '/password-change') {
+      parts.push({ label: '프로필', to: '/profile' });
       return parts;
     }
 
     for (const item of navigation) {
-      if ("to" in item && item.to && isCurrentPath(location.pathname, item.to)) {
+      if ('to' in item && item.to && isCurrentPath(location.pathname, item.to)) {
         parts.push({ label: item.label, to: item.to });
         break;
       }
 
-      if ("children" in item && item.children) {
+      if ('children' in item && item.children) {
         for (const child of item.children) {
           if (isCurrentPath(location.pathname, child.to)) {
-            parts.push({ label: item.label, to: "#" });
+            parts.push({ label: item.label, to: '#' });
             parts.push({ label: child.label, to: child.to });
             return parts;
           }
@@ -124,16 +118,16 @@ export function AppShell() {
     }
 
     function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") {
+      if (event.key === 'Escape') {
         setIsUserMenuOpen(false);
       }
     }
 
-    document.addEventListener("pointerdown", handlePointerDown);
-    document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener('pointerdown', handlePointerDown);
+    document.addEventListener('keydown', handleKeyDown);
     return () => {
-      document.removeEventListener("pointerdown", handlePointerDown);
-      document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener('pointerdown', handlePointerDown);
+      document.removeEventListener('keydown', handleKeyDown);
     };
   }, [isUserMenuOpen]);
 
@@ -143,18 +137,18 @@ export function AppShell() {
     }
 
     setIsLoggingOut(true);
-    setLogoutError("");
+    setLogoutError('');
 
     try {
       await logout();
     } catch (error) {
-      setLogoutError(error instanceof Error ? error.message : "로그아웃에 실패했습니다.");
+      setLogoutError(error instanceof Error ? error.message : '로그아웃에 실패했습니다.');
     } finally {
       setIsLoggingOut(false);
     }
   }
 
-  const userInitials = (session?.member?.legacyUserId || session?.member?.name || "").slice(0, 2);
+  const userInitials = (session?.member?.legacyUserId || session?.member?.name || '').slice(0, 2);
 
   return (
     <>
@@ -179,7 +173,7 @@ export function AppShell() {
             <ul className={styles.navList}>
               {navigation.map((item) => (
                 <li key={item.label} className={styles.navItem}>
-                  {"to" in item && item.to ? (
+                  {'to' in item && item.to ? (
                     <NavLink
                       to={item.to}
                       className={({ isActive }) => (isActive ? styles.activeLink : styles.link)}
@@ -194,16 +188,19 @@ export function AppShell() {
                         <span className={styles.sectionLabel}>{item.label}</span>
                       </div>
                       <ul className={styles.subNavList}>
-                        {"children" in item && item.children?.map((child: any) => (
-                          <li key={child.to}>
-                            <NavLink
-                              to={child.to}
-                              className={({ isActive }) => (isActive ? styles.activeLink : styles.link)}
-                            >
-                              {child.label}
-                            </NavLink>
-                          </li>
-                        ))}
+                        {'children' in item &&
+                          item.children?.map((child) => (
+                            <li key={child.to}>
+                              <NavLink
+                                to={child.to}
+                                className={({ isActive }) =>
+                                  isActive ? styles.activeLink : styles.link
+                                }
+                              >
+                                {child.label}
+                              </NavLink>
+                            </li>
+                          ))}
                       </ul>
                     </div>
                   )}
@@ -221,7 +218,7 @@ export function AppShell() {
                   {breadcrumbs.map((crumb, i) => (
                     <li key={crumb.label}>
                       {i > 0 && <ChevronRight size={14} className={styles.breadcrumbSeparator} />}
-                      <span className={i === breadcrumbs.length - 1 ? styles.lastCrumb : ""}>
+                      <span className={i === breadcrumbs.length - 1 ? styles.lastCrumb : ''}>
                         {i === 0 ? (
                           <span className={styles.breadcrumbHome} aria-label="홈">
                             <House size={14} strokeWidth={2.2} aria-hidden="true" />
@@ -242,7 +239,7 @@ export function AppShell() {
                   className={styles.userMenuTrigger}
                   aria-haspopup="menu"
                   aria-expanded={isUserMenuOpen}
-                  aria-label={`${session?.member.name ?? "사용자"} 메뉴`}
+                  aria-label={`${session?.member.name ?? '사용자'} 메뉴`}
                   onClick={() => setIsUserMenuOpen((open) => !open)}
                 >
                   <div className={styles.profileIcon} aria-hidden="true">
@@ -272,7 +269,9 @@ export function AppShell() {
                     <NavLink
                       to="/profile"
                       role="menuitem"
-                      className={({ isActive }) => (isActive ? styles.userMenuItemActive : styles.userMenuItem)}
+                      className={({ isActive }) =>
+                        isActive ? styles.userMenuItemActive : styles.userMenuItem
+                      }
                     >
                       <UserRound size={15} strokeWidth={2} aria-hidden="true" />
                       <span>프로필</span>
@@ -286,7 +285,7 @@ export function AppShell() {
                       aria-busy={isLoggingOut || undefined}
                     >
                       <LogOut size={15} strokeWidth={2} aria-hidden="true" />
-                      <span>{isLoggingOut ? "로그아웃 중…" : "로그아웃"}</span>
+                      <span>{isLoggingOut ? '로그아웃 중…' : '로그아웃'}</span>
                     </button>
                   </div>
                 ) : null}

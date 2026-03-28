@@ -1,13 +1,13 @@
-import { useEffect, useMemo, useState } from "react";
-import { PageSection } from "../../components/ui/PageSection";
+import { useEffect, useMemo, useState } from 'react';
+import { PageSection } from '../../components/ui/PageSection';
 import {
   buildProjectMaps,
   countWorkingDays,
   formatMm,
   getTaskServiceInfo,
   useResourceDataset,
-} from "./resource-shared";
-import styles from "./ResourcePage.module.css";
+} from './resource-shared';
+import styles from './ResourcePage.module.css';
 
 export function ResourceServicePage() {
   const query = useResourceDataset();
@@ -15,7 +15,7 @@ export function ResourceServicePage() {
   const [fold, setFold] = useState(false);
 
   useEffect(() => {
-    document.title = "그룹별 요약 - 투입리소스 | My Works";
+    document.title = '그룹별 요약 - 투입리소스 | My Works';
   }, []);
 
   const rows = useMemo(() => {
@@ -23,7 +23,10 @@ export function ResourceServicePage() {
       return [];
     }
 
-    const source = data.member.role === "admin" ? data.tasks : data.tasks.filter((task) => task.memberId === data.member.id);
+    const source =
+      data.member.role === 'admin'
+        ? data.tasks
+        : data.tasks.filter((task) => task.memberId === data.member.id);
     const { projectsById, serviceGroupsById } = buildProjectMaps(data.projects, data.serviceGroups);
     const grouped = new Map<string, Map<string, Map<string, number>>>();
 
@@ -43,11 +46,17 @@ export function ResourceServicePage() {
         month: string;
         workingDays: number;
         totalMinutes: number;
-        groups: Array<{ group: string; totalMinutes: number; names: Array<{ name: string; minutes: number }> }>;
+        groups: Array<{
+          group: string;
+          totalMinutes: number;
+          names: Array<{ name: string; minutes: number }>;
+        }>;
       }>
     >();
 
-    for (const [month, groups] of Array.from(grouped.entries()).sort(([left], [right]) => left.localeCompare(right))) {
+    for (const [month, groups] of Array.from(grouped.entries()).sort(([left], [right]) =>
+      left.localeCompare(right),
+    )) {
       const year = month.slice(0, 4);
       const months = years.get(year) ?? [];
       const monthGroups = Array.from(groups.entries())
@@ -72,7 +81,11 @@ export function ResourceServicePage() {
     return Array.from(years.entries()).map(([year, months]) => ({
       year,
       yearTotalMinutes: months.reduce((sum, month) => sum + month.totalMinutes, 0),
-      detailRowCount: months.reduce((sum, month) => sum + month.groups.reduce((groupSum, group) => groupSum + group.names.length, 0) + 1, 0),
+      detailRowCount: months.reduce(
+        (sum, month) =>
+          sum + month.groups.reduce((groupSum, group) => groupSum + group.names.length, 0) + 1,
+        0,
+      ),
       foldRowCount: months.reduce((sum, month) => sum + month.groups.length + 1, 0),
       months,
     }));
@@ -82,7 +95,7 @@ export function ResourceServicePage() {
     <PageSection title="서비스 그룹별 요약">
       <div className={styles.tableActionRow}>
         <button type="button" onClick={() => setFold((current) => !current)}>
-          {fold ? "펼치기" : "접기"}
+          {fold ? '펼치기' : '접기'}
         </button>
       </div>
 
@@ -128,7 +141,11 @@ function ServiceYearRows({
       month: string;
       workingDays: number;
       totalMinutes: number;
-      groups: Array<{ group: string; totalMinutes: number; names: Array<{ name: string; minutes: number }> }>;
+      groups: Array<{
+        group: string;
+        totalMinutes: number;
+        names: Array<{ name: string; minutes: number }>;
+      }>;
     }>;
   };
   fold: boolean;
@@ -139,7 +156,9 @@ function ServiceYearRows({
         {row.months.map((month, monthIndex) =>
           month.groups.map((group, groupIndex) => (
             <tr key={`${row.year}-${month.month}-${group.group}`}>
-              {monthIndex === 0 && groupIndex === 0 ? <td rowSpan={row.foldRowCount}>{row.year}년</td> : null}
+              {monthIndex === 0 && groupIndex === 0 ? (
+                <td rowSpan={row.foldRowCount}>{row.year}년</td>
+              ) : null}
               {groupIndex === 0 ? <td rowSpan={month.groups.length + 1}>{month.month}월</td> : null}
               <td>{group.group}</td>
               <td>합계</td>
@@ -191,7 +210,11 @@ function ServiceMonthDetailRows({
     month: string;
     workingDays: number;
     totalMinutes: number;
-    groups: Array<{ group: string; totalMinutes: number; names: Array<{ name: string; minutes: number }> }>;
+    groups: Array<{
+      group: string;
+      totalMinutes: number;
+      names: Array<{ name: string; minutes: number }>;
+    }>;
   };
   showYear: boolean;
   yearRowSpan: number;
@@ -203,8 +226,12 @@ function ServiceMonthDetailRows({
       {month.groups.map((group, groupIndex) =>
         group.names.map((name, nameIndex) => (
           <tr key={`${year}-${month.month}-${group.group}-${name.name}`}>
-            {showYear && groupIndex === 0 && nameIndex === 0 ? <td rowSpan={yearRowSpan}>{year}년</td> : null}
-            {groupIndex === 0 && nameIndex === 0 ? <td rowSpan={monthRowSpan}>{month.month}월</td> : null}
+            {showYear && groupIndex === 0 && nameIndex === 0 ? (
+              <td rowSpan={yearRowSpan}>{year}년</td>
+            ) : null}
+            {groupIndex === 0 && nameIndex === 0 ? (
+              <td rowSpan={monthRowSpan}>{month.month}월</td>
+            ) : null}
             {nameIndex === 0 ? <td rowSpan={group.names.length}>{group.group}</td> : null}
             <td>{name.name}</td>
             <td>{formatMm(name.minutes, month.workingDays)}</td>

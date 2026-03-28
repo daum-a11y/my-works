@@ -118,7 +118,7 @@ export interface MemberAdminItem {
   legacyUserId: string;
   name: string;
   email: string;
-  role: "user" | "admin";
+  role: 'user' | 'admin';
   userActive: boolean;
   isActive: boolean;
   authEmail: string;
@@ -134,7 +134,7 @@ export interface MemberAdminPayload {
   legacyUserId: string;
   name: string;
   email: string;
-  role: "user" | "admin";
+  role: 'user' | 'admin';
   userActive: boolean;
   isActive?: boolean;
 }
@@ -143,25 +143,27 @@ export interface MemberInvitePayload {
   email: string;
   legacyUserId: string;
   name: string;
-  role: "user" | "admin";
+  role: 'user' | 'admin';
 }
 
-import { toLocalDateInputValue } from "../../lib/utils";
+import { toLocalDateInputValue } from '../../lib/utils';
 
 function formatDate(date: Date) {
   return toLocalDateInputValue(date);
 }
 
-export function createDefaultAdminTaskSearchFilters(referenceDate = new Date()): AdminTaskSearchFilters {
+export function createDefaultAdminTaskSearchFilters(
+  referenceDate = new Date(),
+): AdminTaskSearchFilters {
   return {
     startDate: formatDate(new Date(referenceDate.getFullYear(), referenceDate.getMonth(), 1)),
     endDate: formatDate(referenceDate),
-    memberId: "",
-    projectId: "",
-    pageId: "",
-    taskType1: "",
-    taskType2: "",
-    serviceGroupId: "",
-    keyword: "",
+    memberId: '',
+    projectId: '',
+    pageId: '',
+    taskType1: '',
+    taskType2: '',
+    serviceGroupId: '',
+    keyword: '',
   };
 }

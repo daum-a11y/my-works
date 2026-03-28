@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef, type FormEvent, type KeyboardEvent } from "react";
-import { useLocation } from "react-router-dom";
+import { useEffect, useMemo, useRef, type FormEvent, type KeyboardEvent } from 'react';
+import { useLocation } from 'react-router-dom';
 
 import {
   formatReportDate,
@@ -7,31 +7,31 @@ import {
   getTodayInputValue,
   shiftDateInput,
   type ReportViewModel,
-} from "./report-domain";
-import { useReportsSlice } from "./use-reports-slice";
-import styles from "./reports-page.module.css";
+} from './report-domain';
+import { useReportsSlice } from './use-reports-slice';
+import styles from './reports-page.module.css';
 
-function formatCompactDate(value: string, mode: "short" | "long") {
+function formatCompactDate(value: string, mode: 'short' | 'long') {
   if (!value) {
-    return "";
+    return '';
   }
 
-  const digits = value.replaceAll("-", "");
+  const digits = value.replaceAll('-', '');
   if (digits.length !== 8) {
     return value;
   }
 
-  return mode === "short" ? digits.slice(2) : digits;
+  return mode === 'short' ? digits.slice(2) : digits;
 }
 
-function parseCompactDate(value: string, mode: "short" | "long") {
-  const digits = value.replace(/\D/g, "");
+function parseCompactDate(value: string, mode: 'short' | 'long') {
+  const digits = value.replace(/\D/g, '');
 
-  if (mode === "short" && digits.length === 6) {
+  if (mode === 'short' && digits.length === 6) {
     return `20${digits.slice(0, 2)}-${digits.slice(2, 4)}-${digits.slice(4, 6)}`;
   }
 
-  if (mode === "long" && digits.length === 8) {
+  if (mode === 'long' && digits.length === 8) {
     return `${digits.slice(0, 4)}-${digits.slice(4, 6)}-${digits.slice(6, 8)}`;
   }
 
@@ -109,7 +109,11 @@ function renderReportTable(
               <tr key={report.id} data-active={isSelected || undefined}>
                 <td>
                   {isSelected && selectedReport ? (
-                    <input type="text" value={editDateValue} onChange={(event) => onEditDateChange(event.target.value)} />
+                    <input
+                      type="text"
+                      value={editDateValue}
+                      onChange={(event) => onEditDateChange(event.target.value)}
+                    />
                   ) : (
                     formatReportDate(report.reportDate)
                   )}
@@ -119,23 +123,30 @@ function renderReportTable(
                 </td>
                 <td>
                   {isSelected && selectedReport ? (
-                    <select value={editType2Value} onChange={(event) => onEditType2Change(event.target.value)}>
-                      {(editType2Options.length ? editType2Options : [editType2Value]).map((type2) => (
-                        <option key={type2} value={type2}>{type2}</option>
-                      ))}
+                    <select
+                      value={editType2Value}
+                      onChange={(event) => onEditType2Change(event.target.value)}
+                    >
+                      {(editType2Options.length ? editType2Options : [editType2Value]).map(
+                        (type2) => (
+                          <option key={type2} value={type2}>
+                            {type2}
+                          </option>
+                        ),
+                      )}
                     </select>
                   ) : (
                     <strong>{report.type2}</strong>
                   )}
                 </td>
                 <td>
-                  <strong>{report.platform || "-"}</strong>
+                  <strong>{report.platform || '-'}</strong>
                 </td>
                 <td>
-                  <strong>{report.serviceGroupName || "-"}</strong>
+                  <strong>{report.serviceGroupName || '-'}</strong>
                 </td>
                 <td>
-                  <strong>{report.serviceName || "-"}</strong>
+                  <strong>{report.serviceName || '-'}</strong>
                 </td>
                 <td>
                   <strong>{report.projectDisplayName}</strong>
@@ -149,21 +160,29 @@ function renderReportTable(
                       {report.pageUrl}
                     </a>
                   ) : (
-                    "-"
+                    '-'
                   )}
                 </td>
                 <td>
                   {isSelected && selectedReport ? (
-                    <input type="text" value={editWorkHoursValue} onChange={(event) => onEditWorkHoursChange(event.target.value)} />
+                    <input
+                      type="text"
+                      value={editWorkHoursValue}
+                      onChange={(event) => onEditWorkHoursChange(event.target.value)}
+                    />
                   ) : (
                     formatReportHours(report.workHours)
                   )}
                 </td>
                 <td>
                   {isSelected && selectedReport ? (
-                    <input type="text" value={editNoteValue} onChange={(event) => onEditNoteChange(event.target.value)} />
+                    <input
+                      type="text"
+                      value={editNoteValue}
+                      onChange={(event) => onEditNoteChange(event.target.value)}
+                    />
                   ) : (
-                    report.note || "-"
+                    report.note || '-'
                   )}
                 </td>
                 <td>
@@ -173,10 +192,18 @@ function renderReportTable(
                     </button>
                   ) : (
                     <>
-                      <button type="button" className={styles.rowButton} onClick={() => onSelect(report.id)}>
+                      <button
+                        type="button"
+                        className={styles.rowButton}
+                        onClick={() => onSelect(report.id)}
+                      >
                         수정
                       </button>
-                      <button type="button" className={styles.rowButton} onClick={() => onDelete(report.id)}>
+                      <button
+                        type="button"
+                        className={styles.rowButton}
+                        onClick={() => onDelete(report.id)}
+                      >
                         삭제
                       </button>
                     </>
@@ -218,25 +245,59 @@ function includesValue(values: readonly string[], value: string) {
   return values.includes(value);
 }
 
-const PROJECT_LINKED_PAGE_SELECT_TYPE2_IDS = ["2", "8", "9", "10", "11", "12", "13", "14", "65", "88", "96", "97", "98", "99", "100"] as const;
-const PROJECT_LINKED_PAGE_URL_TYPE2_IDS = ["2", "4", "7", "8", "9", "10", "11", "12", "13", "14", "50", "51", "65", "88", "96", "97", "98", "99", "100"] as const;
-const PROJECT_LINKED_MANUAL_PAGE_TYPE2_IDS = ["35", "38", "67", "69"] as const;
-const TYPE_INPUT_PAGE_SELECT_TYPE2_IDS = ["2", "7", "9", "10", "12", "13"] as const;
-const TYPE_INPUT_PAGE_URL_TYPE2_IDS = ["2", "7", "9", "10", "12", "13", "50"] as const;
+const PROJECT_LINKED_PAGE_SELECT_TYPE2_IDS = [
+  '2',
+  '8',
+  '9',
+  '10',
+  '11',
+  '12',
+  '13',
+  '14',
+  '65',
+  '88',
+  '96',
+  '97',
+  '98',
+  '99',
+  '100',
+] as const;
+const PROJECT_LINKED_PAGE_URL_TYPE2_IDS = [
+  '2',
+  '4',
+  '7',
+  '8',
+  '9',
+  '10',
+  '11',
+  '12',
+  '13',
+  '14',
+  '50',
+  '51',
+  '65',
+  '88',
+  '96',
+  '97',
+  '98',
+  '99',
+  '100',
+] as const;
+const PROJECT_LINKED_MANUAL_PAGE_TYPE2_IDS = ['35', '38', '67', '69'] as const;
+const TYPE_INPUT_PAGE_SELECT_TYPE2_IDS = ['2', '7', '9', '10', '12', '13'] as const;
+const TYPE_INPUT_PAGE_URL_TYPE2_IDS = ['2', '7', '9', '10', '12', '13', '50'] as const;
 
 export function ReportsPage() {
   const location = useLocation();
-  const appliedDashboardDateRef = useRef("");
+  const appliedDashboardDateRef = useRef('');
   const {
     activeTab,
-    clearPeriodFilters,
     draft,
     draftPages,
     filteredProjectOptions,
     projectOptions,
     applyProjectQuery,
     isSaving,
-    jumpDraftDate,
     missingTimeLines,
     periodReports,
     periodFilters,
@@ -247,23 +308,21 @@ export function ReportsPage() {
     selectReport,
     selectedReport,
     selectedReportId,
-    recentReports,
     setDraftField,
     setActiveTab,
     setPeriodField,
     applyPeriodFilters,
     setProjectQuery,
     projectQuery,
-    startNewReport,
-    statusMessage,
     taskTypes,
     type1Options,
     type2Options,
   } = useReportsSlice();
   const todayInputValue = getTodayInputValue();
-  const reportDateFromDashboard = typeof location.state === "object" && location.state && "reportDate" in location.state
-    ? String((location.state as { reportDate?: unknown }).reportDate ?? "")
-    : "";
+  const reportDateFromDashboard =
+    typeof location.state === 'object' && location.state && 'reportDate' in location.state
+      ? String((location.state as { reportDate?: unknown }).reportDate ?? '')
+      : '';
 
   useEffect(() => {
     if (!reportDateFromDashboard || appliedDashboardDateRef.current === reportDateFromDashboard) {
@@ -271,15 +330,21 @@ export function ReportsPage() {
     }
 
     appliedDashboardDateRef.current = reportDateFromDashboard;
-    setActiveTab("report");
-    setDraftField("reportDate", reportDateFromDashboard);
+    setActiveTab('report');
+    setDraftField('reportDate', reportDateFromDashboard);
   }, [reportDateFromDashboard]);
-  const todayReports = useMemo(() => reports.filter((report) => report.reportDate === todayInputValue), [reports, todayInputValue]);
-  const todayHours = useMemo(() => todayReports.reduce((sum, report) => sum + report.workHours, 0), [todayReports]);
+  const todayReports = useMemo(
+    () => reports.filter((report) => report.reportDate === todayInputValue),
+    [reports, todayInputValue],
+  );
+  const todayHours = useMemo(
+    () => todayReports.reduce((sum, report) => sum + report.workHours, 0),
+    [todayReports],
+  );
   const remainingTodayHours = 480 - todayHours;
   const todayUsageText = useMemo(() => {
     if (!todayReports.length) {
-      return "오늘은 사용한 시간이 없습니다.";
+      return '오늘은 사용한 시간이 없습니다.';
     }
 
     if (remainingTodayHours >= 0) {
@@ -289,55 +354,65 @@ export function ReportsPage() {
     return `야근 하는건가요? 이미 480분 다 쓰고  초과 ${Math.abs(remainingTodayHours)}분 입니다.`;
   }, [remainingTodayHours, todayHours, todayReports.length]);
   const currentProject = useMemo(
-    () => filteredProjectOptions.find((project) => project.id === draft.projectId)
-      ?? (projectOptions ?? []).find((project) => project.id === draft.projectId)
-      ?? null,
+    () =>
+      filteredProjectOptions.find((project) => project.id === draft.projectId) ??
+      (projectOptions ?? []).find((project) => project.id === draft.projectId) ??
+      null,
     [draft.projectId, filteredProjectOptions, projectOptions],
   );
   const selectedType2LegacyId = useMemo(() => {
-    return taskTypes.find((taskType) => taskType.type1 === draft.type1 && taskType.type2 === draft.type2)?.legacyTypeId ?? "";
+    return (
+      taskTypes.find((taskType) => taskType.type1 === draft.type1 && taskType.type2 === draft.type2)
+        ?.legacyTypeId ?? ''
+    );
   }, [draft.type1, draft.type2, taskTypes]);
   const reportTabType1Options = useMemo(() => {
-    const legacyOrder = ["민원", "데이터버퍼", "일반버퍼", "교육", "기타버퍼", "휴무"];
+    const legacyOrder = ['민원', '데이터버퍼', '일반버퍼', '교육', '기타버퍼', '휴무'];
     const available = legacyOrder.filter((type1) => type1Options.includes(type1));
     return available.length ? available : type1Options;
   }, [type1Options]);
-  const isProjectLinkedTab = activeTab === "report";
+  const isProjectLinkedTab = activeTab === 'report';
   const projectTypeSelected = isProjectLinkedTab && Boolean(draft.projectId);
-  const type1Value = projectTypeSelected ? (currentProject?.project.projectType1 || draft.type1) : draft.type1;
-  const usesProjectLookup = includesValue(["QA", "접근성테스트", "모니터링", "민원"], type1Value);
-  const usesManualPageWithUrl = includesValue(["데이터버퍼", "RnD"], type1Value);
-  const usesManualPageOnly = includesValue(["일반버퍼", "교육", "매니징", "기타버퍼"], type1Value);
+  const type1Value = projectTypeSelected
+    ? currentProject?.project.projectType1 || draft.type1
+    : draft.type1;
+  const usesProjectLookup = includesValue(['QA', '접근성테스트', '모니터링', '민원'], type1Value);
+  const usesManualPageWithUrl = includesValue(['데이터버퍼', 'RnD'], type1Value);
+  const usesManualPageOnly = includesValue(['일반버퍼', '교육', '매니징', '기타버퍼'], type1Value);
   const showPlatformSelect = !projectTypeSelected && usesProjectLookup;
   const showReadonlyService = projectTypeSelected || usesProjectLookup;
   const showProjectSelect = isProjectLinkedTab || usesProjectLookup;
-  const isVacationType = selectedType2LegacyId === "36";
-  const isFixedDayType = selectedType2LegacyId === "38";
-  const isProjectVacationType = isProjectLinkedTab && isVacationType;
-  const showProjectLinkedPageSelect = projectTypeSelected && includesValue(PROJECT_LINKED_PAGE_SELECT_TYPE2_IDS, selectedType2LegacyId);
-  const showProjectLinkedPageUrl = projectTypeSelected && includesValue(PROJECT_LINKED_PAGE_URL_TYPE2_IDS, selectedType2LegacyId);
+  const isVacationType = selectedType2LegacyId === '36';
+  const isFixedDayType = selectedType2LegacyId === '38';
+  const showProjectLinkedPageSelect =
+    projectTypeSelected &&
+    includesValue(PROJECT_LINKED_PAGE_SELECT_TYPE2_IDS, selectedType2LegacyId);
+  const showProjectLinkedPageUrl =
+    projectTypeSelected && includesValue(PROJECT_LINKED_PAGE_URL_TYPE2_IDS, selectedType2LegacyId);
   const showPageSelect = isProjectLinkedTab
     ? showProjectLinkedPageSelect
-    : draft.projectId
-      && (includesValue(["모니터링", "민원"], type1Value)
-        || includesValue(TYPE_INPUT_PAGE_SELECT_TYPE2_IDS, selectedType2LegacyId));
+    : draft.projectId &&
+      (includesValue(['모니터링', '민원'], type1Value) ||
+        includesValue(TYPE_INPUT_PAGE_SELECT_TYPE2_IDS, selectedType2LegacyId));
   const showPageUrl = isProjectLinkedTab
     ? showProjectLinkedPageUrl
-    : usesProjectLookup
-      || usesManualPageWithUrl
-      || includesValue(TYPE_INPUT_PAGE_URL_TYPE2_IDS, selectedType2LegacyId);
+    : usesProjectLookup ||
+      usesManualPageWithUrl ||
+      includesValue(TYPE_INPUT_PAGE_URL_TYPE2_IDS, selectedType2LegacyId);
   const showManualPageName = isProjectLinkedTab
     ? includesValue(PROJECT_LINKED_MANUAL_PAGE_TYPE2_IDS, selectedType2LegacyId) || isVacationType
-    : usesManualPageWithUrl || usesManualPageOnly || includesValue(["36", "38", "67", "69"], selectedType2LegacyId);
+    : usesManualPageWithUrl ||
+      usesManualPageOnly ||
+      includesValue(['36', '38', '67', '69'], selectedType2LegacyId);
   const isReadonlyWorkHours = isVacationType || isFixedDayType;
   const manualPageLabel = useMemo(() => {
     if (isVacationType) {
-      return "휴가 종류";
+      return '휴가 종류';
     }
-    if (includesValue(["35", "38", "67", "69"], selectedType2LegacyId)) {
-      return "페이지명";
+    if (includesValue(['35', '38', '67', '69'], selectedType2LegacyId)) {
+      return '페이지명';
     }
-    return "페이지명 & 내용";
+    return '페이지명 & 내용';
   }, [isVacationType, selectedType2LegacyId]);
   const typeFilteredProjects = useMemo(() => {
     if (!draft.platform || !draft.type1) {
@@ -345,37 +420,38 @@ export function ReportsPage() {
     }
 
     return filteredProjectOptions.filter(
-      (project) => project.project.platform === draft.platform && project.project.projectType1 === draft.type1,
+      (project) =>
+        project.project.platform === draft.platform && project.project.projectType1 === draft.type1,
     );
   }, [draft.platform, draft.type1, filteredProjectOptions]);
   const projectSearchPlaceholder = useMemo(() => {
     if (!projectQuery.trim()) {
-      return "선택하세요";
+      return '선택하세요';
     }
     if (!filteredProjectOptions.length) {
-      return "검색 결과가 없습니다.";
+      return '검색 결과가 없습니다.';
     }
     return `${projectQuery} 로 검색되었습니다. 목록을 선택하세요`;
   }, [filteredProjectOptions.length, projectQuery]);
   const type2Placeholder = useMemo(() => {
     if (isProjectLinkedTab) {
-      return "선택하세요";
+      return '선택하세요';
     }
-    if (draft.type1 === "휴무") {
-      return "선택하세요";
+    if (draft.type1 === '휴무') {
+      return '선택하세요';
     }
     if (!type2Options.length) {
-      return "타입2가 존재하지 않습니다.";
+      return '타입2가 존재하지 않습니다.';
     }
-    return "";
+    return '';
   }, [draft.type1, isProjectLinkedTab, type2Options.length]);
   const currentInputDateText = useMemo(() => {
     const value = draft.reportDate || todayInputValue;
-    return value ? value.slice(0, 10) : "";
+    return value ? value.slice(0, 10) : '';
   }, [draft.reportDate, todayInputValue]);
   const currentListDateText = useMemo(() => {
     const value = periodFilters.startDate || periodFilters.endDate || todayInputValue;
-    return value ? value.slice(0, 10) : "";
+    return value ? value.slice(0, 10) : '';
   }, [periodFilters.endDate, periodFilters.startDate, todayInputValue]);
 
   const onSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -385,55 +461,62 @@ export function ReportsPage() {
 
   const handleType2Change = (nextType2: string) => {
     const previousLegacyId = selectedType2LegacyId;
-    setDraftField("type2", nextType2 as any);
+    setDraftField('type2', nextType2);
 
     if (nextType2 === draft.type2) {
       return;
     }
 
-    const nextLegacyId = taskTypes.find((taskType) => taskType.type1 === type1Value && taskType.type2 === nextType2)?.legacyTypeId ?? "";
-    if (nextLegacyId === "38") {
-      setDraftField("manualPageName", "");
-      setDraftField("workHours", "480");
+    const nextLegacyId =
+      taskTypes.find((taskType) => taskType.type1 === type1Value && taskType.type2 === nextType2)
+        ?.legacyTypeId ?? '';
+    if (nextLegacyId === '38') {
+      setDraftField('manualPageName', '');
+      setDraftField('workHours', '480');
       return;
     }
 
-    if (nextLegacyId === "36") {
-      setDraftField("manualPageName", "");
-      setDraftField("workHours", "");
+    if (nextLegacyId === '36') {
+      setDraftField('manualPageName', '');
+      setDraftField('workHours', '');
       return;
     }
 
-    if (nextLegacyId === "67" || nextLegacyId === "69") {
-      setDraftField("manualPageName", "");
-      setDraftField("workHours", "");
+    if (nextLegacyId === '67' || nextLegacyId === '69') {
+      setDraftField('manualPageName', '');
+      setDraftField('workHours', '');
       return;
     }
 
-    if (previousLegacyId === "36" || previousLegacyId === "38" || previousLegacyId === "67" || previousLegacyId === "69") {
-      setDraftField("manualPageName", "");
-      setDraftField("workHours", "");
+    if (
+      previousLegacyId === '36' ||
+      previousLegacyId === '38' ||
+      previousLegacyId === '67' ||
+      previousLegacyId === '69'
+    ) {
+      setDraftField('manualPageName', '');
+      setDraftField('workHours', '');
     }
   };
 
   const handleProjectSearchKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === "Enter") {
+    if (event.key === 'Enter') {
       event.preventDefault();
       applyProjectQuery();
     }
   };
 
   const handleVacationTypeChange = (value: string) => {
-    setDraftField("manualPageName", value);
-    if (value === "오전 반차" || value === "오후 반차") {
-      setDraftField("workHours", "240");
+    setDraftField('manualPageName', value);
+    if (value === '오전 반차' || value === '오후 반차') {
+      setDraftField('workHours', '240');
       return;
     }
-    if (value === "전일 휴가") {
-      setDraftField("workHours", "480");
+    if (value === '전일 휴가') {
+      setDraftField('workHours', '480');
       return;
     }
-    setDraftField("workHours", "");
+    setDraftField('workHours', '');
   };
 
   const applyPeriodDate = (date: string) => {
@@ -442,8 +525,8 @@ export function ReportsPage() {
       startDate: date,
       endDate: date,
     };
-    setPeriodField("startDate", date);
-    setPeriodField("endDate", date);
+    setPeriodField('startDate', date);
+    setPeriodField('endDate', date);
     applyPeriodFilters(nextFilters);
   };
 
@@ -470,7 +553,7 @@ export function ReportsPage() {
   };
 
   const handleDelete = (id: string) => {
-    const confirmed = window.confirm("정말 삭제 하시겠습니까?");
+    const confirmed = window.confirm('정말 삭제 하시겠습니까?');
     if (!confirmed) {
       return;
     }
@@ -480,7 +563,7 @@ export function ReportsPage() {
 
   const handleOverhead = () => {
     if (remainingTodayHours <= 0) {
-      window.alert("오늘 시간 다 썼는디여?");
+      window.alert('오늘 시간 다 썼는디여?');
       return;
     }
 
@@ -514,15 +597,15 @@ export function ReportsPage() {
             <div className={styles.tabRow}>
               <button
                 type="button"
-                className={`${styles.tabButton} ${activeTab === "report" ? styles.tabButtonActive : ""}`}
-                onClick={() => setActiveTab("report")}
+                className={`${styles.tabButton} ${activeTab === 'report' ? styles.tabButtonActive : ''}`}
+                onClick={() => setActiveTab('report')}
               >
                 기본 입력
               </button>
               <button
                 type="button"
-                className={`${styles.tabButton} ${activeTab === "period" ? styles.tabButtonActive : ""}`}
-                onClick={() => setActiveTab("period")}
+                className={`${styles.tabButton} ${activeTab === 'period' ? styles.tabButtonActive : ''}`}
+                onClick={() => setActiveTab('period')}
               >
                 TYPE 입력
               </button>
@@ -535,12 +618,14 @@ export function ReportsPage() {
               <input
                 type="text"
                 placeholder="YYMMDD"
-                value={formatCompactDate(draft.reportDate, "short")}
-                onChange={(event) => setDraftField("reportDate", parseCompactDate(event.target.value, "short"))}
+                value={formatCompactDate(draft.reportDate, 'short')}
+                onChange={(event) =>
+                  setDraftField('reportDate', parseCompactDate(event.target.value, 'short'))
+                }
               />
             </label>
 
-            {activeTab === "report" ? (
+            {activeTab === 'report' ? (
               <div className={styles.formGrid}>
                 <label className={styles.field}>
                   <span>프로젝트검색</span>
@@ -554,14 +639,21 @@ export function ReportsPage() {
 
                 <div className={styles.searchButtonField}>
                   <span className={styles.srOnly}>프로젝트 검색</span>
-                  <button type="button" className={styles.secondaryButton} onClick={applyProjectQuery}>
+                  <button
+                    type="button"
+                    className={styles.secondaryButton}
+                    onClick={applyProjectQuery}
+                  >
                     검색
                   </button>
                 </div>
 
                 <label className={styles.field}>
                   <span>프로젝트</span>
-                  <select value={draft.projectId} onChange={(event) => setDraftField("projectId", event.target.value)}>
+                  <select
+                    value={draft.projectId}
+                    onChange={(event) => setDraftField('projectId', event.target.value)}
+                  >
                     <option value="">{projectSearchPlaceholder}</option>
                     {filteredProjectOptions.map((project) => (
                       <option key={project.id} value={project.id}>
@@ -570,7 +662,6 @@ export function ReportsPage() {
                     ))}
                   </select>
                 </label>
-
               </div>
             ) : null}
 
@@ -583,28 +674,47 @@ export function ReportsPage() {
               ) : (
                 <label className={styles.field}>
                   <span>타입1</span>
-                  <select value={draft.type1} onChange={(event) => setDraftField("type1", event.target.value as any)}>
-                    <option value="">{isProjectLinkedTab ? "선택해주세요" : "type1"}</option>
-                    {(isProjectLinkedTab ? reportTabType1Options : type1Options).map((o) => <option key={o} value={o}>{o}</option>)}
+                  <select
+                    value={draft.type1}
+                    onChange={(event) => setDraftField('type1', event.target.value)}
+                  >
+                    <option value="">{isProjectLinkedTab ? '선택해주세요' : 'type1'}</option>
+                    {(isProjectLinkedTab ? reportTabType1Options : type1Options).map((o) => (
+                      <option key={o} value={o}>
+                        {o}
+                      </option>
+                    ))}
                   </select>
                 </label>
               )}
 
               <label className={styles.field}>
                 <span>타입2</span>
-                <select value={draft.type2} onChange={(event) => handleType2Change(event.target.value)}>
+                <select
+                  value={draft.type2}
+                  onChange={(event) => handleType2Change(event.target.value)}
+                >
                   {type2Placeholder ? <option value="">{type2Placeholder}</option> : null}
-                  {type2Options.map((o) => <option key={o} value={o}>{o}</option>)}
+                  {type2Options.map((o) => (
+                    <option key={o} value={o}>
+                      {o}
+                    </option>
+                  ))}
                 </select>
               </label>
 
               {showPlatformSelect ? (
                 <label className={styles.field}>
                   <span>플랫폼</span>
-                  <select value={draft.platform} onChange={(event) => setDraftField("platform", event.target.value)}>
+                  <select
+                    value={draft.platform}
+                    onChange={(event) => setDraftField('platform', event.target.value)}
+                  >
                     <option value="">선택하세요</option>
-                    {["PC-Web", "M-Web", "iOS-App", "And-App", "Win-App"].map((platform) => (
-                      <option key={platform} value={platform}>{platform}</option>
+                    {['PC-Web', 'M-Web', 'iOS-App', 'And-App', 'Win-App'].map((platform) => (
+                      <option key={platform} value={platform}>
+                        {platform}
+                      </option>
                     ))}
                   </select>
                 </label>
@@ -626,9 +736,12 @@ export function ReportsPage() {
               {showProjectSelect && !isProjectLinkedTab ? (
                 <label className={styles.field}>
                   <span>프로젝트</span>
-                  <select value={draft.projectId} onChange={(event) => setDraftField("projectId", event.target.value)}>
+                  <select
+                    value={draft.projectId}
+                    onChange={(event) => setDraftField('projectId', event.target.value)}
+                  >
                     <option value="">
-                      {typeFilteredProjects.length ? "선택하세요" : "프로젝트가 존재하지 않습니다."}
+                      {typeFilteredProjects.length ? '선택하세요' : '프로젝트가 존재하지 않습니다.'}
                     </option>
                     {typeFilteredProjects.map((project) => (
                       <option key={project.id} value={project.id}>
@@ -641,10 +754,13 @@ export function ReportsPage() {
 
               {showPageSelect ? (
                 <label className={styles.field}>
-                  <span>{isProjectLinkedTab ? "페이지명" : "프로젝트 페이지"}</span>
-                  <select value={draft.pageId} onChange={(event) => setDraftField("pageId", event.target.value)}>
+                  <span>{isProjectLinkedTab ? '페이지명' : '프로젝트 페이지'}</span>
+                  <select
+                    value={draft.pageId}
+                    onChange={(event) => setDraftField('pageId', event.target.value)}
+                  >
                     <option value="">
-                      {draftPages.length ? "선택하세요" : "페이지가 존재하지 않습니다."}
+                      {draftPages.length ? '선택하세요' : '페이지가 존재하지 않습니다.'}
                     </option>
                     {draftPages.map((page) => (
                       <option key={page.id} value={page.id}>
@@ -659,7 +775,10 @@ export function ReportsPage() {
                 <label className={styles.field}>
                   <span>{manualPageLabel}</span>
                   {isVacationType ? (
-                    <select value={draft.manualPageName} onChange={(event) => handleVacationTypeChange(event.target.value)}>
+                    <select
+                      value={draft.manualPageName}
+                      onChange={(event) => handleVacationTypeChange(event.target.value)}
+                    >
                       <option value="">선택하세요</option>
                       <option value="오전 반차">오전 반차</option>
                       <option value="오후 반차">오후 반차</option>
@@ -668,7 +787,7 @@ export function ReportsPage() {
                   ) : (
                     <input
                       value={draft.manualPageName}
-                      onChange={(event) => setDraftField("manualPageName", event.target.value)}
+                      onChange={(event) => setDraftField('manualPageName', event.target.value)}
                       placeholder={manualPageLabel}
                     />
                   )}
@@ -677,10 +796,10 @@ export function ReportsPage() {
 
               {showPageUrl ? (
                 <label className={styles.field}>
-                  <span>{showPageSelect ? "페이지 URL" : "URL"}</span>
+                  <span>{showPageSelect ? '페이지 URL' : 'URL'}</span>
                   <input
                     value={draft.pageUrl}
-                    onChange={(event) => setDraftField("pageUrl", event.target.value)}
+                    onChange={(event) => setDraftField('pageUrl', event.target.value)}
                     readOnly={isProjectLinkedTab || usesProjectLookup}
                   />
                 </label>
@@ -693,7 +812,7 @@ export function ReportsPage() {
                   min="0"
                   step="1"
                   value={draft.workHours}
-                  onChange={(event) => setDraftField("workHours", event.target.value)}
+                  onChange={(event) => setDraftField('workHours', event.target.value)}
                   readOnly={isReadonlyWorkHours}
                 />
               </label>
@@ -703,7 +822,7 @@ export function ReportsPage() {
               <span>비고</span>
               <textarea
                 value={draft.note}
-                onChange={(event) => setDraftField("note", event.target.value)}
+                onChange={(event) => setDraftField('note', event.target.value)}
                 rows={2}
               />
             </label>
@@ -739,7 +858,9 @@ export function ReportsPage() {
             </div>
             <div className={styles.summaryList}>
               {missingTimeLines.map((line) => (
-                <p key={line} className={styles.summaryText}>{line}</p>
+                <p key={line} className={styles.summaryText}>
+                  {line}
+                </p>
               ))}
             </div>
           </section>
@@ -753,29 +874,47 @@ export function ReportsPage() {
             <p className={styles.dateText}>{currentListDateText}</p>
           </div>
           <div className={styles.filterRow}>
-            <button type="button" className={styles.secondaryButton} onClick={() => shiftPeriodDate(-1)}>
+            <button
+              type="button"
+              className={styles.secondaryButton}
+              onClick={() => shiftPeriodDate(-1)}
+            >
               이전일
             </button>
-            <button type="button" className={styles.secondaryButton} onClick={() => shiftPeriodDate(0)}>
+            <button
+              type="button"
+              className={styles.secondaryButton}
+              onClick={() => shiftPeriodDate(0)}
+            >
               오늘
             </button>
-            <button type="button" className={styles.secondaryButton} onClick={() => shiftPeriodDate(1)}>
+            <button
+              type="button"
+              className={styles.secondaryButton}
+              onClick={() => shiftPeriodDate(1)}
+            >
               다음일
             </button>
             <input
               type="text"
               placeholder="YYYYMMDD"
-              value={formatCompactDate(periodFilters.startDate, "long")}
-              onChange={(e) => setPeriodField("startDate", parseCompactDate(e.target.value, "long"))}
+              value={formatCompactDate(periodFilters.startDate, 'long')}
+              onChange={(e) =>
+                setPeriodField('startDate', parseCompactDate(e.target.value, 'long'))
+              }
             />
             <span>~</span>
             <input
               type="text"
               placeholder="YYYYMMDD"
-              value={formatCompactDate(periodFilters.endDate, "long")}
-              onChange={(e) => setPeriodField("endDate", parseCompactDate(e.target.value, "long"))}
+              value={formatCompactDate(periodFilters.endDate, 'long')}
+              onChange={(e) => setPeriodField('endDate', parseCompactDate(e.target.value, 'long'))}
             />
-            <button type="button" className={styles.primaryButton} onClick={() => applyPeriodFilters(periodFilters)}>
+            <button
+              type="button"
+              className={styles.primaryButton}
+              onClick={() => applyPeriodFilters(periodFilters)}
+            >
               검색
             </button>
           </div>
@@ -789,10 +928,10 @@ export function ReportsPage() {
           editWorkHoursValue: draft.workHours,
           editNoteValue: draft.note,
           editType2Options: selectedReportType2Options,
-          onEditDateChange: (value) => setDraftField("reportDate", value),
-          onEditType2Change: (value) => setDraftField("type2", value as any),
-          onEditWorkHoursChange: (value) => setDraftField("workHours", value),
-          onEditNoteChange: (value) => setDraftField("note", value),
+          onEditDateChange: (value) => setDraftField('reportDate', value),
+          onEditType2Change: (value) => setDraftField('type2', value),
+          onEditWorkHoursChange: (value) => setDraftField('workHours', value),
+          onEditNoteChange: (value) => setDraftField('note', value),
           onSaveEdit: () => {
             void saveDraft();
           },
@@ -801,7 +940,7 @@ export function ReportsPage() {
           onOverhead: (reportDate, remainingMinutes) => {
             void saveOverheadReport(remainingMinutes, reportDate);
           },
-          emptyMessage: "결과가 미존재.",
+          emptyMessage: '결과가 미존재.',
         })}
       </section>
     </section>

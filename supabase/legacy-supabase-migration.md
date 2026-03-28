@@ -5,7 +5,7 @@
 1. Supabase SQL Editor에서 [000_initial_ops_schema.sql](/Volumes/workspace/workspace/my-works/supabase/migrations/000_initial_ops_schema.sql) 실행
 2. Supabase SQL Editor에서 [001_legacy_stage_schema.sql](/Volumes/workspace/workspace/my-works/supabase/sql/001_legacy_stage_schema.sql) 실행
 3. Docker로 MariaDB 실행 후 [db_a11yop_2507071945.sql](/Volumes/workspace/workspace/my-works/db_a11yop_2507071945.sql) 복원
-4. `.env.legacy` 작성 후 `pnpm legacy:stage` 실행
+4. `.env.legacy` 작성 후 `pnpm legacy:stage` 실행 - "legacy:stage": "bash scripts/load_legacy_stage.sh",
 5. [002_legacy_migrate.sql](/Volumes/workspace/workspace/my-works/supabase/sql/002_legacy_migrate.sql)을 `psql`로 직접 실행
 6. [003_legacy_verify.sql](/Volumes/workspace/workspace/my-works/supabase/sql/003_legacy_verify.sql) 실행
 7. `public.members.email` 실제 이메일 반영 후 Supabase Auth 연결

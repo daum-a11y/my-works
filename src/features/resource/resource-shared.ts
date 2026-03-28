@@ -1,9 +1,15 @@
-import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { opsDataClient } from "../../lib/data-client";
-import { type Member, type Project, type ServiceGroup, type Task, type TaskType } from "../../lib/domain";
-import { getToday } from "../../lib/utils";
-import { useAuth } from "../auth/AuthContext";
+import { useMemo, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { opsDataClient } from '../../lib/data-client';
+import {
+  type Member,
+  type Project,
+  type ServiceGroup,
+  type Task,
+  type TaskType,
+} from '../../lib/domain';
+import { getToday } from '../../lib/utils';
+import { useAuth } from '../auth/AuthContext';
 
 export interface ResourceDataset {
   member: Member;
@@ -15,13 +21,13 @@ export interface ResourceDataset {
 }
 
 export function shiftMonth(month: string, offset: number) {
-  const [year, value] = month.split("-").map(Number);
+  const [year, value] = month.split('-').map(Number);
   const date = new Date(year, value - 1 + offset, 1);
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
 }
 
 export function getCurrentMonth(reference = new Date()) {
-  return `${reference.getFullYear()}-${String(reference.getMonth() + 1).padStart(2, "0")}`;
+  return `${reference.getFullYear()}-${String(reference.getMonth() + 1).padStart(2, '0')}`;
 }
 
 export function getPreviousBusinessDay(reference = new Date()) {
@@ -55,11 +61,11 @@ export function getNextBusinessDay(reference = new Date()) {
 }
 
 export function buildMonthDays(month: string) {
-  const [year, value] = month.split("-").map(Number);
+  const [year, value] = month.split('-').map(Number);
   const count = new Date(year, value, 0).getDate();
   return Array.from({ length: count }, (_, index) => {
     const day = index + 1;
-    const date = `${month}-${String(day).padStart(2, "0")}`;
+    const date = `${month}-${String(day).padStart(2, '0')}`;
     return {
       day,
       date,
@@ -91,7 +97,9 @@ export function countWorkingDays(month: string) {
 }
 
 export function countWorkingDaysUntil(month: string, day: number) {
-  return buildMonthDays(month).filter((item) => item.day <= day && item.weekday !== 0 && item.weekday !== 6).length;
+  return buildMonthDays(month).filter(
+    (item) => item.day <= day && item.weekday !== 0 && item.weekday !== 6,
+  ).length;
 }
 
 export function minutesFromHours(hours: number) {
@@ -116,7 +124,12 @@ export function formatMd(minutes: number) {
 }
 
 export function buildTaskTypeRequirementMap(taskTypes: TaskType[]) {
-  return new Map(taskTypes.map((taskType) => [`${taskType.type1}__${taskType.type2}`, taskType.requiresServiceGroup] as const));
+  return new Map(
+    taskTypes.map(
+      (taskType) =>
+        [`${taskType.type1}__${taskType.type2}`, taskType.requiresServiceGroup] as const,
+    ),
+  );
 }
 
 export function isServiceTask(task: Task, requirementMap: Map<string, boolean>) {
@@ -128,7 +141,7 @@ export function useResourceDataset() {
   const member = session?.member ?? null;
 
   return useQuery({
-    queryKey: ["resource", member?.id],
+    queryKey: ['resource', member?.id],
     enabled: Boolean(member),
     queryFn: async (): Promise<ResourceDataset> => {
       const [members, projects, serviceGroups, taskTypes] = await Promise.all([
@@ -140,7 +153,7 @@ export function useResourceDataset() {
 
       const activeMembers = members.filter((item) => item.isActive);
       const tasks =
-        member!.role === "admin"
+        member!.role === 'admin'
           ? (
               await Promise.all(
                 activeMembers.map(async (item) => {
@@ -169,7 +182,7 @@ export function useResourceDataset() {
 export function useResourceFilters(defaultMemberId?: string) {
   const [selectedDate, setSelectedDate] = useState(getToday());
   const [selectedMonth, setSelectedMonth] = useState(getToday().slice(0, 7));
-  const [selectedMemberId, setSelectedMemberId] = useState(defaultMemberId ?? "");
+  const [selectedMemberId, setSelectedMemberId] = useState(defaultMemberId ?? '');
 
   return {
     selectedDate,
@@ -194,8 +207,10 @@ export function getTaskServiceInfo(
 ) {
   const project = task.projectId ? projectsById.get(task.projectId) : undefined;
   return {
-    group: project?.serviceGroupId ? serviceGroupsById.get(project.serviceGroupId)?.name ?? "미분류" : "미분류",
-    name: project?.name?.trim() ? project.name : "미분류",
+    group: project?.serviceGroupId
+      ? (serviceGroupsById.get(project.serviceGroupId)?.name ?? '미분류')
+      : '미분류',
+    name: project?.name?.trim() ? project.name : '미분류',
   };
 }
 
@@ -205,8 +220,8 @@ export function getServiceGroupName(
   serviceGroupsById: Map<string, ServiceGroup>,
 ) {
   const service = getTaskServiceInfo(task, projectsById, serviceGroupsById);
-  if (service.group === "미분류" && service.name === "미분류") {
-    return "미분류";
+  if (service.group === '미분류' && service.name === '미분류') {
+    return '미분류';
   }
 
   return `${service.group} / ${service.name}`;
@@ -214,18 +229,18 @@ export function getServiceGroupName(
 
 export function splitNormalizedServiceName(name: string) {
   const normalized = name.trim();
-  if (!normalized || normalized === "미분류") {
-    return { group: "미분류", name: "미분류" };
+  if (!normalized || normalized === '미분류') {
+    return { group: '미분류', name: '미분류' };
   }
 
-  const [group, ...rest] = normalized.split(" / ");
+  const [group, ...rest] = normalized.split(' / ');
   if (rest.length === 0) {
     return { group: normalized, name: normalized };
   }
 
   return {
     group: group.trim(),
-    name: rest.join(" / ").trim(),
+    name: rest.join(' / ').trim(),
   };
 }
 

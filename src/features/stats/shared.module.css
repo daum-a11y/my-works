@@ -172,10 +172,9 @@
   align-items: flex-start;
   justify-content: center;
   padding-top: 6px;
-  
+
   background: color-mix(in oklab, var(--theme-stats-surface) 72%, var(--surface-active));
   color: var(--theme-stats-accent);
-  
 }
 
 .chartValue {

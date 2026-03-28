@@ -112,7 +112,7 @@
 .toolbar input {
   min-height: var(--control-height-md);
   padding: 0 var(--control-padding-x);
-  
+
   border: 1px solid var(--control-border);
   background: var(--control-bg);
   color: var(--text-primary);
@@ -273,7 +273,7 @@
   line-height: var(--text-meta-line-height);
 }
 
-.calendarCell[data-weekend="true"] {
+.calendarCell[data-weekend='true'] {
   background: color-mix(in oklab, var(--surface-panel) 78%, var(--theme-resource-surface));
 }
 

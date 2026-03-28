@@ -1,12 +1,17 @@
-import { useEffect, useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { Link } from "react-router-dom";
-import { opsDataClient } from "../../lib/data-client";
-import { useAuth } from "../auth/AuthContext";
-import { buildCalendarWeeks, filterTasksByMonth, getCurrentMonth, minutesFromHours } from "../resource/resource-shared";
-import styles from "./DashboardPage.module.css";
+import { useEffect, useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { Link } from 'react-router-dom';
+import { opsDataClient } from '../../lib/data-client';
+import { useAuth } from '../auth/AuthContext';
+import {
+  buildCalendarWeeks,
+  filterTasksByMonth,
+  getCurrentMonth,
+  minutesFromHours,
+} from '../resource/resource-shared';
+import styles from './DashboardPage.module.css';
 
-const weekdayLabels = ["일", "월", "화", "수", "목", "금", "토"];
+const weekdayLabels = ['일', '월', '화', '수', '목', '금', '토'];
 
 export function DashboardPage() {
   const { session } = useAuth();
@@ -14,17 +19,17 @@ export function DashboardPage() {
   const selectedMonth = getCurrentMonth();
 
   useEffect(() => {
-    document.title = "대시보드 | My Works";
+    document.title = '대시보드 | My Works';
   }, []);
 
   const dashboardQuery = useQuery({
-    queryKey: ["dashboard", member?.id],
+    queryKey: ['dashboard', member?.id],
     queryFn: async () => opsDataClient.getDashboard(member!),
     enabled: Boolean(member),
   });
 
   const tasksQuery = useQuery({
-    queryKey: ["dashboard", "tasks", member?.id],
+    queryKey: ['dashboard', 'tasks', member?.id],
     queryFn: async () => opsDataClient.getTasks(member!),
     enabled: Boolean(member),
   });
@@ -46,7 +51,7 @@ export function DashboardPage() {
     }
 
     const today = new Date();
-    const currentYearMonth = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}`;
+    const currentYearMonth = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
     const currentMonth = currentYearMonth === selectedMonth;
     const future = selectedMonth > currentYearMonth;
 
@@ -68,15 +73,17 @@ export function DashboardPage() {
       </section>
       <section className={styles.topGrid}>
         <section className={styles.calendarSection}>
-          <div className={styles.sectionHead}>
-            <h2>내 업무보고 작성현황</h2>
-          </div>
+          {monthState && (
+            <div className={styles.sectionHead}>
+              <h2>
+                {monthState.year}년 {monthState.month}월
+              </h2>
+            </div>
+          )}
           {monthState ? (
             <div className={styles.calendarWrap}>
               <table className={styles.calendarTable}>
-                <caption>
-                  {monthState.year}년 {monthState.month}월 업무일지 작성시간 현황
-                </caption>
+                <caption>업무일지 작성시간 현황</caption>
                 <thead>
                   <tr>
                     {weekdayLabels.map((label) => (
@@ -89,39 +96,63 @@ export function DashboardPage() {
                     <tr key={`${selectedMonth}-week-${index}`}>
                       {week.map((cell, weekdayIndex) => {
                         if (!cell) {
-                          return <td key={`${selectedMonth}-${index}-${weekdayIndex}`} className={styles.calendarBlank}>&nbsp;</td>;
+                          return (
+                            <td
+                              key={`${selectedMonth}-${index}-${weekdayIndex}`}
+                              className={styles.calendarBlank}
+                            >
+                              &nbsp;
+                            </td>
+                          );
                         }
 
                         const minutes = monthState.summary.get(cell.day) ?? 0;
                         const isWeekend = cell.weekday === 0 || cell.weekday === 6;
                         const showBusinessState =
                           !isWeekend &&
-                          ((monthState.currentMonth && monthState.today >= cell.day) || (!monthState.future && !monthState.currentMonth));
+                          ((monthState.currentMonth && monthState.today >= cell.day) ||
+                            (!monthState.future && !monthState.currentMonth));
 
                         return (
                           <td key={cell.date} className={styles.calendarCell}>
                             {isWeekend ? (
                               minutes > 0 ? (
-                                <Link to="/reports" state={{ reportDate: cell.date }} className={styles.calendarLink}>
+                                <Link
+                                  to="/reports"
+                                  state={{ reportDate: cell.date }}
+                                  className={styles.calendarLink}
+                                >
                                   <span className={styles.calendarDate}>{cell.day}일</span>
                                 </Link>
                               ) : (
                                 <span className={styles.calendarDate}>{cell.day}일</span>
                               )
                             ) : (
-                              <Link to="/reports" state={{ reportDate: cell.date }} className={styles.calendarLink}>
+                              <Link
+                                to="/reports"
+                                state={{ reportDate: cell.date }}
+                                className={styles.calendarLink}
+                              >
                                 <span className={styles.calendarDate}>{cell.day}일</span>
                               </Link>
-                            )}{" "}
+                            )}{' '}
                             {isWeekend ? (
-                              minutes > 0 ? <span className={`${styles.badge} ${styles.badgeWeekend}`}>{minutes}분</span> : null
+                              minutes > 0 ? (
+                                <span className={`${styles.badge} ${styles.badgeWeekend}`}>
+                                  {minutes}분
+                                </span>
+                              ) : null
                             ) : showBusinessState ? (
                               minutes > 0 ? (
-                                <span className={`${styles.badge} ${minutes >= 480 ? styles.badgeSuccess : styles.badgeWarning}`}>
+                                <span
+                                  className={`${styles.badge} ${minutes >= 480 ? styles.badgeSuccess : styles.badgeWarning}`}
+                                >
                                   {(480 - minutes) * -1}분
                                 </span>
                               ) : (
-                                <span className={`${styles.badge} ${styles.badgeDanger}`}>-480분</span>
+                                <span className={`${styles.badge} ${styles.badgeDanger}`}>
+                                  -480분
+                                </span>
                               )
                             ) : null}
                           </td>
@@ -160,14 +191,19 @@ export function DashboardPage() {
                     <span className="uiPlatformBadge">{item.platform}</span>
                   </td>
                   <td>{item.projectName}</td>
-                  <td>{item.pageTitle || "-"}</td>
+                  <td>{item.pageTitle || '-'}</td>
                   <td>
                     {item.reportUrl ? (
-                      <a href={item.reportUrl} target="_blank" rel="noreferrer" className={styles.link}>
+                      <a
+                        href={item.reportUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className={styles.link}
+                      >
                         열기
                       </a>
                     ) : (
-                      "-"
+                      '-'
                     )}
                   </td>
                 </tr>
@@ -208,14 +244,19 @@ export function DashboardPage() {
                   </td>
                   <td>{item.projectName}</td>
                   <td>{item.ownerName}</td>
-                  <td>{item.dueDate || "-"}</td>
+                  <td>{item.dueDate || '-'}</td>
                   <td>
                     {item.reportUrl ? (
-                      <a href={item.reportUrl} target="_blank" rel="noreferrer" className={styles.link}>
+                      <a
+                        href={item.reportUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className={styles.link}
+                      >
                         열기
                       </a>
                     ) : (
-                      "-"
+                      '-'
                     )}
                   </td>
                 </tr>

@@ -1,11 +1,11 @@
-import type { ComponentPropsWithoutRef, ReactNode } from "react";
-import clsx from "clsx";
-import styles from "./PageSection.module.css";
+import type { ComponentPropsWithoutRef, ReactNode } from 'react';
+import clsx from 'clsx';
+import styles from './PageSection.module.css';
 
-interface PageSectionProps extends ComponentPropsWithoutRef<"section"> {
+interface PageSectionProps extends ComponentPropsWithoutRef<'section'> {
   title: string;
   actions?: ReactNode;
-  variant?: "plain" | "panel";
+  variant?: 'plain' | 'panel';
 }
 
 export function PageSection({
@@ -13,7 +13,7 @@ export function PageSection({
   actions,
   className,
   children,
-  variant = "plain",
+  variant = 'plain',
   ...props
 }: PageSectionProps) {
   return (

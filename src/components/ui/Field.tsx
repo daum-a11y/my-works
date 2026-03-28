@@ -1,6 +1,6 @@
-import { useId, type InputHTMLAttributes, type TextareaHTMLAttributes } from "react";
-import clsx from "clsx";
-import styles from "./Field.module.css";
+import { useId, type InputHTMLAttributes, type TextareaHTMLAttributes } from 'react';
+import clsx from 'clsx';
+import styles from './Field.module.css';
 
 interface FieldBaseProps {
   label: string;
@@ -18,7 +18,7 @@ function buildDescribedBy(
   errorId: string | undefined,
 ) {
   const tokens = [describedBy, descriptionId, errorId].filter(Boolean);
-  return tokens.length ? tokens.join(" ") : undefined;
+  return tokens.length ? tokens.join(' ') : undefined;
 }
 
 export function InputField({
@@ -27,8 +27,8 @@ export function InputField({
   description,
   className,
   id,
-  "aria-describedby": ariaDescribedBy,
-  "aria-invalid": ariaInvalid,
+  'aria-describedby': ariaDescribedBy,
+  'aria-invalid': ariaInvalid,
   ...props
 }: InputFieldProps) {
   const generatedId = useId();
@@ -66,8 +66,8 @@ export function TextAreaField({
   description,
   className,
   id,
-  "aria-describedby": ariaDescribedBy,
-  "aria-invalid": ariaInvalid,
+  'aria-describedby': ariaDescribedBy,
+  'aria-invalid': ariaInvalid,
   ...props
 }: TextAreaFieldProps) {
   const generatedId = useId();

@@ -1,4 +1,4 @@
-import * as XLSX from "xlsx";
+import * as XLSX from 'xlsx';
 
 type CellValue = string | number | boolean | null | undefined;
 
@@ -21,7 +21,7 @@ export function downloadExcelFile<Row>(
     { header: columns.map((column) => column.header) },
   );
 
-  worksheet["!cols"] = columns.map((column) => ({ wch: column.width ?? 16 }));
+  worksheet['!cols'] = columns.map((column) => ({ wch: column.width ?? 16 }));
 
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);

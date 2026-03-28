@@ -129,8 +129,6 @@
 .rowButton:focus-visible,
 .tabLink:focus-visible,
 .validationItemButton:focus-visible {
-  
-  
 }
 
 .filtersGrid,
@@ -161,7 +159,7 @@
   min-height: var(--control-height-md);
   padding: var(--control-padding-y) var(--control-padding-x);
   border: 1px solid var(--control-border);
-  
+
   background: var(--control-bg);
   color: var(--text-primary);
   font-family: inherit;
@@ -278,7 +276,7 @@
   align-items: center;
   gap: calc(var(--space-2) / 2);
   padding: var(--space-2) var(--space-3);
-  
+
   background: color-mix(in oklab, var(--theme-admin-surface) 54%, var(--surface-panel));
   color: var(--state-info-text);
   font-size: var(--text-meta-size);
@@ -423,7 +421,7 @@
   align-items: center;
   gap: calc(var(--space-2) / 2);
   padding: var(--space-2) var(--space-3);
-  
+
   background: color-mix(in oklab, var(--theme-admin-surface) 58%, var(--surface-panel));
   color: var(--state-info-text);
   font-size: var(--text-meta-size);

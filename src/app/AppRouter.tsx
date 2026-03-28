@@ -1,47 +1,50 @@
-import { BrowserRouter, Navigate, Outlet, Route, Routes } from "react-router-dom";
-import { AuthProvider, useAuth } from "../features/auth/AuthContext";
-import { ForgotPasswordPage } from "../features/auth/ForgotPasswordPage";
-import { LoginPage } from "../features/auth/LoginPage";
-import { PasswordRecoveryPage } from "../features/auth/PasswordRecoveryPage";
-import { DashboardPage } from "../features/dashboard";
-import { AdminServiceGroupsPage } from "../features/admin/groups/AdminServiceGroupsPage";
-import { AdminMembersPage } from "../features/admin/members/AdminMembersPage";
-import { AdminReportEditorPage } from "../features/admin/reports/AdminReportEditorPage";
-import { AdminReportsPage } from "../features/admin/reports/AdminReportsPage";
-import { AdminSummaryPage } from "../features/admin/summary/AdminSummaryPage";
-import { AdminTaskTypesPage } from "../features/admin/types/AdminTaskTypesPage";
-import { NotFoundPage } from "../features/not-found";
-import { ProjectsFeature } from "../features/projects";
-import { ReportsPage } from "../features/reports";
+import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router-dom';
+import { AuthProvider, useAuth } from '../features/auth/AuthContext';
+import { ForgotPasswordPage } from '../features/auth/ForgotPasswordPage';
+import { LoginPage } from '../features/auth/LoginPage';
+import { PasswordRecoveryPage } from '../features/auth/PasswordRecoveryPage';
+import { DashboardPage } from '../features/dashboard';
+import { AdminServiceGroupsPage } from '../features/admin/groups/AdminServiceGroupsPage';
+import { AdminMembersPage } from '../features/admin/members/AdminMembersPage';
+import { AdminReportEditorPage } from '../features/admin/reports/AdminReportEditorPage';
+import { AdminReportsPage } from '../features/admin/reports/AdminReportsPage';
+import { AdminSummaryPage } from '../features/admin/summary/AdminSummaryPage';
+import { AdminTaskTypesPage } from '../features/admin/types/AdminTaskTypesPage';
+import { NotFoundPage } from '../features/not-found';
+import { ProjectsFeature } from '../features/projects';
+import { ReportsPage } from '../features/reports';
 import {
-  ResourceLayout,
   ResourceMonthPage,
   ResourceServicePage,
   ResourceSummaryPage,
   ResourceTypePage,
-} from "../features/resource";
-import { SearchPage } from "../features/search";
-import { MonitoringStatsPage, QaStatsPage } from "../features/stats";
-import { UserProfilePage } from "../features/settings";
-import { AppShell } from "./AppShell";
+} from '../features/resource';
+import { SearchPage } from '../features/search';
+import { MonitoringStatsPage, QaStatsPage } from '../features/stats';
+import { UserProfilePage } from '../features/settings';
+import { AppShell } from './AppShell';
 
 function LoadingFallback() {
   return (
-    <div style={{
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      minHeight: "100vh",
-      background: "#ffffff",
-    }}>
-      <div style={{
-        width: "40px",
-        height: "40px",
-        border: "3px solid var(--border-subtle)",
-        borderTopColor: "var(--accent-strong)",
-        borderRadius: "50%",
-        animation: "spin 0.8s linear infinite"
-      }} />
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: '100vh',
+        background: '#ffffff',
+      }}
+    >
+      <div
+        style={{
+          width: '40px',
+          height: '40px',
+          border: '3px solid var(--border-subtle)',
+          borderTopColor: 'var(--accent-strong)',
+          borderRadius: '50%',
+          animation: 'spin 0.8s linear infinite',
+        }}
+      />
       <style>{`
         @keyframes spin {
           to { transform: rotate(360deg); }
@@ -54,11 +57,11 @@ function LoadingFallback() {
 function GuardedLayout() {
   const { status } = useAuth();
 
-  if (status === "loading") {
+  if (status === 'loading') {
     return <LoadingFallback />;
   }
 
-  if (status !== "authenticated") {
+  if (status !== 'authenticated') {
     return <Navigate to="/login" replace />;
   }
 
@@ -68,15 +71,15 @@ function GuardedLayout() {
 function AdminRoute() {
   const { status, session } = useAuth();
 
-  if (status === "loading") {
+  if (status === 'loading') {
     return <LoadingFallback />;
   }
 
-  if (status !== "authenticated" || !session) {
+  if (status !== 'authenticated' || !session) {
     return <Navigate to="/login" replace />;
   }
 
-  if (session.member.role !== "admin") {
+  if (session.member.role !== 'admin') {
     return <Navigate to="/dashboard" replace />;
   }
 
@@ -90,7 +93,7 @@ function LoginRoute() {
     return <Navigate to="/auth/recovery" replace />;
   }
 
-  if (status === "authenticated" && session) {
+  if (status === 'authenticated' && session) {
     return <Navigate to="/dashboard" replace />;
   }
 

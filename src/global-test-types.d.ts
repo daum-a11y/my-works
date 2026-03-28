@@ -1,4 +1,4 @@
-declare module "jest-axe" {
+declare module 'jest-axe' {
   export function axe(
     container: Element | DocumentFragment,
     options?: unknown,
@@ -10,10 +10,10 @@ declare module "jest-axe" {
   };
 }
 
-import "vitest";
+import 'vitest';
 
-declare module "vitest" {
-  interface Assertion<T = any> {
+declare module 'vitest' {
+  interface Assertion<T = unknown> {
     toHaveNoViolations(): T;
   }
 

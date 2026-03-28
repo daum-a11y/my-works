@@ -6,15 +6,15 @@ import {
   useMemo,
   useState,
   type PropsWithChildren,
-} from "react";
-import { getSupabaseClient } from "../../lib/supabase";
-import { isSupabaseConfigured } from "../../lib/env";
-import { opsDataClient } from "../../lib/data-client";
-import { type Member } from "../../lib/domain";
-import { getPasswordRecoveryRedirectUrl, isPasswordRecoveryUrl } from "./auth-urls";
+} from 'react';
+import { getSupabaseClient } from '../../lib/supabase';
+import { isSupabaseConfigured } from '../../lib/env';
+import { opsDataClient } from '../../lib/data-client';
+import { type Member } from '../../lib/domain';
+import { getPasswordRecoveryRedirectUrl, isPasswordRecoveryUrl } from './auth-urls';
 
-type AuthStatus = "loading" | "guest" | "authenticated";
-type AuthFlow = "default" | "recovery";
+type AuthStatus = 'loading' | 'guest' | 'authenticated';
+type AuthFlow = 'default' | 'recovery';
 
 interface AuthSession {
   member: Member;
@@ -33,7 +33,10 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-async function getMemberForSupabaseSession(userId: string, email?: string | null): Promise<Member | null> {
+async function getMemberForSupabaseSession(
+  userId: string,
+  email?: string | null,
+): Promise<Member | null> {
   const memberByAuthId = await opsDataClient.getMemberByAuthId(userId);
   if (memberByAuthId) {
     return memberByAuthId;
@@ -49,8 +52,8 @@ async function getMemberForSupabaseSession(userId: string, email?: string | null
 }
 
 export function AuthProvider({ children }: PropsWithChildren) {
-  const [status, setStatus] = useState<AuthStatus>("loading");
-  const [authFlow, setAuthFlow] = useState<AuthFlow>("default");
+  const [status, setStatus] = useState<AuthStatus>('loading');
+  const [authFlow, setAuthFlow] = useState<AuthFlow>('default');
   const [session, setSession] = useState<AuthSession | null>(null);
   const supabase = getSupabaseClient();
 
@@ -69,8 +72,8 @@ export function AuthProvider({ children }: PropsWithChildren) {
 
         if (!activeSession?.user) {
           startTransition(() => {
-            setAuthFlow("default");
-            setStatus("guest");
+            setAuthFlow('default');
+            setStatus('guest');
             setSession(null);
           });
           return;
@@ -78,34 +81,37 @@ export function AuthProvider({ children }: PropsWithChildren) {
 
         if (isPasswordRecoveryUrl()) {
           startTransition(() => {
-            setAuthFlow("recovery");
-            setStatus("guest");
+            setAuthFlow('recovery');
+            setStatus('guest');
             setSession(null);
           });
           return;
         }
 
-        const member = await getMemberForSupabaseSession(activeSession.user.id, activeSession.user.email);
+        const member = await getMemberForSupabaseSession(
+          activeSession.user.id,
+          activeSession.user.email,
+        );
 
         if (!member || !member.isActive) {
           await supabase.auth.signOut();
           startTransition(() => {
-            setAuthFlow("default");
-            setStatus("guest");
+            setAuthFlow('default');
+            setStatus('guest');
             setSession(null);
           });
           return;
         }
 
         startTransition(() => {
-          setAuthFlow("default");
+          setAuthFlow('default');
           setSession({ member });
-          setStatus("authenticated");
+          setStatus('authenticated');
         });
         return;
       }
-      setAuthFlow("default");
-      setStatus("guest");
+      setAuthFlow('default');
+      setStatus('guest');
       setSession(null);
     }
 
@@ -125,39 +131,42 @@ export function AuthProvider({ children }: PropsWithChildren) {
           return;
         }
 
-        if (event === "PASSWORD_RECOVERY") {
+        if (event === 'PASSWORD_RECOVERY') {
           startTransition(() => {
-            setAuthFlow("recovery");
+            setAuthFlow('recovery');
             setSession(null);
-            setStatus("guest");
+            setStatus('guest');
           });
           return;
         }
 
         if (!nextSession?.user) {
           startTransition(() => {
-            setAuthFlow("default");
+            setAuthFlow('default');
             setSession(null);
-            setStatus("guest");
+            setStatus('guest');
           });
           return;
         }
 
-        const member = await getMemberForSupabaseSession(nextSession.user.id, nextSession.user.email);
+        const member = await getMemberForSupabaseSession(
+          nextSession.user.id,
+          nextSession.user.email,
+        );
         if (!member || !member.isActive) {
           await supabase.auth.signOut();
           startTransition(() => {
-            setAuthFlow("default");
+            setAuthFlow('default');
             setSession(null);
-            setStatus("guest");
+            setStatus('guest');
           });
           return;
         }
 
         startTransition(() => {
-          setAuthFlow("default");
+          setAuthFlow('default');
           setSession({ member });
-          setStatus("authenticated");
+          setStatus('authenticated');
         });
       })();
     });
@@ -172,21 +181,21 @@ export function AuthProvider({ children }: PropsWithChildren) {
     () => ({
       status,
       authFlow,
-      isRecoverySession: authFlow === "recovery",
+      isRecoverySession: authFlow === 'recovery',
       session,
       async login(email, password) {
         const normalizedEmail = email.trim().toLowerCase();
 
         if (!normalizedEmail) {
-          throw new Error("이메일을 입력해 주세요.");
+          throw new Error('이메일을 입력해 주세요.');
         }
 
         if (!password.trim()) {
-          throw new Error("비밀번호를 입력해 주세요.");
+          throw new Error('비밀번호를 입력해 주세요.');
         }
 
         if (!isSupabaseConfigured || !supabase) {
-          throw new Error("Supabase 환경변수가 설정되지 않았습니다.");
+          throw new Error('Supabase 환경변수가 설정되지 않았습니다.');
         }
 
         const { error } = await supabase.auth.signInWithPassword({
@@ -194,18 +203,18 @@ export function AuthProvider({ children }: PropsWithChildren) {
           password,
         });
         if (error) {
-          throw new Error("이메일 또는 비밀번호를 확인해 주세요.");
+          throw new Error('이메일 또는 비밀번호를 확인해 주세요.');
         }
       },
       async resetPassword(email) {
         const normalizedEmail = email.trim().toLowerCase();
 
         if (!normalizedEmail) {
-          throw new Error("이메일을 입력해 주세요.");
+          throw new Error('이메일을 입력해 주세요.');
         }
 
         if (!isSupabaseConfigured || !supabase) {
-          throw new Error("Supabase 환경변수가 설정되지 않았습니다.");
+          throw new Error('Supabase 환경변수가 설정되지 않았습니다.');
         }
 
         const { error } = await supabase.auth.resetPasswordForEmail(normalizedEmail, {
@@ -218,22 +227,22 @@ export function AuthProvider({ children }: PropsWithChildren) {
       },
       async logout() {
         if (!isSupabaseConfigured || !supabase) {
-          setAuthFlow("default");
+          setAuthFlow('default');
           setSession(null);
-          setStatus("guest");
+          setStatus('guest');
           return;
         }
 
-        setAuthFlow("default");
+        setAuthFlow('default');
         await supabase.auth.signOut();
       },
       async updatePassword(nextPassword) {
         if (nextPassword.trim().length < 8) {
-          throw new Error("비밀번호는 8자 이상이어야 합니다.");
+          throw new Error('비밀번호는 8자 이상이어야 합니다.');
         }
 
         if (!isSupabaseConfigured || !supabase) {
-          throw new Error("Supabase 환경변수가 설정되지 않았습니다.");
+          throw new Error('Supabase 환경변수가 설정되지 않았습니다.');
         }
 
         const { error } = await supabase.auth.updateUser({ password: nextPassword });
@@ -248,10 +257,11 @@ export function AuthProvider({ children }: PropsWithChildren) {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error("useAuth must be used within AuthProvider");
+    throw new Error('useAuth must be used within AuthProvider');
   }
   return context;
 }
