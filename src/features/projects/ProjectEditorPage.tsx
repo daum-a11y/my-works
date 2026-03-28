@@ -405,7 +405,7 @@ export function ProjectEditorPage() {
     return (
       <section className={`${styles.shell} ${styles.editorShell}`}>
         <header className={styles.editorHeader}>
-          <h1 className={styles.title}>프로젝트 정보 수정</h1>
+          <h1 className={styles.title}>프로젝트 수정</h1>
           <Link to="/projects" className={styles.secondaryButton}>
             목록으로
           </Link>
@@ -418,24 +418,7 @@ export function ProjectEditorPage() {
   return (
     <section className={`${styles.shell} ${styles.editorShell}`}>
       <header className={styles.editorHeader}>
-        <h1 className={styles.title}>{isEditMode ? '프로젝트 정보 수정' : '프로젝트 추가'}</h1>
-        {isEditMode ? (
-          <div className={styles.actionStack}>
-            <Link to="/projects" className={styles.secondaryButton}>
-              목록으로
-            </Link>
-            {selectedProject &&
-            canDeleteProject(selectedProject, member?.id ?? null, member?.role) ? (
-              <button
-                type="button"
-                className={styles.deleteButton}
-                onClick={() => void handleProjectDelete()}
-              >
-                삭제
-              </button>
-            ) : null}
-          </div>
-        ) : null}
+        <h1 className={styles.title}>{isEditMode ? '프로젝트 수정' : '프로젝트 추가'}</h1>
       </header>
 
       {statusMessage ? <p className={styles.statusMessage}>{statusMessage}</p> : null}
@@ -563,7 +546,7 @@ export function ProjectEditorPage() {
                 <option value="">선택</option>
                 {members.map((item) => (
                   <option key={item.id} value={item.id}>
-                    {item.name}
+                    {`${item.legacyUserId}(${item.name})`}
                   </option>
                 ))}
               </select>
@@ -583,7 +566,7 @@ export function ProjectEditorPage() {
                 <option value="">선택</option>
                 {members.map((item) => (
                   <option key={item.id} value={item.id}>
-                    {item.name}
+                    {`${item.legacyUserId}(${item.name})`}
                   </option>
                 ))}
               </select>
@@ -591,20 +574,37 @@ export function ProjectEditorPage() {
           </div>
 
           <div className={`${styles.formActions} ${styles.editorFormActions}`}>
-            <button
-              type="submit"
-              className={styles.primaryButton}
-              disabled={saveProjectMutation.isPending}
-            >
-              저장하기
-            </button>
-            <Link to="/projects" className={styles.secondaryButton}>
-              취소
-            </Link>
+            <div className={styles.editorFormActionsStart}>
+              {isEditMode &&
+              selectedProject &&
+              canDeleteProject(selectedProject, member?.id ?? null, member?.role) ? (
+                <button
+                  type="button"
+                  className={styles.deleteButton}
+                  onClick={() => void handleProjectDelete()}
+                >
+                  삭제
+                </button>
+              ) : null}
+            </div>
+            <div className={styles.editorFormActionsEnd}>
+              <Link to="/projects" className={styles.secondaryButton}>
+                취소
+              </Link>
+              <button
+                type="submit"
+                className={styles.primaryButton}
+                disabled={saveProjectMutation.isPending}
+              >
+                저장하기
+              </button>
+            </div>
           </div>
         </form>
+      </section>
 
-        {isEditMode && selectedProject ? (
+      {isEditMode && selectedProject ? (
+        <section className={styles.modal} aria-label="페이지 리스트 패널">
           <section className={styles.pageSection}>
             <div className={styles.sectionHeader}>
               <h2 className={styles.sectionTitle}>페이지 리스트</h2>
@@ -705,8 +705,8 @@ export function ProjectEditorPage() {
               ) : null}
             </ul>
           </section>
-        ) : null}
-      </section>
+        </section>
+      ) : null}
     </section>
   );
 }

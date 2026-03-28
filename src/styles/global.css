@@ -1,3 +1,7 @@
+html {
+  font-size: var(--text-body-size);
+}
+
 :root {
   font-family: var(--font-body);
   line-height: var(--line-height-body);

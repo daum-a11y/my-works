@@ -73,7 +73,7 @@ sequenceDiagram
     API->>DB: 프로젝트/페이지 조회
     DB-->>API: 프로젝트 정보/페이지 목록
     API-->>B: 수정 폼 + 페이지 목록 fragment
-    U->>B: 프로젝트 정보 수정 또는 페이지 추가/수정/삭제
+    U->>B: 프로젝트 수정 또는 페이지 추가/수정/삭제
     B->>API: pj_edit.php 또는 pj_page_add/edit/del.php
     API->>DB: PJ/PJ_PAGE 갱신
     API->>DB: 필요 시 TASK 동기화
