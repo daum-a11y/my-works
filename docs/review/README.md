@@ -37,5 +37,5 @@
   - `src/features/tracking/TrackingFeature.tsx`: 로딩 중 draft effect가 빈 state를 반복 생성해 테스트 러너를 멈추게 함
 
 검토 메모:
-- SQL 기반 조치는 현재 `my-works/supabase/migrations/20260324_000001_initial_ops_schema.sql` 기준으로 포함돼 있습니다.
+- SQL 기반 조치는 현재 `my-works/supabase/migrations/000_initial_ops_schema.sql` 기준으로 포함돼 있습니다.
 - 현재 저장소는 단일 앱 루트 구조로 정리됐고, `apps/ops-web` 경로를 전제로 한 문서/메모는 갱신이 필요합니다.

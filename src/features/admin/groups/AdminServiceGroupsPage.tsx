@@ -1,32 +1,64 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { adminDataClient } from "../admin-client";
-
-import styles from "../AdminPage.module.css";
 import type { AdminServiceGroupItem, AdminServiceGroupPayload } from "../admin-types";
+import styles from "./AdminServiceGroupsPage.module.css";
 
-function createDraft(serviceGroup?: AdminServiceGroupItem): AdminServiceGroupPayload {
-  if (!serviceGroup) {
+type DraftState = AdminServiceGroupPayload;
+
+function createDraft(item?: AdminServiceGroupItem): DraftState {
+  if (!item) {
     return {
       name: "",
+      svcGroup: "",
+      svcName: "",
+      svcType: 3,
+      svcActive: true,
       displayOrder: 0,
       isActive: true,
     };
   }
 
   return {
-    id: serviceGroup.id,
-    name: serviceGroup.name,
-    displayOrder: serviceGroup.displayOrder,
-    isActive: serviceGroup.isActive,
+    id: item.id,
+    name: item.name,
+    legacySvcNum: item.legacySvcNum,
+    svcGroup: item.svcGroup,
+    svcName: item.svcName,
+    svcType: item.svcType,
+    svcActive: item.svcActive,
+    displayOrder: item.displayOrder,
+    isActive: item.isActive,
   };
+}
+
+function typeLabel(value: number) {
+  if (value === 1) return "카카오";
+  if (value === 2) return "공동체";
+  return "외부";
+}
+
+function groupServiceGroups(items: readonly AdminServiceGroupItem[]) {
+  const grouped = new Map<string, AdminServiceGroupItem[]>();
+
+  for (const item of items) {
+    const key = item.svcGroup || "-";
+    const rows = grouped.get(key) ?? [];
+    rows.push(item);
+    grouped.set(key, rows);
+  }
+
+  return Array.from(grouped.entries()).map(([svcGroup, rows]) => ({
+    svcGroup,
+    rows,
+  }));
 }
 
 export function AdminServiceGroupsPage() {
   const queryClient = useQueryClient();
   const [adding, setAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [draft, setDraft] = useState<AdminServiceGroupPayload | null>(null);
+  const [draft, setDraft] = useState<DraftState | null>(null);
 
   const serviceGroupsQuery = useQuery({
     queryKey: ["admin", "service-groups"],
@@ -55,22 +87,25 @@ export function AdminServiceGroupsPage() {
 
   const serviceGroups = useMemo(
     () =>
-      [...(serviceGroupsQuery.data ?? [])].sort((left, right) => left.displayOrder - right.displayOrder || left.name.localeCompare(right.name)),
+      [...(serviceGroupsQuery.data ?? [])].sort(
+        (left, right) => (left.legacySvcNum ?? left.displayOrder) - (right.legacySvcNum ?? right.displayOrder) || left.name.localeCompare(right.name),
+      ),
     [serviceGroupsQuery.data],
   );
+  const groupedServiceGroups = useMemo(() => groupServiceGroups(serviceGroups), [serviceGroups]);
 
-  const handleChange = <K extends keyof AdminServiceGroupPayload>(key: K, value: AdminServiceGroupPayload[K]) => {
+  useEffect(() => {
+    document.title = "서비스그룹 - 관리 | My Works";
+  }, []);
+
+  const handleDraftChange = <K extends keyof DraftState>(key: K, value: DraftState[K]) => {
     setDraft((current) => (current ? { ...current, [key]: value } : current));
   };
 
   const startAdd = () => {
     setAdding(true);
     setEditingId(null);
-    const nextOrder = Math.max(0, ...serviceGroups.map((item) => item.displayOrder)) + 1;
-    setDraft({
-      ...createDraft(),
-      displayOrder: nextOrder,
-    });
+    setDraft(createDraft());
   };
 
   const startEdit = (item: AdminServiceGroupItem) => {
@@ -86,12 +121,15 @@ export function AdminServiceGroupsPage() {
   };
 
   const saveDraft = async () => {
-    if (!draft) return;
+    if (!draft || saveMutation.isPending) {
+      return;
+    }
+
     await saveMutation.mutateAsync(draft);
   };
 
   const handleDelete = async (item: AdminServiceGroupItem) => {
-    if (!window.confirm(`정말 ${item.name} 서비스를 삭제하시겠습니까?`)) {
+    if (!window.confirm("정말 삭제 하시겠습니까? 복구할 수 없습니다.")) {
       return;
     }
 
@@ -106,131 +144,185 @@ export function AdminServiceGroupsPage() {
 
   return (
     <section className={styles.page}>
-      
-
       <header className={styles.hero}>
-        <h1>서비스 그룹 관리</h1>
+        <h1>서비스그룹 - 관리</h1>
       </header>
 
-      {errorMessage && <p className={styles.helperText}>{errorMessage}</p>}
+      {errorMessage ? <p className={styles.helperText}>{errorMessage}</p> : null}
 
-      <div className={styles.panel}>
-        <div className={styles.sectionHeader}>
-          <h2>서비스 그룹 리스트</h2>
-          <div className={styles.sectionActions}>
-            {!adding && (
-              <button type="button" onClick={startAdd} className={styles.primaryButton}>
-                신규 그룹 추가
-              </button>
-            )}
-          </div>
+      <div className={styles.toolbar}>
+        <div>
+          <h2>서비스그룹 내역</h2>
         </div>
+        {!adding ? (
+          <button type="button" className={styles.addButton} onClick={startAdd}>
+            서비스그룹 추가
+          </button>
+        ) : null}
+      </div>
 
-        <div className={styles.tableWrap}>
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th>서비스 그룹</th>
-                <th>정렬</th>
-                <th>활성</th>
-                <th>관리</th>
+      <div className={styles.tableWrap}>
+        <table className={styles.table}>
+          <caption className={styles.srOnly}>서비스그룹 내역</caption>
+          <thead>
+            <tr>
+              <th>서비스그룹</th>
+              <th>서비스명</th>
+              <th>분류</th>
+              <th>활성여부</th>
+              <th>관리</th>
+            </tr>
+          </thead>
+          <tbody>
+            {adding && draft ? (
+              <tr className={styles.editRow}>
+                <td>
+                  <input
+                    aria-label="서비스그룹"
+                    className={styles.input}
+                    type="text"
+                    autoFocus
+                    value={draft.svcGroup}
+                    onChange={(event) => handleDraftChange("svcGroup", event.target.value)}
+                  />
+                </td>
+                <td>
+                  <input
+                    aria-label="서비스명"
+                    className={styles.input}
+                    type="text"
+                    value={draft.svcName}
+                    onChange={(event) => handleDraftChange("svcName", event.target.value)}
+                  />
+                </td>
+                <td>
+                  <select
+                    aria-label="서비스 분류"
+                    className={styles.select}
+                    value={String(draft.svcType)}
+                    onChange={(event) => handleDraftChange("svcType", Number(event.target.value))}
+                  >
+                    <option value="1">카카오</option>
+                    <option value="2">공동체</option>
+                    <option value="3">외부</option>
+                  </select>
+                </td>
+                <td>
+                  <label className={styles.radioLabel}>
+                    <input checked disabled readOnly type="radio" />
+                    활성
+                  </label>
+                </td>
+                <td>
+                  <div className={styles.actions}>
+                    <button type="button" className={styles.primaryAction} onClick={() => void saveDraft()} disabled={saveMutation.isPending}>
+                      저장
+                    </button>
+                    <button type="button" className={styles.secondaryAction} onClick={cancelDraft}>
+                      취소
+                    </button>
+                  </div>
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {adding && draft && (
-                <tr>
-                  <td className={styles.inlineRowCell}>
-                    <input aria-label="서비스 그룹 추가" value={draft.name} onChange={(event) => handleChange("name", event.target.value)} />
-                  </td>
-                  <td className={styles.inlineRowCell}>
-                    <input
-                      aria-label="정렬 순서 추가"
-                      type="number"
-                      value={draft.displayOrder}
-                      onChange={(event) => handleChange("displayOrder", Number(event.target.value))}
-                    />
-                  </td>
-                  <td className={styles.inlineRowCell}>
-                    <select
-                      aria-label="활성 추가"
-                      value={draft.isActive ? "1" : "0"}
-                      onChange={(event) => handleChange("isActive", event.target.value === "1")}
-                    >
-                      <option value="1">활성</option>
-                      <option value="0">비활성</option>
-                    </select>
-                  </td>
-                  <td className={styles.inlineRowActions}>
-                    <div className={styles.actions}>
-                      <button type="button" onClick={() => void saveDraft()} disabled={saveMutation.isPending}>
-                        저장
-                      </button>
-                      <button type="button" onClick={cancelDraft}>
-                        취소
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              )}
+            ) : null}
 
-              {serviceGroups.map((item) => {
+            {groupedServiceGroups.map((group) =>
+              group.rows.map((item, rowIndex) => {
                 const isEditing = editingId === item.id && draft;
 
                 return isEditing && draft ? (
-                  <tr key={item.id}>
-                    <td className={styles.inlineRowCell}>
-                      <input aria-label="서비스 그룹 수정" value={draft.name} onChange={(event) => handleChange("name", event.target.value)} />
-                    </td>
-                    <td className={styles.inlineRowCell}>
+                  <tr key={item.id} className={styles.editRow}>
+                    {rowIndex === 0 ? (
+                      <td rowSpan={group.rows.length} scope="row">
+                        {group.svcGroup}
+                      </td>
+                    ) : null}
+                    <td>
+                      <select
+                        aria-label="서비스그룹 수정"
+                        className={styles.select}
+                        autoFocus
+                        value={draft.svcGroup}
+                        onChange={(event) => handleDraftChange("svcGroup", event.target.value)}
+                      >
+                        {groupedServiceGroups.map((option) => (
+                          <option key={option.svcGroup} value={option.svcGroup}>
+                            {option.svcGroup}
+                          </option>
+                        ))}
+                      </select>
                       <input
-                        aria-label="정렬 순서 수정"
-                        type="number"
-                        value={draft.displayOrder}
-                        onChange={(event) => handleChange("displayOrder", Number(event.target.value))}
+                        aria-label="서비스명 수정"
+                        className={styles.input}
+                        type="text"
+                        value={draft.svcName}
+                        onChange={(event) => handleDraftChange("svcName", event.target.value)}
                       />
                     </td>
-                    <td className={styles.inlineRowCell}>
+                    <td>
                       <select
-                        aria-label="활성 수정"
-                        value={draft.isActive ? "1" : "0"}
-                        onChange={(event) => handleChange("isActive", event.target.value === "1")}
+                        aria-label="서비스 분류"
+                        className={styles.select}
+                        value={String(draft.svcType)}
+                        onChange={(event) => handleDraftChange("svcType", Number(event.target.value))}
+                      >
+                        <option value="1">카카오</option>
+                        <option value="2">공동체</option>
+                        <option value="3">외부</option>
+                      </select>
+                    </td>
+                    <td>
+                      <select
+                        aria-label="서비스 분류"
+                        className={styles.select}
+                        value={draft.svcActive ? "1" : "0"}
+                        onChange={(event) => {
+                          const nextActive = event.target.value === "1";
+                          handleDraftChange("svcActive", nextActive);
+                          handleDraftChange("isActive", nextActive);
+                        }}
                       >
                         <option value="1">활성</option>
                         <option value="0">비활성</option>
                       </select>
                     </td>
-                    <td className={styles.inlineRowActions}>
+                    <td>
                       <div className={styles.actions}>
-                        <button type="button" onClick={() => void saveDraft()} disabled={saveMutation.isPending}>
-                          저장
+                        <button type="button" className={styles.primaryAction} onClick={() => void saveDraft()} disabled={saveMutation.isPending}>
+                          변경
                         </button>
-                        <button type="button" onClick={cancelDraft}>
+                        <button type="button" className={styles.secondaryAction} onClick={cancelDraft}>
                           취소
                         </button>
                       </div>
                     </td>
                   </tr>
                 ) : (
-                  <tr key={item.id}>
-                    <td>{item.name}</td>
-                    <td>{item.displayOrder}</td>
-                    <td>{item.isActive ? "활성" : "비활성"}</td>
-                    <td className={styles.inlineRowActions}>
+                  <tr key={item.id} className={item.svcActive ? "" : styles.inactiveRow}>
+                    {rowIndex === 0 ? (
+                      <td rowSpan={group.rows.length} scope="row">
+                        {group.svcGroup}
+                      </td>
+                    ) : null}
+                    <td>{item.svcName || "-"}</td>
+                    <td>{typeLabel(item.svcType)}</td>
+                    <td>{item.svcActive ? "활성" : "비활성"}</td>
+                    <td>
                       <div className={styles.actions}>
-                        <button type="button" className={styles.secondaryButton} onClick={() => startEdit(item)}>
+                        <button type="button" className={styles.secondaryAction} onClick={() => startEdit(item)}>
                           수정
                         </button>
-                        <button type="button" className={styles.secondaryButton} onClick={() => void handleDelete(item)} disabled={deleteMutation.isPending}>
+                        <button type="button" className={styles.secondaryAction} onClick={() => void handleDelete(item)} disabled={deleteMutation.isPending}>
                           삭제
                         </button>
                       </div>
                     </td>
                   </tr>
                 );
-              })}
-            </tbody>
-          </table>
-        </div>
+              }),
+            )}
+          </tbody>
+        </table>
       </div>
     </section>
   );

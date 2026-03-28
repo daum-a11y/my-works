@@ -3,6 +3,13 @@
   gap: 2rem;
 }
 
+.topGrid {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: minmax(0, 1fr) minmax(18rem, 0.8fr);
+  align-items: start;
+}
+
 .calendarSection {
   display: grid;
   gap: 0.7rem;
@@ -52,31 +59,65 @@
   vertical-align: top;
 }
 
+.calendarLink {
+  color: inherit;
+  text-decoration: none;
+}
+
 .calendarDate {
   font-size: 0.75rem;
   font-weight: 700;
   color: var(--text-secondary);
 }
 
-.statusDot {
-  width: 0.4rem;
-  height: 0.4rem;
-  margin-top: 0.8rem;
-  margin-left: auto;
-  border-radius: 50%;
-  background: var(--border-default);
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 3rem;
+  margin-top: 0.35rem;
+  padding: 0.15rem 0.45rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.2;
 }
 
-.calendarCell[data-state="done"] {
-  background: oklch(0.98 0.05 156);
+.badgeSuccess {
+  color: oklch(0.38 0.11 156);
+  background: oklch(0.95 0.05 156);
 }
 
-.calendarCell[data-state="done"] .calendarDate {
-  color: oklch(0.4 0.12 156);
+.badgeWarning {
+  color: oklch(0.44 0.11 80);
+  background: oklch(0.96 0.07 80);
 }
 
-.calendarCell[data-state="done"] .statusDot {
-  background: oklch(0.4 0.12 156);
+.badgeDanger {
+  color: oklch(0.47 0.16 28);
+  background: oklch(0.96 0.05 28);
+}
+
+.badgeWeekend {
+  color: oklch(0.4 0.09 255);
+  background: oklch(0.95 0.03 255);
+}
+
+.noticeSection {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100%;
+}
+
+.noticeImageWrap {
+  width: 100%;
+  margin: 0;
+  text-align: center;
+}
+
+.noticeImage {
+  max-width: 90%;
 }
 
 .tableSection {
@@ -130,4 +171,10 @@
   line-height: var(--text-body-line-height);
   text-align: center;
   padding: 2.5rem !important;
+}
+
+@media (max-width: 900px) {
+  .topGrid {
+    grid-template-columns: 1fr;
+  }
 }

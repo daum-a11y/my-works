@@ -1,49 +1,47 @@
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { downloadExcelFile } from "../../../lib/excel-export";
 import { toLocalDateInputValue } from "../../../lib/utils";
-import { parseReportHoursInput } from "../../reports/report-domain";
 import { adminDataClient } from "../admin-client";
-
-import styles from "../AdminPage.module.css";
-import {
-  createDefaultAdminTaskSearchFilters,
-  type AdminTaskSaveInput,
-  type AdminTaskSearchFilters,
-  type AdminTaskSearchItem,
+import type {
+  AdminProjectOption,
+  AdminServiceGroupItem,
+  AdminTaskSearchFilters,
+  AdminTaskSearchItem,
+  AdminTaskTypeItem,
+  MemberAdminItem,
 } from "../admin-types";
+import styles from "./AdminReportsPage.module.css";
+
+type SortKey =
+  | "id"
+  | "taskDate"
+  | "member"
+  | "taskType1"
+  | "taskType2"
+  | "platform"
+  | "serviceGroup"
+  | "serviceName"
+  | "projectName"
+  | "pageTitle"
+  | "hours"
+  | "note";
+
+type SortDirection = "asc" | "desc";
+
+interface SortState {
+  key: SortKey;
+  direction: SortDirection;
+}
+
+const defaultSort: SortState = {
+  key: "taskDate",
+  direction: "desc",
+};
 
 function getTodayInputValue() {
   return toLocalDateInputValue(new Date());
-}
-
-function createDraft(task: AdminTaskSearchItem): AdminTaskSaveInput {
-  return {
-    id: task.id,
-    memberId: task.memberId,
-    taskDate: task.taskDate,
-    projectId: task.projectId ?? "",
-    pageId: task.pageId ?? "",
-    taskType1: task.taskType1,
-    taskType2: task.taskType2,
-    hours: Number(task.hours ?? 0),
-    content: task.content,
-    note: task.note,
-  };
-}
-
-function createEmptyDraft(memberId: string): AdminTaskSaveInput {
-  return {
-    memberId,
-    taskDate: getTodayInputValue(),
-    projectId: "",
-    pageId: "",
-    taskType1: "",
-    taskType2: "",
-    hours: 1,
-    content: "",
-    note: "",
-  };
 }
 
 function buildExportFilename(startDate: string, endDate: string) {
@@ -68,17 +66,132 @@ function buildExportFilename(startDate: string, endDate: string) {
   return "검색결과.xlsx";
 }
 
+function formatSummaryMinutes(minutes: number) {
+  return `${minutes.toFixed(0).replace(/(\d)(?=(\d{3})+(?:\.\d+)?$)/g, "$1,")}분`;
+}
+
+function formatTimeCell(value: number) {
+  return Number.isFinite(value) ? String(value) : "";
+}
+
+function compareText(left: string, right: string) {
+  return left.localeCompare(right, "ko");
+}
+
+function getSortValue(
+  task: AdminTaskSearchItem,
+  membersById: Map<string, MemberAdminItem>,
+  key: SortKey,
+) {
+  switch (key) {
+    case "id":
+      return task.id;
+    case "member":
+      return membersById.get(task.memberId)?.legacyUserId ?? task.memberId;
+    case "taskType1":
+      return task.taskType1;
+    case "taskType2":
+      return task.taskType2;
+    case "platform":
+      return task.platform;
+    case "serviceGroup":
+      return task.serviceGroupName;
+    case "serviceName":
+      return task.serviceName;
+    case "projectName":
+      return task.projectName;
+    case "pageTitle":
+      return task.pageTitle;
+    case "hours":
+      return task.hours;
+    case "note":
+      return task.note;
+    case "taskDate":
+    default:
+      return task.taskDate;
+  }
+}
+
+function sortTasks(
+  tasks: readonly AdminTaskSearchItem[],
+  sort: SortState,
+  membersById: Map<string, MemberAdminItem>,
+) {
+  const direction = sort.direction === "asc" ? 1 : -1;
+
+  return [...tasks].sort((left, right) => {
+    const leftValue = getSortValue(left, membersById, sort.key);
+    const rightValue = getSortValue(right, membersById, sort.key);
+
+    if (typeof leftValue === "number" && typeof rightValue === "number") {
+      return (leftValue - rightValue) * direction;
+    }
+
+    return compareText(String(leftValue ?? ""), String(rightValue ?? "")) * direction;
+  });
+}
+
+function getTaskType1Options(taskTypes: readonly AdminTaskTypeItem[], currentValue?: string) {
+  const names = new Set(taskTypes.map((item) => item.type1));
+  if (currentValue) {
+    names.add(currentValue);
+  }
+  names.add("project");
+  return Array.from(names);
+}
+
+function getTaskType2Options(taskTypes: readonly AdminTaskTypeItem[], type1?: string, currentValue?: string) {
+  if (!type1 || type1 === "project") {
+    return currentValue ? [currentValue] : [];
+  }
+
+  const names = new Set(taskTypes.filter((item) => item.type1 === type1).map((item) => item.type2));
+  if (currentValue) {
+    names.add(currentValue);
+  }
+  return Array.from(names);
+}
+
+function SortButton({
+  label,
+  sortKey,
+  sortState,
+  onChange,
+}: {
+  label: string;
+  sortKey: SortKey;
+  sortState: SortState;
+  onChange: (next: SortState) => void;
+}) {
+  const active = sortState.key === sortKey;
+  const nextDirection: SortDirection = active && sortState.direction === "asc" ? "desc" : "asc";
+
+  return (
+    <button
+      type="button"
+      className={active ? styles.sortButtonActive : styles.sortButton}
+      onClick={() => onChange({ key: sortKey, direction: nextDirection })}
+      aria-label={`${label} 정렬`}
+    >
+      <span>{label}</span>
+      <span className={styles.sortArrow}>{active && sortState.direction === "asc" ? "▲" : "▼"}</span>
+    </button>
+  );
+}
+
 export function AdminReportsPage() {
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [filters, setFilters] = useState<AdminTaskSearchFilters>(() => createDefaultAdminTaskSearchFilters());
-  const [appliedFilters, setAppliedFilters] = useState<AdminTaskSearchFilters>(() => createDefaultAdminTaskSearchFilters());
+  const [filters, setFilters] = useState<AdminTaskSearchFilters>(() => createDefaultFilters());
+  const [appliedFilters, setAppliedFilters] = useState<AdminTaskSearchFilters>(() => createDefaultFilters());
   const [memberFilterIds, setMemberFilterIds] = useState<string[]>([]);
   const [appliedMemberFilterIds, setAppliedMemberFilterIds] = useState<string[]>([]);
-  const [serviceNameQuery, setServiceNameQuery] = useState("");
-  const [appliedServiceNameQuery, setAppliedServiceNameQuery] = useState("");
-  const [selectedTaskId, setSelectedTaskId] = useState<string>("");
-  const [draft, setDraft] = useState<AdminTaskSaveInput | null>(null);
+  const [sortState, setSortState] = useState<SortState>(defaultSort);
   const [localMutationError, setLocalMutationError] = useState("");
+
+  useEffect(() => {
+    document.title = "전체 업무보고 검색 | My Works";
+  }, []);
 
   const membersQuery = useQuery({
     queryKey: ["admin", "members"],
@@ -96,10 +209,6 @@ export function AdminReportsPage() {
     queryKey: ["admin", "projects"],
     queryFn: () => adminDataClient.listProjects(),
   });
-  const pagesQuery = useQuery({
-    queryKey: ["admin", "project-pages"],
-    queryFn: () => adminDataClient.listProjectPages(),
-  });
   const searchQuery = useQuery({
     queryKey: ["admin", "task-search", appliedFilters],
     queryFn: () => adminDataClient.searchTasksAdmin(appliedFilters),
@@ -109,203 +218,146 @@ export function AdminReportsPage() {
   const taskTypes = taskTypesQuery.data ?? [];
   const serviceGroups = serviceGroupsQuery.data ?? [];
   const projects = projectsQuery.data ?? [];
-  const pages = pagesQuery.data ?? [];
   const tasks = searchQuery.data ?? [];
+  const membersById = useMemo(() => new Map(members.map((member) => [member.id, member] as const)), [members]);
+
+  const visibleProjects = useMemo(
+    () => (filters.serviceGroupId ? projects.filter((project) => project.serviceGroupId === filters.serviceGroupId) : projects),
+    [filters.serviceGroupId, projects],
+  );
+
+  const taskType1Options = useMemo(() => getTaskType1Options(taskTypes, filters.taskType1), [filters.taskType1, taskTypes]);
+  const taskType2Options = useMemo(() => getTaskType2Options(taskTypes, filters.taskType1, filters.taskType2), [
+    filters.taskType1,
+    filters.taskType2,
+    taskTypes,
+  ]);
 
   const filteredTasks = useMemo(() => {
-    const normalizedServiceName = appliedServiceNameQuery.trim().toLowerCase();
-
     return tasks.filter((task) => {
       if (appliedMemberFilterIds.length > 0 && !appliedMemberFilterIds.includes(task.memberId)) {
         return false;
       }
 
-      if (normalizedServiceName && !task.projectName.toLowerCase().includes(normalizedServiceName)) {
-        return false;
-      }
-
       return true;
     });
-  }, [appliedMemberFilterIds, appliedServiceNameQuery, tasks]);
+  }, [appliedMemberFilterIds, tasks]);
 
-  const visiblePages = useMemo(
-    () => (filters.projectId ? pages.filter((page) => page.projectId === filters.projectId) : pages),
-    [filters.projectId, pages],
-  );
-
-  const selectedTask = useMemo(
-    () => filteredTasks.find((task) => task.id === selectedTaskId) ?? null,
-    [filteredTasks, selectedTaskId],
-  );
-
-  useEffect(() => {
-    if (filteredTasks.length === 0) {
-      setSelectedTaskId("");
-      return;
-    }
-
-    const hasSelectedTask = filteredTasks.some((task) => task.id === selectedTaskId);
-    if (!hasSelectedTask) {
-      setSelectedTaskId(filteredTasks[0].id);
-    }
-  }, [filteredTasks, selectedTaskId]);
-
-  useEffect(() => {
-    if (selectedTask) {
-      setDraft(createDraft(selectedTask));
-      return;
-    }
-
-    if (selectedTaskId) {
-      return;
-    }
-
-    if (filteredTasks.length === 0) {
-      setDraft(null);
-    }
-  }, [filteredTasks.length, selectedTask, selectedTaskId]);
-
-  useEffect(() => {
-    if (draft?.projectId && draft.pageId) {
-      const currentPage = pages.find((page) => page.id === draft.pageId);
-      if (currentPage && currentPage.projectId !== draft.projectId) {
-        setDraft((current) => (current ? { ...current, pageId: "" } : current));
-      }
-    }
-  }, [draft?.pageId, draft?.projectId, pages]);
-
-  const saveMutation = useMutation({
-    mutationFn: (input: AdminTaskSaveInput) => adminDataClient.saveTaskAdmin(input),
-    onSuccess: (saved) => {
-      setLocalMutationError("");
-      void queryClient.invalidateQueries({ queryKey: ["admin", "task-search"] });
-      setSelectedTaskId(saved.id);
-      setDraft(createDraft(saved));
-    },
-  });
+  const sortedTasks = useMemo(() => sortTasks(filteredTasks, sortState, membersById), [filteredTasks, membersById, sortState]);
+  const totalMinutes = useMemo(() => sortedTasks.reduce((sum, task) => sum + task.hours, 0), [sortedTasks]);
 
   const deleteMutation = useMutation({
     mutationFn: (taskId: string) => adminDataClient.deleteTaskAdmin(taskId),
     onSuccess: () => {
       setLocalMutationError("");
-      setSelectedTaskId("");
-      setDraft(null);
       void queryClient.invalidateQueries({ queryKey: ["admin", "task-search"] });
     },
+    onError: (error) => {
+      setLocalMutationError(error instanceof Error ? error.message : "업무보고를 삭제하지 못했습니다.");
+    },
   });
-
-  const taskType1Options = useMemo(() => {
-    const names = new Set(taskTypes.map((item) => item.type1));
-    if (draft?.taskType1) names.add(draft.taskType1);
-    return Array.from(names);
-  }, [draft?.taskType1, taskTypes]);
-
-  const taskType2Options = useMemo(() => {
-    const names = new Set(taskTypes.filter((item) => item.type1 === draft?.taskType1).map((item) => item.type2));
-    if (draft?.taskType2) names.add(draft.taskType2);
-    return Array.from(names);
-  }, [draft?.taskType1, draft?.taskType2, taskTypes]);
-
-  const draftPages = useMemo(
-    () => (draft?.projectId ? pages.filter((page) => page.projectId === draft.projectId) : pages),
-    [draft?.projectId, pages],
-  );
 
   const handleFilterField = <K extends keyof AdminTaskSearchFilters>(key: K, value: AdminTaskSearchFilters[K]) => {
     setFilters((current) => {
       const next = { ...current, [key]: value };
-      if (key === "projectId") {
-        next.pageId = "";
-      }
-      return next;
-    });
-  };
 
-  const handleDraftField = <K extends keyof AdminTaskSaveInput>(key: K, value: AdminTaskSaveInput[K]) => {
-    setDraft((current) => {
-      if (!current) return current;
-      const next = { ...current, [key]: value };
-      if (key === "projectId") {
-        next.pageId = "";
+      if (key === "serviceGroupId") {
+        next.projectId = "";
       }
+
+      if (key === "taskType1") {
+        next.taskType2 = "";
+      }
+
       return next;
     });
   };
 
   const handleSearch = () => {
-    setAppliedFilters({ ...filters });
-    setAppliedMemberFilterIds([...memberFilterIds]);
-    setAppliedServiceNameQuery(serviceNameQuery);
-  };
-
-  const handleSave = async () => {
-    if (!draft || saveMutation.isPending) return;
-
-    try {
-      await saveMutation.mutateAsync({
-        ...draft,
-        hours: parseReportHoursInput(String(draft.hours)),
-      });
-    } catch (error) {
-      setLocalMutationError(error instanceof Error ? error.message : "업무보고를 저장하지 못했습니다.");
-    }
-  };
-
-  const handleDelete = async () => {
-    if (deleteMutation.isPending || !selectedTask || !window.confirm("선택한 업무보고를 삭제하시겠습니까?")) {
+    if (filters.startDate && filters.endDate && filters.startDate > filters.endDate) {
+      window.alert("시작일이 종료일보다 늦습니다.");
+      const input = document.getElementById("admin-reports-start-date");
+      input?.focus();
       return;
     }
-    await deleteMutation.mutateAsync(selectedTask.id);
+
+    setAppliedFilters({ ...filters });
+    setAppliedMemberFilterIds([...memberFilterIds]);
+  };
+
+  const applyQuickDate = (nextDate: string) => {
+    const nextFilters = {
+      ...filters,
+      startDate: nextDate,
+      endDate: nextDate,
+    };
+
+    setFilters(nextFilters);
+    setAppliedFilters(nextFilters);
+    setAppliedMemberFilterIds([...memberFilterIds]);
   };
 
   const handleExport = () => {
-    downloadExcelFile(buildExportFilename(appliedFilters.startDate, appliedFilters.endDate), "검색결과", filteredTasks, [
-      { header: "작성일", value: (task) => task.taskDate, width: 12 },
-      { header: "사용자", value: (task) => task.memberName, width: 14 },
-      { header: "이메일", value: (task) => task.memberEmail, width: 24 },
+    downloadExcelFile(buildExportFilename(appliedFilters.startDate, appliedFilters.endDate), "검색결과", sortedTasks, [
+      { header: "#", value: (task) => task.id, width: 8 },
+      { header: "일자", value: (task) => task.taskDate, width: 12 },
+      {
+        header: "ID",
+        value: (task) => membersById.get(task.memberId)?.legacyUserId ?? task.memberId,
+        width: 18,
+      },
+      { header: "type 1", value: (task) => task.taskType1, width: 14 },
+      { header: "type 2", value: (task) => task.taskType2, width: 14 },
+      { header: "플랫폼", value: (task) => task.platform, width: 12 },
       { header: "서비스그룹", value: (task) => task.serviceGroupName, width: 16 },
-      { header: "프로젝트", value: (task) => task.projectName, width: 24 },
-      { header: "페이지", value: (task) => task.pageTitle, width: 24 },
-      { header: "업무유형 1", value: (task) => task.taskType1, width: 14 },
-      { header: "업무유형 2", value: (task) => task.taskType2, width: 14 },
-      { header: "소요시간", value: (task) => task.hours, width: 12 },
-      { header: "업무내용", value: (task) => task.content, width: 40 },
+      { header: "서비스명", value: (task) => task.serviceName, width: 20 },
+      { header: "프로젝트명", value: (task) => task.projectName, width: 22 },
+      { header: "페이지명", value: (task) => task.pageTitle, width: 22 },
+      { header: "링크", value: (task) => task.pageUrl, width: 28 },
+      { header: "시간", value: (task) => task.hours, width: 10 },
       { header: "비고", value: (task) => task.note, width: 28 },
     ]);
   };
 
-  const handleStartNewRow = () => {
-    const nextMemberId = memberFilterIds[0] ?? members[0]?.id ?? "";
-    setSelectedTaskId("");
-    setDraft(createEmptyDraft(nextMemberId));
+  const deleteTask = async (taskId: string) => {
+    if (deleteMutation.isPending || !window.confirm("정말 삭제 하시겠습니까? 복구할 수 없습니다.")) {
+      return;
+    }
+
+    await deleteMutation.mutateAsync(taskId);
   };
 
-  const searchError = searchQuery.error instanceof Error ? searchQuery.error.message : "";
-  const mutationError =
-    localMutationError ||
-    (saveMutation.error instanceof Error && saveMutation.error.message) ||
-    (deleteMutation.error instanceof Error && deleteMutation.error.message) ||
+  const selectAllUserChecked = members.length > 0 && (memberFilterIds.length === 0 || memberFilterIds.length === members.length);
+  const loading =
+    membersQuery.isLoading ||
+    taskTypesQuery.isLoading ||
+    serviceGroupsQuery.isLoading ||
+    projectsQuery.isLoading ||
+    searchQuery.isLoading;
+  const queryError =
+    (membersQuery.error instanceof Error && membersQuery.error.message) ||
+    (taskTypesQuery.error instanceof Error && taskTypesQuery.error.message) ||
+    (serviceGroupsQuery.error instanceof Error && serviceGroupsQuery.error.message) ||
+    (projectsQuery.error instanceof Error && projectsQuery.error.message) ||
+    (searchQuery.error instanceof Error && searchQuery.error.message) ||
     "";
+  const mutationError = localMutationError || (deleteMutation.error instanceof Error && deleteMutation.error.message) || "";
 
   return (
     <section className={styles.page}>
-      
-
       <header className={styles.hero}>
-        <h2>전체 업무보고 검색</h2>
+        <div>
+          <p className={styles.eyebrow}>관리자</p>
+          <h1>전체 업무보고 검색</h1>
+        </div>
       </header>
 
       <div className={styles.panel}>
-        <div className={styles.toolbar}>
-          <div>
-            <h3>검색 조건</h3>
-          </div>
+        <div className={styles.panelHeader}>
+          <h2>검색 조건</h2>
           <div className={styles.actions}>
-            <button type="button" onClick={handleSearch}>
-              검색
-            </button>
-            <button type="button" onClick={handleExport} disabled={filteredTasks.length === 0}>
-              엑셀파일로 내려받기
+            <button type="button" onClick={handleSearch} disabled={loading || searchQuery.isFetching}>
+              {searchQuery.isFetching ? "검색 중..." : "검색"}
             </button>
           </div>
         </div>
@@ -329,51 +381,58 @@ export function AdminReportsPage() {
               onChange={(event) => handleFilterField("endDate", event.target.value)}
             />
           </div>
-          <div className={styles.field}>
-            <label htmlFor="admin-reports-member">사용자</label>
-            <select
-              id="admin-reports-member"
-              multiple
-              value={memberFilterIds}
-              onChange={(event) =>
-                setMemberFilterIds(Array.from(event.currentTarget.selectedOptions, (option) => option.value))
-              }
+          <div className={styles.dateActions}>
+            <button
+              type="button"
+              className={styles.secondaryButton}
+              onClick={() => applyQuickDate(shiftDay(filters.startDate || getTodayInputValue(), -1))}
+              disabled={!filters.startDate && !filters.endDate}
             >
-              {members.map((member) => (
-                <option key={member.id} value={member.id}>
-                  {member.name} · {member.legacyUserId}
-                </option>
-              ))}
-            </select>
+              전날
+            </button>
+            <button
+              type="button"
+              className={styles.secondaryButton}
+              onClick={() => applyQuickDate(getTodayInputValue())}
+            >
+              오늘
+            </button>
+            <button
+              type="button"
+              className={styles.secondaryButton}
+              onClick={() => applyQuickDate(shiftDay(filters.startDate || getTodayInputValue(), 1))}
+              disabled={!filters.startDate && !filters.endDate}
+            >
+              다음날
+            </button>
           </div>
           <div className={styles.field}>
-            <label htmlFor="admin-reports-task-type-1">업무유형 1</label>
+            <label htmlFor="admin-reports-task-type-1">type 1</label>
             <select
               id="admin-reports-task-type-1"
               value={filters.taskType1}
               onChange={(event) => handleFilterField("taskType1", event.target.value)}
             >
-              <option value="">전체</option>
-              {taskTypes.map((type) => (
-                <option key={`type1-${type.id}`} value={type.type1}>
-                  {type.type1}
+              <option value=""></option>
+              {taskType1Options.map((type1) => (
+                <option key={`filter-type1-${type1}`} value={type1}>
+                  {type1}
                 </option>
               ))}
             </select>
           </div>
           <div className={styles.field}>
-            <label htmlFor="admin-reports-task-type-2">업무유형 2</label>
+            <label htmlFor="admin-reports-task-type-2">type 2</label>
             <select
               id="admin-reports-task-type-2"
               value={filters.taskType2}
               onChange={(event) => handleFilterField("taskType2", event.target.value)}
+              disabled={!filters.taskType1 || filters.taskType1 === "project"}
             >
-              <option value="">전체</option>
-              {taskTypes
-                .filter((type) => !filters.taskType1 || type.type1 === filters.taskType1)
-                .map((type) => (
-                <option key={`type2-${type.id}`} value={type.type2}>
-                  {type.type2}
+              <option value=""></option>
+              {taskType2Options.map((type2) => (
+                <option key={`filter-type2-${type2}`} value={type2}>
+                  {type2}
                 </option>
               ))}
             </select>
@@ -386,235 +445,213 @@ export function AdminReportsPage() {
               onChange={(event) => handleFilterField("serviceGroupId", event.target.value)}
             >
               <option value="">전체</option>
-              {serviceGroups.map((group) => (
+              {serviceGroups.map((group: AdminServiceGroupItem) => (
                 <option key={group.id} value={group.id}>
                   {group.name}
                 </option>
               ))}
             </select>
           </div>
-          <div className={`${styles.field} ${styles.fullWidth}`}>
+          <div className={styles.field}>
             <label htmlFor="admin-reports-service-name">서비스명</label>
-            <input
+            <select
               id="admin-reports-service-name"
-              type="search"
-              value={serviceNameQuery}
-              placeholder="서비스명 기준 검색"
-              onChange={(event) => setServiceNameQuery(event.target.value)}
-            />
+              value={filters.projectId}
+              onChange={(event) => handleFilterField("projectId", event.target.value)}
+              disabled={!filters.serviceGroupId}
+            >
+              <option value=""></option>
+              {visibleProjects.map((project: AdminProjectOption) => (
+                <option key={project.id} value={project.id}>
+                  {project.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className={styles.field}>
+            <label htmlFor="admin-reports-user-all">사용자</label>
+            <div className={styles.checkboxAll}>
+              <input
+                id="admin-reports-user-all"
+                type="checkbox"
+                checked={selectAllUserChecked}
+                onChange={(event) => {
+                  setMemberFilterIds(event.target.checked ? members.map((member) => member.id) : []);
+                }}
+              />
+              <span>전체</span>
+            </div>
+          </div>
+          <div className={styles.memberCheckboxes}>
+            {members.map((member: MemberAdminItem) => (
+              <label key={member.id} className={styles.memberCheckbox}>
+                <input
+                  type="checkbox"
+                  checked={memberFilterIds.includes(member.id)}
+                  onChange={(event) => {
+                    setMemberFilterIds((current) =>
+                      event.target.checked ? [...current, member.id] : current.filter((id) => id !== member.id),
+                    );
+                  }}
+                />
+                <span>{member.legacyUserId}</span>
+              </label>
+            ))}
           </div>
         </div>
       </div>
 
-      {(searchError || mutationError) && <p className={styles.helperText}>{searchError || mutationError}</p>}
+      {(queryError || mutationError) && <p className={styles.helperText}>{queryError || mutationError}</p>}
 
-      <div className={styles.layout}>
-        <div className={styles.stack}>
-          <div className={styles.panel}>
-            <div className={styles.toolbar}>
-              <div>
-                <h3>검색 결과</h3>
-                <p className={styles.helperText}>총 {filteredTasks.length}건</p>
-              </div>
-              <div className={styles.actions}>
-                <button type="button" onClick={handleStartNewRow}>
-                  신규 행 추가
-                </button>
-              </div>
-            </div>
-
-            <div className={styles.tableWrap}>
-              <table className={styles.table}>
-                <thead>
-                  <tr>
-                    <th>작성일</th>
-                    <th>사용자</th>
-                    <th>프로젝트 / 페이지</th>
-                    <th>업무유형</th>
-                    <th>서비스그룹</th>
-                    <th>소요시간</th>
-                    <th>업무내용</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredTasks.length === 0 ? (
-                    <tr>
-                      <td colSpan={7}>
-                        <div className={styles.emptyState}>검색 결과가 없습니다.</div>
-                      </td>
-                    </tr>
-                  ) : (
-                    filteredTasks.map((task) => (
-                      <tr key={task.id} className={task.id === selectedTaskId ? styles.selectedRow : undefined}>
-                        <td>{task.taskDate}</td>
-                        <td>
-                          <button type="button" className={styles.rowButton} onClick={() => setSelectedTaskId(task.id)}>
-                            <strong>{task.memberName}</strong>
-                            <span>{task.memberEmail}</span>
-                          </button>
-                        </td>
-                        <td>
-                          <strong>{task.projectName || "미지정"}</strong>
-                          <div className={styles.muted}>{task.pageTitle || "페이지 미지정"}</div>
-                        </td>
-                        <td>
-                          {task.taskType1}
-                          <div className={styles.muted}>{task.taskType2}</div>
-                        </td>
-                        <td>{task.serviceGroupName || "미지정"}</td>
-                        <td>{task.hours.toFixed(1)}h</td>
-                        <td>{task.content}</td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
+      <div className={styles.panel}>
+        <div className={styles.panelHeader}>
+          <div>
+            <h2>검색 결과</h2>
+            <p className={styles.subText}>총 {sortedTasks.length}건, {formatSummaryMinutes(totalMinutes)}</p>
+          </div>
+          <div className={styles.actions}>
+            <button
+              type="button"
+              onClick={() =>
+                navigate("/admin/reports/new", {
+                  state: {
+                    memberId: memberFilterIds.length === 1 ? memberFilterIds[0] : "",
+                  },
+                })
+              }
+              className={styles.primaryButton}
+            >
+              추가
+            </button>
+            <button type="button" onClick={handleExport} disabled={sortedTasks.length === 0}>
+              엑셀파일로 내려받기
+            </button>
           </div>
         </div>
 
-        <aside className={styles.panel}>
-            <div className={styles.toolbar}>
-              <div>
-                <h3>{selectedTask ? "선택 항목 편집" : "신규 행 입력"}</h3>
-              </div>
-              <div className={styles.actions}>
-                {selectedTask ? (
-                  <button type="button" onClick={() => void handleDelete()} disabled={deleteMutation.isPending}>
-                    삭제
-                  </button>
-                ) : null}
-                <button type="button" onClick={handleStartNewRow}>
-                  신규 행
-                </button>
-              </div>
-          </div>
+        <div className={styles.tableWrap}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>
+                  <SortButton label="#" sortKey="id" sortState={sortState} onChange={setSortState} />
+                </th>
+                <th>
+                  <SortButton label="일자" sortKey="taskDate" sortState={sortState} onChange={setSortState} />
+                </th>
+                <th>
+                  <SortButton label="ID" sortKey="member" sortState={sortState} onChange={setSortState} />
+                </th>
+                <th>
+                  <SortButton label="type 1" sortKey="taskType1" sortState={sortState} onChange={setSortState} />
+                </th>
+                <th>
+                  <SortButton label="type 2" sortKey="taskType2" sortState={sortState} onChange={setSortState} />
+                </th>
+                <th>
+                  <SortButton label="플랫폼" sortKey="platform" sortState={sortState} onChange={setSortState} />
+                </th>
+                <th>
+                  <SortButton label="서비스그룹" sortKey="serviceGroup" sortState={sortState} onChange={setSortState} />
+                </th>
+                <th>
+                  <SortButton label="서비스명" sortKey="serviceName" sortState={sortState} onChange={setSortState} />
+                </th>
+                <th>
+                  <SortButton label="프로젝트명" sortKey="projectName" sortState={sortState} onChange={setSortState} />
+                </th>
+                <th>
+                  <SortButton label="페이지명" sortKey="pageTitle" sortState={sortState} onChange={setSortState} />
+                </th>
+                <th>링크</th>
+                <th>
+                  <SortButton label="시간" sortKey="hours" sortState={sortState} onChange={setSortState} />
+                </th>
+                <th>비고</th>
+                <th>관리</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sortedTasks.length === 0 ? (
+                <tr>
+                  <td colSpan={14} className={styles.emptyState}>
+                    검색 결과가 없습니다.
+                  </td>
+                </tr>
+              ) : (
+                sortedTasks.map((task, index) => {
+                  const member = membersById.get(task.memberId);
 
-          {!draft ? (
-            <div className={styles.emptyState}>좌측 결과에서 업무보고를 선택해 주십시오.</div>
-          ) : (
-            <>
-              <div className={styles.formGrid}>
-                <div className={styles.field}>
-                  <label htmlFor="admin-task-member">사용자</label>
-                  <select
-                    id="admin-task-member"
-                    value={draft.memberId}
-                    onChange={(event) => handleDraftField("memberId", event.target.value)}
-                  >
-                    {members.map((member) => (
-                      <option key={member.id} value={member.id}>
-                        {member.name} · {member.legacyUserId}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className={styles.field}>
-                  <label htmlFor="admin-task-date">작성일</label>
-                  <input
-                    id="admin-task-date"
-                    type="date"
-                    value={draft.taskDate}
-                    onChange={(event) => handleDraftField("taskDate", event.target.value)}
-                  />
-                </div>
-                <div className={styles.field}>
-                  <label htmlFor="admin-task-project">프로젝트</label>
-                  <select
-                    id="admin-task-project"
-                    value={draft.projectId}
-                    onChange={(event) => handleDraftField("projectId", event.target.value)}
-                  >
-                    <option value="">선택 안 함</option>
-                    {projects.map((project) => (
-                      <option key={project.id} value={project.id}>
-                        {project.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className={styles.field}>
-                  <label htmlFor="admin-task-page">페이지</label>
-                  <select
-                    id="admin-task-page"
-                    value={draft.pageId}
-                    onChange={(event) => handleDraftField("pageId", event.target.value)}
-                  >
-                    <option value="">선택 안 함</option>
-                    {draftPages.map((page) => (
-                      <option key={page.id} value={page.id}>
-                        {page.title}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className={styles.field}>
-                  <label htmlFor="admin-task-type1">업무유형 1</label>
-                  <select
-                    id="admin-task-type1"
-                    value={draft.taskType1}
-                    onChange={(event) => handleDraftField("taskType1", event.target.value)}
-                  >
-                    {taskType1Options.map((name) => (
-                      <option key={name} value={name}>
-                        {name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className={styles.field}>
-                  <label htmlFor="admin-task-type2">업무유형 2</label>
-                  <select
-                    id="admin-task-type2"
-                    value={draft.taskType2}
-                    onChange={(event) => handleDraftField("taskType2", event.target.value)}
-                  >
-                    {taskType2Options.map((name) => (
-                      <option key={name} value={name}>
-                        {name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className={styles.field}>
-                  <label htmlFor="admin-task-hours">소요시간</label>
-                  <input
-                    id="admin-task-hours"
-                    type="number"
-                    min="0"
-                    step="0.5"
-                    value={draft.hours}
-                    onChange={(event) => handleDraftField("hours", Number(event.target.value))}
-                  />
-                </div>
-                <div className={`${styles.field} ${styles.fullWidth}`}>
-                  <label htmlFor="admin-task-content">업무내용</label>
-                  <textarea
-                    id="admin-task-content"
-                    value={draft.content}
-                    onChange={(event) => handleDraftField("content", event.target.value)}
-                  />
-                </div>
-                <div className={`${styles.field} ${styles.fullWidth}`}>
-                  <label htmlFor="admin-task-note">비고</label>
-                  <textarea
-                    id="admin-task-note"
-                    value={draft.note}
-                    onChange={(event) => handleDraftField("note", event.target.value)}
-                  />
-                </div>
-              </div>
-
-              <div className={styles.actions}>
-                <button type="button" onClick={() => void handleSave()} disabled={saveMutation.isPending}>
-                  저장
-                </button>
-                <span className={styles.helperText}>최근 수정 시각: {selectedTask?.updatedAt || "-"}</span>
-              </div>
-            </>
-          )}
-        </aside>
+                  return (
+                    <tr key={task.id}>
+                      <td>{index + 1}</td>
+                      <td>{task.taskDate}</td>
+                      <td>
+                        <strong>{member?.legacyUserId ?? task.memberId}</strong>
+                        <div className={styles.muted}>{member?.name ?? task.memberName}</div>
+                      </td>
+                      <td>{task.taskType1}</td>
+                      <td>{task.taskType2}</td>
+                      <td>{task.platform || "-"}</td>
+                      <td>{task.serviceGroupName || "-"}</td>
+                      <td>{task.serviceName || "-"}</td>
+                      <td>{task.projectName || "-"}</td>
+                      <td>{task.pageTitle || "-"}</td>
+                      <td>
+                        {task.pageUrl ? (
+                          <a href={task.pageUrl} target="_blank" rel="noreferrer">
+                            {task.pageUrl}
+                          </a>
+                        ) : (
+                          "-"
+                        )}
+                      </td>
+                      <td>{formatTimeCell(task.hours)}</td>
+                      <td>{task.note || "-"}</td>
+                      <td>
+                        <div className={styles.rowActions}>
+                          <button type="button" onClick={() => navigate(`/admin/reports/${task.id}/edit`)}>
+                            수정
+                          </button>
+                          <button type="button" onClick={() => void deleteTask(task.id)} disabled={deleteMutation.isPending}>
+                            삭제
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </section>
   );
+}
+
+function createDefaultFilters(): AdminTaskSearchFilters {
+  const today = getTodayInputValue();
+  return {
+    startDate: today,
+    endDate: today,
+    memberId: "",
+    projectId: "",
+    pageId: "",
+    taskType1: "",
+    taskType2: "",
+    serviceGroupId: "",
+    keyword: "",
+  };
+}
+
+function shiftDay(dateValue: string, offset: number) {
+  const [year, month, day] = dateValue.split("-").map((value) => Number.parseInt(value, 10));
+  if (!Number.isFinite(year) || !Number.isFinite(month) || !Number.isFinite(day)) {
+    return getTodayInputValue();
+  }
+
+  const next = new Date(year, month - 1, day, 12, 0, 0, 0);
+  next.setDate(next.getDate() + offset);
+  return toLocalDateInputValue(next);
 }

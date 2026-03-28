@@ -56,7 +56,7 @@ Supabase 화면에서 보이는 항목은 아래처럼 역할이 다릅니다.
 
 이 동작은 아래 초기 migration에 포함했다.
 
-- `/Users/gio.a/Documents/workspace/next/my-works/supabase/migrations/20260324_000001_initial_ops_schema.sql`
+- `/Users/gio.a/Documents/workspace/next/my-works/supabase/migrations/000_initial_ops_schema.sql`
 
 포함 내용:
 - `public.next_member_legacy_user_id(text)`
@@ -84,7 +84,7 @@ Supabase 화면에서 보이는 항목은 아래처럼 역할이 다릅니다.
 
 전제:
 - 아래 migration이 먼저 적용되어 있어야 한다
-- `/Users/gio.a/Documents/workspace/next/my-works/supabase/migrations/20260324_000001_initial_ops_schema.sql`
+- `/Users/gio.a/Documents/workspace/next/my-works/supabase/migrations/000_initial_ops_schema.sql`
 
 실행 SQL:
 

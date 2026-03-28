@@ -1,6 +1,6 @@
 # 원본 대비 `my-works` 전수 대조 감사
 
-작성일: 2026-03-24  
+작성일: 2026-03-24
 대상 결과물: `/Users/gio.a/Documents/workspace/next/my-works`
 
 ## 1. 대조 기준
@@ -67,7 +67,7 @@
 | 대시보드 | `features/dashboard/DashboardPage.tsx` | 부분 | 진행중 모니터링/QA 요약은 있음. `추천 모니터링`은 문서상 제외 범위라 미반영은 범위상 허용. |
 | QA 통계 | `features/stats/QaStatsPage.tsx` | 부분 | 핵심 리스트는 있음. 원본 차트/요약 구조보다 단순화됨. |
 | 모니터링 통계 | `features/stats/MonitoringStatsPage.tsx` | 부분 | 핵심 리스트는 있음. 원본 차트/요약/상세 필드보다 단순화됨. |
-| 비밀번호 변경 | `features/settings/PasswordSettingsPage.tsx` | 구현 | 비밀번호 변경 기본 흐름은 있음. |
+| 비밀번호 변경 | `features/settings/UserProfilePage.tsx` | 구현 | 비밀번호 변경 기본 흐름은 있음. |
 
 ## 4. 2차 관리자 기능 대조표
 

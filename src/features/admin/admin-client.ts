@@ -1,4 +1,5 @@
 import { getSupabaseClient } from "../../lib/supabase";
+import { parseLegacyTaskMeta } from "../reports/report-domain";
 import type {
   AdminPageOption,
   AdminProjectOption,
@@ -19,6 +20,7 @@ interface AdminDataClient {
   listProjects(): Promise<AdminProjectOption[]>;
   listProjectPages(): Promise<AdminPageOption[]>;
   searchTasksAdmin(filters: AdminTaskSearchFilters): Promise<AdminTaskSearchItem[]>;
+  getTaskAdmin(taskId: string): Promise<AdminTaskSearchItem>;
   saveTaskAdmin(input: AdminTaskSaveInput): Promise<AdminTaskSearchItem>;
   deleteTaskAdmin(taskId: string): Promise<void>;
   listMembersAdmin(): Promise<MemberAdminItem[]>;
@@ -45,7 +47,10 @@ function mapProject(record: Record<string, unknown>): AdminProjectOption {
   return {
     id: String(record.id ?? ""),
     name: String(record.name ?? ""),
+    projectType1: String(record.project_type1 ?? ""),
+    platform: String(record.platform ?? ""),
     serviceGroupId: record.service_group_id ? String(record.service_group_id) : null,
+    reportUrl: String(record.report_url ?? ""),
     isActive: Boolean(record.is_active ?? true),
   };
 }
@@ -55,6 +60,7 @@ function mapPage(record: Record<string, unknown>): AdminPageOption {
     id: String(record.id ?? ""),
     projectId: String(record.project_id ?? ""),
     title: String(record.title ?? ""),
+    url: String(record.url ?? ""),
     trackStatus: String(record.track_status ?? "미개선"),
     monitoringInProgress: Boolean(record.monitoring_in_progress ?? false),
     qaInProgress: Boolean(record.qa_in_progress ?? false),
@@ -62,23 +68,28 @@ function mapPage(record: Record<string, unknown>): AdminPageOption {
 }
 
 function mapTask(record: Record<string, unknown>): AdminTaskSearchItem {
+  const parsedNote = parseLegacyTaskMeta(String(record.note ?? ""));
+
   return {
     id: String(record.id ?? ""),
     memberId: String(record.member_id ?? ""),
     memberName: String(record.member_name ?? ""),
     memberEmail: String(record.member_email ?? ""),
     taskDate: String(record.task_date ?? ""),
+    platform: String(record.platform ?? parsedNote.platform ?? ""),
     projectId: record.project_id ? String(record.project_id) : null,
-    projectName: String(record.project_name ?? ""),
+    projectName: String(record.project_name ?? parsedNote.projectName ?? ""),
     pageId: record.project_page_id ? String(record.project_page_id) : null,
-    pageTitle: String(record.page_title ?? ""),
+    pageTitle: String(record.page_title ?? parsedNote.pageName ?? ""),
+    pageUrl: String(record.page_url ?? parsedNote.pageUrl ?? ""),
     serviceGroupId: record.service_group_id ? String(record.service_group_id) : null,
-    serviceGroupName: String(record.service_group_name ?? ""),
+    serviceGroupName: String(record.service_group_name ?? parsedNote.serviceGroupName ?? ""),
+    serviceName: String(record.service_name ?? parsedNote.serviceName ?? ""),
     taskType1: String(record.task_type1 ?? ""),
     taskType2: String(record.task_type2 ?? ""),
     hours: Number(record.hours ?? 0),
     content: String(record.content ?? ""),
-    note: String(record.note ?? ""),
+    note: parsedNote.rawNote || String(record.note ?? ""),
     updatedAt: String(record.updated_at ?? ""),
   };
 }
@@ -86,6 +97,8 @@ function mapTask(record: Record<string, unknown>): AdminTaskSearchItem {
 function mapTaskType(record: Record<string, unknown>): AdminTaskTypeItem {
   return {
     id: String(record.id ?? ""),
+    legacyTypeNum:
+      record.legacy_type_num == null || record.legacy_type_num === "" ? null : Number(record.legacy_type_num),
     type1: String(record.type1 ?? ""),
     type2: String(record.type2 ?? ""),
     displayLabel: String(record.display_label ?? `${record.type1 ?? ""} / ${record.type2 ?? ""}`),
@@ -95,10 +108,56 @@ function mapTaskType(record: Record<string, unknown>): AdminTaskTypeItem {
   };
 }
 
+function splitServiceName(name: string) {
+  const normalized = String(name ?? "").trim();
+  if (!normalized) {
+    return { svcGroup: "", svcName: "" };
+  }
+
+  const [group, ...rest] = normalized.split(" / ");
+  if (rest.length === 0) {
+    return { svcGroup: normalized, svcName: normalized };
+  }
+
+  return {
+    svcGroup: group.trim(),
+    svcName: rest.join(" / ").trim(),
+  };
+}
+
+function composeServiceName(serviceGroup: string, serviceName: string) {
+  const normalizedGroup = serviceGroup.trim();
+  const normalizedName = serviceName.trim();
+
+  if (!normalizedGroup && !normalizedName) {
+    return "";
+  }
+  if (!normalizedGroup) {
+    return normalizedName;
+  }
+  if (!normalizedName) {
+    return normalizedGroup;
+  }
+  return `${normalizedGroup} / ${normalizedName}`;
+}
+
 function mapServiceGroup(record: Record<string, unknown>): AdminServiceGroupItem {
+  const name = String(record.name ?? "");
+  const parts = splitServiceName(name);
+
   return {
     id: String(record.id ?? ""),
-    name: String(record.name ?? ""),
+    legacySvcNum: record.legacy_svc_num == null || record.legacy_svc_num === "" ? null : Number(record.legacy_svc_num),
+    name,
+    svcGroup: parts.svcGroup,
+    svcName: parts.svcName,
+    svcType:
+      typeof record.svc_type === "number"
+        ? Number(record.svc_type)
+        : typeof record.display_order === "number" && Number(record.display_order) >= 1 && Number(record.display_order) <= 3
+          ? Number(record.display_order)
+          : 3,
+    svcActive: Boolean(record.svc_active ?? record.is_active ?? true),
     displayOrder: Number(record.display_order ?? 0),
     isActive: Boolean(record.is_active ?? true),
   };
@@ -135,6 +194,8 @@ function mapMember(record: Record<string, unknown>): MemberAdminItem {
     isActive: active,
     authEmail: String(record.auth_email ?? record.email ?? ""),
     queueReasons,
+    joinedAt: String(record.joined_at ?? record.created_at ?? ""),
+    lastLoginAt: String(record.last_login_at ?? ""),
     updatedAt: String(record.updated_at ?? ""),
   };
 }
@@ -142,8 +203,8 @@ function mapMember(record: Record<string, unknown>): MemberAdminItem {
 async function loadAdminReferenceMaps(supabase: NonNullable<ReturnType<typeof getSupabaseClient>>) {
   const [membersResult, projectsResult, pagesResult, serviceGroupsResult] = await Promise.all([
     supabase.from("members").select("id, name, email"),
-    supabase.from("projects").select("id, name, service_group_id"),
-    supabase.from("project_pages").select("id, project_id, title"),
+    supabase.from("projects").select("id, name, platform, service_group_id"),
+    supabase.from("project_pages").select("id, project_id, title, url"),
     supabase.from("service_groups").select("id, name"),
   ]);
 
@@ -180,10 +241,13 @@ function enrichTaskRecords(
       ...record,
       member_name: member?.name ?? "",
       member_email: member?.email ?? "",
+      platform: project?.platform ?? "",
       project_name: project?.name ?? "",
       page_title: page?.title ?? "",
+      page_url: page?.url ?? "",
       service_group_id: serviceGroupId,
-      service_group_name: serviceGroup?.name ?? "",
+      service_group_name: serviceGroup?.svcGroup ?? "",
+      service_name: serviceGroup?.svcName ?? "",
     });
   });
 }
@@ -203,6 +267,9 @@ function filterAdminTasks(items: AdminTaskSearchItem[], filters: AdminTaskSearch
         item.memberEmail,
         item.projectName,
         item.pageTitle,
+        item.pageUrl,
+        item.platform,
+        item.serviceName,
         item.taskType1,
         item.taskType2,
         item.content,
@@ -302,6 +369,9 @@ function createUnconfiguredAdminClient(): AdminDataClient {
     async searchTasksAdmin() {
       return [] as AdminTaskSearchItem[];
     },
+    async getTaskAdmin() {
+      throw configurationError;
+    },
     async saveTaskAdmin() {
       throw configurationError;
     },
@@ -361,7 +431,7 @@ function createSupabaseAdminClient(): AdminDataClient {
     async listServiceGroups() {
       const { data, error } = await supabase
         .from("service_groups")
-        .select("id, name, display_order, is_active")
+        .select("id, legacy_svc_num, name, display_order, is_active")
         .order("display_order");
       if (error) throw error;
       return (data ?? []).map((record) => mapServiceGroup(record as Record<string, unknown>));
@@ -370,7 +440,7 @@ function createSupabaseAdminClient(): AdminDataClient {
     async listProjects() {
       const { data, error } = await supabase
         .from("projects")
-        .select("id, name, service_group_id, is_active")
+        .select("id, name, project_type1, platform, service_group_id, report_url, is_active")
         .order("name");
       if (error) throw error;
       return (data ?? []).map((record) => mapProject(record as Record<string, unknown>));
@@ -379,7 +449,7 @@ function createSupabaseAdminClient(): AdminDataClient {
     async listProjectPages() {
       const { data, error } = await supabase
         .from("project_pages")
-        .select("id, project_id, title, track_status, monitoring_in_progress, qa_in_progress")
+        .select("id, project_id, title, url, track_status, monitoring_in_progress, qa_in_progress")
         .order("updated_at", { ascending: false });
       if (error) throw error;
       return (data ?? []).map((record) => mapPage(record as Record<string, unknown>));
@@ -387,6 +457,10 @@ function createSupabaseAdminClient(): AdminDataClient {
 
     async searchTasksAdmin(filters: AdminTaskSearchFilters) {
       return fetchAdminTasks(supabase, filters);
+    },
+
+    async getTaskAdmin(taskId: string) {
+      return fetchAdminTaskById(supabase, taskId);
     },
 
     async saveTaskAdmin(input: AdminTaskSaveInput) {
@@ -426,7 +500,7 @@ function createSupabaseAdminClient(): AdminDataClient {
     async listMembersAdmin() {
       const { data, error } = await supabase
         .from("members")
-        .select("id, auth_user_id, legacy_user_id, name, email, user_level, user_active, updated_at")
+        .select("id, auth_user_id, legacy_user_id, name, email, user_level, user_active, joined_at, updated_at")
         .order("legacy_user_id");
       if (error) throw error;
       return (data ?? []).map((record) => mapMember(record as Record<string, unknown>));
@@ -447,7 +521,7 @@ function createSupabaseAdminClient(): AdminDataClient {
           .from("members")
           .update(record)
           .eq("id", payload.id)
-          .select("id, auth_user_id, legacy_user_id, name, email, user_level, user_active, updated_at")
+          .select("id, auth_user_id, legacy_user_id, name, email, user_level, user_active, joined_at, updated_at")
           .single();
         if (error) throw error;
         return mapMember(data as Record<string, unknown>);
@@ -456,7 +530,7 @@ function createSupabaseAdminClient(): AdminDataClient {
       const { data, error } = await supabase
         .from("members")
         .insert(record)
-        .select("id, auth_user_id, legacy_user_id, name, email, user_level, user_active, updated_at")
+        .select("id, auth_user_id, legacy_user_id, name, email, user_level, user_active, joined_at, updated_at")
         .single();
       if (error) throw error;
       return mapMember(data as Record<string, unknown>);
@@ -485,6 +559,7 @@ function createSupabaseAdminClient(): AdminDataClient {
         .upsert(
           {
             id: payload.id ?? undefined,
+            legacy_type_num: payload.legacyTypeNum ?? null,
             type1: payload.type1,
             type2: payload.type2,
             display_label: payload.displayLabel,
@@ -494,7 +569,7 @@ function createSupabaseAdminClient(): AdminDataClient {
           },
           { onConflict: "id" },
         )
-        .select("id, type1, type2, display_label, display_order, requires_service_group, is_active")
+        .select("id, legacy_type_num, type1, type2, display_label, display_order, requires_service_group, is_active")
         .single();
       if (error) throw error;
       return mapTaskType(data as Record<string, unknown>);
@@ -519,18 +594,20 @@ function createSupabaseAdminClient(): AdminDataClient {
     },
 
     async saveServiceGroupAdmin(payload: AdminServiceGroupPayload) {
+      const name = composeServiceName(payload.svcGroup, payload.svcName) || payload.name;
       const { data, error } = await supabase
         .from("service_groups")
         .upsert(
           {
             id: payload.id ?? undefined,
-            name: payload.name,
+            legacy_svc_num: payload.legacySvcNum ?? null,
+            name,
             display_order: payload.displayOrder,
-            is_active: payload.isActive,
+            is_active: payload.svcActive ?? payload.isActive,
           },
           { onConflict: "id" },
         )
-        .select("id, name, display_order, is_active")
+        .select("id, legacy_svc_num, name, display_order, is_active")
         .single();
       if (error) throw error;
       return mapServiceGroup(data as Record<string, unknown>);

@@ -2,7 +2,7 @@
 
 사용 파일:
 - MySQL dump: [/Users/gio.a/Documents/workspace/next/php-operation_tool/db_a11yop_2512041025.sql](/Users/gio.a/Documents/workspace/next/php-operation_tool/db_a11yop_2512041025.sql)
-- Supabase 앱 스키마: [/Users/gio.a/Documents/workspace/next/my-works/supabase/migrations/20260324_000001_initial_ops_schema.sql](/Users/gio.a/Documents/workspace/next/my-works/supabase/migrations/20260324_000001_initial_ops_schema.sql)
+- Supabase 앱 스키마: [/Users/gio.a/Documents/workspace/next/my-works/supabase/migrations/000_initial_ops_schema.sql](/Users/gio.a/Documents/workspace/next/my-works/supabase/migrations/000_initial_ops_schema.sql)
 - Supabase staging 생성: [/Users/gio.a/Documents/workspace/next/my-works/supabase/sql/001_legacy_stage_schema.sql](/Users/gio.a/Documents/workspace/next/my-works/supabase/sql/001_legacy_stage_schema.sql)
 - Supabase 변환 적재: [/Users/gio.a/Documents/workspace/next/my-works/supabase/sql/002_legacy_migrate.sql](/Users/gio.a/Documents/workspace/next/my-works/supabase/sql/002_legacy_migrate.sql)
 - Supabase 검증: [/Users/gio.a/Documents/workspace/next/my-works/supabase/sql/003_legacy_verify.sql](/Users/gio.a/Documents/workspace/next/my-works/supabase/sql/003_legacy_verify.sql)
@@ -42,7 +42,7 @@ mysql -u <MYSQL_USER> -p <MYSQL_DB> < /Users/gio.a/Documents/workspace/next/php-
 ## 2. Supabase/Postgres에서 할 일
 
 1. 새 DB 또는 비어 있는 대상 DB에 앱 기본 스키마를 적용한다.
-- [/Users/gio.a/Documents/workspace/next/my-works/supabase/migrations/20260324_000001_initial_ops_schema.sql](/Users/gio.a/Documents/workspace/next/my-works/supabase/migrations/20260324_000001_initial_ops_schema.sql)
+- [/Users/gio.a/Documents/workspace/next/my-works/supabase/migrations/000_initial_ops_schema.sql](/Users/gio.a/Documents/workspace/next/my-works/supabase/migrations/000_initial_ops_schema.sql)
 - 이 단계에 `members_public_view`, `active_members_public_view`, `project_pages_public_view`, `bind_auth_session_member(...)`, `admin_search_tasks(...)`, `upsert_project_page(...)` 보정이 포함된다.
 
 2. staging/xref 스키마를 만든다.
@@ -103,7 +103,7 @@ mysql -u <MYSQL_USER> -p <MYSQL_DB> < /Users/gio.a/Documents/workspace/next/php-
 
 1. MySQL에 dump 복원
 2. MySQL 6개 테이블 CSV export
-3. Supabase에 `20260324_000001_initial_ops_schema.sql` 적용
+3. Supabase에 `000_initial_ops_schema.sql` 적용
 4. Supabase에 `001_legacy_stage_schema.sql` 적용
 5. Supabase `legacy_stage.*`에 CSV import
 6. Supabase에 `002_legacy_migrate.sql` 실행

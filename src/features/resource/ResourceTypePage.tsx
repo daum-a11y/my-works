@@ -1,49 +1,71 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { PageSection } from "../../components/ui/PageSection";
-import { createHoursLabel, filterTasksByMonth, shiftMonth, useResourceDataset, useResourceFilters } from "./resource-shared";
+import { countWorkingDays, formatMm, useResourceDataset } from "./resource-shared";
 import styles from "./ResourcePage.module.css";
 
 export function ResourceTypePage() {
   const query = useResourceDataset();
   const data = query.data;
-  const filters = useResourceFilters(data?.member.id);
+  const [fold, setFold] = useState(false);
+
+  useEffect(() => {
+    document.title = "요약 - 투입리소스 | My Works";
+  }, []);
 
   const rows = useMemo(() => {
-    const monthTasks = filterTasksByMonth(data?.tasks ?? [], filters.selectedMonth);
-    const source = data?.member.role === "admin"
-      ? monthTasks
-      : monthTasks.filter((task) => task.memberId === data?.member.id);
-
-    const grouped = new Map<string, { type1: string; type2: string; count: number; totalHours: number }>();
-    for (const task of source) {
-      const key = `${task.taskType1}::${task.taskType2}`;
-      const current = grouped.get(key) ?? {
-        type1: task.taskType1,
-        type2: task.taskType2,
-        count: 0,
-        totalHours: 0,
-      };
-      current.count += 1;
-      current.totalHours += task.hours;
-      grouped.set(key, current);
+    if (!data) {
+      return [];
     }
 
-    return Array.from(grouped.values()).sort((left, right) => right.totalHours - left.totalHours);
-  }, [data, filters.selectedMonth]);
+    const source = data.member.role === "admin" ? data.tasks : data.tasks.filter((task) => task.memberId === data.member.id);
+    const grouped = new Map<string, Map<string, number>>();
+
+    for (const task of source) {
+      const month = task.taskDate.slice(0, 7);
+      const key = `${task.taskType1} / ${task.taskType2}`;
+      const monthMap = grouped.get(month) ?? new Map<string, number>();
+      monthMap.set(key, (monthMap.get(key) ?? 0) + Math.round(task.hours));
+      grouped.set(month, monthMap);
+    }
+
+    const years = new Map<
+      string,
+      Array<{
+        month: string;
+        workingDays: number;
+        totalMinutes: number;
+        items: Array<{ type: string; minutes: number }>;
+      }>
+    >();
+
+    for (const [month, types] of Array.from(grouped.entries()).sort(([left], [right]) => left.localeCompare(right))) {
+      const year = month.slice(0, 4);
+      const months = years.get(year) ?? [];
+      months.push({
+        month: month.slice(5, 7),
+        workingDays: countWorkingDays(month),
+        totalMinutes: Array.from(types.values()).reduce((sum, value) => sum + value, 0),
+        items: Array.from(types.entries())
+          .sort(([left], [right]) => left.localeCompare(right))
+          .map(([type, minutes]) => ({ type, minutes })),
+      });
+      years.set(year, months);
+    }
+
+    return Array.from(years.entries()).map(([year, months]) => ({
+      year,
+      yearTotalMinutes: months.reduce((sum, month) => sum + month.totalMinutes, 0),
+      detailRowCount: months.reduce((sum, month) => sum + month.items.length + 1, 0),
+      foldRowCount: months.length + 1,
+      months,
+    }));
+  }, [data]);
 
   return (
-    <PageSection title="타입별 요약">
-      <div className={styles.toolbar}>
-        <button type="button" onClick={() => filters.setSelectedMonth(shiftMonth(filters.selectedMonth, -1))}>
-          이전달
-        </button>
-        <input
-          type="month"
-          value={filters.selectedMonth}
-          onChange={(event) => filters.setSelectedMonth(event.target.value)}
-        />
-        <button type="button" onClick={() => filters.setSelectedMonth(shiftMonth(filters.selectedMonth, 1))}>
-          다음달
+    <PageSection title="전체 기간">
+      <div className={styles.tableActionRow}>
+        <button type="button" onClick={() => setFold((current) => !current)}>
+          {fold ? "펼치기" : "접기"}
         </button>
       </div>
 
@@ -51,29 +73,108 @@ export function ResourceTypePage() {
         <table className={styles.table}>
           <thead>
             <tr>
-              <th>업무유형 1</th>
-              <th>업무유형 2</th>
-              <th>건수</th>
-              <th>총시간</th>
+              <th>year</th>
+              <th>month</th>
+              <th>type</th>
+              <th>MM</th>
             </tr>
           </thead>
           <tbody>
             {rows.map((row) => (
-              <tr key={`${row.type1}-${row.type2}`}>
-                <td>{row.type1}</td>
-                <td>{row.type2}</td>
-                <td>{row.count}</td>
-                <td>{createHoursLabel(row.totalHours)}</td>
-              </tr>
+              <TypeYearRows key={row.year} row={row} fold={fold} />
             ))}
             {!rows.length ? (
               <tr>
-                <td colSpan={4} className={styles.empty}>표시할 타입별 집계가 없습니다.</td>
+                <td colSpan={4} className={styles.empty}>
+                  표시할 타입별 집계가 없습니다.
+                </td>
               </tr>
             ) : null}
           </tbody>
         </table>
       </div>
     </PageSection>
+  );
+}
+
+function TypeYearRows({
+  row,
+  fold,
+}: {
+  row: {
+    year: string;
+    yearTotalMinutes: number;
+    detailRowCount: number;
+    foldRowCount: number;
+    months: Array<{ month: string; totalMinutes: number; workingDays: number; items: Array<{ type: string; minutes: number }> }>;
+  };
+  fold: boolean;
+}) {
+  if (fold) {
+    return (
+      <>
+        {row.months.map((month, monthIndex) => (
+          <tr key={`${row.year}-${month.month}-sum`} className={styles.summaryStrongRow}>
+            {monthIndex === 0 ? <td rowSpan={row.foldRowCount}>{row.year}년</td> : null}
+            <td>{month.month}월</td>
+            <td>전체</td>
+            <td>{formatMm(month.totalMinutes, month.workingDays)}</td>
+          </tr>
+        ))}
+        <tr className={styles.summaryStrongRow}>
+          <td>합계</td>
+          <td>전체</td>
+          <td>{formatMm(row.yearTotalMinutes, 21.73)}</td>
+        </tr>
+      </>
+    );
+  }
+
+  return (
+    <>
+      {row.months.map((month, monthIndex) => (
+        <MonthDetailRows
+          key={`${row.year}-${month.month}`}
+          year={row.year}
+          month={month}
+          showYear={monthIndex === 0}
+          yearRowSpan={row.detailRowCount}
+        />
+      ))}
+      <tr className={styles.summaryStrongRow}>
+        <td>{row.year}년</td>
+        <td>합계</td>
+        <td>{formatMm(row.yearTotalMinutes, 21.73)}</td>
+      </tr>
+    </>
+  );
+}
+
+function MonthDetailRows({
+  year,
+  month,
+  showYear,
+  yearRowSpan,
+}: {
+  year: string;
+  month: { month: string; totalMinutes: number; workingDays: number; items: Array<{ type: string; minutes: number }> };
+  showYear: boolean;
+  yearRowSpan: number;
+}) {
+  return (
+    <>
+      {month.items.map((item, index) => (
+        <tr key={`${year}-${month.month}-${item.type}`}>
+          {showYear && index === 0 ? <td rowSpan={yearRowSpan}>{year}년</td> : null}
+          {index === 0 ? <td rowSpan={month.items.length}>{month.month}월</td> : null}
+          <td>{item.type}</td>
+          <td>{formatMm(item.minutes, month.workingDays)}</td>
+        </tr>
+      ))}
+      <tr className={styles.summaryStrongRow}>
+        <td>{month.month}월 합계</td>
+        <td>{formatMm(month.totalMinutes, month.workingDays)}</td>
+      </tr>
+    </>
   );
 }

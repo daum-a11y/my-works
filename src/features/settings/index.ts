@@ -1,1 +1,1 @@
-export { PasswordSettingsPage } from "./PasswordSettingsPage";
+export { UserProfilePage } from "./UserProfilePage";

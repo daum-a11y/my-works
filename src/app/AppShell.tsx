@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { 
   LayoutDashboard, 
@@ -8,10 +8,7 @@ import {
   Search,
   Shield,
   BarChart3,
-  Settings,
-  LogOut,
-  ChevronRight,
-  Users
+  ChevronRight
 } from "lucide-react";
 import { useAuth } from "../features/auth/AuthContext";
 import styles from "./AppShell.module.css";
@@ -23,7 +20,7 @@ type NavigationItem = {
 };
 
 const baseNavigation = [
-  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/dashboard", label: "대시보드", icon: LayoutDashboard },
   { to: "/reports", label: "업무보고", icon: FileText },
   { to: "/projects", label: "프로젝트 관리", icon: Layers },
   { 
@@ -52,8 +49,9 @@ const adminNavigation = [
     label: "관리자 설정",
     icon: Shield,
     children: [
-      { to: "/admin/reports", label: "전체 업무 리스트" },
-      { to: "/admin/members", label: "사용자 계정 관리" },
+      { to: "/admin/summary", label: "관리자 요약" },
+      { to: "/admin/reports", label: "전체 업무검색" },
+      { to: "/admin/members", label: "사용자" },
       { to: "/admin/type", label: "업무 타입 관리" },
       { to: "/admin/group", label: "서비스그룹 관리" },
     ],
@@ -68,6 +66,8 @@ export function AppShell() {
   const location = useLocation();
   const { session, logout } = useAuth();
   const isAdmin = session?.member.role === "admin";
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [logoutError, setLogoutError] = useState<string>("");
 
   const navigation = useMemo(
     () => (isAdmin ? [...baseNavigation, ...adminNavigation] : [...baseNavigation]),
@@ -77,8 +77,8 @@ export function AppShell() {
   const breadcrumbs = useMemo(() => {
     const parts = [{ label: "My Works", to: "/dashboard" }];
     
-    if (location.pathname === "/settings/password") {
-      parts.push({ label: "비밀번호 변경", to: "/settings/password" });
+    if (location.pathname === "/profile" || location.pathname === "/password-change") {
+      parts.push({ label: "프로필", to: "/profile" });
       return parts;
     }
 
@@ -101,6 +101,23 @@ export function AppShell() {
 
     return parts;
   }, [location.pathname, navigation]);
+
+  async function handleLogout() {
+    if (isLoggingOut) {
+      return;
+    }
+
+    setIsLoggingOut(true);
+    setLogoutError("");
+
+    try {
+      await logout();
+    } catch (error) {
+      setLogoutError(error instanceof Error ? error.message : "로그아웃에 실패했습니다.");
+    } finally {
+      setIsLoggingOut(false);
+    }
+  }
 
   return (
     <>
@@ -169,27 +186,46 @@ export function AppShell() {
             </div>
             <div className={styles.headerMeta}>
               <div className={styles.profile}>
-                <div className={styles.profileIcon}><Users size={16} /></div>
+                <div className={styles.profileIcon}>
+                  {(session?.member?.legacyUserId || session?.member?.name || "").slice(0, 2)}
+                </div>
                 <div className={styles.profileInfo}>
                   <strong>{session?.member.name}</strong>
                   <span>{session?.member.legacyUserId}</span>
                 </div>
               </div>
-              <NavLink
-                to="/settings/password"
-                className={({ isActive }) => (isActive ? styles.headerActionActive : styles.headerAction)}
-                title="계정 설정"
-              >
-                <Settings size={18} />
-              </NavLink>
-              <button 
-                type="button" 
-                className={styles.headerButton} 
-                onClick={() => void logout()}
-                title="로그아웃"
-              >
-                <LogOut size={18} />
-              </button>
+              <div className={styles.headerActions}>
+                <NavLink
+                  to="/profile"
+                  className={({ isActive }) => (isActive ? styles.headerActionActive : styles.headerAction)}
+                  title="프로필"
+                  aria-label="프로필"
+                >
+                  <span className={styles.headerActionContent}>
+                    <span className={styles.headerActionLabel}>프로필</span>
+                  </span>
+                </NavLink>
+                <button 
+                  type="button" 
+                  className={`${styles.headerButton} ${styles.headerButtonDanger}`}
+                  onClick={() => void handleLogout()}
+                  aria-label="로그아웃"
+                  title="로그아웃"
+                  disabled={isLoggingOut}
+                  aria-busy={isLoggingOut || undefined}
+                >
+                  <span className={styles.headerActionContent}>
+                    <span className={styles.headerActionLabel}>
+                      {isLoggingOut ? "로그아웃 중…" : "로그아웃"}
+                    </span>
+                  </span>
+                </button>
+              </div>
+              {logoutError ? (
+                <p className={styles.headerStatus} role="alert" aria-live="polite">
+                  {logoutError}
+                </p>
+              ) : null}
             </div>
           </header>
 

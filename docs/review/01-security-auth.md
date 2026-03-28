@@ -11,12 +11,12 @@
 - 잔여: 현재 비밀번호 입력 UI가 실제 재인증을 수행하지 않음
 
 주의:
-- SQL 권한 수정은 현재 `my-works/supabase/migrations/20260324_000001_initial_ops_schema.sql`에 포함돼 있습니다.
+- SQL 권한 수정은 현재 `my-works/supabase/migrations/000_initial_ops_schema.sql`에 포함돼 있습니다.
 
 ## 1. 해결됨: `P0` 일반 사용자가 자기 행을 수정해 관리자 권한을 획득할 수 있던 문제
 
 근거:
-- `my-works/supabase/migrations/20260324_000001_initial_ops_schema.sql`
+- `my-works/supabase/migrations/000_initial_ops_schema.sql`
 
 조치:
 - `members_self_update` 정책을 제거했습니다.
@@ -35,7 +35,7 @@
 ## 3. 해결됨: `P2` `upsert_project_page`가 기존 프로젝트 연결 권한을 검증하지 않던 문제
 
 근거:
-- `my-works/supabase/migrations/20260324_000001_initial_ops_schema.sql`
+- `my-works/supabase/migrations/000_initial_ops_schema.sql`
 
 조치:
 - 대상 프로젝트의 생성자/담당자/관리자만 페이지를 추가할 수 있게 함수 내부 검증을 넣었습니다.
@@ -44,7 +44,7 @@
 
 근거:
 - `my-works/src/features/admin/admin-client.ts`
-- `my-works/supabase/migrations/20260324_000001_initial_ops_schema.sql`
+- `my-works/supabase/migrations/000_initial_ops_schema.sql`
 
 조치:
 - `members`, `task_types`, `service_groups`에 관리자 전용 `insert/update/delete` 정책을 추가했습니다.
@@ -53,7 +53,7 @@
 
 근거:
 - `my-works/src/features/profile/ProfilePage.tsx`
-- `my-works/src/features/settings/PasswordSettingsPage.tsx`
+- `my-works/src/features/settings/UserProfilePage.tsx`
 - `my-works/src/features/auth/AuthContext.tsx`
 
 설명:
@@ -64,7 +64,7 @@
 
 근거:
 - `my-works/supabase/functions/export-tasks/index.ts`
-- `my-works/supabase/migrations/20260324_000001_initial_ops_schema.sql`
+- `my-works/supabase/migrations/000_initial_ops_schema.sql`
 
 조치:
 - Edge Function이 `user_active`를 읽도록 수정했습니다.
@@ -73,7 +73,7 @@
 ## 7. 해결됨: `P2` `current_user_is_admin()`의 RLS 재귀 의존 위험
 
 근거:
-- `my-works/supabase/migrations/20260324_000001_initial_ops_schema.sql`
+- `my-works/supabase/migrations/000_initial_ops_schema.sql`
 
 조치:
 - `current_member_id()`, `current_user_is_admin()`를 `security definer` helper로 재정의했습니다.

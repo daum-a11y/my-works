@@ -1,0 +1,240 @@
+.page {
+  display: grid;
+  gap: 1rem;
+}
+
+.hero,
+.panel {
+  border: 1px solid var(--border-default);
+  background: var(--surface-panel);
+}
+
+.hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.1rem;
+}
+
+.eyebrow {
+  margin: 0 0 0.2rem;
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.hero h1 {
+  margin: 0;
+  font-size: 1.35rem;
+  line-height: 1.2;
+}
+
+.summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-secondary);
+  font-size: 0.92rem;
+}
+
+.summary strong {
+  color: var(--text-primary);
+  font-size: 1rem;
+}
+
+.panel {
+  display: grid;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.panelHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.panelHeader h2 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.subText,
+.helperText {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.actions,
+.rowActions,
+.footerActions,
+.dateActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.primaryButton {
+  border-color: #2e7d32;
+  background: #2e7d32;
+  color: #fff;
+}
+
+.secondaryButton {
+  border-color: var(--border-default);
+  background: transparent;
+}
+
+.filtersGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem;
+}
+
+.field {
+  display: grid;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.field label {
+  color: var(--text-primary);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.field input,
+.field select,
+.cellInput input,
+.cellInput select {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid var(--border-default);
+  background: #fff;
+  color: var(--text-primary);
+  padding: 0.55rem 0.7rem;
+  font: inherit;
+}
+
+.field input:focus,
+.field select:focus,
+.cellInput input:focus,
+.cellInput select:focus {
+  outline: 2px solid rgba(46, 125, 50, 0.25);
+  outline-offset: 1px;
+}
+
+.checkboxAll {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--text-primary);
+}
+
+.memberCheckboxes {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem 0.8rem;
+}
+
+.memberCheckbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.tableWrap {
+  overflow: auto;
+  border: 1px solid var(--border-default);
+}
+
+.table {
+  width: 100%;
+  min-width: 1120px;
+  border-collapse: collapse;
+  background: #fff;
+}
+
+.table th,
+.table td {
+  border-bottom: 1px solid var(--border-default);
+  padding: 0.65rem 0.7rem;
+  vertical-align: top;
+  text-align: left;
+  font-size: 0.92rem;
+}
+
+.table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #f9fafb;
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.emptyState {
+  padding: 2rem 1rem;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.muted {
+  margin-top: 0.2rem;
+  color: var(--text-secondary);
+  font-size: 0.84rem;
+}
+
+.cellInput {
+  padding: 0.35rem 0.35rem;
+}
+
+.editingRow,
+.createRow {
+  background: #fff9f1;
+}
+
+.sortButton,
+.sortButtonActive {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font: inherit;
+  font-weight: 700;
+  color: inherit;
+}
+
+.sortButtonActive {
+  color: #2e7d32;
+}
+
+.sortArrow {
+  font-size: 0.78rem;
+}
+
+.footerActions {
+  justify-content: flex-end;
+}
+
+@media (max-width: 900px) {
+  .hero,
+  .panelHeader {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filtersGrid {
+    grid-template-columns: 1fr;
+  }
+}

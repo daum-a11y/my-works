@@ -17,6 +17,49 @@ import {
 } from "./domain";
 import { getToday, sortStatus } from "./utils";
 
+function monthKeyFromMonitoringMonth(value: string): string {
+  const digits = value.replace(/\D/g, "");
+  if (digits.length === 4) {
+    return `20${digits.slice(0, 2)}-${digits.slice(2, 4)}`;
+  }
+  return "";
+}
+
+function hasAgitDate(note: string) {
+  return /agit_date:\s*\d{4}-\d{2}-\d{2}/.test(note);
+}
+
+function getCurrentMonthKey(reference = new Date()) {
+  return `${reference.getFullYear()}-${String(reference.getMonth() + 1).padStart(2, "0")}`;
+}
+
+function getPreviousMonthKey(reference = new Date()) {
+  const previous = new Date(reference.getFullYear(), reference.getMonth() - 1, 1);
+  return `${previous.getFullYear()}-${String(previous.getMonth() + 1).padStart(2, "0")}`;
+}
+
+function isDashboardMonitoringPage(page: ProjectPage, reference = new Date()) {
+  const monthKey = monthKeyFromMonitoringMonth(page.monitoringMonth);
+  if (!monthKey) {
+    return false;
+  }
+
+  return (
+    (monthKey === getCurrentMonthKey(reference) || monthKey === getPreviousMonthKey(reference)) &&
+    !hasAgitDate(page.note) &&
+    page.trackStatus !== "중지"
+  );
+}
+
+function isDashboardQaPage(page: ProjectPage, project: Project | undefined, reference = new Date()) {
+  if (!project) {
+    return false;
+  }
+
+  const today = reference.toISOString().slice(0, 10);
+  return project.startDate <= today && project.endDate > today;
+}
+
 export interface OpsDataClient {
   mode: "supabase" | "unconfigured";
   getMembers(): Promise<Member[]>;
@@ -63,20 +106,21 @@ function buildDashboard(store: OpsStore): DashboardSnapshot {
       statusLabel: page.trackStatus,
       detail: page.note,
       reportUrl: project?.reportUrl ?? "",
-      dueDate: page.qaInProgress ? project?.endDate ?? null : null,
+      dueDate: project?.endDate ?? null,
     };
   };
 
   return {
-    monitoring: pages.filter((page) => page.monitoringInProgress).map(toItem),
-    qa: pages.filter((page) => page.qaInProgress).map(toItem),
+    monitoring: pages.filter((page) => isDashboardMonitoringPage(page)).map(toItem),
+    qa: pages.filter((page) => isDashboardQaPage(page, projectsById.get(page.projectId))).map(toItem),
   };
 }
 
-function buildStats(store: Pick<OpsStore, "projectPages" | "tasks">): StatsSnapshot {
+function buildStats(store: Pick<OpsStore, "projectPages" | "projects" | "tasks">): StatsSnapshot {
   const totalHours = store.tasks.reduce((sum, task) => sum + task.hours, 0);
   const statusMap = new Map<string, number>();
   const typeMap = new Map<string, number>();
+  const projectsById = new Map(store.projects.map((project) => [project.id, project] as const));
 
   for (const page of store.projectPages) {
     statusMap.set(page.trackStatus, (statusMap.get(page.trackStatus) ?? 0) + 1);
@@ -89,8 +133,8 @@ function buildStats(store: Pick<OpsStore, "projectPages" | "tasks">): StatsSnaps
   return {
     totalHours,
     totalTasks: store.tasks.length,
-    monitoringInProgress: store.projectPages.filter((page) => page.monitoringInProgress).length,
-    qaInProgress: store.projectPages.filter((page) => page.qaInProgress).length,
+    monitoringInProgress: store.projectPages.filter((page) => isDashboardMonitoringPage(page)).length,
+    qaInProgress: store.projectPages.filter((page) => isDashboardQaPage(page, projectsById.get(page.projectId))).length,
     statusBreakdown: Array.from(statusMap.entries()).map(([status, count]) => ({
       status: status as StatsSnapshot["statusBreakdown"][number]["status"],
       count,
@@ -131,6 +175,8 @@ function buildTaskSearchText(
 
 function createSupabaseClient(): OpsDataClient {
   const supabase = requireData(getSupabaseClient(), "Supabase is not configured.");
+  const taskSelectColumns =
+    "id, legacy_task_id, member_id, task_date, project_id, project_page_id, task_type1, task_type2, hours, content, note, created_at, updated_at";
 
   return {
     mode: "supabase",
@@ -250,14 +296,14 @@ function createSupabaseClient(): OpsDataClient {
     async getTasks(member) {
       const { data, error } = await supabase
         .from("tasks")
-        .select("*")
+        .select(taskSelectColumns)
         .eq("member_id", member.id)
         .order("task_date", { ascending: false });
       if (error) throw error;
       return (data ?? []).map(mapTaskRecord);
     },
     async getAllTasks(member) {
-      let query = supabase.from("tasks").select("*").order("task_date", { ascending: false });
+      let query = supabase.from("tasks").select(taskSelectColumns).order("task_date", { ascending: false });
       if (member.role !== "admin") {
         query = query.eq("member_id", member.id);
       }
@@ -294,7 +340,11 @@ function createSupabaseClient(): OpsDataClient {
       if (error) throw error;
     },
     async searchTasks(member, filters) {
-      let query = supabase.from("tasks").select("*").eq("member_id", member.id).order("task_date", { ascending: false });
+      let query = supabase
+        .from("tasks")
+        .select(taskSelectColumns)
+        .eq("member_id", member.id)
+        .order("task_date", { ascending: false });
       if (filters.startDate) query = query.gte("task_date", filters.startDate);
       if (filters.endDate) query = query.lte("task_date", filters.endDate);
       if (filters.projectId) query = query.eq("project_id", filters.projectId);
@@ -342,14 +392,17 @@ function createSupabaseClient(): OpsDataClient {
       });
     },
     async getStats() {
-      const [{ data: pages, error: pagesError }, { data: tasks, error: tasksError }] = await Promise.all([
+      const [{ data: pages, error: pagesError }, { data: tasks, error: tasksError }, { data: projects, error: projectsError }] = await Promise.all([
         supabase.from("project_pages_public_view").select("*"),
-        supabase.from("tasks").select("*"),
+        supabase.from("tasks").select(taskSelectColumns),
+        supabase.from("projects").select("*"),
       ]);
       if (pagesError) throw pagesError;
       if (tasksError) throw tasksError;
+      if (projectsError) throw projectsError;
 
       return buildStats({
+        projects: (projects ?? []).map(mapProjectRecord),
         projectPages: (pages ?? []).map(mapProjectPageRecord),
         tasks: (tasks ?? []).map(mapTaskRecord),
       });
@@ -418,6 +471,7 @@ function mapTaskTypeRecord(record: Record<string, unknown>): TaskType {
     type2: String(record.type2 ?? ""),
     label: String(record.display_label ?? `${record.type1 ?? ""} / ${record.type2 ?? ""}`),
     displayOrder: Number(record.display_order ?? 0),
+    requiresServiceGroup: Boolean(record.requires_service_group ?? false),
   };
 }
 

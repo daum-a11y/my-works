@@ -415,6 +415,13 @@ where not exists (
   where pr.legacy_project_id = s.legacy_project_id
 );
 
+update public.projects pr
+set project_type1 = legacy_stage.blank_to_null(s.pj_group_type1),
+    updated_at = timezone('utc', now())
+from legacy_stage.pj_tbl s
+where pr.legacy_project_id = s.pj_num::text
+  and coalesce(pr.project_type1, '') <> coalesce(legacy_stage.blank_to_null(s.pj_group_type1), '');
+
 truncate table legacy_xref.projects;
 insert into legacy_xref.projects (legacy_project_num, project_id)
 select

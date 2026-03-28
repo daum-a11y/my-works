@@ -462,7 +462,7 @@
 - `my-works/apps/ops-web/src/features/admin/reports/AdminReportsPage.tsx`
 - `my-works/apps/ops-web/src/features/admin/admin-client.ts`
 - `my-works/apps/ops-web/src/lib/data-client.ts`
-- `my-works/supabase/migrations/20260324_000001_initial_ops_schema.sql`
+- `my-works/supabase/migrations/000_initial_ops_schema.sql`
 - `my-works/supabase/migrations/20260324_000002_admin_phase2.sql`
 - `my-works/supabase/functions/export-tasks/index.ts`
 
@@ -550,10 +550,10 @@
 - `my-works/apps/ops-web/src/features/auth/LoginPage.tsx`의 환경 미설정 시 필드/버튼 비활성 처리 추가
 
 #### 프로필/비밀번호
-- `my-works/apps/ops-web/src/features/settings/PasswordSettingsPage.tsx`의 별도 `/settings/password` 화면 추가
-- `my-works/apps/ops-web/src/features/settings/PasswordSettingsPage.tsx`의 `현재 비밀번호` 입력 필드 추가
-- `my-works/apps/ops-web/src/features/settings/PasswordSettingsPage.tsx`의 `새 비밀번호`, `비밀번호 확인` Zod 검증 추가
-- `my-works/apps/ops-web/src/features/settings/PasswordSettingsPage.tsx`의 화면 내 성공/실패 상태 메시지 추가
+- `my-works/apps/ops-web/src/features/settings/UserProfilePage.tsx`의 별도 `/settings/password` 화면 추가
+- `my-works/apps/ops-web/src/features/settings/UserProfilePage.tsx`의 `현재 비밀번호` 입력 필드 추가
+- `my-works/apps/ops-web/src/features/settings/UserProfilePage.tsx`의 `새 비밀번호`, `비밀번호 확인` Zod 검증 추가
+- `my-works/apps/ops-web/src/features/settings/UserProfilePage.tsx`의 화면 내 성공/실패 상태 메시지 추가
 
 #### 프로젝트 메인
 - `my-works/apps/ops-web/src/features/projects/ProjectsFeature.tsx`의 프로젝트 요약 카드(`총 프로젝트`, `총 페이지`, `진행 페이지`, `주의 페이지`) 추가

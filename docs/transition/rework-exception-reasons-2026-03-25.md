@@ -33,7 +33,7 @@
 - 현재 파일:
   - [reports-page.tsx](/Users/gio.a/Documents/workspace/next/my-works/apps/ops-web/src/features/reports/reports-page.tsx)
   - [data-client.ts](/Users/gio.a/Documents/workspace/next/my-works/apps/ops-web/src/lib/data-client.ts)
-  - [20260324_000001_initial_ops_schema.sql](/Users/gio.a/Documents/workspace/next/my-works/supabase/migrations/20260324_000001_initial_ops_schema.sql)
+  - [000_initial_ops_schema.sql](/Users/gio.a/Documents/workspace/next/my-works/supabase/migrations/000_initial_ops_schema.sql)
 - 사유:
   - 1차 DB 설계 변경 이후 `tasks -> projects/project_pages` 참조 무결성을 유지하려고 도입된 구조다.
   - 다만 현재는 이 구조 때문에 원본의 동적 입력 계약이 축소됐다.
@@ -81,7 +81,7 @@
 
 ### 4-1. `/settings/password`
 - 현재 파일:
-  - [PasswordSettingsPage.tsx](/Users/gio.a/Documents/workspace/next/my-works/apps/ops-web/src/features/settings/PasswordSettingsPage.tsx)
+  - [UserProfilePage.tsx](/Users/gio.a/Documents/workspace/next/my-works/apps/ops-web/src/features/settings/UserProfilePage.tsx)
 - 사유:
   - 현재 비밀번호 입력과 변경 검증 자체는 원본에도 있었다.
   - 다만 원본은 `/profile` 내 통합 흐름이었고, 현재는 별도 화면이다.

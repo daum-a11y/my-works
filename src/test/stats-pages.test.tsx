@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render, screen, waitFor } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { MonitoringStatsPage, QaStatsPage } from "../features/stats";
 
 const mockUseAuth = vi.hoisted(() => vi.fn());
@@ -34,6 +34,10 @@ vi.mock("../lib/data-client", () => ({
 }));
 
 describe("Stats pages", () => {
+  afterEach(() => {
+    cleanup();
+  });
+
   beforeEach(() => {
     mockUseAuth.mockReturnValue({
       status: "authenticated",
@@ -85,6 +89,21 @@ describe("Stats pages", () => {
         isActive: true,
       },
       {
+        id: "project-3",
+        legacyProjectId: "legacy-project-3",
+        createdByMemberId: null,
+        name: "과거 QA 대상",
+        projectType1: "QA",
+        platform: "Web",
+        serviceGroupId: null,
+        reportUrl: "",
+        reporterMemberId: "member-1",
+        reviewerMemberId: null,
+        startDate: "2025-07-01",
+        endDate: "2025-07-31",
+        isActive: true,
+      },
+      {
         id: "project-2",
         legacyProjectId: "legacy-project-2",
         createdByMemberId: null,
@@ -117,6 +136,20 @@ describe("Stats pages", () => {
       },
       {
         id: "page-2",
+        legacyPageId: "legacy-page-3",
+        projectId: "project-3",
+        title: "과거 모니터링 페이지",
+        url: "",
+        ownerMemberId: "member-1",
+        trackStatus: "미개선",
+        monitoringInProgress: false,
+        qaInProgress: false,
+        note: "",
+        monitoringMonth: "2507",
+        updatedAt: "2025-07-24T09:00:00.000Z",
+      },
+      {
+        id: "page-3",
         legacyPageId: "legacy-page-2",
         projectId: "project-2",
         title: "제외 페이지",
@@ -149,6 +182,38 @@ describe("Stats pages", () => {
     expect(screen.getByRole("heading", { name: "최근 월별 모니터링 통계" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "모니터링 통계 테이블" })).toBeInTheDocument();
     expect(screen.queryByText("제외 페이지")).not.toBeInTheDocument();
+    expect((screen.getByLabelText("모니터링 시작월") as HTMLInputElement).value).toBe("2025-10");
+    expect((screen.getByLabelText("모니터링 종료월") as HTMLInputElement).value).toBe("2026-03");
+  });
+
+  it("applies the monitoring period only after search is clicked", async () => {
+    const queryClient = new QueryClient();
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <MonitoringStatsPage />
+      </QueryClientProvider>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getAllByText("모니터링 페이지").length).toBeGreaterThan(0);
+    });
+
+    expect((screen.getByLabelText("모니터링 시작월") as HTMLInputElement).value).toBe("2025-10");
+    expect((screen.getByLabelText("모니터링 종료월") as HTMLInputElement).value).toBe("2026-03");
+
+    fireEvent.change(screen.getByLabelText("모니터링 시작월"), { target: { value: "2025-07" } });
+    fireEvent.change(screen.getByLabelText("모니터링 종료월"), { target: { value: "2025-07" } });
+
+    expect(screen.getByText("모니터링 페이지")).toBeInTheDocument();
+    expect(screen.queryByText("과거 모니터링 페이지")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "검색" }));
+
+    expect((screen.getByLabelText("모니터링 시작월") as HTMLInputElement).value).toBe("2025-07");
+    expect((screen.getByLabelText("모니터링 종료월") as HTMLInputElement).value).toBe("2025-07");
+    expect(screen.queryByText("모니터링 페이지")).not.toBeInTheDocument();
+    expect(screen.getByText("과거 모니터링 페이지")).toBeInTheDocument();
   });
 
   it("shows only QA projects by project type", async () => {
@@ -168,5 +233,37 @@ describe("Stats pages", () => {
     expect(screen.getByRole("heading", { name: "최근 월별 QA 통계" })).toBeInTheDocument();
     expect(screen.getAllByRole("heading", { name: "QA 목록" }).length).toBeGreaterThan(0);
     expect(screen.queryByText("제외 대상")).not.toBeInTheDocument();
+    expect((screen.getByLabelText("QA 시작월") as HTMLInputElement).value).toBe("2025-10");
+    expect((screen.getByLabelText("QA 종료월") as HTMLInputElement).value).toBe("2026-03");
+  });
+
+  it("applies the QA period only after search is clicked", async () => {
+    const queryClient = new QueryClient();
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <QaStatsPage />
+      </QueryClientProvider>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getAllByText("QA 대상").length).toBeGreaterThan(0);
+    });
+
+    expect((screen.getByLabelText("QA 시작월") as HTMLInputElement).value).toBe("2025-10");
+    expect((screen.getByLabelText("QA 종료월") as HTMLInputElement).value).toBe("2026-03");
+
+    fireEvent.change(screen.getByLabelText("QA 시작월"), { target: { value: "2025-07" } });
+    fireEvent.change(screen.getByLabelText("QA 종료월"), { target: { value: "2025-07" } });
+
+    expect(screen.getByText("QA 대상")).toBeInTheDocument();
+    expect(screen.queryByText("과거 QA 대상")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "검색" }));
+
+    expect((screen.getByLabelText("QA 시작월") as HTMLInputElement).value).toBe("2025-07");
+    expect((screen.getByLabelText("QA 종료월") as HTMLInputElement).value).toBe("2025-07");
+    expect(screen.queryByText("QA 대상")).not.toBeInTheDocument();
+    expect(screen.getByText("과거 QA 대상")).toBeInTheDocument();
   });
 });

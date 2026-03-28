@@ -20,6 +20,7 @@ export interface TaskType {
   type2: string;
   label: string;
   displayOrder: number;
+  requiresServiceGroup: boolean;
 }
 
 export interface ServiceGroup {

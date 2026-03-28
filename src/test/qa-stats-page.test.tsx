@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { QaStatsPage } from "../features/stats";
 
@@ -29,7 +29,7 @@ vi.mock("../lib/data-client", () => ({
 }));
 
 describe("QaStatsPage", () => {
-  it("shows only QA projects by project type", async () => {
+  it("shows QA stats based on the current project structure", async () => {
     getProjects.mockResolvedValue([
       {
         id: "project-1",
@@ -44,6 +44,36 @@ describe("QaStatsPage", () => {
         reviewerMemberId: null,
         startDate: "2026-03-01",
         endDate: "2026-03-31",
+        isActive: true,
+      },
+      {
+        id: "project-3",
+        legacyProjectId: "",
+        createdByMemberId: null,
+        name: "메이커스 25년 3차",
+        projectType1: "QA",
+        platform: "WEB",
+        serviceGroupId: null,
+        reportUrl: "",
+        reporterMemberId: "member-1",
+        reviewerMemberId: null,
+        startDate: "2025-06-18",
+        endDate: "2025-06-30",
+        isActive: true,
+      },
+      {
+        id: "project-4",
+        legacyProjectId: "",
+        createdByMemberId: null,
+        name: "2025년 6월 다음앱 정기모니터링",
+        projectType1: "모니터링",
+        platform: "APP",
+        serviceGroupId: null,
+        reportUrl: "",
+        reporterMemberId: "member-1",
+        reviewerMemberId: null,
+        startDate: "2025-06-23",
+        endDate: "2025-06-30",
         isActive: true,
       },
       {
@@ -81,6 +111,19 @@ describe("QaStatsPage", () => {
       expect(screen.getAllByText("접근성 포털").length).toBeGreaterThan(0);
     });
 
+    expect(screen.queryByText("메이커스 25년 3차")).not.toBeInTheDocument();
+    expect(screen.queryByText("2025년 6월 다음앱 정기모니터링")).not.toBeInTheDocument();
+    expect(screen.queryByText("앱 운영")).not.toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText("QA 시작월"), { target: { value: "2025-06" } });
+    fireEvent.change(screen.getByLabelText("QA 종료월"), { target: { value: "2025-06" } });
+    fireEvent.click(screen.getByRole("button", { name: "검색" }));
+
+    await waitFor(() => {
+      expect(screen.getAllByText("메이커스 25년 3차").length).toBeGreaterThan(0);
+    });
+
+    expect(screen.queryByText("2025년 6월 다음앱 정기모니터링")).not.toBeInTheDocument();
     expect(screen.queryByText("앱 운영")).not.toBeInTheDocument();
   });
 });

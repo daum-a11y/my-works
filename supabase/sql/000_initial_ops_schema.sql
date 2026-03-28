@@ -133,6 +133,7 @@ select
   owner_member_id,
   title,
   url,
+  monitoring_month,
   track_status,
   monitoring_in_progress,
   qa_in_progress,
@@ -533,7 +534,10 @@ begin
   else
     update public.projects
     set
-      project_type1 = coalesce(trim(p_project_type1), ''),
+      project_type1 = case
+        when nullif(trim(p_project_type1), '') is null then public.projects.project_type1
+        else trim(p_project_type1)
+      end,
       name = p_name,
       platform = p_platform,
       service_group_id = p_service_group_id,

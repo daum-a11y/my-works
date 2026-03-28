@@ -2,7 +2,7 @@
 
 ## 순서
 
-1. Supabase SQL Editor에서 [20260324_000001_initial_ops_schema.sql](/Volumes/workspace/workspace/my-works/supabase/migrations/20260324_000001_initial_ops_schema.sql) 실행
+1. Supabase SQL Editor에서 [000_initial_ops_schema.sql](/Volumes/workspace/workspace/my-works/supabase/migrations/000_initial_ops_schema.sql) 실행
 2. Supabase SQL Editor에서 [001_legacy_stage_schema.sql](/Volumes/workspace/workspace/my-works/supabase/sql/001_legacy_stage_schema.sql) 실행
 3. Docker로 MariaDB 실행 후 [db_a11yop_2507071945.sql](/Volumes/workspace/workspace/my-works/db_a11yop_2507071945.sql) 복원
 4. `.env.legacy` 작성 후 `pnpm legacy:stage` 실행
@@ -27,7 +27,7 @@
 
 실행 파일:
 
-- [20260324_000001_initial_ops_schema.sql](/Volumes/workspace/workspace/my-works/supabase/migrations/20260324_000001_initial_ops_schema.sql)
+- [000_initial_ops_schema.sql](/Volumes/workspace/workspace/my-works/supabase/migrations/000_initial_ops_schema.sql)
 
 ## 2. Supabase staging SQL
 

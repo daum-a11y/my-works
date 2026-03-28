@@ -1,0 +1,136 @@
+.page {
+  display: grid;
+  gap: 1rem;
+}
+
+.hero {
+  display: grid;
+  gap: 0.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border-default);
+}
+
+.hero h1 {
+  margin: 0;
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: var(--text-page-title-size);
+  font-weight: var(--text-page-title-weight);
+  line-height: var(--text-page-title-line-height);
+}
+
+.helperText {
+  margin: 0;
+  color: var(--text-tertiary);
+  font-size: var(--text-meta-size);
+}
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.toolbar h2 {
+  margin: 0;
+  font-size: var(--text-section-title-size);
+  font-weight: var(--text-section-title-weight);
+}
+
+.addButton,
+.primaryAction,
+.secondaryAction {
+  min-height: var(--control-height-sm);
+  padding: var(--control-padding-y) var(--control-padding-x);
+  border: 1px solid var(--button-secondary-border);
+  background: var(--button-secondary-bg);
+  color: var(--text-primary);
+  font: inherit;
+}
+
+.addButton:hover,
+.primaryAction:hover,
+.secondaryAction:hover {
+  background: var(--button-secondary-hover);
+}
+
+.tableWrap {
+  overflow: auto;
+  border: 1px solid var(--border-default);
+  background: var(--surface-canvas);
+}
+
+.table {
+  width: 100%;
+  min-width: 52rem;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  padding: 0.85rem;
+  border-bottom: 1px solid var(--border-subtle);
+  text-align: left;
+  vertical-align: top;
+}
+
+.table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--surface-sidebar);
+  color: var(--text-tertiary);
+  font-size: var(--text-table-size);
+  font-weight: var(--text-table-weight);
+  text-transform: uppercase;
+  letter-spacing: var(--text-table-tracking);
+}
+
+.editRow td {
+  background: color-mix(in srgb, var(--surface-sidebar) 55%, var(--surface-canvas));
+}
+
+.inactiveRow {
+  opacity: 0.75;
+}
+
+.input,
+.select {
+  width: 100%;
+  min-height: var(--control-height-md);
+  padding: var(--control-padding-y) var(--control-padding-x);
+  border: 1px solid var(--control-border);
+  background: var(--control-bg);
+  color: var(--text-primary);
+  font: inherit;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.radioLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.secondaryAction {
+  min-width: 4rem;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

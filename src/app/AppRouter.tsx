@@ -4,7 +4,9 @@ import { LoginPage } from "../features/auth/LoginPage";
 import { DashboardPage } from "../features/dashboard";
 import { AdminServiceGroupsPage } from "../features/admin/groups/AdminServiceGroupsPage";
 import { AdminMembersPage } from "../features/admin/members/AdminMembersPage";
+import { AdminReportEditorPage } from "../features/admin/reports/AdminReportEditorPage";
 import { AdminReportsPage } from "../features/admin/reports/AdminReportsPage";
+import { AdminSummaryPage } from "../features/admin/summary/AdminSummaryPage";
 import { AdminTaskTypesPage } from "../features/admin/types/AdminTaskTypesPage";
 import { NotFoundPage } from "../features/not-found";
 import { ProjectsFeature } from "../features/projects";
@@ -18,15 +20,15 @@ import {
 } from "../features/resource";
 import { SearchPage } from "../features/search";
 import { MonitoringStatsPage, QaStatsPage } from "../features/stats";
-import { PasswordSettingsPage } from "../features/settings";
+import { UserProfilePage } from "../features/settings";
 import { AppShell } from "./AppShell";
 
 function LoadingFallback() {
   return (
-    <div style={{ 
-      display: "flex", 
-      alignItems: "center", 
-      justifyContent: "center", 
+    <div style={{
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
       minHeight: "100vh",
       background: "#ffffff",
     }}>
@@ -99,7 +101,6 @@ export function AppRouter() {
             <Route index element={<Navigate to="/dashboard" replace />} />
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/reports" element={<ReportsPage />} />
-            <Route path="/profile" element={<Navigate to="/settings/password" replace />} />
             <Route path="/projects" element={<ProjectsFeature />} />
             <Route path="/reports/search" element={<SearchPage />} />
             <Route path="/resource/summary" element={<ResourceSummaryPage />} />
@@ -109,9 +110,15 @@ export function AppRouter() {
             <Route path="/resource/svc" element={<ResourceServicePage />} />
             <Route path="/stats/qa" element={<QaStatsPage />} />
             <Route path="/stats/monitoring" element={<MonitoringStatsPage />} />
-            <Route path="/settings/password" element={<PasswordSettingsPage />} />
+            <Route path="/profile" element={<UserProfilePage />} />
+            <Route path="/password-change" element={<Navigate to="/profile" replace />} />
             <Route element={<AdminRoute />}>
+              <Route path="/admin" element={<Navigate to="/admin/summary" replace />} />
+              <Route path="/admin/summary" element={<AdminSummaryPage />} />
               <Route path="/admin/reports" element={<AdminReportsPage />} />
+              <Route path="/admin/reports/new" element={<AdminReportEditorPage />} />
+              <Route path="/admin/reports/:taskId/edit" element={<AdminReportEditorPage />} />
+              <Route path="/admin/member" element={<Navigate to="/admin/members" replace />} />
               <Route path="/admin/members" element={<AdminMembersPage />} />
               <Route path="/admin/type" element={<AdminTaskTypesPage />} />
               <Route path="/admin/group" element={<AdminServiceGroupsPage />} />

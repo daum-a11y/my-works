@@ -30,7 +30,7 @@ pnpm dev
 
 따라서 DB에는 아래 migration까지 적용돼 있어야 합니다.
 
-- `supabase/migrations/20260324_000001_initial_ops_schema.sql`
+- `supabase/migrations/000_initial_ops_schema.sql`
 
 현재 초기 migration에 공개 view/RPC/RLS 보정이 포함돼 있습니다. 이 단계가 빠지면 회원 조회, 페이지 조회, 세션-멤버 바인딩, 관리자 내보내기에서 런타임 오류가 날 수 있습니다.
 

@@ -16,12 +16,15 @@ export interface AdminTaskSearchItem {
   memberName: string;
   memberEmail: string;
   taskDate: string;
+  platform: string;
   projectId: string | null;
   projectName: string;
   pageId: string | null;
   pageTitle: string;
+  pageUrl: string;
   serviceGroupId: string | null;
   serviceGroupName: string;
+  serviceName: string;
   taskType1: string;
   taskType2: string;
   hours: number;
@@ -45,6 +48,7 @@ export interface AdminTaskSaveInput {
 
 export interface AdminTaskTypeItem {
   id: string;
+  legacyTypeNum: number | null;
   type1: string;
   type2: string;
   displayLabel: string;
@@ -55,6 +59,7 @@ export interface AdminTaskTypeItem {
 
 export interface AdminTaskTypePayload {
   id?: string;
+  legacyTypeNum?: number | null;
   type1: string;
   type2: string;
   displayLabel: string;
@@ -65,14 +70,24 @@ export interface AdminTaskTypePayload {
 
 export interface AdminServiceGroupItem {
   id: string;
+  legacySvcNum: number | null;
   name: string;
+  svcGroup: string;
+  svcName: string;
+  svcType: number;
+  svcActive: boolean;
   displayOrder: number;
   isActive: boolean;
 }
 
 export interface AdminServiceGroupPayload {
   id?: string;
+  legacySvcNum?: number | null;
   name: string;
+  svcGroup: string;
+  svcName: string;
+  svcType: number;
+  svcActive: boolean;
   displayOrder: number;
   isActive: boolean;
 }
@@ -80,7 +95,10 @@ export interface AdminServiceGroupPayload {
 export interface AdminProjectOption {
   id: string;
   name: string;
+  projectType1: string;
+  platform: string;
   serviceGroupId: string | null;
+  reportUrl: string;
   isActive: boolean;
 }
 
@@ -88,6 +106,7 @@ export interface AdminPageOption {
   id: string;
   projectId: string;
   title: string;
+  url: string;
   trackStatus: string;
   monitoringInProgress: boolean;
   qaInProgress: boolean;
@@ -104,6 +123,8 @@ export interface MemberAdminItem {
   isActive: boolean;
   authEmail: string;
   queueReasons: string[];
+  joinedAt: string;
+  lastLoginAt: string;
   updatedAt: string;
 }
 

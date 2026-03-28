@@ -18,7 +18,7 @@
 근거:
 - `my-works/src/lib/data-client.ts`
 - `my-works/src/features/auth/AuthContext.tsx`
-- `my-works/supabase/migrations/20260324_000001_initial_ops_schema.sql`
+- `my-works/supabase/migrations/000_initial_ops_schema.sql`
 
 조치:
 - 일반 화면은 `members_public_view`, `project_pages_public_view`를 사용하도록 바꿨습니다.

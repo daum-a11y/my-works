@@ -1,4 +1,5 @@
-import { useMemo, type FormEvent, type KeyboardEvent } from "react";
+import { useEffect, useMemo, useRef, type FormEvent, type KeyboardEvent } from "react";
+import { useLocation } from "react-router-dom";
 
 import {
   formatReportDate,
@@ -224,6 +225,8 @@ const TYPE_INPUT_PAGE_SELECT_TYPE2_IDS = ["2", "7", "9", "10", "12", "13"] as co
 const TYPE_INPUT_PAGE_URL_TYPE2_IDS = ["2", "7", "9", "10", "12", "13", "50"] as const;
 
 export function ReportsPage() {
+  const location = useLocation();
+  const appliedDashboardDateRef = useRef("");
   const {
     activeTab,
     clearPeriodFilters,
@@ -258,6 +261,19 @@ export function ReportsPage() {
     type2Options,
   } = useReportsSlice();
   const todayInputValue = getTodayInputValue();
+  const reportDateFromDashboard = typeof location.state === "object" && location.state && "reportDate" in location.state
+    ? String((location.state as { reportDate?: unknown }).reportDate ?? "")
+    : "";
+
+  useEffect(() => {
+    if (!reportDateFromDashboard || appliedDashboardDateRef.current === reportDateFromDashboard) {
+      return;
+    }
+
+    appliedDashboardDateRef.current = reportDateFromDashboard;
+    setActiveTab("report");
+    setDraftField("reportDate", reportDateFromDashboard);
+  }, [reportDateFromDashboard]);
   const todayReports = useMemo(() => reports.filter((report) => report.reportDate === todayInputValue), [reports, todayInputValue]);
   const todayHours = useMemo(() => todayReports.reduce((sum, report) => sum + report.workHours, 0), [todayReports]);
   const remainingTodayHours = 480 - todayHours;

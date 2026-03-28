@@ -1,0 +1,133 @@
+.page {
+  display: grid;
+  gap: 1rem;
+}
+
+.hero {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.75rem;
+  align-items: center;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border-default);
+}
+
+.hero h1 {
+  margin: 0;
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: var(--text-page-title-size);
+  font-weight: var(--text-page-title-weight);
+  line-height: var(--text-page-title-line-height);
+  letter-spacing: var(--text-page-title-tracking);
+}
+
+.heroActions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.panel {
+  display: grid;
+  gap: 1rem;
+}
+
+.helperText {
+  margin: 0;
+  color: var(--text-tertiary);
+  font-size: var(--text-meta-size);
+  line-height: var(--text-meta-line-height);
+}
+
+.tableWrap {
+  overflow: auto;
+  border: 1px solid var(--border-default);
+  background: var(--surface-canvas);
+}
+
+.table {
+  width: 100%;
+  min-width: 56rem;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  padding: 0.9rem 1rem;
+  border-bottom: 1px solid var(--border-subtle);
+  text-align: left;
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}
+
+.table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--surface-sidebar);
+  color: var(--text-tertiary);
+  font-size: var(--text-table-size);
+  font-weight: var(--text-table-weight);
+  line-height: var(--text-table-line-height);
+  letter-spacing: var(--text-table-tracking);
+}
+
+.emptyCell {
+  padding: 2rem 1rem;
+  text-align: center !important;
+  color: var(--text-tertiary);
+}
+
+.editingRow {
+  background: var(--surface-active);
+}
+
+.cell {
+  min-width: 0;
+}
+
+.input,
+.select {
+  width: 100%;
+  min-height: var(--control-height-md);
+  padding: var(--control-padding-y) var(--control-padding-x);
+  border: 1px solid var(--control-border);
+  background: var(--control-bg);
+  color: var(--text-primary);
+  font: inherit;
+}
+
+.buttonRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.primaryButton,
+.secondaryButton,
+.dangerButton {
+  min-height: var(--control-height-sm);
+  padding: var(--control-padding-y) var(--control-padding-x);
+  border: 1px solid transparent;
+  font: inherit;
+  cursor: pointer;
+}
+
+.primaryButton {
+  border-color: var(--button-primary-border, var(--accent-strong));
+  background: var(--button-primary-bg, var(--accent-strong));
+  color: var(--button-primary-text, white);
+}
+
+.secondaryButton {
+  border-color: var(--button-secondary-border);
+  background: var(--button-secondary-bg);
+  color: var(--text-primary);
+}
+
+.dangerButton {
+  border-color: var(--danger-border, #b42318);
+  background: var(--danger-bg, #fff5f5);
+  color: var(--danger-text, #7a271a);
+}

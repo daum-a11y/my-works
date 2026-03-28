@@ -25,7 +25,7 @@ interface AuthContextValue {
   signUp(email: string, password: string): Promise<void>;
   resetPassword(email: string): Promise<void>;
   logout(): Promise<void>;
-  updatePassword(currentPassword: string, nextPassword: string): Promise<void>;
+  updatePassword(nextPassword: string): Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -216,33 +216,13 @@ export function AuthProvider({ children }: PropsWithChildren) {
 
         await supabase.auth.signOut();
       },
-      async updatePassword(currentPassword, nextPassword) {
-        if (!currentPassword.trim()) {
-          throw new Error("현재 비밀번호를 입력해 주세요.");
-        }
-
+      async updatePassword(nextPassword) {
         if (nextPassword.trim().length < 8) {
           throw new Error("비밀번호는 8자 이상이어야 합니다.");
         }
 
         if (!isSupabaseConfigured || !supabase) {
           throw new Error("Supabase 환경변수가 설정되지 않았습니다.");
-        }
-
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
-
-        if (!user?.email) {
-          throw new Error("현재 로그인 사용자 정보를 확인할 수 없습니다.");
-        }
-
-        const { error: reauthError } = await supabase.auth.signInWithPassword({
-          email: user.email,
-          password: currentPassword,
-        });
-        if (reauthError) {
-          throw new Error("현재 비밀번호가 올바르지 않습니다.");
         }
 
         const { error } = await supabase.auth.updateUser({ password: nextPassword });
