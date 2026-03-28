@@ -61,10 +61,10 @@ select {
 
 .skipLink {
   position: absolute;
-  left: 1rem;
-  top: 0.75rem;
+  left: 16px;
+  top: 12px;
   z-index: 999;
-  padding: 0.7rem 0.95rem;
+  padding: 11px 15px;
   border-radius: 0;
   background: var(--text-primary);
   color: var(--text-inverse);
@@ -87,8 +87,8 @@ select {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 1.55rem;
-  padding: 0.16rem 0.48rem;
+  min-height: 25px;
+  padding: 3px 8px;
   border: 1px solid transparent;
   border-radius: 0;
   font-size: var(--text-badge-size);

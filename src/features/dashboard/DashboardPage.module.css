@@ -1,12 +1,12 @@
 .page {
   display: grid;
-  gap: 1.35rem;
+  gap: 22px;
 }
 
 .pageIntro {
   display: grid;
-  gap: 0.35rem;
-  padding: 0 0 0.95rem;
+  gap: 6px;
+  padding: 0 0 15px;
   border-bottom: 1px solid var(--border-default);
 }
 
@@ -23,7 +23,7 @@
 .calendarSection,
 .tableSection {
   display: grid;
-  gap: 0.8rem;
+  gap: 13px;
 }
 
 .sectionHead {
@@ -51,7 +51,7 @@
 }
 
 .calendarWrap {
-  padding: 0.75rem;
+  padding: 12px;
 }
 
 .calendarTable {
@@ -61,8 +61,8 @@
 }
 
 .calendarTable caption {
-  margin-bottom: 0.6rem;
-  padding: 0.3rem 0 0.8rem;
+  margin-bottom: 10px;
+  padding: 5px 0 13px;
   color: var(--text-primary);
   font-size: var(--text-body-size);
   font-weight: 700;
@@ -70,7 +70,7 @@
 }
 
 .calendarTable th {
-  padding: 0.45rem;
+  padding: 7px;
   background: var(--surface-canvas-strong);
   border: 1px solid var(--border-default);
   color: var(--text-muted);
@@ -87,8 +87,8 @@
 }
 
 .calendarCell {
-  min-height: 4rem;
-  padding: 0.5rem;
+  min-height: 64px;
+  padding: 8px;
   background: var(--surface-panel);
   border: 1px solid var(--border-subtle);
   vertical-align: top;
@@ -115,9 +115,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 3.4rem;
-  margin-top: 0.45rem;
-  padding: 0.22rem 0.45rem;
+  min-width: 54px;
+  margin-top: 7px;
+  padding: 4px 7px;
   font-size: var(--text-badge-size);
   font-weight: var(--text-badge-weight);
   line-height: var(--text-badge-line-height);
@@ -160,7 +160,7 @@
 
 .table th,
 .table td {
-  padding: 0.9rem 1rem;
+  padding: 14px 16px;
   border-bottom: 1px solid var(--border-subtle);
   text-align: left;
   vertical-align: top;
@@ -195,7 +195,7 @@
 }
 
 .empty {
-  padding: 1rem;
+  padding: 16px;
   color: var(--text-tertiary);
   font-size: var(--text-body-size);
   line-height: var(--text-body-line-height);
@@ -203,5 +203,5 @@
 }
 
 .table .empty {
-  padding: 2.25rem !important;
+  padding: 36px !important;
 }

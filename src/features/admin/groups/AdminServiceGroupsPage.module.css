@@ -1,12 +1,12 @@
 .page {
   display: grid;
-  gap: 1.25rem;
+  gap: 20px;
 }
 
 .hero {
   display: grid;
-  gap: 0.25rem;
-  padding-bottom: 0.75rem;
+  gap: 4px;
+  padding-bottom: 12px;
   border-bottom: 1px solid var(--border-default);
 }
 
@@ -29,9 +29,9 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 1rem;
+  gap: 16px;
   flex-wrap: wrap;
-  padding: 1rem;
+  padding: 16px;
   border: 1px solid var(--border-default);
   background: var(--surface-panel);
   box-shadow: var(--elevation-1);
@@ -68,13 +68,13 @@
 
 .table {
   width: 100%;
-  min-width: 52rem;
+  min-width: 832px;
   border-collapse: collapse;
 }
 
 .table th,
 .table td {
-  padding: 0.85rem;
+  padding: 14px;
   border-bottom: 1px solid var(--border-subtle);
   text-align: left;
   vertical-align: top;
@@ -114,17 +114,17 @@
 .actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 8px;
 }
 
 .radioLabel {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: 6px;
 }
 
 .secondaryAction {
-  min-width: 4rem;
+  min-width: 64px;
 }
 
 .srOnly {

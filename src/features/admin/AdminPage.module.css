@@ -1,23 +1,23 @@
 .page {
   --admin-layout-main-column: minmax(0, 2.15fr);
-  --admin-layout-aside-column: minmax(17rem, 0.95fr);
-  --admin-filters-min-width: 10rem;
-  --admin-summary-min-width: 11rem;
-  --admin-compact-min-width: 12rem;
-  --admin-validation-left-column: minmax(18rem, 0.95fr);
+  --admin-layout-aside-column: minmax(272px, 0.95fr);
+  --admin-filters-min-width: 160px;
+  --admin-summary-min-width: 176px;
+  --admin-compact-min-width: 192px;
+  --admin-validation-left-column: minmax(288px, 0.95fr);
   --admin-validation-right-column: minmax(0, 1.05fr);
-  --admin-table-min-width: 46rem;
-  --admin-inline-cell-min-width: 8rem;
-  --admin-validation-max-height: 32rem;
-  --admin-textarea-min-height: 7rem;
+  --admin-table-min-width: 736px;
+  --admin-inline-cell-min-width: 128px;
+  --admin-validation-max-height: 512px;
+  --admin-textarea-min-height: 112px;
   display: grid;
-  gap: 1.25rem;
+  gap: 20px;
 }
 
 .hero {
   display: grid;
-  gap: 0.3rem;
-  padding: 0 0 0.9rem;
+  gap: 5px;
+  padding: 0 0 14px;
   border-bottom: 1px solid var(--border-default);
 }
 
@@ -42,27 +42,27 @@
 
 .layout {
   display: grid;
-  gap: 1rem;
+  gap: 16px;
   grid-template-columns: var(--admin-layout-main-column) var(--admin-layout-aside-column);
   align-items: start;
 }
 
 .stack {
   display: grid;
-  gap: 1rem;
+  gap: 16px;
 }
 
 .panel {
   display: grid;
   gap: var(--space-3);
-  padding: 1rem;
+  padding: 16px;
   border: 1px solid var(--border-default);
   background: var(--surface-panel);
   box-shadow: var(--elevation-1);
 }
 
 .emptyStatePanel {
-  min-height: 16rem;
+  min-height: 256px;
   place-items: center;
   align-content: center;
   justify-items: center;
@@ -92,7 +92,7 @@
   justify-content: space-between;
   gap: var(--space-3);
   align-items: center;
-  padding-bottom: 0.8rem;
+  padding-bottom: 13px;
   border-bottom: 1px solid var(--border-default);
 }
 
@@ -252,7 +252,7 @@
 .summaryCard {
   display: grid;
   gap: var(--space-2);
-  padding: 0.75rem 1rem;
+  padding: 12px 16px;
   border: 1px solid var(--theme-admin-border);
   border-inline-start: 3px solid var(--theme-admin-accent);
   background: color-mix(in oklab, var(--theme-admin-surface) 56%, var(--surface-panel));
@@ -329,8 +329,8 @@
 .tabList {
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem;
-  padding-bottom: 0.55rem;
+  gap: 16px;
+  padding-bottom: 9px;
   border-bottom: 1px solid var(--border-default);
 }
 
@@ -339,7 +339,7 @@
   align-items: center;
   justify-content: flex-start;
   min-height: auto;
-  padding: 0 0 0.45rem;
+  padding: 0 0 7px;
   border: 0;
   border-bottom: 2px solid transparent;
   background: transparent;
@@ -357,7 +357,7 @@
 
 .layout > aside.panel {
   position: sticky;
-  top: calc(3.5rem + var(--page-block));
+  top: calc(56px + var(--page-block));
   padding: var(--space-4);
   border-inline-start: 3px solid var(--theme-admin-accent);
   background: var(--surface-panel);

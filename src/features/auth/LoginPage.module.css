@@ -7,15 +7,15 @@
   background:
     radial-gradient(circle at top left, color-mix(in oklab, var(--accent-soft) 58%, var(--surface-canvas)) 0, transparent 34%),
     linear-gradient(180deg, color-mix(in oklab, var(--surface-canvas) 88%, var(--accent-soft)) 0%, var(--surface-canvas) 24%, var(--surface-canvas) 100%);
-  padding: clamp(1.25rem, 4vw, 2.75rem);
+  padding: clamp(20px, 4vw, 44px);
 }
 
 .panel {
-  width: min(100%, 42rem);
+  width: min(100%, 672px);
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 1rem;
-  padding: clamp(1.1rem, 2vw, 1.45rem);
+  gap: 16px;
+  padding: clamp(18px, 2vw, 23px);
   background: var(--surface-panel);
   border: 1px solid var(--border-default);
   box-shadow: var(--elevation-1);
@@ -28,7 +28,7 @@
   content: "";
   position: absolute;
   inset: 0 auto 0 0;
-  width: 0.3rem;
+  width: 5px;
   background: linear-gradient(180deg, var(--accent-strong) 0%, color-mix(in oklab, var(--accent-strong) 42%, var(--surface-panel)) 100%);
 }
 
@@ -39,14 +39,14 @@
 }
 
 .introBlock {
-  gap: 0.35rem;
-  padding: 0 0 0.95rem 0.55rem;
+  gap: 6px;
+  padding: 0 0 15px 9px;
   border-bottom: 1px solid var(--border-default);
 }
 
 .formBlock {
   gap: 0;
-  padding-left: 0.55rem;
+  padding-left: 9px;
 }
 
 .logo {
@@ -65,7 +65,7 @@
   font-size: var(--text-label-size);
   font-weight: var(--text-label-weight);
   line-height: var(--text-label-line-height);
-  letter-spacing: 0.08em;
+  letter-spacing: 1px;
   text-transform: uppercase;
 }
 
@@ -78,7 +78,7 @@
 .submitRow {
   display: flex;
   justify-content: stretch;
-  padding-top: 0.2rem;
+  padding-top: 3px;
 }
 
 .submitRow > * {
@@ -88,8 +88,8 @@
 .notice,
 .error {
   display: grid;
-  gap: 0.35rem;
-  padding: 0.75rem 0.9rem;
+  gap: 6px;
+  padding: 12px 14px;
   border: 1px solid var(--border-subtle);
   border-inline-start-width: 3px;
   animation: feedback-enter 180ms cubic-bezier(0.25, 1, 0.5, 1);
@@ -142,7 +142,7 @@
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  padding-top: 0.45rem;
+  padding-top: 7px;
   border-top: 1px solid var(--border-subtle);
 }
 
@@ -179,12 +179,12 @@
 }
 
 .configNotice {
-  margin-top: -0.1rem;
+  margin-top: -2px;
 }
 
 @media (max-width: 640px) {
   .page {
-    padding: 1rem;
+    padding: 16px;
   }
 
   .panel,
@@ -194,7 +194,7 @@
 
   .introBlock,
   .formBlock {
-    padding-left: 0.3rem;
+    padding-left: 5px;
   }
 }
 

@@ -3,18 +3,18 @@
   justify-items: center;
   align-content: center;
   min-height: 100vh;
-  padding: clamp(1.25rem, 4vw, 2.75rem);
+  padding: clamp(20px, 4vw, 44px);
   background:
     radial-gradient(circle at top left, color-mix(in oklab, var(--accent-soft) 58%, var(--surface-canvas)) 0, transparent 34%),
     linear-gradient(180deg, color-mix(in oklab, var(--surface-canvas) 88%, var(--accent-soft)) 0%, var(--surface-canvas) 24%, var(--surface-canvas) 100%);
 }
 
 .panel {
-  width: min(100%, 42rem);
+  width: min(100%, 672px);
   display: grid;
   grid-template-columns: 1fr;
-  gap: 1rem;
-  padding: clamp(1.1rem, 2vw, 1.45rem);
+  gap: 16px;
+  padding: clamp(18px, 2vw, 23px);
   background: var(--surface-panel);
   border: 1px solid var(--border-default);
   box-shadow: var(--elevation-1);
@@ -27,14 +27,14 @@
   content: "";
   position: absolute;
   inset: 0 auto 0 0;
-  width: 0.3rem;
+  width: 5px;
   background: linear-gradient(180deg, var(--accent-strong) 0%, color-mix(in oklab, var(--accent-strong) 42%, var(--surface-panel)) 100%);
 }
 
 .hero {
   display: grid;
-  gap: 0.35rem;
-  padding: 0 0 0.95rem 0.55rem;
+  gap: 6px;
+  padding: 0 0 15px 9px;
   border-bottom: 1px solid var(--border-default);
 }
 
@@ -50,9 +50,9 @@
 
 .bodyBlock {
   display: grid;
-  gap: 0.35rem;
+  gap: 6px;
   align-content: start;
-  padding: 0.15rem 0 0 0.55rem;
+  padding: 2px 0 0 9px;
 }
 
 .caption {
@@ -61,17 +61,17 @@
   font-size: var(--text-label-size);
   font-weight: var(--text-label-weight);
   line-height: var(--text-label-line-height);
-  letter-spacing: 0.08em;
+  letter-spacing: 1px;
   text-transform: uppercase;
 }
 
 .title {
   margin: 0;
   color: var(--text-primary);
-  font-size: clamp(1.5rem, 2vw, 2rem);
+  font-size: clamp(24px, 2vw, 32px);
   font-weight: var(--font-weight-heavy);
   line-height: 1.08;
-  letter-spacing: -0.02em;
+  letter-spacing: -1px;
 }
 
 .body {
@@ -86,8 +86,8 @@
 .actionRow {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.65rem;
-  margin-top: 2rem;
+  gap: 10px;
+  margin-top: 32px;
 }
 
 .link {
@@ -95,7 +95,7 @@
   align-items: center;
   justify-content: center;
   min-height: var(--control-height-md);
-  padding: 0 1rem;
+  padding: 0 16px;
   border: 1px solid color-mix(in oklab, var(--button-primary-bg) 74%, black);
   background: var(--button-primary-bg);
   color: var(--text-inverse);
@@ -126,7 +126,7 @@
   align-items: center;
   justify-content: center;
   min-height: var(--control-height-md);
-  padding: 0 1rem;
+  padding: 0 16px;
   border: 1px solid var(--button-secondary-border);
   background: var(--button-secondary-bg);
   color: var(--text-primary);
@@ -155,7 +155,7 @@
 
 @media (max-width: 640px) {
   .page {
-    padding: 1rem;
+    padding: 16px;
   }
 
   .panel {
@@ -164,7 +164,7 @@
 
   .hero,
   .bodyBlock {
-    padding-left: 0.3rem;
+    padding-left: 5px;
   }
 }
 

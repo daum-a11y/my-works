@@ -73,8 +73,8 @@
   --control-height-sm: 32px;
   --control-height-md: 40px;
   --control-radius: var(--radius-sm);
-  --control-padding-y: 0.5rem;
-  --control-padding-x: 0.75rem;
+  --control-padding-y: 8px;
+  --control-padding-x: 12px;
   --control-border: var(--border-default);
   --control-bg: var(--surface-field);
   --control-placeholder: var(--text-muted);
@@ -95,8 +95,8 @@
   --button-ghost-hover: var(--surface-hover);
   --button-danger-bg: color-mix(in oklab, var(--raw-red-600) 92%, black 8%);
 
-  --shell-rail-width: 12.75rem;
-  --shell-header-height: 3.75rem;
+  --shell-rail-width: 204px;
+  --shell-header-height: 60px;
 
   --state-info-bg: var(--raw-indigo-100);
   --state-info-text: var(--raw-indigo-700);
@@ -139,57 +139,57 @@
   --chart-series-danger-stroke: var(--raw-red-600);
   --chart-series-danger-fill: color-mix(in oklab, var(--raw-red-100) 76%, white);
 
-  --page-inline: clamp(1rem, 1.4vw, 1.5rem);
-  --page-block: clamp(0.95rem, 1.2vw, 1.25rem);
+  --page-inline: clamp(16px, 1.4vw, 24px);
+  --page-block: clamp(15px, 1.2vw, 20px);
 
   /* Spacing */
-  --space-1: 0.25rem;
-  --space-2: 0.5rem;
-  --space-3: 0.75rem;
-  --space-4: 1rem;
-  --space-5: 1.5rem;
-  --space-6: 2rem;
-  --space-field-gap: 0.4rem;
-  --space-form-gap: 0.85rem;
-  --space-form-section-gap: 1rem;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-field-gap: 6px;
+  --space-form-gap: 14px;
+  --space-form-section-gap: 16px;
 
   /* High-density type scale */
-  --text-page-title-size: clamp(1.75rem, 2vw, 2.15rem);
+  --text-page-title-size: clamp(28px, 2vw, 34px);
   --text-page-title-weight: 800;
   --text-page-title-line-height: 1.04;
-  --text-page-title-tracking: -0.04em;
-  --text-section-title-size: 0.9375rem;
+  --text-page-title-tracking: -1px;
+  --text-section-title-size: 15px;
   --text-section-title-weight: 700;
   --text-section-title-line-height: 1.2;
-  --text-section-title-tracking: -0.01em;
-  --text-body-size: 0.875rem;
+  --text-section-title-tracking: 0px;
+  --text-body-size: 14px;
   --text-body-weight: 500;
   --text-body-line-height: 1.52;
-  --text-body-tracking: -0.01em;
-  --text-form-size: 0.875rem;
+  --text-body-tracking: 0px;
+  --text-form-size: 14px;
   --text-form-weight: 600;
   --text-form-line-height: 1.35;
-  --text-form-tracking: -0.01em;
-  --text-label-size: 0.875rem;
+  --text-form-tracking: 0px;
+  --text-label-size: 14px;
   --text-label-weight: 700;
   --text-label-line-height: 1.2;
-  --text-label-tracking: 0.06em;
-  --text-meta-size: 0.75rem;
+  --text-label-tracking: 1px;
+  --text-meta-size: 12px;
   --text-meta-weight: 500;
   --text-meta-line-height: 1.45;
   --text-meta-tracking: 0;
-  --text-table-size: 0.875rem;
+  --text-table-size: 14px;
   --text-table-weight: 700;
   --text-table-line-height: 1.2;
-  --text-table-tracking: 0.06em;
-  --text-badge-size: 0.75rem;
+  --text-table-tracking: 1px;
+  --text-badge-size: 12px;
   --text-badge-weight: 700;
   --text-badge-line-height: 1.1;
-  --text-badge-tracking: 0.06em;
-  --text-kicker-size: 0.75rem;
+  --text-badge-tracking: 1px;
+  --text-kicker-size: 12px;
   --text-kicker-weight: 700;
   --text-kicker-line-height: 1.2;
-  --text-kicker-tracking: 0.09em;
+  --text-kicker-tracking: 1px;
 
   --font-weight-regular: 400;
   --font-weight-medium: 500;
@@ -199,5 +199,5 @@
 
   --line-height-body: 1.4;
   --line-height-tight: 1;
-  --letter-spacing-title-strong: -0.04em;
+  --letter-spacing-title-strong: -1px;
 }

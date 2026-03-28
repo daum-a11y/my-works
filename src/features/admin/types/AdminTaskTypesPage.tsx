@@ -333,7 +333,7 @@ export function AdminTaskTypesPage() {
                             <input
                               aria-label="타입2 수정"
                               className="form-control form-control-sm"
-                              style={{ marginTop: "0.5rem" }}
+                              style={{ marginTop: "8px" }}
                               type="text"
                               value={draft.type2}
                               onChange={(event) => handleChange("type2", event.target.value)}

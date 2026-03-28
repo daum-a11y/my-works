@@ -1,15 +1,15 @@
 .section {
   display: grid;
-  gap: 0.8rem;
+  gap: 13px;
   min-width: 0;
 }
 
 .plain {
-  padding: 0.15rem 0 0.35rem;
+  padding: 2px 0 6px;
 }
 
 .panel {
-  padding: 0.95rem 1rem 1rem;
+  padding: 15px 16px 16px;
   border: 1px solid var(--border-default);
   background: var(--surface-panel);
 }
@@ -18,14 +18,14 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 0.9rem;
-  padding-bottom: 0.5rem;
+  gap: 14px;
+  padding-bottom: 8px;
   border-bottom: 1px solid var(--border-default);
 }
 
 .heading {
   display: grid;
-  gap: 0.18rem;
+  gap: 3px;
 }
 
 .heading h2 {
@@ -34,7 +34,7 @@
   font-family: var(--font-body);
   font-size: var(--text-form-size);
   font-weight: var(--text-section-title-weight);
-  letter-spacing: 0.08em;
+  letter-spacing: 1px;
   line-height: var(--text-section-title-line-height);
   text-transform: uppercase;
 }
@@ -50,7 +50,7 @@
 .actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.6rem;
+  gap: 10px;
 }
 
 .content {

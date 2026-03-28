@@ -35,8 +35,8 @@ function LoadingFallback() {
       background: "#ffffff",
     }}>
       <div style={{
-        width: "2.5rem",
-        height: "2.5rem",
+        width: "40px",
+        height: "40px",
         border: "3px solid var(--border-subtle)",
         borderTopColor: "var(--accent-strong)",
         borderRadius: "50%",

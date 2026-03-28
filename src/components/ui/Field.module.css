@@ -64,7 +64,7 @@
 }
 
 .textarea {
-  min-height: 8rem;
+  min-height: 128px;
   resize: vertical;
 }
 

@@ -2,9 +2,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  gap: 8px;
   height: var(--control-height-md);
-  padding: 0 1rem;
+  padding: 0 16px;
   border: 1px solid transparent;
   font-family: inherit;
   font-size: var(--text-form-size);

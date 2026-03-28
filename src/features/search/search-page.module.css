@@ -1,13 +1,13 @@
 .page {
   min-height: 100%;
   display: grid;
-  gap: 1.25rem;
+  gap: 20px;
 }
 
 .hero {
   display: grid;
-  gap: 0.3rem;
-  padding: 0 0 0.9rem;
+  gap: 5px;
+  padding: 0 0 14px;
   border-bottom: 1px solid var(--border-default);
 }
 
@@ -37,7 +37,7 @@
 }
 
 .panel {
-  padding: 1rem;
+  padding: 16px;
   border: 1px solid var(--border-default);
   background: var(--surface-panel);
   box-shadow: var(--elevation-1);
@@ -48,8 +48,8 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: var(--space-4);
-  margin-bottom: 0.8rem;
-  padding-bottom: 0.8rem;
+  margin-bottom: 13px;
+  padding-bottom: 13px;
   border-bottom: 1px solid var(--border-default);
 }
 
@@ -130,13 +130,13 @@
 .searchGrid,
 .formGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: var(--space-3);
   align-items: start;
 }
 
 .formGrid {
-  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(192px, 1fr));
   gap: var(--space-form-gap);
 }
 
@@ -184,7 +184,7 @@
 }
 
 .field textarea {
-  min-height: 7rem;
+  min-height: 112px;
   resize: vertical;
 }
 
@@ -205,7 +205,7 @@
 .table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 56rem;
+  min-width: 896px;
 }
 
 .table th,
@@ -268,7 +268,7 @@
 }
 
 .table td textarea {
-  min-height: 4.2rem;
+  min-height: 67px;
   resize: vertical;
 }
 
@@ -333,10 +333,10 @@
   .secondaryButton,
   .ghostButton,
   .primaryButton {
-    flex: 1 1 10rem;
+    flex: 1 1 160px;
   }
 
   .table {
-    min-width: 48rem;
+    min-width: 768px;
   }
 }

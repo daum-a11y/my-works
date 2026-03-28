@@ -1,15 +1,15 @@
 .page {
   display: grid;
-  gap: 1.25rem;
+  gap: 20px;
 }
 
 .hero {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  gap: 0.75rem;
+  gap: 12px;
   align-items: center;
-  padding-bottom: 0.75rem;
+  padding-bottom: 12px;
   border-bottom: 1px solid var(--border-default);
 }
 
@@ -25,13 +25,13 @@
 
 .heroActions {
   display: flex;
-  gap: 0.5rem;
+  gap: 8px;
 }
 
 .panel {
   display: grid;
-  gap: 1rem;
-  padding: 1rem;
+  gap: 16px;
+  padding: 16px;
   border: 1px solid var(--border-default);
   background: var(--surface-panel);
   box-shadow: var(--elevation-1);
@@ -59,13 +59,13 @@
 
 .table {
   width: 100%;
-  min-width: 56rem;
+  min-width: 896px;
   border-collapse: collapse;
 }
 
 .table th,
 .table td {
-  padding: 0.9rem 1rem;
+  padding: 14px 16px;
   border-bottom: 1px solid var(--border-subtle);
   text-align: left;
   vertical-align: top;
@@ -85,7 +85,7 @@
 }
 
 .emptyCell {
-  padding: 2rem 1rem;
+  padding: 32px 16px;
   text-align: center !important;
   color: var(--text-tertiary);
 }
@@ -112,7 +112,7 @@
 .buttonRow {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 8px;
 }
 
 .primaryButton,
