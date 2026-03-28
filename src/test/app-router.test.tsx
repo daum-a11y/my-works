@@ -56,6 +56,7 @@ vi.mock('../features/not-found', () => ({
 
 vi.mock('../features/projects', () => ({
   ProjectsFeature: () => <div>projects-page</div>,
+  ProjectEditorPage: () => <div>project-editor-page</div>,
 }));
 
 vi.mock('../features/reports', () => ({

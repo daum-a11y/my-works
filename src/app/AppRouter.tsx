@@ -11,7 +11,7 @@ import { AdminReportsPage } from '../features/admin/reports/AdminReportsPage';
 import { AdminSummaryPage } from '../features/admin/summary/AdminSummaryPage';
 import { AdminTaskTypesPage } from '../features/admin/types/AdminTaskTypesPage';
 import { NotFoundPage } from '../features/not-found';
-import { ProjectsFeature } from '../features/projects';
+import { ProjectEditorPage, ProjectsFeature } from '../features/projects';
 import { ReportsPage } from '../features/reports';
 import {
   ResourceMonthPage,
@@ -113,6 +113,8 @@ export function AppRouter() {
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/reports" element={<ReportsPage />} />
             <Route path="/projects" element={<ProjectsFeature />} />
+            <Route path="/projects/new" element={<ProjectEditorPage />} />
+            <Route path="/projects/:projectId/edit" element={<ProjectEditorPage />} />
             <Route path="/reports/search" element={<SearchPage />} />
             <Route path="/resource/summary" element={<ResourceSummaryPage />} />
             <Route path="/resource/month" element={<ResourceMonthPage />} />

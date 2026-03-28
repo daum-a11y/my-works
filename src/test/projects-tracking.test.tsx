@@ -1,8 +1,10 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen, waitFor } from '@testing-library/react';
+import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { ProjectsFeature } from '../features/projects';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { ProjectEditorPage, ProjectsFeature } from '../features/projects';
+import { toLocalDateInputValue } from '../lib/utils';
 
 const mockUseAuth = vi.hoisted(() => vi.fn());
 const mockOpsDataClient = vi.hoisted(() => ({
@@ -37,7 +39,37 @@ vi.mock('../lib/data-client', () => ({
   opsDataClient: mockOpsDataClient,
 }));
 
-describe('ProjectsFeature', () => {
+function renderProjectsList() {
+  const queryClient = new QueryClient();
+
+  return render(
+    <MemoryRouter initialEntries={['/projects']}>
+      <QueryClientProvider client={queryClient}>
+        <Routes>
+          <Route path="/projects" element={<ProjectsFeature />} />
+        </Routes>
+      </QueryClientProvider>
+    </MemoryRouter>,
+  );
+}
+
+function renderProjectEditor(initialEntry: string) {
+  const queryClient = new QueryClient();
+
+  return render(
+    <MemoryRouter initialEntries={[initialEntry]}>
+      <QueryClientProvider client={queryClient}>
+        <Routes>
+          <Route path="/projects" element={<div>projects-list-page</div>} />
+          <Route path="/projects/new" element={<ProjectEditorPage />} />
+          <Route path="/projects/:projectId/edit" element={<ProjectEditorPage />} />
+        </Routes>
+      </QueryClientProvider>
+    </MemoryRouter>,
+  );
+}
+
+describe('Projects routes', () => {
   beforeEach(() => {
     vi.spyOn(window, 'confirm').mockReturnValue(true);
     mockUseAuth.mockReturnValue({
@@ -142,51 +174,69 @@ describe('ProjectsFeature', () => {
     });
   });
 
-  it('renders the original project list controls', async () => {
-    const queryClient = new QueryClient();
+  afterEach(() => {
+    cleanup();
+  });
 
-    render(
-      <QueryClientProvider client={queryClient}>
-        <ProjectsFeature />
-      </QueryClientProvider>,
-    );
+  it('renders date range filters and links to the new project page', async () => {
+    renderProjectsList();
 
     await waitFor(() => {
       expect(screen.getByRole('heading', { name: '프로젝트 관리' })).toBeInTheDocument();
       expect(screen.getByText('알파')).toBeInTheDocument();
     });
 
-    expect(screen.getByRole('button', { name: '프로젝트 추가하기' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '전체' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '전년 하반기' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '올해 상반기' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '올해 하반기' })).toBeInTheDocument();
-    expect(screen.getByText('QA')).toBeInTheDocument();
-    expect(screen.getByText('접근성')).toBeInTheDocument();
-    expect(screen.getByText('https://example.com/report')).toBeInTheDocument();
+    const today = new Date();
+    const aYearAgo = new Date(today);
+    aYearAgo.setFullYear(aYearAgo.getFullYear() - 1);
+
+    expect(screen.getByLabelText('시작일')).toHaveValue(toLocalDateInputValue(aYearAgo));
+    expect(screen.getByLabelText('종료일')).toHaveValue(toLocalDateInputValue(today));
+    expect(screen.getByRole('link', { name: '프로젝트 추가' })).toHaveAttribute(
+      'href',
+      '/projects/new',
+    );
+    expect(screen.getByRole('link', { name: '수정' })).toHaveAttribute(
+      'href',
+      '/projects/project-1/edit',
+    );
+    expect(screen.getByRole('link', { name: '링크' })).toHaveAttribute(
+      'href',
+      'https://example.com/report',
+    );
   });
 
-  it('opens the editor and saves project and page drafts', async () => {
+  it('filters projects by the selected start and end date', async () => {
     const user = userEvent.setup();
-    const queryClient = new QueryClient();
 
-    render(
-      <QueryClientProvider client={queryClient}>
-        <ProjectsFeature />
-      </QueryClientProvider>,
-    );
+    renderProjectsList();
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: '수정 및 추가' })).toBeInTheDocument();
+      expect(screen.getByText('알파')).toBeInTheDocument();
     });
 
-    await user.click(screen.getAllByRole('button', { name: '수정 및 추가' })[0]);
+    await user.clear(screen.getByLabelText('시작일'));
+    await user.type(screen.getByLabelText('시작일'), '2026-04-01');
+    await user.clear(screen.getByLabelText('종료일'));
+    await user.type(screen.getByLabelText('종료일'), '2026-04-30');
+    await user.click(screen.getByRole('button', { name: '검색' }));
 
     await waitFor(() => {
-      expect(screen.getByRole('heading', { name: '프로젝트 정보 수정' })).toBeInTheDocument();
+      expect(
+        screen.getByText('검색 결과가 없습니다. 새 프로젝트를 등록하거나 기간을 조정하십시오.'),
+      ).toBeInTheDocument();
+    });
+  });
+
+  it('opens the edit page and saves project and page drafts', async () => {
+    const user = userEvent.setup();
+
+    renderProjectEditor('/projects/project-1/edit');
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('프로젝트 종류')).toHaveValue('QA');
     });
 
-    expect(screen.getByLabelText('프로젝트 종류')).toHaveValue('QA');
     await user.clear(screen.getByLabelText('프로젝트명'));
     await user.type(screen.getByLabelText('프로젝트명'), '알파 수정');
     await user.click(screen.getByRole('button', { name: '저장하기' }));
@@ -203,11 +253,10 @@ describe('ProjectsFeature', () => {
       );
     });
 
-    await user.click(screen.getByRole('button', { name: '페이지 추가하기' }));
-
+    await user.click(screen.getByRole('button', { name: '페이지 추가' }));
     await user.type(screen.getAllByLabelText('페이지명')[0], '신규 페이지');
     await user.type(screen.getAllByLabelText('페이지URL')[0], 'https://example.com/new');
-    await user.click(screen.getByRole('button', { name: '추가하기' }));
+    await user.click(screen.getByRole('button', { name: '추가' }));
 
     await waitFor(() => {
       expect(mockOpsDataClient.saveProjectPage).toHaveBeenCalledWith(
@@ -223,26 +272,14 @@ describe('ProjectsFeature', () => {
 
   it('deletes project and page when delete actions are confirmed', async () => {
     const user = userEvent.setup();
-    const queryClient = new QueryClient();
 
-    render(
-      <QueryClientProvider client={queryClient}>
-        <ProjectsFeature />
-      </QueryClientProvider>,
-    );
+    renderProjectEditor('/projects/project-1/edit');
 
     await waitFor(() => {
       expect(screen.getAllByRole('button', { name: '삭제' }).length).toBeGreaterThan(0);
     });
 
-    await user.click(screen.getAllByRole('button', { name: '수정 및 추가' })[0]);
-
-    await waitFor(() => {
-      expect(screen.getByRole('heading', { name: '프로젝트 정보 수정' })).toBeInTheDocument();
-    });
-
-    const deleteButtons = screen.getAllByRole('button', { name: '삭제' });
-    await user.click(deleteButtons[1]);
+    await user.click(screen.getAllByRole('button', { name: '삭제' })[1]);
 
     await waitFor(() => {
       expect(mockOpsDataClient.deleteProjectPage).toHaveBeenCalledWith('page-1');

@@ -1,13 +1,14 @@
 .shell {
   display: grid;
   gap: 20px;
+  min-height: 100%;
   color: var(--text-secondary);
 }
 
 .hero {
   display: grid;
-  gap: var(--space-3);
-  padding: 0 0 var(--space-3);
+  gap: 5px;
+  padding: 0 0 14px;
   border-bottom: 1px solid var(--border-default);
 }
 
@@ -16,6 +17,15 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
+  flex-wrap: nowrap;
+}
+
+.editorHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: nowrap;
 }
 
 .kicker {
@@ -44,21 +54,23 @@
   letter-spacing: var(--text-section-title-tracking);
 }
 
-.searchBar {
-  display: grid;
-  gap: var(--space-3);
-}
-
-.searchForm {
+.filterBar {
   display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  gap: 12px;
+  align-items: end;
 }
 
-.searchField {
-  min-width: min(448px, 100%);
-  flex: 1 1 320px;
+.filterField {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  flex: 0 0 auto;
+}
+
+.formGrid,
+.pageFormGrid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .searchInput,
@@ -72,6 +84,24 @@
   background: var(--control-bg);
   color: var(--text-primary);
   font: inherit;
+  font-size: var(--text-form-size);
+  font-weight: var(--text-form-weight);
+  line-height: var(--text-form-line-height);
+  letter-spacing: var(--text-form-tracking);
+}
+
+.filterField input,
+.filterField select {
+  min-height: var(--control-height-md);
+  padding: var(--control-padding-y) var(--control-padding-x);
+  border: 1px solid var(--control-border);
+  background: var(--control-bg);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: var(--text-form-size);
+  font-weight: var(--text-form-weight);
+  line-height: var(--text-form-line-height);
+  letter-spacing: var(--text-form-tracking);
 }
 
 .field textarea {
@@ -79,30 +109,16 @@
   resize: vertical;
 }
 
-.searchInput:focus,
-.field input:focus,
-.field select:focus,
-.field textarea:focus,
+.field :is(input, select, textarea):focus-visible,
+.filterField :is(input, select):focus-visible,
 .primaryButton:focus-visible,
 .secondaryButton:focus-visible,
-.scopeButton:focus-visible,
 .actionButton:focus-visible,
-.iconButton:focus-visible {
-  outline: 2px solid color-mix(in oklab, var(--accent-strong) 40%, white);
-  outline-offset: 2px;
-}
-
-.scopeButtons {
-  display: flex;
-  gap: var(--space-2);
-  flex-wrap: wrap;
-}
-
-.summaryLine {
-  margin: 0;
-  color: var(--text-tertiary);
-  font-size: var(--text-body-size);
-  line-height: var(--text-body-line-height);
+.iconButton:focus-visible,
+.tableLink:focus-visible,
+.deleteButton:focus-visible {
+  outline: 2px solid var(--focus-ring-color);
+  outline-offset: 1px;
 }
 
 .statusMessage {
@@ -115,38 +131,80 @@
 
 .primaryButton,
 .secondaryButton,
-.scopeButton,
-.actionButton,
-.iconButton {
+.iconButton,
+.tableLink,
+.headerAction,
+.filterButton,
+.filterButtonSecondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border: 1px solid var(--border-default);
   background: var(--surface-panel);
   color: var(--text-primary);
   font: inherit;
+  text-decoration: none;
   cursor: pointer;
 }
 
-.primaryButton {
+.primaryButton,
+.filterButton {
   min-height: var(--control-height-md);
-  padding: 0 var(--control-padding-x);
-  border-color: color-mix(in oklab, var(--theme-project-accent) 82%, black 18%);
-  background: var(--theme-project-accent);
+  padding: 0 var(--space-3);
+  border-color: color-mix(in oklab, var(--button-primary-bg) 82%, black 18%);
+  background: var(--button-primary-bg);
   color: var(--text-inverse);
+  font-size: var(--text-form-size);
   font-weight: var(--text-form-weight);
+  line-height: var(--text-form-line-height);
+  letter-spacing: var(--text-form-tracking);
 }
 
 .secondaryButton,
-.scopeButton,
-.actionButton {
-  min-height: var(--control-height-sm);
-  padding: 0 var(--control-padding-x);
+.headerAction,
+.filterButtonSecondary,
+.actionButton,
+.tableLink,
+.deleteButton {
+  min-height: var(--control-height-md);
+  padding: 0 var(--space-3);
+  font-size: var(--text-form-size);
+  font-weight: var(--text-form-weight);
+  line-height: var(--text-form-line-height);
+  letter-spacing: var(--text-form-tracking);
 }
 
-.scopeButton:hover,
+.secondaryButton,
+.headerAction,
+.filterButtonSecondary {
+  background: var(--button-secondary-bg);
+  color: var(--text-secondary);
+}
+
+.headerAction,
+.secondaryButton,
+.primaryButton,
+.deleteButton {
+  flex: 0 0 auto;
+  width: auto;
+  white-space: nowrap;
+}
+
 .secondaryButton:hover,
+.headerAction:hover,
+.filterButtonSecondary:hover,
 .actionButton:hover,
-.iconButton:hover {
+.iconButton:hover,
+.tableLink:hover {
   border-color: var(--border-strong);
-  background: var(--surface-panel);
+  background: var(--button-secondary-hover);
+}
+
+.filterActions {
+  display: flex;
+  align-items: end;
+  gap: 8px;
+  flex: 0 0 auto;
 }
 
 .tableWrap {
@@ -157,7 +215,7 @@
 
 .table {
   width: 100%;
-  min-width: 1248px;
+  min-width: 1080px;
   border-collapse: collapse;
 }
 
@@ -168,53 +226,37 @@
   text-align: left;
   vertical-align: top;
   overflow-wrap: anywhere;
+  font-size: var(--text-table-size);
+  line-height: var(--text-table-line-height);
 }
 
 .table th {
   color: var(--text-muted);
-  font-size: var(--text-table-size);
   font-weight: var(--text-table-weight);
-  line-height: var(--text-table-line-height);
   letter-spacing: var(--text-table-tracking);
   text-transform: uppercase;
-  background: color-mix(in oklab, var(--theme-project-surface) 30%, var(--surface-canvas-strong));
+  background: var(--surface-canvas-strong);
   position: sticky;
   top: 0;
   z-index: 1;
 }
 
 .table tbody tr:hover {
-  background: color-mix(in oklab, var(--theme-project-surface) 34%, var(--surface-panel));
+  background: color-mix(in oklab, var(--accent-soft) 24%, var(--surface-panel));
 }
 
 .rowSelected {
   background: color-mix(in oklab, var(--theme-project-surface) 42%, var(--surface-panel));
 }
 
-.platformBadge {
-  display: inline-flex;
-  align-items: center;
-  padding: 6px 10px;
-  border: 1px solid var(--border-default);
-  background: color-mix(in oklab, var(--theme-project-surface) 54%, var(--surface-panel));
-  color: var(--text-primary);
-  font-size: var(--text-badge-size);
-  font-weight: var(--text-badge-weight);
-  line-height: var(--text-badge-line-height);
-  letter-spacing: var(--text-badge-tracking);
-}
-
 .dateCell {
   font-variant-numeric: tabular-nums;
 }
 
-.link {
-  color: var(--accent-strong);
-  text-decoration: none;
-}
-
-.link:hover {
-  text-decoration: underline;
+.tableLink {
+  min-width: 0;
+  width: fit-content;
+  color: var(--text-primary);
 }
 
 .emptyState {
@@ -224,24 +266,34 @@
 }
 
 .actionButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
   color: var(--accent-strong);
-  font-weight: 700;
+  font-size: var(--text-form-size);
+  font-weight: var(--text-form-weight);
+  line-height: var(--text-form-line-height);
+  letter-spacing: var(--text-form-tracking);
+  text-decoration: none;
 }
 
 .actionStack {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: var(--space-2);
+  flex: 0 0 auto;
+  align-items: center;
 }
 
 .deleteButton {
-  min-height: var(--control-height-sm);
-  padding: 0 var(--control-padding-x);
   border: 1px solid var(--state-danger-border);
   background: color-mix(in oklab, var(--state-danger-bg) 72%, var(--surface-panel));
   color: var(--state-danger-text);
   font: inherit;
-  font-weight: 700;
   cursor: pointer;
 }
 
@@ -282,19 +334,26 @@
 .formGrid,
 .pageFormGrid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-3);
 }
 
 .field {
   display: grid;
-  gap: 6px;
+  gap: var(--space-field-gap);
 }
 
 .field span {
-  color: var(--text-tertiary);
+  color: var(--text-primary);
   font-size: var(--text-form-size);
-  font-weight: 700;
+  font-weight: var(--text-form-weight);
+  line-height: var(--text-form-line-height);
+  letter-spacing: var(--text-form-tracking);
+}
+
+.filterField span {
+  color: var(--text-tertiary);
+  font-size: var(--text-meta-size);
+  line-height: var(--text-meta-line-height);
 }
 
 .helpText {
@@ -303,11 +362,75 @@
   line-height: var(--text-meta-line-height);
 }
 
+.editorShell {
+  min-height: auto;
+  align-content: start;
+}
+
+.editorSurface {
+  margin-top: 0;
+}
+
+.editorDetailForm {
+  display: grid;
+  gap: var(--space-form-gap);
+  padding: 20px 24px;
+  width: 100%;
+}
+
+.editorFormGrid {
+  display: grid;
+  gap: 12px;
+  width: 568px;
+  max-width: 568px;
+}
+
+.editorFormGrid .field {
+  display: grid;
+  grid-template-columns: 132px 420px;
+  column-gap: 16px;
+  row-gap: 6px;
+  align-items: center;
+}
+
+.editorFormGrid .field > span {
+  grid-column: 1;
+  font-weight: var(--font-weight-medium);
+}
+
+.editorFormGrid .field :is(input, select, textarea) {
+  grid-column: 2;
+  width: 420px;
+  max-width: 420px;
+  font-weight: var(--font-weight-regular);
+}
+
+.editorFormGrid .helpText {
+  grid-column: 2;
+  width: 420px;
+  max-width: 420px;
+}
+
 .formActions {
   display: flex;
   gap: var(--space-2);
   justify-content: flex-end;
   margin-top: var(--space-4);
+}
+
+.editorFormActions {
+  margin-top: var(--space-4);
+  padding-top: 0;
+  border-top: 0;
+  justify-content: flex-end;
+  width: 100%;
+  max-width: none;
+}
+
+.editorHeader .secondaryButton,
+.editorFormActions .primaryButton,
+.editorFormActions .secondaryButton {
+  font-weight: var(--font-weight-medium);
 }
 
 .sectionHeader {
@@ -353,7 +476,7 @@
 
 .pageMeta {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: var(--space-3);
   color: var(--text-tertiary);
   font-size: var(--text-meta-size);
@@ -369,18 +492,4 @@
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
-}
-
-@media (max-width: 960px) {
-  .heroTop,
-  .sectionHeader,
-  .formActions {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .formGrid,
-  .pageFormGrid {
-    grid-template-columns: 1fr;
-  }
 }
