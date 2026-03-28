@@ -190,8 +190,11 @@ describe('Projects routes', () => {
     const aYearAgo = new Date(today);
     aYearAgo.setFullYear(aYearAgo.getFullYear() - 1);
 
+    expect(screen.getByText('총 건수')).toBeInTheDocument();
+    expect(screen.getByText('1건')).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: '페이지 수' })).toBeInTheDocument();
     expect(screen.getByRole('cell', { name: '1' })).toBeInTheDocument();
+    expect(screen.getByLabelText('페이지당 행 수')).toHaveValue('50');
     expect(screen.getByLabelText('시작일')).toHaveValue(toLocalDateInputValue(aYearAgo));
     expect(screen.getByLabelText('종료일')).toHaveValue(toLocalDateInputValue(today));
     expect(screen.getByRole('link', { name: '프로젝트 추가' })).toHaveAttribute(
@@ -227,6 +230,86 @@ describe('Projects routes', () => {
       expect(
         screen.getByText('검색 결과가 없습니다. 새 프로젝트를 등록하거나 기간을 조정하십시오.'),
       ).toBeInTheDocument();
+    });
+  });
+
+  it('searches across project metadata and member names', async () => {
+    const user = userEvent.setup();
+
+    renderProjectsList();
+
+    await waitFor(() => {
+      expect(screen.getByText('알파')).toBeInTheDocument();
+    });
+
+    await user.type(screen.getByLabelText('검색어'), '리뷰어');
+    await user.click(screen.getByRole('button', { name: '검색' }));
+
+    await waitFor(() => {
+      expect(screen.getByText('알파')).toBeInTheDocument();
+    });
+
+    await user.clear(screen.getByLabelText('검색어'));
+    await user.type(screen.getByLabelText('검색어'), '없는검색어');
+    await user.click(screen.getByRole('button', { name: '검색' }));
+
+    await waitFor(() => {
+      expect(
+        screen.getByText('검색 결과가 없습니다. 새 프로젝트를 등록하거나 기간을 조정하십시오.'),
+      ).toBeInTheDocument();
+    });
+  });
+
+  it('paginates projects in 50-row chunks', async () => {
+    const user = userEvent.setup();
+
+    mockOpsDataClient.getProjects.mockResolvedValue(
+      Array.from({ length: 51 }, (_, index) => ({
+        id: `project-${index + 1}`,
+        legacyProjectId: `legacy-project-${index + 1}`,
+        createdByMemberId: null,
+        projectType1: 'QA',
+        name: `프로젝트 ${String(index + 1).padStart(3, '0')}`,
+        platform: 'iOS-App',
+        serviceGroupId: 'svc-1',
+        reportUrl: '',
+        reporterMemberId: 'member-1',
+        reviewerMemberId: 'member-2',
+        startDate: '2026-03-01',
+        endDate: '2026-03-31',
+        isActive: true,
+      })),
+    );
+    mockOpsDataClient.getProjectPages.mockResolvedValue(
+      Array.from({ length: 51 }, (_, index) => ({
+        id: `page-${index + 1}`,
+        legacyPageId: `legacy-page-${index + 1}`,
+        projectId: `project-${index + 1}`,
+        title: `페이지 ${index + 1}`,
+        url: `https://example.com/page-${index + 1}`,
+        ownerMemberId: 'member-1',
+        monitoringMonth: '2026-03',
+        trackStatus: '개선',
+        monitoringInProgress: false,
+        qaInProgress: false,
+        note: '',
+        updatedAt: '2026-03-24T09:00:00.000Z',
+      })),
+    );
+
+    renderProjectsList();
+
+    await waitFor(() => {
+      expect(screen.getByText('51건')).toBeInTheDocument();
+    });
+
+    expect(screen.getByText('프로젝트 001')).toBeInTheDocument();
+    expect(screen.queryByText('프로젝트 051')).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: '다음 페이지' }));
+
+    await waitFor(() => {
+      expect(screen.getByText('프로젝트 051')).toBeInTheDocument();
     });
   });
 
