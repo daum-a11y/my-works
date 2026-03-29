@@ -91,7 +91,7 @@ with source_members as (
     coalesce(legacy_stage.to_bool_flag(user_active), true) as user_active,
     coalesce(legacy_stage.to_bool_flag(report_required), true) as report_required,
     coalesce(legacy_stage.to_timestamp_seoul(user_create), timezone('utc', now())) as joined_at,
-    lower(coalesce(legacy_stage.blank_to_null(user_id), 'member-' || user_num::text)) || '+' || user_num::text || '@account.local' as placeholder_email
+    lower(coalesce(legacy_stage.blank_to_null(user_id), 'member-' || user_num::text)) || '+' || user_num::text || '@linkagelab.co.kr' as placeholder_email
   from legacy_stage.user_tbl
 )
 insert into public.members as members_target (
@@ -154,7 +154,7 @@ select
   null,
   m.account_id,
   m.account_id,
-  lower(m.account_id) || '@account-task.local',
+  lower(m.account_id) || '@linkagelab.co.kr',
   0,
   false,
   timezone('utc', now()),
