@@ -236,7 +236,7 @@ export function SearchPage() {
     <section className={styles.shell}>
       <header className={styles.pageHeader}>
         <div className={styles.pageHeaderTop}>
-          <h1 className={styles.title}>업무내역 조회</h1>
+          <h1 className={styles.title}>내 업무내역</h1>
         </div>
       </header>
 

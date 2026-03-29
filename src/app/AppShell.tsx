@@ -7,13 +7,13 @@ import {
   Database,
   Search,
   Shield,
-  BarChart3,
   ChevronRight,
   ChevronDown,
   House,
   LogOut,
   UserRound,
   FolderCode,
+  BriefcaseBusiness,
 } from 'lucide-react';
 import { useAuth } from '../features/auth/AuthContext';
 import styles from './AppShell.module.css';
@@ -21,28 +21,33 @@ import styles from './AppShell.module.css';
 const baseNavigation = [
   { to: '/dashboard', label: '대시보드', icon: LayoutDashboard },
   { to: '/person/report', label: '업무보고', icon: FileText },
-  { to: '/person/search', label: '업무내역 조회', icon: Search },
+  { to: '/person/search', label: '내 업무내역', icon: Search },
   {
     label: '프로젝트',
     icon: FolderCode,
-    children: [{ to: '/projects', label: '프로젝트 관리', icon: Layers }],
+    children: [
+      { to: '/projects', label: '프로젝트 관리', icon: Layers },
+      { to: '/stats/qa', label: 'QA 통계' },
+      { to: '/stats/monitoring', label: '모니터링 통계' },
+    ],
+  },
+  {
+    label: '업무 관리',
+    icon: BriefcaseBusiness,
+    children: [
+      { to: '/resource/summary', label: '업무보고 현황' },
+      { to: '/admin/reports', label: '업무보고 조회' },
+      { to: '/admin/type', label: '업무 타입 관리' },
+      { to: '/admin/group', label: '서비스그룹 관리' },
+    ],
   },
   {
     label: '리소스',
     icon: Database,
     children: [
-      { to: '/resource/summary', label: '리소스 요약' },
       { to: '/resource/type', label: '업무유형 집계' },
       { to: '/resource/svc', label: '서비스그룹 집계' },
       { to: '/resource/month', label: '월간 종합현황' },
-    ],
-  },
-  {
-    label: '통계',
-    icon: BarChart3,
-    children: [
-      { to: '/stats/qa', label: 'QA 통계' },
-      { to: '/stats/monitoring', label: '모니터링 통계' },
     ],
   },
 ] as const;
@@ -51,12 +56,7 @@ const adminNavigation = [
   {
     label: '관리자',
     icon: Shield,
-    children: [
-      { to: '/admin/reports', label: '전체 업무검색' },
-      { to: '/admin/members', label: '사용자' },
-      { to: '/admin/type', label: '업무 타입 관리' },
-      { to: '/admin/group', label: '서비스그룹 관리' },
-    ],
+    children: [{ to: '/admin/members', label: '사용자' }],
   },
 ] as const;
 
