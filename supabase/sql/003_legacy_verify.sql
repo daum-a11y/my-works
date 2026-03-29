@@ -1,6 +1,6 @@
 select 'user_tbl.stage_count' as check_name, count(*)::text as result from legacy_stage.user_tbl
 union all
-select 'members.public_count', count(*)::text from public.members where account_num is not null
+select 'members.public_count', count(*)::text from public.members where account_id is not null
 union all
 select 'members.xref_count', count(*)::text from legacy_xref.members
 union all
@@ -36,7 +36,7 @@ select 'tasks.xref_count', count(*)::text from legacy_xref.tasks;
 
 select 'user_tbl.unmapped_members' as check_name, count(*) as result
 from legacy_stage.user_tbl s
-left join legacy_xref.members x on x.account_num = s.user_num
+left join legacy_xref.members x on x.account_id = s.user_id
 where x.member_id is null;
 
 select 'type_tbl.unmapped_task_types' as check_name, count(*) as result

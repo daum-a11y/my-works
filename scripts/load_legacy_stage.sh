@@ -96,8 +96,7 @@ select
   user_level,
   user_lastlogin,
   user_create,
-  user_active,
-  report_required
+  user_active
 from USER_TBL
 order by user_num
 "

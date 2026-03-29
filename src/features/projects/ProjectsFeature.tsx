@@ -1,6 +1,7 @@
 import { type FormEvent, useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
+import { setDocumentTitle } from '../../app/navigation';
 import { useAuth } from '../auth/AuthContext';
 import { PageSection } from '../../components/ui/PageSection';
 import { opsDataClient } from '../../lib/data-client';
@@ -115,13 +116,17 @@ export function ProjectsFeature() {
   const [pageSize, setPageSize] = useState<number>(DEFAULT_PAGE_SIZE);
   const [currentPage, setCurrentPage] = useState(1);
 
+  useEffect(() => {
+    setDocumentTitle('프로젝트 관리');
+  }, []);
+
   const query = useQuery({
     queryKey: ['projects', member?.id],
     enabled: Boolean(member),
     queryFn: async () => {
       const [projects, pages, members, serviceGroups] = await Promise.all([
         opsDataClient.getProjects(),
-        opsDataClient.getProjectPages(),
+        opsDataClient.getProjectPages(member!),
         opsDataClient.getMembers(),
         opsDataClient.getServiceGroups(),
       ]);

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, type FormEvent, type KeyboardEvent } from 'react';
 import { useLocation } from 'react-router-dom';
+import { setDocumentTitle } from '../../app/navigation';
 
 import {
   formatReportDate,
@@ -288,6 +289,10 @@ const TYPE_INPUT_PAGE_SELECT_TYPE2_IDS = ['2', '7', '9', '10', '12', '13'] as co
 const TYPE_INPUT_PAGE_URL_TYPE2_IDS = ['2', '7', '9', '10', '12', '13', '50'] as const;
 
 export function ReportsPage() {
+  useEffect(() => {
+    setDocumentTitle('업무보고');
+  }, []);
+
   const location = useLocation();
   const appliedDashboardDateRef = useRef('');
   const {

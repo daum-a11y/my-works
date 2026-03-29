@@ -13,15 +13,14 @@ $$;
 create table if not exists public.members (
   id uuid primary key default gen_random_uuid(),
   auth_user_id uuid unique,
-  account_num integer,
   account_id text not null unique,
   name text not null,
   email text not null unique,
+  note text not null default '',
   user_level smallint not null default 0,
   user_active boolean not null default true,
   joined_at timestamptz not null default timezone('utc', now()),
   last_login_at timestamptz,
-  report_required boolean not null default true,
   created_at timestamptz not null default timezone('utc', now()),
   updated_at timestamptz not null default timezone('utc', now())
 );
@@ -307,8 +306,7 @@ begin
     email,
     user_level,
     user_active,
-    joined_at,
-    report_required
+    joined_at
   )
   values (
     p_auth_user_id,
@@ -317,8 +315,7 @@ begin
     v_email,
     case when v_members_count = 0 then 1 else 0 end,
     true,
-    timezone('utc', now()),
-    true
+    timezone('utc', now())
   )
   returning * into v_member;
 

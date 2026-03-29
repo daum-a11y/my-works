@@ -1,68 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
-import {
-  LayoutDashboard,
-  FileText,
-  Layers,
-  Database,
-  Search,
-  Shield,
-  ChevronRight,
-  ChevronDown,
-  House,
-  LogOut,
-  UserRound,
-  FolderCode,
-  BriefcaseBusiness,
-} from 'lucide-react';
+import { ChevronRight, ChevronDown, House, LogOut, UserRound } from 'lucide-react';
 import { useAuth } from '../features/auth/AuthContext';
+import { adminNavigation, baseNavigation, getBreadcrumbs, setDocumentTitle } from './navigation';
 import styles from './AppShell.module.css';
-
-const baseNavigation = [
-  { to: '/dashboard', label: '대시보드', icon: LayoutDashboard },
-  { to: '/person/report', label: '업무보고', icon: FileText },
-  { to: '/person/search', label: '내 업무내역', icon: Search },
-  {
-    label: '프로젝트',
-    icon: FolderCode,
-    children: [
-      { to: '/projects', label: '프로젝트 관리', icon: Layers },
-      { to: '/stats/qa', label: 'QA 통계' },
-      { to: '/stats/monitoring', label: '모니터링 통계' },
-    ],
-  },
-  {
-    label: '조직 관리',
-    icon: BriefcaseBusiness,
-    children: [
-      { to: '/org/summary', label: '업무보고 현황' },
-      { to: '/org/search', label: '업무보고 조회' },
-      { to: '/org/type', label: '업무 타입 관리' },
-      { to: '/org/group', label: '서비스그룹 관리' },
-    ],
-  },
-  {
-    label: '리소스',
-    icon: Database,
-    children: [
-      { to: '/resource/type', label: '업무유형 집계' },
-      { to: '/resource/svc', label: '서비스그룹 집계' },
-      { to: '/resource/month', label: '월간 종합현황' },
-    ],
-  },
-] as const;
-
-const adminNavigation = [
-  {
-    label: '관리자',
-    icon: Shield,
-    children: [{ to: '/admin/members', label: '사용자 관리' }],
-  },
-] as const;
-
-function isCurrentPath(pathname: string, to: string) {
-  return pathname === to || pathname.startsWith(`${to}/`);
-}
 
 export function AppShell() {
   const location = useLocation();
@@ -79,32 +20,12 @@ export function AppShell() {
   );
 
   const breadcrumbs = useMemo(() => {
-    const parts = [{ label: '홈', to: '/dashboard' }];
-
-    if (location.pathname === '/profile' || location.pathname === '/password-change') {
-      parts.push({ label: '프로필', to: '/profile' });
-      return parts;
-    }
-
-    for (const item of navigation) {
-      if ('to' in item && item.to && isCurrentPath(location.pathname, item.to)) {
-        parts.push({ label: item.label, to: item.to });
-        break;
-      }
-
-      if ('children' in item && item.children) {
-        for (const child of item.children) {
-          if (isCurrentPath(location.pathname, child.to)) {
-            parts.push({ label: item.label, to: '#' });
-            parts.push({ label: child.label, to: child.to });
-            return parts;
-          }
-        }
-      }
-    }
-
-    return parts;
+    return getBreadcrumbs(location.pathname, navigation);
   }, [location.pathname, navigation]);
+
+  useEffect(() => {
+    setDocumentTitle(breadcrumbs[breadcrumbs.length - 1]?.label ?? 'My Works');
+  }, [breadcrumbs]);
 
   useEffect(() => {
     setIsUserMenuOpen(false);

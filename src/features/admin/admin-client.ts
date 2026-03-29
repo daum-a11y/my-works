@@ -207,6 +207,7 @@ function mapMember(record: Record<string, unknown>): MemberAdminItem {
     accountId,
     name: String(record.name ?? ''),
     email,
+    note: String(record.note ?? ''),
     role: Number(record.user_level ?? 0) === 1 ? 'admin' : 'user',
     userActive: active,
     isActive: active,
@@ -548,7 +549,7 @@ function createSupabaseAdminClient(): AdminDataClient {
       const { data, error } = await supabase
         .from('members')
         .select(
-          'id, auth_user_id, account_id, name, email, user_level, user_active, joined_at, last_login_at, updated_at',
+          'id, auth_user_id, account_id, name, email, note, user_level, user_active, joined_at, last_login_at, updated_at',
         )
         .order('joined_at', { ascending: false });
       if (error) throw error;
@@ -561,6 +562,7 @@ function createSupabaseAdminClient(): AdminDataClient {
         account_id: payload.accountId,
         name: payload.name,
         email: payload.email,
+        note: payload.note,
         user_level: payload.role === 'admin' ? 1 : 0,
         user_active: payload.userActive ?? payload.isActive ?? true,
       };
@@ -571,7 +573,7 @@ function createSupabaseAdminClient(): AdminDataClient {
           .update(record)
           .eq('id', payload.id)
           .select(
-            'id, auth_user_id, account_id, name, email, user_level, user_active, joined_at, updated_at',
+            'id, auth_user_id, account_id, name, email, note, user_level, user_active, joined_at, updated_at',
           )
           .single();
         if (error) throw error;
@@ -582,7 +584,7 @@ function createSupabaseAdminClient(): AdminDataClient {
         .from('members')
         .insert(record)
         .select(
-          'id, auth_user_id, account_id, name, email, user_level, user_active, joined_at, updated_at',
+          'id, auth_user_id, account_id, name, email, note, user_level, user_active, joined_at, updated_at',
         )
         .single();
       if (error) throw error;

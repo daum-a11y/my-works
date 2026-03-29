@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { setDocumentTitle } from '../../../app/navigation';
 import { adminDataClient } from '../admin-client';
 
 import styles from '../AdminPage.module.css';
@@ -118,7 +119,7 @@ export function AdminTaskTypesPage() {
   }, [taskTypes]);
 
   useEffect(() => {
-    document.title = '타입 - 관리 | My Works';
+    setDocumentTitle('업무 타입 관리');
   }, []);
 
   useEffect(() => {
@@ -219,7 +220,7 @@ export function AdminTaskTypesPage() {
   return (
     <section className={styles.page}>
       <header className={styles.hero}>
-        <h1>업무타입</h1>
+        <h1>업무 타입 관리</h1>
       </header>
 
       {errorMessage ? <p className={styles.helperText}>{errorMessage}</p> : null}

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
   Area,
@@ -11,6 +11,7 @@ import {
   YAxis,
 } from 'recharts';
 import { PageSection } from '../../components/ui/PageSection';
+import { setDocumentTitle } from '../../app/navigation';
 import { opsDataClient } from '../../lib/data-client';
 import { getCurrentMonth, shiftMonth } from '../resource/resource-shared';
 import { useAuth } from '../auth/AuthContext';
@@ -137,6 +138,10 @@ export function QaStatsPage() {
   const [startMonth, setStartMonth] = useState(defaultStartMonth);
   const [endMonth, setEndMonth] = useState(defaultEndMonth);
   const [summaryView, setSummaryView] = useState<'chart' | 'table'>('chart');
+
+  useEffect(() => {
+    setDocumentTitle('QA 통계');
+  }, []);
 
   const handleSearch = () => {
     const nextStart =

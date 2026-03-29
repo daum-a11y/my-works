@@ -1,6 +1,6 @@
 import { type FormEvent, useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-
+import { setDocumentTitle } from '../../app/navigation';
 import { useAuth } from '../auth/AuthContext';
 import { PageSection } from '../../components/ui/PageSection';
 import { opsDataClient } from '../../lib/data-client';
@@ -97,6 +97,10 @@ export function SearchPage() {
   const [appliedSearch, setAppliedSearch] = useState('');
   const [pageSize, setPageSize] = useState<number>(DEFAULT_PAGE_SIZE);
   const [currentPage, setCurrentPage] = useState(1);
+
+  useEffect(() => {
+    setDocumentTitle('내 업무내역');
+  }, []);
 
   const projectsQuery = useQuery({
     queryKey: ['search', 'projects'],

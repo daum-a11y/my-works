@@ -49,10 +49,6 @@ export function AdminMembersPage() {
   const [filterDraft, setFilterDraft] = useState<MemberFilterState>(createInitialFilters);
   const [appliedFilters, setAppliedFilters] = useState<MemberFilterState>(createInitialFilters);
 
-  useEffect(() => {
-    document.title = '사용자 관리 | My Works';
-  }, []);
-
   const membersQuery = useQuery({
     queryKey: ['admin', 'members'],
     queryFn: () => adminDataClient.listMembersAdmin(),

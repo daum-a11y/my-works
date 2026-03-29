@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
+import { setDocumentTitle } from '../../app/navigation';
 import { opsDataClient } from '../../lib/data-client';
 import { useAuth } from '../auth/AuthContext';
 import {
@@ -20,7 +21,7 @@ export function DashboardPage() {
   const [selectedMonth, setSelectedMonth] = useState(() => getCurrentMonth());
 
   useEffect(() => {
-    document.title = '대시보드 | My Works';
+    setDocumentTitle('대시보드');
   }, []);
 
   const dashboardQuery = useQuery({

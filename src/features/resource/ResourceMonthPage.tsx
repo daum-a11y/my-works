@@ -1,5 +1,6 @@
 import { Fragment, useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { setDocumentTitle } from '../../app/navigation';
 import { PageSection } from '../../components/ui/PageSection';
 import {
   buildProjectMaps,
@@ -63,7 +64,7 @@ export function ResourceMonthPage() {
   const [svcFold, setSvcFold] = useState(false);
 
   useEffect(() => {
-    document.title = '월간 투입리소스 | My Works';
+    setDocumentTitle('월간 종합현황');
   }, []);
 
   const monthTasks = useMemo(

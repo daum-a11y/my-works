@@ -1,15 +1,16 @@
 import { useEffect } from 'react';
+import { setDocumentTitle } from '../../../app/navigation';
 import styles from '../AdminPage.module.css';
 
 export function AdminSummaryPage() {
   useEffect(() => {
-    document.title = '관리 | My Works';
+    setDocumentTitle('업무보고 현황');
   }, []);
 
   return (
     <section className={styles.page}>
       <header className={styles.hero}>
-        <h1>관리자</h1>
+        <h1>업무보고 현황</h1>
       </header>
 
       <div className={`${styles.panel} ${styles.emptyStatePanel}`}></div>

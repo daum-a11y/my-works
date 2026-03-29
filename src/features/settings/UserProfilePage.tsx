@@ -56,10 +56,6 @@ export function UserProfilePage() {
     !isSubmitting;
 
   useEffect(() => {
-    document.title = '프로필 | My Works';
-  }, []);
-
-  useEffect(() => {
     if (editing) {
       if (step === 'form') {
         nextInputRef.current?.focus();

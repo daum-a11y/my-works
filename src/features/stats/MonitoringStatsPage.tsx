@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Area,
@@ -12,6 +12,7 @@ import {
   YAxis,
 } from 'recharts';
 import { PageSection } from '../../components/ui/PageSection';
+import { setDocumentTitle } from '../../app/navigation';
 import { opsDataClient } from '../../lib/data-client';
 import { pageStatusOptions, type PageStatus, type ProjectPage } from '../../lib/domain';
 import { getCurrentMonth, shiftMonth } from '../resource/resource-shared';
@@ -147,6 +148,10 @@ export function MonitoringStatsPage() {
   const [draftNote, setDraftNote] = useState('');
   const [hoveredNotePageId, setHoveredNotePageId] = useState<string | null>(null);
   const [pinnedNotePageId, setPinnedNotePageId] = useState<string | null>(null);
+
+  useEffect(() => {
+    setDocumentTitle('모니터링 통계');
+  }, []);
 
   const savePageMutation = useMutation({
     mutationFn: async (page: ProjectPage) =>

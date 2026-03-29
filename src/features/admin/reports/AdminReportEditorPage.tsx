@@ -204,10 +204,6 @@ export function AdminReportEditorPage() {
   const [appliedProjectQuery, setAppliedProjectQuery] = useState('');
   const [statusMessage, setStatusMessage] = useState('');
 
-  useEffect(() => {
-    document.title = `${isEdit ? '전체 업무 수정' : '전체 업무 추가'} | My Works`;
-  }, [isEdit]);
-
   const membersQuery = useQuery({
     queryKey: ['admin', 'members'],
     queryFn: () => adminDataClient.listMembersAdmin(),

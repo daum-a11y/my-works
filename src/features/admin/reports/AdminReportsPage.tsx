@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
+import { setDocumentTitle } from '../../../app/navigation';
 import { downloadExcelFile } from '../../../lib/excel-export';
 import { toLocalDateInputValue } from '../../../lib/utils';
 import { adminDataClient } from '../admin-client';
@@ -198,7 +199,7 @@ export function AdminReportsPage() {
   const [localMutationError, setLocalMutationError] = useState('');
 
   useEffect(() => {
-    document.title = '전체 업무내역 조회 | My Works';
+    setDocumentTitle('업무보고 조회');
   }, []);
 
   const membersQuery = useQuery({
@@ -388,7 +389,7 @@ export function AdminReportsPage() {
       <header className={styles.hero}>
         <div>
           <p className={styles.eyebrow}>관리자</p>
-          <h1>전체 업무내역 조회</h1>
+          <h1>업무보고 조회</h1>
         </div>
       </header>
 

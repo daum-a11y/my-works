@@ -118,6 +118,7 @@ export interface MemberAdminItem {
   accountId: string;
   name: string;
   email: string;
+  note: string;
   role: 'user' | 'admin';
   userActive: boolean;
   isActive: boolean;
@@ -134,6 +135,7 @@ export interface MemberAdminPayload {
   accountId: string;
   name: string;
   email: string;
+  note: string;
   role: 'user' | 'admin';
   userActive: boolean;
   isActive?: boolean;

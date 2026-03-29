@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { setDocumentTitle } from '../../app/navigation';
 import { PageSection } from '../../components/ui/PageSection';
 import {
   buildCalendarWeeks,
@@ -21,7 +22,7 @@ export function ResourceSummaryPage() {
   const [selectedMemberId, setSelectedMemberId] = useState('');
 
   useEffect(() => {
-    document.title = '투입리소스 | My Works';
+    setDocumentTitle('업무보고 현황');
   }, []);
 
   useEffect(() => {

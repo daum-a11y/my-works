@@ -33,7 +33,7 @@ function formatMemberDateTime(value: string) {
 
 export function AdminMemberRow({ member }: AdminMemberRowProps) {
   return (
-    <tr>
+    <tr className={member.userActive ? undefined : styles.inactiveRow}>
       <td>{member.accountId}</td>
       <td>{member.name}</td>
       <td>{member.email || '-'}</td>

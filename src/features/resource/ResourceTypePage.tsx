@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { setDocumentTitle } from '../../app/navigation';
 import { PageSection } from '../../components/ui/PageSection';
 import { countWorkingDays, formatMm, useResourceDataset } from './resource-shared';
 import styles from './ResourcePage.module.css';
@@ -9,7 +10,7 @@ export function ResourceTypePage() {
   const [fold, setFold] = useState(false);
 
   useEffect(() => {
-    document.title = '요약 - 투입리소스 | My Works';
+    setDocumentTitle('업무유형 집계');
   }, []);
 
   const rows = useMemo(() => {

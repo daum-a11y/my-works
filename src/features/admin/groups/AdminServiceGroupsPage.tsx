@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { setDocumentTitle } from '../../../app/navigation';
 import { adminDataClient } from '../admin-client';
 import type { AdminServiceGroupItem, AdminServiceGroupPayload } from '../admin-types';
 import styles from './AdminServiceGroupsPage.module.css';
@@ -98,7 +99,7 @@ export function AdminServiceGroupsPage() {
   const groupedServiceGroups = useMemo(() => groupServiceGroups(serviceGroups), [serviceGroups]);
 
   useEffect(() => {
-    document.title = '서비스그룹 - 관리 | My Works';
+    setDocumentTitle('서비스그룹 관리');
   }, []);
 
   const handleDraftChange = <K extends keyof DraftState>(key: K, value: DraftState[K]) => {
@@ -148,7 +149,7 @@ export function AdminServiceGroupsPage() {
   return (
     <section className={styles.page}>
       <header className={styles.hero}>
-        <h1>서비스그룹 - 관리</h1>
+        <h1>서비스그룹 관리</h1>
       </header>
 
       {errorMessage ? <p className={styles.helperText}>{errorMessage}</p> : null}

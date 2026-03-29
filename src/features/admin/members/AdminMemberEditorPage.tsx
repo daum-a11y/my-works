@@ -13,10 +13,6 @@ export function AdminMemberEditorPage() {
   const isEditMode = Boolean(memberId);
   const [draft, setDraft] = useState<MemberAdminPayload>(() => createMemberDraft());
 
-  useEffect(() => {
-    document.title = `${isEditMode ? '사용자 수정' : '사용자 추가'} | My Works`;
-  }, [isEditMode]);
-
   const membersQuery = useQuery({
     queryKey: ['admin', 'members'],
     queryFn: () => adminDataClient.listMembersAdmin(),
@@ -127,6 +123,7 @@ export function AdminMemberEditorPage() {
         name: selectedMember.name,
         email: selectedMember.email,
         role: selectedMember.role,
+        note: selectedMember.note,
         userActive: true,
         isActive: true,
       });
@@ -291,6 +288,17 @@ export function AdminMemberEditorPage() {
                 <input value={activeLabel} readOnly />
               </label>
             ) : null}
+
+            <label className={styles.field}>
+              <span>비고</span>
+              <textarea
+                value={draft.note}
+                readOnly={Boolean(isInactiveMember)}
+                onChange={(event) =>
+                  setDraft((current) => ({ ...current, note: event.target.value }))
+                }
+              />
+            </label>
           </div>
 
           <div className={`${styles.formActions} ${styles.editorFormActions}`}>

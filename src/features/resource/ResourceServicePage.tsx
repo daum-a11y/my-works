@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { setDocumentTitle } from '../../app/navigation';
 import { PageSection } from '../../components/ui/PageSection';
 import {
   buildProjectMaps,
@@ -15,7 +16,7 @@ export function ResourceServicePage() {
   const [fold, setFold] = useState(false);
 
   useEffect(() => {
-    document.title = '그룹별 요약 - 투입리소스 | My Works';
+    setDocumentTitle('서비스그룹 집계');
   }, []);
 
   const rows = useMemo(() => {
@@ -92,7 +93,7 @@ export function ResourceServicePage() {
   }, [data]);
 
   return (
-    <PageSection title="서비스 그룹별 요약">
+    <PageSection title="서비스그룹별 요약">
       <div className={styles.tableActionRow}>
         <button type="button" onClick={() => setFold((current) => !current)}>
           {fold ? '펼치기' : '접기'}

@@ -260,6 +260,10 @@
   background: color-mix(in oklab, var(--theme-admin-surface) 44%, var(--surface-active));
 }
 
+.inactiveRow td {
+  background: color-mix(in oklab, var(--surface-panel) 62%, var(--raw-slate-200));
+}
+
 .cell {
   min-width: 0;
 }

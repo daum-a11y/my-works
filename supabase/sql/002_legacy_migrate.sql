@@ -84,43 +84,35 @@ $$;
 
 with source_members as (
   select
-    user_num as account_num,
     legacy_stage.blank_to_null(user_id) as account_id,
     coalesce(legacy_stage.blank_to_null(user_name), legacy_stage.blank_to_null(user_id), '이름없음') as name,
     coalesce(legacy_stage.to_int(user_level), 0)::smallint as user_level,
     coalesce(legacy_stage.to_bool_flag(user_active), true) as user_active,
-    coalesce(legacy_stage.to_bool_flag(report_required), true) as report_required,
     coalesce(legacy_stage.to_timestamp_seoul(user_create), timezone('utc', now())) as joined_at,
     lower(coalesce(legacy_stage.blank_to_null(user_id), 'member-' || user_num::text)) || '+' || user_num::text || '@linkagelab.co.kr' as placeholder_email
   from legacy_stage.user_tbl
 )
 insert into public.members as members_target (
-  account_num,
   account_id,
   name,
   email,
   user_level,
   user_active,
-  joined_at,
-  report_required
+  joined_at
 )
 select
-  s.account_num,
   s.account_id,
   s.name,
   s.placeholder_email,
   s.user_level,
   s.user_active,
-  s.joined_at,
-  s.report_required
+  s.joined_at
 from source_members s
 on conflict (account_id) do update
-set account_num = excluded.account_num,
-    name = excluded.name,
+set name = excluded.name,
     user_level = excluded.user_level,
     user_active = excluded.user_active,
     joined_at = excluded.joined_at,
-    report_required = excluded.report_required,
     email = members_target.email,
     updated_at = timezone('utc', now());
 
@@ -141,38 +133,32 @@ missing_task_members as (
   )
 )
 insert into public.members (
-  account_num,
   account_id,
   name,
   email,
   user_level,
   user_active,
-  joined_at,
-  report_required
+  joined_at
 )
 select
-  null,
   m.account_id,
   m.account_id,
   lower(m.account_id) || '@linkagelab.co.kr',
   0,
   false,
-  timezone('utc', now()),
-  false
+  timezone('utc', now())
 from missing_task_members m;
 
 delete from legacy_stage.task_tbl
 where legacy_stage.blank_to_null(task_user) is null;
 
 truncate table legacy_xref.members;
-insert into legacy_xref.members (account_num, account_id, member_id)
+insert into legacy_xref.members (account_id, member_id)
 select
-  m.account_num,
   m.account_id,
   m.id
 from public.members m
-where m.account_num is not null
-  and m.account_id is not null;
+where m.account_id is not null;
 
 with source_types as (
   select
