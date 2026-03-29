@@ -321,13 +321,6 @@ export function SearchPage() {
             </button>
           </div>
           <p className={styles.resultMetric}>
-            <span className={styles.resultLabel}>검색기간</span>
-            <strong className={styles.resultValue}>
-              {formatReportDate(appliedFilters.startDate)} ~{' '}
-              {formatReportDate(appliedFilters.endDate)}
-            </strong>
-          </p>
-          <p className={styles.resultMetric}>
             <span className={styles.resultLabel}>총 건수</span>
             <strong className={styles.resultValue}>{numberFormatter.format(totalReports)}건</strong>
           </p>
