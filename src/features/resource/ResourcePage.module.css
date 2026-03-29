@@ -52,6 +52,7 @@
   display: grid;
   gap: 16px;
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
 }
 
 .content {
@@ -335,6 +336,150 @@
   line-height: var(--text-meta-line-height);
 }
 
+.monthContext {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.monthContextHead {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--border-default);
+}
+
+.monthHeaderBlock {
+  display: grid;
+  gap: 0;
+}
+
+.monthNavigator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  border: 1px solid var(--border-default);
+  background: var(--surface-panel);
+  box-shadow: var(--elevation-1);
+  isolation: isolate;
+}
+
+.monthHeaderLabel {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: clamp(22px, 2vw, 28px);
+  font-weight: var(--font-weight-heavy);
+  line-height: 1.1;
+  letter-spacing: calc(var(--text-page-title-tracking) * 0.35);
+  font-variant-numeric: tabular-nums;
+}
+
+.monthNavLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 0 14px;
+  border-right: 1px solid var(--border-default);
+  color: var(--text-primary);
+  font-size: var(--text-form-size);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1;
+  text-decoration: none;
+  background: transparent;
+}
+
+.monthNavLink:last-child {
+  border-right: 0;
+}
+
+.monthNavLink:hover {
+  background: color-mix(in oklab, var(--accent-soft) 18%, var(--surface-panel));
+}
+
+.monthNavIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  color: var(--text-tertiary);
+  font-size: 12px;
+  font-weight: var(--font-weight-heavy);
+}
+
+.summaryBoard {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.summaryFacts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(148px, 1fr));
+  gap: 1px;
+  border: 1px solid var(--border-default);
+  background: var(--border-default);
+}
+
+.summaryFact {
+  display: grid;
+  gap: 4px;
+  padding: 12px 14px;
+  background: var(--surface-panel);
+}
+
+.summaryFact span {
+  color: var(--text-tertiary);
+  font-size: var(--text-meta-size);
+  line-height: var(--text-meta-line-height);
+}
+
+.summaryFact strong {
+  color: var(--text-primary);
+  font-size: var(--text-form-size);
+  font-weight: var(--font-weight-heavy);
+  line-height: var(--text-form-line-height);
+}
+
+.summaryFactAccent {
+  background: color-mix(in oklab, var(--theme-resource-surface) 48%, var(--surface-panel));
+}
+
+.summaryPanels {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: var(--space-4);
+}
+
+.summaryPanel {
+  display: grid;
+  gap: var(--space-3);
+  padding: 14px 16px 16px;
+  border: 1px solid var(--border-default);
+  background: var(--surface-panel);
+}
+
+.summaryPanelHeader {
+  display: grid;
+  gap: 4px;
+}
+
+.summaryPanelHeader h2 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: var(--text-section-title-size);
+  font-weight: var(--text-section-title-weight);
+  line-height: var(--text-section-title-line-height);
+}
+
+.summaryPanelHeader p {
+  margin: 0;
+  color: var(--text-tertiary);
+  font-size: var(--text-meta-size);
+  line-height: var(--text-meta-line-height);
+}
+
 .badgeRow {
   display: flex;
   flex-wrap: wrap;
@@ -385,13 +530,12 @@
   color: var(--state-success-text);
 }
 
-.progressBar {
+.progressRail {
   display: flex;
   width: 100%;
-  min-height: 40px;
+  min-height: 14px;
   border: 1px solid var(--border-default);
-  background: var(--surface-panel);
-  box-shadow: var(--elevation-1);
+  background: var(--surface-canvas-strong);
   overflow: hidden;
 }
 
@@ -399,14 +543,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 4px 8px;
+  min-width: 0;
+  padding: 0 8px;
   border-inline-end: 1px solid color-mix(in oklab, white 72%, transparent);
-  color: var(--text-inverse);
-  font-size: 12px;
-  font-weight: 600;
-  line-height: 1.15;
-  text-align: center;
-  white-space: nowrap;
+  overflow: hidden;
 }
 
 .progressHoliday {
@@ -418,50 +558,88 @@
 }
 
 .progressNormal {
-  background: color-mix(in oklab, var(--chart-series-primary-fill) 68%, var(--surface-panel));
-  color: var(--theme-stats-accent);
+  background: color-mix(in oklab, var(--raw-indigo-100) 82%, var(--raw-paper-2));
+  color: var(--text-primary);
 }
 
 .progressBuffer {
   background: var(--raw-slate-700);
 }
 
-.monthNav {
+.progressLabel {
+  color: var(--text-inverse);
+  font-size: var(--text-meta-size);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.progressLabelDark {
+  color: var(--text-primary);
+}
+
+.distributionList {
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
+  gap: var(--space-2);
+}
+
+.distributionItem {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
-  gap: 16px;
-  padding: 16px;
+  gap: 8px;
+  padding: 10px 11px;
+  border: 1px solid var(--border-default);
+  background: color-mix(in oklab, var(--surface-panel) 90%, var(--surface-canvas-strong));
+}
+
+.distributionItem strong {
+  color: var(--text-primary);
+  font-size: var(--text-body-size);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-body-line-height);
+}
+
+.distributionItem span:last-child {
+  color: var(--text-secondary);
+  font-size: var(--text-meta-size);
+  line-height: var(--text-meta-line-height);
+}
+
+.distributionTone {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+}
+
+.memberGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: var(--space-2);
+}
+
+.memberCard {
+  display: grid;
+  gap: 2px;
+  padding: 10px 11px;
   border: 1px solid var(--border-default);
   background: var(--surface-panel);
-  box-shadow: var(--elevation-1);
 }
 
-.monthNavSide {
-  justify-self: start;
-}
-
-.monthNavSideRight {
-  justify-self: end;
-}
-
-.monthNavCenter h3 {
-  margin: 0;
+.memberCard strong {
   color: var(--text-primary);
-  font-size: 23px;
-  font-weight: var(--text-page-title-weight);
-  line-height: 1.1;
+  font-size: var(--text-form-size);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-form-line-height);
 }
 
-.monthNavButton {
-  display: inline-flex;
-  align-items: center;
-  min-height: var(--control-height-md);
-  padding: 0 13px;
-  border: 1px solid var(--control-border);
-  background: var(--control-bg);
-  color: var(--text-primary);
-  text-decoration: none;
+.memberCard span {
+  color: inherit;
+  font-size: var(--text-meta-size);
+  line-height: var(--text-meta-line-height);
 }
 
 .sumRow th,
@@ -489,6 +667,10 @@
 }
 
 @media (max-width: 900px) {
+  .summaryPanels {
+    grid-template-columns: 1fr;
+  }
+
   .splitGrid {
     grid-template-columns: 1fr;
   }

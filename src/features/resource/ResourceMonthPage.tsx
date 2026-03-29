@@ -1,4 +1,5 @@
 import { Fragment, useEffect, useMemo, useState } from 'react';
+import clsx from 'clsx';
 import { Link, useParams } from 'react-router-dom';
 import { setDocumentTitle } from '../../app/navigation';
 import { PageSection } from '../../components/ui/PageSection';
@@ -16,6 +17,8 @@ import {
   shiftMonth,
   useResourceDataset,
 } from './resource-shared';
+import dashboardStyles from '../dashboard/DashboardPage.module.css';
+import projectStyles from '../projects/ProjectsFeature.module.css';
 import styles from './ResourcePage.module.css';
 
 interface TypeRow {
@@ -236,123 +239,156 @@ export function ResourceMonthPage() {
   const workingDays = countWorkingDays(selectedMonth);
   const monthWorkingDays = countWorkingDaysUntil(selectedMonth, new Date().getDate());
   const expectedMinutes = (isCurrentMonth ? monthWorkingDays : workingDays) * 480;
+  const summaryItems = [
+    { label: '기준월', value: `${year}/${month}` },
+    { label: '근무일', value: `WD ${workingDays}일` },
+    { label: '총 MM', value: `${formatMm(adjustedTotalMinutes, workingDays)} MM` },
+    {
+      label: '휴무 제외',
+      value: `${formatMm(adjustedTotalMinutes - holidayMinutes, workingDays)} MM`,
+    },
+    ...(unpaidLeaveMinutes > 0
+      ? [{ label: '무급휴가', value: `${formatMm(unpaidLeaveMinutes, workingDays)} MM` }]
+      : []),
+  ];
+  const distributionItems = [
+    {
+      key: 'holiday',
+      label: '휴가/휴무',
+      minutes: holidayMinutes,
+      mm: formatMm(holidayMinutes, workingDays),
+      className: styles.progressHoliday,
+    },
+    {
+      key: 'project',
+      label: '프로젝트',
+      minutes: projectMinutes,
+      mm: formatMm(projectMinutes, workingDays),
+      className: styles.progressProject,
+    },
+    {
+      key: 'normal',
+      label: '일반',
+      minutes: nonProjectMinutes,
+      mm: formatMm(nonProjectMinutes, workingDays),
+      className: styles.progressNormal,
+      labelClassName: styles.progressLabelDark,
+    },
+    {
+      key: 'buffer',
+      label: '기타버퍼',
+      minutes: bufferMinutes,
+      mm: formatMm(bufferMinutes, workingDays),
+      className: styles.progressBuffer,
+    },
+  ].filter((item) => item.minutes > 0);
 
   return (
-    <div className={styles.page}>
-      <div className={styles.monthNav}>
-        <div className={styles.monthNavSide}>
-          <Link className={styles.monthNavButton} to={`/resource/month/${beforeMonth}`}>
-            {beforeMonth.replace('-', '/')}
-          </Link>
+    <section className={projectStyles.shell}>
+      <header className={projectStyles.pageHeader}>
+        <div className={projectStyles.pageHeaderTop}>
+          <h1 className={projectStyles.title}>월간 종합현황</h1>
         </div>
-        <div className={styles.monthNavCenter}>
-          <h3>
-            {year}/{month}
-          </h3>
-        </div>
-        <div className={`${styles.monthNavSide} ${styles.monthNavSideRight}`}>
-          <Link className={styles.monthNavButton} to={`/resource/month/${afterMonth}`}>
-            {afterMonth.replace('-', '/')}
-          </Link>
-        </div>
-      </div>
+      </header>
 
       {query.isPending ? (
         <div className={styles.empty}>데이터를 불러오는 중입니다.</div>
       ) : (
         <>
-          <div className={styles.badgeRow}>
-            <span className={`${styles.infoBadge} ${styles.infoBadgeAccent}`}>
-              WD {workingDays}일
-            </span>
-            <span className={styles.infoBadge}>
-              총 {formatMm(adjustedTotalMinutes, workingDays)} MM
-            </span>
-            <span className={styles.infoBadge}>
-              휴무 제외 {formatMm(adjustedTotalMinutes - holidayMinutes, workingDays)} MM
-            </span>
-            {unpaidLeaveMinutes > 0 ? (
-              <span className={styles.infoBadge}>
-                무급휴가 {formatMm(unpaidLeaveMinutes, workingDays)} MM
-              </span>
+          <section className={styles.monthContext}>
+            <div className={dashboardStyles.sectionHead}>
+              <div className={dashboardStyles.calendarHeading}>
+                <div className={dashboardStyles.calendarTitleBlock}>
+                  <p className={dashboardStyles.calendarEyebrow}>월간 종합현황</p>
+                  <h2 className={dashboardStyles.calendarTitle}>
+                    {year}년 {month}월
+                  </h2>
+                </div>
+                <div className={dashboardStyles.calendarNav} aria-label="월간 종합현황 월 이동">
+                  <Link
+                    className={dashboardStyles.calendarNavButton}
+                    to={`/resource/month/${beforeMonth}`}
+                    aria-label="이전달 보기"
+                  >
+                    <span aria-hidden="true" className={dashboardStyles.calendarNavIcon}>
+                      &lt;
+                    </span>
+                    이전달
+                  </Link>
+                  <Link
+                    className={dashboardStyles.calendarNavButton}
+                    to={`/resource/month/${afterMonth}`}
+                    aria-label="다음달 보기"
+                  >
+                    다음달
+                    <span aria-hidden="true" className={dashboardStyles.calendarNavIcon}>
+                      &gt;
+                    </span>
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+            <div className={styles.summaryFacts}>
+              {summaryItems.map((item) => (
+                <div key={item.label} className={styles.summaryFact}>
+                  <span>{item.label}</span>
+                  <strong>{item.value}</strong>
+                </div>
+              ))}
+            </div>
+
+            {distributionItems.length ? (
+              <div className={styles.progressRail} aria-hidden="true">
+                {distributionItems.map((item) => (
+                  <div
+                    key={item.key}
+                    className={clsx(styles.progressSegment, item.className)}
+                    style={{
+                      width: `${Math.max(6, Math.round((item.minutes / adjustedTotalMinutes) * 100))}%`,
+                    }}
+                  >
+                    <span className={clsx(styles.progressLabel, item.labelClassName)}>
+                      {item.label} {item.mm} MM
+                    </span>
+                  </div>
+                ))}
+              </div>
             ) : null}
-          </div>
 
-          <div className={styles.progressBar}>
-            {adjustedTotalMinutes > 0 ? (
-              <>
-                <div
-                  className={`${styles.progressSegment} ${styles.progressHoliday}`}
-                  style={{ width: `${Math.ceil((holidayMinutes / adjustedTotalMinutes) * 100)}%` }}
-                  title={`휴가/휴무 ${formatMm(holidayMinutes, workingDays)}MM`}
-                >
-                  휴가/휴무
-                  <br />
-                  {formatMm(holidayMinutes, workingDays)} MM
-                </div>
-                <div
-                  className={`${styles.progressSegment} ${styles.progressProject}`}
-                  style={{ width: `${Math.ceil((projectMinutes / adjustedTotalMinutes) * 100)}%` }}
-                  title={`프로젝트 ${formatMm(projectMinutes, workingDays)}MM`}
-                >
-                  프로젝트
-                  <br />
-                  {formatMm(projectMinutes, workingDays)} MM
-                </div>
-                <div
-                  className={`${styles.progressSegment} ${styles.progressNormal}`}
-                  style={{
-                    width: `${Math.ceil((nonProjectMinutes / adjustedTotalMinutes) * 100)}%`,
-                  }}
-                  title={`일반 (비프로젝트) ${formatMm(nonProjectMinutes, workingDays)}MM`}
-                >
-                  일반 (비프로젝트)
-                  <br />
-                  {formatMm(nonProjectMinutes, workingDays)} MM
-                </div>
-                <div
-                  className={`${styles.progressSegment} ${styles.progressBuffer}`}
-                  style={{ width: `${Math.ceil((bufferMinutes / adjustedTotalMinutes) * 100)}%` }}
-                  title={`기타버퍼 ${formatMm(bufferMinutes, workingDays)}MM`}
-                >
-                  기타버퍼
-                  <br />
-                  {formatMm(bufferMinutes, workingDays)} MM
-                </div>
-              </>
+            {memberTotals.length ? (
+              <div className={styles.badgeRow}>
+                {memberTotals.map((member) => {
+                  const diffMinutes = member.totalMinutes - expectedMinutes;
+                  const className =
+                    diffMinutes < 0
+                      ? styles.memberBadgeDanger
+                      : diffMinutes > 0
+                        ? styles.memberBadgeWarning
+                        : styles.memberBadgeSuccess;
+
+                  return (
+                    <span key={member.id} className={clsx(styles.memberBadge, className)}>
+                      {member.accountId}
+                      {diffMinutes > 0
+                        ? ` +${diffMinutes}분`
+                        : diffMinutes === 0
+                          ? ' 0분'
+                          : ` ${diffMinutes}분`}
+                    </span>
+                  );
+                })}
+              </div>
             ) : null}
-          </div>
-
-          <div className={styles.badgeRow}>
-            {memberTotals.map((member) => {
-              const diffMinutes = member.totalMinutes - expectedMinutes;
-              const className =
-                diffMinutes < 0
-                  ? styles.memberBadgeDanger
-                  : diffMinutes > 0
-                    ? styles.memberBadgeWarning
-                    : styles.memberBadgeSuccess;
-
-              return (
-                <span key={member.id} className={`${styles.memberBadge} ${className}`}>
-                  {member.accountId}
-                  {diffMinutes > 0
-                    ? `  +${diffMinutes}분`
-                    : diffMinutes === 0
-                      ? ''
-                      : `  ${diffMinutes}분`}
-                </span>
-              );
-            })}
-          </div>
+          </section>
 
           <div className={styles.splitGrid}>
             <PageSection
               title="업무타입별 월간 리소스"
-              variant="panel"
               actions={
                 <button
                   type="button"
+                  className={projectStyles.headerAction}
                   onClick={() => setWorkFold((current) => !current)}
                   disabled={!typeRows.length}
                 >
@@ -360,8 +396,8 @@ export function ResourceMonthPage() {
                 </button>
               }
             >
-              <div className={styles.tableWrap}>
-                <table className={styles.table}>
+              <div className={projectStyles.tableWrap}>
+                <table className={clsx(projectStyles.table, styles.table)}>
                   <thead>
                     <tr>
                       <th>type 1</th>
@@ -412,7 +448,7 @@ export function ResourceMonthPage() {
                     ))}
                     {!typeRows.length ? (
                       <tr>
-                        <td colSpan={5} className={styles.empty}>
+                        <td colSpan={5} className={projectStyles.emptyState}>
                           데이터 없음
                         </td>
                       </tr>
@@ -424,10 +460,10 @@ export function ResourceMonthPage() {
 
             <PageSection
               title="서비스그룹별 월간 리소스"
-              variant="panel"
               actions={
                 <button
                   type="button"
+                  className={projectStyles.headerAction}
                   onClick={() => setSvcFold((current) => !current)}
                   disabled={!serviceDetailRows.length}
                 >
@@ -435,8 +471,8 @@ export function ResourceMonthPage() {
                 </button>
               }
             >
-              <div className={styles.tableWrap}>
-                <table className={styles.table}>
+              <div className={projectStyles.tableWrap}>
+                <table className={clsx(projectStyles.table, styles.table)}>
                   <thead>
                     <tr>
                       <th>서비스그룹</th>
@@ -499,9 +535,9 @@ export function ResourceMonthPage() {
             </PageSection>
           </div>
 
-          <PageSection title="월간 리소스 보고서양식" variant="panel">
-            <div className={styles.tableWrap}>
-              <table className={styles.table}>
+          <PageSection title="월간 리소스 보고서양식">
+            <div className={projectStyles.tableWrap}>
+              <table className={clsx(projectStyles.table, styles.table)}>
                 <thead>
                   <tr>
                     <th>type1</th>
@@ -551,6 +587,6 @@ export function ResourceMonthPage() {
           </PageSection>
         </>
       )}
-    </div>
+    </section>
   );
 }
