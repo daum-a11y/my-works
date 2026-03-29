@@ -1,6 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
+import { Fragment, useEffect, useMemo, useState } from 'react';
 import { setDocumentTitle } from '../../app/navigation';
-import { PageSection } from '../../components/ui/PageSection';
 import {
   buildProjectMaps,
   countWorkingDays,
@@ -8,6 +7,7 @@ import {
   getTaskServiceInfo,
   useResourceDataset,
 } from './resource-shared';
+import projectStyles from '../projects/ProjectsFeature.module.css';
 import styles from './ResourcePage.module.css';
 
 export function ResourceServicePage() {
@@ -93,22 +93,32 @@ export function ResourceServicePage() {
   }, [data]);
 
   return (
-    <PageSection title="서비스그룹별 요약">
-      <div className={styles.tableActionRow}>
-        <button type="button" onClick={() => setFold((current) => !current)}>
-          {fold ? '펼치기' : '접기'}
-        </button>
-      </div>
+    <section className={projectStyles.shell}>
+      <header className={projectStyles.pageHeader}>
+        <div className={projectStyles.pageHeaderTop}>
+          <h1 className={projectStyles.title}>서비스그룹 집계</h1>
+          <button
+            type="button"
+            className={projectStyles.headerAction}
+            onClick={() => setFold((current) => !current)}
+            aria-pressed={fold}
+            disabled={!rows.length}
+          >
+            {fold ? '펼치기' : '접기'}
+          </button>
+        </div>
+      </header>
 
-      <div className={styles.tableWrap}>
-        <table className={styles.table}>
+      <div className={projectStyles.tableWrap}>
+        <table className={projectStyles.table}>
+          <caption className={styles.srOnly}>연도와 월 기준 서비스그룹 집계 표</caption>
           <thead>
             <tr>
-              <th>year</th>
-              <th>month</th>
-              <th>group</th>
-              <th>name</th>
-              <th>MM</th>
+              <th scope="col">연도</th>
+              <th scope="col">월</th>
+              <th scope="col">서비스그룹</th>
+              <th scope="col">서비스명</th>
+              <th scope="col">MM</th>
             </tr>
           </thead>
           <tbody>
@@ -117,7 +127,7 @@ export function ResourceServicePage() {
             ))}
             {!rows.length ? (
               <tr>
-                <td colSpan={5} className={styles.empty}>
+                <td colSpan={5} className={projectStyles.emptyState}>
                   표시할 서비스그룹 집계가 없습니다.
                 </td>
               </tr>
@@ -125,7 +135,7 @@ export function ResourceServicePage() {
           </tbody>
         </table>
       </div>
-    </PageSection>
+    </section>
   );
 }
 
@@ -154,27 +164,29 @@ function ServiceYearRows({
   if (fold) {
     return (
       <>
-        {row.months.map((month, monthIndex) =>
-          month.groups.map((group, groupIndex) => (
-            <tr key={`${row.year}-${month.month}-${group.group}`}>
-              {monthIndex === 0 && groupIndex === 0 ? (
-                <td rowSpan={row.foldRowCount}>{row.year}년</td>
-              ) : null}
-              {groupIndex === 0 ? <td rowSpan={month.groups.length + 1}>{month.month}월</td> : null}
-              <td>{group.group}</td>
-              <td>합계</td>
-              <td>{formatMm(group.totalMinutes, month.workingDays)}</td>
+        {row.months.map((month, monthIndex) => (
+          <Fragment key={`${row.year}-${month.month}`}>
+            {month.groups.map((group, groupIndex) => (
+              <tr key={`${row.year}-${month.month}-${group.group}`}>
+                {monthIndex === 0 && groupIndex === 0 ? (
+                  <td rowSpan={row.foldRowCount}>{row.year}년</td>
+                ) : null}
+                {groupIndex === 0 ? (
+                  <td rowSpan={month.groups.length + 1}>{month.month}월</td>
+                ) : null}
+                <td>{group.group}</td>
+                <td>합계</td>
+                <td>{formatMm(group.totalMinutes, month.workingDays)}</td>
+              </tr>
+            ))}
+            <tr key={`${row.year}-${month.month}-sum`} className={styles.summaryStrongRow}>
+              <td colSpan={2}>{month.month}월 합계</td>
+              <td>{formatMm(month.totalMinutes, month.workingDays)}</td>
             </tr>
-          )),
-        )}
-        {row.months.map((month) => (
-          <tr key={`${row.year}-${month.month}-sum`} className={styles.summaryStrongRow}>
-            <td colSpan={2}>{month.month}월 합계</td>
-            <td>{formatMm(month.totalMinutes, month.workingDays)}</td>
-          </tr>
+          </Fragment>
         ))}
         <tr className={styles.summaryStrongRow}>
-          <td colSpan={3}>{row.year}년 합계</td>
+          <td colSpan={4}>{row.year}년 합계</td>
           <td>{formatMm(row.yearTotalMinutes, 21.73)}</td>
         </tr>
       </>
@@ -193,7 +205,7 @@ function ServiceYearRows({
         />
       ))}
       <tr className={styles.summaryStrongRow}>
-        <td colSpan={3}>{row.year}년 합계</td>
+        <td colSpan={4}>{row.year}년 합계</td>
         <td>{formatMm(row.yearTotalMinutes, 21.73)}</td>
       </tr>
     </>

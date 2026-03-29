@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { setDocumentTitle } from '../../app/navigation';
-import { PageSection } from '../../components/ui/PageSection';
 import { countWorkingDays, formatMm, useResourceDataset } from './resource-shared';
+import projectStyles from '../projects/ProjectsFeature.module.css';
 import styles from './ResourcePage.module.css';
 
 export function ResourceTypePage() {
@@ -26,7 +26,7 @@ export function ResourceTypePage() {
 
     for (const task of source) {
       const month = task.taskDate.slice(0, 7);
-      const key = `${task.taskType1} / ${task.taskType2}`;
+      const key = task.taskType1;
       const monthMap = grouped.get(month) ?? new Map<string, number>();
       monthMap.set(key, (monthMap.get(key) ?? 0) + Math.round(task.hours));
       grouped.set(month, monthMap);
@@ -68,21 +68,31 @@ export function ResourceTypePage() {
   }, [data]);
 
   return (
-    <PageSection title="전체 기간">
-      <div className={styles.tableActionRow}>
-        <button type="button" onClick={() => setFold((current) => !current)}>
-          {fold ? '펼치기' : '접기'}
-        </button>
-      </div>
+    <section className={projectStyles.shell}>
+      <header className={projectStyles.pageHeader}>
+        <div className={projectStyles.pageHeaderTop}>
+          <h1 className={projectStyles.title}>업무유형 집계</h1>
+          <button
+            type="button"
+            className={projectStyles.headerAction}
+            onClick={() => setFold((current) => !current)}
+            aria-pressed={fold}
+            disabled={!rows.length}
+          >
+            {fold ? '펼치기' : '접기'}
+          </button>
+        </div>
+      </header>
 
-      <div className={styles.tableWrap}>
-        <table className={styles.table}>
+      <div className={projectStyles.tableWrap}>
+        <table className={projectStyles.table}>
+          <caption className={styles.srOnly}>연도와 월 기준 업무유형 집계 표</caption>
           <thead>
             <tr>
-              <th>year</th>
-              <th>month</th>
-              <th>type</th>
-              <th>MM</th>
+              <th scope="col">연도</th>
+              <th scope="col">월</th>
+              <th scope="col">업무유형</th>
+              <th scope="col">MM</th>
             </tr>
           </thead>
           <tbody>
@@ -91,7 +101,7 @@ export function ResourceTypePage() {
             ))}
             {!rows.length ? (
               <tr>
-                <td colSpan={4} className={styles.empty}>
+                <td colSpan={4} className={projectStyles.emptyState}>
                   표시할 타입별 집계가 없습니다.
                 </td>
               </tr>
@@ -99,7 +109,7 @@ export function ResourceTypePage() {
           </tbody>
         </table>
       </div>
-    </PageSection>
+    </section>
   );
 }
 
@@ -153,8 +163,7 @@ function TypeYearRows({
         />
       ))}
       <tr className={styles.summaryStrongRow}>
-        <td>{row.year}년</td>
-        <td>합계</td>
+        <td colSpan={3}>{row.year}년 합계</td>
         <td>{formatMm(row.yearTotalMinutes, 21.73)}</td>
       </tr>
     </>
@@ -188,7 +197,7 @@ function MonthDetailRows({
         </tr>
       ))}
       <tr className={styles.summaryStrongRow}>
-        <td>{month.month}월 합계</td>
+        <td colSpan={2}>{month.month}월 합계</td>
         <td>{formatMm(month.totalMinutes, month.workingDays)}</td>
       </tr>
     </>
