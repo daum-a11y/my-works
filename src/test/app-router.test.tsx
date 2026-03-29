@@ -42,10 +42,6 @@ vi.mock('../features/admin/reports/AdminReportsPage', () => ({
   AdminReportsPage: () => <div>admin-reports-page</div>,
 }));
 
-vi.mock('../features/admin/summary/AdminSummaryPage', () => ({
-  AdminSummaryPage: () => <div>admin-summary-page</div>,
-}));
-
 vi.mock('../features/admin/types/AdminTaskTypesPage', () => ({
   AdminTaskTypesPage: () => <div>admin-task-types-page</div>,
 }));

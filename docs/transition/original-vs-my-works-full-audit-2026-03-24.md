@@ -75,7 +75,7 @@
 
 | 원본 | 현재 매핑 | 판정 | 확인 결과 |
 | --- | --- | --- | --- |
-| 전체 업무보고 검색 | `features/admin/reports/AdminReportsPage.tsx`, `admin-client.ts`, `export-tasks/index.ts` | 부분 | 검색/목록/수정/삭제/CSV 내보내기는 있음. 그러나 원본의 서비스명 필터, 사용자 다중 선택, 신규 행 추가는 없음. |
+| 전체 업무내역 조회 | `features/admin/reports/AdminReportsPage.tsx`, `admin-client.ts`, `export-tasks/index.ts` | 부분 | 검색/목록/수정/삭제/CSV 내보내기는 있음. 그러나 원본의 서비스명 필터, 사용자 다중 선택, 신규 행 추가는 없음. |
 | 멤버 관리/신규 멤버 생성 | `features/admin/members/AdminMembersPage.tsx`, `admin-client.ts` | 부분 | 목록/생성/수정/활성/비활성은 있음. 비밀번호 초기화가 없음. 원본에는 `/member/:userId/password`가 실제 라우트로 존재함. |
 | Type validation | 해당 없음 | 누락 | 2차 재해석 필수 범위인 orphan type 검출, 대상 row 조회, 일괄 치환 UI/라우트/RPC가 없음. |
 | Service validation | 해당 없음 | 누락 | 2차 재해석 필수 범위인 orphan svc 검출, 대상 row 조회, 일괄 치환 UI/라우트/RPC가 없음. |

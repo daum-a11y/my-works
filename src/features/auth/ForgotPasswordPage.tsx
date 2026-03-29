@@ -93,7 +93,7 @@ export function ForgotPasswordPage() {
             ) : null}
             <div className={styles.actions}>
               <Button type="submit" isDisabled={!isSupabaseConfigured || isSubmitting}>
-                {isSubmitting ? '메일 발송 중...' : '재설정 메일 보내기'}
+                재설정 메일 보내기
               </Button>
             </div>
             <div className={styles.recoveryPanel}>

@@ -289,7 +289,7 @@ export function UserProfilePage() {
                   </div>
                   <div className={styles.actions}>
                     <button type="submit" className={styles.primaryButton} disabled={!canSubmit}>
-                      {isSubmitting ? '변경 중...' : '변경'}
+                      변경
                     </button>
                     <button
                       type="button"
@@ -316,7 +316,7 @@ export function UserProfilePage() {
                     onClick={() => void handleConfirmChange()}
                     disabled={isSubmitting}
                   >
-                    {isSubmitting ? '변경 중...' : '변경'}
+                    변경
                   </button>
                   <button
                     type="button"

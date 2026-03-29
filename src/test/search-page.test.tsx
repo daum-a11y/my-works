@@ -3,7 +3,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { SearchPage } from '../features/search/search-page';
-import { getToday } from '../lib/utils';
+import { parseLocalDateInput, toLocalDateInputValue } from '../lib/utils';
 
 const mockUseAuth = vi.hoisted(() => vi.fn());
 const mockOpsDataClient = vi.hoisted(() => ({
@@ -36,6 +36,10 @@ vi.mock('../lib/data-client', () => ({
 }));
 
 describe('SearchPage', () => {
+  const today = parseLocalDateInput(toLocalDateInputValue(new Date())) ?? new Date();
+  const monthStart = toLocalDateInputValue(new Date(today.getFullYear(), today.getMonth(), 1));
+  const monthEnd = toLocalDateInputValue(new Date(today.getFullYear(), today.getMonth() + 1, 0));
+
   beforeEach(() => {
     mockUseAuth.mockReturnValue({
       status: 'authenticated',
@@ -102,7 +106,7 @@ describe('SearchPage', () => {
     ]);
   });
 
-  it('renders the original query flow and result table', async () => {
+  it('renders the filtered result table with current-month defaults', async () => {
     const user = userEvent.setup();
     const queryClient = new QueryClient();
 
@@ -113,24 +117,33 @@ describe('SearchPage', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: '어제' })).toBeInTheDocument();
-    });
-
-    await user.click(screen.getByRole('button', { name: '오늘' }));
-    await user.click(screen.getByRole('button', { name: '검색' }));
-
-    await waitFor(() => {
-      expect(mockOpsDataClient.searchTasks).toHaveBeenCalled();
+      expect(screen.getByRole('button', { name: '검색' })).toBeInTheDocument();
     });
 
     expect(mockOpsDataClient.searchTasks).toHaveBeenCalledWith(
       expect.objectContaining({ id: 'member-1' }),
-      expect.objectContaining({ startDate: getToday(), endDate: getToday() }),
+      expect.objectContaining({ startDate: monthStart, endDate: monthEnd, query: '' }),
     );
+
+    await user.type(screen.getByLabelText('검색어'), '로그인');
+    await user.click(screen.getByRole('button', { name: '검색' }));
+
+    await waitFor(() => {
+      expect(mockOpsDataClient.searchTasks).toHaveBeenLastCalledWith(
+        expect.objectContaining({ id: 'member-1' }),
+        expect.objectContaining({ startDate: monthStart, endDate: monthEnd, query: '로그인' }),
+      );
+    });
+
     expect(screen.getByRole('button', { name: '다운로드' })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: '서비스그룹' })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: '페이지명' })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: '내용' })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: '작업시간' })).toBeInTheDocument();
     expect(screen.getAllByText('알파').length).toBeGreaterThan(0);
     expect(screen.getByText('로그인')).toBeInTheDocument();
     expect(screen.getAllByText('60분').length).toBeGreaterThan(0);
+    expect(screen.getByText('1건')).toBeInTheDocument();
+    expect(screen.getByText('1')).toBeInTheDocument();
   });
 });

@@ -212,9 +212,7 @@ export function DashboardPage() {
               {inProgressProjects.map((item) => (
                 <tr key={item.projectId}>
                   <td>{item.type1}</td>
-                  <td>
-                    <span className="uiPlatformBadge">{item.platform}</span>
-                  </td>
+                  <td>{item.platform}</td>
                   <td>{item.serviceGroupName}</td>
                   <td>{item.projectName}</td>
                   <td>{item.startDate}</td>

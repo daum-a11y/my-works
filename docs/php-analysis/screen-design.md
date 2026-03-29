@@ -113,13 +113,13 @@
 - 메뉴에서 직접 진입 가능하므로 완전 숨김 화면은 아닙니다.
 - 다만 실제 업무 흐름의 중심 화면이라기보다 오래된 기준정보 관리 화면으로 보는 편이 더 자연스럽습니다.
 
-### 3.6 업무보고 검색
+### 3.6 업무내역 조회
 
 | 항목 | 내용 |
 | --- | --- |
 | 화면 ID | `REPORT_SEARCH_PERSONAL` |
 | 파일 | `pages/report_personal.php` |
-| 진입 경로 | 메뉴 `기타 > 업무보고 검색` |
+| 진입 경로 | 메뉴 `기타 > 업무내역 조회` |
 | 목적 | 본인 업무 이력 기간 조회 및 다운로드 |
 | 주요 컴포넌트 | 어제/오늘 빠른 선택, 시작일/종료일, 검색, 다운로드, 결과 표 |
 | 주요 데이터 소스 | `report_search.php`, `report_search_export.php` |
@@ -191,7 +191,7 @@ flowchart TD
     Shell --> Project["프로젝트 등록 & 리스트"]
     Shell --> Track["모니터링 트래킹"]
     Shell --> AppInfo["앱 운영정보"]
-    Shell --> Personal["업무보고 검색"]
+    Shell --> Personal["업무내역 조회"]
     Shell --> Qa["QA 통계"]
     Shell --> Moni["모니터링 통계"]
     Shell --> Userset["개인정보 수정"]

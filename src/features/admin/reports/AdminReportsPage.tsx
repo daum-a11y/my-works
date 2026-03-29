@@ -198,7 +198,7 @@ export function AdminReportsPage() {
   const [localMutationError, setLocalMutationError] = useState('');
 
   useEffect(() => {
-    document.title = '전체 업무보고 검색 | My Works';
+    document.title = '전체 업무내역 조회 | My Works';
   }, []);
 
   const membersQuery = useQuery({
@@ -388,7 +388,7 @@ export function AdminReportsPage() {
       <header className={styles.hero}>
         <div>
           <p className={styles.eyebrow}>관리자</p>
-          <h1>전체 업무보고 검색</h1>
+          <h1>전체 업무내역 조회</h1>
         </div>
       </header>
 
@@ -401,7 +401,7 @@ export function AdminReportsPage() {
               onClick={handleSearch}
               disabled={loading || searchQuery.isFetching}
             >
-              {searchQuery.isFetching ? '검색 중...' : '검색'}
+              검색
             </button>
           </div>
         </div>

@@ -118,7 +118,7 @@ export function LoginPage() {
             ) : null}
             <div className={styles.submitRow}>
               <Button type="submit" isDisabled={!isSupabaseConfigured || isBusy}>
-                {isSubmitting ? '로그인 중...' : '로그인'}
+                로그인
               </Button>
             </div>
             <div className={styles.recoveryPanel}>

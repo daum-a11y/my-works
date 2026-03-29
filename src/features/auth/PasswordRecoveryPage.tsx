@@ -149,7 +149,7 @@ export function PasswordRecoveryPage() {
             ) : null}
             <div className={styles.actions}>
               <Button type="submit" isDisabled={isSubmitting}>
-                {isSubmitting ? '변경 중...' : '비밀번호 변경'}
+                비밀번호 변경
               </Button>
             </div>
           </form>

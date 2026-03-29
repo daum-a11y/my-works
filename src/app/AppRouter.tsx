@@ -8,7 +8,6 @@ import { AdminServiceGroupsPage } from '../features/admin/groups/AdminServiceGro
 import { AdminMembersPage } from '../features/admin/members/AdminMembersPage';
 import { AdminReportEditorPage } from '../features/admin/reports/AdminReportEditorPage';
 import { AdminReportsPage } from '../features/admin/reports/AdminReportsPage';
-import { AdminSummaryPage } from '../features/admin/summary/AdminSummaryPage';
 import { AdminTaskTypesPage } from '../features/admin/types/AdminTaskTypesPage';
 import { NotFoundPage } from '../features/not-found';
 import { ProjectEditorPage, ProjectsFeature } from '../features/projects';
@@ -111,11 +110,11 @@ export function AppRouter() {
           <Route element={<GuardedLayout />}>
             <Route index element={<Navigate to="/dashboard" replace />} />
             <Route path="/dashboard" element={<DashboardPage />} />
-            <Route path="/reports" element={<ReportsPage />} />
+            <Route path="/person/report" element={<ReportsPage />} />
+            <Route path="/person/search" element={<SearchPage />} />
             <Route path="/projects" element={<ProjectsFeature />} />
             <Route path="/projects/new" element={<ProjectEditorPage />} />
             <Route path="/projects/:projectId/edit" element={<ProjectEditorPage />} />
-            <Route path="/reports/search" element={<SearchPage />} />
             <Route path="/resource/summary" element={<ResourceSummaryPage />} />
             <Route path="/resource/month" element={<ResourceMonthPage />} />
             <Route path="/resource/month/:type" element={<ResourceMonthPage />} />
@@ -126,12 +125,9 @@ export function AppRouter() {
             <Route path="/profile" element={<UserProfilePage />} />
             <Route path="/password-change" element={<Navigate to="/profile" replace />} />
             <Route element={<AdminRoute />}>
-              <Route path="/admin" element={<Navigate to="/admin/summary" replace />} />
-              <Route path="/admin/summary" element={<AdminSummaryPage />} />
               <Route path="/admin/reports" element={<AdminReportsPage />} />
               <Route path="/admin/reports/new" element={<AdminReportEditorPage />} />
               <Route path="/admin/reports/:taskId/edit" element={<AdminReportEditorPage />} />
-              <Route path="/admin/member" element={<Navigate to="/admin/members" replace />} />
               <Route path="/admin/members" element={<AdminMembersPage />} />
               <Route path="/admin/type" element={<AdminTaskTypesPage />} />
               <Route path="/admin/group" element={<AdminServiceGroupsPage />} />

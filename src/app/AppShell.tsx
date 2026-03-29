@@ -13,17 +13,22 @@ import {
   House,
   LogOut,
   UserRound,
+  FolderCode,
 } from 'lucide-react';
 import { useAuth } from '../features/auth/AuthContext';
 import styles from './AppShell.module.css';
 
 const baseNavigation = [
   { to: '/dashboard', label: '대시보드', icon: LayoutDashboard },
-  { to: '/reports', label: '업무보고', icon: FileText },
-  { to: '/reports/search', label: '업무보고 검색', icon: Search },
-  { to: '/projects', label: '프로젝트 관리', icon: Layers },
+  { to: '/person/report', label: '업무보고', icon: FileText },
+  { to: '/person/search', label: '업무내역 조회', icon: Search },
   {
-    label: '리소스 현황',
+    label: '프로젝트',
+    icon: FolderCode,
+    children: [{ to: '/projects', label: '프로젝트 관리', icon: Layers }],
+  },
+  {
+    label: '리소스',
     icon: Database,
     children: [
       { to: '/resource/summary', label: '리소스 요약' },
@@ -44,10 +49,9 @@ const baseNavigation = [
 
 const adminNavigation = [
   {
-    label: '관리자 설정',
+    label: '관리자',
     icon: Shield,
     children: [
-      { to: '/admin/summary', label: '관리자 요약' },
       { to: '/admin/reports', label: '전체 업무검색' },
       { to: '/admin/members', label: '사용자' },
       { to: '/admin/type', label: '업무 타입 관리' },
@@ -282,10 +286,9 @@ export function AppShell() {
                       className={`${styles.userMenuItem} ${styles.userMenuItemDanger}`}
                       onClick={() => void handleLogout()}
                       disabled={isLoggingOut}
-                      aria-busy={isLoggingOut || undefined}
                     >
                       <LogOut size={15} strokeWidth={2} aria-hidden="true" />
-                      <span>{isLoggingOut ? '로그아웃 중…' : '로그아웃'}</span>
+                      <span>로그아웃</span>
                     </button>
                   </div>
                 ) : null}
