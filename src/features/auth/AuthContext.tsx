@@ -37,18 +37,12 @@ async function getMemberForSupabaseSession(
   userId: string,
   email?: string | null,
 ): Promise<Member | null> {
-  const memberByAuthId = await opsDataClient.getMemberByAuthId(userId);
-  if (memberByAuthId) {
-    return memberByAuthId;
+  const touchedMember = await opsDataClient.touchMemberLastLogin(userId, email);
+  if (touchedMember) {
+    return touchedMember;
   }
-  if (email) {
-    const boundMember = await opsDataClient.bindAuthSessionMember(userId, email);
-    if (boundMember) {
-      return boundMember;
-    }
-    return opsDataClient.getMemberByEmail(email);
-  }
-  return null;
+
+  return email ? opsDataClient.getMemberByEmail(email) : null;
 }
 
 export function AuthProvider({ children }: PropsWithChildren) {

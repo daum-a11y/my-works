@@ -77,7 +77,7 @@ describe('Projects routes', () => {
       session: {
         member: {
           id: 'member-1',
-          legacyUserId: 'legacy-1',
+          accountId: 'legacy-1',
           name: '운영 사용자',
           email: 'operator@example.com',
           role: 'user',
@@ -89,7 +89,7 @@ describe('Projects routes', () => {
     mockOpsDataClient.getMembers.mockResolvedValue([
       {
         id: 'member-1',
-        legacyUserId: 'legacy-1',
+        accountId: 'legacy-1',
         name: '운영 사용자',
         email: 'operator@example.com',
         role: 'user',
@@ -97,7 +97,7 @@ describe('Projects routes', () => {
       },
       {
         id: 'member-2',
-        legacyUserId: 'legacy-2',
+        accountId: 'legacy-2',
         name: '리뷰어',
         email: 'reviewer@example.com',
         role: 'admin',
@@ -334,7 +334,7 @@ describe('Projects routes', () => {
 
     await user.clear(screen.getByLabelText('프로젝트명'));
     await user.type(screen.getByLabelText('프로젝트명'), '알파 수정');
-    await user.click(screen.getByRole('button', { name: '저장하기' }));
+    await user.click(screen.getByRole('button', { name: '저장' }));
 
     await waitFor(() => {
       expect(mockOpsDataClient.saveProject).toHaveBeenCalledWith(

@@ -32,13 +32,13 @@ const baseNavigation = [
     ],
   },
   {
-    label: '업무 관리',
+    label: '조직 관리',
     icon: BriefcaseBusiness,
     children: [
-      { to: '/resource/summary', label: '업무보고 현황' },
-      { to: '/admin/reports', label: '업무보고 조회' },
-      { to: '/admin/type', label: '업무 타입 관리' },
-      { to: '/admin/group', label: '서비스그룹 관리' },
+      { to: '/org/summary', label: '업무보고 현황' },
+      { to: '/org/search', label: '업무보고 조회' },
+      { to: '/org/type', label: '업무 타입 관리' },
+      { to: '/org/group', label: '서비스그룹 관리' },
     ],
   },
   {
@@ -56,7 +56,7 @@ const adminNavigation = [
   {
     label: '관리자',
     icon: Shield,
-    children: [{ to: '/admin/members', label: '사용자' }],
+    children: [{ to: '/admin/members', label: '사용자 관리' }],
   },
 ] as const;
 
@@ -152,7 +152,7 @@ export function AppShell() {
     }
   }
 
-  const userInitials = (session?.member?.legacyUserId || session?.member?.name || '').slice(0, 2);
+  const userInitials = (session?.member?.accountId || session?.member?.name || '').slice(0, 2);
 
   return (
     <>
@@ -250,7 +250,7 @@ export function AppShell() {
                     {userInitials}
                   </div>
                   <div className={styles.profileInfo}>
-                    <strong>{session?.member.legacyUserId}</strong>
+                    <strong>{session?.member.accountId}</strong>
                   </div>
                   <ChevronDown
                     size={15}
@@ -266,7 +266,7 @@ export function AppShell() {
                         {userInitials}
                       </div>
                       <div className={styles.userMenuIdentityText}>
-                        <strong>{session?.member.legacyUserId}</strong>
+                        <strong>{session?.member.accountId}</strong>
                         <span>{session?.member.name}</span>
                       </div>
                     </div>

@@ -9,7 +9,7 @@ const mockUseAuth = vi.hoisted(() => vi.fn());
 const mockOpsDataClient = vi.hoisted(() => ({
   mode: 'supabase' as const,
   getMembers: vi.fn(),
-  getMemberByLegacyUserId: vi.fn(),
+  getMemberByAccountId: vi.fn(),
   getMemberByEmail: vi.fn(),
   getMemberByAuthId: vi.fn(),
   bindAuthSessionMember: vi.fn(),
@@ -44,7 +44,7 @@ describe('DashboardPage', () => {
       session: {
         member: {
           id: 'member-1',
-          legacyUserId: 'legacy-1',
+          accountId: 'legacy-1',
           name: '운영 사용자',
           email: 'operator@example.com',
           role: 'user',

@@ -194,7 +194,7 @@ export function ResourceMonthPage() {
     return data.members
       .map((member) => ({
         id: member.id,
-        legacyUserId: member.legacyUserId,
+        accountId: member.accountId,
         totalMinutes: monthTasks
           .filter((task) => task.memberId === member.id)
           .reduce((sum, task) => sum + Math.round(task.hours), 0),
@@ -334,7 +334,7 @@ export function ResourceMonthPage() {
 
               return (
                 <span key={member.id} className={`${styles.memberBadge} ${className}`}>
-                  {member.legacyUserId}
+                  {member.accountId}
                   {diffMinutes > 0
                     ? `  +${diffMinutes}분`
                     : diffMinutes === 0

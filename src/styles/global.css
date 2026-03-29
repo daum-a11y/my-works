@@ -57,6 +57,12 @@ select {
   font-weight: var(--text-input-weight);
 }
 
+input[readonly],
+textarea[readonly] {
+  background: var(--control-disabled-bg);
+  color: var(--text-secondary);
+}
+
 input::placeholder,
 textarea::placeholder {
   color: var(--control-placeholder);

@@ -4,9 +4,9 @@ import styles from './AdminPage.module.css';
 export type AdminSectionTabKey = 'summary' | 'task-types' | 'service-groups' | 'users';
 
 const TABS: Array<{ key: AdminSectionTabKey; label: string; to: string }> = [
-  { key: 'summary', label: '요약', to: '/admin/reports' },
-  { key: 'task-types', label: '업무 타입', to: '/admin/type' },
-  { key: 'service-groups', label: '서비스 그룹', to: '/admin/group' },
+  { key: 'summary', label: '요약', to: '/org/search' },
+  { key: 'task-types', label: '업무 타입', to: '/org/type' },
+  { key: 'service-groups', label: '서비스 그룹', to: '/org/group' },
   { key: 'users', label: '사용자', to: '/admin/members' },
 ];
 

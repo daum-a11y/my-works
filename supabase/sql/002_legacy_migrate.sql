@@ -84,19 +84,19 @@ $$;
 
 with source_members as (
   select
-    user_num as legacy_user_num,
-    legacy_stage.blank_to_null(user_id) as legacy_user_id,
+    user_num as account_num,
+    legacy_stage.blank_to_null(user_id) as account_id,
     coalesce(legacy_stage.blank_to_null(user_name), legacy_stage.blank_to_null(user_id), '이름없음') as name,
     coalesce(legacy_stage.to_int(user_level), 0)::smallint as user_level,
     coalesce(legacy_stage.to_bool_flag(user_active), true) as user_active,
     coalesce(legacy_stage.to_bool_flag(report_required), true) as report_required,
     coalesce(legacy_stage.to_timestamp_seoul(user_create), timezone('utc', now())) as joined_at,
-    lower(coalesce(legacy_stage.blank_to_null(user_id), 'legacy-user-' || user_num::text)) || '+' || user_num::text || '@legacy.local' as placeholder_email
+    lower(coalesce(legacy_stage.blank_to_null(user_id), 'member-' || user_num::text)) || '+' || user_num::text || '@account.local' as placeholder_email
   from legacy_stage.user_tbl
 )
 insert into public.members as members_target (
-  legacy_user_num,
-  legacy_user_id,
+  account_num,
+  account_id,
   name,
   email,
   user_level,
@@ -105,8 +105,8 @@ insert into public.members as members_target (
   report_required
 )
 select
-  s.legacy_user_num,
-  s.legacy_user_id,
+  s.account_num,
+  s.account_id,
   s.name,
   s.placeholder_email,
   s.user_level,
@@ -114,8 +114,8 @@ select
   s.joined_at,
   s.report_required
 from source_members s
-on conflict (legacy_user_id) do update
-set legacy_user_num = excluded.legacy_user_num,
+on conflict (account_id) do update
+set account_num = excluded.account_num,
     name = excluded.name,
     user_level = excluded.user_level,
     user_active = excluded.user_active,
@@ -126,23 +126,23 @@ set legacy_user_num = excluded.legacy_user_num,
 
 with task_only_members as (
   select distinct
-    legacy_stage.blank_to_null(task_user) as legacy_user_id
+    legacy_stage.blank_to_null(task_user) as account_id
   from legacy_stage.task_tbl
   where legacy_stage.blank_to_null(task_user) is not null
 ),
 missing_task_members as (
   select
-    t.legacy_user_id
+    t.account_id
   from task_only_members t
   where not exists (
     select 1
     from public.members m
-    where lower(m.legacy_user_id) = lower(t.legacy_user_id)
+    where lower(m.account_id) = lower(t.account_id)
   )
 )
 insert into public.members (
-  legacy_user_num,
-  legacy_user_id,
+  account_num,
+  account_id,
   name,
   email,
   user_level,
@@ -152,9 +152,9 @@ insert into public.members (
 )
 select
   null,
-  m.legacy_user_id,
-  m.legacy_user_id,
-  lower(m.legacy_user_id) || '@legacy-task.local',
+  m.account_id,
+  m.account_id,
+  lower(m.account_id) || '@account-task.local',
   0,
   false,
   timezone('utc', now()),
@@ -165,14 +165,14 @@ delete from legacy_stage.task_tbl
 where legacy_stage.blank_to_null(task_user) is null;
 
 truncate table legacy_xref.members;
-insert into legacy_xref.members (legacy_user_num, legacy_user_id, member_id)
+insert into legacy_xref.members (account_num, account_id, member_id)
 select
-  m.legacy_user_num,
-  m.legacy_user_id,
+  m.account_num,
+  m.account_id,
   m.id
 from public.members m
-where m.legacy_user_num is not null
-  and m.legacy_user_id is not null;
+where m.account_num is not null
+  and m.account_id is not null;
 
 with source_types as (
   select
@@ -304,8 +304,8 @@ source_projects as (
     coalesce(legacy_stage.blank_to_null(p.pj_name), '[프로젝트 ' || p.pj_num::text || ']') as name,
     coalesce(legacy_stage.blank_to_null(p.pj_platform), '미분류') as platform,
     coalesce(legacy_stage.blank_to_null(p.pj_page_report_url), '') as report_url,
-    legacy_stage.blank_to_null(p.pj_reporter) as reporter_legacy_user_id,
-    legacy_stage.blank_to_null(p.pj_reviewer) as reviewer_legacy_user_id,
+    legacy_stage.blank_to_null(p.pj_reporter) as reporter_account_id,
+    legacy_stage.blank_to_null(p.pj_reviewer) as reviewer_account_id,
     coalesce(
       legacy_stage.to_date_ymd(p.pj_start_date),
       legacy_stage.to_date_ymd(p.pj_month),
@@ -338,8 +338,8 @@ set created_by_member_id = reporter_x.member_id,
     is_active = true,
     updated_at = timezone('utc', now())
 from source_projects s
-left join legacy_xref.members reporter_x on reporter_x.legacy_user_id = s.reporter_legacy_user_id
-left join legacy_xref.members reviewer_x on reviewer_x.legacy_user_id = s.reviewer_legacy_user_id
+left join legacy_xref.members reporter_x on reporter_x.account_id = s.reporter_account_id
+left join legacy_xref.members reviewer_x on reviewer_x.account_id = s.reviewer_account_id
 left join legacy_xref.service_groups svc_x on svc_x.legacy_svc_num = s.legacy_svc_num
 where pr.legacy_project_id = s.legacy_project_id;
 
@@ -358,8 +358,8 @@ source_projects as (
     coalesce(legacy_stage.blank_to_null(p.pj_name), '[프로젝트 ' || p.pj_num::text || ']') as name,
     coalesce(legacy_stage.blank_to_null(p.pj_platform), '미분류') as platform,
     coalesce(legacy_stage.blank_to_null(p.pj_page_report_url), '') as report_url,
-    legacy_stage.blank_to_null(p.pj_reporter) as reporter_legacy_user_id,
-    legacy_stage.blank_to_null(p.pj_reviewer) as reviewer_legacy_user_id,
+    legacy_stage.blank_to_null(p.pj_reporter) as reporter_account_id,
+    legacy_stage.blank_to_null(p.pj_reviewer) as reviewer_account_id,
     coalesce(
       legacy_stage.to_date_ymd(p.pj_start_date),
       legacy_stage.to_date_ymd(p.pj_month),
@@ -406,8 +406,8 @@ select
   s.end_date,
   true
 from source_projects s
-left join legacy_xref.members reporter_x on reporter_x.legacy_user_id = s.reporter_legacy_user_id
-left join legacy_xref.members reviewer_x on reviewer_x.legacy_user_id = s.reviewer_legacy_user_id
+left join legacy_xref.members reporter_x on reporter_x.account_id = s.reporter_account_id
+left join legacy_xref.members reviewer_x on reviewer_x.account_id = s.reviewer_account_id
 left join legacy_xref.service_groups svc_x on svc_x.legacy_svc_num = s.legacy_svc_num
 where not exists (
   select 1
@@ -435,7 +435,7 @@ with source_project_pages as (
     p.pj_page_num as legacy_page_num,
     p.pj_page_num::text as legacy_page_id,
     p.pj_unique_num as legacy_project_num,
-    legacy_stage.blank_to_null(p.pj_page_id) as owner_legacy_user_id,
+    legacy_stage.blank_to_null(p.pj_page_id) as owner_account_id,
     coalesce(legacy_stage.blank_to_null(p.pj_page_name), '[페이지 ' || p.pj_page_num::text || ']') as title,
     coalesce(legacy_stage.blank_to_null(p.pj_page_url), '') as url,
     legacy_stage.blank_to_null(p.pj_page_date) as monitoring_month,
@@ -471,7 +471,7 @@ set project_id = project_x.project_id,
     updated_at = timezone('utc', now())
 from source_project_pages s
 join legacy_xref.projects project_x on project_x.legacy_project_num = s.legacy_project_num
-left join legacy_xref.members owner_x on owner_x.legacy_user_id = s.owner_legacy_user_id
+left join legacy_xref.members owner_x on owner_x.account_id = s.owner_account_id
 where pg.legacy_page_id = s.legacy_page_id;
 
 with source_project_pages as (
@@ -479,7 +479,7 @@ with source_project_pages as (
     p.pj_page_num as legacy_page_num,
     p.pj_page_num::text as legacy_page_id,
     p.pj_unique_num as legacy_project_num,
-    legacy_stage.blank_to_null(p.pj_page_id) as owner_legacy_user_id,
+    legacy_stage.blank_to_null(p.pj_page_id) as owner_account_id,
     coalesce(legacy_stage.blank_to_null(p.pj_page_name), '[페이지 ' || p.pj_page_num::text || ']') as title,
     coalesce(legacy_stage.blank_to_null(p.pj_page_url), '') as url,
     legacy_stage.blank_to_null(p.pj_page_date) as monitoring_month,
@@ -527,7 +527,7 @@ select
   coalesce(s.note, '')
 from source_project_pages s
 join legacy_xref.projects project_x on project_x.legacy_project_num = s.legacy_project_num
-left join legacy_xref.members owner_x on owner_x.legacy_user_id = s.owner_legacy_user_id
+left join legacy_xref.members owner_x on owner_x.account_id = s.owner_account_id
 where not exists (
   select 1
   from public.project_pages pg
@@ -546,7 +546,7 @@ with task_source as (
   select
     t.task_num as legacy_task_num,
     t.task_num::text as legacy_task_id,
-    legacy_stage.blank_to_null(t.task_user) as member_legacy_user_id,
+    legacy_stage.blank_to_null(t.task_user) as member_account_id,
     coalesce(legacy_stage.to_date_ymd(t.task_date), date '1970-01-01') as task_date,
     coalesce(legacy_stage.blank_to_null(t.task_type1), '미분류') as task_type1,
     coalesce(legacy_stage.blank_to_null(t.task_type2), '') as task_type2,
@@ -611,7 +611,7 @@ task_resolved as (
     ) as note
   from task_source s
   join public.members member_x
-    on lower(member_x.legacy_user_id) = lower(s.member_legacy_user_id)
+    on lower(member_x.account_id) = lower(s.member_account_id)
   left join lateral (
     select tt.type_num
     from legacy_stage.type_tbl tt
@@ -674,7 +674,7 @@ with task_source as (
   select
     t.task_num as legacy_task_num,
     t.task_num::text as legacy_task_id,
-    legacy_stage.blank_to_null(t.task_user) as member_legacy_user_id,
+    legacy_stage.blank_to_null(t.task_user) as member_account_id,
     coalesce(legacy_stage.to_date_ymd(t.task_date), date '1970-01-01') as task_date,
     coalesce(legacy_stage.blank_to_null(t.task_type1), '미분류') as task_type1,
     coalesce(legacy_stage.blank_to_null(t.task_type2), '') as task_type2,
@@ -739,7 +739,7 @@ task_resolved as (
     ) as note
   from task_source s
   join public.members member_x
-    on lower(member_x.legacy_user_id) = lower(s.member_legacy_user_id)
+    on lower(member_x.account_id) = lower(s.member_account_id)
   left join lateral (
     select tt.type_num
     from legacy_stage.type_tbl tt

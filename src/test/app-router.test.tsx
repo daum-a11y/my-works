@@ -149,7 +149,7 @@ describe('AppRouter', () => {
       session: {
         member: {
           id: 'member-1',
-          legacyUserId: 'user01',
+          accountId: 'user01',
           name: '사용자',
           role: 'member',
           isActive: true,

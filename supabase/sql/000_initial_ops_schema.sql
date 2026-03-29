@@ -13,13 +13,14 @@ $$;
 create table if not exists public.members (
   id uuid primary key default gen_random_uuid(),
   auth_user_id uuid unique,
-  legacy_user_num integer,
-  legacy_user_id text not null unique,
+  account_num integer,
+  account_id text not null unique,
   name text not null,
   email text not null unique,
   user_level smallint not null default 0,
   user_active boolean not null default true,
   joined_at timestamptz not null default timezone('utc', now()),
+  last_login_at timestamptz,
   report_required boolean not null default true,
   created_at timestamptz not null default timezone('utc', now()),
   updated_at timestamptz not null default timezone('utc', now())
@@ -105,7 +106,7 @@ create table if not exists public.tasks (
 create or replace view public.members_public_view as
 select
   id,
-  legacy_user_id,
+  account_id,
   name,
   email,
   user_level,
@@ -116,7 +117,7 @@ from public.members;
 create or replace view public.active_members_public_view as
 select
   id,
-  legacy_user_id,
+  account_id,
   name,
   email,
   user_level,
@@ -206,7 +207,7 @@ as $$
   )
 $$;
 
-create or replace function public.next_member_legacy_user_id(p_email text)
+create or replace function public.next_member_account_id(p_email text)
 returns text
 language plpgsql
 security definer
@@ -229,7 +230,7 @@ begin
   while exists (
     select 1
     from public.members
-    where legacy_user_id = v_candidate
+    where account_id = v_candidate
   ) loop
     v_suffix := v_suffix + 1;
     v_candidate := v_base || '-' || v_suffix::text;
@@ -252,7 +253,7 @@ declare
   v_member public.members;
   v_email text := nullif(lower(trim(p_email)), '');
   v_display_name text;
-  v_legacy_user_id text;
+  v_account_id text;
   v_members_count integer;
 begin
   if p_auth_user_id is null then
@@ -293,7 +294,7 @@ begin
   end if;
 
   v_display_name := split_part(v_email, '@', 1);
-  v_legacy_user_id := public.next_member_legacy_user_id(v_email);
+  v_account_id := public.next_member_account_id(v_email);
 
   select count(*)
   into v_members_count
@@ -301,7 +302,7 @@ begin
 
   insert into public.members (
     auth_user_id,
-    legacy_user_id,
+    account_id,
     name,
     email,
     user_level,
@@ -311,7 +312,7 @@ begin
   )
   values (
     p_auth_user_id,
-    v_legacy_user_id,
+    v_account_id,
     v_display_name,
     v_email,
     case when v_members_count = 0 then 1 else 0 end,
@@ -750,7 +751,7 @@ $$;
 
 grant execute on function public.current_member_id() to authenticated;
 grant execute on function public.current_user_is_admin() to authenticated;
-grant execute on function public.next_member_legacy_user_id(text) to authenticated;
+grant execute on function public.next_member_account_id(text) to authenticated;
 grant execute on function public.bind_auth_session_member(uuid, text) to authenticated;
 grant execute on function public.save_task(uuid, date, uuid, uuid, text, text, numeric, text, text) to authenticated;
 grant execute on function public.delete_task(uuid) to authenticated;
@@ -783,6 +784,13 @@ for update
 to authenticated
 using (public.current_user_is_admin())
 with check (public.current_user_is_admin());
+
+create policy "members_self_update_login"
+on public.members
+for update
+to authenticated
+using (auth.uid() = auth_user_id)
+with check (auth.uid() = auth_user_id);
 
 create policy "members_admin_delete"
 on public.members

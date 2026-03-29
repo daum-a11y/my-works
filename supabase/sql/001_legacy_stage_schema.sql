@@ -157,8 +157,8 @@ create index legacy_stage_task_tbl_page_url_idx
   on legacy_stage.task_tbl (task_pj_page_url);
 
 create table legacy_xref.members (
-  legacy_user_num integer primary key,
-  legacy_user_id text not null unique,
+  account_num integer primary key,
+  account_id text not null unique,
   member_id uuid not null references public.members(id) on delete cascade,
   synced_at timestamptz not null default timezone('utc', now())
 );

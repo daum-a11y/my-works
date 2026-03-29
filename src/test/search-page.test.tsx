@@ -46,7 +46,7 @@ describe('SearchPage', () => {
       session: {
         member: {
           id: 'member-1',
-          legacyUserId: 'legacy-1',
+          accountId: 'legacy-1',
           name: '운영 사용자',
           email: 'operator@example.com',
           role: 'user',

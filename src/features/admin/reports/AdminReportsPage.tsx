@@ -87,7 +87,7 @@ function getSortValue(
     case 'id':
       return task.id;
     case 'member':
-      return membersById.get(task.memberId)?.legacyUserId ?? task.memberId;
+      return membersById.get(task.memberId)?.accountId ?? task.memberId;
     case 'taskType1':
       return task.taskType1;
     case 'taskType2':
@@ -334,7 +334,7 @@ export function AdminReportsPage() {
         { header: '일자', value: (task) => task.taskDate, width: 12 },
         {
           header: 'ID',
-          value: (task) => membersById.get(task.memberId)?.legacyUserId ?? task.memberId,
+          value: (task) => membersById.get(task.memberId)?.accountId ?? task.memberId,
           width: 18,
         },
         { header: 'type 1', value: (task) => task.taskType1, width: 14 },
@@ -544,7 +544,7 @@ export function AdminReportsPage() {
                     );
                   }}
                 />
-                <span>{member.legacyUserId}</span>
+                <span>{member.accountId}</span>
               </label>
             ))}
           </div>
@@ -567,7 +567,7 @@ export function AdminReportsPage() {
             <button
               type="button"
               onClick={() =>
-                navigate('/admin/reports/new', {
+                navigate('/org/search/new', {
                   state: {
                     memberId: memberFilterIds.length === 1 ? memberFilterIds[0] : '',
                   },
@@ -696,7 +696,7 @@ export function AdminReportsPage() {
                       <td>{index + 1}</td>
                       <td>{task.taskDate}</td>
                       <td>
-                        <strong>{member?.legacyUserId ?? task.memberId}</strong>
+                        <strong>{member?.accountId ?? task.memberId}</strong>
                         <div className={styles.muted}>{member?.name ?? task.memberName}</div>
                       </td>
                       <td>{task.taskType1}</td>
@@ -721,7 +721,7 @@ export function AdminReportsPage() {
                         <div className={styles.rowActions}>
                           <button
                             type="button"
-                            onClick={() => navigate(`/admin/reports/${task.id}/edit`)}
+                            onClick={() => navigate(`/org/search/${task.id}/edit`)}
                           >
                             수정
                           </button>

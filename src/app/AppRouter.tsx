@@ -5,6 +5,7 @@ import { LoginPage } from '../features/auth/LoginPage';
 import { PasswordRecoveryPage } from '../features/auth/PasswordRecoveryPage';
 import { DashboardPage } from '../features/dashboard';
 import { AdminServiceGroupsPage } from '../features/admin/groups/AdminServiceGroupsPage';
+import { AdminMemberEditorPage } from '../features/admin/members/AdminMemberEditorPage';
 import { AdminMembersPage } from '../features/admin/members/AdminMembersPage';
 import { AdminReportEditorPage } from '../features/admin/reports/AdminReportEditorPage';
 import { AdminReportsPage } from '../features/admin/reports/AdminReportsPage';
@@ -115,7 +116,7 @@ export function AppRouter() {
             <Route path="/projects" element={<ProjectsFeature />} />
             <Route path="/projects/new" element={<ProjectEditorPage />} />
             <Route path="/projects/:projectId/edit" element={<ProjectEditorPage />} />
-            <Route path="/resource/summary" element={<ResourceSummaryPage />} />
+            <Route path="/org/summary" element={<ResourceSummaryPage />} />
             <Route path="/resource/month" element={<ResourceMonthPage />} />
             <Route path="/resource/month/:type" element={<ResourceMonthPage />} />
             <Route path="/resource/type" element={<ResourceTypePage />} />
@@ -125,12 +126,14 @@ export function AppRouter() {
             <Route path="/profile" element={<UserProfilePage />} />
             <Route path="/password-change" element={<Navigate to="/profile" replace />} />
             <Route element={<AdminRoute />}>
-              <Route path="/admin/reports" element={<AdminReportsPage />} />
-              <Route path="/admin/reports/new" element={<AdminReportEditorPage />} />
-              <Route path="/admin/reports/:taskId/edit" element={<AdminReportEditorPage />} />
+              <Route path="/org/search" element={<AdminReportsPage />} />
+              <Route path="/org/search/new" element={<AdminReportEditorPage />} />
+              <Route path="/org/search/:taskId/edit" element={<AdminReportEditorPage />} />
               <Route path="/admin/members" element={<AdminMembersPage />} />
-              <Route path="/admin/type" element={<AdminTaskTypesPage />} />
-              <Route path="/admin/group" element={<AdminServiceGroupsPage />} />
+              <Route path="/admin/members/new" element={<AdminMemberEditorPage />} />
+              <Route path="/admin/members/:memberId/edit" element={<AdminMemberEditorPage />} />
+              <Route path="/org/type" element={<AdminTaskTypesPage />} />
+              <Route path="/org/group" element={<AdminServiceGroupsPage />} />
             </Route>
           </Route>
           <Route path="*" element={<NotFoundPage />} />

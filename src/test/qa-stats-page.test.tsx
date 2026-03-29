@@ -5,7 +5,7 @@ import { QaStatsPage } from '../features/stats';
 
 const member = {
   id: 'member-1',
-  legacyUserId: 'user1',
+  accountId: 'user1',
   name: '운영자',
   email: 'operator@example.com',
   role: 'user' as const,

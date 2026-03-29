@@ -20,7 +20,7 @@ export function normalizePageStatus(value: string | null | undefined): PageStatu
 
 export interface Member {
   id: string;
-  legacyUserId: string;
+  accountId: string;
   name: string;
   email: string;
   role: UserRole;

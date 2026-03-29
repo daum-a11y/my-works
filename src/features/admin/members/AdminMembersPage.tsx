@@ -1,52 +1,53 @@
-import { useEffect, useState } from 'react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { type FormEvent, useEffect, useMemo, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { Link, useLocation } from 'react-router-dom';
+import { PageSection } from '../../../components/ui/PageSection';
 import { adminDataClient } from '../admin-client';
-import type { MemberAdminItem, MemberAdminPayload } from '../admin-types';
+import type { MemberAdminItem } from '../admin-types';
 import { AdminMemberRow } from './AdminMemberRow';
 import styles from './AdminMembersPage.module.css';
 
-function createDraft(member?: MemberAdminItem): MemberAdminPayload {
-  if (!member) {
-    return {
-      legacyUserId: '',
-      name: '',
-      email: '',
-      role: 'user',
-      userActive: true,
-      isActive: true,
-      authUserId: null,
-    };
-  }
+type MemberFilterState = {
+  status: 'all' | 'active' | 'inactive';
+  keyword: string;
+};
 
+function normalizeText(value: string) {
+  return value.trim().toLowerCase();
+}
+
+function createInitialFilters(): MemberFilterState {
   return {
-    id: member.id,
-    authUserId: member.authUserId,
-    legacyUserId: member.legacyUserId,
-    name: member.name,
-    email: member.email,
-    role: member.role,
-    userActive: member.userActive,
-    isActive: member.userActive,
+    status: 'all',
+    keyword: '',
   };
 }
 
-function normalizeDraft(draft: MemberAdminPayload): MemberAdminPayload {
-  const active = draft.userActive ?? draft.isActive ?? true;
+function matchesMemberFilters(member: MemberAdminItem, filters: MemberFilterState) {
+  if (filters.status === 'active' && !member.userActive) {
+    return false;
+  }
 
-  return {
-    ...draft,
-    email: draft.email.trim() || draft.legacyUserId.trim(),
-    userActive: active,
-    isActive: active,
-  };
+  if (filters.status === 'inactive' && member.userActive) {
+    return false;
+  }
+
+  const queryText = normalizeText(filters.keyword);
+
+  if (!queryText) {
+    return true;
+  }
+
+  return normalizeText(
+    [member.name, member.accountId, member.email, member.authEmail].join(' '),
+  ).includes(queryText);
 }
 
 export function AdminMembersPage() {
-  const queryClient = useQueryClient();
-  const [adding, setAdding] = useState(false);
-  const [editingMemberId, setEditingMemberId] = useState<string | null>(null);
-  const [draft, setDraft] = useState<MemberAdminPayload | null>(null);
+  const location = useLocation();
   const [statusMessage, setStatusMessage] = useState('');
+  const [filterDraft, setFilterDraft] = useState<MemberFilterState>(createInitialFilters);
+  const [appliedFilters, setAppliedFilters] = useState<MemberFilterState>(createInitialFilters);
 
   useEffect(() => {
     document.title = '사용자 관리 | My Works';
@@ -57,150 +58,106 @@ export function AdminMembersPage() {
     queryFn: () => adminDataClient.listMembersAdmin(),
   });
 
-  const saveMutation = useMutation({
-    mutationFn: (payload: MemberAdminPayload) => adminDataClient.saveMemberAdmin(payload),
-  });
-
-  const inviteMutation = useMutation({
-    mutationFn: (payload: {
-      email: string;
-      legacyUserId: string;
-      name: string;
-      role: 'user' | 'admin';
-    }) => adminDataClient.inviteMemberAdmin(payload),
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: (memberId: string) => adminDataClient.deleteMemberAdmin(memberId),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ['admin', 'members'] });
-      setAdding(false);
-      setEditingMemberId(null);
-      setDraft(null);
-    },
-  });
-
   useEffect(() => {
-    if (!adding && !editingMemberId) {
-      setDraft(null);
+    const nextMessage = (location.state as { statusMessage?: string } | null)?.statusMessage;
+
+    if (nextMessage) {
+      setStatusMessage(nextMessage);
     }
-  }, [adding, editingMemberId]);
+  }, [location.state]);
 
   const members = membersQuery.data ?? [];
+  const filteredMembers = useMemo(
+    () => members.filter((member) => matchesMemberFilters(member, appliedFilters)),
+    [appliedFilters, members],
+  );
+  const activeMemberCount = useMemo(
+    () => members.filter((member) => member.userActive).length,
+    [members],
+  );
 
-  const handleFieldChange = <K extends keyof MemberAdminPayload>(
-    key: K,
-    value: MemberAdminPayload[K],
-  ) => {
-    setDraft((current) => (current ? { ...current, [key]: value } : current));
+  const errorMessage = (membersQuery.error instanceof Error && membersQuery.error.message) || '';
+
+  const handleSearchSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setAppliedFilters(filterDraft);
   };
 
-  const startAdd = () => {
-    setStatusMessage('');
-    setAdding(true);
-    setEditingMemberId(null);
-    setDraft(createDraft());
+  const handleReset = () => {
+    const initialFilters = createInitialFilters();
+    setFilterDraft(initialFilters);
+    setAppliedFilters(initialFilters);
   };
-
-  const startEdit = (member: MemberAdminItem) => {
-    setStatusMessage('');
-    setAdding(false);
-    setEditingMemberId(member.id);
-    setDraft(createDraft(member));
-  };
-
-  const cancelDraft = () => {
-    setStatusMessage('');
-    setAdding(false);
-    setEditingMemberId(null);
-    setDraft(null);
-  };
-
-  const saveDraft = async () => {
-    if (!draft || saveMutation.isPending || inviteMutation.isPending) {
-      return;
-    }
-
-    const normalizedDraft = normalizeDraft(draft);
-    const isCreate = !normalizedDraft.id;
-
-    setStatusMessage('');
-
-    await saveMutation.mutateAsync(normalizedDraft);
-
-    try {
-      if (isCreate) {
-        await inviteMutation.mutateAsync({
-          email: normalizedDraft.email,
-          legacyUserId: normalizedDraft.legacyUserId,
-          name: normalizedDraft.name,
-          role: normalizedDraft.role,
-        });
-        setStatusMessage('사용자를 추가하고 초대 메일을 보냈습니다.');
-      } else {
-        setStatusMessage('사용자 정보를 저장했습니다.');
-      }
-    } catch (error) {
-      setStatusMessage('');
-      throw new Error(
-        error instanceof Error
-          ? `사용자는 저장했지만 초대 메일 발송에 실패했습니다. ${error.message}`
-          : '사용자는 저장했지만 초대 메일 발송에 실패했습니다.',
-      );
-    } finally {
-      void queryClient.invalidateQueries({ queryKey: ['admin', 'members'] });
-    }
-
-    setAdding(false);
-    setEditingMemberId(null);
-    setDraft(null);
-  };
-
-  const handleDelete = async (member: MemberAdminItem) => {
-    if (!window.confirm(`정말 ${member.name} 사용자를 삭제하시겠습니까?`)) {
-      return;
-    }
-
-    await deleteMutation.mutateAsync(member.id);
-  };
-
-  const handleInvite = async (member: MemberAdminItem) => {
-    setStatusMessage('');
-    if (!window.confirm(`${member.name}에게 초대 메일을 보내시겠습니까?`)) {
-      return;
-    }
-
-    await inviteMutation.mutateAsync({
-      email: member.email,
-      legacyUserId: member.legacyUserId,
-      name: member.name,
-      role: member.role,
-    });
-    setStatusMessage('초대 메일을 보냈습니다.');
-  };
-
-  const errorMessage =
-    (membersQuery.error instanceof Error && membersQuery.error.message) ||
-    (saveMutation.error instanceof Error && saveMutation.error.message) ||
-    (inviteMutation.error instanceof Error && inviteMutation.error.message) ||
-    (deleteMutation.error instanceof Error && deleteMutation.error.message) ||
-    '';
 
   return (
     <section className={styles.page}>
-      <header className={styles.hero}>
-        <h1>사용자 관리</h1>
-        <div className={styles.heroActions}>
-          {!adding ? (
-            <button type="button" className={styles.primaryButton} onClick={startAdd}>
-              사용자 추가
-            </button>
-          ) : null}
+      <header className={styles.pageHeader}>
+        <div className={styles.pageHeaderTop}>
+          <h1 className={styles.title}>사용자 관리</h1>
+          <Link to="/admin/members/new" className={styles.headerAction}>
+            사용자 추가
+          </Link>
         </div>
       </header>
 
       {statusMessage ? <p className={styles.statusText}>{statusMessage}</p> : null}
       {errorMessage ? <p className={styles.helperText}>{errorMessage}</p> : null}
+
+      <PageSection title="필터">
+        <form className={styles.filterBar} onSubmit={handleSearchSubmit}>
+          <label className={styles.filterField}>
+            <span>활성 여부</span>
+            <select
+              value={filterDraft.status}
+              onChange={(event) =>
+                setFilterDraft((current) => ({
+                  ...current,
+                  status: event.target.value as MemberFilterState['status'],
+                }))
+              }
+            >
+              <option value="all">전체</option>
+              <option value="active">활성</option>
+              <option value="inactive">비활성</option>
+            </select>
+          </label>
+          <label className={styles.filterField}>
+            <span>검색어</span>
+            <input
+              value={filterDraft.keyword}
+              onChange={(event) =>
+                setFilterDraft((current) => ({ ...current, keyword: event.target.value }))
+              }
+              placeholder="이름, ID, 메일 검색"
+            />
+          </label>
+          <div className={styles.filterActions}>
+            <button type="submit" className={styles.filterButton}>
+              검색
+            </button>
+            <button type="button" className={styles.filterButtonSecondary} onClick={handleReset}>
+              초기화
+            </button>
+          </div>
+        </form>
+      </PageSection>
+
+      <section className={styles.resultBar} aria-label="사용자 목록 상태">
+        <p className={styles.resultMetric}>
+          <span className={styles.resultLabel}>조회 결과</span>
+          <strong className={styles.resultValue}>{filteredMembers.length}</strong>
+        </p>
+        <div className={styles.resultMetrics}>
+          <p className={styles.resultMetric}>
+            <span className={styles.resultLabel}>전체 사용자</span>
+            <strong className={styles.resultValue}>{members.length}</strong>
+          </p>
+          <p className={styles.resultMetric}>
+            <span className={styles.resultLabel}>활성 사용자</span>
+            <strong className={styles.resultValue}>{activeMemberCount}</strong>
+          </p>
+        </div>
+      </section>
 
       <div className={styles.panel}>
         <div className={styles.tableWrap}>
@@ -219,47 +176,20 @@ export function AdminMembersPage() {
               </tr>
             </thead>
             <tbody>
-              {adding && draft ? (
-                <AdminMemberRow
-                  mode="create"
-                  draft={draft}
-                  onDraftChange={handleFieldChange}
-                  onSave={() => void saveDraft()}
-                  onCancel={cancelDraft}
-                  isSaving={saveMutation.isPending}
-                />
-              ) : null}
-
               {membersQuery.isLoading ? (
                 <tr>
                   <td colSpan={8} className={styles.emptyCell}>
                     불러오는 중...
                   </td>
                 </tr>
-              ) : members.length === 0 ? (
+              ) : filteredMembers.length === 0 ? (
                 <tr>
                   <td colSpan={8} className={styles.emptyCell}>
                     조회된 사용자가 없습니다.
                   </td>
                 </tr>
               ) : (
-                members.map((member) => (
-                  <AdminMemberRow
-                    key={member.id}
-                    mode={editingMemberId === member.id ? 'edit' : 'view'}
-                    member={member}
-                    draft={editingMemberId === member.id ? draft : null}
-                    onDraftChange={handleFieldChange}
-                    onStartEdit={() => startEdit(member)}
-                    onSave={() => void saveDraft()}
-                    onCancel={cancelDraft}
-                    onDelete={() => void handleDelete(member)}
-                    onInvite={() => void handleInvite(member)}
-                    isSaving={saveMutation.isPending || inviteMutation.isPending}
-                    isDeleting={deleteMutation.isPending}
-                    isInviting={inviteMutation.isPending}
-                  />
-                ))
+                filteredMembers.map((member) => <AdminMemberRow key={member.id} member={member} />)
               )}
             </tbody>
           </table>

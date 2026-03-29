@@ -68,10 +68,11 @@ function isDashboardQaPage(
 export interface OpsDataClient {
   mode: 'supabase' | 'unconfigured';
   getMembers(): Promise<Member[]>;
-  getMemberByLegacyUserId(legacyUserId: string): Promise<Member | null>;
+  getMemberByAccountId(accountId: string): Promise<Member | null>;
   getMemberByEmail(email: string): Promise<Member | null>;
   getMemberByAuthId(authUserId: string): Promise<Member | null>;
   bindAuthSessionMember(authUserId: string, email?: string | null): Promise<Member | null>;
+  touchMemberLastLogin(authUserId: string, email?: string | null): Promise<Member | null>;
   getTaskTypes(): Promise<TaskType[]>;
   getServiceGroups(): Promise<ServiceGroup[]>;
   getProjects(): Promise<Project[]>;
@@ -185,12 +186,12 @@ function createSupabaseClient(): OpsDataClient {
       if (error) throw error;
       return (data ?? []).map(mapMemberRecord);
     },
-    async getMemberByLegacyUserId(legacyUserId) {
-      const normalized = legacyUserId.trim();
+    async getMemberByAccountId(accountId) {
+      const normalized = accountId.trim();
       const { data, error } = await supabase
         .from('members')
         .select('*')
-        .ilike('legacy_user_id', normalized)
+        .ilike('account_id', normalized)
         .maybeSingle();
       if (error) throw error;
       return data ? mapMemberRecord(data) : null;
@@ -222,6 +223,27 @@ function createSupabaseClient(): OpsDataClient {
       return data
         ? mapMemberRecord(requireRecord(data, '사용자 연결 결과를 확인할 수 없습니다.'))
         : null;
+    },
+    async touchMemberLastLogin(authUserId, email) {
+      let member = await this.getMemberByAuthId(authUserId);
+
+      if (!member && email) {
+        member = await this.bindAuthSessionMember(authUserId, email);
+      }
+
+      if (!member) {
+        return null;
+      }
+
+      const { data, error } = await supabase
+        .from('members')
+        .update({ last_login_at: new Date().toISOString() })
+        .eq('id', member.id)
+        .select('*')
+        .single();
+
+      if (error) throw error;
+      return mapMemberRecord(data as Record<string, unknown>);
     },
     async getTaskTypes() {
       const { data, error } = await supabase.from('task_types').select('*').order('display_order');
@@ -446,10 +468,11 @@ function createUnconfiguredClient(): OpsDataClient {
   return {
     mode: 'unconfigured',
     getMembers: fail,
-    getMemberByLegacyUserId: fail,
+    getMemberByAccountId: fail,
     getMemberByEmail: fail,
     getMemberByAuthId: fail,
     bindAuthSessionMember: fail,
+    touchMemberLastLogin: fail,
     getTaskTypes: fail,
     getServiceGroups: fail,
     getProjects: fail,
@@ -473,7 +496,7 @@ function createUnconfiguredClient(): OpsDataClient {
 function mapMemberRecord(record: Record<string, unknown>): Member {
   return {
     id: String(record.id),
-    legacyUserId: String(record.legacy_user_id ?? ''),
+    accountId: String(record.account_id ?? ''),
     name: String(record.name ?? ''),
     email: String(record.email ?? ''),
     role: Number(record.user_level ?? 0) === 1 ? 'admin' : 'user',

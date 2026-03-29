@@ -39,7 +39,7 @@ describe('UserProfilePage', () => {
       session: {
         member: {
           id: 'member-1',
-          legacyUserId: 'daum.a11y',
+          accountId: 'daum.a11y',
           name: '테스트',
           email: 'daum.a11y@gmail.com',
           role: 'admin',
@@ -81,7 +81,7 @@ describe('UserProfilePage', () => {
       session: {
         member: {
           id: 'member-1',
-          legacyUserId: 'daum.a11y',
+          accountId: 'daum.a11y',
           name: '테스트',
           email: 'daum.a11y@gmail.com',
           role: 'user',
@@ -127,7 +127,7 @@ describe('UserProfilePage', () => {
       session: {
         member: {
           id: 'member-1',
-          legacyUserId: 'daum.a11y',
+          accountId: 'daum.a11y',
           name: '테스트',
           email: 'daum.a11y@gmail.com',
           role: 'admin',

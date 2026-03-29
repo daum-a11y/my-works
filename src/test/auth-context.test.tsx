@@ -9,6 +9,7 @@ const mockResetPasswordForEmail = vi.hoisted(() => vi.fn());
 const mockUpdateUser = vi.hoisted(() => vi.fn());
 const mockGetMemberByAuthId = vi.hoisted(() => vi.fn());
 const mockBindAuthSessionMember = vi.hoisted(() => vi.fn());
+const mockTouchMemberLastLogin = vi.hoisted(() => vi.fn());
 const mockGetMemberByEmail = vi.hoisted(() => vi.fn());
 const mockSupabaseClient = vi.hoisted(() => ({
   auth: {
@@ -38,6 +39,7 @@ vi.mock('../lib/data-client', () => ({
   opsDataClient: {
     getMemberByAuthId: mockGetMemberByAuthId,
     bindAuthSessionMember: mockBindAuthSessionMember,
+    touchMemberLastLogin: mockTouchMemberLastLogin,
     getMemberByEmail: mockGetMemberByEmail,
   },
 }));
@@ -61,6 +63,7 @@ describe('AuthContext', () => {
     mockUpdateUser.mockReset();
     mockGetMemberByAuthId.mockReset();
     mockBindAuthSessionMember.mockReset();
+    mockTouchMemberLastLogin.mockReset();
     mockGetMemberByEmail.mockReset();
 
     mockGetSession.mockResolvedValue({

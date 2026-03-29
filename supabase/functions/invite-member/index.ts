@@ -7,7 +7,7 @@ const corsHeaders = {
 
 type InvitePayload = {
   email?: string;
-  legacyUserId?: string;
+  accountId?: string;
   name?: string;
   role?: 'user' | 'admin';
   redirectTo?: string;
@@ -66,14 +66,57 @@ Deno.serve(async (request) => {
     },
   });
 
-  const { data: member, error: memberError } = await adminClient
+  const normalizedUserEmail = String(user.email ?? '')
+    .trim()
+    .toLowerCase();
+  let member: {
+    id: string;
+    user_level: number;
+    user_active: boolean;
+    auth_user_id?: string | null;
+  } | null = null;
+
+  const { data: linkedMember, error: linkedMemberError } = await adminClient
     .from('members')
-    .select('user_level, user_active')
+    .select('id, user_level, user_active, auth_user_id')
     .eq('auth_user_id', user.id)
     .maybeSingle();
 
-  if (memberError) {
-    return json({ error: memberError.message }, { status: 500 });
+  if (linkedMemberError) {
+    return json({ error: linkedMemberError.message }, { status: 500 });
+  }
+
+  member = linkedMember;
+
+  if (!member && normalizedUserEmail) {
+    const { data: emailMatchedMember, error: emailMatchedMemberError } = await adminClient
+      .from('members')
+      .select('id, user_level, user_active, auth_user_id')
+      .ilike('email', normalizedUserEmail)
+      .maybeSingle();
+
+    if (emailMatchedMemberError) {
+      return json({ error: emailMatchedMemberError.message }, { status: 500 });
+    }
+
+    member = emailMatchedMember;
+
+    if (member && !member.auth_user_id) {
+      const { error: bindError } = await adminClient
+        .from('members')
+        .update({ auth_user_id: user.id })
+        .eq('id', member.id)
+        .is('auth_user_id', null);
+
+      if (bindError) {
+        return json({ error: bindError.message }, { status: 500 });
+      }
+
+      member = {
+        ...member,
+        auth_user_id: user.id,
+      };
+    }
   }
 
   if (!member || Number(member.user_level ?? 0) !== 1 || member.user_active !== true) {
@@ -84,7 +127,7 @@ Deno.serve(async (request) => {
   const email = String(payload.email ?? '')
     .trim()
     .toLowerCase();
-  const legacyUserId = String(payload.legacyUserId ?? '').trim();
+  const accountId = String(payload.accountId ?? '').trim();
   const name = String(payload.name ?? '').trim();
   const role = payload.role === 'admin' ? 'admin' : 'user';
   const redirectTo = String(payload.redirectTo ?? '').trim();
@@ -96,7 +139,7 @@ Deno.serve(async (request) => {
   const { error: inviteError } = await adminClient.auth.admin.inviteUserByEmail(email, {
     redirectTo: redirectTo || undefined,
     data: {
-      legacy_user_id: legacyUserId,
+      account_id: accountId,
       name,
       role,
     },

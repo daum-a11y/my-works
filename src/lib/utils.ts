@@ -18,6 +18,23 @@ export function formatDateLabel(value: string): string {
   }).format(date);
 }
 
+export function formatDateTimeLabel(value: string): string {
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  return new Intl.DateTimeFormat('ko-KR', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).format(date);
+}
+
 export function formatHours(value: number): string {
   return `${value.toFixed(1)}h`;
 }

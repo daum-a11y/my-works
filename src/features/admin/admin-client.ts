@@ -29,7 +29,7 @@ interface AdminDataClient {
   listMembersAdmin(): Promise<MemberAdminItem[]>;
   saveMemberAdmin(payload: MemberAdminPayload): Promise<MemberAdminItem>;
   inviteMemberAdmin(payload: MemberInvitePayload): Promise<void>;
-  deleteMemberAdmin(memberId: string): Promise<void>;
+  deleteMemberAdmin(memberId: string): Promise<'deleted' | 'deactivated'>;
   saveTaskTypeAdmin(payload: AdminTaskTypePayload): Promise<AdminTaskTypeItem>;
   deleteTaskTypeAdmin(taskTypeId: string): Promise<void>;
   replaceTaskTypeUsage(
@@ -184,15 +184,15 @@ function mapServiceGroup(record: Record<string, unknown>): AdminServiceGroupItem
 function mapMember(record: Record<string, unknown>): MemberAdminItem {
   const active = Boolean(record.user_active ?? record.is_active ?? true);
   const authUserId = record.auth_user_id ? String(record.auth_user_id) : null;
-  const legacyUserId = String(record.legacy_user_id ?? '').trim();
+  const accountId = String(record.account_id ?? '').trim();
   const email = String(record.email ?? '').trim();
   const queueReasons: string[] = [];
 
   if (!authUserId) {
     queueReasons.push('auth_unlinked');
   }
-  if (!legacyUserId) {
-    queueReasons.push('legacy_id_missing');
+  if (!accountId) {
+    queueReasons.push('account_id_missing');
   }
   if (!email) {
     queueReasons.push('email_missing');
@@ -204,7 +204,7 @@ function mapMember(record: Record<string, unknown>): MemberAdminItem {
   return {
     id: String(record.id ?? ''),
     authUserId,
-    legacyUserId,
+    accountId,
     name: String(record.name ?? ''),
     email,
     role: Number(record.user_level ?? 0) === 1 ? 'admin' : 'user',
@@ -548,9 +548,9 @@ function createSupabaseAdminClient(): AdminDataClient {
       const { data, error } = await supabase
         .from('members')
         .select(
-          'id, auth_user_id, legacy_user_id, name, email, user_level, user_active, joined_at, updated_at',
+          'id, auth_user_id, account_id, name, email, user_level, user_active, joined_at, last_login_at, updated_at',
         )
-        .order('legacy_user_id');
+        .order('joined_at', { ascending: false });
       if (error) throw error;
       return (data ?? []).map((record) => mapMember(record as Record<string, unknown>));
     },
@@ -558,7 +558,7 @@ function createSupabaseAdminClient(): AdminDataClient {
     async saveMemberAdmin(payload: MemberAdminPayload) {
       const record = {
         auth_user_id: payload.authUserId ?? null,
-        legacy_user_id: payload.legacyUserId,
+        account_id: payload.accountId,
         name: payload.name,
         email: payload.email,
         user_level: payload.role === 'admin' ? 1 : 0,
@@ -571,7 +571,7 @@ function createSupabaseAdminClient(): AdminDataClient {
           .update(record)
           .eq('id', payload.id)
           .select(
-            'id, auth_user_id, legacy_user_id, name, email, user_level, user_active, joined_at, updated_at',
+            'id, auth_user_id, account_id, name, email, user_level, user_active, joined_at, updated_at',
           )
           .single();
         if (error) throw error;
@@ -582,7 +582,7 @@ function createSupabaseAdminClient(): AdminDataClient {
         .from('members')
         .insert(record)
         .select(
-          'id, auth_user_id, legacy_user_id, name, email, user_level, user_active, joined_at, updated_at',
+          'id, auth_user_id, account_id, name, email, user_level, user_active, joined_at, updated_at',
         )
         .single();
       if (error) throw error;
@@ -598,7 +598,7 @@ function createSupabaseAdminClient(): AdminDataClient {
       const { error } = await supabase.functions.invoke('invite-member', {
         body: {
           email,
-          legacyUserId: payload.legacyUserId.trim(),
+          accountId: payload.accountId.trim(),
           name: payload.name.trim(),
           role: payload.role,
           redirectTo: getPasswordRecoveryRedirectUrl(),
@@ -611,8 +611,25 @@ function createSupabaseAdminClient(): AdminDataClient {
     },
 
     async deleteMemberAdmin(memberId: string) {
+      const { count, error: countError } = await supabase
+        .from('tasks')
+        .select('id', { count: 'exact', head: true })
+        .eq('member_id', memberId);
+
+      if (countError) throw countError;
+
+      if ((count ?? 0) > 0) {
+        const { error } = await supabase
+          .from('members')
+          .update({ user_active: false })
+          .eq('id', memberId);
+        if (error) throw error;
+        return 'deactivated';
+      }
+
       const { error } = await supabase.from('members').delete().eq('id', memberId);
       if (error) throw error;
+      return 'deleted';
     },
 
     async saveTaskTypeAdmin(payload: AdminTaskTypePayload) {

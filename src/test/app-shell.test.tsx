@@ -19,7 +19,7 @@ describe('AppShell', () => {
       session: {
         member: {
           name: '홍길동',
-          legacyUserId: 'hong.gd',
+          accountId: 'hong.gd',
           role: 'admin',
         },
       },
@@ -57,7 +57,7 @@ describe('AppShell', () => {
       session: {
         member: {
           name: '홍길동',
-          legacyUserId: 'hong.gd',
+          accountId: 'hong.gd',
           role: 'admin',
         },
       },

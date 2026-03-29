@@ -538,7 +538,7 @@ export function AdminReportEditorPage() {
         queryClient.invalidateQueries({ queryKey: ['admin', 'task-search'] }),
         queryClient.invalidateQueries({ queryKey: ['admin', 'task', taskId] }),
       ]);
-      navigate('/admin/reports');
+      navigate('/org/search');
     },
     onError: (error) => {
       setStatusMessage(error instanceof Error ? error.message : '저장하지 못했습니다.');
@@ -623,7 +623,7 @@ export function AdminReportEditorPage() {
                   <option value="">{members.length ? '선택하세요' : '사용자가 없습니다.'}</option>
                   {members.map((member: MemberAdminItem) => (
                     <option key={member.id} value={member.id}>
-                      {member.legacyUserId} ({member.name})
+                      {member.accountId} ({member.name})
                     </option>
                   ))}
                 </select>
@@ -846,7 +846,7 @@ export function AdminReportEditorPage() {
 
             {isEdit && currentMember ? (
               <p className={styles.status}>
-                사용자: {currentMember.legacyUserId} ({currentMember.name})
+                사용자: {currentMember.accountId} ({currentMember.name})
               </p>
             ) : null}
 
@@ -861,7 +861,7 @@ export function AdminReportEditorPage() {
               <button
                 type="button"
                 className={styles.secondaryButton}
-                onClick={() => navigate('/admin/reports')}
+                onClick={() => navigate('/org/search')}
               >
                 취소
               </button>

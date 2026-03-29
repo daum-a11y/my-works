@@ -546,7 +546,7 @@ export function ProjectEditorPage() {
                 <option value="">선택</option>
                 {members.map((item) => (
                   <option key={item.id} value={item.id}>
-                    {`${item.legacyUserId}(${item.name})`}
+                    {`${item.accountId}(${item.name})`}
                   </option>
                 ))}
               </select>
@@ -566,7 +566,7 @@ export function ProjectEditorPage() {
                 <option value="">선택</option>
                 {members.map((item) => (
                   <option key={item.id} value={item.id}>
-                    {`${item.legacyUserId}(${item.name})`}
+                    {`${item.accountId}(${item.name})`}
                   </option>
                 ))}
               </select>
@@ -596,7 +596,7 @@ export function ProjectEditorPage() {
                 className={styles.primaryButton}
                 disabled={saveProjectMutation.isPending}
               >
-                저장하기
+                저장
               </button>
             </div>
           </div>

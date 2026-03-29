@@ -115,7 +115,7 @@ export interface AdminPageOption {
 export interface MemberAdminItem {
   id: string;
   authUserId: string | null;
-  legacyUserId: string;
+  accountId: string;
   name: string;
   email: string;
   role: 'user' | 'admin';
@@ -131,7 +131,7 @@ export interface MemberAdminItem {
 export interface MemberAdminPayload {
   id?: string;
   authUserId?: string | null;
-  legacyUserId: string;
+  accountId: string;
   name: string;
   email: string;
   role: 'user' | 'admin';
@@ -141,7 +141,7 @@ export interface MemberAdminPayload {
 
 export interface MemberInvitePayload {
   email: string;
-  legacyUserId: string;
+  accountId: string;
   name: string;
   role: 'user' | 'admin';
 }

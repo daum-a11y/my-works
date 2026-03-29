@@ -56,7 +56,7 @@ export function ResourceSummaryPage() {
 
       return {
         id: member.id,
-        legacyUserId: member.legacyUserId,
+        accountId: member.accountId,
         isWeekend,
         minutes,
       };
@@ -147,7 +147,7 @@ export function ResourceSummaryPage() {
 
                 return (
                   <tr key={row.id}>
-                    <th>{row.legacyUserId}</th>
+                    <th>{row.accountId}</th>
                     <td>
                       <span className={`${styles.resultBadge} ${badgeClass}`}>{value}</span>
                     </td>
@@ -178,7 +178,7 @@ export function ResourceSummaryPage() {
             >
               {data.members.map((member) => (
                 <option key={member.id} value={member.id}>
-                  {member.legacyUserId} ({member.name})
+                  {member.accountId} ({member.name})
                 </option>
               ))}
             </select>

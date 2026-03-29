@@ -190,7 +190,7 @@ export function UserProfilePage() {
           <dl className={styles.profileList}>
             <div className={styles.profileRow}>
               <dt>ID</dt>
-              <dd>{member?.legacyUserId ?? '-'}</dd>
+              <dd>{member?.accountId ?? '-'}</dd>
             </div>
             <div className={styles.profileRow}>
               <dt>이름</dt>

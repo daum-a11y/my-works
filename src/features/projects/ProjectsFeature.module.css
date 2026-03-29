@@ -115,6 +115,12 @@
   resize: vertical;
 }
 
+.field :is(input, select, textarea):disabled {
+  background: color-mix(in oklab, var(--control-bg) 42%, var(--surface-muted));
+  color: var(--text-secondary);
+  font-weight: var(--font-weight-regular);
+}
+
 .field :is(input, select, textarea):focus-visible,
 .filterField :is(input, select):focus-visible,
 .primaryButton:focus-visible,

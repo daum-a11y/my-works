@@ -79,7 +79,7 @@ function sortRows(left: MonitoringRow, right: MonitoringRow) {
 
 function memberDisplay(
   memberId: string | null | undefined,
-  membersById: Map<string, { legacyUserId: string; name: string }>,
+  membersById: Map<string, { accountId: string; name: string }>,
 ) {
   if (!memberId) {
     return '미지정';
@@ -91,7 +91,7 @@ function memberDisplay(
     return memberId;
   }
 
-  return `${member.legacyUserId}(${member.name})`;
+  return `${member.accountId}(${member.name})`;
 }
 
 export function MonitoringStatsPage() {
@@ -112,7 +112,7 @@ export function MonitoringStatsPage() {
       ]);
       const projectsById = new Map(projects.map((project) => [project.id, project]));
       const membersById = new Map(
-        members.map((item) => [item.id, { legacyUserId: item.legacyUserId, name: item.name }]),
+        members.map((item) => [item.id, { accountId: item.accountId, name: item.name }]),
       );
       const serviceGroupsById = new Map(serviceGroups.map((item) => [item.id, item.name]));
 

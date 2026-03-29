@@ -33,7 +33,7 @@ function memberDisplay(memberId: string | null | undefined, membersById: Map<str
     return memberId;
   }
 
-  return `${member.legacyUserId}(${member.name})`;
+  return `${member.accountId}(${member.name})`;
 }
 
 function serviceGroupName(
