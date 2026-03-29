@@ -4,11 +4,13 @@ import { ForgotPasswordPage } from '../features/auth/ForgotPasswordPage';
 import { LoginPage } from '../features/auth/LoginPage';
 import { PasswordRecoveryPage } from '../features/auth/PasswordRecoveryPage';
 import { DashboardPage } from '../features/dashboard';
+import { AdminServiceGroupEditorPage } from '../features/admin/groups/AdminServiceGroupEditorPage';
 import { AdminServiceGroupsPage } from '../features/admin/groups/AdminServiceGroupsPage';
 import { AdminMemberEditorPage } from '../features/admin/members/AdminMemberEditorPage';
 import { AdminMembersPage } from '../features/admin/members/AdminMembersPage';
 import { AdminReportEditorPage } from '../features/admin/reports/AdminReportEditorPage';
 import { AdminReportsPage } from '../features/admin/reports/AdminReportsPage';
+import { AdminTaskTypeEditorPage } from '../features/admin/types/AdminTaskTypeEditorPage';
 import { AdminTaskTypesPage } from '../features/admin/types/AdminTaskTypesPage';
 import { NotFoundPage } from '../features/not-found';
 import { ProjectEditorPage, ProjectsFeature } from '../features/projects';
@@ -133,7 +135,14 @@ export function AppRouter() {
               <Route path="/admin/members/new" element={<AdminMemberEditorPage />} />
               <Route path="/admin/members/:memberId/edit" element={<AdminMemberEditorPage />} />
               <Route path="/org/type" element={<AdminTaskTypesPage />} />
+              <Route path="/org/type/new" element={<AdminTaskTypeEditorPage />} />
+              <Route path="/org/type/:taskTypeId/edit" element={<AdminTaskTypeEditorPage />} />
               <Route path="/org/group" element={<AdminServiceGroupsPage />} />
+              <Route path="/org/group/new" element={<AdminServiceGroupEditorPage />} />
+              <Route
+                path="/org/group/:serviceGroupId/edit"
+                element={<AdminServiceGroupEditorPage />}
+              />
             </Route>
           </Route>
           <Route path="*" element={<NotFoundPage />} />

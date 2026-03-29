@@ -30,6 +30,10 @@ vi.mock('../features/admin/groups/AdminServiceGroupsPage', () => ({
   AdminServiceGroupsPage: () => <div>admin-groups-page</div>,
 }));
 
+vi.mock('../features/admin/groups/AdminServiceGroupEditorPage', () => ({
+  AdminServiceGroupEditorPage: () => <div>admin-group-editor-page</div>,
+}));
+
 vi.mock('../features/admin/members/AdminMembersPage', () => ({
   AdminMembersPage: () => <div>admin-members-page</div>,
 }));
@@ -44,6 +48,10 @@ vi.mock('../features/admin/reports/AdminReportsPage', () => ({
 
 vi.mock('../features/admin/types/AdminTaskTypesPage', () => ({
   AdminTaskTypesPage: () => <div>admin-task-types-page</div>,
+}));
+
+vi.mock('../features/admin/types/AdminTaskTypeEditorPage', () => ({
+  AdminTaskTypeEditorPage: () => <div>admin-task-type-editor-page</div>,
 }));
 
 vi.mock('../features/not-found', () => ({

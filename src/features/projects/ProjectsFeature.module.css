@@ -453,6 +453,11 @@
   background: color-mix(in oklab, var(--state-danger-bg) 86%, var(--surface-panel));
 }
 
+.deleteButton:disabled {
+  opacity: 0.48;
+  cursor: not-allowed;
+}
+
 .modal {
   width: 100%;
   border: 1px solid var(--border-default);

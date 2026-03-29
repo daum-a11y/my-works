@@ -7,11 +7,13 @@ import type {
   AdminProjectOption,
   AdminServiceGroupItem,
   AdminServiceGroupPayload,
+  AdminServiceGroupUsageSummary,
   AdminTaskSaveInput,
   AdminTaskSearchFilters,
   AdminTaskSearchItem,
   AdminTaskTypeItem,
   AdminTaskTypePayload,
+  AdminTaskTypeUsageSummary,
   MemberAdminItem,
   MemberInvitePayload,
   MemberAdminPayload,
@@ -31,6 +33,11 @@ interface AdminDataClient {
   inviteMemberAdmin(payload: MemberInvitePayload): Promise<void>;
   deleteMemberAdmin(memberId: string): Promise<'deleted' | 'deactivated'>;
   saveTaskTypeAdmin(payload: AdminTaskTypePayload): Promise<AdminTaskTypeItem>;
+  getTaskTypeUsageSummary(
+    taskTypeId: string,
+    type1: string,
+    type2: string,
+  ): Promise<AdminTaskTypeUsageSummary>;
   deleteTaskTypeAdmin(taskTypeId: string): Promise<void>;
   replaceTaskTypeUsage(
     oldType1: string,
@@ -39,6 +46,7 @@ interface AdminDataClient {
     nextType2: string,
   ): Promise<void>;
   saveServiceGroupAdmin(payload: AdminServiceGroupPayload): Promise<AdminServiceGroupItem>;
+  getServiceGroupUsageSummary(serviceGroupId: string): Promise<AdminServiceGroupUsageSummary>;
   deleteServiceGroupAdmin(serviceGroupId: string): Promise<void>;
   replaceServiceGroupUsage(
     oldServiceGroupId: string | null,
@@ -441,6 +449,9 @@ function createUnconfiguredAdminClient(): AdminDataClient {
     async saveTaskTypeAdmin() {
       throw configurationError;
     },
+    async getTaskTypeUsageSummary() {
+      throw configurationError;
+    },
     async deleteTaskTypeAdmin() {
       throw configurationError;
     },
@@ -448,6 +459,9 @@ function createUnconfiguredAdminClient(): AdminDataClient {
       throw configurationError;
     },
     async saveServiceGroupAdmin() {
+      throw configurationError;
+    },
+    async getServiceGroupUsageSummary() {
       throw configurationError;
     },
     async deleteServiceGroupAdmin() {
@@ -658,6 +672,37 @@ function createSupabaseAdminClient(): AdminDataClient {
       return mapTaskType(data as Record<string, unknown>);
     },
 
+    async getTaskTypeUsageSummary(taskTypeId: string, type1: string, type2: string) {
+      const taskIds = new Set<string>();
+
+      const normalizedType1 = type1.trim();
+      const normalizedType2 = type2.trim();
+
+      const [byIdResult, byTextResult] = await Promise.all([
+        supabase.from('tasks').select('id').eq('task_type_id', taskTypeId),
+        supabase
+          .from('tasks')
+          .select('id')
+          .eq('task_type1', normalizedType1)
+          .eq('task_type2', normalizedType2),
+      ]);
+
+      if (byIdResult.error) throw byIdResult.error;
+      if (byTextResult.error) throw byTextResult.error;
+
+      for (const row of byIdResult.data ?? []) {
+        taskIds.add(String(row.id));
+      }
+
+      for (const row of byTextResult.data ?? []) {
+        taskIds.add(String(row.id));
+      }
+
+      return {
+        taskCount: taskIds.size,
+      };
+    },
+
     async deleteTaskTypeAdmin(taskTypeId: string) {
       const { error } = await supabase.from('task_types').delete().eq('id', taskTypeId);
       if (error) throw error;
@@ -699,6 +744,24 @@ function createSupabaseAdminClient(): AdminDataClient {
         .single();
       if (error) throw error;
       return mapServiceGroup(data as Record<string, unknown>);
+    },
+
+    async getServiceGroupUsageSummary(serviceGroupId: string) {
+      const { data, error } = await supabase
+        .from('projects')
+        .select('id, name')
+        .eq('service_group_id', serviceGroupId)
+        .order('name');
+
+      if (error) throw error;
+
+      return {
+        projectCount: (data ?? []).length,
+        projectNames: (data ?? [])
+          .map((row) => String(row.name ?? ''))
+          .filter(Boolean)
+          .slice(0, 5),
+      };
     },
 
     async deleteServiceGroupAdmin(serviceGroupId: string) {

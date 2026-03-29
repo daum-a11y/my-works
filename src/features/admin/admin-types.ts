@@ -68,6 +68,10 @@ export interface AdminTaskTypePayload {
   isActive: boolean;
 }
 
+export interface AdminTaskTypeUsageSummary {
+  taskCount: number;
+}
+
 export interface AdminServiceGroupItem {
   id: string;
   legacySvcNum: number | null;
@@ -90,6 +94,11 @@ export interface AdminServiceGroupPayload {
   svcActive: boolean;
   displayOrder: number;
   isActive: boolean;
+}
+
+export interface AdminServiceGroupUsageSummary {
+  projectCount: number;
+  projectNames: string[];
 }
 
 export interface AdminProjectOption {
