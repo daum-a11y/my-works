@@ -569,7 +569,7 @@ task_resolved as (
     task_type_x.task_type_id,
     s.task_type1,
     s.task_type2,
-    round((s.task_usedtime_minutes::numeric / 60.0), 1) as hours,
+    s.task_usedtime_minutes::numeric as hours,
     coalesce(
       s.task_pj_page,
       s.task_pj_name,
@@ -697,7 +697,7 @@ task_resolved as (
     task_type_x.task_type_id,
     s.task_type1,
     s.task_type2,
-    round((s.task_usedtime_minutes::numeric / 60.0), 1) as hours,
+    s.task_usedtime_minutes::numeric as hours,
     coalesce(
       s.task_pj_page,
       s.task_pj_name,

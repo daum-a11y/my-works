@@ -1,19 +1,16 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
 import { setDocumentTitle } from '../../app/navigation';
+import { MonthlyReportCalendar } from '../../components/ui/MonthlyReportCalendar';
 import { opsDataClient } from '../../lib/data-client';
 import { useAuth } from '../auth/AuthContext';
 import {
   buildCalendarWeeks,
   filterTasksByMonth,
   getCurrentMonth,
-  minutesFromHours,
   shiftMonth,
 } from '../resource/resource-shared';
 import styles from './DashboardPage.module.css';
-
-const weekdayLabels = ['일', '월', '화', '수', '목', '금', '토'];
 
 export function DashboardPage() {
   const { session } = useAuth();
@@ -48,7 +45,7 @@ export function DashboardPage() {
 
     for (const task of tasks) {
       const day = Number(task.taskDate.slice(8, 10));
-      summary.set(day, (summary.get(day) ?? 0) + minutesFromHours(task.hours));
+      summary.set(day, (summary.get(day) ?? 0) + Math.round(task.hours));
     }
 
     const today = new Date();
@@ -77,9 +74,12 @@ export function DashboardPage() {
           {monthState && (
             <div className={styles.sectionHead}>
               <div className={styles.calendarHeading}>
-                <h2>
-                  {monthState.year}년 {monthState.month}월
-                </h2>
+                <div className={styles.calendarTitleBlock}>
+                  <p className={styles.calendarEyebrow}>업무 현황</p>
+                  <h2 className={styles.calendarTitle}>
+                    {monthState.year}년 {monthState.month}월
+                  </h2>
+                </div>
                 <div className={styles.calendarNav} aria-label="업무일지 월 이동">
                   <button
                     type="button"
@@ -87,7 +87,9 @@ export function DashboardPage() {
                     onClick={() => setSelectedMonth((current) => shiftMonth(current, -1))}
                     aria-label="이전달 보기"
                   >
-                    <span aria-hidden="true">&lt;</span>
+                    <span aria-hidden="true" className={styles.calendarNavIcon}>
+                      &lt;
+                    </span>
                     이전달
                   </button>
                   <button
@@ -97,95 +99,25 @@ export function DashboardPage() {
                     aria-label="다음달 보기"
                   >
                     다음달
-                    <span aria-hidden="true">&gt;</span>
+                    <span aria-hidden="true" className={styles.calendarNavIcon}>
+                      &gt;
+                    </span>
                   </button>
                 </div>
               </div>
             </div>
           )}
           {monthState ? (
-            <div className={styles.calendarWrap}>
-              <table className={styles.calendarTable}>
-                <caption>업무일지 작성 현황</caption>
-                <thead>
-                  <tr>
-                    {weekdayLabels.map((label) => (
-                      <th key={label}>{label}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {monthState.weeks.map((week, index) => (
-                    <tr key={`${selectedMonth}-week-${index}`}>
-                      {week.map((cell, weekdayIndex) => {
-                        if (!cell) {
-                          return (
-                            <td
-                              key={`${selectedMonth}-${index}-${weekdayIndex}`}
-                              className={styles.calendarBlank}
-                            >
-                              &nbsp;
-                            </td>
-                          );
-                        }
-
-                        const minutes = monthState.summary.get(cell.day) ?? 0;
-                        const isWeekend = cell.weekday === 0 || cell.weekday === 6;
-                        const showBusinessState =
-                          !isWeekend &&
-                          ((monthState.currentMonth && monthState.today >= cell.day) ||
-                            (!monthState.future && !monthState.currentMonth));
-
-                        return (
-                          <td key={cell.date} className={styles.calendarCell}>
-                            {isWeekend ? (
-                              minutes > 0 ? (
-                                <Link
-                                  to="/reports"
-                                  state={{ reportDate: cell.date }}
-                                  className={styles.calendarLink}
-                                >
-                                  <span className={styles.calendarDate}>{cell.day}일</span>
-                                </Link>
-                              ) : (
-                                <span className={styles.calendarDate}>{cell.day}일</span>
-                              )
-                            ) : (
-                              <Link
-                                to="/reports"
-                                state={{ reportDate: cell.date }}
-                                className={styles.calendarLink}
-                              >
-                                <span className={styles.calendarDate}>{cell.day}일</span>
-                              </Link>
-                            )}{' '}
-                            {isWeekend ? (
-                              minutes > 0 ? (
-                                <span className={`${styles.badge} ${styles.badgeWeekend}`}>
-                                  {minutes}분
-                                </span>
-                              ) : null
-                            ) : showBusinessState ? (
-                              minutes > 0 ? (
-                                <span
-                                  className={`${styles.badge} ${minutes >= 480 ? styles.badgeSuccess : styles.badgeWarning}`}
-                                >
-                                  {(480 - minutes) * -1}분
-                                </span>
-                              ) : (
-                                <span className={`${styles.badge} ${styles.badgeDanger}`}>
-                                  -480분
-                                </span>
-                              )
-                            ) : null}
-                          </td>
-                        );
-                      })}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <MonthlyReportCalendar
+              caption="업무일지 작성 현황"
+              weeks={monthState.weeks}
+              summary={monthState.summary}
+              currentMonth={monthState.currentMonth}
+              futureMonth={monthState.future}
+              todayDay={monthState.today}
+              panel={false}
+              getDateLink={(date) => ({ to: '/reports', state: { reportDate: date } })}
+            />
           ) : (
             <div className={styles.empty}>유저정보가 없습니다.</div>
           )}

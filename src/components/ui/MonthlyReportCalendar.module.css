@@ -1,0 +1,136 @@
+.wrap {
+  background: var(--surface-panel);
+  border: 1px solid var(--border-default);
+  box-shadow: var(--elevation-1);
+}
+
+.padded {
+  padding: 12px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.caption {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.table th {
+  padding: 8px 7px;
+  background: var(--surface-canvas-strong);
+  border: 1px solid var(--border-default);
+  color: var(--text-muted);
+  font-size: var(--text-table-size);
+  font-weight: var(--text-table-weight);
+  line-height: var(--text-table-line-height);
+  letter-spacing: var(--text-table-tracking);
+  text-transform: uppercase;
+}
+
+.blank {
+  background: color-mix(in oklab, var(--surface-canvas) 84%, var(--surface-panel));
+  border: 1px solid var(--border-subtle);
+}
+
+.cell {
+  min-height: 64px;
+  padding: 8px 8px 10px;
+  background: var(--surface-panel);
+  border: 1px solid var(--border-subtle);
+  vertical-align: top;
+}
+
+.weekendCell {
+  background: color-mix(in oklab, var(--surface-panel) 74%, var(--surface-canvas));
+}
+
+.today {
+  background: color-mix(in oklab, var(--accent-soft) 12%, var(--surface-panel));
+}
+
+.cellInner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.link {
+  display: inline-flex;
+  color: inherit;
+  text-decoration: none;
+}
+
+.link:hover .date {
+  color: var(--accent-strong);
+}
+
+.date {
+  color: var(--text-primary);
+  font-size: var(--text-body-size);
+  font-weight: 700;
+  line-height: 1.25;
+  font-variant-numeric: tabular-nums;
+}
+
+.todayMark {
+  display: inline-flex;
+  align-items: center;
+  min-height: 18px;
+  padding: 0 6px;
+  border: 1px solid color-mix(in oklab, var(--accent-strong) 28%, var(--border-default));
+  color: var(--accent-strong);
+  font-size: 11px;
+  font-weight: var(--font-weight-semibold);
+  line-height: 1;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 58px;
+  margin-top: 10px;
+  padding: 5px 8px;
+  font-size: var(--text-badge-size);
+  font-weight: var(--text-badge-weight);
+  line-height: var(--text-badge-line-height);
+  letter-spacing: var(--text-badge-tracking);
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.badgeSuccess {
+  background: var(--state-success-bg);
+  border-color: var(--state-success-border);
+  color: var(--state-success-text);
+}
+
+.badgeWarning {
+  background: var(--state-warning-bg);
+  border-color: var(--state-warning-border);
+  color: var(--state-warning-text);
+}
+
+.badgeDanger {
+  background: var(--state-danger-bg);
+  border-color: var(--state-danger-border);
+  color: var(--state-danger-text);
+}
+
+.badgeWeekend {
+  background: var(--state-info-bg);
+  border-color: var(--state-info-border);
+  color: var(--state-info-text);
+}
