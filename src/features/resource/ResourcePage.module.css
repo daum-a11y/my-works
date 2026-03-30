@@ -60,6 +60,100 @@
   gap: 16px;
 }
 
+.tableTabsSection {
+  display: grid;
+  gap: 0;
+}
+
+.tableTabPanel {
+  display: grid;
+  gap: 8px;
+  padding-top: 12px;
+}
+
+.tableTabActions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.tableTabs {
+  position: relative;
+  display: flex;
+  align-items: end;
+  gap: 0;
+}
+
+.tableTabs::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  border-bottom: 1px solid var(--border-default);
+  z-index: 0;
+}
+
+.tableTab,
+.tableTabActive {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0 16px;
+  border: 1px solid transparent;
+  border-bottom-color: transparent;
+  background: transparent;
+  color: var(--text-tertiary);
+  font: inherit;
+  font-size: var(--text-form-size);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-form-line-height);
+  letter-spacing: var(--text-form-tracking);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.tableTab:hover {
+  border-color: var(--border-default);
+  border-bottom-color: var(--surface-panel);
+  color: var(--text-primary);
+  background: color-mix(in oklab, var(--surface-hover) 72%, var(--surface-panel));
+  z-index: 1;
+}
+
+.tableTabActive {
+  border-color: var(--border-default);
+  border-bottom-color: var(--surface-panel);
+  background: var(--surface-panel);
+  color: var(--text-primary);
+  z-index: 1;
+}
+
+.tableTabActive::after {
+  content: '';
+  position: absolute;
+  right: -1px;
+  bottom: -1px;
+  left: -1px;
+  height: 2px;
+  background: var(--surface-panel);
+}
+
+.tableTabActive:hover {
+  border-color: var(--border-default);
+  background: var(--surface-panel);
+  color: var(--text-primary);
+}
+
+.tableTabActive::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 2px;
+  background: var(--accent-strong);
+}
+
 .tabs {
   display: grid;
   gap: 6px;
@@ -189,6 +283,10 @@
   border-collapse: collapse;
 }
 
+.reportTable {
+  min-width: 0;
+}
+
 .table th,
 .table td {
   padding: 11px 12px;
@@ -198,8 +296,8 @@
   overflow-wrap: anywhere;
 }
 
-.table th {
-  color: var(--text-muted);
+.table thead th {
+  color: var(--text-secondary);
   font-size: var(--text-table-size);
   font-weight: var(--text-table-weight);
   line-height: var(--text-table-line-height);
@@ -209,6 +307,15 @@
   position: sticky;
   top: 0;
   z-index: 1;
+}
+
+.table tbody th,
+.table tfoot th {
+  color: var(--text-primary);
+  font-size: var(--text-body-size);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-body-line-height);
+  background: transparent;
 }
 
 .table td {
@@ -530,54 +637,112 @@
   color: var(--state-success-text);
 }
 
-.progressRail {
-  display: flex;
-  width: 100%;
-  min-height: 14px;
+.memberAccordion {
   border: 1px solid var(--border-default);
-  background: var(--surface-canvas-strong);
-  overflow: hidden;
+  background: var(--surface-panel);
 }
 
-.progressSegment {
+.memberAccordionSummary {
   display: flex;
   align-items: center;
-  justify-content: center;
-  min-width: 0;
-  padding: 0 8px;
-  border-inline-end: 1px solid color-mix(in oklab, white 72%, transparent);
-  overflow: hidden;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: 10px 12px;
+  cursor: pointer;
+  list-style: none;
 }
 
-.progressHoliday {
-  background: var(--chart-series-success-stroke);
+.memberAccordionSummary::-webkit-details-marker {
+  display: none;
 }
 
-.progressProject {
-  background: var(--chart-series-primary-stroke);
-}
-
-.progressNormal {
-  background: color-mix(in oklab, var(--raw-indigo-100) 82%, var(--raw-paper-2));
+.memberAccordionSummary strong {
   color: var(--text-primary);
-}
-
-.progressBuffer {
-  background: var(--raw-slate-700);
-}
-
-.progressLabel {
-  color: var(--text-inverse);
-  font-size: var(--text-meta-size);
+  font-size: var(--text-form-size);
   font-weight: var(--font-weight-semibold);
-  line-height: 1;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden;
+  line-height: var(--text-form-line-height);
 }
 
-.progressLabelDark {
+.memberAccordionSummary span {
+  color: var(--text-secondary);
+  font-size: var(--text-meta-size);
+  line-height: var(--text-meta-line-height);
+}
+
+.memberAccordionHint {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  margin-left: auto;
+}
+
+.memberAccordionChevron {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 12px;
+  font-size: 11px;
+  transition: transform 160ms ease;
+}
+
+.memberAccordion[open] .memberAccordionChevron {
+  transform: rotate(180deg);
+}
+
+.memberAccordion[open] .memberAccordionHint {
   color: var(--text-primary);
+}
+
+.memberAccordionHintOpen {
+  display: none;
+}
+
+.memberAccordion[open] .memberAccordionHintClosed {
+  display: none;
+}
+
+.memberAccordion[open] .memberAccordionHintOpen {
+  display: inline;
+}
+
+.memberAccordionBody {
+  padding: 12px 12px 12px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.chartSurface {
+  display: grid;
+}
+
+.chartFrame {
+  width: 100%;
+  min-height: 52px;
+  border: 1px solid var(--border-default);
+  background: var(--surface-panel);
+}
+
+.chartTooltip {
+  display: grid;
+  gap: 2px;
+  padding: 8px 10px;
+  border: 1px solid var(--border-default);
+  background: var(--surface-panel);
+  box-shadow: var(--elevation-1);
+}
+
+.chartTooltip strong {
+  color: var(--text-primary);
+  font-size: var(--text-body-size);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-body-line-height);
+}
+
+.chartTooltip span {
+  color: var(--text-secondary);
+  font-size: var(--text-meta-size);
+  line-height: var(--text-meta-line-height);
 }
 
 .distributionList {
@@ -644,7 +809,25 @@
 
 .sumRow th,
 .sumRow td {
-  background: color-mix(in oklab, var(--theme-resource-surface) 58%, var(--surface-panel));
+  background: color-mix(in oklab, var(--theme-resource-surface) 72%, var(--surface-canvas-strong));
+  font-weight: 700;
+}
+
+.sumCell {
+  background: color-mix(
+    in oklab,
+    var(--theme-resource-surface) 72%,
+    var(--surface-canvas-strong)
+  ) !important;
+}
+
+.reportSummaryCell {
+  background: color-mix(
+    in oklab,
+    var(--theme-resource-surface) 72%,
+    var(--surface-canvas-strong)
+  ) !important;
+  color: var(--text-primary);
   font-weight: 700;
 }
 

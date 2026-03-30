@@ -1,8 +1,8 @@
 import { Fragment, useEffect, useMemo, useState } from 'react';
 import clsx from 'clsx';
+import { Bar, BarChart, LabelList, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { Link, useParams } from 'react-router-dom';
 import { setDocumentTitle } from '../../app/navigation';
-import { PageSection } from '../../components/ui/PageSection';
 import {
   buildProjectMaps,
   buildTaskTypeRequirementMap,
@@ -53,9 +53,98 @@ interface ServiceDetailRow {
   }>;
 }
 
+interface DistributionItem {
+  key: 'holiday' | 'project' | 'normal' | 'buffer';
+  label: string;
+  minutes: number;
+  mm: string;
+  fill: string;
+  labelColor?: string;
+}
+
+interface DistributionTooltipProps {
+  active?: boolean;
+  payload?: Array<{
+    dataKey?: string | number;
+    value?: number | string;
+  }>;
+}
+
+const integerFormatter = new Intl.NumberFormat('ko-KR');
+const decimalFormatter = new Intl.NumberFormat('ko-KR', {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+});
+
 function parseMonth(value: string) {
   const [year, month] = value.split('-').map(Number);
   return { year, month };
+}
+
+function formatIntegerValue(value: number) {
+  return integerFormatter.format(value);
+}
+
+function formatDecimalValue(value: number) {
+  return decimalFormatter.format(value);
+}
+
+function renderDistributionLabel(props: unknown, item: DistributionItem) {
+  const labelProps = (props ?? {}) as {
+    x?: number | string;
+    y?: number | string;
+    width?: number | string;
+    height?: number | string;
+  };
+  const x = Number(labelProps.x ?? 0);
+  const y = Number(labelProps.y ?? 0);
+  const width = Number(labelProps.width ?? 0);
+  const height = Number(labelProps.height ?? 0);
+
+  if (!width || !height || width < 92) {
+    return null;
+  }
+
+  return (
+    <text
+      x={x + width / 2}
+      y={y + height / 2}
+      fill={item.labelColor ?? 'var(--text-inverse)'}
+      fontSize="12"
+      fontWeight="600"
+      textAnchor="middle"
+      dominantBaseline="central"
+    >
+      {`${item.label} ${item.mm} MM`}
+    </text>
+  );
+}
+
+function DistributionTooltip({
+  active,
+  payload,
+  items,
+}: DistributionTooltipProps & { items: DistributionItem[] }) {
+  if (!active || !payload?.length) {
+    return null;
+  }
+
+  const current = payload.find((entry) => Number(entry.value ?? 0) > 0);
+  if (!current) {
+    return null;
+  }
+
+  const item = items.find((entry) => entry.key === current.dataKey);
+  if (!item) {
+    return null;
+  }
+
+  return (
+    <div className={styles.chartTooltip}>
+      <strong>{item.label}</strong>
+      <span>{item.mm} MM</span>
+    </div>
+  );
 }
 
 export function ResourceMonthPage() {
@@ -65,15 +154,17 @@ export function ResourceMonthPage() {
   const data = query.data;
   const [workFold, setWorkFold] = useState(false);
   const [svcFold, setSvcFold] = useState(false);
+  const [activeTableTab, setActiveTableTab] = useState<'type' | 'service' | 'report'>('report');
 
   useEffect(() => {
-    setDocumentTitle('월간 종합현황');
+    setDocumentTitle('월간 리포트');
   }, []);
 
   const monthTasks = useMemo(
     () => filterTasksByMonth(data?.tasks ?? [], selectedMonth),
     [data?.tasks, selectedMonth],
   );
+  const hasTableData = monthTasks.length > 0;
   const requirementMap = useMemo(
     () => buildTaskTypeRequirementMap(data?.taskTypes ?? []),
     [data?.taskTypes],
@@ -240,7 +331,6 @@ export function ResourceMonthPage() {
   const monthWorkingDays = countWorkingDaysUntil(selectedMonth, new Date().getDate());
   const expectedMinutes = (isCurrentMonth ? monthWorkingDays : workingDays) * 480;
   const summaryItems = [
-    { label: '기준월', value: `${year}/${month}` },
     { label: '근무일', value: `WD ${workingDays}일` },
     { label: '총 MM', value: `${formatMm(adjustedTotalMinutes, workingDays)} MM` },
     {
@@ -253,41 +343,68 @@ export function ResourceMonthPage() {
   ];
   const distributionItems = [
     {
-      key: 'holiday',
-      label: '휴가/휴무',
-      minutes: holidayMinutes,
-      mm: formatMm(holidayMinutes, workingDays),
-      className: styles.progressHoliday,
-    },
-    {
       key: 'project',
       label: '프로젝트',
       minutes: projectMinutes,
       mm: formatMm(projectMinutes, workingDays),
-      className: styles.progressProject,
+      fill: 'var(--chart-series-primary-stroke)',
     },
     {
       key: 'normal',
       label: '일반',
       minutes: nonProjectMinutes,
       mm: formatMm(nonProjectMinutes, workingDays),
-      className: styles.progressNormal,
-      labelClassName: styles.progressLabelDark,
+      fill: 'color-mix(in oklab, var(--raw-indigo-100) 82%, var(--raw-paper-2))',
+      labelColor: 'var(--text-primary)',
     },
     {
       key: 'buffer',
       label: '기타버퍼',
       minutes: bufferMinutes,
       mm: formatMm(bufferMinutes, workingDays),
-      className: styles.progressBuffer,
+      fill: 'var(--raw-slate-700)',
     },
-  ].filter((item) => item.minutes > 0);
+    {
+      key: 'holiday',
+      label: '휴가/휴무',
+      minutes: holidayMinutes,
+      mm: formatMm(holidayMinutes, workingDays),
+      fill: 'var(--chart-series-success-stroke)',
+    },
+  ].filter((item) => item.minutes > 0) as DistributionItem[];
+  const distributionChartData = distributionItems.length
+    ? [
+        {
+          name: '배분 현황',
+          holiday: holidayMinutes,
+          project: projectMinutes,
+          normal: nonProjectMinutes,
+          buffer: bufferMinutes,
+        },
+      ]
+    : [];
+  const memberStatusRows = memberTotals.map((member) => {
+    const diffMinutes = member.totalMinutes - expectedMinutes;
+
+    return {
+      ...member,
+      diffMinutes,
+      className:
+        diffMinutes < 0
+          ? styles.memberBadgeDanger
+          : diffMinutes > 0
+            ? styles.memberBadgeWarning
+            : styles.memberBadgeSuccess,
+    };
+  });
+  const memberOverCount = memberStatusRows.filter((member) => member.diffMinutes > 0).length;
+  const memberUnderCount = memberStatusRows.filter((member) => member.diffMinutes < 0).length;
 
   return (
     <section className={projectStyles.shell}>
       <header className={projectStyles.pageHeader}>
         <div className={projectStyles.pageHeaderTop}>
-          <h1 className={projectStyles.title}>월간 종합현황</h1>
+          <h1 className={projectStyles.title}>월간 리포트</h1>
         </div>
       </header>
 
@@ -299,12 +416,11 @@ export function ResourceMonthPage() {
             <div className={dashboardStyles.sectionHead}>
               <div className={dashboardStyles.calendarHeading}>
                 <div className={dashboardStyles.calendarTitleBlock}>
-                  <p className={dashboardStyles.calendarEyebrow}>월간 종합현황</p>
                   <h2 className={dashboardStyles.calendarTitle}>
                     {year}년 {month}월
                   </h2>
                 </div>
-                <div className={dashboardStyles.calendarNav} aria-label="월간 종합현황 월 이동">
+                <div className={dashboardStyles.calendarNav} aria-label="월간 리포트 월 이동">
                   <Link
                     className={dashboardStyles.calendarNavButton}
                     to={`/resource/month/${beforeMonth}`}
@@ -339,252 +455,352 @@ export function ResourceMonthPage() {
             </div>
 
             {distributionItems.length ? (
-              <div className={styles.progressRail} aria-hidden="true">
-                {distributionItems.map((item) => (
-                  <div
-                    key={item.key}
-                    className={clsx(styles.progressSegment, item.className)}
-                    style={{
-                      width: `${Math.max(6, Math.round((item.minutes / adjustedTotalMinutes) * 100))}%`,
-                    }}
-                  >
-                    <span className={clsx(styles.progressLabel, item.labelClassName)}>
-                      {item.label} {item.mm} MM
-                    </span>
-                  </div>
-                ))}
+              <div className={styles.chartSurface}>
+                <div className={styles.chartFrame} role="img" aria-label="월간 리소스 배분 현황">
+                  <ResponsiveContainer width="100%" height={52}>
+                    <BarChart
+                      data={distributionChartData}
+                      layout="vertical"
+                      margin={{ top: 0, right: 0, left: 0, bottom: 0 }}
+                      barCategoryGap={0}
+                      barGap={0}
+                    >
+                      <XAxis type="number" hide domain={[0, adjustedTotalMinutes || 1]} />
+                      <YAxis type="category" dataKey="name" hide />
+                      <Tooltip
+                        shared={false}
+                        cursor={false}
+                        content={<DistributionTooltip items={distributionItems} />}
+                      />
+                      {distributionItems.map((item) => (
+                        <Bar
+                          key={item.key}
+                          dataKey={item.key}
+                          stackId="resource-distribution"
+                          fill={item.fill}
+                          isAnimationActive={false}
+                        >
+                          <LabelList content={(props) => renderDistributionLabel(props, item)} />
+                        </Bar>
+                      ))}
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
               </div>
             ) : null}
 
-            {memberTotals.length ? (
-              <div className={styles.badgeRow}>
-                {memberTotals.map((member) => {
-                  const diffMinutes = member.totalMinutes - expectedMinutes;
-                  const className =
-                    diffMinutes < 0
-                      ? styles.memberBadgeDanger
-                      : diffMinutes > 0
-                        ? styles.memberBadgeWarning
-                        : styles.memberBadgeSuccess;
-
-                  return (
-                    <span key={member.id} className={clsx(styles.memberBadge, className)}>
-                      {member.accountId}
-                      {diffMinutes > 0
-                        ? ` +${diffMinutes}분`
-                        : diffMinutes === 0
-                          ? ' 0분'
-                          : ` ${diffMinutes}분`}
+            {memberStatusRows.length ? (
+              <details className={styles.memberAccordion}>
+                <summary className={styles.memberAccordionSummary}>
+                  <span>
+                    <strong>총 {memberStatusRows.length}명</strong> | 초과 {memberOverCount}명 미달{' '}
+                    {memberUnderCount}명
+                  </span>
+                  <span className={styles.memberAccordionHint}>
+                    <span className={styles.srOnly}>
+                      <span className={styles.memberAccordionHintClosed}>펼치기</span>
+                      <span className={styles.memberAccordionHintOpen}>접기</span>
                     </span>
-                  );
-                })}
-              </div>
+                    <span aria-hidden="true" className={styles.memberAccordionChevron}>
+                      ▾
+                    </span>
+                  </span>
+                </summary>
+                <div className={styles.memberAccordionBody}>
+                  <div className={styles.badgeRow}>
+                    {memberStatusRows.map((member) => (
+                      <span key={member.id} className={clsx(styles.memberBadge, member.className)}>
+                        {member.accountId}
+                        {member.diffMinutes > 0
+                          ? ` +${member.diffMinutes}분`
+                          : member.diffMinutes === 0
+                            ? ' 0분'
+                            : ` ${member.diffMinutes}분`}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </details>
             ) : null}
           </section>
 
-          <div className={styles.splitGrid}>
-            <PageSection
-              title="업무타입별 월간 리소스"
-              actions={
+          {hasTableData ? (
+            <section className={styles.tableTabsSection}>
+              <div className={styles.tableTabs} role="tablist" aria-label="월간 리포트 표 보기">
                 <button
                   type="button"
-                  className={projectStyles.headerAction}
-                  onClick={() => setWorkFold((current) => !current)}
-                  disabled={!typeRows.length}
+                  className={activeTableTab === 'report' ? styles.tableTabActive : styles.tableTab}
+                  aria-pressed={activeTableTab === 'report'}
+                  onClick={() => setActiveTableTab('report')}
                 >
-                  {workFold ? '펼치기' : '접기'}
+                  월간 보고서
                 </button>
-              }
-            >
-              <div className={projectStyles.tableWrap}>
-                <table className={clsx(projectStyles.table, styles.table)}>
-                  <thead>
-                    <tr>
-                      <th>type 1</th>
-                      <th>type 2</th>
-                      <th>총 시간 (분)</th>
-                      <th>총 일 (d)</th>
-                      <th>M/M</th>
-                    </tr>
-                  </thead>
-                  <tfoot>
-                    <tr className={styles.sumRow}>
-                      <th colSpan={2}>합계</th>
-                      <td className={styles.numberCell}>{totalMinutes}</td>
-                      <td className={styles.numberCell}>{formatMd(totalMinutes)}</td>
-                      <td className={styles.numberCell}>{formatMm(totalMinutes, workingDays)}</td>
-                    </tr>
-                  </tfoot>
-                  <tbody>
-                    {typeRows.map((row) => (
-                      <Fragment key={row.type1}>
-                        <tr className={row.requiresServiceGroup ? undefined : styles.lightGrayRow}>
-                          <th rowSpan={workFold ? 1 : row.items.length + 1}>{row.type1}</th>
-                          <th>합계</th>
-                          <td className={styles.numberCell}>{row.totalMinutes}</td>
-                          <td className={styles.numberCell}>{formatMd(row.totalMinutes)}</td>
-                          <td className={styles.numberCell}>
-                            {formatMm(row.totalMinutes, workingDays)}
+                <button
+                  type="button"
+                  className={activeTableTab === 'service' ? styles.tableTabActive : styles.tableTab}
+                  aria-pressed={activeTableTab === 'service'}
+                  onClick={() => setActiveTableTab('service')}
+                >
+                  서비스그룹별 합계
+                </button>
+                <button
+                  type="button"
+                  className={activeTableTab === 'type' ? styles.tableTabActive : styles.tableTab}
+                  aria-pressed={activeTableTab === 'type'}
+                  onClick={() => setActiveTableTab('type')}
+                >
+                  업무타입별 합계
+                </button>
+              </div>
+
+              {activeTableTab === 'type' ? (
+                <section className={styles.tableTabPanel}>
+                  <div className={styles.tableTabActions}>
+                    <button
+                      type="button"
+                      className={projectStyles.headerAction}
+                      onClick={() => setWorkFold((current) => !current)}
+                      disabled={!typeRows.length}
+                    >
+                      {workFold ? '상세' : '요약'}
+                    </button>
+                  </div>
+                  <div className={projectStyles.tableWrap}>
+                    <table className={clsx(projectStyles.table, styles.table)}>
+                      <thead>
+                        <tr>
+                          <th>타입1</th>
+                          <th>타입2</th>
+                          <th>총 시간 (분)</th>
+                          <th>총 일 (d)</th>
+                          <th>M/M</th>
+                        </tr>
+                      </thead>
+                      <tfoot>
+                        <tr className={styles.sumRow}>
+                          <th colSpan={2}>합계</th>
+                          <td className={clsx(styles.numberCell, styles.sumCell)}>
+                            {formatIntegerValue(totalMinutes)}
+                          </td>
+                          <td className={clsx(styles.numberCell, styles.sumCell)}>
+                            {formatDecimalValue(Number(formatMd(totalMinutes)))}
+                          </td>
+                          <td className={clsx(styles.numberCell, styles.sumCell)}>
+                            {formatMm(totalMinutes, workingDays)}
                           </td>
                         </tr>
-                        {!workFold
-                          ? row.items.map((item) => (
-                              <tr
-                                key={`${row.type1}-${item.type2}`}
-                                className={
-                                  item.requiresServiceGroup ? undefined : styles.lightGrayRow
-                                }
-                              >
-                                <th>{item.type2}</th>
-                                <td className={styles.numberCell}>{item.minutes}</td>
-                                <td className={styles.numberCell}>{formatMd(item.minutes)}</td>
-                                <td className={styles.numberCell}>
-                                  {formatMm(item.minutes, workingDays)}
-                                </td>
-                              </tr>
-                            ))
-                          : null}
-                      </Fragment>
-                    ))}
-                    {!typeRows.length ? (
-                      <tr>
-                        <td colSpan={5} className={projectStyles.emptyState}>
-                          데이터 없음
-                        </td>
-                      </tr>
-                    ) : null}
-                  </tbody>
-                </table>
-              </div>
-            </PageSection>
-
-            <PageSection
-              title="서비스그룹별 월간 리소스"
-              actions={
-                <button
-                  type="button"
-                  className={projectStyles.headerAction}
-                  onClick={() => setSvcFold((current) => !current)}
-                  disabled={!serviceDetailRows.length}
-                >
-                  {svcFold ? '펼치기' : '접기'}
-                </button>
-              }
-            >
-              <div className={projectStyles.tableWrap}>
-                <table className={clsx(projectStyles.table, styles.table)}>
-                  <thead>
-                    <tr>
-                      <th>서비스그룹</th>
-                      <th>서비스명</th>
-                      <th>type1</th>
-                      <th>총 시간 (분)</th>
-                      <th>총 일 (d)</th>
-                      <th>M/M</th>
-                    </tr>
-                  </thead>
-                  <tfoot>
-                    <tr className={styles.sumRow}>
-                      <th colSpan={3}>합계</th>
-                      <td className={styles.numberCell}>{projectMinutes}</td>
-                      <td className={styles.numberCell}>{formatMd(projectMinutes)}</td>
-                      <td className={styles.numberCell}>{formatMm(projectMinutes, workingDays)}</td>
-                    </tr>
-                  </tfoot>
-                  <tbody>
-                    {serviceDetailRows.map((group) => {
-                      const detailLength = group.names.reduce(
-                        (sum, name) => sum + name.items.length,
-                        0,
-                      );
-
-                      return (
-                        <Fragment key={group.group}>
-                          <tr>
-                            <th rowSpan={svcFold ? 1 : detailLength + 1}>{group.group}</th>
-                            <th colSpan={2}>합계</th>
-                            <td className={styles.numberCell}>{group.totalMinutes}</td>
-                            <td className={styles.numberCell}>{formatMd(group.totalMinutes)}</td>
-                            <td className={styles.numberCell}>
-                              {formatMm(group.totalMinutes, workingDays)}
-                            </td>
-                          </tr>
-                          {!svcFold
-                            ? group.names.map((name) =>
-                                name.items.map((item, index) => (
-                                  <tr key={`${group.group}-${name.name}-${item.type1}`}>
-                                    {index === 0 ? (
-                                      <th rowSpan={name.items.length}>{name.name}</th>
-                                    ) : null}
-                                    <th>{item.type1}</th>
-                                    <td className={styles.numberCell}>{item.minutes}</td>
-                                    <td className={styles.numberCell}>{formatMd(item.minutes)}</td>
+                      </tfoot>
+                      <tbody>
+                        {typeRows.map((row) => (
+                          <Fragment key={row.type1}>
+                            <tr
+                              className={
+                                !row.requiresServiceGroup ? styles.lightGrayRow : undefined
+                              }
+                            >
+                              <th rowSpan={workFold ? 1 : row.items.length + 1}>{row.type1}</th>
+                              <th className={styles.tableSummaryCell}>합계</th>
+                              <td className={clsx(styles.numberCell, styles.tableSummaryCell)}>
+                                {formatIntegerValue(row.totalMinutes)}
+                              </td>
+                              <td className={clsx(styles.numberCell, styles.tableSummaryCell)}>
+                                {formatDecimalValue(Number(formatMd(row.totalMinutes)))}
+                              </td>
+                              <td className={clsx(styles.numberCell, styles.tableSummaryCell)}>
+                                {formatMm(row.totalMinutes, workingDays)}
+                              </td>
+                            </tr>
+                            {!workFold
+                              ? row.items.map((item) => (
+                                  <tr
+                                    key={`${row.type1}-${item.type2}`}
+                                    className={
+                                      item.requiresServiceGroup ? undefined : styles.lightGrayRow
+                                    }
+                                  >
+                                    <th>{item.type2}</th>
+                                    <td className={styles.numberCell}>
+                                      {formatIntegerValue(item.minutes)}
+                                    </td>
+                                    <td className={styles.numberCell}>
+                                      {formatDecimalValue(Number(formatMd(item.minutes)))}
+                                    </td>
                                     <td className={styles.numberCell}>
                                       {formatMm(item.minutes, workingDays)}
                                     </td>
                                   </tr>
-                                )),
-                              )
-                            : null}
-                        </Fragment>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            </PageSection>
-          </div>
+                                ))
+                              : null}
+                          </Fragment>
+                        ))}
+                        {!typeRows.length ? (
+                          <tr>
+                            <td colSpan={5} className={projectStyles.emptyState}>
+                              데이터 없음
+                            </td>
+                          </tr>
+                        ) : null}
+                      </tbody>
+                    </table>
+                  </div>
+                </section>
+              ) : null}
 
-          <PageSection title="월간 리소스 보고서양식">
-            <div className={projectStyles.tableWrap}>
-              <table className={clsx(projectStyles.table, styles.table)}>
-                <thead>
-                  <tr>
-                    <th>type1</th>
-                    <th>type2</th>
-                    <th>M/M</th>
-                  </tr>
-                </thead>
-                <tfoot>
-                  <tr className={styles.sumRow}>
-                    <th colSpan={2}>합계</th>
-                    <td className={styles.numberCell}>
-                      {formatMm(adjustedTotalMinutes, workingDays)}
-                    </td>
-                  </tr>
-                </tfoot>
-                <tbody>
-                  {serviceSummaryRows.map((group) => (
-                    <Fragment key={group.group}>
-                      <tr>
-                        <th rowSpan={group.names.length + 1}>{group.group}</th>
-                        <th>합계</th>
-                        <td className={styles.numberCell}>
-                          {formatMm(group.totalMinutes, workingDays)}
-                        </td>
-                      </tr>
-                      {group.names.map((name) => (
-                        <tr key={`${group.group}-${name.name}`} className={styles.summaryStrongRow}>
-                          <th>{name.name}</th>
+              {activeTableTab === 'service' ? (
+                <section className={styles.tableTabPanel}>
+                  <div className={styles.tableTabActions}>
+                    <button
+                      type="button"
+                      className={projectStyles.headerAction}
+                      onClick={() => setSvcFold((current) => !current)}
+                      disabled={!serviceDetailRows.length}
+                    >
+                      {svcFold ? '상세' : '요약'}
+                    </button>
+                  </div>
+                  <div className={projectStyles.tableWrap}>
+                    <table className={clsx(projectStyles.table, styles.table)}>
+                      <thead>
+                        <tr>
+                          <th>서비스그룹</th>
+                          <th>서비스명</th>
+                          <th>타입1</th>
+                          <th>총 시간 (분)</th>
+                          <th>총 일 (d)</th>
+                          <th>M/M</th>
+                        </tr>
+                      </thead>
+                      <tfoot>
+                        <tr className={styles.sumRow}>
+                          <th colSpan={3}>합계</th>
                           <td className={styles.numberCell}>
-                            {formatMm(name.minutes, workingDays)}
+                            {formatIntegerValue(projectMinutes)}
+                          </td>
+                          <td className={styles.numberCell}>
+                            {formatDecimalValue(Number(formatMd(projectMinutes)))}
+                          </td>
+                          <td className={styles.numberCell}>
+                            {formatMm(projectMinutes, workingDays)}
                           </td>
                         </tr>
-                      ))}
-                    </Fragment>
-                  ))}
-                  {unpaidRows.map((row) => (
-                    <tr key={row.type1} className={styles.summaryStrongRow}>
-                      <th colSpan={2}>{row.type1}</th>
-                      <td className={styles.numberCell}>
-                        {formatMm(row.totalMinutes, workingDays)}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </PageSection>
+                      </tfoot>
+                      <tbody>
+                        {serviceDetailRows.map((group) => {
+                          const detailLength = group.names.reduce(
+                            (sum, name) => sum + name.items.length,
+                            0,
+                          );
+
+                          return (
+                            <Fragment key={group.group}>
+                              <tr>
+                                <th rowSpan={svcFold ? 1 : detailLength + 1}>{group.group}</th>
+                                <th colSpan={2} className={styles.tableSummaryCell}>
+                                  합계
+                                </th>
+                                <td className={clsx(styles.numberCell, styles.tableSummaryCell)}>
+                                  {formatIntegerValue(group.totalMinutes)}
+                                </td>
+                                <td className={clsx(styles.numberCell, styles.tableSummaryCell)}>
+                                  {formatDecimalValue(Number(formatMd(group.totalMinutes)))}
+                                </td>
+                                <td className={clsx(styles.numberCell, styles.tableSummaryCell)}>
+                                  {formatMm(group.totalMinutes, workingDays)}
+                                </td>
+                              </tr>
+                              {!svcFold
+                                ? group.names.map((name) =>
+                                    name.items.map((item, index) => (
+                                      <tr key={`${group.group}-${name.name}-${item.type1}`}>
+                                        {index === 0 ? (
+                                          <th rowSpan={name.items.length}>{name.name}</th>
+                                        ) : null}
+                                        <th>{item.type1}</th>
+                                        <td className={styles.numberCell}>
+                                          {formatIntegerValue(item.minutes)}
+                                        </td>
+                                        <td className={styles.numberCell}>
+                                          {formatDecimalValue(Number(formatMd(item.minutes)))}
+                                        </td>
+                                        <td className={styles.numberCell}>
+                                          {formatMm(item.minutes, workingDays)}
+                                        </td>
+                                      </tr>
+                                    )),
+                                  )
+                                : null}
+                            </Fragment>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </section>
+              ) : null}
+
+              {activeTableTab === 'report' ? (
+                <section className={styles.tableTabPanel}>
+                  <div className={projectStyles.tableWrap}>
+                    <table className={clsx(projectStyles.table, styles.table, styles.reportTable)}>
+                      <thead>
+                        <tr>
+                          <th>타입1</th>
+                          <th>타입2</th>
+                          <th>M/M</th>
+                        </tr>
+                      </thead>
+                      <tfoot>
+                        <tr className={styles.sumRow}>
+                          <th colSpan={2}>합계</th>
+                          <td className={styles.numberCell}>
+                            {formatMm(adjustedTotalMinutes, workingDays)}
+                          </td>
+                        </tr>
+                      </tfoot>
+                      <tbody>
+                        {serviceSummaryRows.map((group) => (
+                          <Fragment key={group.group}>
+                            <tr>
+                              <th rowSpan={group.names.length + 1}>{group.group}</th>
+                              <th className={styles.tableSummaryCell}>합계</th>
+                              <td className={clsx(styles.numberCell, styles.tableSummaryCell)}>
+                                {formatMm(group.totalMinutes, workingDays)}
+                              </td>
+                            </tr>
+                            {group.names.map((name) => (
+                              <tr
+                                key={`${group.group}-${name.name}`}
+                                className={styles.summaryStrongRow}
+                              >
+                                <th>{name.name}</th>
+                                <td className={styles.numberCell}>
+                                  {formatMm(name.minutes, workingDays)}
+                                </td>
+                              </tr>
+                            ))}
+                          </Fragment>
+                        ))}
+                        {unpaidRows.map((row) => (
+                          <tr key={row.type1} className={styles.summaryStrongRow}>
+                            <th colSpan={2}>{row.type1}</th>
+                            <td className={styles.numberCell}>
+                              {formatMm(row.totalMinutes, workingDays)}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </section>
+              ) : null}
+            </section>
+          ) : (
+            <section className={styles.tableTabsSection}>
+              <div className={projectStyles.tableWrap}>
+                <div className={projectStyles.emptyState}>데이터가 없습니다.</div>
+              </div>
+            </section>
+          )}
         </>
       )}
     </section>

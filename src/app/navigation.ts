@@ -58,7 +58,7 @@ export const baseNavigation = [
     children: [
       { to: '/resource/type', label: '업무유형 집계' },
       { to: '/resource/svc', label: '서비스그룹 집계' },
-      { to: '/resource/month', label: '월간 종합현황' },
+      { to: '/resource/month', label: '월간 리포트' },
     ],
   },
 ] as const satisfies readonly NavigationItem[];
