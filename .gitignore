@@ -11,3 +11,4 @@ test-results
 .idea
 output/playwright*
 .playwright-cli
+/db_a11yop_*.sql
