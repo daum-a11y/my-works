@@ -2,7 +2,7 @@
   display: grid;
   grid-template-columns: var(--shell-rail-width) minmax(0, 1fr);
   min-height: 100vh;
-  min-width: 1200px;
+  min-width: 1220px;
   background:
     linear-gradient(
       90deg,

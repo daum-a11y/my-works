@@ -6,7 +6,6 @@
   --admin-compact-min-width: 192px;
   --admin-validation-left-column: minmax(288px, 0.95fr);
   --admin-validation-right-column: minmax(0, 1.05fr);
-  --admin-table-min-width: 736px;
   --admin-inline-cell-min-width: 128px;
   --admin-validation-max-height: 512px;
   --admin-textarea-min-height: 112px;
@@ -199,7 +198,6 @@
 .table {
   width: 100%;
   border-collapse: collapse;
-  min-width: var(--admin-table-min-width);
 }
 
 .table th,
