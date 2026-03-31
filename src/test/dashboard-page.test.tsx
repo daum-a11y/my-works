@@ -47,6 +47,7 @@ describe('DashboardPage', () => {
           accountId: 'legacy-1',
           name: '운영 사용자',
           email: 'operator@example.com',
+          reportRequired: true,
           role: 'user',
           isActive: true,
         },
@@ -119,5 +120,35 @@ describe('DashboardPage', () => {
 
     fireEvent.click(screen.getAllByRole('button', { name: '다음달 보기' })[0]);
     expect(screen.getAllByRole('heading', { name: currentHeading }).length).toBeGreaterThan(0);
+  });
+
+  it('hides the worklog calendar when reportRequired is false', async () => {
+    const queryClient = new QueryClient();
+
+    mockUseAuth.mockReturnValue({
+      status: 'authenticated',
+      session: {
+        member: {
+          id: 'member-1',
+          accountId: 'legacy-1',
+          name: '운영 사용자',
+          email: 'operator@example.com',
+          reportRequired: false,
+          role: 'user',
+          isActive: true,
+        },
+      },
+    });
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter>
+          <DashboardPage />
+        </MemoryRouter>
+      </QueryClientProvider>,
+    );
+
+    expect(screen.queryByRole('navigation', { name: '업무일지 월 이동' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: '이전달 보기' })).not.toBeInTheDocument();
   });
 });

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { NavLink, Outlet, useLocation } from 'react-router-dom';
+import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { ChevronRight, ChevronDown, House, LogOut, UserRound } from 'lucide-react';
 import { useAuth } from '../features/auth/AuthContext';
 import { adminNavigation, baseNavigation, getBreadcrumbs, setDocumentTitle } from './navigation';
@@ -138,16 +138,21 @@ export function AppShell() {
         <div className={styles.content}>
           <header className={styles.header}>
             <div className={styles.headerTitle}>
-              <nav className={styles.breadcrumbs}>
+              <nav className={styles.breadcrumbs} aria-label="브래드크럼">
                 <ol>
                   {breadcrumbs.map((crumb, i) => (
                     <li key={crumb.label}>
                       {i > 0 && <ChevronRight size={14} className={styles.breadcrumbSeparator} />}
                       <span className={i === breadcrumbs.length - 1 ? styles.lastCrumb : ''}>
                         {i === 0 ? (
-                          <span className={styles.breadcrumbHome} aria-label="홈">
+                          <Link
+                            to="/dashboard"
+                            className={styles.breadcrumbHome}
+                            aria-label="홈으로 가기"
+                          >
                             <House size={14} strokeWidth={2.2} aria-hidden="true" />
-                          </span>
+                            <span className="srOnly">홈</span>
+                          </Link>
                         ) : (
                           crumb.label
                         )}

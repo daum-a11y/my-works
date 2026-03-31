@@ -25,6 +25,7 @@ export interface Member {
   email: string;
   role: UserRole;
   isActive: boolean;
+  reportRequired: boolean;
   joinedAt: string;
   authUserId?: string | null;
 }

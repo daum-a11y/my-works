@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
@@ -75,5 +75,35 @@ describe('AppShell', () => {
     );
 
     expect(screen.getAllByText('모니터링 통계').length).toBeGreaterThan(0);
+  });
+
+  it('moves to dashboard when clicking breadcrumb home', async () => {
+    mockUseAuth.mockReturnValue({
+      session: {
+        member: {
+          name: '홍길동',
+          accountId: 'hong.gd',
+          role: 'admin',
+          reportRequired: true,
+        },
+      },
+      logout: vi.fn(),
+    });
+
+    render(
+      <MemoryRouter initialEntries={['/stats/monitoring']}>
+        <Routes>
+          <Route path="/" element={<AppShell />}>
+            <Route path="stats/monitoring" element={<div>monitoring-stats-page</div>} />
+            <Route path="dashboard" element={<div>dashboard-page</div>} />
+          </Route>
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    const breadcrumbNav = screen.getByRole('navigation', { name: '브래드크럼' });
+    const homeLink = within(breadcrumbNav).getByRole('link', { name: '홈으로 가기' });
+    homeLink.click();
+    expect(screen.getByText('dashboard-page')).toBeInTheDocument();
   });
 });

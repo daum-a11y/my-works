@@ -16,6 +16,7 @@ export function DashboardPage() {
   const { session } = useAuth();
   const member = session?.member;
   const [selectedMonth, setSelectedMonth] = useState(() => getCurrentMonth());
+  const shouldShowWorklogCalendar = member?.reportRequired === true;
 
   useEffect(() => {
     setDocumentTitle('대시보드');
@@ -36,7 +37,7 @@ export function DashboardPage() {
   const dashboard = dashboardQuery.data;
   const inProgressProjects = dashboard?.inProgressProjects ?? [];
   const monthState = useMemo(() => {
-    if (!member) {
+    if (!member || !shouldShowWorklogCalendar) {
       return null;
     }
 
@@ -62,67 +63,69 @@ export function DashboardPage() {
       month: Number(selectedMonth.slice(5, 7)),
       summary,
     };
-  }, [member, selectedMonth, tasksQuery.data]);
+  }, [member, selectedMonth, shouldShowWorklogCalendar, tasksQuery.data]);
 
   return (
     <div className={styles.page}>
       <section className={styles.pageIntro}>
         <h1>대시보드</h1>
       </section>
-      <section className={styles.topGrid}>
-        <section className={styles.calendarSection}>
-          {monthState && (
-            <div className={styles.sectionHead}>
-              <div className={styles.calendarHeading}>
-                <div className={styles.calendarTitleBlock}>
-                  <p className={styles.calendarEyebrow}>업무 현황</p>
-                  <h2 className={styles.calendarTitle}>
-                    {monthState.year}년 {monthState.month}월
-                  </h2>
-                </div>
-                <div className={styles.calendarNav} aria-label="업무일지 월 이동">
-                  <button
-                    type="button"
-                    className={styles.calendarNavButton}
-                    onClick={() => setSelectedMonth((current) => shiftMonth(current, -1))}
-                    aria-label="이전달 보기"
-                  >
-                    <span aria-hidden="true" className={styles.calendarNavIcon}>
-                      &lt;
-                    </span>
-                    이전달
-                  </button>
-                  <button
-                    type="button"
-                    className={styles.calendarNavButton}
-                    onClick={() => setSelectedMonth((current) => shiftMonth(current, 1))}
-                    aria-label="다음달 보기"
-                  >
-                    다음달
-                    <span aria-hidden="true" className={styles.calendarNavIcon}>
-                      &gt;
-                    </span>
-                  </button>
+      {shouldShowWorklogCalendar ? (
+        <section className={styles.topGrid}>
+          <section className={styles.calendarSection}>
+            {monthState && (
+              <div className={styles.sectionHead}>
+                <div className={styles.calendarHeading}>
+                  <div className={styles.calendarTitleBlock}>
+                    <p className={styles.calendarEyebrow}>업무 현황</p>
+                    <h2 className={styles.calendarTitle}>
+                      {monthState.year}년 {monthState.month}월
+                    </h2>
+                  </div>
+                  <div className={styles.calendarNav} aria-label="업무일지 월 이동">
+                    <button
+                      type="button"
+                      className={styles.calendarNavButton}
+                      onClick={() => setSelectedMonth((current) => shiftMonth(current, -1))}
+                      aria-label="이전달 보기"
+                    >
+                      <span aria-hidden="true" className={styles.calendarNavIcon}>
+                        &lt;
+                      </span>
+                      이전달
+                    </button>
+                    <button
+                      type="button"
+                      className={styles.calendarNavButton}
+                      onClick={() => setSelectedMonth((current) => shiftMonth(current, 1))}
+                      aria-label="다음달 보기"
+                    >
+                      다음달
+                      <span aria-hidden="true" className={styles.calendarNavIcon}>
+                        &gt;
+                      </span>
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
-          {monthState ? (
-            <MonthlyReportCalendar
-              caption="업무일지 작성 현황"
-              weeks={monthState.weeks}
-              summary={monthState.summary}
-              currentMonth={monthState.currentMonth}
-              futureMonth={monthState.future}
-              todayDay={monthState.today}
-              panel={false}
-              getDateLink={(date) => ({ to: '/reports', state: { reportDate: date } })}
-            />
-          ) : (
-            <div className={styles.empty}>유저정보가 없습니다.</div>
-          )}
+            )}
+            {monthState ? (
+              <MonthlyReportCalendar
+                caption="업무일지 작성 현황"
+                weeks={monthState.weeks}
+                summary={monthState.summary}
+                currentMonth={monthState.currentMonth}
+                futureMonth={monthState.future}
+                todayDay={monthState.today}
+                panel={false}
+                getDateLink={(date) => ({ to: '/reports', state: { reportDate: date } })}
+              />
+            ) : (
+              <div className={styles.empty}>유저정보가 없습니다.</div>
+            )}
+          </section>
         </section>
-      </section>
+      ) : null}
 
       <section className={styles.tableSection}>
         <div className={styles.sectionHead}>
