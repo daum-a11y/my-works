@@ -356,11 +356,16 @@ function createSupabaseClient(): OpsDataClient {
       if (error) throw error;
       return (data ?? []).map(mapTaskActivityRecord);
     },
-    async saveTask(input) {
+    async saveTask(_member, input) {
+      const taskDate = String(input.taskDate ?? '').trim();
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(taskDate)) {
+        throw new Error(`task_date invalid (client): "${taskDate}"`);
+      }
+
       const { data, error } = await supabase
         .rpc('save_task', {
           p_task_id: input.id ?? null,
-          p_task_date: input.taskDate,
+          p_task_date: taskDate,
           p_project_id: input.projectId || null,
           p_project_page_id: input.pageId || null,
           p_task_type1: input.taskType1,
@@ -370,10 +375,14 @@ function createSupabaseClient(): OpsDataClient {
           p_note: input.note,
         })
         .single();
-      if (error) throw error;
+      if (error) {
+        throw new Error(
+          `${error.message}${error.code ? ` | ${error.code}` : ''} | taskDate=${taskDate}`,
+        );
+      }
       return mapTaskRecord(requireRecord(data, '업무보고 저장 결과를 확인할 수 없습니다.'));
     },
-    async deleteTask(taskId) {
+    async deleteTask(_member, taskId) {
       const { error } = await supabase.rpc('delete_task', {
         p_task_id: taskId,
       });

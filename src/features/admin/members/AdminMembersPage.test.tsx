@@ -46,6 +46,7 @@ describe('AdminMembersPage', () => {
         note: '',
         role: 'user',
         userActive: true,
+        reportRequired: true,
         isActive: true,
         authEmail: 'jenny@example.com',
         queueReasons: [],
@@ -80,8 +81,10 @@ describe('AdminMembersPage', () => {
     expect(screen.getByRole('columnheader', { name: '이메일' })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: '권한' })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: '활성여부' })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: '업무보고대상' })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: '등록일' })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: '최종로그인' })).toBeInTheDocument();
+    expect(screen.getByText('대상')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: '사용자 추가' })).toHaveAttribute(
       'href',
       '/admin/members/new',
@@ -106,6 +109,7 @@ describe('AdminMembersPage', () => {
         note: '',
         role: 'user',
         userActive: true,
+        reportRequired: true,
         isActive: true,
         authEmail: 'jenny@example.com',
         queueReasons: [],
@@ -122,6 +126,7 @@ describe('AdminMembersPage', () => {
         note: '',
         role: 'admin',
         userActive: false,
+        reportRequired: false,
         isActive: false,
         authEmail: 'baro@example.com',
         queueReasons: [],

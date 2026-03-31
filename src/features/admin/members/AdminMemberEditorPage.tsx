@@ -125,6 +125,7 @@ export function AdminMemberEditorPage() {
         role: selectedMember.role,
         note: selectedMember.note,
         userActive: true,
+        reportRequired: selectedMember.reportRequired,
         isActive: true,
       });
     },
@@ -288,6 +289,26 @@ export function AdminMemberEditorPage() {
                 <input value={activeLabel} readOnly />
               </label>
             ) : null}
+
+            <label className={styles.field}>
+              <span>업무보고 대상여부</span>
+              {isInactiveMember ? (
+                <input value={draft.reportRequired ? '대상' : '비대상'} readOnly />
+              ) : (
+                <select
+                  value={draft.reportRequired ? '1' : '0'}
+                  onChange={(event) =>
+                    setDraft((current) => ({
+                      ...current,
+                      reportRequired: event.target.value === '1',
+                    }))
+                  }
+                >
+                  <option value="1">대상</option>
+                  <option value="0">비대상</option>
+                </select>
+              )}
+            </label>
 
             <label className={styles.field}>
               <span>비고</span>

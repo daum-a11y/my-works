@@ -3,14 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { useAuth } from '../auth/AuthContext';
 import { opsDataClient } from '../../lib/data-client';
-import type {
-  Project,
-  ProjectPage,
-  ReportFilters,
-  Task,
-  TaskActivity,
-  TaskType,
-} from '../../lib/domain';
+import type { Project, ProjectPage, ReportFilters, Task, TaskType } from '../../lib/domain';
 import {
   buildProjectViewModels,
   buildReportViewModel,
@@ -47,7 +40,6 @@ export interface ReportsSlice {
   type1Options: string[];
   type2Options: string[];
   canEditReports: boolean;
-  missingTimeLines: string[];
   isSaving: boolean;
   statusMessage: string;
   activeTab: 'report' | 'period';
@@ -60,11 +52,31 @@ export interface ReportsSlice {
   selectReport: (id: string) => void;
   startNewReport: () => void;
   resetDraft: () => void;
-  saveDraft: () => Promise<void>;
+  saveDraft: (reportDateOverride?: string) => Promise<void>;
   deleteDraft: (id: string) => Promise<void>;
   saveOverheadReport: (hours: number, reportDate?: string) => Promise<void>;
   jumpDraftDate: (offsetDays: number) => void;
   clearPeriodFilters: () => void;
+}
+
+function toErrorMessage(error: unknown, fallback: string) {
+  if (error instanceof Error && error.message) {
+    return error.message;
+  }
+
+  if (typeof error === 'object' && error) {
+    const data = error as Record<string, unknown>;
+    const message = typeof data.message === 'string' ? data.message : '';
+    const details = typeof data.details === 'string' ? data.details : '';
+    const hint = typeof data.hint === 'string' ? data.hint : '';
+    const code = typeof data.code === 'string' ? data.code : '';
+    const merged = [message, details, hint, code].filter(Boolean).join(' | ');
+    if (merged) {
+      return merged;
+    }
+  }
+
+  return fallback;
 }
 
 function toReportRecord(
@@ -95,66 +107,29 @@ function toReportRecord(
   };
 }
 
-function toDateOnly(value: string) {
-  return value.slice(0, 10);
+function isValidTaskDate(value: string) {
+  return /^\d{4}-\d{2}-\d{2}$/.test(value);
 }
 
-function buildMissingTimeLines(
-  memberJoinedAt: string,
-  memberId: string,
-  activities: TaskActivity[],
-) {
-  const today = new Date();
-  const yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
-  const beforeMonth = new Date(
-    yesterday.getFullYear(),
-    yesterday.getMonth() - 1,
-    yesterday.getDate(),
-  );
-  const joinedDate = new Date(memberJoinedAt.slice(0, 10));
-  const startDate = joinedDate > beforeMonth ? joinedDate : beforeMonth;
-  const start = toDateOnly(startDate.toISOString());
-  const end = toDateOnly(yesterday.toISOString());
+function normalizeTaskDate(value: string) {
+  const trimmed = value.trim();
+  if (isValidTaskDate(trimmed)) {
+    return trimmed;
+  }
 
-  const allDates = new Set(
-    activities
-      .map((activity) => activity.taskDate)
-      .filter((taskDate) => taskDate >= start && taskDate <= end),
-  );
-  const myActivities = activities.filter(
-    (activity) =>
-      activity.memberId === memberId && activity.taskDate >= start && activity.taskDate <= end,
-  );
-  const myDates = new Set(myActivities.map((activity) => activity.taskDate));
-  const lines: string[] = [];
+  const compact = trimmed.replace(/\D/g, '');
+  if (/^\d{8}$/.test(compact)) {
+    return `${compact.slice(0, 4)}-${compact.slice(4, 6)}-${compact.slice(6, 8)}`;
+  }
 
-  for (const taskDate of [...allDates].sort()) {
-    if (!myDates.has(taskDate)) {
-      lines.push(`${taskDate} 일에 하나도 입력 안했어요 -0-;.`);
+  if (trimmed.length >= 10) {
+    const head = trimmed.slice(0, 10);
+    if (isValidTaskDate(head)) {
+      return head;
     }
   }
 
-  const hoursByDate = new Map<string, number>();
-  for (const activity of myActivities) {
-    hoursByDate.set(activity.taskDate, (hoursByDate.get(activity.taskDate) ?? 0) + activity.hours);
-  }
-
-  for (const [taskDate, totalHours] of [...hoursByDate.entries()].sort((left, right) =>
-    right[0].localeCompare(left[0]),
-  )) {
-    const diff = 480 - totalHours;
-    if (totalHours < 480) {
-      lines.push(`${taskDate} 일의 시간이 ${diff} 분 모자름요.`);
-    } else if (totalHours > 480) {
-      lines.push(`${taskDate} 일 ${Math.abs(diff)} 분 야근했음.`);
-    }
-  }
-
-  if (!myActivities.length) {
-    return ['결과 값이 존재하지 않습니다.'];
-  }
-
-  return lines.length ? lines : ['Awesome! 완벽한 입력!'];
+  return '';
 }
 
 function buildLegacyNote(rawNote: string, meta: Record<string, string>) {
@@ -219,17 +194,10 @@ export function useReportsSlice(): ReportsSlice {
     queryFn: async () => opsDataClient.getTaskTypes(),
     enabled: Boolean(member),
   });
-  const taskActivitiesQuery = useQuery({
-    queryKey: ['reports', 'task-activities'],
-    queryFn: async () => opsDataClient.getTaskActivities(),
-    enabled: Boolean(member),
-  });
-
   const projects = useMemo(() => projectsQuery.data ?? [], [projectsQuery.data]);
   const serviceGroups = useMemo(() => serviceGroupsQuery.data ?? [], [serviceGroupsQuery.data]);
   const pages = useMemo(() => pagesQuery.data ?? [], [pagesQuery.data]);
   const taskTypes = useMemo(() => taskTypesQuery.data ?? [], [taskTypesQuery.data]);
-  const taskActivities = useMemo(() => taskActivitiesQuery.data ?? [], [taskActivitiesQuery.data]);
   const tasks = useMemo(() => tasksQuery.data ?? [], [tasksQuery.data]);
 
   const projectsById = useMemo(
@@ -302,14 +270,6 @@ export function useReportsSlice(): ReportsSlice {
     () => buildTaskType2Options(taskTypes, draft.type1),
     [taskTypes, draft.type1],
   );
-  const missingTimeLines = useMemo(() => {
-    if (!member) {
-      return [];
-    }
-
-    return buildMissingTimeLines(member.joinedAt, member.id, taskActivities);
-  }, [member, taskActivities]);
-
   const invalidateReportQueries = async () => {
     await Promise.all([
       queryClient.invalidateQueries({ queryKey: ['reports', 'tasks', member?.id] }),
@@ -339,6 +299,11 @@ export function useReportsSlice(): ReportsSlice {
         throw new Error('업무보고 입력 권한이 없습니다.');
       }
 
+      const normalizedTaskDate = normalizeTaskDate(input.taskDate);
+      if (!normalizedTaskDate) {
+        throw new Error('일자 값이 올바르지 않습니다.');
+      }
+
       let projectId = input.projectId.trim();
       const pageId = input.pageId.trim();
 
@@ -361,7 +326,7 @@ export function useReportsSlice(): ReportsSlice {
 
       return opsDataClient.saveTask(member, {
         id: input.id,
-        taskDate: input.taskDate,
+        taskDate: normalizedTaskDate,
         projectId: projectId || null,
         pageId: pageId || null,
         taskType1: taskType.type1,
@@ -374,15 +339,23 @@ export function useReportsSlice(): ReportsSlice {
     onSuccess: async (task, variables) => {
       await invalidateReportQueries();
 
+      const nextPeriodFilters = {
+        ...DEFAULT_REPORT_FILTERS,
+        startDate: task.taskDate,
+        endDate: task.taskDate,
+      };
+
       setSelectedReportId(null);
       setDraft(createEmptyReportDraft());
       setProjectQuery('');
       setAppliedProjectQuery('');
+      setPeriodFilters(nextPeriodFilters);
+      setAppliedPeriodFilters(nextPeriodFilters);
       setActiveTab('report');
       setStatusMessage(variables.id ? '수정되었습니다.' : '등록되었습니다.');
     },
     onError: (error) => {
-      setStatusMessage(error instanceof Error ? error.message : '저장하지 못했습니다.');
+      setStatusMessage(toErrorMessage(error, '저장하지 못했습니다.'));
     },
   });
 
@@ -411,13 +384,18 @@ export function useReportsSlice(): ReportsSlice {
       setStatusMessage('보고서를 삭제했습니다.');
     },
     onError: (error) => {
-      setStatusMessage(error instanceof Error ? error.message : '삭제하지 못했습니다.');
+      setStatusMessage(toErrorMessage(error, '삭제하지 못했습니다.'));
     },
   });
 
   const setDraftField = <K extends keyof ReportDraft>(key: K, value: ReportDraft[K]) => {
     setDraft((current) => {
       const next = { ...current, [key]: value } as ReportDraft;
+
+      if (key === 'reportDate') {
+        const normalized = normalizeTaskDate(String(value));
+        next.reportDate = normalized || current.reportDate;
+      }
 
       if (key === 'projectId') {
         next.pageId = '';
@@ -510,12 +488,19 @@ export function useReportsSlice(): ReportsSlice {
     startNewReport();
   };
 
-  const saveDraft = async () => {
+  const saveDraft = async (reportDateOverride?: string) => {
     if (saveMutation.isPending) {
       return;
     }
 
     try {
+      const sourceTaskDate = selectedReportId ? draft.reportDate : (reportDateOverride ?? '');
+      const taskDate = normalizeTaskDate(sourceTaskDate);
+      if (!isValidTaskDate(taskDate)) {
+        setStatusMessage('일자는 필수입니다.');
+        return;
+      }
+
       const taskType = validateTaskTypeSelection(taskTypes, draft.type1, draft.type2);
       const hours = parseReportHoursInput(draft.workHours);
       const project = draft.projectId ? (projectsById.get(draft.projectId) ?? null) : null;
@@ -528,6 +513,7 @@ export function useReportsSlice(): ReportsSlice {
       const serviceName = draft.serviceName || '';
       const pageName = draft.manualPageName || page?.title || '';
       const pageUrl = draft.pageUrl || page?.url || project?.reportUrl || '';
+      const content = draft.content.trim() || pageName || '업무';
       const note = buildLegacyNote(draft.note, {
         platform: draft.platform || project?.platform || '',
         serviceGroupName,
@@ -539,17 +525,17 @@ export function useReportsSlice(): ReportsSlice {
 
       await saveMutation.mutateAsync({
         id: selectedReportId ?? undefined,
-        taskDate: draft.reportDate,
+        taskDate,
         projectId: draft.projectId,
         pageId: draft.pageId,
         taskType1: taskType.type1,
         taskType2: taskType.type2,
         hours,
-        content: draft.content,
+        content,
         note,
       });
     } catch (error) {
-      setStatusMessage(error instanceof Error ? error.message : '저장하지 못했습니다.');
+      setStatusMessage(toErrorMessage(error, '저장하지 못했습니다.'));
     }
   };
 
@@ -573,19 +559,24 @@ export function useReportsSlice(): ReportsSlice {
 
     try {
       const taskType = validateTaskTypeSelection(taskTypes, '기타버퍼', '오버헤드');
+      const taskDate = normalizeTaskDate(reportDate);
+      if (!isValidTaskDate(taskDate)) {
+        setStatusMessage('일자 값이 올바르지 않습니다.');
+        return;
+      }
 
       await saveMutation.mutateAsync({
-        taskDate: reportDate,
+        taskDate,
         projectId: '',
         pageId: '',
         taskType1: taskType.type1,
         taskType2: taskType.type2,
         hours,
-        content: '',
+        content: '오버헤드',
         note: '',
       });
     } catch (error) {
-      setStatusMessage(error instanceof Error ? error.message : '저장하지 못했습니다.');
+      setStatusMessage(toErrorMessage(error, '저장하지 못했습니다.'));
     }
   };
 
@@ -617,7 +608,6 @@ export function useReportsSlice(): ReportsSlice {
     type1Options,
     type2Options,
     canEditReports,
-    missingTimeLines,
     isSaving: saveMutation.isPending,
     statusMessage,
     activeTab,

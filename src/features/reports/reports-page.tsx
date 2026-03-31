@@ -12,31 +12,22 @@ import {
 import { useReportsSlice } from './use-reports-slice';
 import styles from './reports-page.module.css';
 
-function formatCompactDate(value: string, mode: 'short' | 'long') {
-  if (!value) {
-    return '';
+function normalizeDateForInput(value: string) {
+  const trimmed = value.trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+    return trimmed;
   }
 
-  const digits = value.replaceAll('-', '');
-  if (digits.length !== 8) {
-    return value;
+  const compact = trimmed.replace(/\D/g, '');
+  if (/^\d{8}$/.test(compact)) {
+    return `${compact.slice(0, 4)}-${compact.slice(4, 6)}-${compact.slice(6, 8)}`;
   }
 
-  return mode === 'short' ? digits.slice(2) : digits;
-}
-
-function parseCompactDate(value: string, mode: 'short' | 'long') {
-  const digits = value.replace(/\D/g, '');
-
-  if (mode === 'short' && digits.length === 6) {
-    return `20${digits.slice(0, 2)}-${digits.slice(2, 4)}-${digits.slice(4, 6)}`;
+  if (trimmed.length >= 10 && /^\d{4}-\d{2}-\d{2}$/.test(trimmed.slice(0, 10))) {
+    return trimmed.slice(0, 10);
   }
 
-  if (mode === 'long' && digits.length === 8) {
-    return `${digits.slice(0, 4)}-${digits.slice(4, 6)}-${digits.slice(6, 8)}`;
-  }
-
-  return value;
+  return '';
 }
 
 function renderReportTable(
@@ -58,6 +49,7 @@ function renderReportTable(
     onEditWorkHoursChange: (value: string) => void;
     onEditNoteChange: (value: string) => void;
     onSaveEdit: () => void;
+    summaryDate: string;
     emptyMessage: string;
   },
 ) {
@@ -78,175 +70,177 @@ function renderReportTable(
     onEditWorkHoursChange,
     onEditNoteChange,
     onSaveEdit,
+    summaryDate,
     emptyMessage,
   } = options;
   const totalMinutes = rows.reduce((sum, report) => sum + report.workHours, 0);
-  const reportDates = [...new Set(rows.map((report) => report.reportDate))];
-  const canAddOverhead = reportDates.length === 1 && totalMinutes < 480;
+  const missingMinutes = Math.max(480 - totalMinutes, 0);
+  const canAddOverhead = Boolean(summaryDate) && missingMinutes > 0;
 
   return (
-    <div className={styles.tableWrap}>
-      <table className={styles.table}>
-        <caption className={styles.srOnly}>업무 보고 목록</caption>
-        <thead>
-          <tr>
-            <th scope="col">일자</th>
-            <th scope="col">타입1</th>
-            <th scope="col">타입2</th>
-            <th scope="col">플랫폼</th>
-            <th scope="col">서비스그룹</th>
-            <th scope="col">서비스명</th>
-            <th scope="col">프로젝트명</th>
-            <th scope="col">페이지&amp;내용</th>
-            <th scope="col">URL</th>
-            <th scope="col">총시간</th>
-            <th scope="col">비고</th>
-            <th scope="col">관리</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((report) => {
-            const isSelected = selectedReportId === report.id;
+    <>
+      <div className={styles.tableWrap}>
+        <table className={styles.table}>
+          <caption className={styles.srOnly}>업무 보고 목록</caption>
+          <thead>
+            <tr>
+              <th scope="col">일자</th>
+              <th scope="col">타입1</th>
+              <th scope="col">타입2</th>
+              <th scope="col">플랫폼</th>
+              <th scope="col">서비스그룹</th>
+              <th scope="col">서비스명</th>
+              <th scope="col">프로젝트명</th>
+              <th scope="col">페이지&amp;내용</th>
+              <th scope="col">URL</th>
+              <th scope="col">총시간</th>
+              <th scope="col">비고</th>
+              <th scope="col">관리</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((report) => {
+              const isSelected = selectedReportId === report.id;
 
-            return (
-              <tr key={report.id} data-active={isSelected || undefined}>
-                <td>
-                  {isSelected && selectedReport ? (
-                    <input
-                      type="text"
-                      value={editDateValue}
-                      readOnly={!canEdit}
-                      onChange={(event) => onEditDateChange(event.target.value)}
-                    />
-                  ) : (
-                    formatReportDate(report.reportDate)
-                  )}
-                </td>
-                <td>
-                  <strong>{report.type1}</strong>
-                </td>
-                <td>
-                  {isSelected && selectedReport ? (
-                    <select
-                      value={editType2Value}
-                      onChange={(event) => onEditType2Change(event.target.value)}
-                    >
-                      {(editType2Options.length ? editType2Options : [editType2Value]).map(
-                        (type2) => (
-                          <option key={type2} value={type2}>
-                            {type2}
-                          </option>
-                        ),
-                      )}
-                    </select>
-                  ) : (
-                    <strong>{report.type2}</strong>
-                  )}
-                </td>
-                <td>
-                  <strong>{report.platform || '-'}</strong>
-                </td>
-                <td>
-                  <strong>{report.serviceGroupName || '-'}</strong>
-                </td>
-                <td>
-                  <strong>{report.serviceName || '-'}</strong>
-                </td>
-                <td>
-                  <strong>{report.projectDisplayName}</strong>
-                </td>
-                <td>
-                  <strong>{report.pageDisplayName}</strong>
-                </td>
-                <td>
-                  {report.pageUrl ? (
-                    <a href={report.pageUrl} target="_blank" rel="noreferrer">
-                      {report.pageUrl}
-                    </a>
-                  ) : (
-                    '-'
-                  )}
-                </td>
-                <td>
-                  {isSelected && selectedReport && canEdit ? (
-                    <input
-                      type="text"
-                      value={editWorkHoursValue}
-                      onChange={(event) => onEditWorkHoursChange(event.target.value)}
-                    />
-                  ) : (
-                    formatReportHours(report.workHours)
-                  )}
-                </td>
-                <td>
-                  {isSelected && selectedReport && canEdit ? (
-                    <input
-                      type="text"
-                      value={editNoteValue}
-                      onChange={(event) => onEditNoteChange(event.target.value)}
-                    />
-                  ) : (
-                    report.note || '-'
-                  )}
-                </td>
-                <td>
-                  {isSelected && selectedReport && canEdit ? (
-                    <button type="button" className={styles.rowButton} onClick={onSaveEdit}>
-                      저장
-                    </button>
-                  ) : (
-                    <>
-                      {canEdit ? (
-                        <button
-                          type="button"
-                          className={styles.rowButton}
-                          onClick={() => onSelect(report.id)}
-                        >
-                          수정
-                        </button>
-                      ) : null}
-
-                      {canEdit ? (
-                        <button
-                          type="button"
-                          className={styles.rowButton}
-                          onClick={() => onDelete(report.id)}
-                        >
-                          삭제
-                        </button>
-                      ) : null}
-                    </>
-                  )}
+              return (
+                <tr key={report.id} data-active={isSelected || undefined}>
+                  <td>
+                    {isSelected && selectedReport ? (
+                      <input
+                        type="date"
+                        value={editDateValue}
+                        readOnly={!canEdit}
+                        onChange={(event) => onEditDateChange(event.target.value)}
+                      />
+                    ) : (
+                      formatReportDate(report.reportDate)
+                    )}
+                  </td>
+                  <td>
+                    <strong>{report.type1}</strong>
+                  </td>
+                  <td>
+                    {isSelected && selectedReport ? (
+                      <select
+                        value={editType2Value}
+                        onChange={(event) => onEditType2Change(event.target.value)}
+                      >
+                        {(editType2Options.length ? editType2Options : [editType2Value]).map(
+                          (type2) => (
+                            <option key={type2} value={type2}>
+                              {type2}
+                            </option>
+                          ),
+                        )}
+                      </select>
+                    ) : (
+                      <strong>{report.type2}</strong>
+                    )}
+                  </td>
+                  <td>
+                    <strong>{report.platform || '-'}</strong>
+                  </td>
+                  <td>
+                    <strong>{report.serviceGroupName || '-'}</strong>
+                  </td>
+                  <td>
+                    <strong>{report.serviceName || '-'}</strong>
+                  </td>
+                  <td>
+                    <strong>{report.projectDisplayName}</strong>
+                  </td>
+                  <td>
+                    <strong>{report.pageDisplayName}</strong>
+                  </td>
+                  <td>
+                    {report.pageUrl ? (
+                      <a href={report.pageUrl} target="_blank" rel="noreferrer">
+                        {report.pageUrl}
+                      </a>
+                    ) : (
+                      '-'
+                    )}
+                  </td>
+                  <td>
+                    {isSelected && selectedReport && canEdit ? (
+                      <input
+                        type="text"
+                        value={editWorkHoursValue}
+                        onChange={(event) => onEditWorkHoursChange(event.target.value)}
+                      />
+                    ) : (
+                      formatReportHours(report.workHours)
+                    )}
+                  </td>
+                  <td>
+                    {isSelected && selectedReport && canEdit ? (
+                      <input
+                        type="text"
+                        value={editNoteValue}
+                        onChange={(event) => onEditNoteChange(event.target.value)}
+                      />
+                    ) : (
+                      report.note || '-'
+                    )}
+                  </td>
+                  <td>
+                    {isSelected && selectedReport && canEdit ? (
+                      <button type="button" className={styles.rowButton} onClick={onSaveEdit}>
+                        저장
+                      </button>
+                    ) : (
+                      <>
+                        {canEdit ? (
+                          <button
+                            type="button"
+                            className={styles.rowButton}
+                            onClick={() => onSelect(report.id)}
+                          >
+                            수정
+                          </button>
+                        ) : null}
+                        {canEdit ? (
+                          <button
+                            type="button"
+                            className={styles.rowButton}
+                            onClick={() => onDelete(report.id)}
+                          >
+                            삭제
+                          </button>
+                        ) : null}
+                      </>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
+            {!rows.length && (
+              <tr>
+                <td colSpan={12} className={styles.emptyState}>
+                  {emptyMessage}
                 </td>
               </tr>
-            );
-          })}
-          {rows.length ? (
-            <tr>
-              <td colSpan={12} className={styles.emptyState}>
-                총 사용 시간은 <strong>{totalMinutes}분</strong> 입니다.
-                {canEdit && canAddOverhead ? (
-                  <button
-                    type="button"
-                    className={styles.secondaryButton}
-                    onClick={() => onOverhead(reportDates[0]!, 480 - totalMinutes)}
-                  >
-                    오버헤드입력
-                  </button>
-                ) : null}
-              </td>
-            </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+      {missingMinutes > 0 ? (
+        <div className={styles.tableFooter}>
+          <p className={styles.tableFooterText}>
+            부족한 시간 <strong>{missingMinutes}분</strong>
+          </p>
+          {canEdit && canAddOverhead ? (
+            <button
+              type="button"
+              className={styles.secondaryButton}
+              onClick={() => onOverhead(summaryDate, missingMinutes)}
+            >
+              오버헤드 등록
+            </button>
           ) : null}
-          {!rows.length && (
-            <tr>
-              <td colSpan={12} className={styles.emptyState}>
-                {emptyMessage}
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
-    </div>
+        </div>
+      ) : null}
+    </>
   );
 }
 
@@ -311,10 +305,8 @@ export function ReportsPage() {
     projectOptions,
     applyProjectQuery,
     isSaving,
-    missingTimeLines,
     periodReports,
     periodFilters,
-    reports,
     saveDraft,
     saveOverheadReport,
     deleteDraft,
@@ -327,6 +319,7 @@ export function ReportsPage() {
     applyPeriodFilters,
     setProjectQuery,
     projectQuery,
+    statusMessage,
     taskTypes,
     type1Options,
     type2Options,
@@ -343,30 +336,15 @@ export function ReportsPage() {
       return;
     }
 
+    const normalizedDate = normalizeDateForInput(reportDateFromDashboard);
+    if (!normalizedDate) {
+      return;
+    }
+
     appliedDashboardDateRef.current = reportDateFromDashboard;
     setActiveTab('report');
-    setDraftField('reportDate', reportDateFromDashboard);
+    setDraftField('reportDate', normalizedDate);
   }, [reportDateFromDashboard, setActiveTab, setDraftField]);
-  const todayReports = useMemo(
-    () => reports.filter((report) => report.reportDate === todayInputValue),
-    [reports, todayInputValue],
-  );
-  const todayHours = useMemo(
-    () => todayReports.reduce((sum, report) => sum + report.workHours, 0),
-    [todayReports],
-  );
-  const remainingTodayHours = 480 - todayHours;
-  const todayUsageText = useMemo(() => {
-    if (!todayReports.length) {
-      return '오늘은 사용한 시간이 없습니다.';
-    }
-
-    if (remainingTodayHours >= 0) {
-      return `${todayHours}분 사용 했습니다. 오늘의 남은시간은 ${remainingTodayHours}분 입니다.`;
-    }
-
-    return `야근 하는건가요? 이미 480분 다 쓰고  초과 ${Math.abs(remainingTodayHours)}분 입니다.`;
-  }, [remainingTodayHours, todayHours, todayReports.length]);
   const currentProject = useMemo(
     () =>
       filteredProjectOptions.find((project) => project.id === draft.projectId) ??
@@ -463,10 +441,14 @@ export function ReportsPage() {
     const value = periodFilters.startDate || periodFilters.endDate || todayInputValue;
     return value ? value.slice(0, 10) : '';
   }, [periodFilters.endDate, periodFilters.startDate, todayInputValue]);
+  const currentListDateValue = useMemo(
+    () => periodFilters.startDate || periodFilters.endDate || todayInputValue,
+    [periodFilters.endDate, periodFilters.startDate, todayInputValue],
+  );
 
   const onSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    void saveDraft();
+    void saveDraft(currentListDateValue);
   };
 
   const handleType2Change = (nextType2: string) => {
@@ -571,15 +553,6 @@ export function ReportsPage() {
     void deleteDraft(id);
   };
 
-  const handleOverhead = () => {
-    if (remainingTodayHours <= 0) {
-      window.alert('오늘 시간 다 썼는디여?');
-      return;
-    }
-
-    void saveOverheadReport(remainingTodayHours, todayInputValue);
-  };
-
   const selectedReportType2Options = useMemo(() => {
     if (!draft.type1) {
       return [];
@@ -588,6 +561,7 @@ export function ReportsPage() {
       .filter((taskType) => taskType.type1 === draft.type1)
       .map((taskType) => taskType.type2);
   }, [draft.type1, taskTypes]);
+  const isListDateValid = /^\d{4}-\d{2}-\d{2}$/.test(currentListDateValue);
 
   return (
     <section className={styles.page}>
@@ -596,6 +570,7 @@ export function ReportsPage() {
           <h1 className={styles.title}>업무보고</h1>
         </div>
       </header>
+      {statusMessage ? <p className={styles.statusMessage}>{statusMessage}</p> : null}
 
       <section className={styles.dateNavigator}>
         <p className={styles.dateText}>{currentListDateText}</p>
@@ -627,11 +602,7 @@ export function ReportsPage() {
         </div>
       </section>
 
-      <div
-        className={
-          canEditReports ? styles.gridLayout : `${styles.gridLayout} ${styles.gridLayoutReadonly}`
-        }
-      >
+      <div className={styles.gridLayout}>
         {canEditReports ? (
           <section className={styles.panel}>
             <div className={styles.tabRow}>
@@ -656,18 +627,6 @@ export function ReportsPage() {
             </div>
 
             <form className={styles.form} onSubmit={onSubmit}>
-              <label className={styles.field}>
-                <span>일자</span>
-                <input
-                  type="text"
-                  placeholder="YYMMDD"
-                  value={formatCompactDate(draft.reportDate, 'short')}
-                  onChange={(event) =>
-                    setDraftField('reportDate', parseCompactDate(event.target.value, 'short'))
-                  }
-                />
-              </label>
-
               {activeTab === 'report' ? (
                 <div className={styles.formGrid}>
                   <label className={styles.field}>
@@ -873,47 +832,16 @@ export function ReportsPage() {
               </label>
 
               <div className={styles.actionRow}>
-                <button type="submit" className={styles.primaryButton} disabled={isSaving}>
+                <button
+                  type="submit"
+                  className={styles.primaryButton}
+                  disabled={isSaving || !isListDateValid}
+                >
                   업무저장
                 </button>
               </div>
             </form>
           </section>
-        ) : null}
-
-        {canEditReports ? (
-          <div className={styles.sideStack}>
-            <section className={styles.panel}>
-              <div className={styles.panelHead}>
-                <div>
-                  <h2 className={styles.panelTitle}>오늘의 입력시간</h2>
-                </div>
-              </div>
-              <p className={styles.summaryMessage}>{todayUsageText}</p>
-              <div className={styles.actionRow}>
-                {canEditReports ? (
-                  <button type="button" className={styles.primaryButton} onClick={handleOverhead}>
-                    오버헤드 입력
-                  </button>
-                ) : null}
-              </div>
-            </section>
-
-            <section className={styles.panel}>
-              <div className={styles.panelHead}>
-                <div>
-                  <h2 className={styles.panelTitle}>미입력 시간</h2>
-                </div>
-              </div>
-              <div className={styles.summaryList}>
-                {missingTimeLines.map((line) => (
-                  <p key={line} className={styles.summaryText}>
-                    {line}
-                  </p>
-                ))}
-              </div>
-            </section>
-          </div>
         ) : null}
       </div>
 
@@ -934,6 +862,7 @@ export function ReportsPage() {
           onSaveEdit: () => {
             void saveDraft();
           },
+          summaryDate: currentListDateValue,
           onSelect: selectReport,
           onDelete: handleDelete,
           onOverhead: (reportDate, remainingMinutes) => {

@@ -50,18 +50,9 @@
 
 .gridLayout {
   display: grid;
-  grid-template-columns: minmax(0, 1.6fr) minmax(288px, 0.9fr);
+  grid-template-columns: minmax(0, 1fr);
   gap: 16px;
   align-items: start;
-}
-
-.gridLayoutReadonly {
-  grid-template-columns: minmax(0, 1fr);
-}
-
-.sideStack {
-  display: grid;
-  gap: 16px;
 }
 
 .panel {
@@ -106,6 +97,16 @@
   color: var(--text-primary);
   font-size: var(--text-body-size);
   font-weight: 700;
+  line-height: var(--text-body-line-height);
+}
+
+.statusMessage {
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid color-mix(in oklab, #d33 45%, var(--border-default));
+  background: color-mix(in oklab, #d33 10%, var(--surface-panel));
+  color: var(--text-primary);
+  font-size: var(--text-body-size);
   line-height: var(--text-body-line-height);
 }
 
@@ -285,6 +286,20 @@
   overflow: auto;
   border: 1px solid var(--border-default);
   background: var(--surface-panel);
+}
+
+.tableFooter {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 10px 0 0;
+}
+
+.tableFooterText {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line-height);
 }
 
 .table {

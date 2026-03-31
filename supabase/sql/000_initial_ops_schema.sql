@@ -19,6 +19,7 @@ create table if not exists public.members (
   note text not null default '',
   user_level smallint not null default 0,
   user_active boolean not null default true,
+  report_required boolean not null default true,
   joined_at timestamptz not null default timezone('utc', now()),
   last_login_at timestamptz,
   created_at timestamptz not null default timezone('utc', now()),
@@ -110,6 +111,7 @@ select
   email,
   user_level,
   user_active,
+  report_required,
   joined_at
 from public.members;
 
@@ -121,6 +123,7 @@ select
   email,
   user_level,
   user_active,
+  report_required,
   joined_at
 from public.members
 where user_active = true;

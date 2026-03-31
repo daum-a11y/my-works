@@ -313,18 +313,6 @@ export function AdminReportsPage() {
     setAppliedMemberFilterIds([...memberFilterIds]);
   };
 
-  const applyQuickDate = (nextDate: string) => {
-    const nextFilters = {
-      ...filters,
-      startDate: nextDate,
-      endDate: nextDate,
-    };
-
-    setFilters(nextFilters);
-    setAppliedFilters(nextFilters);
-    setAppliedMemberFilterIds([...memberFilterIds]);
-  };
-
   const handleExport = () => {
     downloadExcelFile(
       buildExportFilename(appliedFilters.startDate, appliedFilters.endDate),
@@ -425,33 +413,6 @@ export function AdminReportsPage() {
               value={filters.endDate}
               onChange={(event) => handleFilterField('endDate', event.target.value)}
             />
-          </div>
-          <div className={styles.dateActions}>
-            <button
-              type="button"
-              className={styles.secondaryButton}
-              onClick={() =>
-                applyQuickDate(shiftDay(filters.startDate || getTodayInputValue(), -1))
-              }
-              disabled={!filters.startDate && !filters.endDate}
-            >
-              전날
-            </button>
-            <button
-              type="button"
-              className={styles.secondaryButton}
-              onClick={() => applyQuickDate(getTodayInputValue())}
-            >
-              오늘
-            </button>
-            <button
-              type="button"
-              className={styles.secondaryButton}
-              onClick={() => applyQuickDate(shiftDay(filters.startDate || getTodayInputValue(), 1))}
-              disabled={!filters.startDate && !filters.endDate}
-            >
-              다음날
-            </button>
           </div>
           <div className={styles.field}>
             <label htmlFor="admin-reports-task-type-1">type 1</label>
@@ -760,15 +721,4 @@ function createDefaultFilters(): AdminTaskSearchFilters {
     serviceGroupId: '',
     keyword: '',
   };
-}
-
-function shiftDay(dateValue: string, offset: number) {
-  const [year, month, day] = dateValue.split('-').map((value) => Number.parseInt(value, 10));
-  if (!Number.isFinite(year) || !Number.isFinite(month) || !Number.isFinite(day)) {
-    return getTodayInputValue();
-  }
-
-  const next = new Date(year, month - 1, day, 12, 0, 0, 0);
-  next.setDate(next.getDate() + offset);
-  return toLocalDateInputValue(next);
 }

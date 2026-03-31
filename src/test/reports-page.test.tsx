@@ -167,7 +167,6 @@ describe('ReportsPage', () => {
       ],
       type1Options: ['기획'],
       type2Options: ['작성'],
-      missingTimeLines: ['Awesome! 완벽한 입력!'],
       isSaving: false,
     });
 
@@ -180,11 +179,6 @@ describe('ReportsPage', () => {
     expect(screen.getByRole('button', { name: '기본 입력' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'TYPE 입력' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: '업무저장' })).toBeInTheDocument();
-    expect(screen.getByText('오늘의 입력시간')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '오버헤드 입력' })).toBeInTheDocument();
-    expect(
-      screen.getByText('60분 사용 했습니다. 오늘의 남은시간은 420분 입니다.'),
-    ).toBeInTheDocument();
     expect(screen.getByText(/접근성 포털/)).toBeInTheDocument();
   });
 
@@ -293,7 +287,6 @@ describe('ReportsPage', () => {
       taskTypes: [],
       type1Options: ['기획'],
       type2Options: ['작성'],
-      missingTimeLines: ['Awesome! 완벽한 입력!'],
       isSaving: false,
       projectOptions: [],
     });

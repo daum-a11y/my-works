@@ -9,6 +9,7 @@ export function createMemberDraft(member?: MemberAdminItem): MemberAdminPayload 
       note: '',
       role: 'user',
       userActive: true,
+      reportRequired: true,
       isActive: true,
       authUserId: null,
     };
@@ -23,6 +24,7 @@ export function createMemberDraft(member?: MemberAdminItem): MemberAdminPayload 
     note: member.note,
     role: member.role,
     userActive: member.userActive,
+    reportRequired: member.reportRequired,
     isActive: member.userActive,
   };
 }
@@ -34,6 +36,7 @@ export function normalizeMemberDraft(draft: MemberAdminPayload): MemberAdminPayl
     ...draft,
     email: draft.email.trim() || draft.accountId.trim(),
     userActive: active,
+    reportRequired: draft.reportRequired ?? true,
     isActive: active,
   };
 }
