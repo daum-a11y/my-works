@@ -46,6 +46,7 @@ export interface ReportsSlice {
   periodFilters: ReportFilters;
   type1Options: string[];
   type2Options: string[];
+  canEditReports: boolean;
   missingTimeLines: string[];
   isSaving: boolean;
   statusMessage: string;
@@ -176,6 +177,7 @@ function buildLegacyNote(rawNote: string, meta: Record<string, string>) {
 export function useReportsSlice(): ReportsSlice {
   const { session } = useAuth();
   const member = session?.member ?? null;
+  const canEditReports = Boolean(member?.reportRequired);
   const queryClient = useQueryClient();
 
   const [activeTab, setActiveTab] = useState<'report' | 'period'>('report');
@@ -333,6 +335,10 @@ export function useReportsSlice(): ReportsSlice {
         throw new Error('로그인 정보가 없습니다.');
       }
 
+      if (!member.reportRequired) {
+        throw new Error('업무보고 입력 권한이 없습니다.');
+      }
+
       let projectId = input.projectId.trim();
       const pageId = input.pageId.trim();
 
@@ -384,6 +390,10 @@ export function useReportsSlice(): ReportsSlice {
     mutationFn: async (taskId: string) => {
       if (!member) {
         throw new Error('로그인 정보가 없습니다.');
+      }
+
+      if (!member.reportRequired) {
+        throw new Error('업무보고 입력 권한이 없습니다.');
       }
 
       await opsDataClient.deleteTask(member, taskId);
@@ -556,6 +566,11 @@ export function useReportsSlice(): ReportsSlice {
       return;
     }
 
+    if (!member?.reportRequired) {
+      setStatusMessage('업무보고 입력 권한이 없습니다.');
+      return;
+    }
+
     try {
       const taskType = validateTaskTypeSelection(taskTypes, '기타버퍼', '오버헤드');
 
@@ -601,6 +616,7 @@ export function useReportsSlice(): ReportsSlice {
     periodFilters,
     type1Options,
     type2Options,
+    canEditReports,
     missingTimeLines,
     isSaving: saveMutation.isPending,
     statusMessage,

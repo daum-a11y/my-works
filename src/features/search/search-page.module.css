@@ -1,6 +1,7 @@
 .shell {
   display: grid;
   gap: var(--space-5);
+  min-width: 0;
   align-content: start;
   color: var(--text-secondary);
 }
@@ -8,6 +9,7 @@
 .pageHeader {
   display: grid;
   gap: var(--space-1);
+  min-width: 0;
   padding: 0 0 var(--space-3);
   border-bottom: 1px solid var(--border-default);
 }
@@ -32,6 +34,7 @@
 
 .panel {
   padding: 16px;
+  min-width: 0;
   border: 1px solid var(--border-default);
   background: var(--surface-panel);
   box-shadow: var(--elevation-1);
@@ -42,6 +45,7 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: var(--space-4);
+  min-width: 0;
   margin-bottom: 13px;
   padding-bottom: 13px;
   border-bottom: 1px solid var(--border-default);
@@ -166,6 +170,7 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
+  min-width: 0;
   padding: var(--space-2) var(--space-3);
   border: 1px solid var(--border-default);
   background: var(--surface-panel);
@@ -174,6 +179,7 @@
 .resultMetrics {
   gap: var(--space-3);
   flex: 1 1 auto;
+  min-width: 0;
 }
 
 .resultMetric {
@@ -253,6 +259,8 @@
 }
 
 .tableWrap {
+  max-width: 100%;
+  min-width: 0;
   overflow: auto;
   border: 1px solid var(--border-default);
   background: var(--surface-panel);

@@ -1,6 +1,6 @@
-import { render, screen } from '@testing-library/react';
+import { cleanup, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { ReportsPage } from '../features/reports';
 import { getToday } from '../lib/utils';
 
@@ -11,11 +11,16 @@ vi.mock('../features/reports/use-reports-slice', () => ({
 }));
 
 describe('ReportsPage', () => {
-  it('renders the input tabs, today summary, and date search table', async () => {
+  afterEach(() => {
+    cleanup();
+  });
+
+  it('renders the input tabs, today summary, and report table', async () => {
     const today = getToday();
 
     mockUseReportsSlice.mockReturnValue({
       activeTab: 'report',
+      canEditReports: true,
       clearPeriodFilters: vi.fn(),
       selectedReport: null,
       selectedReportId: null,
@@ -180,7 +185,133 @@ describe('ReportsPage', () => {
     expect(
       screen.getByText('60분 사용 했습니다. 오늘의 남은시간은 420분 입니다.'),
     ).toBeInTheDocument();
-    expect(screen.getByText('일자별 등록 업무 검색')).toBeInTheDocument();
     expect(screen.getByText(/접근성 포털/)).toBeInTheDocument();
+  });
+
+  it('renders in read-only mode when reportRequired is false', () => {
+    const today = getToday();
+
+    mockUseReportsSlice.mockReturnValue({
+      activeTab: 'report',
+      canEditReports: false,
+      clearPeriodFilters: vi.fn(),
+      selectedReport: null,
+      selectedReportId: null,
+      draft: {
+        reportDate: today,
+        projectId: '',
+        pageId: '',
+        type1: '기획',
+        type2: '작성',
+        platform: '',
+        serviceGroupName: '',
+        serviceName: '',
+        manualPageName: '',
+        pageUrl: '',
+        workHours: '60',
+        content: '',
+        note: '',
+      },
+      projectQuery: '',
+      filteredProjectOptions: [],
+      periodFilters: {
+        query: '',
+        projectId: '',
+        pageId: '',
+        taskType1: '',
+        taskType2: '',
+        startDate: today,
+        endDate: today,
+        minHours: '',
+        maxHours: '',
+      },
+      periodReports: [
+        {
+          id: 'report-1',
+          ownerId: 'member-1',
+          ownerName: '운영 사용자',
+          reportDate: today,
+          projectId: 'project-1',
+          pageId: 'page-1',
+          projectName: '접근성 포털',
+          pageName: '메인',
+          type1: '기획',
+          type2: '작성',
+          workHours: 60,
+          content: '업무',
+          note: '비고',
+          createdAt: '2026-03-24T00:00:00.000Z',
+          updatedAt: '2026-03-24T00:00:00.000Z',
+          platform: 'Web',
+          serviceGroupName: '',
+          serviceName: '접근성 포털',
+          projectDisplayName: '접근성 포털',
+          pageDisplayName: '메인',
+          pageUrl: 'https://example.com',
+          searchText: '업무',
+        },
+      ],
+      reports: [
+        {
+          id: 'report-1',
+          ownerId: 'member-1',
+          ownerName: '운영 사용자',
+          reportDate: today,
+          projectId: 'project-1',
+          pageId: 'page-1',
+          projectName: '접근성 포털',
+          pageName: '메인',
+          type1: '기획',
+          type2: '작성',
+          workHours: 60,
+          content: '업무',
+          note: '비고',
+          createdAt: '2026-03-24T00:00:00.000Z',
+          updatedAt: '2026-03-24T00:00:00.000Z',
+          platform: 'Web',
+          serviceGroupName: '',
+          serviceName: '접근성 포털',
+          projectDisplayName: '접근성 포털',
+          pageDisplayName: '메인',
+          pageUrl: 'https://example.com',
+          searchText: '업무',
+        },
+      ],
+      setDraftField: vi.fn(),
+      setProjectQuery: vi.fn(),
+      applyProjectQuery: vi.fn(),
+      setPeriodField: vi.fn(),
+      applyPeriodFilters: vi.fn(),
+      selectReport: vi.fn(),
+      startNewReport: vi.fn(),
+      saveDraft: vi.fn(),
+      saveOverheadReport: vi.fn(),
+      jumpDraftDate: vi.fn(),
+      setActiveTab: vi.fn(),
+      statusMessage: '',
+      draftPages: [],
+      taskTypes: [],
+      type1Options: ['기획'],
+      type2Options: ['작성'],
+      missingTimeLines: ['Awesome! 완벽한 입력!'],
+      isSaving: false,
+      projectOptions: [],
+    });
+
+    render(
+      <MemoryRouter>
+        <ReportsPage />
+      </MemoryRouter>,
+    );
+
+    expect(screen.queryByRole('button', { name: '업무저장' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: '오버헤드 입력' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: '수정' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: '삭제' })).not.toBeInTheDocument();
+    expect(screen.queryByText('오늘의 입력시간')).not.toBeInTheDocument();
+    expect(screen.queryByText('미입력 시간')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '이전일 조회' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '오늘 조회' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '다음일 조회' })).toBeInTheDocument();
   });
 });

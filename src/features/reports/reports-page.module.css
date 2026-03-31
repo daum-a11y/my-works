@@ -41,11 +41,22 @@
   gap: 20px;
 }
 
+.dateNavigator {
+  display: grid;
+  gap: 10px;
+  padding: 0 0 12px;
+  border-bottom: 1px solid var(--border-default);
+}
+
 .gridLayout {
   display: grid;
   grid-template-columns: minmax(0, 1.6fr) minmax(288px, 0.9fr);
   gap: 16px;
   align-items: start;
+}
+
+.gridLayoutReadonly {
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .sideStack {
