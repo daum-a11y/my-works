@@ -26,6 +26,10 @@ vi.mock('../features/dashboard', () => ({
   DashboardPage: () => <div>dashboard-page</div>,
 }));
 
+vi.mock('../features/health', () => ({
+  HealthCheckPage: () => <div>health-check-page</div>,
+}));
+
 vi.mock('../features/admin/groups/AdminServiceGroupsPage', () => ({
   AdminServiceGroupsPage: () => <div>admin-groups-page</div>,
 }));
@@ -125,6 +129,16 @@ describe('AppRouter', () => {
 
     await waitFor(() => {
       expect(screen.getByText('forgot-password-page')).toBeInTheDocument();
+    });
+  });
+
+  it('allows the health check route without authentication', async () => {
+    window.history.replaceState({}, '', '/healthz');
+
+    render(<AppRouter />);
+
+    await waitFor(() => {
+      expect(screen.getByText('health-check-page')).toBeInTheDocument();
     });
   });
 

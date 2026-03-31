@@ -12,6 +12,7 @@ import { AdminReportEditorPage } from '../features/admin/reports/AdminReportEdit
 import { AdminReportsPage } from '../features/admin/reports/AdminReportsPage';
 import { AdminTaskTypeEditorPage } from '../features/admin/types/AdminTaskTypeEditorPage';
 import { AdminTaskTypesPage } from '../features/admin/types/AdminTaskTypesPage';
+import { HealthCheckPage } from '../features/health';
 import { NotFoundPage } from '../features/not-found';
 import { ProjectEditorPage, ProjectsFeature } from '../features/projects';
 import { ReportsPage } from '../features/reports';
@@ -110,6 +111,7 @@ export function AppRouter() {
           <Route path="/login" element={<LoginRoute />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/auth/recovery" element={<PasswordRecoveryPage />} />
+          <Route path="/healthz" element={<HealthCheckPage />} />
           <Route element={<GuardedLayout />}>
             <Route index element={<Navigate to="/dashboard" replace />} />
             <Route path="/dashboard" element={<DashboardPage />} />
