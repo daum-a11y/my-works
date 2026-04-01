@@ -61,6 +61,7 @@ function toNullableString(value: string) {
 
 const TASK_SELECT_COLUMNS =
   'id, member_id, task_date, project_id, project_page_id, task_type1, task_type2, hours, content, note, updated_at';
+const TASK_BATCH_SIZE = 1000;
 
 function mapProject(record: Record<string, unknown>): AdminProjectOption {
   return {
@@ -350,12 +351,6 @@ async function fetchAdminTasks(
   supabase: NonNullable<ReturnType<typeof getSupabaseClient>>,
   filters: AdminTaskSearchFilters,
 ) {
-  let query = supabase
-    .from('tasks')
-    .select(TASK_SELECT_COLUMNS)
-    .order('task_date', { ascending: false })
-    .order('updated_at', { ascending: false });
-
   const memberId = toNullableString(filters.memberId);
   const startDate = toNullableString(filters.startDate);
   const endDate = toNullableString(filters.endDate);
@@ -364,22 +359,37 @@ async function fetchAdminTasks(
   const taskType1 = toNullableString(filters.taskType1);
   const taskType2 = toNullableString(filters.taskType2);
 
-  if (memberId) query = query.eq('member_id', memberId);
-  if (startDate) query = query.gte('task_date', startDate);
-  if (endDate) query = query.lte('task_date', endDate);
-  if (projectId) query = query.eq('project_id', projectId);
-  if (pageId) query = query.eq('project_page_id', pageId);
-  if (taskType1) query = query.eq('task_type1', taskType1);
-  if (taskType2) query = query.eq('task_type2', taskType2);
+  const rows: Record<string, unknown>[] = [];
 
-  const { data, error } = await query;
-  if (error) throw error;
+  for (let from = 0; ; from += TASK_BATCH_SIZE) {
+    const to = from + TASK_BATCH_SIZE - 1;
+    let query = supabase
+      .from('tasks')
+      .select(TASK_SELECT_COLUMNS)
+      .order('task_date', { ascending: false })
+      .order('updated_at', { ascending: false });
+
+    if (memberId) query = query.eq('member_id', memberId);
+    if (startDate) query = query.gte('task_date', startDate);
+    if (endDate) query = query.lte('task_date', endDate);
+    if (projectId) query = query.eq('project_id', projectId);
+    if (pageId) query = query.eq('project_page_id', pageId);
+    if (taskType1) query = query.eq('task_type1', taskType1);
+    if (taskType2) query = query.eq('task_type2', taskType2);
+
+    const { data, error } = await query.range(from, to);
+    if (error) throw error;
+
+    const batch = (data ?? []) as Record<string, unknown>[];
+    rows.push(...batch);
+
+    if (batch.length < TASK_BATCH_SIZE) {
+      break;
+    }
+  }
 
   const maps = await loadAdminReferenceMaps(supabase);
-  return filterAdminTasks(
-    enrichTaskRecords((data ?? []) as Record<string, unknown>[], maps),
-    filters,
-  );
+  return filterAdminTasks(enrichTaskRecords(rows, maps), filters);
 }
 
 async function fetchAdminTaskById(

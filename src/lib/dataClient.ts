@@ -178,6 +178,30 @@ function createSupabaseClient(): OpsDataClient {
   const supabase = requireData(getSupabaseClient(), 'Supabase is not configured.');
   const taskSelectColumns =
     'id, legacy_task_id, member_id, task_date, project_id, project_page_id, task_type1, task_type2, hours, content, note, created_at, updated_at';
+  const batchSize = 1000;
+
+  async function fetchAllTaskRows(
+    buildQuery: (from: number, to: number) => ReturnType<typeof supabase.from>,
+  ) {
+    const rows: Record<string, unknown>[] = [];
+
+    for (let from = 0; ; from += batchSize) {
+      const to = from + batchSize - 1;
+      const { data, error } = await buildQuery(from, to);
+      if (error) {
+        throw error;
+      }
+
+      const batch = (data ?? []) as Record<string, unknown>[];
+      rows.push(...batch);
+
+      if (batch.length < batchSize) {
+        break;
+      }
+    }
+
+    return rows;
+  }
 
   return {
     mode: 'supabase',
@@ -320,25 +344,28 @@ function createSupabaseClient(): OpsDataClient {
       if (error) throw error;
     },
     async getTasks(member) {
-      const { data, error } = await supabase
-        .from('tasks')
-        .select(taskSelectColumns)
-        .eq('member_id', member.id)
-        .order('task_date', { ascending: false });
-      if (error) throw error;
-      return (data ?? []).map(mapTaskRecord);
+      const rows = await fetchAllTaskRows((from, to) =>
+        supabase
+          .from('tasks')
+          .select(taskSelectColumns)
+          .eq('member_id', member.id)
+          .order('task_date', { ascending: false })
+          .range(from, to),
+      );
+      return rows.map(mapTaskRecord);
     },
     async getAllTasks(member) {
-      let query = supabase
-        .from('tasks')
-        .select(taskSelectColumns)
-        .order('task_date', { ascending: false });
-      if (member.role !== 'admin') {
-        query = query.eq('member_id', member.id);
-      }
-      const { data, error } = await query;
-      if (error) throw error;
-      return (data ?? []).map(mapTaskRecord);
+      const rows = await fetchAllTaskRows((from, to) => {
+        let query = supabase
+          .from('tasks')
+          .select(taskSelectColumns)
+          .order('task_date', { ascending: false });
+        if (member.role !== 'admin') {
+          query = query.eq('member_id', member.id);
+        }
+        return query.range(from, to);
+      });
+      return rows.map(mapTaskRecord);
     },
     async getTaskActivities() {
       const { data, error } = await supabase.from('tasks').select('member_id, task_date, hours');
@@ -378,22 +405,23 @@ function createSupabaseClient(): OpsDataClient {
       if (error) throw error;
     },
     async searchTasks(member, filters) {
-      let query = supabase
-        .from('tasks')
-        .select(taskSelectColumns)
-        .eq('member_id', member.id)
-        .order('task_date', { ascending: false });
-      if (filters.startDate) query = query.gte('task_date', filters.startDate);
-      if (filters.endDate) query = query.lte('task_date', filters.endDate);
-      if (filters.projectId) query = query.eq('project_id', filters.projectId);
-      if (filters.pageId) query = query.eq('project_page_id', filters.pageId);
-      if (filters.taskType1) query = query.eq('task_type1', filters.taskType1);
-      if (filters.taskType2) query = query.eq('task_type2', filters.taskType2);
-      if (filters.minHours) query = query.gte('hours', Number.parseFloat(filters.minHours));
-      if (filters.maxHours) query = query.lte('hours', Number.parseFloat(filters.maxHours));
-      const { data, error } = await query;
-      if (error) throw error;
-      const tasks = (data ?? []).map(mapTaskRecord);
+      const rows = await fetchAllTaskRows((from, to) => {
+        let query = supabase
+          .from('tasks')
+          .select(taskSelectColumns)
+          .eq('member_id', member.id)
+          .order('task_date', { ascending: false });
+        if (filters.startDate) query = query.gte('task_date', filters.startDate);
+        if (filters.endDate) query = query.lte('task_date', filters.endDate);
+        if (filters.projectId) query = query.eq('project_id', filters.projectId);
+        if (filters.pageId) query = query.eq('project_page_id', filters.pageId);
+        if (filters.taskType1) query = query.eq('task_type1', filters.taskType1);
+        if (filters.taskType2) query = query.eq('task_type2', filters.taskType2);
+        if (filters.minHours) query = query.gte('hours', Number.parseFloat(filters.minHours));
+        if (filters.maxHours) query = query.lte('hours', Number.parseFloat(filters.maxHours));
+        return query.range(from, to);
+      });
+      const tasks = rows.map(mapTaskRecord);
 
       if (!filters.query.trim()) {
         return tasks;

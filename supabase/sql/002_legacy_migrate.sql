@@ -528,6 +528,75 @@ select
 from public.project_pages pg
 where pg.legacy_page_id ~ '^[0-9]+$';
 
+with task_service_source as (
+  select
+    legacy_stage.blank_to_null(t.task_svc_group) as task_svc_group,
+    legacy_stage.blank_to_null(t.task_svc_name) as task_svc_name,
+    legacy_stage.blank_to_null(t.task_pj_name) as task_pj_name,
+    legacy_stage.blank_to_null(t.task_pj_page) as task_pj_page,
+    legacy_stage.blank_to_null(t.task_pj_page_url) as task_pj_page_url,
+    legacy_stage.to_int(t.task_pj_report_num) as task_pj_report_num,
+    legacy_stage.to_int(t.task_page_report_num) as task_page_report_num
+  from legacy_stage.task_tbl t
+),
+task_service_resolved as (
+  select
+    coalesce(project_num.project_id, page_num.project_id, page_match.project_id, project_match.project_id) as project_id,
+    svc.id as service_group_id
+  from task_service_source s
+  left join lateral (
+    select xp.project_id
+    from legacy_xref.projects xp
+    where xp.legacy_project_num = s.task_pj_report_num
+    limit 1
+  ) project_num on true
+  left join lateral (
+    select pp.project_id
+    from legacy_xref.project_pages xpp
+    join public.project_pages pp on pp.id = xpp.project_page_id
+    where xpp.legacy_page_num = s.task_page_report_num
+    limit 1
+  ) page_num on true
+  left join lateral (
+    select pp.project_id
+    from public.project_pages pp
+    join public.projects pr on pr.id = pp.project_id
+    where (s.task_pj_page is not null or s.task_pj_page_url is not null)
+      and (s.task_pj_page is null or pp.title = s.task_pj_page)
+      and (s.task_pj_page_url is null or pp.url = s.task_pj_page_url)
+      and (s.task_pj_name is null or regexp_replace(pr.name, '\s+', ' ', 'g') = regexp_replace(s.task_pj_name, '\s+', ' ', 'g'))
+    order by pp.created_at, pp.id
+    limit 1
+  ) page_match on true
+  left join lateral (
+    select pr.id as project_id
+    from public.projects pr
+    where s.task_pj_name is not null
+      and regexp_replace(pr.name, '\s+', ' ', 'g') = regexp_replace(s.task_pj_name, '\s+', ' ', 'g')
+    order by pr.created_at, pr.id
+    limit 1
+  ) project_match on true
+  left join public.service_groups svc
+    on svc.name = legacy_stage.normalize_service_name(s.task_svc_group, s.task_svc_name)
+  where (s.task_svc_group is not null or s.task_svc_name is not null)
+),
+task_service_unique as (
+  select
+    project_id,
+    min(service_group_id) as service_group_id
+  from task_service_resolved
+  where project_id is not null
+    and service_group_id is not null
+  group by project_id
+  having count(distinct service_group_id) = 1
+)
+update public.projects pr
+set service_group_id = tsu.service_group_id,
+    updated_at = timezone('utc', now())
+from task_service_unique tsu
+where pr.id = tsu.project_id
+  and pr.service_group_id is null;
+
 with task_source as (
   select
     t.task_num as legacy_task_num,
@@ -625,9 +694,10 @@ task_resolved as (
     select pp.id as project_page_id, pp.project_id
     from public.project_pages pp
     join public.projects pr on pr.id = pp.project_id
-    where (s.task_pj_page is null or pp.title = s.task_pj_page)
+    where (s.task_pj_page is not null or s.task_pj_page_url is not null)
+      and (s.task_pj_page is null or pp.title = s.task_pj_page)
       and (s.task_pj_page_url is null or pp.url = s.task_pj_page_url)
-      and (s.task_pj_name is null or pr.name = s.task_pj_name)
+      and (s.task_pj_name is null or regexp_replace(pr.name, '\s+', ' ', 'g') = regexp_replace(s.task_pj_name, '\s+', ' ', 'g'))
     order by pp.created_at, pp.id
     limit 1
   ) page_match on true
@@ -635,7 +705,7 @@ task_resolved as (
     select pr.id as project_id
     from public.projects pr
     where s.task_pj_name is not null
-      and pr.name = s.task_pj_name
+      and regexp_replace(pr.name, '\s+', ' ', 'g') = regexp_replace(s.task_pj_name, '\s+', ' ', 'g')
     order by pr.created_at, pr.id
     limit 1
   ) project_match on true
@@ -753,9 +823,10 @@ task_resolved as (
     select pp.id as project_page_id, pp.project_id
     from public.project_pages pp
     join public.projects pr on pr.id = pp.project_id
-    where (s.task_pj_page is null or pp.title = s.task_pj_page)
+    where (s.task_pj_page is not null or s.task_pj_page_url is not null)
+      and (s.task_pj_page is null or pp.title = s.task_pj_page)
       and (s.task_pj_page_url is null or pp.url = s.task_pj_page_url)
-      and (s.task_pj_name is null or pr.name = s.task_pj_name)
+      and (s.task_pj_name is null or regexp_replace(pr.name, '\s+', ' ', 'g') = regexp_replace(s.task_pj_name, '\s+', ' ', 'g'))
     order by pp.created_at, pp.id
     limit 1
   ) page_match on true
@@ -763,7 +834,7 @@ task_resolved as (
     select pr.id as project_id
     from public.projects pr
     where s.task_pj_name is not null
-      and pr.name = s.task_pj_name
+      and regexp_replace(pr.name, '\s+', ' ', 'g') = regexp_replace(s.task_pj_name, '\s+', ' ', 'g')
     order by pr.created_at, pr.id
     limit 1
   ) project_match on true

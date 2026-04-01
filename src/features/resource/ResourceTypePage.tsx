@@ -8,6 +8,7 @@ export function ResourceTypePage() {
   const query = useResourceDataset();
   const data = query.data;
   const [fold, setFold] = useState(false);
+  const [activeYear, setActiveYear] = useState('');
 
   useEffect(() => {
     setDocumentTitle('업무유형 집계');
@@ -58,14 +59,29 @@ export function ResourceTypePage() {
       years.set(year, months);
     }
 
-    return Array.from(years.entries()).map(([year, months]) => ({
-      year,
-      yearTotalMinutes: months.reduce((sum, month) => sum + month.totalMinutes, 0),
-      detailRowCount: months.reduce((sum, month) => sum + month.items.length + 1, 0),
-      foldRowCount: months.length + 1,
-      months,
-    }));
+    return Array.from(years.entries())
+      .sort(([left], [right]) => right.localeCompare(left))
+      .map(([year, months]) => ({
+        year,
+        yearTotalMinutes: months.reduce((sum, month) => sum + month.totalMinutes, 0),
+        detailRowCount: months.reduce((sum, month) => sum + month.items.length + 1, 0),
+        foldRowCount: months.length + 1,
+        months,
+      }));
   }, [data]);
+
+  useEffect(() => {
+    if (!rows.length) {
+      setActiveYear('');
+      return;
+    }
+
+    if (!rows.some((row) => row.year === activeYear)) {
+      setActiveYear(rows[0].year);
+    }
+  }, [activeYear, rows]);
+
+  const activeRow = rows.find((row) => row.year === activeYear) ?? null;
 
   return (
     <section className={projectStyles.shell}>
@@ -84,31 +100,80 @@ export function ResourceTypePage() {
         </div>
       </header>
 
-      <div className={projectStyles.tableWrap}>
-        <table className={projectStyles.table}>
-          <caption className={styles.srOnly}>연도와 월 기준 업무유형 집계 표</caption>
-          <thead>
-            <tr>
-              <th scope="col">연도</th>
-              <th scope="col">월</th>
-              <th scope="col">업무유형</th>
-              <th scope="col">MM</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row) => (
-              <TypeYearRows key={row.year} row={row} fold={fold} />
-            ))}
-            {!rows.length ? (
+      {rows.length ? (
+        <section className={styles.tableTabsSection}>
+          <div className={styles.tableTabsScroller}>
+            <div className={styles.tableTabs} role="tablist" aria-label="업무유형 집계 연도">
+              {rows.map((row) => {
+                const selected = row.year === activeYear;
+
+                return (
+                  <button
+                    key={row.year}
+                    id={`resource-type-tab-${row.year}`}
+                    type="button"
+                    role="tab"
+                    aria-selected={selected}
+                    aria-controls={`resource-type-panel-${row.year}`}
+                    tabIndex={selected ? 0 : -1}
+                    className={selected ? styles.tableTabActive : styles.tableTab}
+                    onClick={() => setActiveYear(row.year)}
+                  >
+                    {row.year}년
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {activeRow ? (
+            <div
+              id={`resource-type-panel-${activeRow.year}`}
+              role="tabpanel"
+              aria-labelledby={`resource-type-tab-${activeRow.year}`}
+              className={styles.tableTabPanel}
+            >
+              <div className={projectStyles.tableWrap}>
+                <table className={projectStyles.table}>
+                  <caption className={styles.srOnly}>
+                    {activeRow.year}년 월 기준 업무유형 집계 표
+                  </caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">월</th>
+                      <th scope="col">업무유형</th>
+                      <th scope="col">MM</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <TypeYearRows row={activeRow} fold={fold} />
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          ) : null}
+        </section>
+      ) : (
+        <div className={projectStyles.tableWrap}>
+          <table className={projectStyles.table}>
+            <caption className={styles.srOnly}>연도와 월 기준 업무유형 집계 표</caption>
+            <thead>
               <tr>
-                <td colSpan={4} className={projectStyles.emptyState}>
+                <th scope="col">월</th>
+                <th scope="col">업무유형</th>
+                <th scope="col">MM</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td colSpan={3} className={projectStyles.emptyState}>
                   표시할 타입별 집계가 없습니다.
                 </td>
               </tr>
-            ) : null}
-          </tbody>
-        </table>
-      </div>
+            </tbody>
+          </table>
+        </div>
+      )}
     </section>
   );
 }
@@ -134,16 +199,15 @@ function TypeYearRows({
   if (fold) {
     return (
       <>
-        {row.months.map((month, monthIndex) => (
+        {row.months.map((month) => (
           <tr key={`${row.year}-${month.month}-sum`} className={styles.summaryStrongRow}>
-            {monthIndex === 0 ? <td rowSpan={row.foldRowCount}>{row.year}년</td> : null}
             <td>{month.month}월</td>
             <td>전체</td>
             <td>{formatMm(month.totalMinutes, month.workingDays)}</td>
           </tr>
         ))}
         <tr className={styles.summaryStrongRow}>
-          <td>합계</td>
+          <td>{row.year}년 합계</td>
           <td>전체</td>
           <td>{formatMm(row.yearTotalMinutes, 21.73)}</td>
         </tr>
@@ -153,17 +217,11 @@ function TypeYearRows({
 
   return (
     <>
-      {row.months.map((month, monthIndex) => (
-        <MonthDetailRows
-          key={`${row.year}-${month.month}`}
-          year={row.year}
-          month={month}
-          showYear={monthIndex === 0}
-          yearRowSpan={row.detailRowCount}
-        />
+      {row.months.map((month) => (
+        <MonthDetailRows key={`${row.year}-${month.month}`} month={month} />
       ))}
       <tr className={styles.summaryStrongRow}>
-        <td colSpan={3}>{row.year}년 합계</td>
+        <td colSpan={2}>{row.year}년 합계</td>
         <td>{formatMm(row.yearTotalMinutes, 21.73)}</td>
       </tr>
     </>
@@ -171,26 +229,19 @@ function TypeYearRows({
 }
 
 function MonthDetailRows({
-  year,
   month,
-  showYear,
-  yearRowSpan,
 }: {
-  year: string;
   month: {
     month: string;
     totalMinutes: number;
     workingDays: number;
     items: Array<{ type: string; minutes: number }>;
   };
-  showYear: boolean;
-  yearRowSpan: number;
 }) {
   return (
     <>
       {month.items.map((item, index) => (
-        <tr key={`${year}-${month.month}-${item.type}`}>
-          {showYear && index === 0 ? <td rowSpan={yearRowSpan}>{year}년</td> : null}
+        <tr key={`${month.month}-${item.type}`}>
           {index === 0 ? <td rowSpan={month.items.length}>{month.month}월</td> : null}
           <td>{item.type}</td>
           <td>{formatMm(item.minutes, month.workingDays)}</td>

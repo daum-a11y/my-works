@@ -116,6 +116,21 @@ describe('ResourceTypePage', () => {
         createdAt: '2026-03-29T00:00:00.000Z',
         updatedAt: '2026-03-29T00:00:00.000Z',
       },
+      {
+        id: 'task-4',
+        legacyTaskId: 'legacy-task-4',
+        memberId: 'member-1',
+        taskDate: '2024-02-01',
+        projectId: null,
+        pageId: null,
+        taskType1: '모니터링',
+        taskType2: '이슈탐색',
+        hours: 60,
+        content: '',
+        note: '',
+        createdAt: '2026-03-29T00:00:00.000Z',
+        updatedAt: '2026-03-29T00:00:00.000Z',
+      },
     ]);
   });
 
@@ -129,12 +144,41 @@ describe('ResourceTypePage', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByRole('cell', { name: 'QA' })).toBeInTheDocument();
+      expect(screen.getByRole('tab', { name: '2024년' })).toBeInTheDocument();
     });
 
-    expect(screen.getByRole('cell', { name: '일반버퍼' })).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: '2023년' })).toBeInTheDocument();
+    expect(screen.getByRole('cell', { name: '모니터링' })).toBeInTheDocument();
     expect(screen.queryByText('QA / 사전준비')).not.toBeInTheDocument();
     expect(screen.queryByText('QA / 리뷰')).not.toBeInTheDocument();
+  });
+
+  it('shows only the selected year table and switches with tabs', async () => {
+    const queryClient = new QueryClient();
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <ResourceTypePage />
+      </QueryClientProvider>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByRole('tab', { name: '2024년' })).toHaveAttribute('aria-selected', 'true');
+    });
+
+    expect(screen.getByRole('cell', { name: '2024년' })).toBeInTheDocument();
+    expect(screen.getByRole('cell', { name: '모니터링' })).toBeInTheDocument();
+    expect(screen.queryByRole('cell', { name: 'QA' })).not.toBeInTheDocument();
+
+    screen.getByRole('tab', { name: '2023년' }).click();
+
+    await waitFor(() => {
+      expect(screen.getByRole('tab', { name: '2023년' })).toHaveAttribute('aria-selected', 'true');
+    });
+
+    expect(screen.getByRole('cell', { name: 'QA' })).toBeInTheDocument();
+    expect(screen.getByRole('cell', { name: '일반버퍼' })).toBeInTheDocument();
+    expect(screen.queryByRole('cell', { name: '모니터링' })).not.toBeInTheDocument();
   });
 
   it('renders month and year summary rows without trailing empty cells', async () => {
@@ -145,6 +189,12 @@ describe('ResourceTypePage', () => {
         <ResourceTypePage />
       </QueryClientProvider>,
     );
+
+    await waitFor(() => {
+      expect(screen.getByRole('tab', { name: '2023년' })).toBeInTheDocument();
+    });
+
+    screen.getByRole('tab', { name: '2023년' }).click();
 
     await waitFor(() => {
       expect(screen.getByRole('cell', { name: 'QA' })).toBeInTheDocument();
