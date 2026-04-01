@@ -42,20 +42,6 @@ pnpm dev
 
 로컬 개발에서는 `.env` 파일을 사용하고, Cloudflare 배포에서는 `.env` 파일을 업로드하지 않고 `Create a Worker` 화면 하단의 `Variable name` / `Variable value` 입력칸에 같은 키를 직접 등록합니다.
 
-## Cloudflare 배포
-
-이 저장소는 `Vite + React` 정적 SPA이며, 현재 Cloudflare UI 기준으로는 `Workers + Static Assets` 방식으로 배포합니다.
-
-- Build command: `pnpm build`
-- Environment variables:
-  - `VITE_SUPABASE_URL`
-  - `VITE_SUPABASE_ANON_KEY`
-  - `VITE_APP_URL`
-
-`VITE_APP_URL`은 실제 배포 주소를 넣어야 합니다. `workers.dev` 주소를 사용한다면 보통 `https://<project-name>.<account-subdomain>.workers.dev` 형식입니다.
-
-자세한 절차는 [docs/cloudflare-workers-deployment.md](./docs/cloudflare-workers-deployment.md)를 참고합니다.
-
 ## 인증 운영 정책
 
 - 공개 회원가입은 지원하지 않습니다. 계정 생성은 관리자 초대 기준입니다.
