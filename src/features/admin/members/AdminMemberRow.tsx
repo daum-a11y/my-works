@@ -15,6 +15,10 @@ function getActiveLabel(active: boolean) {
   return active ? '활성' : '비활성';
 }
 
+function getMemberStatusLabel(status: MemberAdminItem['memberStatus']) {
+  return status === 'pending' ? '승인대기' : '활성';
+}
+
 function getReportRequiredLabel(reportRequired: boolean) {
   return reportRequired ? '대상' : '비대상';
 }
@@ -43,6 +47,7 @@ export function AdminMemberRow({ member }: AdminMemberRowProps) {
       <td>{member.email || '-'}</td>
       <td>{getRoleLabel(member.role)}</td>
       <td>{getActiveLabel(member.userActive)}</td>
+      <td>{getMemberStatusLabel(member.memberStatus)}</td>
       <td>{getReportRequiredLabel(member.reportRequired)}</td>
       <td>{formatMemberDate(member.joinedAt)}</td>
       <td>{formatMemberDateTime(member.lastLoginAt)}</td>

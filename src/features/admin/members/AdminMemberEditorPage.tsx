@@ -26,6 +26,7 @@ export function AdminMemberEditorPage() {
 
   const roleLabel = draft.role === 'admin' ? '관리자' : '팀원';
   const activeLabel = draft.userActive ? '활성' : '비활성';
+  const memberStatusLabel = draft.memberStatus === 'pending' ? '승인대기' : '활성';
 
   useEffect(() => {
     if (!isEditMode) {
@@ -125,6 +126,7 @@ export function AdminMemberEditorPage() {
         role: selectedMember.role,
         note: selectedMember.note,
         userActive: true,
+        memberStatus: selectedMember.memberStatus,
         reportRequired: selectedMember.reportRequired,
         isActive: true,
       });
@@ -289,6 +291,26 @@ export function AdminMemberEditorPage() {
                 <input value={activeLabel} readOnly />
               </label>
             ) : null}
+
+            <label className={styles.field}>
+              <span>접근 상태</span>
+              {isInactiveMember ? (
+                <input value={memberStatusLabel} readOnly />
+              ) : (
+                <select
+                  value={draft.memberStatus}
+                  onChange={(event) =>
+                    setDraft((current) => ({
+                      ...current,
+                      memberStatus: event.target.value as MemberAdminPayload['memberStatus'],
+                    }))
+                  }
+                >
+                  <option value="active">활성</option>
+                  <option value="pending">승인대기</option>
+                </select>
+              )}
+            </label>
 
             <label className={styles.field}>
               <span>업무보고 대상여부</span>

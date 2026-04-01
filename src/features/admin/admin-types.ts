@@ -130,6 +130,7 @@ export interface MemberAdminItem {
   note: string;
   role: 'user' | 'admin';
   userActive: boolean;
+  memberStatus: 'pending' | 'active';
   reportRequired: boolean;
   isActive: boolean;
   authEmail: string;
@@ -148,6 +149,7 @@ export interface MemberAdminPayload {
   note: string;
   role: 'user' | 'admin';
   userActive: boolean;
+  memberStatus: 'pending' | 'active';
   reportRequired: boolean;
   isActive?: boolean;
 }

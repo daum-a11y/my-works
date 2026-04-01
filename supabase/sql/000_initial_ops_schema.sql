@@ -19,11 +19,14 @@ create table if not exists public.members (
   note text not null default '',
   user_level smallint not null default 0,
   user_active boolean not null default true,
+  member_status text not null default 'active',
   report_required boolean not null default true,
   joined_at timestamptz not null default timezone('utc', now()),
   last_login_at timestamptz,
   created_at timestamptz not null default timezone('utc', now()),
-  updated_at timestamptz not null default timezone('utc', now())
+  updated_at timestamptz not null default timezone('utc', now()),
+  constraint members_member_status_check
+    check (member_status in ('pending', 'active'))
 );
 
 create table if not exists public.service_groups (
@@ -103,32 +106,35 @@ create table if not exists public.tasks (
   updated_at timestamptz not null default timezone('utc', now())
 );
 
-create or replace view public.members_public_view as
+create or replace view public.members_public_view
+with (security_invoker = true) as
 select
   id,
   account_id,
   name,
-  email,
   user_level,
   user_active,
+  member_status,
   report_required,
   joined_at
 from public.members;
 
-create or replace view public.active_members_public_view as
+create or replace view public.active_members_public_view
+with (security_invoker = true) as
 select
   id,
   account_id,
   name,
-  email,
   user_level,
   user_active,
+  member_status,
   report_required,
   joined_at
 from public.members
 where user_active = true;
 
-create or replace view public.project_pages_public_view as
+create or replace view public.project_pages_public_view
+with (security_invoker = true) as
 select
   id,
   legacy_page_id,
@@ -190,7 +196,25 @@ as $$
   select id
   from public.members
   where auth_user_id = auth.uid()
+    and user_active = true
+    and member_status = 'active'
   limit 1
+$$;
+
+create or replace function public.current_user_is_active_member()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1
+    from public.members
+    where auth_user_id = auth.uid()
+      and user_active = true
+      and member_status = 'active'
+  )
 $$;
 
 create or replace function public.current_user_is_admin()
@@ -206,6 +230,7 @@ as $$
     where auth_user_id = auth.uid()
       and user_level = 1
       and user_active = true
+      and member_status = 'active'
   )
 $$;
 
@@ -253,13 +278,24 @@ set search_path = public
 as $$
 declare
   v_member public.members;
+  v_session_auth_user_id uuid := auth.uid();
+  v_session_email text := nullif(lower(trim(coalesce(auth.jwt() ->> 'email', ''))), '');
   v_email text := nullif(lower(trim(p_email)), '');
-  v_display_name text;
-  v_account_id text;
-  v_members_count integer;
 begin
   if p_auth_user_id is null then
     return null;
+  end if;
+
+  if v_session_auth_user_id is not null and p_auth_user_id <> v_session_auth_user_id then
+    raise exception 'auth user mismatch';
+  end if;
+
+  if v_email is null then
+    v_email := v_session_email;
+  end if;
+
+  if v_session_auth_user_id is not null and v_session_email is not null and v_email <> v_session_email then
+    raise exception 'auth email mismatch';
   end if;
 
   select *
@@ -295,34 +331,7 @@ begin
     return v_member;
   end if;
 
-  v_display_name := split_part(v_email, '@', 1);
-  v_account_id := public.next_member_account_id(v_email);
-
-  select count(*)
-  into v_members_count
-  from public.members;
-
-  insert into public.members (
-    auth_user_id,
-    account_id,
-    name,
-    email,
-    user_level,
-    user_active,
-    joined_at
-  )
-  values (
-    p_auth_user_id,
-    v_account_id,
-    v_display_name,
-    v_email,
-    case when v_members_count = 0 then 1 else 0 end,
-    true,
-    timezone('utc', now())
-  )
-  returning * into v_member;
-
-  return v_member;
+  return null;
 end;
 $$;
 
@@ -459,6 +468,37 @@ begin
   delete from public.tasks
   where id = p_task_id
     and member_id = v_member_id;
+end;
+$$;
+
+create or replace function public.touch_member_last_login(
+  p_auth_user_id uuid default null,
+  p_email text default null
+)
+returns public.members
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_member public.members;
+  v_member_id uuid;
+begin
+  v_member := public.bind_auth_session_member(p_auth_user_id, p_email);
+  v_member_id := v_member.id;
+
+  if v_member_id is null or coalesce(v_member.user_active, false) is not true then
+    return null;
+  end if;
+
+  update public.members
+  set
+    last_login_at = timezone('utc', now()),
+    updated_at = timezone('utc', now())
+  where id = v_member_id
+  returning * into v_member;
+
+  return v_member;
 end;
 $$;
 
@@ -750,9 +790,11 @@ as $$
 $$;
 
 grant execute on function public.current_member_id() to authenticated;
+grant execute on function public.current_user_is_active_member() to authenticated;
 grant execute on function public.current_user_is_admin() to authenticated;
 grant execute on function public.next_member_account_id(text) to authenticated;
 grant execute on function public.bind_auth_session_member(uuid, text) to authenticated;
+grant execute on function public.touch_member_last_login(uuid, text) to authenticated;
 grant execute on function public.save_task(uuid, date, uuid, uuid, text, text, numeric, text, text) to authenticated;
 grant execute on function public.delete_task(uuid) to authenticated;
 grant execute on function public.upsert_project(uuid, text, text, text, uuid, text, uuid, uuid, date, date, boolean) to authenticated;
@@ -766,11 +808,14 @@ alter table public.projects enable row level security;
 alter table public.project_pages enable row level security;
 alter table public.tasks enable row level security;
 
-create policy "members_self_select"
+create policy "members_active_directory_select"
 on public.members
 for select
 to authenticated
-using (auth.uid() = auth_user_id or public.current_user_is_admin());
+using (
+  (public.current_user_is_active_member() and user_active = true)
+  or public.current_user_is_admin()
+);
 
 create policy "members_admin_insert"
 on public.members
@@ -785,13 +830,6 @@ to authenticated
 using (public.current_user_is_admin())
 with check (public.current_user_is_admin());
 
-create policy "members_self_update_login"
-on public.members
-for update
-to authenticated
-using (auth.uid() = auth_user_id)
-with check (auth.uid() = auth_user_id);
-
 create policy "members_admin_delete"
 on public.members
 for delete
@@ -802,7 +840,10 @@ create policy "service_groups_active_select"
 on public.service_groups
 for select
 to authenticated
-using (is_active = true or public.current_user_is_admin());
+using (
+  public.current_user_is_active_member()
+  and (is_active = true or public.current_user_is_admin())
+);
 
 create policy "service_groups_admin_insert"
 on public.service_groups
@@ -827,7 +868,10 @@ create policy "task_types_active_select"
 on public.task_types
 for select
 to authenticated
-using (is_active = true or public.current_user_is_admin());
+using (
+  public.current_user_is_active_member()
+  and (is_active = true or public.current_user_is_admin())
+);
 
 create policy "task_types_admin_insert"
 on public.task_types
@@ -852,7 +896,7 @@ create policy "projects_select_authenticated"
 on public.projects
 for select
 to authenticated
-using (true);
+using (public.current_user_is_active_member());
 
 create policy "projects_write_owner_or_admin"
 on public.projects
@@ -869,14 +913,11 @@ with check (
   or public.current_user_is_admin()
 );
 
-create policy "project_pages_select_owner_or_admin"
+create policy "project_pages_select_active_member"
 on public.project_pages
 for select
 to authenticated
-using (
-  owner_member_id = public.current_member_id()
-  or public.current_user_is_admin()
-);
+using (public.current_user_is_active_member());
 
 create policy "project_pages_write_owner_or_admin"
 on public.project_pages

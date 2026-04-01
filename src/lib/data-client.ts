@@ -225,25 +225,14 @@ function createSupabaseClient(): OpsDataClient {
         : null;
     },
     async touchMemberLastLogin(authUserId, email) {
-      let member = await this.getMemberByAuthId(authUserId);
-
-      if (!member && email) {
-        member = await this.bindAuthSessionMember(authUserId, email);
-      }
-
-      if (!member) {
-        return null;
-      }
-
-      const { data, error } = await supabase
-        .from('members')
-        .update({ last_login_at: new Date().toISOString() })
-        .eq('id', member.id)
-        .select('*')
-        .single();
-
+      const { data, error } = await supabase.rpc('touch_member_last_login', {
+        p_auth_user_id: authUserId,
+        p_email: email ?? null,
+      });
       if (error) throw error;
-      return mapMemberRecord(data as Record<string, unknown>);
+      return data
+        ? mapMemberRecord(requireRecord(data, '사용자 로그인 상태를 확인할 수 없습니다.'))
+        : null;
     },
     async getTaskTypes() {
       const { data, error } = await supabase.from('task_types').select('*').order('display_order');
@@ -518,6 +507,7 @@ function mapMemberRecord(record: Record<string, unknown>): Member {
     email: String(record.email ?? ''),
     role: Number(record.user_level ?? 0) === 1 ? 'admin' : 'user',
     isActive: Boolean(record.user_active ?? record.is_active ?? true),
+    status: String(record.member_status ?? 'active') === 'pending' ? 'pending' : 'active',
     reportRequired,
     joinedAt: String(record.joined_at ?? record.created_at ?? getToday()),
     authUserId: record.auth_user_id ? String(record.auth_user_id) : null,

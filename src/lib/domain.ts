@@ -1,4 +1,5 @@
 export type UserRole = 'user' | 'admin';
+export type MemberStatus = 'pending' | 'active';
 
 export type PageStatus = '미수정' | '전체 수정' | '일부 수정';
 
@@ -25,6 +26,7 @@ export interface Member {
   email: string;
   role: UserRole;
   isActive: boolean;
+  status: MemberStatus;
   reportRequired: boolean;
   joinedAt: string;
   authUserId?: string | null;

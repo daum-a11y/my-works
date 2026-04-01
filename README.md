@@ -31,6 +31,8 @@ pnpm dev
 따라서 DB에는 아래 migration까지 적용돼 있어야 합니다.
 
 - `supabase/migrations/000_initial_ops_schema.sql`
+- 이미 초기 SQL을 적용한 운영 DB라면 `supabase/sql/005_harden_auth_rls.sql`도 추가 적용해야 합니다.
+- 승인대기 상태를 운영할 경우 `supabase/sql/006_member_status_pending.sql`도 추가 적용해야 합니다.
 
 현재 초기 migration에 공개 view/RPC/RLS 보정이 포함돼 있습니다. 이 단계가 빠지면 회원 조회, 페이지 조회, 세션-멤버 바인딩, 관리자 내보내기에서 런타임 오류가 날 수 있습니다.
 
@@ -48,6 +50,12 @@ pnpm dev
 - 로그인 화면에서는 비밀번호 찾기만 제공합니다.
 - 비밀번호 재설정 메일은 `${VITE_APP_URL}/auth/recovery`로 복귀하도록 동작합니다.
 - 관리자 초대 메일은 Supabase Edge Function `invite-member`를 통해 발송됩니다.
+
+Supabase Dashboard에서도 공개 가입을 차단해야 합니다.
+
+- Dashboard -> Authentication -> Providers -> Email
+- 일반 이메일 회원가입 옵션은 비활성화합니다.
+- 초대 기반 계정 생성과 비밀번호 재설정만 운영합니다.
 
 Supabase Auth 설정에서도 아래 Redirect URL을 허용해야 합니다.
 

@@ -11,12 +11,12 @@ Supabase 화면에서 보이는 항목은 아래처럼 역할이 다릅니다.
 - `public.members`
   - 실제 사용자 원본 테이블
   - 수정 기준도 이 테이블이다
-  - `auth_user_id`, `legacy_user_id`, `email`, `user_level`, `user_active`가 실제 사용자 상태다
+  - `auth_user_id`, `email`, `user_level`, `user_active`, `member_status`가 실제 사용자 상태다
 
 ### 조회용 view
 
 - `public.members_public_view`
-  - `members`에서 일반 조회에 필요한 컬럼만 노출한 view
+  - `members`에서 일반 조회에 필요한 최소 컬럼만 노출한 view
 - `public.active_members_public_view`
   - `members_public_view`와 같지만 `user_active = true`만 노출한 view
 
@@ -39,6 +39,7 @@ Supabase 화면에서 보이는 항목은 아래처럼 역할이 다릅니다.
 2. 인증 연결 여부: `public.members.auth_user_id`
 3. 관리자 여부: `public.members.user_level`
 4. 활성 여부: `public.members.user_active`
+5. 승인대기 여부: `public.members.member_status`
 
 즉:
 - 사용자 추가/수정/권한 변경 기준: `public.members`
@@ -49,10 +50,11 @@ Supabase 화면에서 보이는 항목은 아래처럼 역할이 다릅니다.
 
 정상 목표 동작은 아래다.
 
-1. 사용자가 Supabase Auth로 회원가입한다
-2. 같은 이메일의 기존 `members` 행이 있으면 `auth_user_id`를 연결한다
-3. 없으면 `public.members`에 새 사용자를 자동 생성한다
-4. 이후 로그인하면 앱은 `members`를 기준으로 정상 사용자로 인식한다
+1. 관리자가 `public.members`에 사용자를 먼저 만든다
+2. 관리자가 초대 메일을 보낸다
+3. 사용자가 초대 링크로 비밀번호를 설정해 Supabase Auth 계정을 만든다
+4. 같은 이메일의 기존 `members` 행이 있으면 `auth_user_id`를 연결한다
+5. 연결된 활성 사용자만 앱에 들어간다
 
 이 동작은 아래 초기 migration에 포함했다.
 
@@ -62,10 +64,18 @@ Supabase 화면에서 보이는 항목은 아래처럼 역할이 다릅니다.
 - `public.next_member_legacy_user_id(text)`
 - 확장된 `public.bind_auth_session_member(uuid, text)`
 - `auth.users` insert 후 자동 연결 트리거 `public.handle_auth_user_created()`
+- 기존 운영 DB 보정용 `supabase/sql/005_harden_auth_rls.sql`
+- 승인대기 상태 보정용 `supabase/sql/006_member_status_pending.sql`
 
 주의:
 - 이 migration을 실제 Supabase DB에 적용해야만 동작한다
 - 저장소 파일만 있어서는 운영 DB가 바뀌지 않는다
+
+중요:
+
+- 공개 회원가입은 사용하지 않는다.
+- Supabase Dashboard -> Authentication -> Providers -> Email 에서 일반 이메일 회원가입 옵션을 꺼야 한다.
+- 초대되지 않은 사용자가 Auth 계정을 만들더라도 `members` 자동 생성은 하지 않는다.
 
 ## 4. 기존에 `auth.users`에만 있고 `members`에 없는 사용자
 
@@ -102,41 +112,12 @@ where m.auth_user_id is null
   and au.email is not null
   and lower(m.email) = lower(trim(au.email));
 
--- 2) 아직도 members가 없는 auth 사용자만 신규 members 생성
-insert into public.members (
-  auth_user_id,
-  legacy_user_id,
-  name,
-  email,
-  user_level,
-  user_active,
-  joined_at,
-  report_required
-)
-select
-  au.id,
-  public.next_member_legacy_user_id(au.email),
-  split_part(lower(trim(au.email)), '@', 1),
-  lower(trim(au.email)),
-  0,
-  true,
-  coalesce(au.created_at, timezone('utc', now())),
-  true
-from auth.users au
-left join public.members m_auth
-  on m_auth.auth_user_id = au.id
-left join public.members m_email
-  on lower(m_email.email) = lower(trim(au.email))
-where au.email is not null
-  and m_auth.id is null
-  and m_email.id is null;
-
 commit;
 ```
 
 주의:
-- 위 SQL은 누락 사용자를 기본적으로 일반 사용자(`user_level = 0`)로 넣는다
-- 관리자여야 하는 계정은 이후 `public.members.user_level = 1`로 별도 지정해야 한다
+- 현재 운영 기준에서는 `members` 누락 사용자를 자동 생성하지 않는다.
+- 초대 대상이 아닌 사용자는 `auth.users`에 있어도 앱 접근 대상으로 보지 않는다.
 
 ## 6. 확인용 SQL
 
@@ -175,10 +156,10 @@ order by au.created_at desc nulls last;
 
 정상 상태는 아래다.
 
-- 신규 가입 후 `public.members`에 사용자가 생긴다
+- 초대된 사용자가 가입하면 기존 `public.members.auth_user_id`가 연결된다
 - 로그인 후 해당 사용자가 바로 앱에 들어온다
 - 관리자 계정은 `public.members.user_level = 1`이다
-- `auth.users`에는 있는데 `public.members`에 없는 사용자가 0명이다
+- 공개 회원가입은 Dashboard 설정에서 비활성화돼 있다
 
 비정상 상태는 아래다.
 

@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from '../features/auth/AuthContext';
 import { ForgotPasswordPage } from '../features/auth/ForgotPasswordPage';
 import { LoginPage } from '../features/auth/LoginPage';
 import { PasswordRecoveryPage } from '../features/auth/PasswordRecoveryPage';
+import { PendingApprovalPage } from '../features/auth/PendingApprovalPage';
 import { DashboardPage } from '../features/dashboard';
 import { AdminServiceGroupEditorPage } from '../features/admin/groups/AdminServiceGroupEditorPage';
 import { AdminServiceGroupsPage } from '../features/admin/groups/AdminServiceGroupsPage';
@@ -58,7 +59,7 @@ function LoadingFallback() {
 }
 
 function GuardedLayout() {
-  const { status } = useAuth();
+  const { status, session } = useAuth();
 
   if (status === 'loading') {
     return <LoadingFallback />;
@@ -66,6 +67,10 @@ function GuardedLayout() {
 
   if (status !== 'authenticated') {
     return <Navigate to="/login" replace />;
+  }
+
+  if (session?.member.status === 'pending') {
+    return <Navigate to="/pending-approval" replace />;
   }
 
   return <AppShell />;
@@ -97,10 +102,31 @@ function LoginRoute() {
   }
 
   if (status === 'authenticated' && session) {
+    if (session.member.status === 'pending') {
+      return <Navigate to="/pending-approval" replace />;
+    }
     return <Navigate to="/dashboard" replace />;
   }
 
   return <LoginPage />;
+}
+
+function PendingApprovalRoute() {
+  const { status, session } = useAuth();
+
+  if (status === 'loading') {
+    return <LoadingFallback />;
+  }
+
+  if (status !== 'authenticated' || !session) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (session.member.status !== 'pending') {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return <PendingApprovalPage />;
 }
 
 export function AppRouter() {
@@ -111,6 +137,7 @@ export function AppRouter() {
           <Route path="/login" element={<LoginRoute />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/auth/recovery" element={<PasswordRecoveryPage />} />
+          <Route path="/pending-approval" element={<PendingApprovalRoute />} />
           <Route path="/healthz" element={<HealthCheckPage />} />
           <Route element={<GuardedLayout />}>
             <Route index element={<Navigate to="/dashboard" replace />} />
