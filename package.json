@@ -12,10 +12,11 @@
     "format": "prettier \"**/*.{js,cjs,mjs,ts,tsx,json,css,html}\" --write",
     "format:check": "prettier \"**/*.{js,cjs,mjs,ts,tsx,json,css,html}\" --check",
     "prepare": "husky",
-    "preview": "vite preview",
+    "preview": "pnpm run build && wrangler dev",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "deploy": "pnpm run build && wrangler deploy"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -33,6 +34,7 @@
     "zod": "^4.1.8"
   },
   "devDependencies": {
+    "@cloudflare/vite-plugin": "^1.30.3",
     "@eslint/js": "^9.24.0",
     "@playwright/test": "^1.55.1",
     "@testing-library/jest-dom": "^6.8.0",
@@ -54,7 +56,8 @@
     "typescript": "^5.9.2",
     "typescript-eslint": "^8.29.1",
     "vite": "^7.1.7",
-    "vitest": "^3.2.4"
+    "vitest": "^3.2.4",
+    "wrangler": "^4.79.0"
   },
   "lint-staged": {
     "*.{js,cjs,mjs,jsx,ts,tsx}": [
