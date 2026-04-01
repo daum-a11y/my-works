@@ -14,6 +14,7 @@ export function ResourceServicePage() {
   const query = useResourceDataset();
   const data = query.data;
   const [fold, setFold] = useState(false);
+  const [activeYear, setActiveYear] = useState('');
 
   useEffect(() => {
     setDocumentTitle('서비스그룹 집계');
@@ -79,18 +80,33 @@ export function ResourceServicePage() {
       years.set(year, months);
     }
 
-    return Array.from(years.entries()).map(([year, months]) => ({
-      year,
-      yearTotalMinutes: months.reduce((sum, month) => sum + month.totalMinutes, 0),
-      detailRowCount: months.reduce(
-        (sum, month) =>
-          sum + month.groups.reduce((groupSum, group) => groupSum + group.names.length, 0) + 1,
-        0,
-      ),
-      foldRowCount: months.reduce((sum, month) => sum + month.groups.length + 1, 0),
-      months,
-    }));
+    return Array.from(years.entries())
+      .sort(([left], [right]) => right.localeCompare(left))
+      .map(([year, months]) => ({
+        year,
+        yearTotalMinutes: months.reduce((sum, month) => sum + month.totalMinutes, 0),
+        detailRowCount: months.reduce(
+          (sum, month) =>
+            sum + month.groups.reduce((groupSum, group) => groupSum + group.names.length, 0) + 1,
+          0,
+        ),
+        foldRowCount: months.reduce((sum, month) => sum + month.groups.length + 1, 0),
+        months,
+      }));
   }, [data]);
+
+  useEffect(() => {
+    if (!rows.length) {
+      setActiveYear('');
+      return;
+    }
+
+    if (!rows.some((row) => row.year === activeYear)) {
+      setActiveYear(rows[0].year);
+    }
+  }, [activeYear, rows]);
+
+  const activeRow = rows.find((row) => row.year === activeYear) ?? null;
 
   return (
     <section className={projectStyles.shell}>
@@ -109,32 +125,84 @@ export function ResourceServicePage() {
         </div>
       </header>
 
-      <div className={projectStyles.tableWrap}>
-        <table className={projectStyles.table}>
-          <caption className={styles.srOnly}>연도와 월 기준 서비스그룹 집계 표</caption>
-          <thead>
-            <tr>
-              <th scope="col">연도</th>
-              <th scope="col">월</th>
-              <th scope="col">서비스그룹</th>
-              <th scope="col">서비스명</th>
-              <th scope="col">MM</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row) => (
-              <ServiceYearRows key={row.year} row={row} fold={fold} />
-            ))}
-            {!rows.length ? (
+      {rows.length ? (
+        <section className={styles.tableTabsSection}>
+          <div className={styles.tableTabsScroller}>
+            <div className={styles.tableTabs} role="tablist" aria-label="서비스그룹 집계 연도">
+              {rows.map((row) => {
+                const selected = row.year === activeYear;
+
+                return (
+                  <button
+                    key={row.year}
+                    id={`resource-service-tab-${row.year}`}
+                    type="button"
+                    role="tab"
+                    aria-selected={selected}
+                    aria-controls={`resource-service-panel-${row.year}`}
+                    tabIndex={selected ? 0 : -1}
+                    className={selected ? styles.tableTabActive : styles.tableTab}
+                    onClick={() => setActiveYear(row.year)}
+                  >
+                    {row.year}년
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {activeRow ? (
+            <div
+              id={`resource-service-panel-${activeRow.year}`}
+              role="tabpanel"
+              aria-labelledby={`resource-service-tab-${activeRow.year}`}
+              className={styles.tableTabPanel}
+            >
+              <div className={projectStyles.tableWrap}>
+                <table className={projectStyles.table}>
+                  <caption className={styles.srOnly}>
+                    {activeRow.year}년 월 기준 서비스그룹 집계 표
+                  </caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">연도</th>
+                      <th scope="col">월</th>
+                      <th scope="col">서비스그룹</th>
+                      <th scope="col">서비스명</th>
+                      <th scope="col">MM</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <ServiceYearRows row={activeRow} fold={fold} />
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          ) : null}
+        </section>
+      ) : (
+        <div className={projectStyles.tableWrap}>
+          <table className={projectStyles.table}>
+            <caption className={styles.srOnly}>연도와 월 기준 서비스그룹 집계 표</caption>
+            <thead>
+              <tr>
+                <th scope="col">연도</th>
+                <th scope="col">월</th>
+                <th scope="col">서비스그룹</th>
+                <th scope="col">서비스명</th>
+                <th scope="col">MM</th>
+              </tr>
+            </thead>
+            <tbody>
               <tr>
                 <td colSpan={5} className={projectStyles.emptyState}>
                   표시할 서비스그룹 집계가 없습니다.
                 </td>
               </tr>
-            ) : null}
-          </tbody>
-        </table>
-      </div>
+            </tbody>
+          </table>
+        </div>
+      )}
     </section>
   );
 }

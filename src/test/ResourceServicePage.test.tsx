@@ -113,6 +113,21 @@ describe('ResourceServicePage', () => {
         endDate: '2023-05-31',
         isActive: true,
       },
+      {
+        id: 'project-3',
+        legacyProjectId: 'legacy-project-3',
+        createdByMemberId: null,
+        name: '카카오 T',
+        projectType1: 'QA',
+        platform: 'Web',
+        serviceGroupId: 'service-group-1',
+        reportUrl: '',
+        reporterMemberId: 'member-1',
+        reviewerMemberId: null,
+        startDate: '2024-01-01',
+        endDate: '2024-01-31',
+        isActive: true,
+      },
     ]);
     mockOpsDataClient.getTasks.mockResolvedValue([
       {
@@ -145,7 +160,53 @@ describe('ResourceServicePage', () => {
         createdAt: '2026-03-29T00:00:00.000Z',
         updatedAt: '2026-03-29T00:00:00.000Z',
       },
+      {
+        id: 'task-3',
+        legacyTaskId: 'legacy-task-3',
+        memberId: 'member-1',
+        taskDate: '2024-01-15',
+        projectId: 'project-3',
+        pageId: null,
+        taskType1: 'QA',
+        taskType2: '사전준비',
+        hours: 60,
+        content: '',
+        note: '',
+        createdAt: '2026-03-29T00:00:00.000Z',
+        updatedAt: '2026-03-29T00:00:00.000Z',
+      },
     ]);
+  });
+
+  it('shows only the selected year table and switches with tabs', async () => {
+    const queryClient = new QueryClient();
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <ResourceServicePage />
+      </QueryClientProvider>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByRole('tab', { name: '2024년' })).toHaveAttribute('aria-selected', 'true');
+    });
+
+    expect(screen.getByRole('tab', { name: '2023년' })).toBeInTheDocument();
+    expect(screen.getByRole('cell', { name: '커머스' })).toBeInTheDocument();
+    expect(screen.getByRole('cell', { name: '선물하기' })).toBeInTheDocument();
+    expect(screen.queryByRole('cell', { name: '플랫폼' })).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('tab', { name: '2023년' }));
+
+    await waitFor(() => {
+      expect(screen.getByRole('tab', { name: '2023년' })).toHaveAttribute('aria-selected', 'true');
+    });
+
+    expect(screen.getByRole('cell', { name: '커머스' })).toBeInTheDocument();
+    expect(screen.getByRole('cell', { name: '선물하기' })).toBeInTheDocument();
+    expect(screen.getByRole('cell', { name: '플랫폼' })).toBeInTheDocument();
+    expect(screen.getByRole('cell', { name: '카카오맵' })).toBeInTheDocument();
+    expect(screen.queryAllByRole('cell', { name: '선물하기' })).toHaveLength(1);
   });
 
   it('renders folded month summary rows directly after each month group like the legacy page', async () => {
@@ -156,6 +217,12 @@ describe('ResourceServicePage', () => {
         <ResourceServicePage />
       </QueryClientProvider>,
     );
+
+    await waitFor(() => {
+      expect(screen.getByRole('tab', { name: '2023년' })).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole('tab', { name: '2023년' }));
 
     await waitFor(() => {
       expect(screen.getByRole('cell', { name: '커머스' })).toBeInTheDocument();
@@ -189,6 +256,12 @@ describe('ResourceServicePage', () => {
         <ResourceServicePage />
       </QueryClientProvider>,
     );
+
+    await waitFor(() => {
+      expect(screen.getByRole('tab', { name: '2023년' })).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole('tab', { name: '2023년' }));
 
     await waitFor(() => {
       expect(screen.getByRole('cell', { name: '커머스' })).toBeInTheDocument();
