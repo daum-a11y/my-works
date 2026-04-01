@@ -1,7 +1,7 @@
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { cleanup, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { AppShell } from '../app/AppShell';
 
 const mockUseAuth = vi.hoisted(() => vi.fn());
@@ -9,6 +9,10 @@ const mockUseAuth = vi.hoisted(() => vi.fn());
 vi.mock('../features/auth/AuthContext', () => ({
   useAuth: mockUseAuth,
 }));
+
+afterEach(() => {
+  cleanup();
+});
 
 describe('AppShell', () => {
   it('opens the user menu and keeps profile and logout actions inside it', async () => {
@@ -78,6 +82,8 @@ describe('AppShell', () => {
   });
 
   it('moves to dashboard when clicking breadcrumb home', async () => {
+    const user = userEvent.setup();
+
     mockUseAuth.mockReturnValue({
       session: {
         member: {
@@ -101,9 +107,12 @@ describe('AppShell', () => {
       </MemoryRouter>,
     );
 
-    const breadcrumbNav = screen.getByRole('navigation', { name: '브래드크럼' });
+    const breadcrumbNav = screen.getAllByRole('navigation', { name: '브래드크럼' })[0];
     const homeLink = within(breadcrumbNav).getByRole('link', { name: '홈으로 가기' });
-    homeLink.click();
-    expect(screen.getByText('dashboard-page')).toBeInTheDocument();
+    await user.click(homeLink);
+
+    await waitFor(() => {
+      expect(screen.getByText('dashboard-page')).toBeInTheDocument();
+    });
   });
 });

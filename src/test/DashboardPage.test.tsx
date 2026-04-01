@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { DashboardPage } from '../features/dashboard';
 import { getCurrentMonth, shiftMonth } from '../features/resource/resourceShared';
 
@@ -36,6 +36,10 @@ vi.mock('../features/auth/AuthContext', () => ({
 vi.mock('../lib/dataClient', () => ({
   opsDataClient: mockOpsDataClient,
 }));
+
+afterEach(() => {
+  cleanup();
+});
 
 describe('DashboardPage', () => {
   beforeEach(() => {
@@ -149,6 +153,7 @@ describe('DashboardPage', () => {
     );
 
     expect(screen.queryByRole('navigation', { name: '업무일지 월 이동' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: '이전달 보기' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('table', { name: '업무일지 작성 현황' })).not.toBeInTheDocument();
+    expect(screen.queryByText('업무 현황')).not.toBeInTheDocument();
   });
 });

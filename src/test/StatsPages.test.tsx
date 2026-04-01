@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { MonitoringStatsPage, QaStatsPage } from '../features/stats';
+import { getCurrentMonth, shiftMonth } from '../features/resource/resourceShared';
 
 const mockUseAuth = vi.hoisted(() => vi.fn());
 const mockOpsDataClient = vi.hoisted(() => ({
@@ -34,6 +35,9 @@ vi.mock('../lib/dataClient', () => ({
 }));
 
 describe('Stats pages', () => {
+  const defaultEndMonth = getCurrentMonth();
+  const defaultStartMonth = shiftMonth(defaultEndMonth, -5);
+
   afterEach(() => {
     cleanup();
   });
@@ -205,8 +209,12 @@ describe('Stats pages', () => {
     expect(screen.queryByText(/적용 기간/)).not.toBeInTheDocument();
     expect(screen.queryByText('2025-10 ~ 2026-03')).not.toBeInTheDocument();
     expect(screen.queryByText('제외 페이지')).not.toBeInTheDocument();
-    expect((screen.getByLabelText('모니터링 시작월') as HTMLInputElement).value).toBe('2025-10');
-    expect((screen.getByLabelText('모니터링 종료월') as HTMLInputElement).value).toBe('2026-03');
+    expect((screen.getByLabelText('모니터링 시작월') as HTMLInputElement).value).toBe(
+      defaultStartMonth,
+    );
+    expect((screen.getByLabelText('모니터링 종료월') as HTMLInputElement).value).toBe(
+      defaultEndMonth,
+    );
   });
 
   it('applies the monitoring period only after search is clicked', async () => {
@@ -222,8 +230,12 @@ describe('Stats pages', () => {
       expect(screen.getAllByText('모니터링 페이지').length).toBeGreaterThan(0);
     });
 
-    expect((screen.getByLabelText('모니터링 시작월') as HTMLInputElement).value).toBe('2025-10');
-    expect((screen.getByLabelText('모니터링 종료월') as HTMLInputElement).value).toBe('2026-03');
+    expect((screen.getByLabelText('모니터링 시작월') as HTMLInputElement).value).toBe(
+      defaultStartMonth,
+    );
+    expect((screen.getByLabelText('모니터링 종료월') as HTMLInputElement).value).toBe(
+      defaultEndMonth,
+    );
 
     fireEvent.change(screen.getByLabelText('모니터링 시작월'), { target: { value: '2025-07' } });
     fireEvent.change(screen.getByLabelText('모니터링 종료월'), { target: { value: '2025-07' } });
@@ -299,8 +311,8 @@ describe('Stats pages', () => {
     expect(screen.queryByText(/적용 기간/)).not.toBeInTheDocument();
     expect(screen.queryByText('2025-10 ~ 2026-03')).not.toBeInTheDocument();
     expect(screen.queryByText('제외 대상')).not.toBeInTheDocument();
-    expect((screen.getByLabelText('QA 시작월') as HTMLInputElement).value).toBe('2025-10');
-    expect((screen.getByLabelText('QA 종료월') as HTMLInputElement).value).toBe('2026-03');
+    expect((screen.getByLabelText('QA 시작월') as HTMLInputElement).value).toBe(defaultStartMonth);
+    expect((screen.getByLabelText('QA 종료월') as HTMLInputElement).value).toBe(defaultEndMonth);
   });
 
   it('applies the QA period only after search is clicked', async () => {
@@ -316,8 +328,8 @@ describe('Stats pages', () => {
       expect(screen.getAllByText('QA 대상').length).toBeGreaterThan(0);
     });
 
-    expect((screen.getByLabelText('QA 시작월') as HTMLInputElement).value).toBe('2025-10');
-    expect((screen.getByLabelText('QA 종료월') as HTMLInputElement).value).toBe('2026-03');
+    expect((screen.getByLabelText('QA 시작월') as HTMLInputElement).value).toBe(defaultStartMonth);
+    expect((screen.getByLabelText('QA 종료월') as HTMLInputElement).value).toBe(defaultEndMonth);
 
     fireEvent.change(screen.getByLabelText('QA 시작월'), { target: { value: '2025-07' } });
     fireEvent.change(screen.getByLabelText('QA 종료월'), { target: { value: '2025-07' } });
