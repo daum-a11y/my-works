@@ -47,7 +47,6 @@ pnpm dev
 이 저장소는 `Vite + React` 정적 SPA이며, 현재 Cloudflare UI 기준으로는 `Workers + Static Assets` 방식으로 배포합니다.
 
 - Build command: `pnpm build`
-- Deploy command: `npx wrangler deploy`
 - Environment variables:
   - `VITE_SUPABASE_URL`
   - `VITE_SUPABASE_ANON_KEY`
