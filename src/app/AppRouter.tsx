@@ -14,7 +14,7 @@ import { AdminReportsPage } from '../features/admin/reports/AdminReportsPage';
 import { AdminTaskTypeEditorPage } from '../features/admin/types/AdminTaskTypeEditorPage';
 import { AdminTaskTypesPage } from '../features/admin/types/AdminTaskTypesPage';
 import { HealthCheckPage } from '../features/health';
-import { NotFoundPage } from '../features/not-found';
+import { NotFoundPage } from '../features/notFound';
 import { ProjectEditorPage, ProjectsFeature } from '../features/projects';
 import { ReportsPage } from '../features/reports';
 import {

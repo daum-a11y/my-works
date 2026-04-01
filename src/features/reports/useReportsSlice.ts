@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { useAuth } from '../auth/AuthContext';
-import { opsDataClient } from '../../lib/data-client';
+import { opsDataClient } from '../../lib/dataClient';
 import type { Project, ProjectPage, ReportFilters, Task, TaskType } from '../../lib/domain';
 import {
   buildProjectViewModels,
@@ -22,7 +22,7 @@ import {
   type ReportDraft,
   type ReportRecord,
   type ReportViewModel,
-} from './report-domain';
+} from './reportDomain';
 
 export interface ReportsSlice {
   reports: ReportViewModel[];

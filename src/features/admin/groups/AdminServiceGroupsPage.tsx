@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useLocation } from 'react-router-dom';
 import { setDocumentTitle } from '../../../app/navigation';
-import { adminDataClient } from '../admin-client';
+import { adminDataClient } from '../adminClient';
 import type { AdminServiceGroupItem } from '../admin-types';
 import styles from '../AdminCrudPage.module.css';
 

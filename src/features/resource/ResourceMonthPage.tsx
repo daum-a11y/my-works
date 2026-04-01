@@ -16,7 +16,7 @@ import {
   isServiceTask,
   shiftMonth,
   useResourceDataset,
-} from './resource-shared';
+} from './resourceShared';
 import dashboardStyles from '../dashboard/DashboardPage.module.css';
 import projectStyles from '../projects/ProjectsFeature.module.css';
 import styles from './ResourcePage.module.css';

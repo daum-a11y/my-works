@@ -3,8 +3,8 @@ import { useQuery } from '@tanstack/react-query';
 import { setDocumentTitle } from '../../app/navigation';
 import { useAuth } from '../auth/AuthContext';
 import { PageSection } from '../../components/ui/PageSection';
-import { opsDataClient } from '../../lib/data-client';
-import { downloadExcelFile } from '../../lib/excel-export';
+import { opsDataClient } from '../../lib/dataClient';
+import { downloadExcelFile } from '../../lib/excelExport';
 import type { Project, ProjectPage, Task } from '../../lib/domain';
 import { getToday, parseLocalDateInput, toLocalDateInputValue } from '../../lib/utils';
 import {
@@ -14,8 +14,8 @@ import {
   formatReportHours,
   sortReportsDescending,
   type ReportViewModel,
-} from '../reports/report-domain';
-import styles from './search-page.module.css';
+} from '../reports/reportDomain';
+import styles from './SearchPage.module.css';
 
 interface SearchFilters {
   startDate: string;

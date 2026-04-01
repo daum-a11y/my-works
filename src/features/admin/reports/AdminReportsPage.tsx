@@ -2,9 +2,9 @@ import { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { setDocumentTitle } from '../../../app/navigation';
-import { downloadExcelFile } from '../../../lib/excel-export';
+import { downloadExcelFile } from '../../../lib/excelExport';
 import { toLocalDateInputValue } from '../../../lib/utils';
-import { adminDataClient } from '../admin-client';
+import { adminDataClient } from '../adminClient';
 import type {
   AdminProjectOption,
   AdminServiceGroupItem,

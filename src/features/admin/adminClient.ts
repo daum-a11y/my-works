@@ -1,7 +1,7 @@
 import { getSupabaseClient } from '../../lib/supabase';
 import { normalizePageStatus } from '../../lib/domain';
-import { getPasswordRecoveryRedirectUrl } from '../auth/auth-urls';
-import { parseLegacyTaskMeta } from '../reports/report-domain';
+import { getPasswordRecoveryRedirectUrl } from '../auth/authUrls';
+import { parseLegacyTaskMeta } from '../reports/reportDomain';
 import type {
   AdminPageOption,
   AdminProjectOption,

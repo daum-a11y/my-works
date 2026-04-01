@@ -58,7 +58,7 @@ vi.mock('../features/admin/types/AdminTaskTypeEditorPage', () => ({
   AdminTaskTypeEditorPage: () => <div>admin-task-type-editor-page</div>,
 }));
 
-vi.mock('../features/not-found', () => ({
+vi.mock('../features/notFound', () => ({
   NotFoundPage: () => <div>not-found-page</div>,
 }));
 

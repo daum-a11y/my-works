@@ -8,9 +8,9 @@ import {
   getTodayInputValue,
   shiftDateInput,
   type ReportViewModel,
-} from './report-domain';
-import { useReportsSlice } from './use-reports-slice';
-import styles from './reports-page.module.css';
+} from './reportDomain';
+import { useReportsSlice } from './useReportsSlice';
+import styles from './ReportsPage.module.css';
 
 function normalizeDateForInput(value: string) {
   const trimmed = value.trim();

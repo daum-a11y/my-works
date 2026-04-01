@@ -20,7 +20,7 @@ vi.mock('../features/auth/AuthContext', () => ({
   useAuth: () => ({ session: { member } }),
 }));
 
-vi.mock('../lib/data-client', () => ({
+vi.mock('../lib/dataClient', () => ({
   opsDataClient: {
     getProjects: (...args: unknown[]) => getProjects(...args),
     getMembers: (...args: unknown[]) => getMembers(...args),

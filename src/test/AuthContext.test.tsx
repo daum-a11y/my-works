@@ -35,7 +35,7 @@ vi.mock('../lib/supabase', () => ({
   getSupabaseClient: () => mockSupabaseClient,
 }));
 
-vi.mock('../lib/data-client', () => ({
+vi.mock('../lib/dataClient', () => ({
   opsDataClient: {
     getMemberByAuthId: mockGetMemberByAuthId,
     bindAuthSessionMember: mockBindAuthSessionMember,

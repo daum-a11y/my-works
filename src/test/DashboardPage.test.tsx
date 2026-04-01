@@ -3,7 +3,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { DashboardPage } from '../features/dashboard';
-import { getCurrentMonth, shiftMonth } from '../features/resource/resource-shared';
+import { getCurrentMonth, shiftMonth } from '../features/resource/resourceShared';
 
 const mockUseAuth = vi.hoisted(() => vi.fn());
 const mockOpsDataClient = vi.hoisted(() => ({
@@ -33,7 +33,7 @@ vi.mock('../features/auth/AuthContext', () => ({
   useAuth: mockUseAuth,
 }));
 
-vi.mock('../lib/data-client', () => ({
+vi.mock('../lib/dataClient', () => ({
   opsDataClient: mockOpsDataClient,
 }));
 

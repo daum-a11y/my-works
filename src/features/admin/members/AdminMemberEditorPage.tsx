@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { adminDataClient } from '../admin-client';
+import { adminDataClient } from '../adminClient';
 import type { MemberAdminPayload } from '../admin-types';
-import { createMemberDraft, normalizeMemberDraft } from './member-admin-form';
+import { createMemberDraft, normalizeMemberDraft } from './memberAdminForm';
 import styles from '../../projects/ProjectsFeature.module.css';
 
 export function AdminMemberEditorPage() {

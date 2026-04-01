@@ -2,7 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { SearchPage } from '../features/search/search-page';
+import { SearchPage } from '../features/search/SearchPage';
 import { parseLocalDateInput, toLocalDateInputValue } from '../lib/utils';
 
 const mockUseAuth = vi.hoisted(() => vi.fn());
@@ -31,7 +31,7 @@ vi.mock('../features/auth/AuthContext', () => ({
   useAuth: mockUseAuth,
 }));
 
-vi.mock('../lib/data-client', () => ({
+vi.mock('../lib/dataClient', () => ({
   opsDataClient: mockOpsDataClient,
 }));
 

@@ -2,14 +2,14 @@ import { useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { setDocumentTitle } from '../../app/navigation';
 import { MonthlyReportCalendar } from '../../components/ui/MonthlyReportCalendar';
-import { opsDataClient } from '../../lib/data-client';
+import { opsDataClient } from '../../lib/dataClient';
 import { useAuth } from '../auth/AuthContext';
 import {
   buildCalendarWeeks,
   filterTasksByMonth,
   getCurrentMonth,
   shiftMonth,
-} from '../resource/resource-shared';
+} from '../resource/resourceShared';
 import styles from './DashboardPage.module.css';
 
 export function DashboardPage() {

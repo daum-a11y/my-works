@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { setDocumentTitle } from '../../app/navigation';
 import { useAuth } from '../auth/AuthContext';
 import { PageSection } from '../../components/ui/PageSection';
-import { opsDataClient } from '../../lib/data-client';
+import { opsDataClient } from '../../lib/dataClient';
 import { type Member, type Project } from '../../lib/domain';
 import {
   formatDateLabel,

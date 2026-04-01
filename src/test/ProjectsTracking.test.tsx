@@ -35,7 +35,7 @@ vi.mock('../features/auth/AuthContext', () => ({
   useAuth: mockUseAuth,
 }));
 
-vi.mock('../lib/data-client', () => ({
+vi.mock('../lib/dataClient', () => ({
   opsDataClient: mockOpsDataClient,
 }));
 

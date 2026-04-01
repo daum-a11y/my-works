@@ -13,7 +13,7 @@ export {
   sortReportsDescending,
   type ReportDraft,
   type ReportRecord,
-} from './report-domain';
-export { ReportsPage } from './reports-page';
-export { useReportsSlice } from './use-reports-slice';
+} from './reportDomain';
+export { ReportsPage } from './ReportsPage';
+export { useReportsSlice } from './useReportsSlice';
 export type { ReportFilters } from '../../lib/domain';

@@ -13,10 +13,10 @@ import {
   shiftDateInput,
   validateTaskTypeSelection,
   type ReportDraft,
-} from '../../reports/report-domain';
-import { adminDataClient } from '../admin-client';
+} from '../../reports/reportDomain';
+import { adminDataClient } from '../adminClient';
 import type { AdminTaskSearchItem, MemberAdminItem } from '../admin-types';
-import styles from '../../reports/reports-page.module.css';
+import styles from '../../reports/ReportsPage.module.css';
 
 const PROJECT_LINKED_PAGE_SELECT_TYPE2_IDS = [
   '2',

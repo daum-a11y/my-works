@@ -2,7 +2,7 @@ import { type FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
-import { opsDataClient } from '../../lib/data-client';
+import { opsDataClient } from '../../lib/dataClient';
 import { type Member, type PageStatus, type Project, type ProjectPage } from '../../lib/domain';
 import { getToday } from '../../lib/utils';
 import styles from './ProjectsFeature.module.css';

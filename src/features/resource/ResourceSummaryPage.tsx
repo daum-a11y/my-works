@@ -10,7 +10,7 @@ import {
   filterTasksByMonth,
   getCurrentMonth,
   useResourceDataset,
-} from './resource-shared';
+} from './resourceShared';
 import projectStyles from '../projects/ProjectsFeature.module.css';
 import styles from './ResourceSummaryPage.module.css';
 const numberFormatter = new Intl.NumberFormat('ko-KR');

@@ -6,7 +6,7 @@ import { getToday } from '../lib/utils';
 
 const mockUseReportsSlice = vi.fn();
 
-vi.mock('../features/reports/use-reports-slice', () => ({
+vi.mock('../features/reports/useReportsSlice', () => ({
   useReportsSlice: () => mockUseReportsSlice(),
 }));
 

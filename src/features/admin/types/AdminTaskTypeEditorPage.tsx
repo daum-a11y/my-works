@@ -1,7 +1,7 @@
 import { type FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { adminDataClient } from '../admin-client';
+import { adminDataClient } from '../adminClient';
 import type { AdminTaskTypeItem, AdminTaskTypePayload } from '../admin-types';
 import styles from '../../projects/ProjectsFeature.module.css';
 

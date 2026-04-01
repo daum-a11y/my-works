@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { setDocumentTitle } from '../../app/navigation';
-import { countWorkingDays, formatMm, useResourceDataset } from './resource-shared';
+import { countWorkingDays, formatMm, useResourceDataset } from './resourceShared';
 import projectStyles from '../projects/ProjectsFeature.module.css';
 import styles from './ResourcePage.module.css';
 

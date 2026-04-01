@@ -9,9 +9,9 @@ import {
 } from 'react';
 import { getSupabaseClient } from '../../lib/supabase';
 import { isSupabaseConfigured } from '../../lib/env';
-import { opsDataClient } from '../../lib/data-client';
+import { opsDataClient } from '../../lib/dataClient';
 import { type Member } from '../../lib/domain';
-import { getPasswordRecoveryRedirectUrl, isPasswordRecoveryUrl } from './auth-urls';
+import { getPasswordRecoveryRedirectUrl, isPasswordRecoveryUrl } from './authUrls';
 
 type AuthStatus = 'loading' | 'guest' | 'authenticated';
 type AuthFlow = 'default' | 'recovery';

@@ -13,9 +13,9 @@ import {
 } from 'recharts';
 import { PageSection } from '../../components/ui/PageSection';
 import { setDocumentTitle } from '../../app/navigation';
-import { opsDataClient } from '../../lib/data-client';
+import { opsDataClient } from '../../lib/dataClient';
 import { pageStatusOptions, type PageStatus, type ProjectPage } from '../../lib/domain';
-import { getCurrentMonth, shiftMonth } from '../resource/resource-shared';
+import { getCurrentMonth, shiftMonth } from '../resource/resourceShared';
 import { useAuth } from '../auth/AuthContext';
 import styles from './shared.module.css';
 

@@ -6,7 +6,7 @@ import {
   formatMm,
   getTaskServiceInfo,
   useResourceDataset,
-} from './resource-shared';
+} from './resourceShared';
 import projectStyles from '../projects/ProjectsFeature.module.css';
 import styles from './ResourcePage.module.css';
 
