@@ -6,10 +6,6 @@
 
 - `src`: 앱 소스
 - `public`: 정적 자산
-- `supabase/legacy-supabase-migration.md`: 레거시 MariaDB dump를 Supabase로 옮기는 절차
-- `supabase/migrations`: 1차 스키마와 RLS 초안
-- `supabase/functions/export-tasks`: 업무보고 다운로드 함수 초안
-- `docs/legacy-cleanup-targets.md`: 신규 스키마에서 제외한 레거시 정리 대상
 
 ## 실행
 
@@ -43,6 +39,23 @@ pnpm dev
 - `VITE_SUPABASE_URL`
 - `VITE_SUPABASE_ANON_KEY`
 - `VITE_APP_URL`: 비밀번호 재설정 메일이 돌아올 앱 기준 URL. 예: `http://localhost:5173`
+
+로컬 개발에서는 `.env` 파일을 사용하고, Cloudflare 배포에서는 `.env` 파일을 업로드하지 않고 `Create a Worker` 화면 하단의 `Variable name` / `Variable value` 입력칸에 같은 키를 직접 등록합니다.
+
+## Cloudflare 배포
+
+이 저장소는 `Vite + React` 정적 SPA이며, 현재 Cloudflare UI 기준으로는 `Workers + Static Assets` 방식으로 배포합니다.
+
+- Build command: `pnpm build`
+- Deploy command: `npx wrangler deploy`
+- Environment variables:
+  - `VITE_SUPABASE_URL`
+  - `VITE_SUPABASE_ANON_KEY`
+  - `VITE_APP_URL`
+
+`VITE_APP_URL`은 실제 배포 주소를 넣어야 합니다. `workers.dev` 주소를 사용한다면 보통 `https://<project-name>.<account-subdomain>.workers.dev` 형식입니다.
+
+자세한 절차는 [docs/cloudflare-workers-deployment.md](./docs/cloudflare-workers-deployment.md)를 참고합니다.
 
 ## 인증 운영 정책
 
