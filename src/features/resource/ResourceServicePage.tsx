@@ -165,7 +165,6 @@ export function ResourceServicePage() {
                   </caption>
                   <thead>
                     <tr>
-                      <th scope="col">연도</th>
                       <th scope="col">월</th>
                       <th scope="col">서비스그룹</th>
                       <th scope="col">서비스명</th>
@@ -186,7 +185,6 @@ export function ResourceServicePage() {
             <caption className={styles.srOnly}>연도와 월 기준 서비스그룹 집계 표</caption>
             <thead>
               <tr>
-                <th scope="col">연도</th>
                 <th scope="col">월</th>
                 <th scope="col">서비스그룹</th>
                 <th scope="col">서비스명</th>
@@ -195,7 +193,7 @@ export function ResourceServicePage() {
             </thead>
             <tbody>
               <tr>
-                <td colSpan={5} className={projectStyles.emptyState}>
+                <td colSpan={4} className={projectStyles.emptyState}>
                   표시할 서비스그룹 집계가 없습니다.
                 </td>
               </tr>
@@ -232,13 +230,10 @@ function ServiceYearRows({
   if (fold) {
     return (
       <>
-        {row.months.map((month, monthIndex) => (
+        {row.months.map((month) => (
           <Fragment key={`${row.year}-${month.month}`}>
             {month.groups.map((group, groupIndex) => (
               <tr key={`${row.year}-${month.month}-${group.group}`}>
-                {monthIndex === 0 && groupIndex === 0 ? (
-                  <td rowSpan={row.foldRowCount}>{row.year}년</td>
-                ) : null}
                 {groupIndex === 0 ? (
                   <td rowSpan={month.groups.length + 1}>{month.month}월</td>
                 ) : null}
@@ -248,13 +243,13 @@ function ServiceYearRows({
               </tr>
             ))}
             <tr key={`${row.year}-${month.month}-sum`} className={styles.summaryStrongRow}>
-              <td colSpan={2}>{month.month}월 합계</td>
+              <td colSpan={3}>{month.month}월 합계</td>
               <td>{formatMm(month.totalMinutes, month.workingDays)}</td>
             </tr>
           </Fragment>
         ))}
         <tr className={styles.summaryStrongRow}>
-          <td colSpan={4}>{row.year}년 합계</td>
+          <td colSpan={3}>{row.year}년 합계</td>
           <td>{formatMm(row.yearTotalMinutes, 21.73)}</td>
         </tr>
       </>
@@ -263,17 +258,11 @@ function ServiceYearRows({
 
   return (
     <>
-      {row.months.map((month, monthIndex) => (
-        <ServiceMonthDetailRows
-          key={`${row.year}-${month.month}`}
-          year={row.year}
-          month={month}
-          showYear={monthIndex === 0}
-          yearRowSpan={row.detailRowCount}
-        />
+      {row.months.map((month) => (
+        <ServiceMonthDetailRows key={`${row.year}-${month.month}`} month={month} />
       ))}
       <tr className={styles.summaryStrongRow}>
-        <td colSpan={4}>{row.year}년 합계</td>
+        <td colSpan={3}>{row.year}년 합계</td>
         <td>{formatMm(row.yearTotalMinutes, 21.73)}</td>
       </tr>
     </>
@@ -281,12 +270,8 @@ function ServiceYearRows({
 }
 
 function ServiceMonthDetailRows({
-  year,
   month,
-  showYear,
-  yearRowSpan,
 }: {
-  year: string;
   month: {
     month: string;
     workingDays: number;
@@ -297,8 +282,6 @@ function ServiceMonthDetailRows({
       names: Array<{ name: string; minutes: number }>;
     }>;
   };
-  showYear: boolean;
-  yearRowSpan: number;
 }) {
   const monthRowSpan = month.groups.reduce((sum, group) => sum + group.names.length, 0) + 1;
 
@@ -306,10 +289,7 @@ function ServiceMonthDetailRows({
     <>
       {month.groups.map((group, groupIndex) =>
         group.names.map((name, nameIndex) => (
-          <tr key={`${year}-${month.month}-${group.group}-${name.name}`}>
-            {showYear && groupIndex === 0 && nameIndex === 0 ? (
-              <td rowSpan={yearRowSpan}>{year}년</td>
-            ) : null}
+          <tr key={`${month.month}-${group.group}-${name.name}`}>
             {groupIndex === 0 && nameIndex === 0 ? (
               <td rowSpan={monthRowSpan}>{month.month}월</td>
             ) : null}
@@ -320,7 +300,7 @@ function ServiceMonthDetailRows({
         )),
       )}
       <tr className={styles.summaryStrongRow}>
-        <td colSpan={2}>{month.month}월 합계</td>
+        <td colSpan={3}>{month.month}월 합계</td>
         <td>{formatMm(month.totalMinutes, month.workingDays)}</td>
       </tr>
     </>
