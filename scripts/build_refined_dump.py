@@ -5,6 +5,7 @@ import os
 import re
 import subprocess
 import uuid
+from collections import Counter
 from datetime import date, datetime
 from decimal import Decimal, ROUND_HALF_UP
 from pathlib import Path
@@ -13,12 +14,13 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT_PATH = ROOT / "output" / "refined_dump.sql"
 TASKS_OUTPUT_PATH = ROOT / "output" / "refined_dump_tasks.sql"
+ISSUES_OUTPUT_PATH = ROOT / "output" / "refined_dump_issues.md"
 NAMESPACE = uuid.UUID("d91931fa-cd95-4590-849f-e4b98566ef4b")
 
 
 def run_mysql_json_query(query: str):
     container = os.environ.get("SOURCE_MYSQL_CONTAINER", "myworks_migtest_mysql")
-    database = os.environ.get("SOURCE_MYSQL_DATABASE", "a11y_op")
+    database = os.environ.get("SOURCE_MYSQL_DATABASE", "legacydb")
     user = os.environ.get("SOURCE_MYSQL_USER", "root")
     password = os.environ.get("SOURCE_MYSQL_PASSWORD", "rootpass")
     cmd = [
@@ -90,14 +92,20 @@ def normalize_space(value):
     return re.sub(r"\s+", " ", text).strip()
 
 
-def normalize_service_name(service_group, service_name):
+def normalize_service_name(service_group, service_name, default_group=None, default_name=None):
     group = blank_to_none(service_group)
     name = blank_to_none(service_name)
     if group is None and name is None:
+        if default_group is not None and default_name is not None:
+            return f"{default_group} / {default_name}"
+        if default_name is not None:
+            return default_name
         return "미분류"
     if group is None:
         return name
     if name is None:
+        if default_name is not None:
+            return f"{group} / {default_name}"
         return group
     return f"{group} / {name}"
 
@@ -319,6 +327,17 @@ def build_dump():
 
     member_rows = []
     member_by_account = {}
+    issue_samples = {
+        "tasks_missing_member": [],
+        "tasks_missing_type": [],
+        "tasks_unresolved_project": [],
+        "tasks_unresolved_page": [],
+        "projects_missing_service_group": [],
+    }
+    issue_counts = Counter()
+    missing_type_pairs = Counter()
+    unresolved_project_refs = Counter()
+    unresolved_page_refs = Counter()
     for row in users:
         account_id = blank_to_none(row["user_id"]) or f"member-{row['user_num']}"
         account_key = account_id.lower()
@@ -369,17 +388,19 @@ def build_dump():
 
     task_type_rows = []
     task_type_by_pair = {}
+    task_type_requires_by_type1 = {}
     for row in types:
         type1 = blank_to_none(row["type_one"]) or "미분류"
         type2 = blank_to_none(row["type_two"]) or ""
         pair = (type1, type2)
+        requires_service_group = bool_flag(row["type_include_svc"], False)
         task = {
             "id": stable_uuid("task-type", row["type_num"]),
             "source_type_num": int(row["type_num"]),
             "type1": type1,
             "type2": type2,
             "display_label": blank_to_none(row["type_etc"]) or "",
-            "requires_service_group": bool_flag(row["type_include_svc"], False),
+            "requires_service_group": requires_service_group,
             "display_order": int(row["type_num"]),
             "is_active": bool_flag(row["type_active"], True),
             "created_at": "1970-01-01 00:00:00",
@@ -387,7 +408,39 @@ def build_dump():
         }
         task_type_rows.append(task)
         task_type_by_pair.setdefault(pair, task)
+        task_type_requires_by_type1.setdefault(type1, set()).add(requires_service_group)
 
+    next_task_type_order = max((row["display_order"] for row in task_type_rows), default=0) + 1
+    for row in tasks:
+        type1 = blank_to_none(row["task_type1"]) or "미분류"
+        type2 = blank_to_none(row["task_type2"]) or ""
+        pair = (type1, type2)
+        if pair in task_type_by_pair:
+            continue
+        requires_candidates = task_type_requires_by_type1.get(type1, set())
+        if len(requires_candidates) == 1:
+            requires_service_group = next(iter(requires_candidates))
+        else:
+            requires_service_group = (
+                blank_to_none(row["task_svc_group"]) is not None
+                or blank_to_none(row["task_svc_name"]) is not None
+            )
+        task = {
+            "id": stable_uuid("task-type-task", f"{type1}|{type2}"),
+            "source_type_num": None,
+            "type1": type1,
+            "type2": type2,
+            "display_label": f"{type1} / {type2}" if type2 else type1,
+            "requires_service_group": requires_service_group,
+            "display_order": next_task_type_order,
+            "is_active": True,
+            "created_at": "1970-01-01 00:00:00",
+            "updated_at": "1970-01-01 00:00:00",
+        }
+        next_task_type_order += 1
+        task_type_rows.append(task)
+        task_type_by_pair[pair] = task
+        task_type_requires_by_type1.setdefault(type1, set()).add(requires_service_group)
     cost_group_rows = [
         {
             "id": stable_uuid("cost-group", 1),
@@ -422,16 +475,21 @@ def build_dump():
     service_group_rows = []
     service_group_by_source = {}
     service_group_by_name = {}
+    service_group_cost_by_group = {}
+    service_group_order_by_group = {}
+    max_service_order = 0
     for row in service_groups:
         name = normalize_service_name(row["svc_group"], row["svc_name"])
         code_text = blank_to_none(row["svc_type"])
         code = int(code_text) if code_text and code_text.isdigit() else None
+        source_service_num = int(row["svc_num"])
+        raw_service_group = blank_to_none(row["svc_group"])
         group = {
             "id": stable_uuid("service-group", row["svc_num"]),
-            "source_service_num": int(row["svc_num"]),
+            "source_service_num": source_service_num,
             "name": name,
             "cost_group_id": cost_group_by_code.get(code, {}).get("id"),
-            "display_order": int(row["svc_num"]),
+            "display_order": source_service_num,
             "is_active": bool_flag(row["svc_active"], True),
             "created_at": "1970-01-01 00:00:00",
             "updated_at": "1970-01-01 00:00:00",
@@ -439,6 +497,38 @@ def build_dump():
         service_group_rows.append(group)
         service_group_by_source[group["source_service_num"]] = group
         service_group_by_name.setdefault(name, group)
+        max_service_order = max(max_service_order, source_service_num)
+        if raw_service_group:
+            service_group_cost_by_group.setdefault(raw_service_group, group["cost_group_id"])
+            service_group_order_by_group.setdefault(raw_service_group, source_service_num)
+
+    synthetic_service_names = []
+    for row in projects:
+        raw_group = blank_to_none(row["pj_sev_group"])
+        raw_name = blank_to_none(row["pj_sev_name"])
+        if raw_name is None:
+            synthetic_name = normalize_service_name(
+                raw_group,
+                raw_name,
+                default_group="미분류",
+                default_name="미분류",
+            )
+            if synthetic_name not in service_group_by_name:
+                synthetic_service_names.append((raw_group or "미분류", synthetic_name))
+                synthetic_group = {
+                    "id": stable_uuid("service-group-synthetic", synthetic_name),
+                    "source_service_num": None,
+                    "name": synthetic_name,
+                    "cost_group_id": service_group_cost_by_group.get(raw_group),
+                    "display_order": service_group_order_by_group.get(
+                        raw_group, max_service_order + len(synthetic_service_names)
+                    ),
+                    "is_active": True,
+                    "created_at": "1970-01-01 00:00:00",
+                    "updated_at": "1970-01-01 00:00:00",
+                }
+                service_group_rows.append(synthetic_group)
+                service_group_by_name[synthetic_name] = synthetic_group
 
     platform_rows = []
     platform_by_name = {}
@@ -463,14 +553,26 @@ def build_dump():
     project_rows = []
     project_by_source = {}
     project_name_index = {}
+    project_name_platform_index = {}
+    project_name_service_index = {}
     for row in projects:
         source_project_num = int(row["pj_num"])
         name = blank_to_none(row["pj_name"]) or f"[프로젝트 {source_project_num}]"
         platform_name = blank_to_none(row["pj_platform"]) or "미분류"
-        service_name = normalize_service_name(row["pj_sev_group"], row["pj_sev_name"])
+        service_name = normalize_service_name(
+            row["pj_sev_group"],
+            row["pj_sev_name"],
+            default_group="미분류",
+            default_name="미분류",
+        )
         project = {
             "id": stable_uuid("project", source_project_num),
             "source_project_ref": str(source_project_num),
+            "source_kind": "project_tbl",
+            "raw_pj_num": source_project_num,
+            "raw_pj_sev_group": blank_to_none(row["pj_sev_group"]),
+            "raw_pj_sev_name": blank_to_none(row["pj_sev_name"]),
+            "raw_pj_reporter": blank_to_none(row["pj_reporter"]),
             "created_by_member_id": member_by_account.get((blank_to_none(row["pj_reporter"]) or "").lower(), {}).get("id"),
             "project_type1": blank_to_none(row["pj_group_type1"]) or "",
             "name": name,
@@ -489,11 +591,47 @@ def build_dump():
         project_rows.append(project)
         project_by_source[source_project_num] = project
         project_name_index.setdefault(normalize_space(name), []).append(project)
+        project_name_platform_index.setdefault((normalize_space(name), platform_name), []).append(project)
+        project_name_service_index.setdefault((normalize_space(name), service_name), []).append(project)
+    unique_project_by_name = {
+        name: matches[0]
+        for name, matches in project_name_index.items()
+        if name and len(matches) == 1
+    }
+    first_project_by_name = {
+        name: matches[0]
+        for name, matches in project_name_index.items()
+        if name and matches
+    }
+    unique_project_by_name_platform = {
+        key: matches[0]
+        for key, matches in project_name_platform_index.items()
+        if key[0] and len(matches) == 1
+    }
+    first_project_by_name_platform = {
+        key: matches[0]
+        for key, matches in project_name_platform_index.items()
+        if key[0] and matches
+    }
+    unique_project_by_name_service = {
+        key: matches[0]
+        for key, matches in project_name_service_index.items()
+        if key[0] and len(matches) == 1
+    }
+    first_project_by_name_service = {
+        key: matches[0]
+        for key, matches in project_name_service_index.items()
+        if key[0] and matches
+    }
 
     page_rows = []
     page_by_source = {}
     page_match_index = {}
     page_project_by_id = {}
+    page_by_project_title = {}
+    page_by_project_url = {}
+    page_by_title = {}
+    page_by_url = {}
     for row in pages:
         source_page_num = int(row["pj_page_num"])
         source_project_num = int(row["pj_unique_num"])
@@ -506,6 +644,10 @@ def build_dump():
         page = {
             "id": stable_uuid("project-page", source_page_num),
             "source_page_ref": str(source_page_num),
+            "source_kind": "pj_page_tbl",
+            "raw_pj_page_num": source_page_num,
+            "raw_pj_unique_num": source_project_num,
+            "raw_pj_page_id": blank_to_none(row["pj_page_id"]),
             "project_id": project["id"],
             "owner_member_id": member_by_account.get((blank_to_none(row["pj_page_id"]) or "").lower(), {}).get("id"),
             "title": title,
@@ -525,40 +667,222 @@ def build_dump():
             (normalize_space(project["name"]), title, url),
             []
         ).append(page)
-
+        page_by_project_title.setdefault((project["id"], title), []).append(page)
+        if url:
+            page_by_project_url.setdefault((project["id"], url), []).append(page)
+            page_by_url.setdefault(url, []).append(page)
+        page_by_title.setdefault(title, []).append(page)
+    unique_page_by_exact_tuple = {
+        key: matches[0]
+        for key, matches in page_match_index.items()
+        if len(matches) == 1
+    }
+    unique_page_by_project_title = {
+        key: matches[0]
+        for key, matches in page_by_project_title.items()
+        if len(matches) == 1
+    }
+    first_page_by_project_title = {
+        key: matches[0]
+        for key, matches in page_by_project_title.items()
+        if matches
+    }
+    unique_page_by_project_url = {
+        key: matches[0]
+        for key, matches in page_by_project_url.items()
+        if key[1] and len(matches) == 1
+    }
+    first_page_by_project_url = {
+        key: matches[0]
+        for key, matches in page_by_project_url.items()
+        if key[1] and matches
+    }
+    unique_page_by_title = {
+        key: matches[0]
+        for key, matches in page_by_title.items()
+        if key and len(matches) == 1
+    }
+    first_page_by_title = {
+        key: matches[0]
+        for key, matches in page_by_title.items()
+        if key and matches
+    }
+    unique_page_by_url = {
+        key: matches[0]
+        for key, matches in page_by_url.items()
+        if key and len(matches) == 1
+    }
+    first_page_by_url = {
+        key: matches[0]
+        for key, matches in page_by_url.items()
+        if key and matches
+    }
     task_rows = []
     single_service_project = {}
+    synthetic_project_by_key = {}
+    synthetic_page_by_key = {}
     for row in tasks:
-        project_num = row["task_pj_report_num"]
-        page_num = row["task_page_report_num"]
+        project_num = int(row["task_pj_report_num"]) if row["task_pj_report_num"] not in (None, 0, "0", "") else None
+        page_num = int(row["task_page_report_num"]) if row["task_page_report_num"] not in (None, 0, "0", "") else None
         project = project_by_source.get(int(project_num)) if project_num is not None else None
         page = page_by_source.get(int(page_num)) if page_num is not None else None
         if page is not None:
             project = page_project_by_id.get(page["id"], project)
 
+        raw_task_platform = blank_to_none(row["task_platform"])
+        raw_task_svc_group = blank_to_none(row["task_svc_group"])
+        raw_task_svc_name = blank_to_none(row["task_svc_name"])
         normalized_project_name = normalize_space(row["task_pj_name"]) or ""
         task_page = blank_to_none(row["task_pj_page"]) or ""
         task_page_url = blank_to_none(row["task_pj_page_url"]) or ""
-
-        if page is None and (task_page or task_page_url):
-            matches = page_match_index.get((normalized_project_name, task_page or "", task_page_url or ""), [])
-            if matches:
-                page = matches[0]
-                project = page_project_by_id.get(page["id"], project)
-
-        if project is None and normalized_project_name:
-            matches = project_name_index.get(normalized_project_name, [])
-            if matches:
-                project = matches[0]
-
+        task_platform_name = raw_task_platform or "미분류"
+        task_service_name = normalize_service_name(row["task_svc_group"], row["task_svc_name"])
+        has_project_context = bool(
+            raw_task_platform
+            or raw_task_svc_group
+            or raw_task_svc_name
+            or normalized_project_name
+        )
+        has_project_reference = bool(project_num is not None or normalized_project_name)
+        has_page_reference = page_num is not None
         pair = (
             blank_to_none(row["task_type1"]) or "미분류",
             blank_to_none(row["task_type2"]) or "",
         )
         task_type = task_type_by_pair.get(pair)
+        is_project_task = bool(task_type and task_type["requires_service_group"] and has_project_context)
         member = member_by_account.get((blank_to_none(row["task_user"]) or "").lower())
         if member is None:
             continue
+
+        if project is None and normalized_project_name:
+            project = unique_project_by_name_platform.get((normalized_project_name, task_platform_name))
+        if project is None and normalized_project_name:
+            project = first_project_by_name_platform.get((normalized_project_name, task_platform_name))
+        if project is None and normalized_project_name:
+            project = unique_project_by_name_service.get((normalized_project_name, task_service_name))
+        if project is None and normalized_project_name:
+            project = first_project_by_name_service.get((normalized_project_name, task_service_name))
+        if project is None and normalized_project_name:
+            project = unique_project_by_name.get(normalized_project_name)
+        if project is None and normalized_project_name:
+            project = first_project_by_name.get(normalized_project_name)
+        synthetic_project_name = normalized_project_name
+        if not synthetic_project_name and is_project_task and has_project_context:
+            synthetic_project_name = "미분류"
+
+        if project is None and synthetic_project_name and synthetic_project_name not in project_name_index:
+            synthetic_key = (synthetic_project_name, task_platform_name, task_service_name)
+            project = synthetic_project_by_key.get(synthetic_key)
+            if project is None:
+                task_date = parse_date(row["task_date"]) or "1970-01-01"
+                task_timestamp = f"{task_date} 00:00:00"
+                project = {
+                    "id": stable_uuid("project-task-only", "|".join(synthetic_key)),
+                    "source_project_ref": None,
+                    "source_kind": "task_synthetic",
+                    "raw_pj_num": None,
+                    "raw_pj_sev_group": raw_task_svc_group,
+                    "raw_pj_sev_name": raw_task_svc_name,
+                    "raw_pj_reporter": blank_to_none(row["task_user"]),
+                    "created_by_member_id": member["id"],
+                    "project_type1": pair[0] if is_project_task else "",
+                    "name": synthetic_project_name,
+                    "platform_id": platform_by_name.get(task_platform_name, {}).get("id"),
+                    "platform": task_platform_name,
+                    "service_group_id": service_group_by_name.get(task_service_name, {}).get("id"),
+                    "report_url": "",
+                    "reporter_member_id": member["id"],
+                    "reviewer_member_id": None,
+                    "start_date": task_date,
+                    "end_date": task_date,
+                    "is_active": True,
+                    "created_at": task_timestamp,
+                    "updated_at": task_timestamp,
+                }
+                project_rows.append(project)
+                synthetic_project_by_key[synthetic_key] = project
+
+        if page is None and project is not None and task_page_url:
+            page = unique_page_by_project_url.get((project["id"], task_page_url))
+        if page is None and project is not None and task_page_url:
+            page = first_page_by_project_url.get((project["id"], task_page_url))
+            if page is not None:
+                project = page_project_by_id.get(page["id"], project)
+
+        if page is None and project is not None and task_page:
+            page = unique_page_by_project_title.get((project["id"], task_page))
+        if page is None and project is not None and task_page:
+            page = first_page_by_project_title.get((project["id"], task_page))
+            if page is not None:
+                project = page_project_by_id.get(page["id"], project)
+
+        if page is None and task_page_url:
+            page = unique_page_by_url.get(task_page_url)
+        if page is None and task_page_url:
+            page = first_page_by_url.get(task_page_url)
+            if page is not None:
+                project = page_project_by_id.get(page["id"], project)
+
+        if page is None and task_page:
+            page = unique_page_by_title.get(task_page)
+        if page is None and task_page:
+            page = first_page_by_title.get(task_page)
+            if page is not None:
+                project = page_project_by_id.get(page["id"], project)
+
+        if page is None and (task_page or task_page_url):
+            page = unique_page_by_exact_tuple.get((normalized_project_name, task_page or "", task_page_url or ""))
+            if page is not None:
+                project = page_project_by_id.get(page["id"], project)
+        if page is None and project is not None and (page_num is not None or task_page or task_page_url):
+            synthetic_page_key = (
+                project["id"],
+                str(page_num) if page_num is not None else "",
+                task_page,
+                task_page_url,
+            )
+            page = synthetic_page_by_key.get(synthetic_page_key)
+            if page is None:
+                task_date = parse_date(row["task_date"])
+                page = {
+                    "id": stable_uuid("project-page-task-only", "|".join(synthetic_page_key)),
+                    "source_page_ref": str(page_num) if page_num is not None else None,
+                    "source_kind": "task_synthetic",
+                    "raw_pj_page_num": page_num,
+                    "raw_pj_unique_num": project.get("source_project_ref"),
+                    "raw_pj_page_id": blank_to_none(row["task_user"]),
+                    "project_id": project["id"],
+                    "owner_member_id": member["id"],
+                    "title": task_page or (f"[페이지 {page_num}]" if page_num is not None else "[페이지]"),
+                    "url": task_page_url,
+                    "monitoring_month": task_date,
+                    "track_status": "미수정",
+                    "monitoring_in_progress": False,
+                    "qa_in_progress": False,
+                    "note": compose_task_note(row),
+                    "updated_at": "1970-01-01 00:00:00",
+                    "created_at": "1970-01-01 00:00:00",
+                }
+                page_rows.append(page)
+                synthetic_page_by_key[synthetic_page_key] = page
+                page_project_by_id[page["id"]] = project
+        if task_type is None:
+            issue_counts["tasks_missing_type"] += 1
+            missing_type_pairs[pair] += 1
+            if len(issue_samples["tasks_missing_type"]) < 20:
+                issue_samples["tasks_missing_type"].append(
+                    {
+                        "task_num": row["task_num"],
+                        "task_type1": pair[0],
+                        "task_type2": pair[1],
+                        "task_platform": blank_to_none(row["task_platform"]),
+                        "task_svc_group": blank_to_none(row["task_svc_group"]),
+                        "task_svc_name": blank_to_none(row["task_svc_name"]),
+                        "task_pj_name": blank_to_none(row["task_pj_name"]),
+                        "task_pj_page": blank_to_none(row["task_pj_page"]),
+                    }
+                )
 
         minutes = int(row["task_usedtime"] or 0)
         hours = (Decimal(minutes) / Decimal(60)).quantize(Decimal("0.1"), rounding=ROUND_HALF_UP)
@@ -580,6 +904,74 @@ def build_dump():
             "updated_at": "1970-01-01 00:00:00",
         }
         task_rows.append(task)
+        if task["project_id"] is None:
+            if is_project_task:
+                if has_project_reference or has_page_reference:
+                    issue_counts["tasks_unresolved_project"] += 1
+                    unresolved_project_refs[
+                        (
+                            pair[0],
+                            pair[1],
+                            blank_to_none(row["task_platform"]),
+                            blank_to_none(row["task_svc_group"]),
+                            blank_to_none(row["task_svc_name"]),
+                            blank_to_none(row["task_pj_name"]),
+                            blank_to_none(row["task_pj_page"]),
+                            blank_to_none(row["task_pj_page_url"]),
+                            project_num,
+                            page_num,
+                        )
+                    ] += 1
+                    if len(issue_samples["tasks_unresolved_project"]) < 20:
+                        issue_samples["tasks_unresolved_project"].append(
+                            {
+                                "task_num": row["task_num"],
+                                "task_type1": pair[0],
+                                "task_type2": pair[1],
+                                "task_platform": blank_to_none(row["task_platform"]),
+                                "task_svc_group": blank_to_none(row["task_svc_group"]),
+                                "task_svc_name": blank_to_none(row["task_svc_name"]),
+                                "task_pj_report_num": project_num,
+                                "task_page_report_num": page_num,
+                                "task_pj_name": blank_to_none(row["task_pj_name"]),
+                                "task_pj_page": blank_to_none(row["task_pj_page"]),
+                                "task_pj_page_url": blank_to_none(row["task_pj_page_url"]),
+                            }
+                        )
+                else:
+                    issue_counts["tasks_without_project_reference"] += 1
+        if task["project_id"] is not None and task["project_page_id"] is None and has_page_reference:
+            issue_counts["tasks_unresolved_page"] += 1
+            unresolved_page_refs[
+                (
+                    pair[0],
+                    pair[1],
+                    blank_to_none(row["task_platform"]),
+                    blank_to_none(row["task_svc_group"]),
+                    blank_to_none(row["task_svc_name"]),
+                    blank_to_none(row["task_pj_name"]),
+                    blank_to_none(row["task_pj_page"]),
+                    blank_to_none(row["task_pj_page_url"]),
+                    project_num,
+                    page_num,
+                )
+            ] += 1
+            if len(issue_samples["tasks_unresolved_page"]) < 20:
+                issue_samples["tasks_unresolved_page"].append(
+                    {
+                        "task_num": row["task_num"],
+                        "task_type1": pair[0],
+                        "task_type2": pair[1],
+                        "task_platform": blank_to_none(row["task_platform"]),
+                        "task_svc_group": blank_to_none(row["task_svc_group"]),
+                        "task_svc_name": blank_to_none(row["task_svc_name"]),
+                        "task_pj_report_num": project_num,
+                        "task_page_report_num": page_num,
+                        "task_pj_name": blank_to_none(row["task_pj_name"]),
+                        "task_pj_page": blank_to_none(row["task_pj_page"]),
+                        "task_pj_page_url": blank_to_none(row["task_pj_page_url"]),
+                    }
+                )
 
         service_name = normalize_service_name(row["task_svc_group"], row["task_svc_name"])
         service = service_group_by_name.get(service_name)
@@ -591,6 +983,49 @@ def build_dump():
         services = single_service_project.get(project["id"], set())
         if project["service_group_id"] is None and len(services) == 1:
             project["service_group_id"] = next(iter(services))
+        if project["service_group_id"] is None:
+            synthetic_name = normalize_service_name(
+                project.get("raw_pj_sev_group"),
+                project.get("raw_pj_sev_name"),
+                default_group="미분류",
+                default_name="미분류",
+            )
+            service = service_group_by_name.get(synthetic_name)
+            if service is None:
+                synthetic_service_names.append(
+                    (project.get("raw_pj_sev_group") or project.get("raw_pj_sev_name") or "미분류", synthetic_name)
+                )
+                synthetic_group = {
+                    "id": stable_uuid("service-group-synthetic", synthetic_name),
+                    "source_service_num": None,
+                    "name": synthetic_name,
+                    "cost_group_id": service_group_cost_by_group.get(project.get("raw_pj_sev_group")),
+                    "display_order": service_group_order_by_group.get(
+                        project.get("raw_pj_sev_group"), max_service_order + len(synthetic_service_names)
+                    ),
+                    "is_active": True,
+                    "created_at": "1970-01-01 00:00:00",
+                    "updated_at": "1970-01-01 00:00:00",
+                }
+                service_group_rows.append(synthetic_group)
+                service_group_by_name[synthetic_name] = synthetic_group
+                service = synthetic_group
+            project["service_group_id"] = service["id"]
+        if project["service_group_id"] is None and len(issue_samples["projects_missing_service_group"]) < 50:
+            issue_samples["projects_missing_service_group"].append(
+                {
+                    "id": project["id"],
+                    "source_kind": project.get("source_kind"),
+                    "source_project_ref": project.get("source_project_ref"),
+                    "name": project["name"],
+                    "platform": project["platform"],
+                    "project_type1": project["project_type1"],
+                    "raw_pj_sev_group": project.get("raw_pj_sev_group"),
+                    "raw_pj_sev_name": project.get("raw_pj_sev_name"),
+                    "raw_pj_reporter": project.get("raw_pj_reporter"),
+                    "report_url": project["report_url"],
+                }
+            )
 
     lines = [
         "-- Refined dump generated locally.",
@@ -741,8 +1176,112 @@ def build_dump():
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT_PATH.write_text("\n\n".join(lines) + "\n", encoding="utf-8")
     TASKS_OUTPUT_PATH.write_text("\n\n".join(task_lines) + "\n", encoding="utf-8")
+    issues_lines = [
+        "# Refined Dump Issues",
+        "",
+        "## Counts",
+        "",
+        f"- tasks_missing_type: {issue_counts['tasks_missing_type']}",
+        f"- tasks_unresolved_project: {issue_counts['tasks_unresolved_project']}",
+        f"- tasks_without_project_reference: {issue_counts['tasks_without_project_reference']}",
+        f"- tasks_unresolved_page: {issue_counts['tasks_unresolved_page']}",
+        f"- tasks_without_page_reference: {issue_counts['tasks_without_page_reference']}",
+        f"- projects_missing_service_group: {sum(1 for row in project_rows if row['service_group_id'] is None)}",
+        "",
+        "## Top Missing Type Pairs",
+        "",
+    ]
+    for (type1, type2), count in missing_type_pairs.most_common(30):
+        issues_lines.append(f"- {type1} / {type2}: {count}")
+    issues_lines += [
+        "",
+        "## Top Unresolved Project Raw References",
+        "",
+    ]
+    for (
+        type1,
+        type2,
+        task_platform,
+        task_svc_group,
+        task_svc_name,
+        task_pj_name,
+        task_pj_page,
+        task_pj_page_url,
+        task_pj_report_num,
+        task_page_report_num,
+    ), count in unresolved_project_refs.most_common(30):
+        issues_lines.append(
+            "- "
+            + json.dumps(
+                {
+                    "count": count,
+                    "task_type1": type1,
+                    "task_type2": type2,
+                    "task_platform": task_platform,
+                    "task_svc_group": task_svc_group,
+                    "task_svc_name": task_svc_name,
+                    "task_pj_name": task_pj_name,
+                    "task_pj_page": task_pj_page,
+                    "task_pj_page_url": task_pj_page_url,
+                    "task_pj_report_num": task_pj_report_num,
+                    "task_page_report_num": task_page_report_num,
+                },
+                ensure_ascii=False,
+            )
+        )
+    issues_lines += [
+        "",
+        "## Top Unresolved Page Raw References",
+        "",
+    ]
+    for (
+        type1,
+        type2,
+        task_platform,
+        task_svc_group,
+        task_svc_name,
+        task_pj_name,
+        task_pj_page,
+        task_pj_page_url,
+        task_pj_report_num,
+        task_page_report_num,
+    ), count in unresolved_page_refs.most_common(30):
+        issues_lines.append(
+            "- "
+            + json.dumps(
+                {
+                    "count": count,
+                    "task_type1": type1,
+                    "task_type2": type2,
+                    "task_platform": task_platform,
+                    "task_svc_group": task_svc_group,
+                    "task_svc_name": task_svc_name,
+                    "task_pj_name": task_pj_name,
+                    "task_pj_page": task_pj_page,
+                    "task_pj_page_url": task_pj_page_url,
+                    "task_pj_report_num": task_pj_report_num,
+                    "task_page_report_num": task_page_report_num,
+                },
+                ensure_ascii=False,
+            )
+        )
+    for key, title in [
+        ("tasks_missing_type", "Tasks Missing Type Mapping"),
+        ("tasks_unresolved_project", "Tasks With Unresolved Project Reference"),
+        ("tasks_unresolved_page", "Tasks With Unresolved Page Reference"),
+        ("projects_missing_service_group", "Projects Missing Service Group"),
+    ]:
+        issues_lines += [
+            "",
+            f"## {title}",
+            "",
+        ]
+        for sample in issue_samples[key]:
+            issues_lines.append(f"- {json.dumps(sample, ensure_ascii=False)}")
+    ISSUES_OUTPUT_PATH.write_text("\n".join(issues_lines) + "\n", encoding="utf-8")
     print(f"wrote {OUTPUT_PATH}")
     print(f"wrote {TASKS_OUTPUT_PATH}")
+    print(f"wrote {ISSUES_OUTPUT_PATH}")
     print(
         json.dumps(
             {

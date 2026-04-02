@@ -14,3 +14,4 @@ output/playwright*
 /db_a11yop_*.sql
 .tmp
 output/*.sql
+output/*.md

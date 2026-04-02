@@ -60,11 +60,13 @@ python3 scripts/build_refined_dump.py
 
 - [`/Volumes/workspace/workspace/my-works/output/refined_dump.sql`](/Volumes/workspace/workspace/my-works/output/refined_dump.sql)
 - [`/Volumes/workspace/workspace/my-works/output/refined_dump_tasks.sql`](/Volumes/workspace/workspace/my-works/output/refined_dump_tasks.sql)
+- [`/Volumes/workspace/workspace/my-works/output/refined_dump_issues.md`](/Volumes/workspace/workspace/my-works/output/refined_dump_issues.md)
 
 구성:
 
 - `refined_dump.sql`: `members`, `cost_groups`, `task_types`, `service_groups`, `platforms`, `projects`, `project_pages`
 - `refined_dump_tasks.sql`: `tasks`
+- `refined_dump_issues.md`: 정제 과정에서 누락되거나 매핑되지 않은 데이터 로그
 
 `tasks`는 분리 파일입니다. 먼저 `refined_dump.sql`이 들어간 뒤에 적용합니다.
 
@@ -81,7 +83,7 @@ python3 scripts/build_refined_dump.py
 
 ## 5. 점검 포인트
 
-정제 스크립트는 실행 후 각 테이블 건수를 JSON으로 출력합니다.
+정제 스크립트는 실행 후 각 테이블 건수를 JSON으로 출력하고, 별도 오류 로그를 생성합니다.
 
 우선 확인할 항목:
 
@@ -89,10 +91,20 @@ python3 scripts/build_refined_dump.py
 - `projects`
 - `project_pages`
 - `tasks`
+- `refined_dump_issues.md`
 
-현재 정제 규칙상 아래 행은 자동 제외될 수 있습니다.
+`refined_dump_issues.md`에는 아래 항목이 기록됩니다.
+
+- 프로젝트가 없어 제외된 페이지
+- 사용자를 찾지 못해 제외된 task
+- task type 매핑 실패 건수와 상위 패턴
+- project 매핑 실패 건수와 상위 패턴
+- page 매핑 실패 건수와 상위 패턴
+- service group, page owner 누락 건수
+
+현재 정제 규칙상 아래 행은 자동 제외되거나 매핑 누락으로 남을 수 있습니다.
 
 - 원본 프로젝트가 없는 페이지 행
 - 사용자 식별이 불가능한 task 행
 
-이 경우는 정제 결과를 보고 별도 보정 여부를 결정합니다.
+이 경우는 `refined_dump_issues.md`를 먼저 보고 보정 규칙을 추가한 뒤 다시 덤프를 생성합니다.
