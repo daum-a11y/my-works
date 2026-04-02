@@ -1,5 +1,6 @@
 import { getSupabaseClient } from '../../lib/supabase';
 import { normalizePageStatus } from '../../lib/domain';
+import { readBooleanFlag } from '../../lib/utils';
 import { getPasswordRecoveryRedirectUrl } from '../auth/authUrls';
 import type {
   AdminCostGroupItem,
@@ -232,7 +233,7 @@ function mapServiceGroup(record: Record<string, unknown>): AdminServiceGroupItem
 }
 
 function mapMember(record: Record<string, unknown>): MemberAdminItem {
-  const active = Boolean(record.user_active ?? record.is_active ?? true);
+  const active = readBooleanFlag(record.user_active ?? record.is_active, true);
   const memberStatus =
     String(record.member_status ?? 'active') === 'pending' ? 'pending' : 'active';
   const authUserId = record.auth_user_id ? String(record.auth_user_id) : null;

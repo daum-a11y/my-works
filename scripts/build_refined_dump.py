@@ -14,8 +14,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT_PATH = ROOT / "output" / "refined_dump.sql"
 TASKS_OUTPUT_PATH = ROOT / "output" / "refined_dump_tasks.sql"
+TASKS_CHUNKS_DIR = ROOT / "output" / "refined_dump_tasks_chunks"
 ISSUES_OUTPUT_PATH = ROOT / "output" / "refined_dump_issues.md"
 NAMESPACE = uuid.UUID("d91931fa-cd95-4590-849f-e4b98566ef4b")
+TASKS_FILE_STATEMENT_BATCH = 10
 
 
 def run_mysql_json_query(query: str):
@@ -1174,8 +1176,30 @@ def build_dump():
     lines.append("commit;")
 
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    TASKS_CHUNKS_DIR.mkdir(parents=True, exist_ok=True)
+    for chunk_path in TASKS_CHUNKS_DIR.glob("*.sql"):
+        chunk_path.unlink()
     OUTPUT_PATH.write_text("\n\n".join(lines) + "\n", encoding="utf-8")
     TASKS_OUTPUT_PATH.write_text("\n\n".join(task_lines) + "\n", encoding="utf-8")
+    task_insert_statements = [
+        line
+        for line in task_lines
+        if line.startswith("insert into public.tasks")
+    ]
+    for index in range(0, len(task_insert_statements), TASKS_FILE_STATEMENT_BATCH):
+        batch = task_insert_statements[index : index + TASKS_FILE_STATEMENT_BATCH]
+        chunk_number = index // TASKS_FILE_STATEMENT_BATCH + 1
+        chunk_lines = [
+            f"-- Refined tasks dump chunk {chunk_number} generated locally.",
+            "-- Source: MySQL source dump tables only.",
+            "begin;",
+            *batch,
+            "commit;",
+        ]
+        (TASKS_CHUNKS_DIR / f"{chunk_number:03d}.sql").write_text(
+            "\n\n".join(chunk_lines) + "\n",
+            encoding="utf-8",
+        )
     issues_lines = [
         "# Refined Dump Issues",
         "",

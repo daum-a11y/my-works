@@ -19,7 +19,7 @@ import {
   type Task,
   type TaskType,
 } from './domain';
-import { getToday } from './utils';
+import { getToday, readBooleanFlag } from './utils';
 
 function monthKeyFromMonitoringMonth(value: string): string {
   const digits = value.replace(/\D/g, '');
@@ -771,7 +771,7 @@ function mapMemberRecord(record: Record<string, unknown>): Member {
     name: String(record.name ?? ''),
     email: String(record.email ?? ''),
     role: Number(record.user_level ?? 0) === 1 ? 'admin' : 'user',
-    isActive: Boolean(record.user_active ?? record.is_active ?? true),
+    isActive: readBooleanFlag(record.user_active ?? record.is_active, true),
     status: String(record.member_status ?? 'active') === 'pending' ? 'pending' : 'active',
     reportRequired,
     joinedAt: String(record.joined_at ?? record.created_at ?? getToday()),

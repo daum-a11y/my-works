@@ -77,6 +77,34 @@ export function isAdmin(member: Member | null | undefined): boolean {
   return member?.role === 'admin';
 }
 
+export function readBooleanFlag(value: unknown, fallback: boolean): boolean {
+  if (typeof value === 'boolean') {
+    return value;
+  }
+
+  if (typeof value === 'number') {
+    return value !== 0;
+  }
+
+  if (typeof value === 'string') {
+    const normalized = value.trim().toLowerCase();
+
+    if (normalized === '') {
+      return fallback;
+    }
+
+    if (['1', 'true', 't', 'yes', 'y', 'on'].includes(normalized)) {
+      return true;
+    }
+
+    if (['0', 'false', 'f', 'no', 'n', 'off'].includes(normalized)) {
+      return false;
+    }
+  }
+
+  return fallback;
+}
+
 export function sortStatus(status: PageStatus): number {
   return {
     미수정: 0,

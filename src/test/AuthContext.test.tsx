@@ -110,4 +110,33 @@ describe('AuthContext', () => {
       expect(screen.getByText('guest:recovery:true')).toBeInTheDocument();
     });
   });
+
+  it('signs out when the linked member is inactive', async () => {
+    mockGetSession.mockResolvedValue({
+      data: {
+        session: {
+          user: {
+            id: 'auth-user-1',
+            email: 'crew@example.com',
+          },
+        },
+      },
+    });
+    mockTouchMemberLastLogin.mockResolvedValue(null);
+
+    render(
+      <AuthProvider>
+        <AuthProbe />
+      </AuthProvider>,
+    );
+
+    await waitFor(() => {
+      expect(mockTouchMemberLastLogin).toHaveBeenCalledWith('auth-user-1', 'crew@example.com');
+    });
+
+    await waitFor(() => {
+      expect(mockSignOut).toHaveBeenCalled();
+      expect(screen.getByText('guest:default:false')).toBeInTheDocument();
+    });
+  });
 });
