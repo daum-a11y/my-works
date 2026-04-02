@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { setDocumentTitle } from '../../app/navigation';
 import { MonthlyReportCalendar } from '../../components/ui/MonthlyReportCalendar';
@@ -76,34 +77,25 @@ export function DashboardPage() {
             {monthState && (
               <div className={styles.sectionHead}>
                 <div className={styles.calendarHeading}>
-                  <div className={styles.calendarTitleBlock}>
-                    <p className={styles.calendarEyebrow}>업무 현황</p>
-                    <h2 className={styles.calendarTitle}>
-                      {monthState.year}년 {monthState.month}월
-                    </h2>
-                  </div>
                   <div className={styles.calendarNav} aria-label="업무일지 월 이동">
                     <button
                       type="button"
                       className={styles.calendarNavButton}
                       onClick={() => setSelectedMonth((current) => shiftMonth(current, -1))}
-                      aria-label="이전달 보기"
                     >
-                      <span aria-hidden="true" className={styles.calendarNavIcon}>
-                        &lt;
-                      </span>
-                      이전달
+                      <ChevronLeft size={16} strokeWidth={2.4} aria-hidden="true" />
+                      <span className="srOnly">이전달 보기</span>
                     </button>
+                    <h2 className={styles.calendarTitle}>
+                      {monthState.year}년 {monthState.month}월
+                    </h2>
                     <button
                       type="button"
                       className={styles.calendarNavButton}
                       onClick={() => setSelectedMonth((current) => shiftMonth(current, 1))}
-                      aria-label="다음달 보기"
                     >
-                      다음달
-                      <span aria-hidden="true" className={styles.calendarNavIcon}>
-                        &gt;
-                      </span>
+                      <ChevronRight size={16} strokeWidth={2.4} aria-hidden="true" />
+                      <span className="srOnly">다음달 보기</span>
                     </button>
                   </div>
                 </div>

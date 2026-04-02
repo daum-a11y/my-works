@@ -40,15 +40,20 @@
 
 .blank {
   background: color-mix(in oklab, var(--surface-canvas) 84%, var(--surface-panel));
-  border: 1px solid var(--border-subtle);
+  border: 1px solid var(--border-default);
 }
 
 .cell {
   min-height: 64px;
   padding: 8px 8px 10px;
   background: var(--surface-panel);
-  border: 1px solid var(--border-subtle);
+  border: 1px solid var(--border-default);
   vertical-align: top;
+}
+
+.table tbody tr:first-child .blank,
+.table tbody tr:first-child .cell {
+  border-top: 0;
 }
 
 .weekendCell {

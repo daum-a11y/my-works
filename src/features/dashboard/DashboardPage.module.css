@@ -45,7 +45,7 @@
 .calendarHeading {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   gap: 16px;
   width: 100%;
 }
@@ -78,39 +78,40 @@
 .calendarNav {
   display: inline-flex;
   align-items: center;
-  gap: 0;
-  border: 1px solid var(--border-default);
-  background: var(--surface-panel);
-  box-shadow: var(--elevation-1);
+  gap: 10px;
   isolation: isolate;
 }
 
 .calendarNavButton {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  min-height: 36px;
-  padding: 0 14px;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
   border: 0;
-  border-right: 1px solid var(--border-default);
+  border-radius: 10px;
   background: transparent;
-  color: var(--text-primary);
+  color: var(--text-tertiary);
   font: inherit;
-  font-size: var(--text-form-size);
-  font-weight: var(--font-weight-semibold);
   line-height: 1;
   cursor: pointer;
   transition:
     background-color 160ms ease,
-    color 160ms ease;
-}
-
-.calendarNavButton:last-child {
-  border-right: 0;
+    color 160ms ease,
+    transform 160ms ease;
 }
 
 .calendarNavButton:hover {
+  background: color-mix(in oklab, var(--surface-canvas-strong) 72%, transparent);
+  color: var(--accent-strong);
+  transform: translateY(-1px);
+}
+
+.calendarNavButton:active {
+  transform: translateY(0);
   background: color-mix(in oklab, var(--accent-soft) 18%, var(--surface-panel));
+  color: var(--text-primary);
 }
 
 .calendarNavButton:focus-visible {
@@ -118,14 +119,10 @@
   outline-offset: 2px;
 }
 
-.calendarNavIcon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 16px;
-  color: var(--text-tertiary);
-  font-size: 12px;
-  font-weight: var(--font-weight-heavy);
+@media (prefers-reduced-motion: reduce) {
+  .calendarNavButton {
+    transition: none;
+  }
 }
 .tableWrap,
 .empty {
@@ -146,7 +143,7 @@
 .table th,
 .table td {
   padding: 14px 16px;
-  border-bottom: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-default);
   text-align: left;
   vertical-align: top;
   font-variant-numeric: tabular-nums;
