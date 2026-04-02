@@ -112,6 +112,10 @@ def normalize_service_name(service_group, service_name, default_group=None, defa
     return f"{group} / {name}"
 
 
+def normalize_task_type2(value):
+    return blank_to_none(value) or "미분류"
+
+
 def stable_uuid(kind: str, source_key):
     return str(uuid.uuid5(NAMESPACE, f"{kind}:{source_key}"))
 
@@ -206,8 +210,8 @@ def task_content(row):
         if candidate:
             return candidate
     type1 = blank_to_none(row["task_type1"]) or "미분류"
-    type2 = blank_to_none(row["task_type2"]) or ""
-    return f"{type1} / {type2}" if type2 else type1
+    type2 = normalize_task_type2(row["task_type2"])
+    return f"{type1} / {type2}"
 
 
 def build_dump():
@@ -393,7 +397,8 @@ def build_dump():
     task_type_requires_by_type1 = {}
     for row in types:
         type1 = blank_to_none(row["type_one"]) or "미분류"
-        type2 = blank_to_none(row["type_two"]) or ""
+        raw_type2 = blank_to_none(row["type_two"])
+        type2 = normalize_task_type2(row["type_two"])
         pair = (type1, type2)
         requires_service_group = bool_flag(row["type_include_svc"], False)
         task = {
@@ -401,10 +406,10 @@ def build_dump():
             "source_type_num": int(row["type_num"]),
             "type1": type1,
             "type2": type2,
-            "display_label": blank_to_none(row["type_etc"]) or "",
+            "display_label": blank_to_none(row["type_etc"]) or f"{type1} / {type2}",
             "requires_service_group": requires_service_group,
             "display_order": int(row["type_num"]),
-            "is_active": bool_flag(row["type_active"], True),
+            "is_active": bool_flag(row["type_active"], True) if raw_type2 is not None else False,
             "created_at": "1970-01-01 00:00:00",
             "updated_at": "1970-01-01 00:00:00",
         }
@@ -415,7 +420,8 @@ def build_dump():
     next_task_type_order = max((row["display_order"] for row in task_type_rows), default=0) + 1
     for row in tasks:
         type1 = blank_to_none(row["task_type1"]) or "미분류"
-        type2 = blank_to_none(row["task_type2"]) or ""
+        raw_type2 = blank_to_none(row["task_type2"])
+        type2 = normalize_task_type2(row["task_type2"])
         pair = (type1, type2)
         if pair in task_type_by_pair:
             continue
@@ -432,10 +438,10 @@ def build_dump():
             "source_type_num": None,
             "type1": type1,
             "type2": type2,
-            "display_label": f"{type1} / {type2}" if type2 else type1,
+            "display_label": f"{type1} / {type2}",
             "requires_service_group": requires_service_group,
             "display_order": next_task_type_order,
-            "is_active": True,
+            "is_active": False if raw_type2 is None else True,
             "created_at": "1970-01-01 00:00:00",
             "updated_at": "1970-01-01 00:00:00",
         }
@@ -759,7 +765,7 @@ def build_dump():
         has_page_reference = page_num is not None
         pair = (
             blank_to_none(row["task_type1"]) or "미분류",
-            blank_to_none(row["task_type2"]) or "",
+            normalize_task_type2(row["task_type2"]),
         )
         task_type = task_type_by_pair.get(pair)
         is_project_task = bool(task_type and task_type["requires_service_group"] and has_project_context)

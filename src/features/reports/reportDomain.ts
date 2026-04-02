@@ -183,7 +183,7 @@ function splitServiceGroupName(value: string) {
 
 function buildProjectLookup(project: Project, normalizedServiceName: string) {
   const { serviceGroupName, serviceName } = splitServiceGroupName(normalizedServiceName);
-  const projectName = project.name || '미지정 프로젝트';
+  const projectName = project.name || '';
   const label = [serviceGroupName, projectName].filter(Boolean).join(' / ') || projectName;
   const searchText = normalizeText(
     [serviceGroupName, serviceName, projectName, project.platform, project.id].join(' '),
@@ -205,7 +205,7 @@ function buildPageLookup(
   project: Project | undefined,
   serviceGroupName: string,
 ) {
-  const projectName = project?.name || '미분류 프로젝트';
+  const projectName = project?.name || '';
   const label =
     [serviceGroupName, projectName, page.title].filter(Boolean).join(' / ') || page.title;
   const searchText = normalizeText(
@@ -419,8 +419,8 @@ export function buildReportViewModel(
   const platform = project?.platform ?? '';
   const serviceName = splitProjectService?.serviceName ?? '';
   const resolvedProjectName = project?.name ?? report.projectName ?? '';
-  const projectDisplayName = resolvedProjectName || '미분류 프로젝트';
-  const pageDisplayName = page?.title || report.pageName || '미지정 페이지';
+  const projectDisplayName = resolvedProjectName || '-';
+  const pageDisplayName = page?.title || report.pageName || '-';
   const pageUrl = page?.url || '';
   const searchText = normalizeText(
     [

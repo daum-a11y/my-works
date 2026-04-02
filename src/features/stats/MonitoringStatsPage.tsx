@@ -124,7 +124,7 @@ export function MonitoringStatsPage() {
           serviceGroupName: projectsById.get(page.projectId)?.serviceGroupId
             ? (serviceGroupsById.get(projectsById.get(page.projectId)?.serviceGroupId ?? '') ?? '-')
             : '-',
-          projectName: projectsById.get(page.projectId)?.name ?? '미분류 프로젝트',
+          projectName: projectsById.get(page.projectId)?.name ?? '-',
           platform: projectsById.get(page.projectId)?.platform ?? '-',
           assigneeDisplay: memberDisplay(page.ownerMemberId, membersById),
           reportUrl: projectsById.get(page.projectId)?.reportUrl ?? page.url,

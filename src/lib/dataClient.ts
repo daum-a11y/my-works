@@ -126,7 +126,7 @@ function buildDashboard(store: OpsStore): DashboardSnapshot {
         serviceGroupName: project.serviceGroupId
           ? (serviceGroupsById.get(project.serviceGroupId) ?? '-')
           : '-',
-        projectName: project.name || '미분류 프로젝트',
+        projectName: project.name || '-',
         startDate: project.startDate,
         endDate: project.endDate,
       })),
