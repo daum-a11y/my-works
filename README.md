@@ -24,13 +24,19 @@ pnpm dev
 - `bind_auth_session_member(...)`
 - `admin_search_tasks(...)`
 
-따라서 DB에는 아래 migration까지 적용돼 있어야 합니다.
+따라서 DB에는 아래 SQL이 적용돼 있어야 합니다.
 
-- `supabase/migrations/000_initial_ops_schema.sql`
-- 이미 초기 SQL을 적용한 운영 DB라면 `supabase/sql/005_harden_auth_rls.sql`도 추가 적용해야 합니다.
-- 승인대기 상태를 운영할 경우 `supabase/sql/006_member_status_pending.sql`도 추가 적용해야 합니다.
+- `supabase/sql/000_initial_ops_schema.sql`
+- 필요 시 `supabase/sql/006_public_health_check.sql`
 
 현재 초기 migration에 공개 view/RPC/RLS 보정이 포함돼 있습니다. 이 단계가 빠지면 회원 조회, 페이지 조회, 세션-멤버 바인딩, 관리자 내보내기에서 런타임 오류가 날 수 있습니다.
+
+로컬 덤프 정제는 아래 스크립트와 산출물을 사용합니다.
+
+- `scripts/build_refined_dump.py`
+- `output/refined_dump.sql`
+- `output/refined_dump_tasks.sql`
+- 가이드: `docs/transition/data-migration-guide.md`
 
 ## 환경변수
 

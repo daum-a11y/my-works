@@ -12,3 +12,4 @@ test-results
 output/playwright*
 .playwright-cli
 /db_a11yop_*.sql
+.tmp
