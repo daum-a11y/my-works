@@ -1,12 +1,12 @@
-export function GlobalLoadingSpinner() {
+export function GlobalLoadingSpinner({ overlay = false }: { overlay?: boolean }) {
   return (
     <div
       style={{
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        minHeight: '100vh',
-        background: '#ffffff',
+        minHeight: overlay ? '100%' : '100vh',
+        background: overlay ? 'rgba(255, 255, 255, 0.72)' : '#ffffff',
       }}
       aria-label="로딩 중"
       role="status"

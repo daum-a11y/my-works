@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useIsFetching } from '@tanstack/react-query';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { ChevronRight, ChevronDown, House, LogOut, UserRound } from 'lucide-react';
 import { useAuth } from '../features/auth/AuthContext';
+import { GlobalLoadingSpinner } from './GlobalLoadingSpinner';
 import { adminNavigation, baseNavigation, getBreadcrumbs, setDocumentTitle } from './navigation';
 import styles from './AppShell.module.css';
 
@@ -13,6 +15,9 @@ export function AppShell() {
   const [logoutError, setLogoutError] = useState<string>('');
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement | null>(null);
+  const resourceFetchCount = useIsFetching({
+    predicate: (query) => query.queryKey[0] === 'resource',
+  });
 
   const navigation = useMemo(
     () => (isAdmin ? [...baseNavigation, ...adminNavigation] : [...baseNavigation]),
@@ -136,6 +141,11 @@ export function AppShell() {
         </aside>
 
         <div className={styles.content}>
+          {resourceFetchCount > 0 ? (
+            <div className={styles.globalLoadingOverlay}>
+              <GlobalLoadingSpinner overlay />
+            </div>
+          ) : null}
           <header className={styles.header}>
             <div className={styles.headerTitle}>
               <nav className={styles.breadcrumbs} aria-label="브래드크럼">

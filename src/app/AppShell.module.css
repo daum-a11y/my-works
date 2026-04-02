@@ -145,9 +145,17 @@
 }
 
 .content {
+  position: relative;
   display: grid;
   grid-template-rows: auto 1fr;
   min-width: 0;
+}
+
+.globalLoadingOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
 }
 
 .header {

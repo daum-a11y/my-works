@@ -1,16 +1,13 @@
 import { type FormEvent, useEffect, useMemo, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import clsx from 'clsx';
 import { setDocumentTitle } from '../../app/navigation';
 import { MonthlyReportCalendar } from '../../components/ui/MonthlyReportCalendar';
 import { PageSection } from '../../components/ui/PageSection';
+import { opsDataClient } from '../../lib/dataClient';
 import { getToday } from '../../lib/utils';
-import {
-  buildCalendarWeeks,
-  buildMonthDays,
-  filterTasksByMonth,
-  getCurrentMonth,
-  useResourceDataset,
-} from './resourceShared';
+import { buildCalendarWeeks, buildMonthDays, getCurrentMonth } from './resourceShared';
+import { useAuth } from '../auth/AuthContext';
 import projectStyles from '../projects/ProjectsFeature.module.css';
 import styles from './ResourceSummaryPage.module.css';
 const numberFormatter = new Intl.NumberFormat('ko-KR');
@@ -46,8 +43,8 @@ function getMinuteTone(minutes: number) {
 }
 
 export function ResourceSummaryPage() {
-  const query = useResourceDataset();
-  const data = query.data;
+  const { session } = useAuth();
+  const member = session?.member ?? null;
   const today = getToday();
   const currentMonth = today.slice(0, 7);
 
@@ -62,17 +59,33 @@ export function ResourceSummaryPage() {
     setDocumentTitle('업무보고 현황');
   }, []);
 
+  const membersQuery = useQuery({
+    queryKey: ['resource', 'members', member?.id],
+    queryFn: () => opsDataClient.getMembers(),
+    enabled: Boolean(member),
+  });
+
+  const summaryQuery = useQuery({
+    queryKey: ['resource', 'summary', member?.id, appliedMonth],
+    queryFn: () => opsDataClient.getResourceSummary(member!, appliedMonth),
+    enabled: Boolean(member),
+  });
+
+  const activeMembers = useMemo(
+    () => (membersQuery.data ?? []).filter((item) => item.isActive),
+    [membersQuery.data],
+  );
+  const summaryRows = useMemo(() => summaryQuery.data ?? [], [summaryQuery.data]);
+
   const rows = useMemo(() => {
-    if (!data) {
+    if (!member) {
       return [];
     }
 
     const visibleMembers =
-      data.member.role === 'admin'
-        ? data.members
-        : data.members.filter((member) => member.id === data.member.id);
-
-    const monthTasks = filterTasksByMonth(data.tasks, appliedMonth);
+      member.role === 'admin'
+        ? activeMembers
+        : activeMembers.filter((item) => item.id === member.id);
     const businessDays = buildMonthDays(appliedMonth).filter((day) => {
       if (day.weekday === 0 || day.weekday === 6) {
         return false;
@@ -90,15 +103,16 @@ export function ResourceSummaryPage() {
     });
 
     const rowsForMembers = visibleMembers.map((member) => {
-      const memberTasks = monthTasks.filter((task) => task.memberId === member.id);
       const minutesByDate = new Map<string, number>();
 
-      memberTasks.forEach((task) => {
-        minutesByDate.set(
-          task.taskDate,
-          (minutesByDate.get(task.taskDate) ?? 0) + Math.round(task.taskUsedtime),
-        );
-      });
+      summaryRows
+        .filter((row) => row.memberId === member.id)
+        .forEach((row) => {
+          minutesByDate.set(
+            row.taskDate,
+            (minutesByDate.get(row.taskDate) ?? 0) + Math.round(row.taskUsedtime),
+          );
+        });
 
       const totalMinutes = businessDays.reduce(
         (sum, day) => sum + (minutesByDate.get(day.date) ?? 0),
@@ -121,7 +135,7 @@ export function ResourceSummaryPage() {
       : rowsForMembers;
 
     return filteredRows.sort((left, right) => left.label.localeCompare(right.label, 'ko'));
-  }, [appliedMissingOnly, appliedMonth, currentMonth, data, today]);
+  }, [activeMembers, appliedMissingOnly, appliedMonth, currentMonth, member, summaryRows, today]);
 
   useEffect(() => {
     if (!rows.length) {
@@ -137,27 +151,26 @@ export function ResourceSummaryPage() {
   }, [detailMemberId, rows]);
 
   const detailMember = useMemo(() => {
-    if (!data || !detailMemberId) {
+    if (!detailMemberId) {
       return null;
     }
 
-    return data.members.find((member) => member.id === detailMemberId) ?? null;
-  }, [data, detailMemberId]);
+    return activeMembers.find((item) => item.id === detailMemberId) ?? null;
+  }, [activeMembers, detailMemberId]);
 
   const monthState = useMemo(() => {
-    if (!data || !detailMemberId) {
+    if (!detailMemberId) {
       return null;
     }
 
-    const tasks = filterTasksByMonth(data.tasks, appliedMonth).filter(
-      (task) => task.memberId === detailMemberId,
-    );
     const summary = new Map<number, number>();
 
-    tasks.forEach((task) => {
-      const day = Number(task.taskDate.slice(8, 10));
-      summary.set(day, (summary.get(day) ?? 0) + Math.round(task.taskUsedtime));
-    });
+    summaryRows
+      .filter((row) => row.memberId === detailMemberId)
+      .forEach((row) => {
+        const day = Number(row.taskDate.slice(8, 10));
+        summary.set(day, (summary.get(day) ?? 0) + Math.round(row.taskUsedtime));
+      });
 
     return {
       currentMonth: appliedMonth === currentMonth,
@@ -167,7 +180,7 @@ export function ResourceSummaryPage() {
       summary,
       weeks: buildCalendarWeeks(appliedMonth),
     };
-  }, [appliedMonth, currentMonth, data, detailMemberId, today]);
+  }, [appliedMonth, currentMonth, detailMemberId, summaryRows, today]);
 
   const handleSearch = () => {
     setAppliedMonth(monthDraft);

@@ -242,7 +242,7 @@ export function SearchPage() {
       return;
     }
 
-    const downloadTasks = await opsDataClient.searchTasks(member, {
+    const downloadTasks = await opsDataClient.exportTasks(member, {
       ...DEFAULT_REPORT_FILTERS,
       query: appliedSearch,
       startDate: appliedFilters.startDate,

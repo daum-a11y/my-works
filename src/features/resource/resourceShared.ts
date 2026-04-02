@@ -1,24 +1,5 @@
-import { useMemo, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { opsDataClient } from '../../lib/dataClient';
-import {
-  type Member,
-  type Project,
-  type ServiceGroup,
-  type Task,
-  type TaskType,
-} from '../../lib/domain';
+import { useState } from 'react';
 import { getToday } from '../../lib/utils';
-import { useAuth } from '../auth/AuthContext';
-
-export interface ResourceDataset {
-  member: Member;
-  tasks: Task[];
-  members: Member[];
-  projects: Project[];
-  serviceGroups: ServiceGroup[];
-  taskTypes: TaskType[];
-}
 
 export function shiftMonth(month: string, offset: number) {
   const [year, value] = month.split('-').map(Number);
@@ -123,62 +104,6 @@ export function formatMd(minutes: number) {
   return minutesToMd(minutes).toFixed(2);
 }
 
-export function buildTaskTypeRequirementMap(taskTypes: TaskType[]) {
-  return new Map(
-    taskTypes.map(
-      (taskType) =>
-        [`${taskType.type1}__${taskType.type2}`, taskType.requiresServiceGroup] as const,
-    ),
-  );
-}
-
-export function isServiceTask(task: Task, requirementMap: Map<string, boolean>) {
-  return requirementMap.get(`${task.taskType1}__${task.taskType2}`) ?? Boolean(task.projectId);
-}
-
-export function useResourceDataset() {
-  const { session } = useAuth();
-  const member = session?.member ?? null;
-
-  return useQuery({
-    queryKey: ['resource', member?.id],
-    enabled: Boolean(member),
-    queryFn: async (): Promise<ResourceDataset> => {
-      const [members, projects, serviceGroups, taskTypes] = await Promise.all([
-        opsDataClient.getMembers(),
-        opsDataClient.getProjects(),
-        opsDataClient.getServiceGroups(),
-        opsDataClient.getTaskTypes(),
-      ]);
-
-      const activeMembers = members.filter((item) => item.isActive);
-      const tasks =
-        member!.role === 'admin'
-          ? (
-              await Promise.all(
-                activeMembers.map(async (item) => {
-                  try {
-                    return await opsDataClient.getTasks(item);
-                  } catch {
-                    return [];
-                  }
-                }),
-              )
-            ).flat()
-          : await opsDataClient.getTasks(member!);
-
-      return {
-        member: member!,
-        tasks,
-        members: activeMembers,
-        projects,
-        serviceGroups,
-        taskTypes,
-      };
-    },
-  });
-}
-
 export function useResourceFilters(defaultMemberId?: string) {
   const [selectedDate, setSelectedDate] = useState(getToday());
   const [selectedMonth, setSelectedMonth] = useState(getToday().slice(0, 7));
@@ -192,80 +117,4 @@ export function useResourceFilters(defaultMemberId?: string) {
     selectedMemberId,
     setSelectedMemberId,
   };
-}
-
-export function buildProjectMaps(projects: Project[], serviceGroups: ServiceGroup[]) {
-  const projectsById = new Map(projects.map((project) => [project.id, project] as const));
-  const serviceGroupsById = new Map(serviceGroups.map((group) => [group.id, group] as const));
-  return { projectsById, serviceGroupsById };
-}
-
-export function getTaskServiceInfo(
-  task: Task,
-  projectsById: Map<string, Project>,
-  serviceGroupsById: Map<string, ServiceGroup>,
-) {
-  const project = task.projectId ? projectsById.get(task.projectId) : undefined;
-  const serviceGroup = project?.serviceGroupId
-    ? serviceGroupsById.get(project.serviceGroupId)
-    : undefined;
-  const parsedService = splitNormalizedServiceName(serviceGroup?.name ?? '');
-
-  return {
-    costGroup: serviceGroup?.costGroupName || '미분류',
-    group: parsedService.group || '미분류',
-    name: parsedService.name || '미분류',
-  };
-}
-
-export function getServiceGroupName(
-  task: Task,
-  projectsById: Map<string, Project>,
-  serviceGroupsById: Map<string, ServiceGroup>,
-) {
-  const service = getTaskServiceInfo(task, projectsById, serviceGroupsById);
-  if (service.group === '미분류' && service.name === '미분류') {
-    return '미분류';
-  }
-
-  return `${service.group} / ${service.name}`;
-}
-
-export function splitNormalizedServiceName(name: string) {
-  const normalized = name.trim();
-  if (!normalized || normalized === '미분류') {
-    return { group: '미분류', name: '미분류' };
-  }
-
-  const [group, ...rest] = normalized.split(' / ');
-  if (rest.length === 0) {
-    return { group: normalized, name: normalized };
-  }
-
-  return {
-    group: group.trim(),
-    name: rest.join(' / ').trim(),
-  };
-}
-
-export function filterTasksByMonth(tasks: Task[], month: string) {
-  return tasks.filter((task) => task.taskDate.startsWith(month));
-}
-
-export function useResourceLookups(data: ResourceDataset | undefined) {
-  return useMemo(() => {
-    if (!data) {
-      return {
-        membersById: new Map<string, Member>(),
-        projectsById: new Map<string, Project>(),
-        serviceGroupsById: new Map<string, ServiceGroup>(),
-      };
-    }
-
-    return {
-      membersById: new Map(data.members.map((member) => [member.id, member] as const)),
-      projectsById: new Map(data.projects.map((project) => [project.id, project] as const)),
-      serviceGroupsById: new Map(data.serviceGroups.map((group) => [group.id, group] as const)),
-    };
-  }, [data]);
 }

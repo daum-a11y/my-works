@@ -116,6 +116,48 @@ export interface TaskActivity {
   taskUsedtime: number;
 }
 
+export interface DashboardTaskCalendarDay {
+  taskDate: string;
+  taskUsedtime: number;
+}
+
+export interface ResourceSummaryDayRow {
+  memberId: string;
+  accountId: string;
+  memberName: string;
+  taskDate: string;
+  taskUsedtime: number;
+}
+
+export interface ResourceTypeSummaryRow {
+  year: string;
+  month: string;
+  taskType1: string;
+  taskUsedtime: number;
+}
+
+export interface ResourceServiceSummaryRow {
+  year: string;
+  month: string;
+  costGroupName: string;
+  serviceGroupName: string;
+  serviceName: string;
+  taskUsedtime: number;
+}
+
+export interface ResourceMonthReportRow {
+  memberId: string;
+  accountId: string;
+  taskDate: string;
+  taskType1: string;
+  taskType2: string;
+  taskUsedtime: number;
+  isServiceTask: boolean;
+  costGroupName: string;
+  serviceGroupName: string;
+  serviceName: string;
+}
+
 export interface PagedResult<T> {
   items: T[];
   totalCount: number;

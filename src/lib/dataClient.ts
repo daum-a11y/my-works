@@ -1,6 +1,7 @@
 import { getSupabaseClient } from './supabase';
 import {
   type CostGroup,
+  type DashboardTaskCalendarDay,
   type DashboardSnapshot,
   type Member,
   normalizePageStatus,
@@ -17,6 +18,10 @@ import {
   type StatsSnapshot,
   type TaskActivity,
   type Task,
+  type ResourceMonthReportRow,
+  type ResourceServiceSummaryRow,
+  type ResourceSummaryDayRow,
+  type ResourceTypeSummaryRow,
   type TaskType,
 } from './domain';
 import { getToday, readBooleanFlag } from './utils';
@@ -94,13 +99,16 @@ export interface OpsDataClient {
   getProjectPagesByProjectIds(projectIds: string[]): Promise<ProjectPage[]>;
   saveProjectPage(input: SaveProjectPageInput): Promise<ProjectPage>;
   deleteProjectPage(pageId: string): Promise<void>;
-  getTasks(member: Member): Promise<Task[]>;
   getTasksByDate(member: Member, taskDate: string): Promise<Task[]>;
-  getAllTasks(member: Member): Promise<Task[]>;
+  getDashboardTaskCalendar(member: Member, month: string): Promise<DashboardTaskCalendarDay[]>;
+  getResourceSummary(member: Member, month: string): Promise<ResourceSummaryDayRow[]>;
+  getResourceTypeSummary(member: Member): Promise<ResourceTypeSummaryRow[]>;
+  getResourceServiceSummary(member: Member): Promise<ResourceServiceSummaryRow[]>;
+  getResourceMonthReport(member: Member, month: string): Promise<ResourceMonthReportRow[]>;
   getTaskActivities(): Promise<TaskActivity[]>;
   saveTask(member: Member, input: SaveTaskInput): Promise<Task>;
   deleteTask(member: Member, taskId: string): Promise<void>;
-  searchTasks(member: Member, filters: ReportFilters): Promise<Task[]>;
+  exportTasks(member: Member, filters: ReportFilters): Promise<Task[]>;
   searchTasksPage(
     member: Member,
     filters: ReportFilters,
@@ -182,20 +190,6 @@ function requireRecord(data: unknown, message: string): Record<string, unknown> 
   return data as Record<string, unknown>;
 }
 
-function buildTaskSearchText(
-  task: Task,
-  projectsById: Map<string, Project>,
-  pagesById: Map<string, ProjectPage>,
-) {
-  const projectName = task.projectId ? (projectsById.get(task.projectId)?.name ?? '') : '';
-  const pageName = task.pageId ? (pagesById.get(task.pageId)?.title ?? '') : '';
-
-  return [projectName, pageName, task.content, task.note, task.taskType1, task.taskType2]
-    .join(' ')
-    .trim()
-    .toLowerCase();
-}
-
 function dedupeTasksById(tasks: Task[]) {
   const seen = new Set<string>();
 
@@ -238,30 +232,6 @@ function createSupabaseClient(): OpsDataClient {
   const supabase = requireData(getSupabaseClient(), 'Supabase is not configured.');
   const taskSelectColumns =
     'id, member_id, task_date, project_id, project_page_id, task_type1, task_type2, task_usedtime, content, note, created_at, updated_at';
-  const batchSize = 1000;
-
-  async function fetchAllTaskRows<T extends Record<string, unknown>>(
-    buildQuery: (from: number, to: number) => PromiseLike<{ data: T[] | null; error: unknown }>,
-  ) {
-    const rows: T[] = [];
-
-    for (let from = 0; ; from += batchSize) {
-      const to = from + batchSize - 1;
-      const { data, error } = await buildQuery(from, to);
-      if (error) {
-        throw error;
-      }
-
-      const batch = (data ?? []) as T[];
-      rows.push(...batch);
-
-      if (batch.length < batchSize) {
-        break;
-      }
-    }
-
-    return rows;
-  }
 
   return {
     mode: 'supabase',
@@ -492,18 +462,6 @@ function createSupabaseClient(): OpsDataClient {
       const { error } = await supabase.from('project_pages').delete().eq('id', pageId);
       if (error) throw error;
     },
-    async getTasks(member) {
-      const rows = await fetchAllTaskRows((from, to) =>
-        supabase
-          .from('tasks')
-          .select(taskSelectColumns)
-          .eq('member_id', member.id)
-          .order('task_date', { ascending: false })
-          .order('id', { ascending: false })
-          .range(from, to),
-      );
-      return dedupeTasksById(rows.map(mapTaskRecord));
-    },
     async getTasksByDate(member, taskDate) {
       const { data, error } = await supabase
         .from('tasks')
@@ -514,19 +472,43 @@ function createSupabaseClient(): OpsDataClient {
       if (error) throw error;
       return dedupeTasksById((data ?? []).map(mapTaskRecord));
     },
-    async getAllTasks(member) {
-      const rows = await fetchAllTaskRows((from, to) => {
-        let query = supabase
-          .from('tasks')
-          .select(taskSelectColumns)
-          .order('task_date', { ascending: false })
-          .order('id', { ascending: false });
-        if (member.role !== 'admin') {
-          query = query.eq('member_id', member.id);
-        }
-        return query.range(from, to);
+    async getDashboardTaskCalendar(member, month) {
+      const { data, error } = await supabase.rpc('get_dashboard_task_calendar', {
+        p_member_id: member.role === 'admin' ? member.id : null,
+        p_month: month,
       });
-      return dedupeTasksById(rows.map(mapTaskRecord));
+      if (error) throw error;
+      return ((data ?? []) as Record<string, unknown>[]).map(mapDashboardTaskCalendarDayRecord);
+    },
+    async getResourceSummary(member, month) {
+      const { data, error } = await supabase.rpc('get_resource_summary', {
+        p_member_id: member.role === 'admin' ? null : member.id,
+        p_month: month,
+      });
+      if (error) throw error;
+      return ((data ?? []) as Record<string, unknown>[]).map(mapResourceSummaryDayRowRecord);
+    },
+    async getResourceTypeSummary(member) {
+      const { data, error } = await supabase.rpc('get_resource_type_summary', {
+        p_member_id: member.role === 'admin' ? null : member.id,
+      });
+      if (error) throw error;
+      return ((data ?? []) as Record<string, unknown>[]).map(mapResourceTypeSummaryRowRecord);
+    },
+    async getResourceServiceSummary(member) {
+      const { data, error } = await supabase.rpc('get_resource_service_summary', {
+        p_member_id: member.role === 'admin' ? null : member.id,
+      });
+      if (error) throw error;
+      return ((data ?? []) as Record<string, unknown>[]).map(mapResourceServiceSummaryRowRecord);
+    },
+    async getResourceMonthReport(member, month) {
+      const { data, error } = await supabase.rpc('get_resource_month_report', {
+        p_member_id: member.role === 'admin' ? null : member.id,
+        p_month: month,
+      });
+      if (error) throw error;
+      return ((data ?? []) as Record<string, unknown>[]).map(mapResourceMonthReportRowRecord);
     },
     async getTaskActivities() {
       const { data, error } = await supabase
@@ -567,43 +549,25 @@ function createSupabaseClient(): OpsDataClient {
       });
       if (error) throw error;
     },
-    async searchTasks(member, filters) {
-      const rows = await fetchAllTaskRows((from, to) => {
-        let query = supabase
-          .from('tasks')
-          .select(taskSelectColumns)
-          .eq('member_id', member.id)
-          .order('task_date', { ascending: false })
-          .order('id', { ascending: false });
-        if (filters.startDate) query = query.gte('task_date', filters.startDate);
-        if (filters.endDate) query = query.lte('task_date', filters.endDate);
-        if (filters.projectId) query = query.eq('project_id', filters.projectId);
-        if (filters.pageId) query = query.eq('project_page_id', filters.pageId);
-        if (filters.taskType1) query = query.eq('task_type1', filters.taskType1);
-        if (filters.taskType2) query = query.eq('task_type2', filters.taskType2);
-        if (filters.minTaskUsedtime)
-          query = query.gte('task_usedtime', Number.parseFloat(filters.minTaskUsedtime));
-        if (filters.maxTaskUsedtime)
-          query = query.lte('task_usedtime', Number.parseFloat(filters.maxTaskUsedtime));
-        return query.range(from, to);
+    async exportTasks(member, filters) {
+      const { data, error } = await supabase.rpc('search_tasks_export', {
+        p_member_id: member.role === 'admin' ? null : member.id,
+        p_start_date: filters.startDate || null,
+        p_end_date: filters.endDate || null,
+        p_project_id: filters.projectId || null,
+        p_project_page_id: filters.pageId || null,
+        p_task_type1: filters.taskType1 || null,
+        p_task_type2: filters.taskType2 || null,
+        p_min_task_usedtime: filters.minTaskUsedtime
+          ? Number.parseFloat(filters.minTaskUsedtime)
+          : null,
+        p_max_task_usedtime: filters.maxTaskUsedtime
+          ? Number.parseFloat(filters.maxTaskUsedtime)
+          : null,
+        p_keyword: filters.query.trim() || null,
       });
-      const tasks = dedupeTasksById(rows.map(mapTaskRecord));
-
-      if (!filters.query.trim()) {
-        return tasks;
-      }
-
-      const [projects, pages] = await Promise.all([
-        this.getProjects(),
-        this.getProjectPages(member),
-      ]);
-      const projectsById = new Map(projects.map((project) => [project.id, project] as const));
-      const pagesById = new Map(pages.map((page) => [page.id, page] as const));
-      const normalizedQuery = filters.query.trim().toLowerCase();
-
-      return tasks.filter((task) =>
-        buildTaskSearchText(task, projectsById, pagesById).includes(normalizedQuery),
-      );
+      if (error) throw error;
+      return dedupeTasksById(((data ?? []) as Record<string, unknown>[]).map(mapTaskRecord));
     },
     async searchTasksPage(member, filters, page, pageSize) {
       const from = Math.max(0, (page - 1) * pageSize);
@@ -752,13 +716,16 @@ function createUnconfiguredClient(): OpsDataClient {
     getProjectPagesByProjectIds: fail,
     saveProjectPage: fail,
     deleteProjectPage: fail,
-    getTasks: fail,
     getTasksByDate: fail,
-    getAllTasks: fail,
+    getDashboardTaskCalendar: fail,
+    getResourceSummary: fail,
+    getResourceTypeSummary: fail,
+    getResourceServiceSummary: fail,
+    getResourceMonthReport: fail,
     getTaskActivities: fail,
     saveTask: fail,
     deleteTask: fail,
-    searchTasks: fail,
+    exportTasks: fail,
     searchTasksPage: fail,
     getDashboard: fail,
     getStats: fail,
@@ -793,6 +760,62 @@ function mapTaskActivityRecord(record: Record<string, unknown>): TaskActivity {
     memberId: String(record.member_id ?? ''),
     taskDate: String(record.task_date ?? getToday()),
     taskUsedtime: Number(record.task_usedtime ?? 0),
+  };
+}
+
+function mapDashboardTaskCalendarDayRecord(
+  record: Record<string, unknown>,
+): DashboardTaskCalendarDay {
+  return {
+    taskDate: String(record.task_date ?? getToday()),
+    taskUsedtime: Number(record.task_usedtime ?? 0),
+  };
+}
+
+function mapResourceSummaryDayRowRecord(record: Record<string, unknown>): ResourceSummaryDayRow {
+  return {
+    memberId: String(record.member_id ?? ''),
+    accountId: String(record.account_id ?? ''),
+    memberName: String(record.member_name ?? ''),
+    taskDate: String(record.task_date ?? getToday()),
+    taskUsedtime: Number(record.task_usedtime ?? 0),
+  };
+}
+
+function mapResourceTypeSummaryRowRecord(record: Record<string, unknown>): ResourceTypeSummaryRow {
+  return {
+    year: String(record.year ?? ''),
+    month: String(record.month ?? ''),
+    taskType1: String(record.task_type1 ?? ''),
+    taskUsedtime: Number(record.task_usedtime ?? 0),
+  };
+}
+
+function mapResourceServiceSummaryRowRecord(
+  record: Record<string, unknown>,
+): ResourceServiceSummaryRow {
+  return {
+    year: String(record.year ?? ''),
+    month: String(record.month ?? ''),
+    costGroupName: String(record.cost_group_name ?? ''),
+    serviceGroupName: String(record.service_group_name ?? ''),
+    serviceName: String(record.service_name ?? ''),
+    taskUsedtime: Number(record.task_usedtime ?? 0),
+  };
+}
+
+function mapResourceMonthReportRowRecord(record: Record<string, unknown>): ResourceMonthReportRow {
+  return {
+    memberId: String(record.member_id ?? ''),
+    accountId: String(record.account_id ?? ''),
+    taskDate: String(record.task_date ?? getToday()),
+    taskType1: String(record.task_type1 ?? ''),
+    taskType2: String(record.task_type2 ?? ''),
+    taskUsedtime: Number(record.task_usedtime ?? 0),
+    isServiceTask: Boolean(record.is_service_task ?? false),
+    costGroupName: String(record.cost_group_name ?? ''),
+    serviceGroupName: String(record.service_group_name ?? ''),
+    serviceName: String(record.service_name ?? ''),
   };
 }
 

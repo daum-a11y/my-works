@@ -1,12 +1,21 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { setDocumentTitle } from '../../app/navigation';
-import { countWorkingDays, formatMm, useResourceDataset } from './resourceShared';
+import { opsDataClient } from '../../lib/dataClient';
+import { countWorkingDays, formatMm } from './resourceShared';
 import projectStyles from '../projects/ProjectsFeature.module.css';
 import styles from './ResourcePage.module.css';
+import { useAuth } from '../auth/AuthContext';
 
 export function ResourceTypePage() {
-  const query = useResourceDataset();
-  const data = query.data;
+  const { session } = useAuth();
+  const member = session?.member ?? null;
+  const query = useQuery({
+    queryKey: ['resource', 'type-summary', member?.id],
+    queryFn: () => opsDataClient.getResourceTypeSummary(member!),
+    enabled: Boolean(member),
+  });
+  const rowsData = useMemo(() => query.data ?? [], [query.data]);
   const [fold, setFold] = useState(false);
   const [activeYear, setActiveYear] = useState('');
 
@@ -15,21 +24,16 @@ export function ResourceTypePage() {
   }, []);
 
   const rows = useMemo(() => {
-    if (!data) {
+    if (!rowsData.length) {
       return [];
     }
-
-    const source =
-      data.member.role === 'admin'
-        ? data.tasks
-        : data.tasks.filter((task) => task.memberId === data.member.id);
     const grouped = new Map<string, Map<string, number>>();
 
-    for (const task of source) {
-      const month = task.taskDate.slice(0, 7);
-      const key = task.taskType1;
+    for (const row of rowsData) {
+      const month = `${row.year}-${row.month}`;
+      const key = row.taskType1;
       const monthMap = grouped.get(month) ?? new Map<string, number>();
-      monthMap.set(key, (monthMap.get(key) ?? 0) + Math.round(task.taskUsedtime));
+      monthMap.set(key, (monthMap.get(key) ?? 0) + Math.round(row.taskUsedtime));
       grouped.set(month, monthMap);
     }
 
@@ -68,7 +72,7 @@ export function ResourceTypePage() {
         foldRowCount: months.length + 1,
         months,
       }));
-  }, [data]);
+  }, [rowsData]);
 
   useEffect(() => {
     if (!rows.length) {

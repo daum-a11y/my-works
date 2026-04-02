@@ -503,6 +503,338 @@ begin
 end;
 $$;
 
+drop function if exists public.search_tasks_json(uuid, date, date, date, uuid, uuid, text, text, numeric, numeric, text);
+
+create or replace function public.get_dashboard_task_calendar(
+  p_member_id uuid default null,
+  p_month text default null
+)
+returns table (
+  task_date date,
+  task_usedtime numeric
+)
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  with month_bounds as (
+    select
+      to_date(p_month || '-01', 'YYYY-MM-DD') as month_start,
+      (to_date(p_month || '-01', 'YYYY-MM-DD') + interval '1 month')::date as month_end
+  )
+  select
+    t.task_date,
+    sum(t.task_usedtime) as task_usedtime
+  from public.tasks t
+  join month_bounds mb on true
+  where public.current_member_id() is not null
+    and p_month is not null
+    and t.member_id = coalesce(p_member_id, public.current_member_id())
+    and t.task_date >= mb.month_start
+    and t.task_date < mb.month_end
+  group by t.task_date
+  order by t.task_date asc
+$$;
+
+create or replace function public.get_resource_summary(
+  p_member_id uuid default null,
+  p_month text default null
+)
+returns table (
+  member_id uuid,
+  account_id text,
+  member_name text,
+  task_date date,
+  task_usedtime numeric
+)
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  with month_bounds as (
+    select
+      to_date(p_month || '-01', 'YYYY-MM-DD') as month_start,
+      (to_date(p_month || '-01', 'YYYY-MM-DD') + interval '1 month')::date as month_end
+  )
+  select
+    m.id as member_id,
+    m.account_id,
+    m.name as member_name,
+    t.task_date,
+    sum(t.task_usedtime) as task_usedtime
+  from public.tasks t
+  join public.members m on m.id = t.member_id
+  join month_bounds mb on true
+  where public.current_member_id() is not null
+    and p_month is not null
+    and m.user_active = true
+    and (
+      (public.current_user_is_admin() and (p_member_id is null or t.member_id = p_member_id))
+      or (
+        not public.current_user_is_admin()
+        and t.member_id = public.current_member_id()
+        and (p_member_id is null or p_member_id = public.current_member_id())
+      )
+    )
+    and t.task_date >= mb.month_start
+    and t.task_date < mb.month_end
+  group by m.id, m.account_id, m.name, t.task_date
+  order by m.account_id asc, t.task_date asc
+$$;
+
+create or replace function public.get_resource_type_summary(
+  p_member_id uuid default null
+)
+returns table (
+  year text,
+  month text,
+  task_type1 text,
+  task_usedtime numeric
+)
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select
+    to_char(t.task_date, 'YYYY') as year,
+    to_char(t.task_date, 'MM') as month,
+    t.task_type1,
+    sum(t.task_usedtime) as task_usedtime
+  from public.tasks t
+  join public.members m on m.id = t.member_id
+  where public.current_member_id() is not null
+    and m.user_active = true
+    and (
+      (public.current_user_is_admin() and (p_member_id is null or t.member_id = p_member_id))
+      or (
+        not public.current_user_is_admin()
+        and t.member_id = public.current_member_id()
+        and (p_member_id is null or p_member_id = public.current_member_id())
+      )
+    )
+  group by to_char(t.task_date, 'YYYY'), to_char(t.task_date, 'MM'), t.task_type1
+  order by year desc, month desc, task_type1 asc
+$$;
+
+create or replace function public.get_resource_service_summary(
+  p_member_id uuid default null
+)
+returns table (
+  year text,
+  month text,
+  cost_group_name text,
+  service_group_name text,
+  service_name text,
+  task_usedtime numeric
+)
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select
+    to_char(t.task_date, 'YYYY') as year,
+    to_char(t.task_date, 'MM') as month,
+    coalesce(cg.name, '미분류') as cost_group_name,
+    case
+      when coalesce(sg.name, '') = '' or sg.name = '미분류' then '미분류'
+      when position(' / ' in sg.name) > 0 then split_part(sg.name, ' / ', 1)
+      else sg.name
+    end as service_group_name,
+    case
+      when coalesce(sg.name, '') = '' or sg.name = '미분류' then '미분류'
+      when position(' / ' in sg.name) > 0 then nullif(split_part(sg.name, ' / ', 2), '')
+      else sg.name
+    end as service_name,
+    sum(t.task_usedtime) as task_usedtime
+  from public.tasks t
+  join public.members m on m.id = t.member_id
+  left join public.projects p on p.id = t.project_id
+  left join public.service_groups sg on sg.id = p.service_group_id
+  left join public.cost_groups cg on cg.id = sg.cost_group_id
+  left join public.task_types tt
+    on tt.type1 = t.task_type1
+   and tt.type2 = t.task_type2
+  where public.current_member_id() is not null
+    and m.user_active = true
+    and (
+      (public.current_user_is_admin() and (p_member_id is null or t.member_id = p_member_id))
+      or (
+        not public.current_user_is_admin()
+        and t.member_id = public.current_member_id()
+        and (p_member_id is null or p_member_id = public.current_member_id())
+      )
+    )
+    and coalesce(tt.requires_service_group, t.project_id is not null)
+  group by
+    to_char(t.task_date, 'YYYY'),
+    to_char(t.task_date, 'MM'),
+    coalesce(cg.name, '미분류'),
+    case
+      when coalesce(sg.name, '') = '' or sg.name = '미분류' then '미분류'
+      when position(' / ' in sg.name) > 0 then split_part(sg.name, ' / ', 1)
+      else sg.name
+    end,
+    case
+      when coalesce(sg.name, '') = '' or sg.name = '미분류' then '미분류'
+      when position(' / ' in sg.name) > 0 then coalesce(nullif(split_part(sg.name, ' / ', 2), ''), '미분류')
+      else sg.name
+    end
+  order by year desc, month desc, cost_group_name asc, service_group_name asc, service_name asc
+$$;
+
+create or replace function public.get_resource_month_report(
+  p_member_id uuid default null,
+  p_month text default null
+)
+returns table (
+  member_id uuid,
+  account_id text,
+  task_date date,
+  task_type1 text,
+  task_type2 text,
+  task_usedtime numeric,
+  is_service_task boolean,
+  cost_group_name text,
+  service_group_name text,
+  service_name text
+)
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  with month_bounds as (
+    select
+      to_date(p_month || '-01', 'YYYY-MM-DD') as month_start,
+      (to_date(p_month || '-01', 'YYYY-MM-DD') + interval '1 month')::date as month_end
+  )
+  select
+    t.member_id,
+    m.account_id,
+    t.task_date,
+    t.task_type1,
+    t.task_type2,
+    t.task_usedtime,
+    coalesce(tt.requires_service_group, t.project_id is not null) as is_service_task,
+    coalesce(cg.name, '미분류') as cost_group_name,
+    case
+      when coalesce(sg.name, '') = '' or sg.name = '미분류' then '미분류'
+      when position(' / ' in sg.name) > 0 then split_part(sg.name, ' / ', 1)
+      else sg.name
+    end as service_group_name,
+    case
+      when coalesce(sg.name, '') = '' or sg.name = '미분류' then '미분류'
+      when position(' / ' in sg.name) > 0 then coalesce(nullif(split_part(sg.name, ' / ', 2), ''), '미분류')
+      else sg.name
+    end as service_name
+  from public.tasks t
+  join public.members m on m.id = t.member_id
+  join month_bounds mb on true
+  left join public.projects p on p.id = t.project_id
+  left join public.service_groups sg on sg.id = p.service_group_id
+  left join public.cost_groups cg on cg.id = sg.cost_group_id
+  left join public.task_types tt
+    on tt.type1 = t.task_type1
+   and tt.type2 = t.task_type2
+  where public.current_member_id() is not null
+    and p_month is not null
+    and m.user_active = true
+    and (
+      (public.current_user_is_admin() and (p_member_id is null or t.member_id = p_member_id))
+      or (
+        not public.current_user_is_admin()
+        and t.member_id = public.current_member_id()
+        and (p_member_id is null or p_member_id = public.current_member_id())
+      )
+    )
+    and t.task_date >= mb.month_start
+    and t.task_date < mb.month_end
+  order by t.task_date asc, m.account_id asc, t.id asc
+$$;
+
+create or replace function public.search_tasks_export(
+  p_member_id uuid default null,
+  p_start_date date default null,
+  p_end_date date default null,
+  p_project_id uuid default null,
+  p_project_page_id uuid default null,
+  p_task_type1 text default null,
+  p_task_type2 text default null,
+  p_min_task_usedtime numeric default null,
+  p_max_task_usedtime numeric default null,
+  p_keyword text default null
+)
+returns table (
+  id uuid,
+  member_id uuid,
+  task_date date,
+  project_id uuid,
+  project_page_id uuid,
+  task_type1 text,
+  task_type2 text,
+  task_usedtime numeric,
+  content text,
+  note text,
+  created_at timestamptz,
+  updated_at timestamptz
+)
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select
+    t.id,
+    t.member_id,
+    t.task_date,
+    t.project_id,
+    t.project_page_id,
+    t.task_type1,
+    t.task_type2,
+    t.task_usedtime,
+    t.content,
+    t.note,
+    t.created_at,
+    t.updated_at
+  from public.tasks t
+  left join public.projects p on p.id = t.project_id
+  left join public.project_pages pp on pp.id = t.project_page_id
+  where public.current_member_id() is not null
+    and (
+      (public.current_user_is_admin() and (p_member_id is null or t.member_id = p_member_id))
+      or (
+        not public.current_user_is_admin()
+        and t.member_id = public.current_member_id()
+        and (p_member_id is null or p_member_id = public.current_member_id())
+      )
+    )
+    and (p_start_date is null or t.task_date >= p_start_date)
+    and (p_end_date is null or t.task_date <= p_end_date)
+    and (p_project_id is null or t.project_id = p_project_id)
+    and (p_project_page_id is null or t.project_page_id = p_project_page_id)
+    and (p_task_type1 is null or t.task_type1 = p_task_type1)
+    and (p_task_type2 is null or t.task_type2 = p_task_type2)
+    and (p_min_task_usedtime is null or t.task_usedtime >= p_min_task_usedtime)
+    and (p_max_task_usedtime is null or t.task_usedtime <= p_max_task_usedtime)
+    and (
+      p_keyword is null
+      or concat_ws(
+        ' ',
+        coalesce(p.name, ''),
+        coalesce(pp.title, ''),
+        t.task_type1,
+        t.task_type2,
+        t.content,
+        t.note
+      ) ilike '%' || p_keyword || '%'
+    )
+  order by t.task_date desc, t.id desc
+$$;
+
 create or replace function public.touch_member_last_login(
   p_auth_user_id uuid default null,
   p_email text default null
@@ -844,6 +1176,12 @@ grant execute on function public.bind_auth_session_member(uuid, text) to authent
 grant execute on function public.touch_member_last_login(uuid, text) to authenticated;
 grant execute on function public.save_task(uuid, date, uuid, uuid, text, text, numeric, text, text) to authenticated;
 grant execute on function public.delete_task(uuid) to authenticated;
+grant execute on function public.get_dashboard_task_calendar(uuid, text) to authenticated;
+grant execute on function public.get_resource_summary(uuid, text) to authenticated;
+grant execute on function public.get_resource_type_summary(uuid) to authenticated;
+grant execute on function public.get_resource_service_summary(uuid) to authenticated;
+grant execute on function public.get_resource_month_report(uuid, text) to authenticated;
+grant execute on function public.search_tasks_export(uuid, date, date, uuid, uuid, text, text, numeric, numeric, text) to authenticated;
 grant execute on function public.upsert_project(uuid, text, text, uuid, uuid, text, uuid, uuid, date, date, boolean) to authenticated;
 grant execute on function public.upsert_project_page(uuid, uuid, text, text, uuid, text, text, boolean, boolean, text) to authenticated;
 grant execute on function public.admin_search_tasks(uuid, date, date, uuid, uuid, text, text, uuid, text) to authenticated;

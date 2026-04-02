@@ -1,18 +1,21 @@
 import { Fragment, useEffect, useMemo, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { setDocumentTitle } from '../../app/navigation';
-import {
-  buildProjectMaps,
-  countWorkingDays,
-  formatMm,
-  getTaskServiceInfo,
-  useResourceDataset,
-} from './resourceShared';
+import { opsDataClient } from '../../lib/dataClient';
+import { countWorkingDays, formatMm } from './resourceShared';
 import projectStyles from '../projects/ProjectsFeature.module.css';
 import styles from './ResourcePage.module.css';
+import { useAuth } from '../auth/AuthContext';
 
 export function ResourceServicePage() {
-  const query = useResourceDataset();
-  const data = query.data;
+  const { session } = useAuth();
+  const member = session?.member ?? null;
+  const query = useQuery({
+    queryKey: ['resource', 'service-summary', member?.id],
+    queryFn: () => opsDataClient.getResourceServiceSummary(member!),
+    enabled: Boolean(member),
+  });
+  const rowsData = useMemo(() => query.data ?? [], [query.data]);
   const [fold, setFold] = useState(false);
   const [activeYear, setActiveYear] = useState('');
 
@@ -21,27 +24,23 @@ export function ResourceServicePage() {
   }, []);
 
   const rows = useMemo(() => {
-    if (!data) {
+    if (!rowsData.length) {
       return [];
     }
-
-    const source =
-      data.member.role === 'admin'
-        ? data.tasks
-        : data.tasks.filter((task) => task.memberId === data.member.id);
-    const { projectsById, serviceGroupsById } = buildProjectMaps(data.projects, data.serviceGroups);
     const grouped = new Map<string, Map<string, Map<string, Map<string, number>>>>();
 
-    for (const task of source) {
-      const month = task.taskDate.slice(0, 7);
-      const service = getTaskServiceInfo(task, projectsById, serviceGroupsById);
+    for (const row of rowsData) {
+      const month = `${row.year}-${row.month}`;
       const monthMap = grouped.get(month) ?? new Map<string, Map<string, Map<string, number>>>();
       const costGroupMap =
-        monthMap.get(service.costGroup) ?? new Map<string, Map<string, number>>();
-      const groupMap = costGroupMap.get(service.group) ?? new Map<string, number>();
-      groupMap.set(service.name, (groupMap.get(service.name) ?? 0) + Math.round(task.taskUsedtime));
-      costGroupMap.set(service.group, groupMap);
-      monthMap.set(service.costGroup, costGroupMap);
+        monthMap.get(row.costGroupName) ?? new Map<string, Map<string, number>>();
+      const groupMap = costGroupMap.get(row.serviceGroupName) ?? new Map<string, number>();
+      groupMap.set(
+        row.serviceName,
+        (groupMap.get(row.serviceName) ?? 0) + Math.round(row.taskUsedtime),
+      );
+      costGroupMap.set(row.serviceGroupName, groupMap);
+      monthMap.set(row.costGroupName, costGroupMap);
       grouped.set(month, monthMap);
     }
 
@@ -102,7 +101,7 @@ export function ResourceServicePage() {
         foldRowCount: months.reduce((sum, month) => sum + month.groups.length + 1, 0),
         months,
       }));
-  }, [data]);
+  }, [rowsData]);
 
   useEffect(() => {
     if (!rows.length) {

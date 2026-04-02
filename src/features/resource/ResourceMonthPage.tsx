@@ -1,25 +1,22 @@
 import { Fragment, useEffect, useMemo, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import clsx from 'clsx';
 import { Bar, BarChart, LabelList, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { Link, useParams } from 'react-router-dom';
 import { setDocumentTitle } from '../../app/navigation';
+import { opsDataClient } from '../../lib/dataClient';
 import {
-  buildProjectMaps,
-  buildTaskTypeRequirementMap,
   countWorkingDays,
   countWorkingDaysUntil,
-  filterTasksByMonth,
   formatMd,
   formatMm,
   getCurrentMonth,
-  getTaskServiceInfo,
-  isServiceTask,
   shiftMonth,
-  useResourceDataset,
 } from './resourceShared';
 import dashboardStyles from '../dashboard/DashboardPage.module.css';
 import projectStyles from '../projects/ProjectsFeature.module.css';
 import styles from './ResourcePage.module.css';
+import { useAuth } from '../auth/AuthContext';
 
 interface TypeRow {
   type1: string;
@@ -152,8 +149,14 @@ function DistributionTooltip({
 export function ResourceMonthPage() {
   const { type } = useParams();
   const selectedMonth = type && /^\d{4}-\d{2}$/.test(type) ? type : getCurrentMonth();
-  const query = useResourceDataset();
-  const data = query.data;
+  const { session } = useAuth();
+  const member = session?.member ?? null;
+  const query = useQuery({
+    queryKey: ['resource', 'month-report', member?.id, selectedMonth],
+    queryFn: () => opsDataClient.getResourceMonthReport(member!, selectedMonth),
+    enabled: Boolean(member),
+  });
+  const monthRows = useMemo(() => query.data ?? [], [query.data]);
   const [workFold, setWorkFold] = useState(false);
   const [svcFold, setSvcFold] = useState(false);
   const [activeTableTab, setActiveTableTab] = useState<'type' | 'service' | 'report'>('report');
@@ -162,19 +165,7 @@ export function ResourceMonthPage() {
     setDocumentTitle('월간 리포트');
   }, []);
 
-  const monthTasks = useMemo(
-    () => filterTasksByMonth(data?.tasks ?? [], selectedMonth),
-    [data?.tasks, selectedMonth],
-  );
-  const hasTableData = monthTasks.length > 0;
-  const requirementMap = useMemo(
-    () => buildTaskTypeRequirementMap(data?.taskTypes ?? []),
-    [data?.taskTypes],
-  );
-  const { projectsById, serviceGroupsById } = useMemo(
-    () => buildProjectMaps(data?.projects ?? [], data?.serviceGroups ?? []),
-    [data?.projects, data?.serviceGroups],
-  );
+  const hasTableData = monthRows.length > 0;
 
   const typeRows = useMemo<TypeRow[]>(() => {
     const grouped = new Map<
@@ -182,14 +173,14 @@ export function ResourceMonthPage() {
       Map<string, { minutes: number; requiresServiceGroup: boolean }>
     >();
 
-    for (const task of monthTasks) {
-      const type1 = task.taskType1 || '미분류';
-      const type2 = task.taskType2 || '미분류';
-      const requiresServiceGroup = isServiceTask(task, requirementMap);
+    for (const row of monthRows) {
+      const type1 = row.taskType1 || '미분류';
+      const type2 = row.taskType2 || '미분류';
+      const requiresServiceGroup = row.isServiceTask;
       const items =
         grouped.get(type1) ?? new Map<string, { minutes: number; requiresServiceGroup: boolean }>();
       const current = items.get(type2) ?? { minutes: 0, requiresServiceGroup };
-      current.minutes += Math.round(task.taskUsedtime);
+      current.minutes += Math.round(row.taskUsedtime);
       current.requiresServiceGroup = current.requiresServiceGroup || requiresServiceGroup;
       items.set(type2, current);
       grouped.set(type1, items);
@@ -221,22 +212,24 @@ export function ResourceMonthPage() {
           Number(right.requiresServiceGroup) - Number(left.requiresServiceGroup) ||
           left.type1.localeCompare(right.type1),
       );
-  }, [monthTasks, requirementMap]);
+  }, [monthRows]);
 
   const serviceSummaryRows = useMemo<ServiceSummaryRow[]>(() => {
     const grouped = new Map<string, Map<string, Map<string, number>>>();
 
-    for (const task of monthTasks) {
-      if (!isServiceTask(task, requirementMap)) {
+    for (const row of monthRows) {
+      if (!row.isServiceTask) {
         continue;
       }
 
-      const info = getTaskServiceInfo(task, projectsById, serviceGroupsById);
-      const serviceGroups = grouped.get(info.costGroup) ?? new Map<string, Map<string, number>>();
-      const names = serviceGroups.get(info.group) ?? new Map<string, number>();
-      names.set(info.name, (names.get(info.name) ?? 0) + Math.round(task.taskUsedtime));
-      serviceGroups.set(info.group, names);
-      grouped.set(info.costGroup, serviceGroups);
+      const costGroupName = row.costGroupName || '미분류';
+      const serviceGroupName = row.serviceGroupName || '미분류';
+      const serviceName = row.serviceName || '미분류';
+      const serviceGroups = grouped.get(costGroupName) ?? new Map<string, Map<string, number>>();
+      const names = serviceGroups.get(serviceGroupName) ?? new Map<string, number>();
+      names.set(serviceName, (names.get(serviceName) ?? 0) + Math.round(row.taskUsedtime));
+      serviceGroups.set(serviceGroupName, names);
+      grouped.set(costGroupName, serviceGroups);
     }
 
     return Array.from(grouped.entries())
@@ -254,26 +247,28 @@ export function ResourceMonthPage() {
         (left, right) =>
           left.costGroup.localeCompare(right.costGroup) || left.group.localeCompare(right.group),
       );
-  }, [monthTasks, projectsById, requirementMap, serviceGroupsById]);
+  }, [monthRows]);
 
   const serviceDetailRows = useMemo<ServiceDetailRow[]>(() => {
     const grouped = new Map<string, Map<string, Map<string, Map<string, number>>>>();
 
-    for (const task of monthTasks) {
-      if (!isServiceTask(task, requirementMap)) {
+    for (const row of monthRows) {
+      if (!row.isServiceTask) {
         continue;
       }
 
-      const info = getTaskServiceInfo(task, projectsById, serviceGroupsById);
+      const costGroupName = row.costGroupName || '미분류';
+      const serviceGroupName = row.serviceGroupName || '미분류';
+      const serviceName = row.serviceName || '미분류';
       const serviceGroups =
-        grouped.get(info.costGroup) ?? new Map<string, Map<string, Map<string, number>>>();
-      const names = serviceGroups.get(info.group) ?? new Map<string, Map<string, number>>();
-      const typeMap = names.get(info.name) ?? new Map<string, number>();
-      const type1 = task.taskType1 || '미분류';
-      typeMap.set(type1, (typeMap.get(type1) ?? 0) + Math.round(task.taskUsedtime));
-      names.set(info.name, typeMap);
-      serviceGroups.set(info.group, names);
-      grouped.set(info.costGroup, serviceGroups);
+        grouped.get(costGroupName) ?? new Map<string, Map<string, Map<string, number>>>();
+      const names = serviceGroups.get(serviceGroupName) ?? new Map<string, Map<string, number>>();
+      const typeMap = names.get(serviceName) ?? new Map<string, number>();
+      const type1 = row.taskType1 || '미분류';
+      typeMap.set(type1, (typeMap.get(type1) ?? 0) + Math.round(row.taskUsedtime));
+      names.set(serviceName, typeMap);
+      serviceGroups.set(serviceGroupName, names);
+      grouped.set(costGroupName, serviceGroups);
     }
 
     return Array.from(grouped.entries())
@@ -298,23 +293,23 @@ export function ResourceMonthPage() {
         (left, right) =>
           left.costGroup.localeCompare(right.costGroup) || left.group.localeCompare(right.group),
       );
-  }, [monthTasks, projectsById, requirementMap, serviceGroupsById]);
+  }, [monthRows]);
 
   const memberTotals = useMemo(() => {
-    if (!data) {
-      return [];
-    }
+    const grouped = new Map<string, { id: string; accountId: string; totalMinutes: number }>();
 
-    return data.members
-      .map((member) => ({
-        id: member.id,
-        accountId: member.accountId,
-        totalMinutes: monthTasks
-          .filter((task) => task.memberId === member.id)
-          .reduce((sum, task) => sum + Math.round(task.taskUsedtime), 0),
-      }))
-      .filter((member) => member.totalMinutes > 0);
-  }, [data, monthTasks]);
+    monthRows.forEach((row) => {
+      const current = grouped.get(row.memberId) ?? {
+        id: row.memberId,
+        accountId: row.accountId,
+        totalMinutes: 0,
+      };
+      current.totalMinutes += Math.round(row.taskUsedtime);
+      grouped.set(row.memberId, current);
+    });
+
+    return Array.from(grouped.values()).filter((item) => item.totalMinutes > 0);
+  }, [monthRows]);
 
   const totalMinutes = typeRows.reduce((sum, row) => sum + row.totalMinutes, 0);
   const unpaidLeaveMinutes =

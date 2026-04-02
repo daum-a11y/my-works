@@ -5,12 +5,7 @@ import { setDocumentTitle } from '../../app/navigation';
 import { MonthlyReportCalendar } from '../../components/ui/MonthlyReportCalendar';
 import { opsDataClient } from '../../lib/dataClient';
 import { useAuth } from '../auth/AuthContext';
-import {
-  buildCalendarWeeks,
-  filterTasksByMonth,
-  getCurrentMonth,
-  shiftMonth,
-} from '../resource/resourceShared';
+import { buildCalendarWeeks, getCurrentMonth, shiftMonth } from '../resource/resourceShared';
 import styles from './DashboardPage.module.css';
 
 export function DashboardPage() {
@@ -30,8 +25,8 @@ export function DashboardPage() {
   });
 
   const tasksQuery = useQuery({
-    queryKey: ['dashboard', 'tasks', member?.id],
-    queryFn: async () => opsDataClient.getTasks(member!),
+    queryKey: ['dashboard', 'tasks', member?.id, selectedMonth],
+    queryFn: async () => opsDataClient.getDashboardTaskCalendar(member!, selectedMonth),
     enabled: Boolean(member),
   });
 
@@ -42,10 +37,9 @@ export function DashboardPage() {
       return null;
     }
 
-    const tasks = filterTasksByMonth(tasksQuery.data ?? [], selectedMonth);
     const summary = new Map<number, number>();
 
-    for (const task of tasks) {
+    for (const task of tasksQuery.data ?? []) {
       const day = Number(task.taskDate.slice(8, 10));
       summary.set(day, (summary.get(day) ?? 0) + Math.round(task.taskUsedtime));
     }
