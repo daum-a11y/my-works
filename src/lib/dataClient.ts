@@ -174,16 +174,29 @@ function buildTaskSearchText(
     .toLowerCase();
 }
 
+function dedupeTasksById(tasks: Task[]) {
+  const seen = new Set<string>();
+
+  return tasks.filter((task) => {
+    if (seen.has(task.id)) {
+      return false;
+    }
+
+    seen.add(task.id);
+    return true;
+  });
+}
+
 function createSupabaseClient(): OpsDataClient {
   const supabase = requireData(getSupabaseClient(), 'Supabase is not configured.');
   const taskSelectColumns =
     'id, legacy_task_id, member_id, task_date, project_id, project_page_id, task_type1, task_type2, hours, content, note, created_at, updated_at';
   const batchSize = 1000;
 
-  async function fetchAllTaskRows(
-    buildQuery: (from: number, to: number) => ReturnType<typeof supabase.from>,
+  async function fetchAllTaskRows<T extends Record<string, unknown>>(
+    buildQuery: (from: number, to: number) => PromiseLike<{ data: T[] | null; error: unknown }>,
   ) {
-    const rows: Record<string, unknown>[] = [];
+    const rows: T[] = [];
 
     for (let from = 0; ; from += batchSize) {
       const to = from + batchSize - 1;
@@ -192,7 +205,7 @@ function createSupabaseClient(): OpsDataClient {
         throw error;
       }
 
-      const batch = (data ?? []) as Record<string, unknown>[];
+      const batch = (data ?? []) as T[];
       rows.push(...batch);
 
       if (batch.length < batchSize) {
@@ -350,22 +363,24 @@ function createSupabaseClient(): OpsDataClient {
           .select(taskSelectColumns)
           .eq('member_id', member.id)
           .order('task_date', { ascending: false })
+          .order('id', { ascending: false })
           .range(from, to),
       );
-      return rows.map(mapTaskRecord);
+      return dedupeTasksById(rows.map(mapTaskRecord));
     },
     async getAllTasks(member) {
       const rows = await fetchAllTaskRows((from, to) => {
         let query = supabase
           .from('tasks')
           .select(taskSelectColumns)
-          .order('task_date', { ascending: false });
+          .order('task_date', { ascending: false })
+          .order('id', { ascending: false });
         if (member.role !== 'admin') {
           query = query.eq('member_id', member.id);
         }
         return query.range(from, to);
       });
-      return rows.map(mapTaskRecord);
+      return dedupeTasksById(rows.map(mapTaskRecord));
     },
     async getTaskActivities() {
       const { data, error } = await supabase.from('tasks').select('member_id, task_date, hours');
@@ -410,7 +425,8 @@ function createSupabaseClient(): OpsDataClient {
           .from('tasks')
           .select(taskSelectColumns)
           .eq('member_id', member.id)
-          .order('task_date', { ascending: false });
+          .order('task_date', { ascending: false })
+          .order('id', { ascending: false });
         if (filters.startDate) query = query.gte('task_date', filters.startDate);
         if (filters.endDate) query = query.lte('task_date', filters.endDate);
         if (filters.projectId) query = query.eq('project_id', filters.projectId);
@@ -421,7 +437,7 @@ function createSupabaseClient(): OpsDataClient {
         if (filters.maxHours) query = query.lte('hours', Number.parseFloat(filters.maxHours));
         return query.range(from, to);
       });
-      const tasks = rows.map(mapTaskRecord);
+      const tasks = dedupeTasksById(rows.map(mapTaskRecord));
 
       if (!filters.query.trim()) {
         return tasks;

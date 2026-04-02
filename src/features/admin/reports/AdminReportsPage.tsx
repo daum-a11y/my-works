@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useState } from 'react';
+import { type FormEvent, useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { setDocumentTitle } from '../../../app/navigation';
+import { PageSection } from '../../../components/ui/PageSection';
 import { downloadExcelFile } from '../../../lib/excelExport';
 import { toLocalDateInputValue } from '../../../lib/utils';
 import { adminDataClient } from '../adminClient';
@@ -35,6 +36,10 @@ interface SortState {
   key: SortKey;
   direction: SortDirection;
 }
+
+const PAGE_SIZE_OPTIONS = [25, 50, 100] as const;
+const DEFAULT_PAGE_SIZE = 50;
+const numberFormatter = new Intl.NumberFormat('ko-KR');
 
 const defaultSort: SortState = {
   key: 'taskDate',
@@ -197,6 +202,10 @@ export function AdminReportsPage() {
   const [appliedMemberFilterIds, setAppliedMemberFilterIds] = useState<string[]>([]);
   const [sortState, setSortState] = useState<SortState>(defaultSort);
   const [localMutationError, setLocalMutationError] = useState('');
+  const [memberFilterOpen, setMemberFilterOpen] = useState(false);
+  const [memberSearchInput, setMemberSearchInput] = useState('');
+  const [pageSize, setPageSize] = useState<number>(DEFAULT_PAGE_SIZE);
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     setDocumentTitle('업무보고 조회');
@@ -223,7 +232,19 @@ export function AdminReportsPage() {
     queryFn: () => adminDataClient.searchTasksAdmin(appliedFilters),
   });
 
-  const members = useMemo(() => membersQuery.data ?? [], [membersQuery.data]);
+  const members = useMemo(() => {
+    const items = membersQuery.data ?? [];
+    const seen = new Set<string>();
+
+    return items.filter((member) => {
+      if (seen.has(member.id)) {
+        return false;
+      }
+
+      seen.add(member.id);
+      return true;
+    });
+  }, [membersQuery.data]);
   const taskTypes = useMemo(() => taskTypesQuery.data ?? [], [taskTypesQuery.data]);
   const serviceGroups = useMemo(() => serviceGroupsQuery.data ?? [], [serviceGroupsQuery.data]);
   const projects = useMemo(() => projectsQuery.data ?? [], [projectsQuery.data]);
@@ -259,6 +280,17 @@ export function AdminReportsPage() {
       return true;
     });
   }, [appliedMemberFilterIds, tasks]);
+  const visibleMembers = useMemo(() => {
+    const queryText = memberSearchInput.trim().toLowerCase();
+
+    if (!queryText) {
+      return members;
+    }
+
+    return members.filter((member) =>
+      [member.accountId, member.name, member.email].join(' ').toLowerCase().includes(queryText),
+    );
+  }, [memberSearchInput, members]);
 
   const sortedTasks = useMemo(
     () => sortTasks(filteredTasks, sortState, membersById),
@@ -268,6 +300,17 @@ export function AdminReportsPage() {
     () => sortedTasks.reduce((sum, task) => sum + task.hours, 0),
     [sortedTasks],
   );
+  const totalTasks = sortedTasks.length;
+  const totalPages = Math.max(1, Math.ceil(totalTasks / pageSize));
+  const currentPageSafe = Math.min(currentPage, totalPages);
+  const pageStartIndex = totalTasks ? (currentPageSafe - 1) * pageSize : 0;
+  const paginatedTasks = sortedTasks.slice(pageStartIndex, pageStartIndex + pageSize);
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
 
   const deleteMutation = useMutation({
     mutationFn: (taskId: string) => adminDataClient.deleteTaskAdmin(taskId),
@@ -311,6 +354,7 @@ export function AdminReportsPage() {
 
     setAppliedFilters({ ...filters });
     setAppliedMemberFilterIds([...memberFilterIds]);
+    setCurrentPage(1);
   };
 
   const handleExport = () => {
@@ -351,9 +395,6 @@ export function AdminReportsPage() {
     await deleteMutation.mutateAsync(taskId);
   };
 
-  const selectAllUserChecked =
-    members.length > 0 &&
-    (memberFilterIds.length === 0 || memberFilterIds.length === members.length);
   const loading =
     membersQuery.isLoading ||
     taskTypesQuery.isLoading ||
@@ -372,162 +413,33 @@ export function AdminReportsPage() {
     (deleteMutation.error instanceof Error && deleteMutation.error.message) ||
     '';
 
+  const handleSearchSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    handleSearch();
+  };
+
+  const handleReset = () => {
+    const initialFilters = createDefaultFilters();
+    setFilters(initialFilters);
+    setAppliedFilters(initialFilters);
+    setMemberFilterIds([]);
+    setAppliedMemberFilterIds([]);
+    setSortState(defaultSort);
+    setMemberSearchInput('');
+    setCurrentPage(1);
+  };
+
   return (
-    <section className={styles.page}>
-      <header className={styles.hero}>
-        <div>
-          <p className={styles.eyebrow}>관리자</p>
-          <h1>업무보고 조회</h1>
-        </div>
-      </header>
-
-      <div className={styles.panel}>
-        <div className={styles.panelHeader}>
-          <h2>검색 조건</h2>
-          <div className={styles.actions}>
+    <section className={styles.shell}>
+      <header className={styles.pageHeader}>
+        <div className={styles.pageHeaderTop}>
+          <div className={styles.pageTitleGroup}>
+            <h1 className={styles.title}>업무보고 조회</h1>
+          </div>
+          <div className={styles.headerActions}>
             <button
               type="button"
-              onClick={handleSearch}
-              disabled={loading || searchQuery.isFetching}
-            >
-              검색
-            </button>
-          </div>
-        </div>
-
-        <div className={styles.filtersGrid}>
-          <div className={styles.field}>
-            <label htmlFor="admin-reports-start-date">시작일</label>
-            <input
-              id="admin-reports-start-date"
-              type="date"
-              value={filters.startDate}
-              onChange={(event) => handleFilterField('startDate', event.target.value)}
-            />
-          </div>
-          <div className={styles.field}>
-            <label htmlFor="admin-reports-end-date">종료일</label>
-            <input
-              id="admin-reports-end-date"
-              type="date"
-              value={filters.endDate}
-              onChange={(event) => handleFilterField('endDate', event.target.value)}
-            />
-          </div>
-          <div className={styles.field}>
-            <label htmlFor="admin-reports-task-type-1">type 1</label>
-            <select
-              id="admin-reports-task-type-1"
-              value={filters.taskType1}
-              onChange={(event) => handleFilterField('taskType1', event.target.value)}
-            >
-              <option value=""></option>
-              {taskType1Options.map((type1) => (
-                <option key={`filter-type1-${type1}`} value={type1}>
-                  {type1}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className={styles.field}>
-            <label htmlFor="admin-reports-task-type-2">type 2</label>
-            <select
-              id="admin-reports-task-type-2"
-              value={filters.taskType2}
-              onChange={(event) => handleFilterField('taskType2', event.target.value)}
-              disabled={!filters.taskType1 || filters.taskType1 === 'project'}
-            >
-              <option value=""></option>
-              {taskType2Options.map((type2) => (
-                <option key={`filter-type2-${type2}`} value={type2}>
-                  {type2}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className={styles.field}>
-            <label htmlFor="admin-reports-service-group">서비스그룹</label>
-            <select
-              id="admin-reports-service-group"
-              value={filters.serviceGroupId}
-              onChange={(event) => handleFilterField('serviceGroupId', event.target.value)}
-            >
-              <option value="">전체</option>
-              {serviceGroups.map((group: AdminServiceGroupItem) => (
-                <option key={group.id} value={group.id}>
-                  {group.name}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className={styles.field}>
-            <label htmlFor="admin-reports-service-name">서비스명</label>
-            <select
-              id="admin-reports-service-name"
-              value={filters.projectId}
-              onChange={(event) => handleFilterField('projectId', event.target.value)}
-              disabled={!filters.serviceGroupId}
-            >
-              <option value=""></option>
-              {visibleProjects.map((project: AdminProjectOption) => (
-                <option key={project.id} value={project.id}>
-                  {project.name}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className={styles.field}>
-            <label htmlFor="admin-reports-user-all">사용자</label>
-            <div className={styles.checkboxAll}>
-              <input
-                id="admin-reports-user-all"
-                type="checkbox"
-                checked={selectAllUserChecked}
-                onChange={(event) => {
-                  setMemberFilterIds(
-                    event.target.checked ? members.map((member) => member.id) : [],
-                  );
-                }}
-              />
-              <span>전체</span>
-            </div>
-          </div>
-          <div className={styles.memberCheckboxes}>
-            {members.map((member: MemberAdminItem) => (
-              <label key={member.id} className={styles.memberCheckbox}>
-                <input
-                  type="checkbox"
-                  checked={memberFilterIds.includes(member.id)}
-                  onChange={(event) => {
-                    setMemberFilterIds((current) =>
-                      event.target.checked
-                        ? [...current, member.id]
-                        : current.filter((id) => id !== member.id),
-                    );
-                  }}
-                />
-                <span>{member.accountId}</span>
-              </label>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {(queryError || mutationError) && (
-        <p className={styles.helperText}>{queryError || mutationError}</p>
-      )}
-
-      <div className={styles.panel}>
-        <div className={styles.panelHeader}>
-          <div>
-            <h2>검색 결과</h2>
-            <p className={styles.subText}>
-              총 {sortedTasks.length}건, {formatSummaryMinutes(totalMinutes)}
-            </p>
-          </div>
-          <div className={styles.actions}>
-            <button
-              type="button"
+              className={styles.headerAction}
               onClick={() =>
                 navigate('/org/search/new', {
                   state: {
@@ -535,16 +447,291 @@ export function AdminReportsPage() {
                   },
                 })
               }
-              className={styles.primaryButton}
             >
-              추가
-            </button>
-            <button type="button" onClick={handleExport} disabled={sortedTasks.length === 0}>
-              엑셀파일로 내려받기
+              업무보고 추가
             </button>
           </div>
         </div>
+      </header>
 
+      <PageSection title="필터">
+        <form className={styles.filterForm} onSubmit={handleSearchSubmit}>
+          <div className={styles.dateRow}>
+            <label className={styles.filterField}>
+              <span>시작일</span>
+              <input
+                id="admin-reports-start-date"
+                type="date"
+                value={filters.startDate}
+                onChange={(event) => handleFilterField('startDate', event.target.value)}
+              />
+            </label>
+            <label className={styles.filterField}>
+              <span>종료일</span>
+              <input
+                id="admin-reports-end-date"
+                type="date"
+                value={filters.endDate}
+                onChange={(event) => handleFilterField('endDate', event.target.value)}
+              />
+            </label>
+          </div>
+
+          <div className={styles.metaRow}>
+            <label className={styles.filterField}>
+              <span>타입 1</span>
+              <select
+                id="admin-reports-task-type-1"
+                value={filters.taskType1}
+                onChange={(event) => handleFilterField('taskType1', event.target.value)}
+              >
+                <option value="">전체</option>
+                {taskType1Options.map((type1) => (
+                  <option key={`filter-type1-${type1}`} value={type1}>
+                    {type1}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className={styles.filterField}>
+              <span>타입 2</span>
+              <select
+                id="admin-reports-task-type-2"
+                value={filters.taskType2}
+                onChange={(event) => handleFilterField('taskType2', event.target.value)}
+                disabled={!filters.taskType1 || filters.taskType1 === 'project'}
+              >
+                <option value="">전체</option>
+                {taskType2Options.map((type2) => (
+                  <option key={`filter-type2-${type2}`} value={type2}>
+                    {type2}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className={styles.filterField}>
+              <span>서비스그룹</span>
+              <select
+                id="admin-reports-service-group"
+                value={filters.serviceGroupId}
+                onChange={(event) => handleFilterField('serviceGroupId', event.target.value)}
+              >
+                <option value="">전체</option>
+                {serviceGroups.map((group: AdminServiceGroupItem) => (
+                  <option key={group.id} value={group.id}>
+                    {group.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className={styles.filterField}>
+              <span>서비스명</span>
+              <select
+                id="admin-reports-service-name"
+                value={filters.projectId}
+                onChange={(event) => handleFilterField('projectId', event.target.value)}
+                disabled={!filters.serviceGroupId}
+              >
+                <option value="">전체</option>
+                {visibleProjects.map((project: AdminProjectOption) => (
+                  <option key={project.id} value={project.id}>
+                    {project.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+
+          <div className={styles.searchRow}>
+            <div className={styles.filterField}>
+              <span>사용자</span>
+              <div className={styles.memberSelect}>
+                <button
+                  type="button"
+                  className={styles.memberAccordionTrigger}
+                  onClick={() => setMemberFilterOpen((current) => !current)}
+                  aria-expanded={memberFilterOpen}
+                  aria-controls="admin-reports-member-panel"
+                >
+                  <span className={styles.memberAccordionValue}>
+                    {memberFilterIds.length === members.length && members.length > 0
+                      ? '전체'
+                      : memberFilterIds.length === 0
+                        ? '전체'
+                        : `${memberFilterIds.length}명 선택`}
+                  </span>
+                  <span className={styles.memberAccordionArrow} aria-hidden="true">
+                    {memberFilterOpen ? '▲' : '▼'}
+                  </span>
+                </button>
+                <div
+                  id="admin-reports-member-panel"
+                  className={
+                    memberFilterOpen ? styles.memberAccordionBodyOpen : styles.memberAccordionBody
+                  }
+                >
+                  <div className={styles.memberAccordionInner}>
+                    <div className={styles.memberPanelToolbar}>
+                      <input
+                        className={styles.memberSearchInput}
+                        value={memberSearchInput}
+                        onChange={(event) => setMemberSearchInput(event.target.value)}
+                        placeholder="ID, 이름, 이메일 검색"
+                        aria-label="사용자 검색"
+                      />
+                    </div>
+                    <div className={styles.memberQuickActions}>
+                      <button
+                        type="button"
+                        className={styles.memberQuickAction}
+                        onClick={() => setMemberFilterIds(members.map((member) => member.id))}
+                      >
+                        전체 선택
+                      </button>
+                      <button
+                        type="button"
+                        className={styles.memberQuickAction}
+                        onClick={() => setMemberFilterIds([])}
+                      >
+                        전체 해제
+                      </button>
+                    </div>
+                    <div className={styles.memberCheckboxes}>
+                      {visibleMembers.length === 0 ? (
+                        <p className={styles.memberEmptyState}>검색 결과가 없습니다.</p>
+                      ) : (
+                        visibleMembers.map((member: MemberAdminItem) => {
+                          const checked = memberFilterIds.includes(member.id);
+
+                          return (
+                            <label
+                              key={member.id}
+                              className={[
+                                styles.memberCheckbox,
+                                checked ? styles.memberCheckboxSelected : '',
+                              ]
+                                .filter(Boolean)
+                                .join(' ')}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={checked}
+                                onChange={(event) => {
+                                  setMemberFilterIds((current) =>
+                                    event.target.checked
+                                      ? [...current, member.id]
+                                      : current.filter((id) => id !== member.id),
+                                  );
+                                }}
+                              />
+                              <span className={styles.memberAccount}>{member.accountId}</span>
+                              <span className={styles.memberName}>{member.name}</span>
+                            </label>
+                          );
+                        })
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <label className={styles.filterField}>
+              <span>검색어</span>
+              <input
+                value={filters.keyword}
+                onChange={(event) => handleFilterField('keyword', event.target.value)}
+                placeholder="ID, 이름, 서비스명, 비고 검색"
+              />
+            </label>
+          </div>
+
+          <div className={styles.filterActionsRow}>
+            <div className={styles.filterActions}>
+              <button
+                type="submit"
+                className={styles.filterButton}
+                disabled={loading || searchQuery.isFetching}
+              >
+                검색
+              </button>
+              <button type="button" className={styles.filterButtonSecondary} onClick={handleReset}>
+                초기화
+              </button>
+              <span className={styles.filterDivider} aria-hidden="true" />
+              <button
+                type="button"
+                className={styles.filterButtonSecondary}
+                onClick={handleExport}
+                disabled={totalTasks === 0}
+              >
+                다운로드
+              </button>
+            </div>
+          </div>
+        </form>
+      </PageSection>
+
+      {(queryError || mutationError) && (
+        <p className={styles.statusMessage}>{queryError || mutationError}</p>
+      )}
+
+      <section className={styles.resultBar} aria-label="업무보고 조회 결과 요약">
+        <div className={styles.resultMetrics}>
+          <div className={styles.pager} aria-label="업무보고 목록 페이지 이동">
+            <button
+              type="button"
+              className={styles.pageButton}
+              onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+              disabled={currentPageSafe === 1}
+              aria-label="이전 페이지"
+            >
+              이전
+            </button>
+            <p className={styles.pageStatus}>
+              <strong>{currentPageSafe}</strong>
+              <span>/ {numberFormatter.format(totalPages)}</span>
+            </p>
+            <button
+              type="button"
+              className={styles.pageButton}
+              onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+              disabled={currentPageSafe === totalPages || totalTasks === 0}
+              aria-label="다음 페이지"
+            >
+              다음
+            </button>
+          </div>
+          <p className={styles.resultMetric}>
+            <span className={styles.resultLabel}>총 건수</span>
+            <strong className={styles.resultValue}>{numberFormatter.format(totalTasks)}건</strong>
+          </p>
+          <p className={styles.resultMetric}>
+            <span className={styles.resultLabel}>총 시간</span>
+            <strong className={styles.resultValue}>{formatSummaryMinutes(totalMinutes)}</strong>
+          </p>
+        </div>
+        <div className={styles.resultControls}>
+          <label className={styles.pageSizeField}>
+            <span>페이지당</span>
+            <select
+              value={String(pageSize)}
+              onChange={(event) => {
+                setPageSize(Number(event.target.value));
+                setCurrentPage(1);
+              }}
+              aria-label="페이지당 행 수"
+            >
+              {PAGE_SIZE_OPTIONS.map((option) => (
+                <option key={option} value={option}>
+                  {option}행
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+      </section>
+
+      <div className={styles.panel}>
         <div className={styles.tableWrap}>
           <table className={styles.table}>
             <thead>
@@ -643,19 +830,19 @@ export function AdminReportsPage() {
               </tr>
             </thead>
             <tbody>
-              {sortedTasks.length === 0 ? (
+              {paginatedTasks.length === 0 ? (
                 <tr>
                   <td colSpan={14} className={styles.emptyState}>
                     검색 결과가 없습니다.
                   </td>
                 </tr>
               ) : (
-                sortedTasks.map((task, index) => {
+                paginatedTasks.map((task, index) => {
                   const member = membersById.get(task.memberId);
 
                   return (
                     <tr key={task.id}>
-                      <td>{index + 1}</td>
+                      <td>{pageStartIndex + index + 1}</td>
                       <td>{task.taskDate}</td>
                       <td>
                         <strong>{member?.accountId ?? task.memberId}</strong>
@@ -670,8 +857,13 @@ export function AdminReportsPage() {
                       <td>{task.pageTitle || '-'}</td>
                       <td>
                         {task.pageUrl ? (
-                          <a href={task.pageUrl} target="_blank" rel="noreferrer">
-                            {task.pageUrl}
+                          <a
+                            href={task.pageUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className={styles.tableLink}
+                          >
+                            링크
                           </a>
                         ) : (
                           '-'
@@ -680,15 +872,17 @@ export function AdminReportsPage() {
                       <td>{formatTimeCell(task.hours)}</td>
                       <td>{task.note || '-'}</td>
                       <td>
-                        <div className={styles.rowActions}>
+                        <div className={styles.actionStack}>
                           <button
                             type="button"
+                            className={styles.actionButton}
                             onClick={() => navigate(`/org/search/${task.id}/edit`)}
                           >
                             수정
                           </button>
                           <button
                             type="button"
+                            className={styles.deleteButton}
                             onClick={() => void deleteTask(task.id)}
                             disabled={deleteMutation.isPending}
                           >

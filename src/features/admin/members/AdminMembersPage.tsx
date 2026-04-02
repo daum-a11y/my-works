@@ -62,7 +62,7 @@ export function AdminMembersPage() {
     }
   }, [location.state]);
 
-  const members = membersQuery.data ?? [];
+  const members = useMemo(() => membersQuery.data ?? [], [membersQuery.data]);
   const filteredMembers = useMemo(
     () => members.filter((member) => matchesMemberFilters(member, appliedFilters)),
     [appliedFilters, members],

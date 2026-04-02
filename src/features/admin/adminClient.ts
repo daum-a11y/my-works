@@ -347,6 +347,19 @@ function filterAdminTasks(items: AdminTaskSearchItem[], filters: AdminTaskSearch
   });
 }
 
+function dedupeAdminTasksById(items: AdminTaskSearchItem[]) {
+  const seen = new Set<string>();
+
+  return items.filter((item) => {
+    if (seen.has(item.id)) {
+      return false;
+    }
+
+    seen.add(item.id);
+    return true;
+  });
+}
+
 async function fetchAdminTasks(
   supabase: NonNullable<ReturnType<typeof getSupabaseClient>>,
   filters: AdminTaskSearchFilters,
@@ -367,7 +380,8 @@ async function fetchAdminTasks(
       .from('tasks')
       .select(TASK_SELECT_COLUMNS)
       .order('task_date', { ascending: false })
-      .order('updated_at', { ascending: false });
+      .order('updated_at', { ascending: false })
+      .order('id', { ascending: false });
 
     if (memberId) query = query.eq('member_id', memberId);
     if (startDate) query = query.gte('task_date', startDate);
@@ -389,7 +403,7 @@ async function fetchAdminTasks(
   }
 
   const maps = await loadAdminReferenceMaps(supabase);
-  return filterAdminTasks(enrichTaskRecords(rows, maps), filters);
+  return filterAdminTasks(dedupeAdminTasksById(enrichTaskRecords(rows, maps)), filters);
 }
 
 async function fetchAdminTaskById(
