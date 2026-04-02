@@ -1180,19 +1180,36 @@ def build_dump():
         chunk_path.unlink()
     OUTPUT_PATH.write_text("\n\n".join(lines) + "\n", encoding="utf-8")
     TASKS_OUTPUT_PATH.write_text("\n\n".join(task_lines) + "\n", encoding="utf-8")
-    task_insert_statements = [
-        line
-        for line in task_lines
-        if line.startswith("insert into public.tasks")
+    task_columns = [
+        "id",
+        "member_id",
+        "created_by_member_id",
+        "task_date",
+        "project_id",
+        "project_page_id",
+        "task_type_id",
+        "task_type1",
+        "task_type2",
+        "task_usedtime",
+        "content",
+        "note",
+        "created_at",
+        "updated_at",
     ]
-    for index in range(0, len(task_insert_statements), TASKS_FILE_STATEMENT_BATCH):
-        batch = task_insert_statements[index : index + TASKS_FILE_STATEMENT_BATCH]
-        chunk_number = index // TASKS_FILE_STATEMENT_BATCH + 1
+    rows_per_chunk = TASKS_FILE_STATEMENT_BATCH * 1000
+    for index in range(0, len(task_rows), rows_per_chunk):
+        batch_rows = task_rows[index : index + rows_per_chunk]
+        chunk_number = index // rows_per_chunk + 1
         chunk_lines = [
             f"-- Refined tasks dump chunk {chunk_number} generated locally.",
             "-- Source: MySQL source dump tables only.",
             "begin;",
-            *batch,
+            *insert_block(
+                "public.tasks",
+                task_columns,
+                batch_rows,
+                chunk_size=1000,
+            ),
             "commit;",
         ]
         (TASKS_CHUNKS_DIR / f"{chunk_number:03d}.sql").write_text(
