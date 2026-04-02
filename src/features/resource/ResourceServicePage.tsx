@@ -243,7 +243,7 @@ function ServiceYearRows({
               </tr>
             ))}
             <tr key={`${row.year}-${month.month}-sum`} className={styles.summaryStrongRow}>
-              <td colSpan={3}>{month.month}월 합계</td>
+              <td colSpan={2}>{month.month}월 합계</td>
               <td>{formatMm(month.totalMinutes, month.workingDays)}</td>
             </tr>
           </Fragment>
@@ -300,7 +300,7 @@ function ServiceMonthDetailRows({
         )),
       )}
       <tr className={styles.summaryStrongRow}>
-        <td colSpan={3}>{month.month}월 합계</td>
+        <td colSpan={2}>{month.month}월 합계</td>
         <td>{formatMm(month.totalMinutes, month.workingDays)}</td>
       </tr>
     </>

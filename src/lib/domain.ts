@@ -34,7 +34,6 @@ export interface Member {
 
 export interface TaskType {
   id: string;
-  legacyTypeId: string;
   type1: string;
   type2: string;
   label: string;
@@ -100,6 +99,11 @@ export interface TaskActivity {
   memberId: string;
   taskDate: string;
   hours: number;
+}
+
+export interface PagedResult<T> {
+  items: T[];
+  totalCount: number;
 }
 
 export interface ReportFilters {

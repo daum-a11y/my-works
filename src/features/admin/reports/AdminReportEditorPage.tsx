@@ -8,7 +8,6 @@ import {
   buildTaskType2Options,
   createEmptyReportDraft,
   getTodayInputValue,
-  parseLegacyTaskMeta,
   parseReportHoursInput,
   shiftDateInput,
   validateTaskTypeSelection,
@@ -17,48 +16,6 @@ import {
 import { adminDataClient } from '../adminClient';
 import type { AdminTaskSearchItem, MemberAdminItem } from '../admin-types';
 import styles from '../../reports/ReportsPage.module.css';
-
-const PROJECT_LINKED_PAGE_SELECT_TYPE2_IDS = [
-  '2',
-  '8',
-  '9',
-  '10',
-  '11',
-  '12',
-  '13',
-  '14',
-  '65',
-  '88',
-  '96',
-  '97',
-  '98',
-  '99',
-  '100',
-] as const;
-const PROJECT_LINKED_PAGE_URL_TYPE2_IDS = [
-  '2',
-  '4',
-  '7',
-  '8',
-  '9',
-  '10',
-  '11',
-  '12',
-  '13',
-  '14',
-  '50',
-  '51',
-  '65',
-  '88',
-  '96',
-  '97',
-  '98',
-  '99',
-  '100',
-] as const;
-const PROJECT_LINKED_MANUAL_PAGE_TYPE2_IDS = ['35', '38', '67', '69'] as const;
-const TYPE_INPUT_PAGE_SELECT_TYPE2_IDS = ['2', '7', '9', '10', '12', '13'] as const;
-const TYPE_INPUT_PAGE_URL_TYPE2_IDS = ['2', '7', '9', '10', '12', '13', '50'] as const;
 
 function includesValue(values: readonly string[], value: string) {
   return values.includes(value);
@@ -91,27 +48,9 @@ function parseCompactDate(value: string, mode: 'short' | 'long') {
   return value;
 }
 
-function buildLegacyNote(rawNote: string, meta: Record<string, string>) {
-  const lines = [
-    `platform: ${meta.platform}`,
-    `service_group: ${meta.serviceGroupName}`,
-    `service_name: ${meta.serviceName}`,
-    `project_name: ${meta.projectName}`,
-    `page_name: ${meta.pageName}`,
-    `page_url: ${meta.pageUrl}`,
-  ];
-
-  if (rawNote.trim()) {
-    lines.push(`raw_note: ${rawNote.trim()}`);
-  }
-
-  return lines.join('\n');
-}
-
 function toTaskTypes(items: Awaited<ReturnType<typeof adminDataClient.listTaskTypes>>): TaskType[] {
   return items.map((item) => ({
     id: item.id,
-    legacyTypeId: item.legacyTypeNum == null ? '' : String(item.legacyTypeNum),
     type1: item.type1,
     type2: item.type2,
     label: item.displayLabel,
@@ -169,22 +108,20 @@ function toPages(
 }
 
 function createDraftFromTask(task: AdminTaskSearchItem): ReportDraft {
-  const meta = parseLegacyTaskMeta(task.note);
-
   return {
     reportDate: task.taskDate,
     projectId: task.projectId ?? '',
     pageId: task.pageId ?? '',
     type1: task.taskType1,
     type2: task.taskType2,
-    platform: meta.platform || task.platform || '',
-    serviceGroupName: meta.serviceGroupName || task.serviceGroupName || '',
-    serviceName: meta.serviceName || task.serviceName || '',
-    manualPageName: meta.pageName || task.pageTitle || '',
-    pageUrl: meta.pageUrl || task.pageUrl || '',
+    platform: task.platform || '',
+    serviceGroupName: task.serviceGroupName || '',
+    serviceName: task.serviceName || '',
+    manualPageName: task.pageTitle || '',
+    pageUrl: task.pageUrl || '',
     workHours: String(task.hours ?? 0),
     content: task.content || '',
-    note: meta.rawNote || task.note || '',
+    note: task.note || '',
   };
 }
 
@@ -295,15 +232,16 @@ export function AdminReportEditorPage() {
       null,
     [draft.projectId, filteredProjectOptions, projectOptions],
   );
-  const selectedType2LegacyId = useMemo(
+  const selectedTaskType = useMemo(
     () =>
-      taskTypes.find((taskType) => taskType.type1 === draft.type1 && taskType.type2 === draft.type2)
-        ?.legacyTypeId ?? '',
+      taskTypes.find(
+        (taskType) => taskType.type1 === draft.type1 && taskType.type2 === draft.type2,
+      ) ?? null,
     [draft.type1, draft.type2, taskTypes],
   );
   const reportTabType1Options = useMemo(() => {
-    const legacyOrder = ['민원', '데이터버퍼', '일반버퍼', '교육', '기타버퍼', '휴무'];
-    const available = legacyOrder.filter((type1) =>
+    const preferredOrder = ['민원', '데이터버퍼', '일반버퍼', '교육', '기타버퍼', '휴무'];
+    const available = preferredOrder.filter((type1) =>
       buildTaskType1Options(taskTypes).includes(type1),
     );
     return available.length ? available : buildTaskType1Options(taskTypes);
@@ -318,44 +256,37 @@ export function AdminReportEditorPage() {
   const type1Value = projectTypeSelected
     ? currentProject?.project.projectType1 || draft.type1
     : draft.type1;
+  const requiresServiceGroup = selectedTaskType?.requiresServiceGroup ?? false;
   const usesProjectLookup = includesValue(['QA', '접근성테스트', '모니터링', '민원'], type1Value);
   const usesManualPageWithUrl = includesValue(['데이터버퍼', 'RnD'], type1Value);
   const usesManualPageOnly = includesValue(['일반버퍼', '교육', '매니징', '기타버퍼'], type1Value);
   const showPlatformSelect = !projectTypeSelected && usesProjectLookup;
   const showReadonlyService = projectTypeSelected || usesProjectLookup;
   const showProjectSelect = isProjectLinkedTab || usesProjectLookup;
-  const isVacationType = selectedType2LegacyId === '36';
-  const isFixedDayType = selectedType2LegacyId === '38';
+  const isVacationType = type1Value === '휴무';
+  const isFixedDayType = false;
   const showProjectLinkedPageSelect =
-    projectTypeSelected &&
-    includesValue(PROJECT_LINKED_PAGE_SELECT_TYPE2_IDS, selectedType2LegacyId);
-  const showProjectLinkedPageUrl =
-    projectTypeSelected && includesValue(PROJECT_LINKED_PAGE_URL_TYPE2_IDS, selectedType2LegacyId);
+    projectTypeSelected && includesValue(['모니터링', '민원'], type1Value);
+  const showProjectLinkedPageUrl = projectTypeSelected && requiresServiceGroup;
   const showPageSelect = isProjectLinkedTab
     ? showProjectLinkedPageSelect
-    : Boolean(draft.projectId) &&
-      (includesValue(['모니터링', '민원'], type1Value) ||
-        includesValue(TYPE_INPUT_PAGE_SELECT_TYPE2_IDS, selectedType2LegacyId));
+    : Boolean(draft.projectId) && includesValue(['모니터링', '민원'], type1Value);
   const showPageUrl = isProjectLinkedTab
     ? showProjectLinkedPageUrl
-    : usesProjectLookup ||
-      usesManualPageWithUrl ||
-      includesValue(TYPE_INPUT_PAGE_URL_TYPE2_IDS, selectedType2LegacyId);
+    : usesProjectLookup || usesManualPageWithUrl || (requiresServiceGroup && !showPageSelect);
   const showManualPageName = isProjectLinkedTab
-    ? includesValue(PROJECT_LINKED_MANUAL_PAGE_TYPE2_IDS, selectedType2LegacyId) || isVacationType
-    : usesManualPageWithUrl ||
-      usesManualPageOnly ||
-      includesValue(['36', '38', '67', '69'], selectedType2LegacyId);
+    ? (projectTypeSelected && type1Value === 'QA') || isVacationType
+    : usesManualPageWithUrl || usesManualPageOnly || isVacationType;
   const isReadonlyWorkHours = isVacationType || isFixedDayType;
   const manualPageLabel = useMemo(() => {
     if (isVacationType) {
       return '휴가 종류';
     }
-    if (includesValue(['35', '38', '67', '69'], selectedType2LegacyId)) {
+    if (type1Value === 'QA' || usesManualPageOnly) {
       return '페이지명';
     }
     return '페이지명 & 내용';
-  }, [isVacationType, selectedType2LegacyId]);
+  }, [isVacationType, type1Value, usesManualPageOnly]);
   const typeFilteredProjects = useMemo(() => {
     if (!draft.platform || !draft.type1) {
       return [] as typeof filteredProjectOptions;
@@ -436,34 +367,21 @@ export function AdminReportEditorPage() {
   };
 
   const handleType2Change = (nextType2: string) => {
-    const previousLegacyId = selectedType2LegacyId;
+    const previousWasVacation = draft.type1 === '휴무';
     setDraftField('type2', nextType2 as ReportDraft['type2']);
 
     if (nextType2 === draft.type2) {
       return;
     }
 
-    const nextLegacyId =
-      taskTypes.find((taskType) => taskType.type1 === type1Value && taskType.type2 === nextType2)
-        ?.legacyTypeId ?? '';
-    if (nextLegacyId === '38') {
-      setDraftField('manualPageName', '');
-      setDraftField('workHours', '480');
-      return;
-    }
-
-    if (nextLegacyId === '36' || nextLegacyId === '67' || nextLegacyId === '69') {
+    const nextIsVacation = type1Value === '휴무';
+    if (nextIsVacation) {
       setDraftField('manualPageName', '');
       setDraftField('workHours', '');
       return;
     }
 
-    if (
-      previousLegacyId === '36' ||
-      previousLegacyId === '38' ||
-      previousLegacyId === '67' ||
-      previousLegacyId === '69'
-    ) {
+    if (previousWasVacation) {
       setDraftField('manualPageName', '');
       setDraftField('workHours', '');
     }
@@ -497,25 +415,6 @@ export function AdminReportEditorPage() {
 
       const taskType = validateTaskTypeSelection(taskTypes, draft.type1, draft.type2);
       const hours = parseReportHoursInput(draft.workHours);
-      const project = draft.projectId ? (projectsById.get(draft.projectId) ?? null) : null;
-      const page = draft.pageId ? (pagesById.get(draft.pageId) ?? null) : null;
-      const serviceGroupName =
-        draft.serviceGroupName ||
-        (project?.serviceGroupId
-          ? (serviceGroupsById.get(project.serviceGroupId)?.name ?? '')
-          : '');
-      const serviceName = draft.serviceName || '';
-      const pageName = draft.manualPageName || page?.title || '';
-      const pageUrl = draft.pageUrl || page?.url || project?.reportUrl || '';
-      const note = buildLegacyNote(draft.note, {
-        platform: draft.platform || project?.platform || '',
-        serviceGroupName,
-        serviceName,
-        projectName: project?.name || '',
-        pageName,
-        pageUrl,
-      });
-
       await adminDataClient.saveTaskAdmin({
         id: isEdit ? taskId : undefined,
         memberId: selectedMemberId,
@@ -526,7 +425,7 @@ export function AdminReportEditorPage() {
         taskType2: taskType.type2,
         hours,
         content: taskQuery.data?.content ?? '',
-        note,
+        note: draft.note.trim(),
       });
     },
     onSuccess: async () => {

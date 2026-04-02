@@ -33,6 +33,11 @@ export interface AdminTaskSearchItem {
   updatedAt: string;
 }
 
+export interface AdminTaskSearchPage {
+  items: AdminTaskSearchItem[];
+  totalCount: number;
+}
+
 export interface AdminTaskSaveInput {
   id?: string;
   memberId: string;

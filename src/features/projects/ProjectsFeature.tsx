@@ -5,7 +5,7 @@ import { setDocumentTitle } from '../../app/navigation';
 import { useAuth } from '../auth/AuthContext';
 import { PageSection } from '../../components/ui/PageSection';
 import { opsDataClient } from '../../lib/dataClient';
-import { type Member, type Project } from '../../lib/domain';
+import { type Member } from '../../lib/domain';
 import {
   formatDateLabel,
   getToday,
@@ -17,10 +17,6 @@ import styles from './ProjectsFeature.module.css';
 interface ProjectFilterState {
   startDate: string;
   endDate: string;
-}
-
-function normalizeText(value: string) {
-  return value.trim().toLowerCase();
 }
 
 function memberDisplay(memberId: string | null | undefined, membersById: Map<string, Member>) {
@@ -60,46 +56,6 @@ function createInitialProjectFilters(): ProjectFilterState {
   };
 }
 
-function matchesProjectDateRange(project: Project, filters: ProjectFilterState) {
-  if (filters.startDate && project.endDate < filters.startDate) {
-    return false;
-  }
-
-  if (filters.endDate && project.startDate > filters.endDate) {
-    return false;
-  }
-
-  return true;
-}
-
-function projectSearchText(
-  project: Project,
-  serviceGroupLabel: string,
-  reporterLabel: string,
-  reviewerLabel: string,
-) {
-  return normalizeText(
-    [
-      project.projectType1,
-      project.name,
-      project.platform,
-      serviceGroupLabel,
-      reporterLabel,
-      reviewerLabel,
-      project.reportUrl,
-      project.startDate,
-      project.endDate,
-    ].join(' '),
-  );
-}
-
-function sortProjects(projects: Project[]) {
-  return [...projects].sort(
-    (left, right) =>
-      right.startDate.localeCompare(left.startDate) || left.name.localeCompare(right.name, 'ko'),
-  );
-}
-
 const PAGE_SIZE_OPTIONS = [25, 50, 100] as const;
 const DEFAULT_PAGE_SIZE = 50;
 const numberFormatter = new Intl.NumberFormat('ko-KR');
@@ -121,23 +77,37 @@ export function ProjectsFeature() {
   }, []);
 
   const query = useQuery({
-    queryKey: ['projects', member?.id],
+    queryKey: ['projects', 'paged', appliedFilters, appliedSearch, currentPage, pageSize],
+    enabled: Boolean(member),
+    queryFn: async () =>
+      opsDataClient.searchProjectsPage(appliedFilters, appliedSearch, currentPage, pageSize),
+  });
+
+  const refsQuery = useQuery({
+    queryKey: ['projects', 'refs'],
     enabled: Boolean(member),
     queryFn: async () => {
-      const [projects, pages, members, serviceGroups] = await Promise.all([
-        opsDataClient.getProjects(),
-        opsDataClient.getProjectPages(member!),
+      const [members, serviceGroups] = await Promise.all([
         opsDataClient.getMembers(),
         opsDataClient.getServiceGroups(),
       ]);
-      return { projects, pages, members, serviceGroups };
+      return { members, serviceGroups };
     },
   });
 
-  const projects = useMemo(() => query.data?.projects ?? [], [query.data?.projects]);
-  const pages = useMemo(() => query.data?.pages ?? [], [query.data?.pages]);
-  const members = useMemo(() => query.data?.members ?? [], [query.data?.members]);
-  const serviceGroups = useMemo(() => query.data?.serviceGroups ?? [], [query.data?.serviceGroups]);
+  const projects = useMemo(() => query.data?.items ?? [], [query.data?.items]);
+  const members = useMemo(() => refsQuery.data?.members ?? [], [refsQuery.data?.members]);
+  const serviceGroups = useMemo(
+    () => refsQuery.data?.serviceGroups ?? [],
+    [refsQuery.data?.serviceGroups],
+  );
+
+  const pageCountQuery = useQuery({
+    queryKey: ['projects', 'page-counts', projects.map((project) => project.id).join(',')],
+    enabled: projects.length > 0,
+    queryFn: async () =>
+      opsDataClient.getProjectPagesByProjectIds(projects.map((project) => project.id)),
+  });
 
   const membersById = useMemo(
     () => new Map(members.map((item) => [item.id, item] as const)),
@@ -150,40 +120,16 @@ export function ProjectsFeature() {
   const pageCountByProjectId = useMemo(() => {
     const counts = new Map<string, number>();
 
-    pages.forEach((page) => {
+    (pageCountQuery.data ?? []).forEach((page) => {
       counts.set(page.projectId, (counts.get(page.projectId) ?? 0) + 1);
     });
 
     return counts;
-  }, [pages]);
+  }, [pageCountQuery.data]);
 
-  const filteredProjects = useMemo(() => {
-    const sorted = sortProjects(projects);
-    const queryText = normalizeText(appliedSearch);
-
-    return sorted.filter((project) => {
-      if (!matchesProjectDateRange(project, appliedFilters)) {
-        return false;
-      }
-
-      if (!queryText) {
-        return true;
-      }
-
-      const groupLabel = serviceGroupName(project.serviceGroupId, serviceGroupsById);
-      const reporterLabel = memberDisplay(project.reporterMemberId, membersById);
-      const reviewerLabel = memberDisplay(project.reviewerMemberId, membersById);
-      return projectSearchText(project, groupLabel, reporterLabel, reviewerLabel).includes(
-        queryText,
-      );
-    });
-  }, [appliedFilters, appliedSearch, membersById, projects, serviceGroupsById]);
-
-  const totalProjects = filteredProjects.length;
+  const totalProjects = query.data?.totalCount ?? 0;
   const totalPages = Math.max(1, Math.ceil(totalProjects / pageSize));
   const currentPageSafe = Math.min(currentPage, totalPages);
-  const pageStartIndex = totalProjects ? (currentPageSafe - 1) * pageSize : 0;
-  const paginatedProjects = filteredProjects.slice(pageStartIndex, pageStartIndex + pageSize);
   useEffect(() => {
     if (currentPage > totalPages) {
       setCurrentPage(totalPages);
@@ -331,7 +277,7 @@ export function ProjectsFeature() {
             </tr>
           </thead>
           <tbody>
-            {paginatedProjects.map((project) => {
+            {projects.map((project) => {
               const groupLabel = serviceGroupName(project.serviceGroupId, serviceGroupsById);
 
               return (
@@ -367,7 +313,7 @@ export function ProjectsFeature() {
                 </tr>
               );
             })}
-            {!paginatedProjects.length ? (
+            {!projects.length ? (
               <tr>
                 <td colSpan={11} className={styles.emptyState}>
                   검색 결과가 없습니다. 새 프로젝트를 등록하거나 기간을 조정하십시오.

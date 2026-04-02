@@ -4,6 +4,7 @@ import {
   type Member,
   normalizePageStatus,
   type OpsStore,
+  type PagedResult,
   type Project,
   type ProjectPage,
   type ReportFilters,
@@ -76,18 +77,32 @@ export interface OpsDataClient {
   getTaskTypes(): Promise<TaskType[]>;
   getServiceGroups(): Promise<ServiceGroup[]>;
   getProjects(): Promise<Project[]>;
+  searchProjectsPage(
+    filters: { startDate: string; endDate: string },
+    query: string,
+    page: number,
+    pageSize: number,
+  ): Promise<PagedResult<Project>>;
   saveProject(input: SaveProjectInput): Promise<Project>;
   deleteProject(projectId: string): Promise<void>;
   getProjectPages(member: Member): Promise<ProjectPage[]>;
   getAllProjectPages(): Promise<ProjectPage[]>;
+  getProjectPagesByProjectIds(projectIds: string[]): Promise<ProjectPage[]>;
   saveProjectPage(input: SaveProjectPageInput): Promise<ProjectPage>;
   deleteProjectPage(pageId: string): Promise<void>;
   getTasks(member: Member): Promise<Task[]>;
+  getTasksByDate(member: Member, taskDate: string): Promise<Task[]>;
   getAllTasks(member: Member): Promise<Task[]>;
   getTaskActivities(): Promise<TaskActivity[]>;
   saveTask(member: Member, input: SaveTaskInput): Promise<Task>;
   deleteTask(member: Member, taskId: string): Promise<void>;
   searchTasks(member: Member, filters: ReportFilters): Promise<Task[]>;
+  searchTasksPage(
+    member: Member,
+    filters: ReportFilters,
+    page: number,
+    pageSize: number,
+  ): Promise<PagedResult<Task>>;
   getDashboard(member: Member): Promise<DashboardSnapshot>;
   getStats(member: Member): Promise<StatsSnapshot>;
 }
@@ -185,6 +200,31 @@ function dedupeTasksById(tasks: Task[]) {
     seen.add(task.id);
     return true;
   });
+}
+
+function dedupeProjectsById(projects: Project[]) {
+  const seen = new Set<string>();
+
+  return projects.filter((project) => {
+    if (seen.has(project.id)) {
+      return false;
+    }
+
+    seen.add(project.id);
+    return true;
+  });
+}
+
+function escapeLikeQuery(value: string) {
+  return value.replaceAll('%', '\\%').replaceAll('_', '\\_').trim();
+}
+
+function buildInFilter(ids: string[]) {
+  return ids.join(',');
+}
+
+function normalizeSearchQuery(value: string) {
+  return value.trim().toLowerCase();
 }
 
 function createSupabaseClient(): OpsDataClient {
@@ -293,6 +333,72 @@ function createSupabaseClient(): OpsDataClient {
       if (error) throw error;
       return (data ?? []).map(mapProjectRecord);
     },
+    async searchProjectsPage(filters, query, page, pageSize) {
+      const from = Math.max(0, (page - 1) * pageSize);
+      const to = from + pageSize - 1;
+      const normalizedQuery = normalizeSearchQuery(query);
+      let matchedServiceGroupIds: string[] = [];
+      let matchedMemberIds: string[] = [];
+
+      if (normalizedQuery) {
+        const [serviceGroups, members] = await Promise.all([
+          this.getServiceGroups(),
+          this.getMembers(),
+        ]);
+        matchedServiceGroupIds = serviceGroups
+          .filter((group) => group.name.toLowerCase().includes(normalizedQuery))
+          .map((group) => group.id);
+        matchedMemberIds = members
+          .filter((item) =>
+            [item.accountId, item.name, item.email]
+              .join(' ')
+              .toLowerCase()
+              .includes(normalizedQuery),
+          )
+          .map((item) => item.id);
+      }
+
+      let queryBuilder = supabase
+        .from('projects')
+        .select('*', { count: 'exact' })
+        .order('is_active', { ascending: false })
+        .order('start_date', { ascending: false })
+        .order('name');
+
+      if (filters.startDate) queryBuilder = queryBuilder.gte('end_date', filters.startDate);
+      if (filters.endDate) queryBuilder = queryBuilder.lte('start_date', filters.endDate);
+
+      if (normalizedQuery) {
+        const safeQuery = escapeLikeQuery(normalizedQuery);
+        const orFilters = [
+          `project_type1.ilike.*${safeQuery}*`,
+          `name.ilike.*${safeQuery}*`,
+          `platform.ilike.*${safeQuery}*`,
+          `report_url.ilike.*${safeQuery}*`,
+          `start_date.ilike.*${safeQuery}*`,
+          `end_date.ilike.*${safeQuery}*`,
+        ];
+
+        if (matchedServiceGroupIds.length > 0) {
+          orFilters.push(`service_group_id.in.(${buildInFilter(matchedServiceGroupIds)})`);
+        }
+        if (matchedMemberIds.length > 0) {
+          const memberFilter = buildInFilter(matchedMemberIds);
+          orFilters.push(`reporter_member_id.in.(${memberFilter})`);
+          orFilters.push(`reviewer_member_id.in.(${memberFilter})`);
+        }
+
+        queryBuilder = queryBuilder.or(orFilters.join(','));
+      }
+
+      const { data, error, count } = await queryBuilder.range(from, to);
+      if (error) throw error;
+
+      return {
+        items: dedupeProjectsById((data ?? []).map(mapProjectRecord)),
+        totalCount: count ?? 0,
+      };
+    },
     async saveProject(input) {
       const { data, error } = await supabase
         .rpc('upsert_project', {
@@ -332,6 +438,19 @@ function createSupabaseClient(): OpsDataClient {
       if (error) throw error;
       return (data ?? []).map(mapProjectPageRecord);
     },
+    async getProjectPagesByProjectIds(projectIds) {
+      if (projectIds.length === 0) {
+        return [];
+      }
+
+      const { data, error } = await supabase
+        .from('project_pages_public_view')
+        .select('*')
+        .in('project_id', projectIds)
+        .order('updated_at', { ascending: false });
+      if (error) throw error;
+      return (data ?? []).map(mapProjectPageRecord);
+    },
     async saveProjectPage(input) {
       const { data, error } = await supabase
         .rpc('upsert_project_page', {
@@ -367,6 +486,16 @@ function createSupabaseClient(): OpsDataClient {
           .range(from, to),
       );
       return dedupeTasksById(rows.map(mapTaskRecord));
+    },
+    async getTasksByDate(member, taskDate) {
+      const { data, error } = await supabase
+        .from('tasks')
+        .select(taskSelectColumns)
+        .eq('member_id', member.id)
+        .eq('task_date', taskDate)
+        .order('id', { ascending: false });
+      if (error) throw error;
+      return dedupeTasksById((data ?? []).map(mapTaskRecord));
     },
     async getAllTasks(member) {
       const rows = await fetchAllTaskRows((from, to) => {
@@ -455,6 +584,65 @@ function createSupabaseClient(): OpsDataClient {
         buildTaskSearchText(task, projectsById, pagesById).includes(normalizedQuery),
       );
     },
+    async searchTasksPage(member, filters, page, pageSize) {
+      const from = Math.max(0, (page - 1) * pageSize);
+      const to = from + pageSize - 1;
+      const normalizedQuery = normalizeSearchQuery(filters.query);
+      let queryBuilder = supabase
+        .from('tasks')
+        .select(taskSelectColumns, { count: 'exact' })
+        .eq('member_id', member.id)
+        .order('task_date', { ascending: false })
+        .order('id', { ascending: false });
+
+      if (filters.startDate) queryBuilder = queryBuilder.gte('task_date', filters.startDate);
+      if (filters.endDate) queryBuilder = queryBuilder.lte('task_date', filters.endDate);
+      if (filters.projectId) queryBuilder = queryBuilder.eq('project_id', filters.projectId);
+      if (filters.pageId) queryBuilder = queryBuilder.eq('project_page_id', filters.pageId);
+      if (filters.taskType1) queryBuilder = queryBuilder.eq('task_type1', filters.taskType1);
+      if (filters.taskType2) queryBuilder = queryBuilder.eq('task_type2', filters.taskType2);
+      if (filters.minHours)
+        queryBuilder = queryBuilder.gte('hours', Number.parseFloat(filters.minHours));
+      if (filters.maxHours)
+        queryBuilder = queryBuilder.lte('hours', Number.parseFloat(filters.maxHours));
+
+      if (normalizedQuery) {
+        const [projects, pages] = await Promise.all([
+          this.getProjects(),
+          this.getProjectPages(member),
+        ]);
+        const matchedProjectIds = projects
+          .filter((project) => project.name.toLowerCase().includes(normalizedQuery))
+          .map((project) => project.id);
+        const matchedPageIds = pages
+          .filter((page) => page.title.toLowerCase().includes(normalizedQuery))
+          .map((page) => page.id);
+        const safeQuery = escapeLikeQuery(normalizedQuery);
+        const orFilters = [
+          `content.ilike.*${safeQuery}*`,
+          `note.ilike.*${safeQuery}*`,
+          `task_type1.ilike.*${safeQuery}*`,
+          `task_type2.ilike.*${safeQuery}*`,
+        ];
+
+        if (matchedProjectIds.length > 0) {
+          orFilters.push(`project_id.in.(${buildInFilter(matchedProjectIds)})`);
+        }
+        if (matchedPageIds.length > 0) {
+          orFilters.push(`project_page_id.in.(${buildInFilter(matchedPageIds)})`);
+        }
+
+        queryBuilder = queryBuilder.or(orFilters.join(','));
+      }
+
+      const { data, error, count } = await queryBuilder.range(from, to);
+      if (error) throw error;
+
+      return {
+        items: dedupeTasksById((data ?? []).map(mapTaskRecord)),
+        totalCount: count ?? 0,
+      };
+    },
     async getDashboard() {
       const [
         { data: projects, error: projectError },
@@ -518,18 +706,22 @@ function createUnconfiguredClient(): OpsDataClient {
     getTaskTypes: fail,
     getServiceGroups: fail,
     getProjects: fail,
+    searchProjectsPage: fail,
     saveProject: fail,
     deleteProject: fail,
     getProjectPages: fail,
     getAllProjectPages: fail,
+    getProjectPagesByProjectIds: fail,
     saveProjectPage: fail,
     deleteProjectPage: fail,
     getTasks: fail,
+    getTasksByDate: fail,
     getAllTasks: fail,
     getTaskActivities: fail,
     saveTask: fail,
     deleteTask: fail,
     searchTasks: fail,
+    searchTasksPage: fail,
     getDashboard: fail,
     getStats: fail,
   };
@@ -569,7 +761,6 @@ function mapTaskActivityRecord(record: Record<string, unknown>): TaskActivity {
 function mapTaskTypeRecord(record: Record<string, unknown>): TaskType {
   return {
     id: String(record.id),
-    legacyTypeId: String(record.legacy_type_id ?? ''),
     type1: String(record.type1 ?? ''),
     type2: String(record.type2 ?? ''),
     label: String(record.display_label ?? `${record.type1 ?? ''} / ${record.type2 ?? ''}`),

@@ -46,10 +46,6 @@ const defaultSort: SortState = {
   direction: 'desc',
 };
 
-function getTodayInputValue() {
-  return toLocalDateInputValue(new Date());
-}
-
 function buildExportFilename(startDate: string, endDate: string) {
   const compact = (value: string) => value.replaceAll('-', '').slice(2);
 
@@ -70,6 +66,19 @@ function buildExportFilename(startDate: string, endDate: string) {
   }
 
   return '검색결과.xlsx';
+}
+
+function isDownloadRangeWithinThreeMonths(startDate: string, endDate: string) {
+  const start = new Date(`${startDate}T00:00:00`);
+  const end = new Date(`${endDate}T00:00:00`);
+
+  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+    return false;
+  }
+
+  const maxEnd = new Date(start);
+  maxEnd.setMonth(maxEnd.getMonth() + 3);
+  return end <= maxEnd;
 }
 
 function formatSummaryMinutes(minutes: number) {
@@ -228,8 +237,8 @@ export function AdminReportsPage() {
     queryFn: () => adminDataClient.listProjects(),
   });
   const searchQuery = useQuery({
-    queryKey: ['admin', 'task-search', appliedFilters],
-    queryFn: () => adminDataClient.searchTasksAdmin(appliedFilters),
+    queryKey: ['admin', 'task-search', appliedFilters, currentPage, pageSize],
+    queryFn: () => adminDataClient.searchTasksAdmin(appliedFilters, currentPage, pageSize),
   });
 
   const members = useMemo(() => {
@@ -248,7 +257,7 @@ export function AdminReportsPage() {
   const taskTypes = useMemo(() => taskTypesQuery.data ?? [], [taskTypesQuery.data]);
   const serviceGroups = useMemo(() => serviceGroupsQuery.data ?? [], [serviceGroupsQuery.data]);
   const projects = useMemo(() => projectsQuery.data ?? [], [projectsQuery.data]);
-  const tasks = useMemo(() => searchQuery.data ?? [], [searchQuery.data]);
+  const tasks = useMemo(() => searchQuery.data?.items ?? [], [searchQuery.data]);
   const membersById = useMemo(
     () => new Map(members.map((member) => [member.id, member] as const)),
     [members],
@@ -300,11 +309,10 @@ export function AdminReportsPage() {
     () => sortedTasks.reduce((sum, task) => sum + task.hours, 0),
     [sortedTasks],
   );
-  const totalTasks = sortedTasks.length;
+  const totalTasks = searchQuery.data?.totalCount ?? 0;
   const totalPages = Math.max(1, Math.ceil(totalTasks / pageSize));
   const currentPageSafe = Math.min(currentPage, totalPages);
   const pageStartIndex = totalTasks ? (currentPageSafe - 1) * pageSize : 0;
-  const paginatedTasks = sortedTasks.slice(pageStartIndex, pageStartIndex + pageSize);
 
   useEffect(() => {
     if (currentPage > totalPages) {
@@ -358,6 +366,15 @@ export function AdminReportsPage() {
   };
 
   const handleExport = () => {
+    if (
+      appliedFilters.startDate &&
+      appliedFilters.endDate &&
+      !isDownloadRangeWithinThreeMonths(appliedFilters.startDate, appliedFilters.endDate)
+    ) {
+      window.alert('다운로드 기간은 최대 3개월까지 가능합니다.');
+      return;
+    }
+
     downloadExcelFile(
       buildExportFilename(appliedFilters.startDate, appliedFilters.endDate),
       '검색결과',
@@ -706,7 +723,7 @@ export function AdminReportsPage() {
             <strong className={styles.resultValue}>{numberFormatter.format(totalTasks)}건</strong>
           </p>
           <p className={styles.resultMetric}>
-            <span className={styles.resultLabel}>총 시간</span>
+            <span className={styles.resultLabel}>현재 페이지 시간</span>
             <strong className={styles.resultValue}>{formatSummaryMinutes(totalMinutes)}</strong>
           </p>
         </div>
@@ -830,14 +847,14 @@ export function AdminReportsPage() {
               </tr>
             </thead>
             <tbody>
-              {paginatedTasks.length === 0 ? (
+              {sortedTasks.length === 0 ? (
                 <tr>
                   <td colSpan={14} className={styles.emptyState}>
                     검색 결과가 없습니다.
                   </td>
                 </tr>
               ) : (
-                paginatedTasks.map((task, index) => {
+                sortedTasks.map((task, index) => {
                   const member = membersById.get(task.memberId);
 
                   return (
@@ -915,4 +932,7 @@ function createDefaultFilters(): AdminTaskSearchFilters {
     serviceGroupId: '',
     keyword: '',
   };
+}
+function getTodayInputValue() {
+  return toLocalDateInputValue(new Date());
 }

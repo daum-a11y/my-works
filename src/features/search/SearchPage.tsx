@@ -55,6 +55,19 @@ function buildExportFilename(startDate: string, endDate: string) {
   return '검색결과.xlsx';
 }
 
+function isDownloadRangeWithinThreeMonths(startDate: string, endDate: string) {
+  const start = new Date(`${startDate}T00:00:00`);
+  const end = new Date(`${endDate}T00:00:00`);
+
+  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+    return false;
+  }
+
+  const maxEnd = new Date(start);
+  maxEnd.setMonth(maxEnd.getMonth() + 3);
+  return end <= maxEnd;
+}
+
 function toReportRecord(
   task: Task,
   member: { id: string; name: string },
@@ -128,21 +141,28 @@ export function SearchPage() {
       appliedFilters.startDate,
       appliedFilters.endDate,
       appliedSearch,
+      currentPage,
+      pageSize,
     ],
     queryFn: async () =>
-      opsDataClient.searchTasks(member!, {
-        ...DEFAULT_REPORT_FILTERS,
-        query: appliedSearch,
-        startDate: appliedFilters.startDate,
-        endDate: appliedFilters.endDate,
-      }),
+      opsDataClient.searchTasksPage(
+        member!,
+        {
+          ...DEFAULT_REPORT_FILTERS,
+          query: appliedSearch,
+          startDate: appliedFilters.startDate,
+          endDate: appliedFilters.endDate,
+        },
+        currentPage,
+        pageSize,
+      ),
     enabled: Boolean(member),
   });
 
   const projects = useMemo(() => projectsQuery.data ?? [], [projectsQuery.data]);
   const serviceGroups = useMemo(() => serviceGroupsQuery.data ?? [], [serviceGroupsQuery.data]);
   const pages = useMemo(() => pagesQuery.data ?? [], [pagesQuery.data]);
-  const tasks = useMemo(() => tasksQuery.data ?? [], [tasksQuery.data]);
+  const tasks = useMemo(() => tasksQuery.data?.items ?? [], [tasksQuery.data]);
 
   const projectsById = useMemo(
     () => new Map(projects.map((project) => [project.id, project] as const)),
@@ -175,11 +195,9 @@ export function SearchPage() {
     [sortedReports],
   );
 
-  const totalReports = sortedReports.length;
+  const totalReports = tasksQuery.data?.totalCount ?? 0;
   const totalPages = Math.max(1, Math.ceil(totalReports / pageSize));
   const currentPageSafe = Math.min(currentPage, totalPages);
-  const pageStartIndex = totalReports ? (currentPageSafe - 1) * pageSize : 0;
-  const paginatedReports = sortedReports.slice(pageStartIndex, pageStartIndex + pageSize);
 
   useEffect(() => {
     if (currentPage > totalPages) {
@@ -204,7 +222,11 @@ export function SearchPage() {
     setCurrentPage(1);
   };
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
+    if (!member) {
+      return;
+    }
+
     if (!appliedFilters.startDate) {
       window.alert('시작일을 지정해주세요.');
       return;
@@ -215,10 +237,29 @@ export function SearchPage() {
       return;
     }
 
+    if (!isDownloadRangeWithinThreeMonths(appliedFilters.startDate, appliedFilters.endDate)) {
+      window.alert('다운로드 기간은 최대 3개월까지 가능합니다.');
+      return;
+    }
+
+    const downloadTasks = await opsDataClient.searchTasks(member, {
+      ...DEFAULT_REPORT_FILTERS,
+      query: appliedSearch,
+      startDate: appliedFilters.startDate,
+      endDate: appliedFilters.endDate,
+    });
+    const downloadReports = downloadTasks.map((task) =>
+      buildReportViewModel(
+        toReportRecord(task, member, projectsById, pagesById),
+        projectsById,
+        serviceGroupsById,
+        pagesById,
+      ),
+    );
     downloadExcelFile(
       buildExportFilename(appliedFilters.startDate, appliedFilters.endDate),
       '검색결과',
-      sortedReports,
+      sortReportsDescending(downloadReports),
       [
         { header: '일자', value: (report) => formatReportDate(report.reportDate), width: 12 },
         { header: '타입1', value: (report) => report.type1, width: 12 },
@@ -286,7 +327,7 @@ export function SearchPage() {
               type="button"
               className={styles.filterButtonSecondary}
               onClick={handleDownload}
-              disabled={!sortedReports.length}
+              disabled={!totalReports}
             >
               다운로드
             </button>
@@ -325,7 +366,7 @@ export function SearchPage() {
             <strong className={styles.resultValue}>{numberFormatter.format(totalReports)}건</strong>
           </p>
           <p className={styles.resultMetric}>
-            <span className={styles.resultLabel}>총 작업시간</span>
+            <span className={styles.resultLabel}>현재 페이지 작업시간</span>
             <strong className={styles.resultValue}>{formatReportHours(totalMinutes)}</strong>
           </p>
         </div>
@@ -377,7 +418,7 @@ export function SearchPage() {
               </tr>
             </thead>
             <tbody>
-              {paginatedReports.map((report) => (
+              {sortedReports.map((report) => (
                 <tr key={report.id}>
                   <td className="tabularNums">{formatReportDate(report.reportDate)}</td>
                   <td>

@@ -145,48 +145,6 @@ function normalizeText(value: string) {
   return value.trim().toLowerCase();
 }
 
-export function parseLegacyTaskMeta(note: string) {
-  const meta = new Map<string, string>();
-  const rawLines: string[] = [];
-
-  for (const line of note.split('\n')) {
-    const trimmed = line.trim();
-    const separator = trimmed.indexOf(': ');
-
-    if (separator > 0) {
-      const key = trimmed.slice(0, separator);
-      const value = trimmed.slice(separator + 2).trim();
-
-      if (
-        key === 'platform' ||
-        key === 'service_group' ||
-        key === 'service_name' ||
-        key === 'project_name' ||
-        key === 'page_name' ||
-        key === 'page_url' ||
-        key === 'raw_note'
-      ) {
-        meta.set(key, value);
-        continue;
-      }
-    }
-
-    if (trimmed) {
-      rawLines.push(trimmed);
-    }
-  }
-
-  return {
-    platform: meta.get('platform') ?? '',
-    serviceGroupName: meta.get('service_group') ?? '',
-    serviceName: meta.get('service_name') ?? '',
-    projectName: meta.get('project_name') ?? '',
-    pageName: meta.get('page_name') ?? '',
-    pageUrl: meta.get('page_url') ?? '',
-    rawNote: meta.get('raw_note') ?? rawLines.join('\n'),
-  };
-}
-
 function compareStrings(left: string, right: string) {
   return left.localeCompare(right, 'ko');
 }
@@ -391,21 +349,21 @@ export function createEmptyReportDraft(referenceDate = new Date()): ReportDraft 
 }
 
 export function draftFromReport(report: ReportRecord): ReportDraft {
-  const meta = parseLegacyTaskMeta(report.note);
+  const reportView = report as Partial<ReportViewModel>;
   return {
     reportDate: isoToDateInput(report.reportDate),
     projectId: report.projectId,
     pageId: report.pageId,
     type1: report.type1,
     type2: report.type2,
-    platform: meta.platform,
-    serviceGroupName: meta.serviceGroupName,
-    serviceName: meta.serviceName,
-    manualPageName: meta.pageName,
-    pageUrl: meta.pageUrl,
+    platform: reportView.platform ?? '',
+    serviceGroupName: reportView.serviceGroupName ?? '',
+    serviceName: reportView.serviceName ?? '',
+    manualPageName: report.pageName,
+    pageUrl: reportView.pageUrl ?? '',
     workHours: String(report.workHours),
     content: report.content,
-    note: meta.rawNote,
+    note: report.note,
   };
 }
 
@@ -446,19 +404,18 @@ export function buildReportViewModel(
   serviceGroupsById: Map<string, ServiceGroup>,
   pagesById: Map<string, ProjectPage>,
 ) {
-  const meta = parseLegacyTaskMeta(report.note);
   const project = report.projectId ? (projectsById.get(report.projectId) ?? null) : null;
   const page = report.pageId ? (pagesById.get(report.pageId) ?? null) : null;
   const splitProjectService = project?.serviceGroupId
     ? splitServiceGroupName(serviceGroupsById.get(project.serviceGroupId)?.name ?? '')
     : null;
-  const serviceGroupName = splitProjectService?.serviceGroupName || meta.serviceGroupName;
-  const platform = project?.platform ?? meta.platform;
-  const serviceName = splitProjectService?.serviceName || meta.serviceName;
-  const resolvedProjectName = project?.name ?? meta.projectName ?? report.projectName ?? '';
+  const serviceGroupName = splitProjectService?.serviceGroupName ?? '';
+  const platform = project?.platform ?? '';
+  const serviceName = splitProjectService?.serviceName ?? '';
+  const resolvedProjectName = project?.name ?? report.projectName ?? '';
   const projectDisplayName = resolvedProjectName || '미분류 프로젝트';
-  const pageDisplayName = page?.title || meta.pageName || report.pageName || '미지정 페이지';
-  const pageUrl = page?.url || meta.pageUrl || '';
+  const pageDisplayName = page?.title || report.pageName || '미지정 페이지';
+  const pageUrl = page?.url || '';
   const searchText = normalizeText(
     [
       report.reportDate,
@@ -476,7 +433,6 @@ export function buildReportViewModel(
 
   return {
     ...report,
-    note: meta.rawNote,
     platform,
     serviceGroupName,
     serviceName,

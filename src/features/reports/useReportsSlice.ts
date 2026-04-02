@@ -25,8 +25,6 @@ import {
 } from './reportDomain';
 
 export interface ReportsSlice {
-  reports: ReportViewModel[];
-  recentReports: ReportViewModel[];
   periodReports: ReportViewModel[];
   selectedReport: ReportViewModel | null;
   selectedReportId: string | null;
@@ -57,6 +55,14 @@ export interface ReportsSlice {
   saveOverheadReport: (hours: number, reportDate?: string) => Promise<void>;
   jumpDraftDate: (offsetDays: number) => void;
   clearPeriodFilters: () => void;
+}
+
+function createCurrentDateFilters(referenceDate = getTodayInputValue()): ReportFilters {
+  return {
+    ...DEFAULT_REPORT_FILTERS,
+    startDate: referenceDate,
+    endDate: referenceDate,
+  };
 }
 
 function toErrorMessage(error: unknown, fallback: string) {
@@ -132,23 +138,6 @@ function normalizeTaskDate(value: string) {
   return '';
 }
 
-function buildLegacyNote(rawNote: string, meta: Record<string, string>) {
-  const lines = [
-    `platform: ${meta.platform}`,
-    `service_group: ${meta.serviceGroupName}`,
-    `service_name: ${meta.serviceName}`,
-    `project_name: ${meta.projectName}`,
-    `page_name: ${meta.pageName}`,
-    `page_url: ${meta.pageUrl}`,
-  ];
-
-  if (rawNote.trim()) {
-    lines.push(`raw_note: ${rawNote.trim()}`);
-  }
-
-  return lines.join('\n');
-}
-
 export function useReportsSlice(): ReportsSlice {
   const { session } = useAuth();
   const member = session?.member ?? null;
@@ -159,15 +148,19 @@ export function useReportsSlice(): ReportsSlice {
   const [selectedReportId, setSelectedReportId] = useState<string | null>(null);
   const [draft, setDraft] = useState<ReportDraft>(() => createEmptyReportDraft());
   const [projectQuery, setProjectQuery] = useState('');
-  const [periodFilters, setPeriodFilters] = useState<ReportFilters>(DEFAULT_REPORT_FILTERS);
+  const [periodFilters, setPeriodFilters] = useState<ReportFilters>(() =>
+    createCurrentDateFilters(),
+  );
   const [appliedProjectQuery, setAppliedProjectQuery] = useState('');
-  const [appliedPeriodFilters, setAppliedPeriodFilters] =
-    useState<ReportFilters>(DEFAULT_REPORT_FILTERS);
+  const [appliedPeriodFilters, setAppliedPeriodFilters] = useState<ReportFilters>(() =>
+    createCurrentDateFilters(),
+  );
   const [statusMessage, setStatusMessage] = useState('');
+  const currentReportDate = appliedPeriodFilters.startDate || getTodayInputValue();
 
   const tasksQuery = useQuery({
-    queryKey: ['reports', 'tasks', member?.id],
-    queryFn: async () => opsDataClient.getTasks(member!),
+    queryKey: ['reports', 'tasks', member?.id, currentReportDate],
+    queryFn: async () => opsDataClient.getTasksByDate(member!, currentReportDate),
     enabled: Boolean(member),
   });
 
@@ -226,8 +219,6 @@ export function useReportsSlice(): ReportsSlice {
       ),
     );
   }, [member, tasks, projectsById, pagesById, serviceGroupsById]);
-
-  const recentReports = useMemo(() => reports.slice(0, 8), [reports]);
 
   const selectedReport = useMemo(
     () => reports.find((report) => report.id === selectedReportId) ?? null,
@@ -503,25 +494,9 @@ export function useReportsSlice(): ReportsSlice {
 
       const taskType = validateTaskTypeSelection(taskTypes, draft.type1, draft.type2);
       const hours = parseReportHoursInput(draft.workHours);
-      const project = draft.projectId ? (projectsById.get(draft.projectId) ?? null) : null;
       const page = draft.pageId ? (pagesById.get(draft.pageId) ?? null) : null;
-      const serviceGroupName =
-        draft.serviceGroupName ||
-        (project?.serviceGroupId
-          ? (serviceGroupsById.get(project.serviceGroupId)?.name ?? '')
-          : '');
-      const serviceName = draft.serviceName || '';
       const pageName = draft.manualPageName || page?.title || '';
-      const pageUrl = draft.pageUrl || page?.url || project?.reportUrl || '';
       const content = draft.content.trim() || pageName || '업무';
-      const note = buildLegacyNote(draft.note, {
-        platform: draft.platform || project?.platform || '',
-        serviceGroupName,
-        serviceName,
-        projectName: project?.name || '',
-        pageName,
-        pageUrl,
-      });
 
       await saveMutation.mutateAsync({
         id: selectedReportId ?? undefined,
@@ -532,7 +507,7 @@ export function useReportsSlice(): ReportsSlice {
         taskType2: taskType.type2,
         hours,
         content,
-        note,
+        note: draft.note.trim(),
       });
     } catch (error) {
       setStatusMessage(toErrorMessage(error, '저장하지 못했습니다.'));
@@ -588,13 +563,12 @@ export function useReportsSlice(): ReportsSlice {
   };
 
   const clearPeriodFilters = () => {
-    setPeriodFilters(DEFAULT_REPORT_FILTERS);
-    setAppliedPeriodFilters(DEFAULT_REPORT_FILTERS);
+    const nextFilters = createCurrentDateFilters();
+    setPeriodFilters(nextFilters);
+    setAppliedPeriodFilters(nextFilters);
   };
 
   return {
-    reports,
-    recentReports,
     periodReports,
     selectedReport,
     selectedReportId,

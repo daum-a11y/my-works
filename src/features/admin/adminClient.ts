@@ -1,7 +1,6 @@
 import { getSupabaseClient } from '../../lib/supabase';
 import { normalizePageStatus } from '../../lib/domain';
 import { getPasswordRecoveryRedirectUrl } from '../auth/authUrls';
-import { parseLegacyTaskMeta } from '../reports/reportDomain';
 import type {
   AdminPageOption,
   AdminProjectOption,
@@ -11,6 +10,7 @@ import type {
   AdminTaskSaveInput,
   AdminTaskSearchFilters,
   AdminTaskSearchItem,
+  AdminTaskSearchPage,
   AdminTaskTypeItem,
   AdminTaskTypePayload,
   AdminTaskTypeUsageSummary,
@@ -24,7 +24,11 @@ interface AdminDataClient {
   listServiceGroups(): Promise<AdminServiceGroupItem[]>;
   listProjects(): Promise<AdminProjectOption[]>;
   listProjectPages(): Promise<AdminPageOption[]>;
-  searchTasksAdmin(filters: AdminTaskSearchFilters): Promise<AdminTaskSearchItem[]>;
+  searchTasksAdmin(
+    filters: AdminTaskSearchFilters,
+    page: number,
+    pageSize: number,
+  ): Promise<AdminTaskSearchPage>;
   getTaskAdmin(taskId: string): Promise<AdminTaskSearchItem>;
   saveTaskAdmin(input: AdminTaskSaveInput): Promise<AdminTaskSearchItem>;
   deleteTaskAdmin(taskId: string): Promise<void>;
@@ -61,7 +65,6 @@ function toNullableString(value: string) {
 
 const TASK_SELECT_COLUMNS =
   'id, member_id, task_date, project_id, project_page_id, task_type1, task_type2, hours, content, note, updated_at';
-const TASK_BATCH_SIZE = 1000;
 
 function mapProject(record: Record<string, unknown>): AdminProjectOption {
   return {
@@ -88,28 +91,26 @@ function mapPage(record: Record<string, unknown>): AdminPageOption {
 }
 
 function mapTask(record: Record<string, unknown>): AdminTaskSearchItem {
-  const parsedNote = parseLegacyTaskMeta(String(record.note ?? ''));
-
   return {
     id: String(record.id ?? ''),
     memberId: String(record.member_id ?? ''),
     memberName: String(record.member_name ?? ''),
     memberEmail: String(record.member_email ?? ''),
     taskDate: String(record.task_date ?? ''),
-    platform: String(record.platform ?? parsedNote.platform ?? ''),
+    platform: String(record.platform ?? ''),
     projectId: record.project_id ? String(record.project_id) : null,
-    projectName: String(record.project_name ?? parsedNote.projectName ?? ''),
+    projectName: String(record.project_name ?? ''),
     pageId: record.project_page_id ? String(record.project_page_id) : null,
-    pageTitle: String(record.page_title ?? parsedNote.pageName ?? ''),
-    pageUrl: String(record.page_url ?? parsedNote.pageUrl ?? ''),
+    pageTitle: String(record.page_title ?? ''),
+    pageUrl: String(record.page_url ?? ''),
     serviceGroupId: record.service_group_id ? String(record.service_group_id) : null,
-    serviceGroupName: String(record.service_group_name ?? parsedNote.serviceGroupName ?? ''),
-    serviceName: String(record.service_name ?? parsedNote.serviceName ?? ''),
+    serviceGroupName: String(record.service_group_name ?? ''),
+    serviceName: String(record.service_name ?? ''),
     taskType1: String(record.task_type1 ?? ''),
     taskType2: String(record.task_type2 ?? ''),
     hours: Number(record.hours ?? 0),
     content: String(record.content ?? ''),
-    note: parsedNote.rawNote || String(record.note ?? ''),
+    note: String(record.note ?? ''),
     updatedAt: String(record.updated_at ?? ''),
   };
 }
@@ -312,41 +313,6 @@ function enrichTaskRecords(
   });
 }
 
-function filterAdminTasks(items: AdminTaskSearchItem[], filters: AdminTaskSearchFilters) {
-  const serviceGroupId = toNullableString(filters.serviceGroupId);
-  const keyword = toNullableString(filters.keyword)?.toLowerCase() ?? '';
-
-  return items.filter((item) => {
-    if (serviceGroupId && item.serviceGroupId !== serviceGroupId) {
-      return false;
-    }
-
-    if (keyword) {
-      const haystack = [
-        item.memberName,
-        item.memberEmail,
-        item.projectName,
-        item.pageTitle,
-        item.pageUrl,
-        item.platform,
-        item.serviceName,
-        item.taskType1,
-        item.taskType2,
-        item.content,
-        item.note,
-      ]
-        .join(' ')
-        .toLowerCase();
-
-      if (!haystack.includes(keyword)) {
-        return false;
-      }
-    }
-
-    return true;
-  });
-}
-
 function dedupeAdminTasksById(items: AdminTaskSearchItem[]) {
   const seen = new Set<string>();
 
@@ -363,7 +329,9 @@ function dedupeAdminTasksById(items: AdminTaskSearchItem[]) {
 async function fetchAdminTasks(
   supabase: NonNullable<ReturnType<typeof getSupabaseClient>>,
   filters: AdminTaskSearchFilters,
-) {
+  page: number,
+  pageSize: number,
+): Promise<AdminTaskSearchPage> {
   const memberId = toNullableString(filters.memberId);
   const startDate = toNullableString(filters.startDate);
   const endDate = toNullableString(filters.endDate);
@@ -371,39 +339,32 @@ async function fetchAdminTasks(
   const pageId = toNullableString(filters.pageId);
   const taskType1 = toNullableString(filters.taskType1);
   const taskType2 = toNullableString(filters.taskType2);
-
-  const rows: Record<string, unknown>[] = [];
-
-  for (let from = 0; ; from += TASK_BATCH_SIZE) {
-    const to = from + TASK_BATCH_SIZE - 1;
-    let query = supabase
-      .from('tasks')
-      .select(TASK_SELECT_COLUMNS)
-      .order('task_date', { ascending: false })
-      .order('updated_at', { ascending: false })
-      .order('id', { ascending: false });
-
-    if (memberId) query = query.eq('member_id', memberId);
-    if (startDate) query = query.gte('task_date', startDate);
-    if (endDate) query = query.lte('task_date', endDate);
-    if (projectId) query = query.eq('project_id', projectId);
-    if (pageId) query = query.eq('project_page_id', pageId);
-    if (taskType1) query = query.eq('task_type1', taskType1);
-    if (taskType2) query = query.eq('task_type2', taskType2);
-
-    const { data, error } = await query.range(from, to);
-    if (error) throw error;
-
-    const batch = (data ?? []) as Record<string, unknown>[];
-    rows.push(...batch);
-
-    if (batch.length < TASK_BATCH_SIZE) {
-      break;
-    }
-  }
+  const from = Math.max(0, (page - 1) * pageSize);
+  const to = from + pageSize - 1;
+  const { data, error, count } = await supabase
+    .rpc(
+      'admin_search_tasks',
+      {
+        p_member_id: memberId,
+        p_start_date: startDate,
+        p_end_date: endDate,
+        p_project_id: projectId,
+        p_project_page_id: pageId,
+        p_task_type1: taskType1,
+        p_task_type2: taskType2,
+        p_service_group_id: toNullableString(filters.serviceGroupId),
+        p_keyword: toNullableString(filters.keyword),
+      },
+      { count: 'exact' },
+    )
+    .range(from, to);
+  if (error) throw error;
 
   const maps = await loadAdminReferenceMaps(supabase);
-  return filterAdminTasks(dedupeAdminTasksById(enrichTaskRecords(rows, maps)), filters);
+  return {
+    items: dedupeAdminTasksById(enrichTaskRecords((data ?? []) as Record<string, unknown>[], maps)),
+    totalCount: count ?? 0,
+  };
 }
 
 async function fetchAdminTaskById(
@@ -461,7 +422,7 @@ function createUnconfiguredAdminClient(): AdminDataClient {
       return [] as AdminPageOption[];
     },
     async searchTasksAdmin() {
-      return [] as AdminTaskSearchItem[];
+      return { items: [], totalCount: 0 } as AdminTaskSearchPage;
     },
     async getTaskAdmin() {
       throw configurationError;
@@ -555,8 +516,8 @@ function createSupabaseAdminClient(): AdminDataClient {
       return (data ?? []).map((record) => mapPage(record as Record<string, unknown>));
     },
 
-    async searchTasksAdmin(filters: AdminTaskSearchFilters) {
-      return fetchAdminTasks(supabase, filters);
+    async searchTasksAdmin(filters: AdminTaskSearchFilters, page: number, pageSize: number) {
+      return fetchAdminTasks(supabase, filters, page, pageSize);
     },
 
     async getTaskAdmin(taskId: string) {
