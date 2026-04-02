@@ -15,7 +15,7 @@
   - 방식: `활성 멤버 목록 조회 -> 멤버별 opsDataClient.getTasks(member) 호출 -> 합산`
 - 브라우저 네트워크 재확인 결과
   - `/resource/summary`에서 멤버별 `tasks` GET 다건 호출이 모두 `200`
-  - 현재 사용 컬럼: `id, legacy_task_id, member_id, task_date, project_id, project_page_id, task_type1, task_type2, hours, content, note, created_at, updated_at`
+  - 현재 사용 컬럼: `id, task_id, member_id, task_date, project_id, project_page_id, task_type1, task_type2, task_usedtime, content, note, created_at, updated_at`
 
 ## 현재 기준 단일 조회 경로
 
@@ -26,7 +26,7 @@
   - `getStats()`
     - `project_pages_public_view` + `tasks` 전체 조회
   - `getTaskActivities()`
-    - `member_id, task_date, hours`만 조회
+    - `member_id, task_date, task_usedtime`만 조회
 - `src/features/admin/admin-client.ts`
   - `searchTasksAdmin(filters)`
     - 명시 컬럼 기반 단일 조회
@@ -40,7 +40,7 @@
   - 브라우저 `resource/summary` 멤버별 조회 다건: 전부 `200`
   - Supabase REST 직접 호출
     - 명시 컬럼 전체 조회 + `order=task_date.desc`: `200`
-    - 축소 컬럼 `member_id,task_date,hours`: `200`
+    - 축소 컬럼 `member_id,task_date,task_usedtime`: `200`
     - `select=*` 전체 조회: `200`
 - 따라서 현재 기준에서는 아래 해석으로 고정한다.
   - 과거 `500`은 현재 코드/현재 데이터 기준으로는 재현되지 않는다.

@@ -134,7 +134,7 @@ function buildDashboard(store: OpsStore): DashboardSnapshot {
 }
 
 function buildStats(store: Pick<OpsStore, 'projectPages' | 'projects' | 'tasks'>): StatsSnapshot {
-  const totalHours = store.tasks.reduce((sum, task) => sum + task.hours, 0);
+  const totalTaskUsedtime = store.tasks.reduce((sum, task) => sum + task.taskUsedtime, 0);
   const statusMap = new Map<string, number>();
   const typeMap = new Map<string, number>();
   const projectsById = new Map(store.projects.map((project) => [project.id, project] as const));
@@ -144,11 +144,11 @@ function buildStats(store: Pick<OpsStore, 'projectPages' | 'projects' | 'tasks'>
   }
 
   for (const task of store.tasks) {
-    typeMap.set(task.taskType1, (typeMap.get(task.taskType1) ?? 0) + task.hours);
+    typeMap.set(task.taskType1, (typeMap.get(task.taskType1) ?? 0) + task.taskUsedtime);
   }
 
   return {
-    totalHours,
+    totalTaskUsedtime,
     totalTasks: store.tasks.length,
     monitoringInProgress: store.projectPages.filter((page) => isDashboardMonitoringPage(page))
       .length,
@@ -159,7 +159,10 @@ function buildStats(store: Pick<OpsStore, 'projectPages' | 'projects' | 'tasks'>
       status: status as StatsSnapshot['statusBreakdown'][number]['status'],
       count,
     })),
-    typeBreakdown: Array.from(typeMap.entries()).map(([type, hours]) => ({ type, hours })),
+    typeBreakdown: Array.from(typeMap.entries()).map(([type, taskUsedtime]) => ({
+      type,
+      taskUsedtime,
+    })),
   };
 }
 
@@ -234,7 +237,7 @@ function normalizeSearchQuery(value: string) {
 function createSupabaseClient(): OpsDataClient {
   const supabase = requireData(getSupabaseClient(), 'Supabase is not configured.');
   const taskSelectColumns =
-    'id, legacy_task_id, member_id, task_date, project_id, project_page_id, task_type1, task_type2, hours, content, note, created_at, updated_at';
+    'id, legacy_task_id, member_id, task_date, project_id, project_page_id, task_type1, task_type2, taskUsedtime, content, note, created_at, updated_at';
   const batchSize = 1000;
 
   async function fetchAllTaskRows<T extends Record<string, unknown>>(
@@ -528,7 +531,9 @@ function createSupabaseClient(): OpsDataClient {
       return dedupeTasksById(rows.map(mapTaskRecord));
     },
     async getTaskActivities() {
-      const { data, error } = await supabase.from('tasks').select('member_id, task_date, hours');
+      const { data, error } = await supabase
+        .from('tasks')
+        .select('member_id, task_date, taskUsedtime');
       if (error) throw error;
       return (data ?? []).map(mapTaskActivityRecord);
     },
@@ -546,7 +551,7 @@ function createSupabaseClient(): OpsDataClient {
           p_project_page_id: input.pageId || null,
           p_task_type1: input.taskType1,
           p_task_type2: input.taskType2,
-          p_hours: input.hours,
+          p_task_usedtime: input.taskUsedtime,
           p_content: input.content,
           p_note: input.note,
         })
@@ -578,8 +583,10 @@ function createSupabaseClient(): OpsDataClient {
         if (filters.pageId) query = query.eq('project_page_id', filters.pageId);
         if (filters.taskType1) query = query.eq('task_type1', filters.taskType1);
         if (filters.taskType2) query = query.eq('task_type2', filters.taskType2);
-        if (filters.minHours) query = query.gte('hours', Number.parseFloat(filters.minHours));
-        if (filters.maxHours) query = query.lte('hours', Number.parseFloat(filters.maxHours));
+        if (filters.minTaskUsedtime)
+          query = query.gte('taskUsedtime', Number.parseFloat(filters.minTaskUsedtime));
+        if (filters.maxTaskUsedtime)
+          query = query.lte('taskUsedtime', Number.parseFloat(filters.maxTaskUsedtime));
         return query.range(from, to);
       });
       const tasks = dedupeTasksById(rows.map(mapTaskRecord));
@@ -617,10 +624,10 @@ function createSupabaseClient(): OpsDataClient {
       if (filters.pageId) queryBuilder = queryBuilder.eq('project_page_id', filters.pageId);
       if (filters.taskType1) queryBuilder = queryBuilder.eq('task_type1', filters.taskType1);
       if (filters.taskType2) queryBuilder = queryBuilder.eq('task_type2', filters.taskType2);
-      if (filters.minHours)
-        queryBuilder = queryBuilder.gte('hours', Number.parseFloat(filters.minHours));
-      if (filters.maxHours)
-        queryBuilder = queryBuilder.lte('hours', Number.parseFloat(filters.maxHours));
+      if (filters.minTaskUsedtime)
+        queryBuilder = queryBuilder.gte('taskUsedtime', Number.parseFloat(filters.minTaskUsedtime));
+      if (filters.maxTaskUsedtime)
+        queryBuilder = queryBuilder.lte('taskUsedtime', Number.parseFloat(filters.maxTaskUsedtime));
 
       if (normalizedQuery) {
         const [projects, pages] = await Promise.all([
@@ -783,7 +790,7 @@ function mapTaskActivityRecord(record: Record<string, unknown>): TaskActivity {
   return {
     memberId: String(record.member_id ?? ''),
     taskDate: String(record.task_date ?? getToday()),
-    hours: Number(record.hours ?? 0),
+    taskUsedtime: Number(record.taskUsedtime ?? 0),
   };
 }
 
@@ -893,7 +900,7 @@ function mapTaskRecord(record: Record<string, unknown>): Task {
     pageId: record.project_page_id ? String(record.project_page_id) : null,
     taskType1: String(record.task_type1 ?? ''),
     taskType2: String(record.task_type2 ?? ''),
-    hours: Number(record.hours ?? 0),
+    taskUsedtime: Number(record.taskUsedtime ?? 0),
     content: String(record.content ?? ''),
     note: String(record.note ?? ''),
     createdAt: String(record.created_at ?? getToday()),

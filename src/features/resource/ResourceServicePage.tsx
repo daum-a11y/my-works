@@ -39,7 +39,7 @@ export function ResourceServicePage() {
       const costGroupMap =
         monthMap.get(service.costGroup) ?? new Map<string, Map<string, number>>();
       const groupMap = costGroupMap.get(service.group) ?? new Map<string, number>();
-      groupMap.set(service.name, (groupMap.get(service.name) ?? 0) + Math.round(task.hours));
+      groupMap.set(service.name, (groupMap.get(service.name) ?? 0) + Math.round(task.taskUsedtime));
       costGroupMap.set(service.group, groupMap);
       monthMap.set(service.costGroup, costGroupMap);
       grouped.set(month, monthMap);

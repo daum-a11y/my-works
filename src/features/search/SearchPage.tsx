@@ -11,7 +11,7 @@ import {
   buildReportViewModel,
   DEFAULT_REPORT_FILTERS,
   formatReportDate,
-  formatReportHours,
+  formatReportTaskUsedtime,
   sortReportsDescending,
   type ReportViewModel,
 } from '../reports/reportDomain';
@@ -88,7 +88,7 @@ function toReportRecord(
     pageName: page?.title ?? '',
     type1: task.taskType1 as ReportViewModel['type1'],
     type2: task.taskType2 as ReportViewModel['type2'],
-    workHours: task.hours,
+    taskUsedtime: task.taskUsedtime,
     content: task.content,
     note: task.note,
     createdAt: task.createdAt,
@@ -191,7 +191,7 @@ export function SearchPage() {
 
   const sortedReports = useMemo(() => sortReportsDescending(reports), [reports]);
   const totalMinutes = useMemo(
-    () => sortedReports.reduce((sum, report) => sum + report.workHours, 0),
+    () => sortedReports.reduce((sum, report) => sum + report.taskUsedtime, 0),
     [sortedReports],
   );
 
@@ -271,7 +271,11 @@ export function SearchPage() {
         { header: '페이지명', value: (report) => report.pageDisplayName || '-', width: 20 },
         { header: '내용', value: (report) => report.content || '-', width: 30 },
         { header: 'URL', value: (report) => report.pageUrl || '-', width: 32 },
-        { header: '작업시간', value: (report) => formatReportHours(report.workHours), width: 12 },
+        {
+          header: '작업시간',
+          value: (report) => formatReportTaskUsedtime(report.taskUsedtime),
+          width: 12,
+        },
         { header: '비고', value: (report) => report.note || '-', width: 24 },
       ],
     );
@@ -367,7 +371,7 @@ export function SearchPage() {
           </p>
           <p className={styles.resultMetric}>
             <span className={styles.resultLabel}>현재 페이지 작업시간</span>
-            <strong className={styles.resultValue}>{formatReportHours(totalMinutes)}</strong>
+            <strong className={styles.resultValue}>{formatReportTaskUsedtime(totalMinutes)}</strong>
           </p>
         </div>
         <div className={styles.resultControls}>
@@ -452,7 +456,7 @@ export function SearchPage() {
                       '-'
                     )}
                   </td>
-                  <td className="tabularNums">{formatReportHours(report.workHours)}</td>
+                  <td className="tabularNums">{formatReportTaskUsedtime(report.taskUsedtime)}</td>
                   <td>{report.note || '-'}</td>
                 </tr>
               ))}

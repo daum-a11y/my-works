@@ -31,7 +31,7 @@ type SortKey =
   | 'serviceName'
   | 'projectName'
   | 'pageTitle'
-  | 'hours'
+  | 'taskUsedtime'
   | 'note';
 
 type SortDirection = 'asc' | 'desc';
@@ -121,8 +121,8 @@ function getSortValue(
       return task.projectName;
     case 'pageTitle':
       return task.pageTitle;
-    case 'hours':
-      return task.hours;
+    case 'taskUsedtime':
+      return task.taskUsedtime;
     case 'note':
       return task.note;
     case 'taskDate':
@@ -323,7 +323,7 @@ export function AdminReportsPage() {
     [filteredTasks, membersById, sortState],
   );
   const totalMinutes = useMemo(
-    () => sortedTasks.reduce((sum, task) => sum + task.hours, 0),
+    () => sortedTasks.reduce((sum, task) => sum + task.taskUsedtime, 0),
     [sortedTasks],
   );
   const totalTasks = searchQuery.data?.totalCount ?? 0;
@@ -412,7 +412,7 @@ export function AdminReportsPage() {
         { header: '프로젝트명', value: (task) => task.projectName, width: 22 },
         { header: '페이지명', value: (task) => task.pageTitle, width: 22 },
         { header: '링크', value: (task) => task.pageUrl, width: 28 },
-        { header: '시간', value: (task) => task.hours, width: 10 },
+        { header: '시간', value: (task) => task.taskUsedtime, width: 10 },
         { header: '비고', value: (task) => task.note, width: 28 },
       ],
     );
@@ -854,7 +854,7 @@ export function AdminReportsPage() {
                 <th>
                   <SortButton
                     label="시간"
-                    sortKey="hours"
+                    sortKey="taskUsedtime"
                     sortState={sortState}
                     onChange={setSortState}
                   />
@@ -903,7 +903,7 @@ export function AdminReportsPage() {
                           '-'
                         )}
                       </td>
-                      <td>{formatTimeCell(task.hours)}</td>
+                      <td>{formatTimeCell(task.taskUsedtime)}</td>
                       <td>{task.note || '-'}</td>
                       <td>
                         <div className={styles.actionStack}>

@@ -20,7 +20,7 @@ import {
   DEFAULT_REPORT_FILTERS,
   draftFromReport,
   getTodayInputValue,
-  parseReportHoursInput,
+  parseReportTaskUsedtimeInput,
   reportMatchesFilters,
   shiftDateInput,
   sortReportsDescending,
@@ -60,7 +60,7 @@ export interface ReportsSlice {
   resetDraft: () => void;
   saveDraft: (reportDateOverride?: string) => Promise<void>;
   deleteDraft: (id: string) => Promise<void>;
-  saveOverheadReport: (hours: number, reportDate?: string) => Promise<void>;
+  saveOverheadReport: (taskUsedtime: number, reportDate?: string) => Promise<void>;
   jumpDraftDate: (offsetDays: number) => void;
   clearPeriodFilters: () => void;
 }
@@ -113,7 +113,7 @@ function toReportRecord(
     pageName: page?.title ?? '',
     type1: task.taskType1 as ReportRecord['type1'],
     type2: task.taskType2 as ReportRecord['type2'],
-    workHours: task.hours,
+    taskUsedtime: task.taskUsedtime,
     content: task.content,
     note: task.note,
     createdAt: task.createdAt,
@@ -295,7 +295,7 @@ export function useReportsSlice(): ReportsSlice {
       pageId: string;
       taskType1: string;
       taskType2: string;
-      hours: number;
+      taskUsedtime: number;
       content: string;
       note: string;
     }) => {
@@ -339,7 +339,7 @@ export function useReportsSlice(): ReportsSlice {
         pageId: pageId || null,
         taskType1: taskType.type1,
         taskType2: taskType.type2,
-        hours: input.hours,
+        taskUsedtime: input.taskUsedtime,
         content: input.content,
         note: input.note,
       });
@@ -514,7 +514,7 @@ export function useReportsSlice(): ReportsSlice {
       }
 
       const taskType = validateTaskTypeSelection(taskTypes, draft.type1, draft.type2);
-      const hours = parseReportHoursInput(draft.workHours);
+      const taskUsedtime = parseReportTaskUsedtimeInput(draft.taskUsedtime);
       const page = draft.pageId ? (pagesById.get(draft.pageId) ?? null) : null;
       const pageName = draft.manualPageName || page?.title || '';
       const content = draft.content.trim() || pageName || '업무';
@@ -526,7 +526,7 @@ export function useReportsSlice(): ReportsSlice {
         pageId: draft.pageId,
         taskType1: taskType.type1,
         taskType2: taskType.type2,
-        hours,
+        taskUsedtime,
         content,
         note: draft.note.trim(),
       });
@@ -543,7 +543,7 @@ export function useReportsSlice(): ReportsSlice {
     await deleteMutation.mutateAsync(id);
   };
 
-  const saveOverheadReport = async (hours: number, reportDate = getTodayInputValue()) => {
+  const saveOverheadReport = async (taskUsedtime: number, reportDate = getTodayInputValue()) => {
     if (saveMutation.isPending) {
       return;
     }
@@ -567,7 +567,7 @@ export function useReportsSlice(): ReportsSlice {
         pageId: '',
         taskType1: taskType.type1,
         taskType2: taskType.type2,
-        hours,
+        taskUsedtime,
         content: '오버헤드',
         note: '',
       });

@@ -102,8 +102,8 @@ export function countWorkingDaysUntil(month: string, day: number) {
   ).length;
 }
 
-export function minutesFromHours(hours: number) {
-  return Math.round(hours * 60);
+export function normalizeTaskUsedtime(taskUsedtime: number) {
+  return Math.round(taskUsedtime);
 }
 
 export function minutesToMm(minutes: number, workingDays = 21) {

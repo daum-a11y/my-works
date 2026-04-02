@@ -44,7 +44,7 @@ export interface ReportRecord {
   pageName: string;
   type1: ReportType1;
   type2: ReportType2;
-  workHours: number;
+  taskUsedtime: number;
   content: string;
   note: string;
   createdAt: string;
@@ -62,7 +62,7 @@ export interface ReportDraft {
   serviceName: string;
   manualPageName: string;
   pageUrl: string;
-  workHours: string;
+  taskUsedtime: string;
   content: string;
   note: string;
 }
@@ -103,8 +103,8 @@ export type ReportSortMode =
   | 'updated-asc'
   | 'project-asc'
   | 'project-desc'
-  | 'hours-desc'
-  | 'hours-asc';
+  | 'task-usedtime-desc'
+  | 'task-usedtime-asc';
 
 export const DEFAULT_REPORT_FILTERS: ReportFilters = {
   query: '',
@@ -114,8 +114,8 @@ export const DEFAULT_REPORT_FILTERS: ReportFilters = {
   taskType2: '',
   startDate: '',
   endDate: '',
-  minHours: '',
-  maxHours: '',
+  minTaskUsedtime: '',
+  maxTaskUsedtime: '',
 };
 
 function isoToDateInput(value: string) {
@@ -307,7 +307,7 @@ export function validateTaskTypeSelection(taskTypes: TaskType[], type1: string, 
   };
 }
 
-export function parseReportHoursInput(value: string) {
+export function parseReportTaskUsedtimeInput(value: string) {
   const normalizedValue = value.trim();
   if (!normalizedValue) {
     throw new Error('소요 시간을 분 단위로 입력해 주세요.');
@@ -348,7 +348,7 @@ export function createEmptyReportDraft(referenceDate = new Date()): ReportDraft 
     serviceName: '',
     manualPageName: '',
     pageUrl: '',
-    workHours: '60',
+    taskUsedtime: '60',
     content: '',
     note: '',
   };
@@ -367,7 +367,7 @@ export function draftFromReport(report: ReportRecord): ReportDraft {
     serviceName: reportView.serviceName ?? '',
     manualPageName: report.pageName,
     pageUrl: reportView.pageUrl ?? '',
-    workHours: String(report.workHours),
+    taskUsedtime: String(report.taskUsedtime),
     content: report.content,
     note: report.note,
   };
@@ -396,7 +396,7 @@ export function buildReportFromDraft(
     pageName: existing?.pageName ?? '',
     type1: taskType.type1,
     type2: taskType.type2,
-    workHours: parseReportHoursInput(draft.workHours),
+    taskUsedtime: parseReportTaskUsedtimeInput(draft.taskUsedtime),
     content: draft.content.trim(),
     note: draft.note.trim(),
     createdAt: existing?.createdAt ?? now.toISOString(),
@@ -476,15 +476,15 @@ export function sortReportsByMode<T extends ReportRecord>(
           compareStrings(right.pageName || '', left.pageName || '') ||
           compareStrings(right.id, left.id)
         );
-      case 'hours-desc':
+      case 'task-usedtime-desc':
         return (
-          right.workHours - left.workHours ||
+          right.taskUsedtime - left.taskUsedtime ||
           right.updatedAt.localeCompare(left.updatedAt) ||
           right.id.localeCompare(left.id)
         );
-      case 'hours-asc':
+      case 'task-usedtime-asc':
         return (
-          left.workHours - right.workHours ||
+          left.taskUsedtime - right.taskUsedtime ||
           left.updatedAt.localeCompare(right.updatedAt) ||
           left.id.localeCompare(right.id)
         );
@@ -520,8 +520,12 @@ function buildReportSearchText(report: ReportRecord) {
 
 export function reportMatchesFilters(report: ReportRecord, filters: ReportFilters) {
   const searchText = normalizeText(filters.query);
-  const minHours = filters.minHours ? Number.parseFloat(filters.minHours) : null;
-  const maxHours = filters.maxHours ? Number.parseFloat(filters.maxHours) : null;
+  const minTaskUsedtime = filters.minTaskUsedtime
+    ? Number.parseFloat(filters.minTaskUsedtime)
+    : null;
+  const maxTaskUsedtime = filters.maxTaskUsedtime
+    ? Number.parseFloat(filters.maxTaskUsedtime)
+    : null;
 
   if (searchText && !buildReportSearchText(report).includes(searchText)) {
     return false;
@@ -551,18 +555,18 @@ export function reportMatchesFilters(report: ReportRecord, filters: ReportFilter
     return false;
   }
 
-  if (minHours !== null && report.workHours < minHours) {
+  if (minTaskUsedtime !== null && report.taskUsedtime < minTaskUsedtime) {
     return false;
   }
 
-  if (maxHours !== null && report.workHours > maxHours) {
+  if (maxTaskUsedtime !== null && report.taskUsedtime > maxTaskUsedtime) {
     return false;
   }
 
   return true;
 }
 
-export function formatReportHours(value: number) {
+export function formatReportTaskUsedtime(value: number) {
   return `${value}분`;
 }
 
@@ -611,7 +615,7 @@ export function buildReportDownloadHtml(reports: readonly ReportViewModel[], tit
           <td>${escapeHtml(report.pageDisplayName)}</td>
           <td>${escapeHtml(report.type1)}</td>
           <td>${escapeHtml(report.type2)}</td>
-          <td>${escapeHtml(formatReportHours(report.workHours))}</td>
+          <td>${escapeHtml(formatReportTaskUsedtime(report.taskUsedtime))}</td>
           <td>${escapeHtml(report.content)}</td>
           <td>${escapeHtml(report.note)}</td>
         </tr>`,

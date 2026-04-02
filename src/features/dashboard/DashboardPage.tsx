@@ -47,7 +47,7 @@ export function DashboardPage() {
 
     for (const task of tasks) {
       const day = Number(task.taskDate.slice(8, 10));
-      summary.set(day, (summary.get(day) ?? 0) + Math.round(task.hours));
+      summary.set(day, (summary.get(day) ?? 0) + Math.round(task.taskUsedtime));
     }
 
     const today = new Date();

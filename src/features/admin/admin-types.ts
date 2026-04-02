@@ -27,7 +27,7 @@ export interface AdminTaskSearchItem {
   serviceName: string;
   taskType1: string;
   taskType2: string;
-  hours: number;
+  taskUsedtime: number;
   content: string;
   note: string;
   updatedAt: string;
@@ -46,7 +46,7 @@ export interface AdminTaskSaveInput {
   pageId: string;
   taskType1: string;
   taskType2: string;
-  hours: number;
+  taskUsedtime: number;
   content: string;
   note: string;
 }

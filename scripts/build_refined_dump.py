@@ -7,7 +7,7 @@ import subprocess
 import uuid
 from collections import Counter
 from datetime import date, datetime
-from decimal import Decimal, ROUND_HALF_UP
+from decimal import Decimal
 from pathlib import Path
 
 
@@ -886,8 +886,7 @@ def build_dump():
                     }
                 )
 
-        minutes = int(row["task_usedtime"] or 0)
-        hours = (Decimal(minutes) / Decimal(60)).quantize(Decimal("0.1"), rounding=ROUND_HALF_UP)
+        task_usedtime = int(row["task_usedtime"] or 0)
         task = {
             "id": stable_uuid("task", row["task_num"]),
             "source_task_ref": str(row["task_num"]),
@@ -899,7 +898,7 @@ def build_dump():
             "task_type_id": task_type["id"] if task_type else None,
             "task_type1": pair[0],
             "task_type2": pair[1],
-            "hours": hours,
+            "task_usedtime": task_usedtime,
             "content": task_content(row),
             "note": compose_task_note(row),
             "created_at": "1970-01-01 00:00:00",
@@ -1163,7 +1162,7 @@ def build_dump():
             "task_type_id",
             "task_type1",
             "task_type2",
-            "hours",
+            "task_usedtime",
             "content",
             "note",
             "created_at",

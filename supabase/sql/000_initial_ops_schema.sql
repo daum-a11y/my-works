@@ -129,7 +129,7 @@ create table if not exists public.tasks (
   task_type_id uuid references public.task_types(id),
   task_type1 text not null,
   task_type2 text not null,
-  hours numeric(5, 1) not null default 0,
+  task_usedtime numeric(5, 1) not null default 0,
   content text not null,
   note text not null default '',
   created_at timestamptz not null default timezone('utc', now()),
@@ -402,7 +402,7 @@ create or replace function public.save_task(
   p_project_page_id uuid default null,
   p_task_type1 text default null,
   p_task_type2 text default null,
-  p_hours numeric default null,
+  p_task_usedtime numeric default null,
   p_content text default null,
   p_note text default ''
 )
@@ -431,8 +431,8 @@ begin
     raise exception 'task_type2 required';
   end if;
 
-  if p_hours is null then
-    raise exception 'hours required';
+  if p_task_usedtime is null then
+    raise exception 'task_usedtime required';
   end if;
 
   if coalesce(trim(p_content), '') = '' then
@@ -448,7 +448,7 @@ begin
       project_page_id,
       task_type1,
       task_type2,
-      hours,
+      task_usedtime,
       content,
       note
     )
@@ -460,7 +460,7 @@ begin
       p_project_page_id,
       p_task_type1,
       p_task_type2,
-      p_hours,
+      p_task_usedtime,
       p_content,
       coalesce(p_note, '')
     )
@@ -473,7 +473,7 @@ begin
       project_page_id = p_project_page_id,
       task_type1 = p_task_type1,
       task_type2 = p_task_type2,
-      hours = p_hours,
+      task_usedtime = p_task_usedtime,
       content = p_content,
       note = coalesce(p_note, ''),
       updated_at = timezone('utc', now())
@@ -777,7 +777,7 @@ returns table (
   project_page_id uuid,
   task_type1 text,
   task_type2 text,
-  hours numeric,
+  task_usedtime numeric,
   content text,
   note text,
   updated_at timestamptz,
@@ -801,7 +801,7 @@ as $$
     t.project_page_id,
     t.task_type1,
     t.task_type2,
-    t.hours,
+    t.task_usedtime,
     t.content,
     t.note,
     t.updated_at,

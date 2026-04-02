@@ -7,7 +7,7 @@ import {
   buildSelectableTaskType1Options,
   buildTaskType2OptionsForValue,
   formatReportDate,
-  formatReportHours,
+  formatReportTaskUsedtime,
   getTodayInputValue,
   shiftDateInput,
   type ReportViewModel,
@@ -76,7 +76,7 @@ function renderReportTable(
     summaryDate,
     emptyMessage,
   } = options;
-  const totalMinutes = rows.reduce((sum, report) => sum + report.workHours, 0);
+  const totalMinutes = rows.reduce((sum, report) => sum + report.taskUsedtime, 0);
   const missingMinutes = Math.max(480 - totalMinutes, 0);
   const canAddOverhead = Boolean(summaryDate) && missingMinutes > 0;
 
@@ -172,7 +172,7 @@ function renderReportTable(
                         onChange={(event) => onEditWorkHoursChange(event.target.value)}
                       />
                     ) : (
-                      formatReportHours(report.workHours)
+                      formatReportTaskUsedtime(report.taskUsedtime)
                     )}
                   </td>
                   <td>
@@ -417,13 +417,13 @@ export function ReportsPage() {
     const nextIsVacation = type1Value === '휴무';
     if (nextIsVacation) {
       setDraftField('manualPageName', '');
-      setDraftField('workHours', '');
+      setDraftField('taskUsedtime', '');
       return;
     }
 
     if (previousWasVacation) {
       setDraftField('manualPageName', '');
-      setDraftField('workHours', '');
+      setDraftField('taskUsedtime', '');
     }
   };
 
@@ -437,14 +437,14 @@ export function ReportsPage() {
   const handleVacationTypeChange = (value: string) => {
     setDraftField('manualPageName', value);
     if (value === '오전 반차' || value === '오후 반차') {
-      setDraftField('workHours', '240');
+      setDraftField('taskUsedtime', '240');
       return;
     }
     if (value === '전일 휴가') {
-      setDraftField('workHours', '480');
+      setDraftField('taskUsedtime', '480');
       return;
     }
-    setDraftField('workHours', '');
+    setDraftField('taskUsedtime', '');
   };
 
   const applyPeriodDate = (date: string) => {
@@ -751,8 +751,8 @@ export function ReportsPage() {
                     type="number"
                     min="0"
                     step="1"
-                    value={draft.workHours}
-                    onChange={(event) => setDraftField('workHours', event.target.value)}
+                    value={draft.taskUsedtime}
+                    onChange={(event) => setDraftField('taskUsedtime', event.target.value)}
                     readOnly={isReadonlyWorkHours}
                   />
                 </label>
@@ -788,12 +788,12 @@ export function ReportsPage() {
           selectedReport,
           editDateValue: draft.reportDate,
           editType2Value: draft.type2,
-          editWorkHoursValue: draft.workHours,
+          editWorkHoursValue: draft.taskUsedtime,
           editNoteValue: draft.note,
           editType2Options: selectedReportType2Options,
           onEditDateChange: (value) => setDraftField('reportDate', value),
           onEditType2Change: (value) => setDraftField('type2', value),
-          onEditWorkHoursChange: (value) => setDraftField('workHours', value),
+          onEditWorkHoursChange: (value) => setDraftField('taskUsedtime', value),
           onEditNoteChange: (value) => setDraftField('note', value),
           onSaveEdit: () => {
             void saveDraft();

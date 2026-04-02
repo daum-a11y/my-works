@@ -97,7 +97,7 @@ describe('SearchPage', () => {
         pageId: 'page-1',
         taskType1: '기획',
         taskType2: '작성',
-        hours: 60,
+        taskUsedtime: 60,
         content: '업무',
         note: '비고',
         createdAt: '2026-03-24T09:00:00.000Z',

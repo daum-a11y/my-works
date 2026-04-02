@@ -189,7 +189,7 @@ export function ResourceMonthPage() {
       const items =
         grouped.get(type1) ?? new Map<string, { minutes: number; requiresServiceGroup: boolean }>();
       const current = items.get(type2) ?? { minutes: 0, requiresServiceGroup };
-      current.minutes += Math.round(task.hours);
+      current.minutes += Math.round(task.taskUsedtime);
       current.requiresServiceGroup = current.requiresServiceGroup || requiresServiceGroup;
       items.set(type2, current);
       grouped.set(type1, items);
@@ -234,7 +234,7 @@ export function ResourceMonthPage() {
       const info = getTaskServiceInfo(task, projectsById, serviceGroupsById);
       const serviceGroups = grouped.get(info.costGroup) ?? new Map<string, Map<string, number>>();
       const names = serviceGroups.get(info.group) ?? new Map<string, number>();
-      names.set(info.name, (names.get(info.name) ?? 0) + Math.round(task.hours));
+      names.set(info.name, (names.get(info.name) ?? 0) + Math.round(task.taskUsedtime));
       serviceGroups.set(info.group, names);
       grouped.set(info.costGroup, serviceGroups);
     }
@@ -270,7 +270,7 @@ export function ResourceMonthPage() {
       const names = serviceGroups.get(info.group) ?? new Map<string, Map<string, number>>();
       const typeMap = names.get(info.name) ?? new Map<string, number>();
       const type1 = task.taskType1 || '미분류';
-      typeMap.set(type1, (typeMap.get(type1) ?? 0) + Math.round(task.hours));
+      typeMap.set(type1, (typeMap.get(type1) ?? 0) + Math.round(task.taskUsedtime));
       names.set(info.name, typeMap);
       serviceGroups.set(info.group, names);
       grouped.set(info.costGroup, serviceGroups);
@@ -311,7 +311,7 @@ export function ResourceMonthPage() {
         accountId: member.accountId,
         totalMinutes: monthTasks
           .filter((task) => task.memberId === member.id)
-          .reduce((sum, task) => sum + Math.round(task.hours), 0),
+          .reduce((sum, task) => sum + Math.round(task.taskUsedtime), 0),
       }))
       .filter((member) => member.totalMinutes > 0);
   }, [data, monthTasks]);

@@ -109,7 +109,7 @@ export interface Task {
   pageId: string | null;
   taskType1: string;
   taskType2: string;
-  hours: number;
+  taskUsedtime: number;
   content: string;
   note: string;
   createdAt: string;
@@ -119,7 +119,7 @@ export interface Task {
 export interface TaskActivity {
   memberId: string;
   taskDate: string;
-  hours: number;
+  taskUsedtime: number;
 }
 
 export interface PagedResult<T> {
@@ -135,8 +135,8 @@ export interface ReportFilters {
   taskType2: string;
   startDate: string;
   endDate: string;
-  minHours: string;
-  maxHours: string;
+  minTaskUsedtime: string;
+  maxTaskUsedtime: string;
 }
 
 export interface SaveTaskInput {
@@ -146,7 +146,7 @@ export interface SaveTaskInput {
   pageId: string | null;
   taskType1: string;
   taskType2: string;
-  hours: number;
+  taskUsedtime: number;
   content: string;
   note: string;
 }
@@ -193,12 +193,12 @@ export interface DashboardSnapshot {
 }
 
 export interface StatsSnapshot {
-  totalHours: number;
+  totalTaskUsedtime: number;
   totalTasks: number;
   monitoringInProgress: number;
   qaInProgress: number;
   statusBreakdown: Array<{ status: PageStatus; count: number }>;
-  typeBreakdown: Array<{ type: string; hours: number }>;
+  typeBreakdown: Array<{ type: string; taskUsedtime: number }>;
 }
 
 export interface OpsStore {

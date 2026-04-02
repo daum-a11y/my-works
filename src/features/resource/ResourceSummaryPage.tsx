@@ -96,7 +96,7 @@ export function ResourceSummaryPage() {
       memberTasks.forEach((task) => {
         minutesByDate.set(
           task.taskDate,
-          (minutesByDate.get(task.taskDate) ?? 0) + Math.round(task.hours),
+          (minutesByDate.get(task.taskDate) ?? 0) + Math.round(task.taskUsedtime),
         );
       });
 
@@ -156,7 +156,7 @@ export function ResourceSummaryPage() {
 
     tasks.forEach((task) => {
       const day = Number(task.taskDate.slice(8, 10));
-      summary.set(day, (summary.get(day) ?? 0) + Math.round(task.hours));
+      summary.set(day, (summary.get(day) ?? 0) + Math.round(task.taskUsedtime));
     });
 
     return {

@@ -36,7 +36,7 @@
   - `pageId`
   - `taskType1`
   - `taskType2`
-  - `hours`
+  - `task_usedtime`
   - `content`
   - `note`
 - 현재 `saveTaskAdmin()`

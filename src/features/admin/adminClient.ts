@@ -75,7 +75,7 @@ function toNullableString(value: string) {
 }
 
 const TASK_SELECT_COLUMNS =
-  'id, member_id, task_date, project_id, project_page_id, task_type1, task_type2, hours, content, note, updated_at';
+  'id, member_id, task_date, project_id, project_page_id, task_type1, task_type2, taskUsedtime, content, note, updated_at';
 
 function mapProject(record: Record<string, unknown>): AdminProjectOption {
   const platformRecord = Array.isArray(record.platforms) ? record.platforms[0] : record.platforms;
@@ -125,7 +125,7 @@ function mapTask(record: Record<string, unknown>): AdminTaskSearchItem {
     serviceName: String(record.service_name ?? ''),
     taskType1: String(record.task_type1 ?? ''),
     taskType2: String(record.task_type2 ?? ''),
-    hours: Number(record.hours ?? 0),
+    taskUsedtime: Number(record.taskUsedtime ?? 0),
     content: String(record.content ?? ''),
     note: String(record.note ?? ''),
     updatedAt: String(record.updated_at ?? ''),
@@ -613,7 +613,7 @@ function createSupabaseAdminClient(): AdminDataClient {
         project_page_id: toNullableString(input.pageId),
         task_type1: input.taskType1,
         task_type2: input.taskType2,
-        hours: input.hours,
+        taskUsedtime: input.taskUsedtime,
         content: input.content,
         note: input.note,
       };

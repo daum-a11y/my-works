@@ -7,7 +7,7 @@ export {
   createEmptyReportDraft,
   draftFromReport,
   formatReportDate,
-  formatReportHours,
+  formatReportTaskUsedtime,
   getTodayInputValue,
   reportMatchesFilters,
   sortReportsDescending,

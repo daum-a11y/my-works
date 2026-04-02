@@ -29,7 +29,7 @@ export function ResourceTypePage() {
       const month = task.taskDate.slice(0, 7);
       const key = task.taskType1;
       const monthMap = grouped.get(month) ?? new Map<string, number>();
-      monthMap.set(key, (monthMap.get(key) ?? 0) + Math.round(task.hours));
+      monthMap.set(key, (monthMap.get(key) ?? 0) + Math.round(task.taskUsedtime));
       grouped.set(month, monthMap);
     }
 

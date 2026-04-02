@@ -9,7 +9,7 @@ import {
   buildTaskType2OptionsForValue,
   createEmptyReportDraft,
   getTodayInputValue,
-  parseReportHoursInput,
+  parseReportTaskUsedtimeInput,
   shiftDateInput,
   validateTaskTypeSelection,
   type ReportDraft,
@@ -132,7 +132,7 @@ function createDraftFromTask(task: AdminTaskSearchItem): ReportDraft {
     serviceName: task.serviceName || '',
     manualPageName: task.pageTitle || '',
     pageUrl: task.pageUrl || '',
-    workHours: String(task.hours ?? 0),
+    taskUsedtime: String(task.taskUsedtime ?? 0),
     content: task.content || '',
     note: task.note || '',
   };
@@ -402,13 +402,13 @@ export function AdminReportEditorPage() {
     const nextIsVacation = type1Value === '휴무';
     if (nextIsVacation) {
       setDraftField('manualPageName', '');
-      setDraftField('workHours', '');
+      setDraftField('taskUsedtime', '');
       return;
     }
 
     if (previousWasVacation) {
       setDraftField('manualPageName', '');
-      setDraftField('workHours', '');
+      setDraftField('taskUsedtime', '');
     }
   };
 
@@ -422,14 +422,14 @@ export function AdminReportEditorPage() {
   const handleVacationTypeChange = (value: string) => {
     setDraftField('manualPageName', value);
     if (value === '오전 반차' || value === '오후 반차') {
-      setDraftField('workHours', '240');
+      setDraftField('taskUsedtime', '240');
       return;
     }
     if (value === '전일 휴가') {
-      setDraftField('workHours', '480');
+      setDraftField('taskUsedtime', '480');
       return;
     }
-    setDraftField('workHours', '');
+    setDraftField('taskUsedtime', '');
   };
 
   const saveMutation = useMutation({
@@ -439,7 +439,7 @@ export function AdminReportEditorPage() {
       }
 
       const taskType = validateTaskTypeSelection(taskTypes, draft.type1, draft.type2);
-      const hours = parseReportHoursInput(draft.workHours);
+      const taskUsedtime = parseReportTaskUsedtimeInput(draft.taskUsedtime);
       await adminDataClient.saveTaskAdmin({
         id: isEdit ? taskId : undefined,
         memberId: selectedMemberId,
@@ -448,7 +448,7 @@ export function AdminReportEditorPage() {
         pageId: draft.pageId,
         taskType1: taskType.type1,
         taskType2: taskType.type2,
-        hours,
+        taskUsedtime,
         content: taskQuery.data?.content ?? '',
         note: draft.note.trim(),
       });
@@ -748,8 +748,8 @@ export function AdminReportEditorPage() {
                   type="number"
                   min="0"
                   step="1"
-                  value={draft.workHours}
-                  onChange={(event) => setDraftField('workHours', event.target.value)}
+                  value={draft.taskUsedtime}
+                  onChange={(event) => setDraftField('taskUsedtime', event.target.value)}
                   readOnly={isReadonlyWorkHours}
                 />
               </label>
