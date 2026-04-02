@@ -758,6 +758,8 @@ begin
 end;
 $$;
 
+drop function if exists public.admin_search_tasks(uuid, date, date, uuid, uuid, text, text, uuid, text);
+
 create or replace function public.admin_search_tasks(
   p_member_id uuid default null,
   p_start_date date default null,
