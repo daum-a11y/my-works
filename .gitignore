@@ -13,3 +13,4 @@ output/playwright*
 .playwright-cli
 /db_a11yop_*.sql
 .tmp
+output/*.sql
