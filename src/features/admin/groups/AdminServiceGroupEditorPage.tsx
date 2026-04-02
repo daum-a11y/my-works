@@ -11,7 +11,7 @@ function createDraft(item?: AdminServiceGroupItem): AdminServiceGroupPayload {
       name: '',
       svcGroup: '',
       svcName: '',
-      svcType: 3,
+      costGroupId: '',
       svcActive: true,
       displayOrder: 0,
       isActive: true,
@@ -24,7 +24,7 @@ function createDraft(item?: AdminServiceGroupItem): AdminServiceGroupPayload {
     legacySvcNum: item.legacySvcNum,
     svcGroup: item.svcGroup,
     svcName: item.svcName,
-    svcType: item.svcType,
+    costGroupId: item.costGroupId ?? '',
     svcActive: item.svcActive,
     displayOrder: item.displayOrder,
     isActive: item.isActive,
@@ -59,8 +59,13 @@ export function AdminServiceGroupEditorPage() {
     queryKey: ['admin', 'service-groups'],
     queryFn: () => adminDataClient.listServiceGroups(),
   });
+  const costGroupsQuery = useQuery({
+    queryKey: ['admin', 'cost-groups'],
+    queryFn: () => adminDataClient.listCostGroups(),
+  });
 
   const serviceGroups = useMemo(() => serviceGroupsQuery.data ?? [], [serviceGroupsQuery.data]);
+  const costGroups = useMemo(() => costGroupsQuery.data ?? [], [costGroupsQuery.data]);
   const selectedServiceGroup = useMemo(
     () => serviceGroups.find((item) => item.id === serviceGroupId) ?? null,
     [serviceGroupId, serviceGroups],
@@ -104,6 +109,7 @@ export function AdminServiceGroupEditorPage() {
         name: composeServiceName(svcGroup, svcName),
         svcGroup,
         svcName,
+        costGroupId: payload.costGroupId.trim(),
         svcActive,
         isActive: svcActive,
       });
@@ -138,6 +144,7 @@ export function AdminServiceGroupEditorPage() {
 
   const errorMessage =
     (serviceGroupsQuery.error instanceof Error && serviceGroupsQuery.error.message) ||
+    (costGroupsQuery.error instanceof Error && costGroupsQuery.error.message) ||
     (usageQuery.error instanceof Error && usageQuery.error.message) ||
     (saveMutation.error instanceof Error && saveMutation.error.message) ||
     (deleteMutation.error instanceof Error && deleteMutation.error.message) ||
@@ -218,21 +225,24 @@ export function AdminServiceGroupEditorPage() {
             </label>
 
             <label className={styles.field}>
-              <span>분류</span>
+              <span>청구그룹</span>
               <select
-                value={String(draft.svcType)}
+                value={draft.costGroupId}
                 onChange={(event) =>
-                  setDraft((current) => ({ ...current, svcType: Number(event.target.value) }))
+                  setDraft((current) => ({ ...current, costGroupId: event.target.value }))
                 }
               >
-                <option value="1">카카오</option>
-                <option value="2">공동체</option>
-                <option value="3">외부</option>
+                <option value="">청구그룹 선택</option>
+                {costGroups.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.name}
+                  </option>
+                ))}
               </select>
             </label>
 
             <label className={styles.field}>
-              <span>활성여부</span>
+              <span>노출여부</span>
               <select
                 value={draft.svcActive ? '1' : '0'}
                 onChange={(event) => {
@@ -244,8 +254,8 @@ export function AdminServiceGroupEditorPage() {
                   }));
                 }}
               >
-                <option value="1">활성</option>
-                <option value="0">비활성</option>
+                <option value="1">노출</option>
+                <option value="0">숨김</option>
               </select>
             </label>
           </div>
@@ -273,7 +283,7 @@ export function AdminServiceGroupEditorPage() {
               <button
                 type="submit"
                 className={styles.primaryButton}
-                disabled={saveMutation.isPending}
+                disabled={saveMutation.isPending || !draft.costGroupId}
               >
                 저장
               </button>

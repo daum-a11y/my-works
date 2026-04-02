@@ -1,3 +1,7 @@
+import { AdminCostGroupEditorPage } from '../features/admin/cost-groups/AdminCostGroupEditorPage';
+import { AdminCostGroupsPage } from '../features/admin/cost-groups/AdminCostGroupsPage';
+import { AdminPlatformEditorPage } from '../features/admin/platforms/AdminPlatformEditorPage';
+import { AdminPlatformsPage } from '../features/admin/platforms/AdminPlatformsPage';
 import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import { AuthProvider, useAuth } from '../features/auth/AuthContext';
 import { ForgotPasswordPage } from '../features/auth/ForgotPasswordPage';
@@ -166,6 +170,15 @@ export function AppRouter() {
               <Route path="/org/type" element={<AdminTaskTypesPage />} />
               <Route path="/org/type/new" element={<AdminTaskTypeEditorPage />} />
               <Route path="/org/type/:taskTypeId/edit" element={<AdminTaskTypeEditorPage />} />
+              <Route path="/org/platform" element={<AdminPlatformsPage />} />
+              <Route path="/org/platform/new" element={<AdminPlatformEditorPage />} />
+              <Route path="/org/platform/:platformId/edit" element={<AdminPlatformEditorPage />} />
+              <Route path="/org/cost-group" element={<AdminCostGroupsPage />} />
+              <Route path="/org/cost-group/new" element={<AdminCostGroupEditorPage />} />
+              <Route
+                path="/org/cost-group/:costGroupId/edit"
+                element={<AdminCostGroupEditorPage />}
+              />
               <Route path="/org/group" element={<AdminServiceGroupsPage />} />
               <Route path="/org/group/new" element={<AdminServiceGroupEditorPage />} />
               <Route

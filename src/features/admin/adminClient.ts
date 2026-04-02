@@ -2,7 +2,11 @@ import { getSupabaseClient } from '../../lib/supabase';
 import { normalizePageStatus } from '../../lib/domain';
 import { getPasswordRecoveryRedirectUrl } from '../auth/authUrls';
 import type {
+  AdminCostGroupItem,
+  AdminCostGroupPayload,
   AdminPageOption,
+  AdminPlatformItem,
+  AdminPlatformPayload,
   AdminProjectOption,
   AdminServiceGroupItem,
   AdminServiceGroupPayload,
@@ -21,6 +25,8 @@ import type {
 
 interface AdminDataClient {
   listTaskTypes(): Promise<AdminTaskTypeItem[]>;
+  listPlatforms(): Promise<AdminPlatformItem[]>;
+  listCostGroups(): Promise<AdminCostGroupItem[]>;
   listServiceGroups(): Promise<AdminServiceGroupItem[]>;
   listProjects(): Promise<AdminProjectOption[]>;
   listProjectPages(): Promise<AdminPageOption[]>;
@@ -50,6 +56,10 @@ interface AdminDataClient {
     nextType2: string,
   ): Promise<void>;
   saveServiceGroupAdmin(payload: AdminServiceGroupPayload): Promise<AdminServiceGroupItem>;
+  saveCostGroupAdmin(payload: AdminCostGroupPayload): Promise<AdminCostGroupItem>;
+  deleteCostGroupAdmin(costGroupId: string): Promise<void>;
+  savePlatformAdmin(payload: AdminPlatformPayload): Promise<AdminPlatformItem>;
+  deletePlatformAdmin(platformId: string): Promise<void>;
   getServiceGroupUsageSummary(serviceGroupId: string): Promise<AdminServiceGroupUsageSummary>;
   deleteServiceGroupAdmin(serviceGroupId: string): Promise<void>;
   replaceServiceGroupUsage(
@@ -67,11 +77,17 @@ const TASK_SELECT_COLUMNS =
   'id, member_id, task_date, project_id, project_page_id, task_type1, task_type2, hours, content, note, updated_at';
 
 function mapProject(record: Record<string, unknown>): AdminProjectOption {
+  const platformRecord = Array.isArray(record.platforms) ? record.platforms[0] : record.platforms;
+  const platformName =
+    platformRecord && typeof platformRecord === 'object'
+      ? String((platformRecord as Record<string, unknown>).name ?? '')
+      : String(record.platform ?? '');
   return {
     id: String(record.id ?? ''),
     name: String(record.name ?? ''),
     projectType1: String(record.project_type1 ?? ''),
-    platform: String(record.platform ?? ''),
+    platformId: record.platform_id ? String(record.platform_id) : null,
+    platform: platformName,
     serviceGroupId: record.service_group_id ? String(record.service_group_id) : null,
     reportUrl: String(record.report_url ?? ''),
     isActive: Boolean(record.is_active ?? true),
@@ -131,6 +147,29 @@ function mapTaskType(record: Record<string, unknown>): AdminTaskTypeItem {
   };
 }
 
+function mapCostGroup(record: Record<string, unknown>): AdminCostGroupItem {
+  return {
+    id: String(record.id ?? ''),
+    legacyCostGroupCode:
+      record.legacy_cost_group_code == null || record.legacy_cost_group_code === ''
+        ? null
+        : Number(record.legacy_cost_group_code),
+    name: String(record.name ?? ''),
+    displayOrder: Number(record.display_order ?? 0),
+    isActive: Boolean(record.is_active ?? true),
+  };
+}
+
+function mapPlatform(record: Record<string, unknown>): AdminPlatformItem {
+  return {
+    id: String(record.id ?? ''),
+    legacyPlatformName: record.legacy_platform_name ? String(record.legacy_platform_name) : null,
+    name: String(record.name ?? ''),
+    displayOrder: Number(record.display_order ?? 0),
+    isVisible: Boolean(record.is_visible ?? true),
+  };
+}
+
 function splitServiceName(name: string) {
   const normalized = String(name ?? '').trim();
   if (!normalized) {
@@ -167,6 +206,13 @@ function composeServiceName(serviceGroup: string, serviceName: string) {
 function mapServiceGroup(record: Record<string, unknown>): AdminServiceGroupItem {
   const name = String(record.name ?? '');
   const parts = splitServiceName(name);
+  const costGroupRecord = Array.isArray(record.cost_groups)
+    ? record.cost_groups[0]
+    : record.cost_groups;
+  const costGroupName =
+    costGroupRecord && typeof costGroupRecord === 'object'
+      ? String((costGroupRecord as Record<string, unknown>).name ?? '')
+      : String(record.cost_group_name ?? '');
 
   return {
     id: String(record.id ?? ''),
@@ -177,14 +223,8 @@ function mapServiceGroup(record: Record<string, unknown>): AdminServiceGroupItem
     name,
     svcGroup: parts.svcGroup,
     svcName: parts.svcName,
-    svcType:
-      typeof record.svc_type === 'number'
-        ? Number(record.svc_type)
-        : typeof record.display_order === 'number' &&
-            Number(record.display_order) >= 1 &&
-            Number(record.display_order) <= 3
-          ? Number(record.display_order)
-          : 3,
+    costGroupId: record.cost_group_id ? String(record.cost_group_id) : null,
+    costGroupName,
     svcActive: Boolean(record.svc_active ?? record.is_active ?? true),
     displayOrder: Number(record.display_order ?? 0),
     isActive: Boolean(record.is_active ?? true),
@@ -248,7 +288,7 @@ async function loadAdminReferenceMaps(supabase: NonNullable<ReturnType<typeof ge
     supabase.from('members').select('id, name, email'),
     supabase.from('projects').select('id, name, platform, service_group_id'),
     supabase.from('project_pages').select('id, project_id, title, url'),
-    supabase.from('service_groups').select('id, name'),
+    supabase.from('service_groups').select('id, name, cost_group_id, cost_groups(name)'),
   ]);
 
   if (membersResult.error) throw membersResult.error;
@@ -412,6 +452,12 @@ function createUnconfiguredAdminClient(): AdminDataClient {
     async listTaskTypes() {
       return [] as AdminTaskTypeItem[];
     },
+    async listPlatforms() {
+      return [] as AdminPlatformItem[];
+    },
+    async listCostGroups() {
+      return [] as AdminCostGroupItem[];
+    },
     async listServiceGroups() {
       return [] as AdminServiceGroupItem[];
     },
@@ -460,6 +506,18 @@ function createUnconfiguredAdminClient(): AdminDataClient {
     async saveServiceGroupAdmin() {
       throw configurationError;
     },
+    async saveCostGroupAdmin() {
+      throw configurationError;
+    },
+    async deleteCostGroupAdmin() {
+      throw configurationError;
+    },
+    async savePlatformAdmin() {
+      throw configurationError;
+    },
+    async deletePlatformAdmin() {
+      throw configurationError;
+    },
     async getServiceGroupUsageSummary() {
       throw configurationError;
     },
@@ -489,10 +547,30 @@ function createSupabaseAdminClient(): AdminDataClient {
       return (data ?? []).map((record) => mapTaskType(record as Record<string, unknown>));
     },
 
+    async listPlatforms() {
+      const { data, error } = await supabase
+        .from('platforms')
+        .select('id, legacy_platform_name, name, display_order, is_visible')
+        .order('display_order');
+      if (error) throw error;
+      return (data ?? []).map((record) => mapPlatform(record as Record<string, unknown>));
+    },
+
+    async listCostGroups() {
+      const { data, error } = await supabase
+        .from('cost_groups')
+        .select('id, legacy_cost_group_code, name, display_order, is_active')
+        .order('display_order');
+      if (error) throw error;
+      return (data ?? []).map((record) => mapCostGroup(record as Record<string, unknown>));
+    },
+
     async listServiceGroups() {
       const { data, error } = await supabase
         .from('service_groups')
-        .select('id, legacy_svc_num, name, display_order, is_active')
+        .select(
+          'id, legacy_svc_num, name, cost_group_id, display_order, is_active, cost_groups(name)',
+        )
         .order('display_order');
       if (error) throw error;
       return (data ?? []).map((record) => mapServiceGroup(record as Record<string, unknown>));
@@ -501,7 +579,9 @@ function createSupabaseAdminClient(): AdminDataClient {
     async listProjects() {
       const { data, error } = await supabase
         .from('projects')
-        .select('id, name, project_type1, platform, service_group_id, report_url, is_active')
+        .select(
+          'id, name, project_type1, platform_id, platform, service_group_id, report_url, is_active, platforms(name)',
+        )
         .order('name');
       if (error) throw error;
       return (data ?? []).map((record) => mapProject(record as Record<string, unknown>));
@@ -736,15 +816,66 @@ function createSupabaseAdminClient(): AdminDataClient {
             id: payload.id ?? undefined,
             legacy_svc_num: payload.legacySvcNum ?? null,
             name,
+            cost_group_id: payload.costGroupId,
             display_order: payload.displayOrder,
             is_active: payload.svcActive ?? payload.isActive,
           },
           { onConflict: 'id' },
         )
-        .select('id, legacy_svc_num, name, display_order, is_active')
+        .select(
+          'id, legacy_svc_num, name, cost_group_id, display_order, is_active, cost_groups(name)',
+        )
         .single();
       if (error) throw error;
       return mapServiceGroup(data as Record<string, unknown>);
+    },
+
+    async saveCostGroupAdmin(payload: AdminCostGroupPayload) {
+      const { data, error } = await supabase
+        .from('cost_groups')
+        .upsert(
+          {
+            id: payload.id ?? undefined,
+            legacy_cost_group_code: payload.legacyCostGroupCode ?? null,
+            name: payload.name.trim(),
+            display_order: payload.displayOrder,
+            is_active: payload.isActive,
+          },
+          { onConflict: 'id' },
+        )
+        .select('id, legacy_cost_group_code, name, display_order, is_active')
+        .single();
+      if (error) throw error;
+      return mapCostGroup(data as Record<string, unknown>);
+    },
+
+    async savePlatformAdmin(payload: AdminPlatformPayload) {
+      const { data, error } = await supabase
+        .from('platforms')
+        .upsert(
+          {
+            id: payload.id ?? undefined,
+            legacy_platform_name: payload.legacyPlatformName ?? null,
+            name: payload.name.trim(),
+            display_order: payload.displayOrder,
+            is_visible: payload.isVisible,
+          },
+          { onConflict: 'id' },
+        )
+        .select('id, legacy_platform_name, name, display_order, is_visible')
+        .single();
+      if (error) throw error;
+      return mapPlatform(data as Record<string, unknown>);
+    },
+
+    async deleteCostGroupAdmin(costGroupId: string) {
+      const { error } = await supabase.from('cost_groups').delete().eq('id', costGroupId);
+      if (error) throw error;
+    },
+
+    async deletePlatformAdmin(platformId: string) {
+      const { error } = await supabase.from('platforms').delete().eq('id', platformId);
+      if (error) throw error;
     },
 
     async getServiceGroupUsageSummary(serviceGroupId: string) {

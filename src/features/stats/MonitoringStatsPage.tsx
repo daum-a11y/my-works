@@ -398,7 +398,7 @@ export function MonitoringStatsPage() {
               <caption className={styles.srOnly}>모니터링 월별 표</caption>
               <thead>
                 <tr>
-                  <th scope="col">해당월</th>
+                  <th scope="col">월</th>
                   <th scope="col">미수정</th>
                   <th scope="col">일부 수정</th>
                   <th scope="col">전체 수정</th>
@@ -434,7 +434,7 @@ export function MonitoringStatsPage() {
             <caption className={styles.srOnly}>필터링된 모니터링 페이지 목록</caption>
             <thead>
               <tr>
-                <th scope="col">해당월</th>
+                <th scope="col">월</th>
                 <th scope="col">플랫폼</th>
                 <th scope="col">서비스그룹</th>
                 <th scope="col">프로젝트명</th>

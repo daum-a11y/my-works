@@ -30,15 +30,18 @@ export function ResourceServicePage() {
         ? data.tasks
         : data.tasks.filter((task) => task.memberId === data.member.id);
     const { projectsById, serviceGroupsById } = buildProjectMaps(data.projects, data.serviceGroups);
-    const grouped = new Map<string, Map<string, Map<string, number>>>();
+    const grouped = new Map<string, Map<string, Map<string, Map<string, number>>>>();
 
     for (const task of source) {
       const month = task.taskDate.slice(0, 7);
       const service = getTaskServiceInfo(task, projectsById, serviceGroupsById);
-      const monthMap = grouped.get(month) ?? new Map<string, Map<string, number>>();
-      const groupMap = monthMap.get(service.group) ?? new Map<string, number>();
+      const monthMap = grouped.get(month) ?? new Map<string, Map<string, Map<string, number>>>();
+      const costGroupMap =
+        monthMap.get(service.costGroup) ?? new Map<string, Map<string, number>>();
+      const groupMap = costGroupMap.get(service.group) ?? new Map<string, number>();
       groupMap.set(service.name, (groupMap.get(service.name) ?? 0) + Math.round(task.hours));
-      monthMap.set(service.group, groupMap);
+      costGroupMap.set(service.group, groupMap);
+      monthMap.set(service.costGroup, costGroupMap);
       grouped.set(month, monthMap);
     }
 
@@ -49,6 +52,7 @@ export function ResourceServicePage() {
         workingDays: number;
         totalMinutes: number;
         groups: Array<{
+          costGroup: string;
           group: string;
           totalMinutes: number;
           names: Array<{ name: string; minutes: number }>;
@@ -63,13 +67,18 @@ export function ResourceServicePage() {
       const months = years.get(year) ?? [];
       const monthGroups = Array.from(groups.entries())
         .sort(([left], [right]) => left.localeCompare(right))
-        .map(([group, names]) => ({
-          group,
-          totalMinutes: Array.from(names.values()).reduce((sum, value) => sum + value, 0),
-          names: Array.from(names.entries())
+        .flatMap(([costGroup, serviceGroups]) =>
+          Array.from(serviceGroups.entries())
             .sort(([left], [right]) => left.localeCompare(right))
-            .map(([name, minutes]) => ({ name, minutes })),
-        }));
+            .map(([group, names]) => ({
+              costGroup,
+              group,
+              totalMinutes: Array.from(names.values()).reduce((sum, value) => sum + value, 0),
+              names: Array.from(names.entries())
+                .sort(([left], [right]) => left.localeCompare(right))
+                .map(([name, minutes]) => ({ name, minutes })),
+            })),
+        );
 
       months.push({
         month: month.slice(5, 7),
@@ -166,6 +175,7 @@ export function ResourceServicePage() {
                   <thead>
                     <tr>
                       <th scope="col">월</th>
+                      <th scope="col">청구그룹</th>
                       <th scope="col">서비스그룹</th>
                       <th scope="col">서비스명</th>
                       <th scope="col">MM</th>
@@ -186,6 +196,7 @@ export function ResourceServicePage() {
             <thead>
               <tr>
                 <th scope="col">월</th>
+                <th scope="col">청구그룹</th>
                 <th scope="col">서비스그룹</th>
                 <th scope="col">서비스명</th>
                 <th scope="col">MM</th>
@@ -193,7 +204,7 @@ export function ResourceServicePage() {
             </thead>
             <tbody>
               <tr>
-                <td colSpan={4} className={projectStyles.emptyState}>
+                <td colSpan={5} className={projectStyles.emptyState}>
                   표시할 서비스그룹 집계가 없습니다.
                 </td>
               </tr>
@@ -219,6 +230,7 @@ function ServiceYearRows({
       workingDays: number;
       totalMinutes: number;
       groups: Array<{
+        costGroup: string;
         group: string;
         totalMinutes: number;
         names: Array<{ name: string; minutes: number }>;
@@ -237,19 +249,20 @@ function ServiceYearRows({
                 {groupIndex === 0 ? (
                   <td rowSpan={month.groups.length + 1}>{month.month}월</td>
                 ) : null}
+                <td>{group.costGroup}</td>
                 <td>{group.group}</td>
                 <td>합계</td>
                 <td>{formatMm(group.totalMinutes, month.workingDays)}</td>
               </tr>
             ))}
             <tr key={`${row.year}-${month.month}-sum`} className={styles.summaryStrongRow}>
-              <td colSpan={2}>{month.month}월 합계</td>
+              <td colSpan={4}>{month.month}월 합계</td>
               <td>{formatMm(month.totalMinutes, month.workingDays)}</td>
             </tr>
           </Fragment>
         ))}
         <tr className={styles.summaryStrongRow}>
-          <td colSpan={3}>{row.year}년 합계</td>
+          <td colSpan={4}>{row.year}년 합계</td>
           <td>{formatMm(row.yearTotalMinutes, 21.73)}</td>
         </tr>
       </>
@@ -262,7 +275,7 @@ function ServiceYearRows({
         <ServiceMonthDetailRows key={`${row.year}-${month.month}`} month={month} />
       ))}
       <tr className={styles.summaryStrongRow}>
-        <td colSpan={3}>{row.year}년 합계</td>
+        <td colSpan={4}>{row.year}년 합계</td>
         <td>{formatMm(row.yearTotalMinutes, 21.73)}</td>
       </tr>
     </>
@@ -277,6 +290,7 @@ function ServiceMonthDetailRows({
     workingDays: number;
     totalMinutes: number;
     groups: Array<{
+      costGroup: string;
       group: string;
       totalMinutes: number;
       names: Array<{ name: string; minutes: number }>;
@@ -293,6 +307,7 @@ function ServiceMonthDetailRows({
             {groupIndex === 0 && nameIndex === 0 ? (
               <td rowSpan={monthRowSpan}>{month.month}월</td>
             ) : null}
+            {nameIndex === 0 ? <td rowSpan={group.names.length}>{group.costGroup}</td> : null}
             {nameIndex === 0 ? <td rowSpan={group.names.length}>{group.group}</td> : null}
             <td>{name.name}</td>
             <td>{formatMm(name.minutes, month.workingDays)}</td>
@@ -300,7 +315,7 @@ function ServiceMonthDetailRows({
         )),
       )}
       <tr className={styles.summaryStrongRow}>
-        <td colSpan={2}>{month.month}월 합계</td>
+        <td colSpan={4}>{month.month}월 합계</td>
         <td>{formatMm(month.totalMinutes, month.workingDays)}</td>
       </tr>
     </>

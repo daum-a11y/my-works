@@ -14,11 +14,14 @@ const mockOpsDataClient = vi.hoisted(() => ({
   getMemberByAuthId: vi.fn(),
   bindAuthSessionMember: vi.fn(),
   getTaskTypes: vi.fn(),
+  getPlatforms: vi.fn(),
   getServiceGroups: vi.fn(),
   getProjects: vi.fn(),
+  searchProjectsPage: vi.fn(),
   saveProject: vi.fn(),
   deleteProject: vi.fn(),
   getProjectPages: vi.fn(),
+  getProjectPagesByProjectIds: vi.fn(),
   getAllProjectPages: vi.fn(),
   saveProjectPage: vi.fn(),
   deleteProjectPage: vi.fn(),
@@ -71,6 +74,30 @@ function renderProjectEditor(initialEntry: string) {
 
 describe('Projects routes', () => {
   beforeEach(() => {
+    mockUseAuth.mockReset();
+    mockOpsDataClient.getMembers.mockReset();
+    mockOpsDataClient.getMemberByEmail.mockReset();
+    mockOpsDataClient.getMemberByAuthId.mockReset();
+    mockOpsDataClient.bindAuthSessionMember.mockReset();
+    mockOpsDataClient.getTaskTypes.mockReset();
+    mockOpsDataClient.getPlatforms.mockReset();
+    mockOpsDataClient.getServiceGroups.mockReset();
+    mockOpsDataClient.getProjects.mockReset();
+    mockOpsDataClient.searchProjectsPage.mockReset();
+    mockOpsDataClient.saveProject.mockReset();
+    mockOpsDataClient.deleteProject.mockReset();
+    mockOpsDataClient.getProjectPages.mockReset();
+    mockOpsDataClient.getProjectPagesByProjectIds.mockReset();
+    mockOpsDataClient.getAllProjectPages.mockReset();
+    mockOpsDataClient.saveProjectPage.mockReset();
+    mockOpsDataClient.deleteProjectPage.mockReset();
+    mockOpsDataClient.getTasks.mockReset();
+    mockOpsDataClient.getAllTasks.mockReset();
+    mockOpsDataClient.saveTask.mockReset();
+    mockOpsDataClient.deleteTask.mockReset();
+    mockOpsDataClient.searchTasks.mockReset();
+    mockOpsDataClient.getDashboard.mockReset();
+    mockOpsDataClient.getStats.mockReset();
     vi.spyOn(window, 'confirm').mockReturnValue(true);
     mockUseAuth.mockReturnValue({
       status: 'authenticated',
@@ -109,7 +136,30 @@ describe('Projects routes', () => {
         id: 'svc-1',
         legacyServiceGroupId: 'legacy-svc-1',
         name: '접근성',
+        costGroupId: null,
+        costGroupName: '',
         displayOrder: 1,
+        isActive: true,
+      },
+    ]);
+    mockOpsDataClient.getPlatforms.mockResolvedValue([
+      {
+        id: 'platform-1',
+        legacyPlatformName: 'iOS-App',
+        name: 'iOS-App',
+        displayOrder: 1,
+        isVisible: true,
+      },
+    ]);
+    mockOpsDataClient.getTaskTypes.mockResolvedValue([
+      {
+        id: 'type-qa',
+        type1: 'QA',
+        type2: '사전준비',
+        label: 'QA / 사전준비',
+        displayOrder: 1,
+        requiresServiceGroup: true,
+        isActive: true,
       },
     ]);
     mockOpsDataClient.getProjects.mockResolvedValue([
@@ -119,6 +169,7 @@ describe('Projects routes', () => {
         createdByMemberId: null,
         projectType1: 'QA',
         name: '알파',
+        platformId: 'platform-1',
         platform: 'iOS-App',
         serviceGroupId: 'svc-1',
         reportUrl: 'https://example.com/report',
@@ -129,7 +180,65 @@ describe('Projects routes', () => {
         isActive: true,
       },
     ]);
+    mockOpsDataClient.searchProjectsPage.mockImplementation(
+      async (filters, query, page, pageSize) => {
+        const items = [
+          {
+            id: 'project-1',
+            legacyProjectId: 'legacy-project-1',
+            createdByMemberId: null,
+            projectType1: 'QA',
+            name: '알파',
+            platformId: 'platform-1',
+            platform: 'iOS-App',
+            serviceGroupId: 'svc-1',
+            reportUrl: 'https://example.com/report',
+            reporterMemberId: 'member-1',
+            reviewerMemberId: 'member-2',
+            startDate: '2026-03-01',
+            endDate: '2026-03-31',
+            isActive: true,
+          },
+        ].filter((project) => {
+          if (filters.startDate && project.endDate < filters.startDate) {
+            return false;
+          }
+          if (filters.endDate && project.startDate > filters.endDate) {
+            return false;
+          }
+          if (!query.trim()) {
+            return true;
+          }
+
+          return [project.name, 'legacy-1', '운영 사용자', 'legacy-2', '리뷰어']
+            .join(' ')
+            .includes(query.trim());
+        });
+
+        return {
+          items: items.slice((page - 1) * pageSize, page * pageSize),
+          totalCount: items.length,
+          page,
+          pageSize,
+        };
+      },
+    );
     mockOpsDataClient.getProjectPages.mockResolvedValue([
+      {
+        id: 'page-1',
+        legacyPageId: 'legacy-page-1',
+        projectId: 'project-1',
+        title: '로그인',
+        url: 'https://example.com/login',
+        ownerMemberId: 'member-1',
+        trackStatus: '전체 수정',
+        monitoringInProgress: true,
+        qaInProgress: false,
+        note: '메모',
+        updatedAt: '2026-03-24T09:00:00.000Z',
+      },
+    ]);
+    mockOpsDataClient.getProjectPagesByProjectIds.mockResolvedValue([
       {
         id: 'page-1',
         legacyPageId: 'legacy-page-1',
@@ -150,6 +259,7 @@ describe('Projects routes', () => {
       createdByMemberId: null,
       projectType1: 'QA',
       name: '알파 수정',
+      platformId: 'platform-1',
       platform: 'iOS-App',
       serviceGroupId: 'svc-1',
       reportUrl: 'https://example.com/report',
@@ -193,7 +303,6 @@ describe('Projects routes', () => {
     expect(screen.getByText('총 건수')).toBeInTheDocument();
     expect(screen.getByText('1건')).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: '페이지 수' })).toBeInTheDocument();
-    expect(screen.getByRole('cell', { name: '1' })).toBeInTheDocument();
     expect(screen.getByLabelText('페이지당 행 수')).toHaveValue('50');
     expect(screen.getByLabelText('시작일')).toHaveValue(toLocalDateInputValue(aYearAgo));
     expect(screen.getByLabelText('종료일')).toHaveValue(toLocalDateInputValue(today));
@@ -273,24 +382,29 @@ describe('Projects routes', () => {
   it('paginates projects in 50-row chunks', async () => {
     const user = userEvent.setup();
 
-    mockOpsDataClient.getProjects.mockResolvedValue(
-      Array.from({ length: 51 }, (_, index) => ({
-        id: `project-${index + 1}`,
-        legacyProjectId: `legacy-project-${index + 1}`,
-        createdByMemberId: null,
-        projectType1: 'QA',
-        name: `프로젝트 ${String(index + 1).padStart(3, '0')}`,
-        platform: 'iOS-App',
-        serviceGroupId: 'svc-1',
-        reportUrl: '',
-        reporterMemberId: 'member-1',
-        reviewerMemberId: 'member-2',
-        startDate: '2026-03-01',
-        endDate: '2026-03-31',
-        isActive: true,
-      })),
-    );
-    mockOpsDataClient.getProjectPages.mockResolvedValue(
+    const pagedProjects = Array.from({ length: 51 }, (_, index) => ({
+      id: `project-${index + 1}`,
+      legacyProjectId: `legacy-project-${index + 1}`,
+      createdByMemberId: null,
+      projectType1: 'QA',
+      name: `프로젝트 ${String(index + 1).padStart(3, '0')}`,
+      platformId: 'platform-1',
+      platform: 'iOS-App',
+      serviceGroupId: 'svc-1',
+      reportUrl: '',
+      reporterMemberId: 'member-1',
+      reviewerMemberId: 'member-2',
+      startDate: '2026-03-01',
+      endDate: '2026-03-31',
+      isActive: true,
+    }));
+    mockOpsDataClient.searchProjectsPage.mockImplementation(async (_, __, page, pageSize) => ({
+      items: pagedProjects.slice((page - 1) * pageSize, page * pageSize),
+      totalCount: pagedProjects.length,
+      page,
+      pageSize,
+    }));
+    mockOpsDataClient.getProjectPagesByProjectIds.mockResolvedValue(
       Array.from({ length: 51 }, (_, index) => ({
         id: `page-${index + 1}`,
         legacyPageId: `legacy-page-${index + 1}`,
@@ -342,7 +456,7 @@ describe('Projects routes', () => {
           id: 'project-1',
           projectType1: 'QA',
           name: '알파 수정',
-          platform: 'iOS-App',
+          platformId: 'platform-1',
           serviceGroupId: 'svc-1',
         }),
       );

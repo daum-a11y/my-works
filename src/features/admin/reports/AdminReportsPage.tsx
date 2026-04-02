@@ -4,6 +4,10 @@ import { useNavigate } from 'react-router-dom';
 import { setDocumentTitle } from '../../../app/navigation';
 import { PageSection } from '../../../components/ui/PageSection';
 import { downloadExcelFile } from '../../../lib/excelExport';
+import {
+  buildTaskType1Options as buildTaskType1OptionValues,
+  buildTaskType2Options as buildTaskType2OptionValues,
+} from '../../../lib/taskTypeRules';
 import { toLocalDateInputValue } from '../../../lib/utils';
 import { adminDataClient } from '../adminClient';
 import type {
@@ -147,12 +151,18 @@ function sortTasks(
 }
 
 function getTaskType1Options(taskTypes: readonly AdminTaskTypeItem[], currentValue?: string) {
-  const names = new Set(taskTypes.map((item) => item.type1));
-  if (currentValue) {
-    names.add(currentValue);
-  }
-  names.add('project');
-  return Array.from(names);
+  return buildTaskType1OptionValues(
+    taskTypes.map((item) => ({
+      id: item.id,
+      type1: item.type1,
+      type2: item.type2,
+      label: item.displayLabel,
+      displayOrder: item.displayOrder,
+      requiresServiceGroup: item.requiresServiceGroup,
+      isActive: item.isActive,
+    })),
+    { currentValue },
+  );
 }
 
 function getTaskType2Options(
@@ -160,15 +170,22 @@ function getTaskType2Options(
   type1?: string,
   currentValue?: string,
 ) {
-  if (!type1 || type1 === 'project') {
+  if (!type1) {
     return currentValue ? [currentValue] : [];
   }
-
-  const names = new Set(taskTypes.filter((item) => item.type1 === type1).map((item) => item.type2));
-  if (currentValue) {
-    names.add(currentValue);
-  }
-  return Array.from(names);
+  return buildTaskType2OptionValues(
+    taskTypes.map((item) => ({
+      id: item.id,
+      type1: item.type1,
+      type2: item.type2,
+      label: item.displayLabel,
+      displayOrder: item.displayOrder,
+      requiresServiceGroup: item.requiresServiceGroup,
+      isActive: item.isActive,
+    })),
+    type1,
+    currentValue,
+  );
 }
 
 function SortButton({
@@ -387,8 +404,8 @@ export function AdminReportsPage() {
           value: (task) => membersById.get(task.memberId)?.accountId ?? task.memberId,
           width: 18,
         },
-        { header: 'type 1', value: (task) => task.taskType1, width: 14 },
-        { header: 'type 2', value: (task) => task.taskType2, width: 14 },
+        { header: '타입1', value: (task) => task.taskType1, width: 14 },
+        { header: '타입2', value: (task) => task.taskType2, width: 14 },
         { header: '플랫폼', value: (task) => task.platform, width: 12 },
         { header: '서비스그룹', value: (task) => task.serviceGroupName, width: 16 },
         { header: '서비스명', value: (task) => task.serviceName, width: 20 },
@@ -496,7 +513,7 @@ export function AdminReportsPage() {
 
           <div className={styles.metaRow}>
             <label className={styles.filterField}>
-              <span>타입 1</span>
+              <span>타입1</span>
               <select
                 id="admin-reports-task-type-1"
                 value={filters.taskType1}
@@ -511,12 +528,12 @@ export function AdminReportsPage() {
               </select>
             </label>
             <label className={styles.filterField}>
-              <span>타입 2</span>
+              <span>타입2</span>
               <select
                 id="admin-reports-task-type-2"
                 value={filters.taskType2}
                 onChange={(event) => handleFilterField('taskType2', event.target.value)}
-                disabled={!filters.taskType1 || filters.taskType1 === 'project'}
+                disabled={!filters.taskType1}
               >
                 <option value="">전체</option>
                 {taskType2Options.map((type2) => (

@@ -5,6 +5,11 @@ import type {
   ServiceGroup,
   TaskType,
 } from '../../lib/domain';
+import {
+  buildProjectTypeOptions,
+  buildTaskType1Options as buildTaskType1OptionValues,
+  buildTaskType2Options as buildTaskType2OptionValues,
+} from '../../lib/taskTypeRules';
 
 export type ReportFilters = OpsReportFilters;
 
@@ -246,33 +251,34 @@ export function buildProjectPageViewModels(
 }
 
 export function buildTaskType1Options(taskTypes: TaskType[]) {
-  const unique = new Set<string>();
-  for (const taskType of taskTypes) {
-    if (taskType.type1) {
-      unique.add(taskType.type1);
-    }
-  }
+  const values = buildTaskType1OptionValues(taskTypes);
+  return values.length ? values : [...REPORT_TYPE1_OPTIONS];
+}
 
-  return unique.size ? Array.from(unique) : [...REPORT_TYPE1_OPTIONS];
+export function buildSelectableTaskType1Options(taskTypes: TaskType[], currentValue = '') {
+  const values = buildTaskType1OptionValues(taskTypes, { currentValue });
+  return values.length ? values : [...REPORT_TYPE1_OPTIONS];
+}
+
+export function buildSelectableProjectTypeOptions(taskTypes: TaskType[], currentValue = '') {
+  return buildProjectTypeOptions(taskTypes, currentValue);
 }
 
 export function buildTaskType2Options(taskTypes: TaskType[], selectedType1 = '') {
+  return buildTaskType2OptionsForValue(taskTypes, selectedType1);
+}
+
+export function buildTaskType2OptionsForValue(
+  taskTypes: TaskType[],
+  selectedType1 = '',
+  currentValue = '',
+) {
   if (!selectedType1) {
     return [];
   }
 
-  const filtered = selectedType1
-    ? taskTypes.filter((taskType) => taskType.type1 === selectedType1)
-    : taskTypes;
-  const unique = new Set<string>();
-
-  for (const taskType of filtered) {
-    if (taskType.type2) {
-      unique.add(taskType.type2);
-    }
-  }
-
-  return unique.size ? Array.from(unique) : [...REPORT_TYPE2_OPTIONS];
+  const values = buildTaskType2OptionValues(taskTypes, selectedType1, currentValue);
+  return values.length ? values : [...REPORT_TYPE2_OPTIONS];
 }
 
 export function validateTaskTypeSelection(taskTypes: TaskType[], type1: string, type2: string) {

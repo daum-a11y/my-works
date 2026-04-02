@@ -33,11 +33,39 @@ create table if not exists public.service_groups (
   id uuid primary key default gen_random_uuid(),
   legacy_svc_num integer,
   name text not null,
+  cost_group_id uuid,
   display_order integer not null default 0,
   is_active boolean not null default true,
   created_at timestamptz not null default timezone('utc', now()),
   updated_at timestamptz not null default timezone('utc', now())
 );
+
+create table if not exists public.cost_groups (
+  id uuid primary key default gen_random_uuid(),
+  legacy_cost_group_code integer,
+  name text not null,
+  display_order integer not null default 0,
+  is_active boolean not null default true,
+  created_at timestamptz not null default timezone('utc', now()),
+  updated_at timestamptz not null default timezone('utc', now())
+);
+
+create table if not exists public.platforms (
+  id uuid primary key default gen_random_uuid(),
+  legacy_platform_name text,
+  name text not null,
+  display_order integer not null default 0,
+  is_visible boolean not null default true,
+  created_at timestamptz not null default timezone('utc', now()),
+  updated_at timestamptz not null default timezone('utc', now())
+);
+
+alter table public.service_groups
+  drop constraint if exists service_groups_cost_group_id_fkey;
+
+alter table public.service_groups
+  add constraint service_groups_cost_group_id_fkey
+  foreign key (cost_group_id) references public.cost_groups(id);
 
 create table if not exists public.task_types (
   id uuid primary key default gen_random_uuid(),
@@ -58,6 +86,7 @@ create table if not exists public.projects (
   created_by_member_id uuid references public.members(id),
   project_type1 text not null default '',
   name text not null,
+  platform_id uuid references public.platforms(id),
   platform text not null,
   service_group_id uuid references public.service_groups(id),
   report_url text not null default '',
@@ -164,6 +193,16 @@ for each row execute function public.set_updated_at();
 drop trigger if exists service_groups_set_updated_at on public.service_groups;
 create trigger service_groups_set_updated_at
 before update on public.service_groups
+for each row execute function public.set_updated_at();
+
+drop trigger if exists cost_groups_set_updated_at on public.cost_groups;
+create trigger cost_groups_set_updated_at
+before update on public.cost_groups
+for each row execute function public.set_updated_at();
+
+drop trigger if exists platforms_set_updated_at on public.platforms;
+create trigger platforms_set_updated_at
+before update on public.platforms
 for each row execute function public.set_updated_at();
 
 drop trigger if exists task_types_set_updated_at on public.task_types;
@@ -506,7 +545,7 @@ create or replace function public.upsert_project(
   p_project_id uuid default null,
   p_project_type1 text default '',
   p_name text default null,
-  p_platform text default null,
+  p_platform_id uuid default null,
   p_service_group_id uuid default null,
   p_report_url text default '',
   p_reporter_member_id uuid default null,
@@ -523,6 +562,7 @@ as $$
 declare
   v_member_id uuid := public.current_member_id();
   v_project public.projects;
+  v_platform_name text;
 begin
   if v_member_id is null then
     raise exception 'member not bound';
@@ -532,8 +572,17 @@ begin
     raise exception 'name required';
   end if;
 
-  if coalesce(trim(p_platform), '') = '' then
+  if p_platform_id is null then
     raise exception 'platform required';
+  end if;
+
+  select name
+  into v_platform_name
+  from public.platforms
+  where id = p_platform_id;
+
+  if coalesce(trim(v_platform_name), '') = '' then
+    raise exception 'platform not found';
   end if;
 
   if p_start_date is null then
@@ -549,6 +598,7 @@ begin
       created_by_member_id,
       project_type1,
       name,
+      platform_id,
       platform,
       service_group_id,
       report_url,
@@ -562,7 +612,8 @@ begin
       v_member_id,
       coalesce(trim(p_project_type1), ''),
       p_name,
-      p_platform,
+      p_platform_id,
+      v_platform_name,
       p_service_group_id,
       coalesce(p_report_url, ''),
       p_reporter_member_id,
@@ -580,7 +631,8 @@ begin
         else trim(p_project_type1)
       end,
       name = p_name,
-      platform = p_platform,
+      platform_id = p_platform_id,
+      platform = v_platform_name,
       service_group_id = p_service_group_id,
       report_url = coalesce(p_report_url, ''),
       reporter_member_id = p_reporter_member_id,
@@ -797,12 +849,14 @@ grant execute on function public.bind_auth_session_member(uuid, text) to authent
 grant execute on function public.touch_member_last_login(uuid, text) to authenticated;
 grant execute on function public.save_task(uuid, date, uuid, uuid, text, text, numeric, text, text) to authenticated;
 grant execute on function public.delete_task(uuid) to authenticated;
-grant execute on function public.upsert_project(uuid, text, text, text, uuid, text, uuid, uuid, date, date, boolean) to authenticated;
+grant execute on function public.upsert_project(uuid, text, text, uuid, uuid, text, uuid, uuid, date, date, boolean) to authenticated;
 grant execute on function public.upsert_project_page(uuid, uuid, text, text, uuid, text, text, boolean, boolean, text) to authenticated;
 grant execute on function public.admin_search_tasks(uuid, date, date, uuid, uuid, text, text, uuid, text) to authenticated;
 
 alter table public.members enable row level security;
 alter table public.service_groups enable row level security;
+alter table public.cost_groups enable row level security;
+alter table public.platforms enable row level security;
 alter table public.task_types enable row level security;
 alter table public.projects enable row level security;
 alter table public.project_pages enable row level security;
@@ -842,7 +896,6 @@ for select
 to authenticated
 using (
   public.current_user_is_active_member()
-  and (is_active = true or public.current_user_is_admin())
 );
 
 create policy "service_groups_admin_insert"
@@ -860,6 +913,60 @@ with check (public.current_user_is_admin());
 
 create policy "service_groups_admin_delete"
 on public.service_groups
+for delete
+to authenticated
+using (public.current_user_is_admin());
+
+create policy "cost_groups_active_select"
+on public.cost_groups
+for select
+to authenticated
+using (
+  public.current_user_is_active_member()
+);
+
+create policy "cost_groups_admin_insert"
+on public.cost_groups
+for insert
+to authenticated
+with check (public.current_user_is_admin());
+
+create policy "cost_groups_admin_update"
+on public.cost_groups
+for update
+to authenticated
+using (public.current_user_is_admin())
+with check (public.current_user_is_admin());
+
+create policy "cost_groups_admin_delete"
+on public.cost_groups
+for delete
+to authenticated
+using (public.current_user_is_admin());
+
+create policy "platforms_active_select"
+on public.platforms
+for select
+to authenticated
+using (
+  public.current_user_is_active_member()
+);
+
+create policy "platforms_admin_insert"
+on public.platforms
+for insert
+to authenticated
+with check (public.current_user_is_admin());
+
+create policy "platforms_admin_update"
+on public.platforms
+for update
+to authenticated
+using (public.current_user_is_admin())
+with check (public.current_user_is_admin());
+
+create policy "platforms_admin_delete"
+on public.platforms
 for delete
 to authenticated
 using (public.current_user_is_admin());

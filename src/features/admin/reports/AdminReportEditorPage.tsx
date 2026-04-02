@@ -2,10 +2,11 @@ import { useEffect, useMemo, useState, type FormEvent, type KeyboardEvent } from
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import type { Project, ProjectPage, ServiceGroup, TaskType } from '../../../lib/domain';
+import type { Platform } from '../../../lib/domain';
 import {
   buildProjectViewModels,
-  buildTaskType1Options,
-  buildTaskType2Options,
+  buildSelectableTaskType1Options,
+  buildTaskType2OptionsForValue,
   createEmptyReportDraft,
   getTodayInputValue,
   parseReportHoursInput,
@@ -13,13 +14,10 @@ import {
   validateTaskTypeSelection,
   type ReportDraft,
 } from '../../reports/reportDomain';
+import { getTaskTypeUiRule } from '../../../lib/taskTypeRules';
 import { adminDataClient } from '../adminClient';
 import type { AdminTaskSearchItem, MemberAdminItem } from '../admin-types';
 import styles from '../../reports/ReportsPage.module.css';
-
-function includesValue(values: readonly string[], value: string) {
-  return values.includes(value);
-}
 
 function formatCompactDate(value: string, mode: 'short' | 'long') {
   if (!value) {
@@ -56,6 +54,7 @@ function toTaskTypes(items: Awaited<ReturnType<typeof adminDataClient.listTaskTy
     label: item.displayLabel,
     displayOrder: item.displayOrder,
     requiresServiceGroup: item.requiresServiceGroup,
+    isActive: item.isActive,
   }));
 }
 
@@ -66,7 +65,10 @@ function toServiceGroups(
     id: item.id,
     legacyServiceGroupId: item.legacySvcNum == null ? '' : String(item.legacySvcNum),
     name: item.name,
+    costGroupId: item.costGroupId,
+    costGroupName: item.costGroupName,
     displayOrder: item.displayOrder,
+    isActive: item.isActive,
   }));
 }
 
@@ -77,6 +79,7 @@ function toProjects(items: Awaited<ReturnType<typeof adminDataClient.listProject
     createdByMemberId: null,
     projectType1: item.projectType1,
     name: item.name,
+    platformId: item.platformId,
     platform: item.platform,
     serviceGroupId: item.serviceGroupId,
     reportUrl: item.reportUrl,
@@ -85,6 +88,16 @@ function toProjects(items: Awaited<ReturnType<typeof adminDataClient.listProject
     startDate: '',
     endDate: '',
     isActive: item.isActive,
+  }));
+}
+
+function toPlatforms(items: Awaited<ReturnType<typeof adminDataClient.listPlatforms>>): Platform[] {
+  return items.map((item) => ({
+    id: item.id,
+    legacyPlatformName: item.legacyPlatformName,
+    name: item.name,
+    displayOrder: item.displayOrder,
+    isVisible: item.isVisible,
   }));
 }
 
@@ -153,6 +166,10 @@ export function AdminReportEditorPage() {
     queryKey: ['admin', 'service-groups'],
     queryFn: () => adminDataClient.listServiceGroups(),
   });
+  const platformsQuery = useQuery({
+    queryKey: ['admin', 'platforms'],
+    queryFn: () => adminDataClient.listPlatforms(),
+  });
   const projectsQuery = useQuery({
     queryKey: ['admin', 'projects'],
     queryFn: () => adminDataClient.listProjects(),
@@ -173,6 +190,7 @@ export function AdminReportEditorPage() {
     () => toServiceGroups(serviceGroupsQuery.data ?? []),
     [serviceGroupsQuery.data],
   );
+  const platforms = useMemo(() => toPlatforms(platformsQuery.data ?? []), [platformsQuery.data]);
   const projects = useMemo(() => toProjects(projectsQuery.data ?? []), [projectsQuery.data]);
   const pages = useMemo(() => toPages(pagesQuery.data ?? []), [pagesQuery.data]);
 
@@ -241,15 +259,17 @@ export function AdminReportEditorPage() {
   );
   const reportTabType1Options = useMemo(() => {
     const preferredOrder = ['민원', '데이터버퍼', '일반버퍼', '교육', '기타버퍼', '휴무'];
-    const available = preferredOrder.filter((type1) =>
-      buildTaskType1Options(taskTypes).includes(type1),
-    );
-    return available.length ? available : buildTaskType1Options(taskTypes);
-  }, [taskTypes]);
-  const type1Options = useMemo(() => buildTaskType1Options(taskTypes), [taskTypes]);
-  const type2Options = useMemo(
-    () => buildTaskType2Options(taskTypes, draft.type1),
+    const taskType1Options = buildSelectableTaskType1Options(taskTypes, draft.type1);
+    const available = preferredOrder.filter((type1) => taskType1Options.includes(type1));
+    return available.length ? available : taskType1Options;
+  }, [draft.type1, taskTypes]);
+  const type1Options = useMemo(
+    () => buildSelectableTaskType1Options(taskTypes, draft.type1),
     [draft.type1, taskTypes],
+  );
+  const type2Options = useMemo(
+    () => buildTaskType2OptionsForValue(taskTypes, draft.type1, draft.type2),
+    [draft.type1, draft.type2, taskTypes],
   );
   const isProjectLinkedTab = activeTab === 'report';
   const projectTypeSelected = isProjectLinkedTab && Boolean(draft.projectId);
@@ -257,36 +277,37 @@ export function AdminReportEditorPage() {
     ? currentProject?.project.projectType1 || draft.type1
     : draft.type1;
   const requiresServiceGroup = selectedTaskType?.requiresServiceGroup ?? false;
-  const usesProjectLookup = includesValue(['QA', '접근성테스트', '모니터링', '민원'], type1Value);
-  const usesManualPageWithUrl = includesValue(['데이터버퍼', 'RnD'], type1Value);
-  const usesManualPageOnly = includesValue(['일반버퍼', '교육', '매니징', '기타버퍼'], type1Value);
+  const typeRule = useMemo(() => getTaskTypeUiRule(type1Value, taskTypes), [taskTypes, type1Value]);
+  const usesProjectLookup = typeRule.projectLinked;
+  const usesManualPageWithUrl = typeRule.manualPageWithUrl;
+  const usesManualPageOnly = typeRule.manualPageOnly;
   const showPlatformSelect = !projectTypeSelected && usesProjectLookup;
   const showReadonlyService = projectTypeSelected || usesProjectLookup;
   const showProjectSelect = isProjectLinkedTab || usesProjectLookup;
-  const isVacationType = type1Value === '휴무';
+  const isVacationType = typeRule.vacation;
   const isFixedDayType = false;
-  const showProjectLinkedPageSelect =
-    projectTypeSelected && includesValue(['모니터링', '민원'], type1Value);
+  const showProjectLinkedPageSelect = projectTypeSelected && typeRule.projectPageSelectable;
   const showProjectLinkedPageUrl = projectTypeSelected && requiresServiceGroup;
   const showPageSelect = isProjectLinkedTab
     ? showProjectLinkedPageSelect
-    : Boolean(draft.projectId) && includesValue(['모니터링', '민원'], type1Value);
+    : Boolean(draft.projectId) && typeRule.projectPageSelectable;
   const showPageUrl = isProjectLinkedTab
     ? showProjectLinkedPageUrl
     : usesProjectLookup || usesManualPageWithUrl || (requiresServiceGroup && !showPageSelect);
   const showManualPageName = isProjectLinkedTab
-    ? (projectTypeSelected && type1Value === 'QA') || isVacationType
+    ? (projectTypeSelected && typeRule.projectLinked && !typeRule.projectPageSelectable) ||
+      isVacationType
     : usesManualPageWithUrl || usesManualPageOnly || isVacationType;
   const isReadonlyWorkHours = isVacationType || isFixedDayType;
   const manualPageLabel = useMemo(() => {
     if (isVacationType) {
       return '휴가 종류';
     }
-    if (type1Value === 'QA' || usesManualPageOnly) {
+    if ((typeRule.projectLinked && !typeRule.projectPageSelectable) || usesManualPageOnly) {
       return '페이지명';
     }
     return '페이지명 & 내용';
-  }, [isVacationType, type1Value, usesManualPageOnly]);
+  }, [isVacationType, typeRule.projectLinked, typeRule.projectPageSelectable, usesManualPageOnly]);
   const typeFilteredProjects = useMemo(() => {
     if (!draft.platform || !draft.type1) {
       return [] as typeof filteredProjectOptions;
@@ -329,7 +350,7 @@ export function AdminReportEditorPage() {
             : '';
           const separator = normalizedServiceName.indexOf(' / ');
           next.type1 = project.projectType1;
-          const nextType2Options = buildTaskType2Options(taskTypes, next.type1);
+          const nextType2Options = buildTaskType2OptionsForValue(taskTypes, next.type1, next.type2);
           if (!nextType2Options.includes(next.type2)) {
             next.type2 = '';
           }
@@ -356,7 +377,11 @@ export function AdminReportEditorPage() {
       }
 
       if (key === 'type1') {
-        const nextType2Options = buildTaskType2Options(taskTypes, String(value));
+        const nextType2Options = buildTaskType2OptionsForValue(
+          taskTypes,
+          String(value),
+          next.type2,
+        );
         if (!nextType2Options.includes(next.type2)) {
           next.type2 = '';
         }
@@ -451,6 +476,7 @@ export function AdminReportEditorPage() {
     (membersQuery.error instanceof Error && membersQuery.error.message) ||
     (taskTypesQuery.error instanceof Error && taskTypesQuery.error.message) ||
     (serviceGroupsQuery.error instanceof Error && serviceGroupsQuery.error.message) ||
+    (platformsQuery.error instanceof Error && platformsQuery.error.message) ||
     (projectsQuery.error instanceof Error && projectsQuery.error.message) ||
     (pagesQuery.error instanceof Error && pagesQuery.error.message) ||
     (taskQuery.error instanceof Error && taskQuery.error.message) ||
@@ -467,10 +493,7 @@ export function AdminReportEditorPage() {
     <section className={styles.page}>
       <header className={styles.hero}>
         <div className={styles.heroMain}>
-          <h1 className={styles.title}>{isEdit ? '전체 업무 수정' : '전체 업무 추가'}</h1>
-          <p className={styles.description}>
-            {isEdit ? '기존 업무를 수정합니다.' : '누락된 업무를 관리자 화면에서 등록합니다.'}
-          </p>
+          <h1 className={styles.title}>{isEdit ? '업무 임의수정' : '업무 임의 추가'}</h1>
         </div>
       </header>
 
@@ -623,11 +646,13 @@ export function AdminReportEditorPage() {
                     onChange={(event) => setDraftField('platform', event.target.value)}
                   >
                     <option value="">선택하세요</option>
-                    {['PC-Web', 'M-Web', 'iOS-App', 'And-App', 'Win-App'].map((platform) => (
-                      <option key={platform} value={platform}>
-                        {platform}
-                      </option>
-                    ))}
+                    {platforms
+                      .filter((platform) => platform.isVisible || platform.name === draft.platform)
+                      .map((platform) => (
+                        <option key={platform.id} value={platform.name}>
+                          {platform.name}
+                        </option>
+                      ))}
                   </select>
                 </label>
               ) : null}

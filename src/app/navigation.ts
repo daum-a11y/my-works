@@ -49,6 +49,8 @@ export const baseNavigation = [
       { to: '/org/summary', label: '업무보고 현황' },
       { to: '/org/search', label: '업무보고 조회' },
       { to: '/org/type', label: '업무 타입 관리' },
+      { to: '/org/platform', label: '플랫폼 관리' },
+      { to: '/org/cost-group', label: '청구그룹 관리' },
       { to: '/org/group', label: '서비스그룹 관리' },
     ],
   },

@@ -33,6 +33,7 @@ interface TypeRow {
 }
 
 interface ServiceSummaryRow {
+  costGroup: string;
   group: string;
   totalMinutes: number;
   names: Array<{
@@ -42,6 +43,7 @@ interface ServiceSummaryRow {
 }
 
 interface ServiceDetailRow {
+  costGroup: string;
   group: string;
   totalMinutes: number;
   names: Array<{
@@ -222,31 +224,6 @@ export function ResourceMonthPage() {
   }, [monthTasks, requirementMap]);
 
   const serviceSummaryRows = useMemo<ServiceSummaryRow[]>(() => {
-    const grouped = new Map<string, Map<string, number>>();
-
-    for (const task of monthTasks) {
-      if (!isServiceTask(task, requirementMap)) {
-        continue;
-      }
-
-      const info = getTaskServiceInfo(task, projectsById, serviceGroupsById);
-      const names = grouped.get(info.group) ?? new Map<string, number>();
-      names.set(info.name, (names.get(info.name) ?? 0) + Math.round(task.hours));
-      grouped.set(info.group, names);
-    }
-
-    return Array.from(grouped.entries())
-      .map(([group, names]) => ({
-        group,
-        totalMinutes: Array.from(names.values()).reduce((sum, value) => sum + value, 0),
-        names: Array.from(names.entries())
-          .map(([name, minutes]) => ({ name, minutes }))
-          .sort((left, right) => left.name.localeCompare(right.name)),
-      }))
-      .sort((left, right) => left.group.localeCompare(right.group));
-  }, [monthTasks, projectsById, requirementMap, serviceGroupsById]);
-
-  const serviceDetailRows = useMemo<ServiceDetailRow[]>(() => {
     const grouped = new Map<string, Map<string, Map<string, number>>>();
 
     for (const task of monthTasks) {
@@ -255,30 +232,72 @@ export function ResourceMonthPage() {
       }
 
       const info = getTaskServiceInfo(task, projectsById, serviceGroupsById);
-      const names = grouped.get(info.group) ?? new Map<string, Map<string, number>>();
+      const serviceGroups = grouped.get(info.costGroup) ?? new Map<string, Map<string, number>>();
+      const names = serviceGroups.get(info.group) ?? new Map<string, number>();
+      names.set(info.name, (names.get(info.name) ?? 0) + Math.round(task.hours));
+      serviceGroups.set(info.group, names);
+      grouped.set(info.costGroup, serviceGroups);
+    }
+
+    return Array.from(grouped.entries())
+      .flatMap(([costGroup, serviceGroups]) =>
+        Array.from(serviceGroups.entries()).map(([group, names]) => ({
+          costGroup,
+          group,
+          totalMinutes: Array.from(names.values()).reduce((sum, value) => sum + value, 0),
+          names: Array.from(names.entries())
+            .map(([name, minutes]) => ({ name, minutes }))
+            .sort((left, right) => left.name.localeCompare(right.name)),
+        })),
+      )
+      .sort(
+        (left, right) =>
+          left.costGroup.localeCompare(right.costGroup) || left.group.localeCompare(right.group),
+      );
+  }, [monthTasks, projectsById, requirementMap, serviceGroupsById]);
+
+  const serviceDetailRows = useMemo<ServiceDetailRow[]>(() => {
+    const grouped = new Map<string, Map<string, Map<string, Map<string, number>>>>();
+
+    for (const task of monthTasks) {
+      if (!isServiceTask(task, requirementMap)) {
+        continue;
+      }
+
+      const info = getTaskServiceInfo(task, projectsById, serviceGroupsById);
+      const serviceGroups =
+        grouped.get(info.costGroup) ?? new Map<string, Map<string, Map<string, number>>>();
+      const names = serviceGroups.get(info.group) ?? new Map<string, Map<string, number>>();
       const typeMap = names.get(info.name) ?? new Map<string, number>();
       const type1 = task.taskType1 || '미분류';
       typeMap.set(type1, (typeMap.get(type1) ?? 0) + Math.round(task.hours));
       names.set(info.name, typeMap);
-      grouped.set(info.group, names);
+      serviceGroups.set(info.group, names);
+      grouped.set(info.costGroup, serviceGroups);
     }
 
     return Array.from(grouped.entries())
-      .map(([group, names]) => ({
-        group,
-        totalMinutes: Array.from(names.values())
-          .flatMap((items) => Array.from(items.values()))
-          .reduce((sum, value) => sum + value, 0),
-        names: Array.from(names.entries())
-          .map(([name, items]) => ({
-            name,
-            items: Array.from(items.entries())
-              .map(([type1, minutes]) => ({ type1, minutes }))
-              .sort((left, right) => left.type1.localeCompare(right.type1)),
-          }))
-          .sort((left, right) => left.name.localeCompare(right.name)),
-      }))
-      .sort((left, right) => left.group.localeCompare(right.group));
+      .flatMap(([costGroup, serviceGroups]) =>
+        Array.from(serviceGroups.entries()).map(([group, names]) => ({
+          costGroup,
+          group,
+          totalMinutes: Array.from(names.values())
+            .flatMap((items) => Array.from(items.values()))
+            .reduce((sum, value) => sum + value, 0),
+          names: Array.from(names.entries())
+            .map(([name, items]) => ({
+              name,
+              items: Array.from(items.entries())
+                .map(([type1, minutes]) => ({ type1, minutes }))
+                .sort((left, right) => left.type1.localeCompare(right.type1)),
+            }))
+            .sort((left, right) => left.name.localeCompare(right.name)),
+        })),
+      )
+      .sort(
+        (left, right) =>
+          left.costGroup.localeCompare(right.costGroup) || left.group.localeCompare(right.group),
+      );
   }, [monthTasks, projectsById, requirementMap, serviceGroupsById]);
 
   const memberTotals = useMemo(() => {
@@ -662,6 +681,7 @@ export function ResourceMonthPage() {
                     <table className={clsx(projectStyles.table, styles.table)}>
                       <thead>
                         <tr>
+                          <th>청구그룹</th>
                           <th>서비스그룹</th>
                           <th>서비스명</th>
                           <th>타입1</th>
@@ -672,7 +692,7 @@ export function ResourceMonthPage() {
                       </thead>
                       <tfoot>
                         <tr className={styles.sumRow}>
-                          <th colSpan={3}>합계</th>
+                          <th colSpan={4}>합계</th>
                           <td className={styles.numberCell}>
                             {formatIntegerValue(projectMinutes)}
                           </td>
@@ -694,6 +714,7 @@ export function ResourceMonthPage() {
                           return (
                             <Fragment key={group.group}>
                               <tr>
+                                <th rowSpan={svcFold ? 1 : detailLength + 1}>{group.costGroup}</th>
                                 <th rowSpan={svcFold ? 1 : detailLength + 1}>{group.group}</th>
                                 <th colSpan={2} className={styles.tableSummaryCell}>
                                   합계
@@ -744,6 +765,7 @@ export function ResourceMonthPage() {
                     <table className={clsx(projectStyles.table, styles.table, styles.reportTable)}>
                       <thead>
                         <tr>
+                          <th>청구그룹</th>
                           <th>타입1</th>
                           <th>타입2</th>
                           <th>M/M</th>
@@ -751,7 +773,7 @@ export function ResourceMonthPage() {
                       </thead>
                       <tfoot>
                         <tr className={styles.sumRow}>
-                          <th colSpan={2}>합계</th>
+                          <th colSpan={3}>합계</th>
                           <td className={styles.numberCell}>
                             {formatMm(adjustedTotalMinutes, workingDays)}
                           </td>
@@ -761,6 +783,7 @@ export function ResourceMonthPage() {
                         {serviceSummaryRows.map((group) => (
                           <Fragment key={group.group}>
                             <tr>
+                              <th rowSpan={group.names.length + 1}>{group.costGroup}</th>
                               <th rowSpan={group.names.length + 1}>{group.group}</th>
                               <th className={styles.tableSummaryCell}>합계</th>
                               <td className={clsx(styles.numberCell, styles.tableSummaryCell)}>

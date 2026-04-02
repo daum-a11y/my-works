@@ -77,13 +77,46 @@ export interface AdminTaskTypeUsageSummary {
   taskCount: number;
 }
 
+export interface AdminCostGroupItem {
+  id: string;
+  legacyCostGroupCode: number | null;
+  name: string;
+  displayOrder: number;
+  isActive: boolean;
+}
+
+export interface AdminCostGroupPayload {
+  id?: string;
+  legacyCostGroupCode?: number | null;
+  name: string;
+  displayOrder: number;
+  isActive: boolean;
+}
+
+export interface AdminPlatformItem {
+  id: string;
+  legacyPlatformName: string | null;
+  name: string;
+  displayOrder: number;
+  isVisible: boolean;
+}
+
+export interface AdminPlatformPayload {
+  id?: string;
+  legacyPlatformName?: string | null;
+  name: string;
+  displayOrder: number;
+  isVisible: boolean;
+}
+
 export interface AdminServiceGroupItem {
   id: string;
   legacySvcNum: number | null;
   name: string;
   svcGroup: string;
   svcName: string;
-  svcType: number;
+  costGroupId: string | null;
+  costGroupName: string;
   svcActive: boolean;
   displayOrder: number;
   isActive: boolean;
@@ -95,7 +128,7 @@ export interface AdminServiceGroupPayload {
   name: string;
   svcGroup: string;
   svcName: string;
-  svcType: number;
+  costGroupId: string;
   svcActive: boolean;
   displayOrder: number;
   isActive: boolean;
@@ -110,6 +143,7 @@ export interface AdminProjectOption {
   id: string;
   name: string;
   projectType1: string;
+  platformId: string | null;
   platform: string;
   serviceGroupId: string | null;
   reportUrl: string;

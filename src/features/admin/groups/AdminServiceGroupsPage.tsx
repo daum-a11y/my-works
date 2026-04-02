@@ -6,26 +6,31 @@ import { adminDataClient } from '../adminClient';
 import type { AdminServiceGroupItem } from '../admin-types';
 import styles from '../AdminCrudPage.module.css';
 
-function typeLabel(value: number) {
-  if (value === 1) return '카카오';
-  if (value === 2) return '공동체';
-  return '외부';
-}
-
 function groupServiceGroups(items: readonly AdminServiceGroupItem[]) {
-  const grouped = new Map<string, AdminServiceGroupItem[]>();
+  const grouped = new Map<string, Map<string, AdminServiceGroupItem[]>>();
 
   for (const item of items) {
-    const key = item.svcGroup || '-';
-    const rows = grouped.get(key) ?? [];
+    const costGroupKey = item.costGroupName || '-';
+    const serviceGroupKey = item.svcGroup || '-';
+    const serviceGroups = grouped.get(costGroupKey) ?? new Map<string, AdminServiceGroupItem[]>();
+    const rows = serviceGroups.get(serviceGroupKey) ?? [];
     rows.push(item);
-    grouped.set(key, rows);
+    serviceGroups.set(serviceGroupKey, rows);
+    grouped.set(costGroupKey, serviceGroups);
   }
 
-  return Array.from(grouped.entries()).map(([svcGroup, rows]) => ({
-    svcGroup,
-    rows,
-  }));
+  return Array.from(grouped.entries()).map(([costGroupName, serviceGroups]) => {
+    const groups = Array.from(serviceGroups.entries()).map(([svcGroup, rows]) => ({
+      svcGroup,
+      rows,
+    }));
+
+    return {
+      costGroupName,
+      groups,
+      rowSpan: groups.reduce((sum, group) => sum + group.rows.length, 0),
+    };
+  });
 }
 
 export function AdminServiceGroupsPage() {
@@ -41,6 +46,7 @@ export function AdminServiceGroupsPage() {
     () =>
       [...(serviceGroupsQuery.data ?? [])].sort(
         (left, right) =>
+          left.costGroupName.localeCompare(right.costGroupName) ||
           (left.legacySvcNum ?? left.displayOrder) - (right.legacySvcNum ?? right.displayOrder) ||
           left.name.localeCompare(right.name),
       ),
@@ -83,35 +89,44 @@ export function AdminServiceGroupsPage() {
           <caption className={styles.srOnly}>서비스그룹 내역</caption>
           <thead>
             <tr>
+              <th>청구그룹</th>
               <th>서비스그룹</th>
               <th>서비스명</th>
-              <th>분류</th>
-              <th>활성여부</th>
+              <th>노출여부</th>
               <th>관리</th>
             </tr>
           </thead>
           <tbody>
             {groupedServiceGroups.length ? (
-              groupedServiceGroups.map((group) =>
-                group.rows.map((item, rowIndex) => (
-                  <tr key={item.id} className={item.svcActive ? '' : styles.inactiveRow}>
-                    {rowIndex === 0 ? (
-                      <td rowSpan={group.rows.length} scope="row" className={styles.rowKey}>
-                        {group.svcGroup}
+              groupedServiceGroups.map((costGroup) =>
+                costGroup.groups.map((group) =>
+                  group.rows.map((item, rowIndex) => (
+                    <tr key={item.id} className={item.svcActive ? '' : styles.inactiveRow}>
+                      {group === costGroup.groups[0] && rowIndex === 0 ? (
+                        <td rowSpan={costGroup.rowSpan} className={styles.rowKey}>
+                          {costGroup.costGroupName}
+                        </td>
+                      ) : null}
+                      {rowIndex === 0 ? (
+                        <td rowSpan={group.rows.length} scope="row" className={styles.rowKey}>
+                          {group.svcGroup}
+                        </td>
+                      ) : null}
+                      <td>{item.svcName || '-'}</td>
+                      <td>{item.svcActive ? '노출' : '숨김'}</td>
+                      <td>
+                        <div className={styles.actions}>
+                          <Link
+                            to={`/org/group/${item.id}/edit`}
+                            className={styles.secondaryButton}
+                          >
+                            수정
+                          </Link>
+                        </div>
                       </td>
-                    ) : null}
-                    <td>{item.svcName || '-'}</td>
-                    <td>{typeLabel(item.svcType)}</td>
-                    <td>{item.svcActive ? '활성' : '비활성'}</td>
-                    <td>
-                      <div className={styles.actions}>
-                        <Link to={`/org/group/${item.id}/edit`} className={styles.secondaryButton}>
-                          수정
-                        </Link>
-                      </div>
-                    </td>
-                  </tr>
-                )),
+                    </tr>
+                  )),
+                ),
               )
             ) : (
               <tr>

@@ -225,26 +225,73 @@ select
 from public.task_types t
 where t.legacy_type_num is not null;
 
+with source_cost_groups as (
+  select * from (
+    values
+      (1, '카카오', 1),
+      (2, '공동체', 2),
+      (3, '외부', 3)
+  ) as cost_groups(legacy_cost_group_code, name, display_order)
+)
+update public.cost_groups cg
+set
+  name = s.name,
+  display_order = s.display_order,
+  is_active = true,
+  updated_at = timezone('utc', now())
+from source_cost_groups s
+where cg.legacy_cost_group_code = s.legacy_cost_group_code;
+
+with source_cost_groups as (
+  select * from (
+    values
+      (1, '카카오', 1),
+      (2, '공동체', 2),
+      (3, '외부', 3)
+  ) as cost_groups(legacy_cost_group_code, name, display_order)
+)
+insert into public.cost_groups (
+  legacy_cost_group_code,
+  name,
+  display_order,
+  is_active
+)
+select
+  s.legacy_cost_group_code,
+  s.name,
+  s.display_order,
+  true
+from source_cost_groups s
+where not exists (
+  select 1
+  from public.cost_groups cg
+  where cg.legacy_cost_group_code = s.legacy_cost_group_code
+);
+
 with source_service_groups as (
   select
     svc_num as legacy_svc_num,
     legacy_stage.normalize_service_name(svc_group, svc_name) as name,
+    nullif(trim(svc_type), '')::integer as legacy_cost_group_code,
     svc_num as display_order,
     coalesce(legacy_stage.to_bool_flag(svc_active), true) as is_active
   from legacy_stage.svc_group_tbl
 )
 update public.service_groups g
 set name = s.name,
+    cost_group_id = cg.id,
     display_order = s.display_order,
     is_active = s.is_active,
     updated_at = timezone('utc', now())
 from source_service_groups s
+left join public.cost_groups cg on cg.legacy_cost_group_code = s.legacy_cost_group_code
 where g.legacy_svc_num = s.legacy_svc_num;
 
 with source_service_groups as (
   select
     svc_num as legacy_svc_num,
     legacy_stage.normalize_service_name(svc_group, svc_name) as name,
+    nullif(trim(svc_type), '')::integer as legacy_cost_group_code,
     svc_num as display_order,
     coalesce(legacy_stage.to_bool_flag(svc_active), true) as is_active
   from legacy_stage.svc_group_tbl
@@ -252,15 +299,18 @@ with source_service_groups as (
 insert into public.service_groups (
   legacy_svc_num,
   name,
+  cost_group_id,
   display_order,
   is_active
 )
 select
   s.legacy_svc_num,
   s.name,
+  cg.id,
   s.display_order,
   s.is_active
 from source_service_groups s
+left join public.cost_groups cg on cg.legacy_cost_group_code = s.legacy_cost_group_code
 where not exists (
   select 1
   from public.service_groups g
@@ -274,6 +324,47 @@ select
   g.id
 from public.service_groups g
 where g.legacy_svc_num is not null;
+
+with source_platforms as (
+  select
+    coalesce(legacy_stage.blank_to_null(pj_platform), '미분류') as platform_name,
+    min(pj_num) as display_order
+  from legacy_stage.pj_tbl
+  group by platform_name
+)
+update public.platforms p
+set
+  name = s.platform_name,
+  display_order = s.display_order,
+  is_visible = true,
+  updated_at = timezone('utc', now())
+from source_platforms s
+where p.legacy_platform_name = s.platform_name;
+
+with source_platforms as (
+  select
+    coalesce(legacy_stage.blank_to_null(pj_platform), '미분류') as platform_name,
+    min(pj_num) as display_order
+  from legacy_stage.pj_tbl
+  group by platform_name
+)
+insert into public.platforms (
+  legacy_platform_name,
+  name,
+  display_order,
+  is_visible
+)
+select
+  s.platform_name,
+  s.platform_name,
+  s.display_order,
+  true
+from source_platforms s
+where not exists (
+  select 1
+  from public.platforms p
+  where p.legacy_platform_name = s.platform_name
+);
 
 with raw_service_lookup as (
   select
@@ -314,6 +405,7 @@ update public.projects pr
 set created_by_member_id = reporter_x.member_id,
     project_type1 = s.project_type1,
     name = s.name,
+    platform_id = pl.id,
     platform = s.platform,
     service_group_id = svc_x.service_group_id,
     report_url = s.report_url,
@@ -327,6 +419,7 @@ from source_projects s
 left join legacy_xref.members reporter_x on reporter_x.account_id = s.reporter_account_id
 left join legacy_xref.members reviewer_x on reviewer_x.account_id = s.reviewer_account_id
 left join legacy_xref.service_groups svc_x on svc_x.legacy_svc_num = s.legacy_svc_num
+left join public.platforms pl on pl.legacy_platform_name = s.platform
 where pr.legacy_project_id = s.legacy_project_id;
 
 with raw_service_lookup as (
@@ -369,6 +462,7 @@ insert into public.projects (
   created_by_member_id,
   project_type1,
   name,
+  platform_id,
   platform,
   service_group_id,
   report_url,
@@ -383,6 +477,7 @@ select
   reporter_x.member_id,
   s.project_type1,
   s.name,
+  pl.id,
   s.platform,
   svc_x.service_group_id,
   s.report_url,
@@ -395,6 +490,7 @@ from source_projects s
 left join legacy_xref.members reporter_x on reporter_x.account_id = s.reporter_account_id
 left join legacy_xref.members reviewer_x on reviewer_x.account_id = s.reviewer_account_id
 left join legacy_xref.service_groups svc_x on svc_x.legacy_svc_num = s.legacy_svc_num
+left join public.platforms pl on pl.legacy_platform_name = s.platform
 where not exists (
   select 1
   from public.projects pr

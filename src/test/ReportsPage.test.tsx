@@ -163,6 +163,8 @@ describe('ReportsPage', () => {
           type2: '작성',
           label: '기획 / 작성',
           displayOrder: 1,
+          requiresServiceGroup: false,
+          isActive: true,
         },
       ],
       type1Options: ['기획'],

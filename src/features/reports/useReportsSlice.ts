@@ -3,12 +3,19 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { useAuth } from '../auth/AuthContext';
 import { opsDataClient } from '../../lib/dataClient';
-import type { Project, ProjectPage, ReportFilters, Task, TaskType } from '../../lib/domain';
+import type {
+  Platform,
+  Project,
+  ProjectPage,
+  ReportFilters,
+  Task,
+  TaskType,
+} from '../../lib/domain';
 import {
   buildProjectViewModels,
   buildReportViewModel,
-  buildTaskType1Options,
-  buildTaskType2Options,
+  buildSelectableTaskType1Options,
+  buildTaskType2OptionsForValue,
   createEmptyReportDraft,
   DEFAULT_REPORT_FILTERS,
   draftFromReport,
@@ -37,6 +44,7 @@ export interface ReportsSlice {
   periodFilters: ReportFilters;
   type1Options: string[];
   type2Options: string[];
+  platformOptions: Platform[];
   canEditReports: boolean;
   isSaving: boolean;
   statusMessage: string;
@@ -187,7 +195,13 @@ export function useReportsSlice(): ReportsSlice {
     queryFn: async () => opsDataClient.getTaskTypes(),
     enabled: Boolean(member),
   });
+  const platformsQuery = useQuery({
+    queryKey: ['reports', 'platforms'],
+    queryFn: async () => opsDataClient.getPlatforms(),
+    enabled: Boolean(member),
+  });
   const projects = useMemo(() => projectsQuery.data ?? [], [projectsQuery.data]);
+  const platformOptions = useMemo(() => platformsQuery.data ?? [], [platformsQuery.data]);
   const serviceGroups = useMemo(() => serviceGroupsQuery.data ?? [], [serviceGroupsQuery.data]);
   const pages = useMemo(() => pagesQuery.data ?? [], [pagesQuery.data]);
   const taskTypes = useMemo(() => taskTypesQuery.data ?? [], [taskTypesQuery.data]);
@@ -256,10 +270,13 @@ export function useReportsSlice(): ReportsSlice {
     [draft.projectId, pages],
   );
 
-  const type1Options = useMemo(() => buildTaskType1Options(taskTypes), [taskTypes]);
+  const type1Options = useMemo(
+    () => buildSelectableTaskType1Options(taskTypes, draft.type1),
+    [draft.type1, taskTypes],
+  );
   const type2Options = useMemo(
-    () => buildTaskType2Options(taskTypes, draft.type1),
-    [taskTypes, draft.type1],
+    () => buildTaskType2OptionsForValue(taskTypes, draft.type1, draft.type2),
+    [draft.type1, draft.type2, taskTypes],
   );
   const invalidateReportQueries = async () => {
     await Promise.all([
@@ -397,7 +414,7 @@ export function useReportsSlice(): ReportsSlice {
             : '';
           const separator = normalizedServiceName.indexOf(' / ');
           next.type1 = project.projectType1;
-          const nextType2Options = buildTaskType2Options(taskTypes, next.type1);
+          const nextType2Options = buildTaskType2OptionsForValue(taskTypes, next.type1, next.type2);
           if (!nextType2Options.includes(next.type2)) {
             next.type2 = '';
           }
@@ -424,7 +441,11 @@ export function useReportsSlice(): ReportsSlice {
       }
 
       if (key === 'type1') {
-        const nextType2Options = buildTaskType2Options(taskTypes, String(value));
+        const nextType2Options = buildTaskType2OptionsForValue(
+          taskTypes,
+          String(value),
+          next.type2,
+        );
         if (!nextType2Options.includes(next.type2)) {
           next.type2 = '';
         }
@@ -581,6 +602,7 @@ export function useReportsSlice(): ReportsSlice {
     periodFilters,
     type1Options,
     type2Options,
+    platformOptions,
     canEditReports,
     isSaving: saveMutation.isPending,
     statusMessage,

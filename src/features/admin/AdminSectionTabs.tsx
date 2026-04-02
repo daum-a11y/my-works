@@ -1,11 +1,19 @@
 import { Link } from 'react-router-dom';
 import styles from './AdminPage.module.css';
 
-export type AdminSectionTabKey = 'summary' | 'task-types' | 'service-groups' | 'users';
+export type AdminSectionTabKey =
+  | 'summary'
+  | 'task-types'
+  | 'platforms'
+  | 'cost-groups'
+  | 'service-groups'
+  | 'users';
 
 const TABS: Array<{ key: AdminSectionTabKey; label: string; to: string }> = [
   { key: 'summary', label: '요약', to: '/org/search' },
   { key: 'task-types', label: '업무 타입', to: '/org/type' },
+  { key: 'platforms', label: '플랫폼', to: '/org/platform' },
+  { key: 'cost-groups', label: '청구 그룹', to: '/org/cost-group' },
   { key: 'service-groups', label: '서비스 그룹', to: '/org/group' },
   { key: 'users', label: '사용자', to: '/admin/members' },
 ];

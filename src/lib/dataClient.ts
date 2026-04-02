@@ -1,10 +1,12 @@
 import { getSupabaseClient } from './supabase';
 import {
+  type CostGroup,
   type DashboardSnapshot,
   type Member,
   normalizePageStatus,
   type OpsStore,
   type PagedResult,
+  type Platform,
   type Project,
   type ProjectPage,
   type ReportFilters,
@@ -75,6 +77,8 @@ export interface OpsDataClient {
   bindAuthSessionMember(authUserId: string, email?: string | null): Promise<Member | null>;
   touchMemberLastLogin(authUserId: string, email?: string | null): Promise<Member | null>;
   getTaskTypes(): Promise<TaskType[]>;
+  getPlatforms(): Promise<Platform[]>;
+  getCostGroups(): Promise<CostGroup[]>;
   getServiceGroups(): Promise<ServiceGroup[]>;
   getProjects(): Promise<Project[]>;
   searchProjectsPage(
@@ -316,18 +320,30 @@ function createSupabaseClient(): OpsDataClient {
       if (error) throw error;
       return (data ?? []).map(mapTaskTypeRecord);
     },
+    async getPlatforms() {
+      const { data, error } = await supabase.from('platforms').select('*').order('display_order');
+      if (error) throw error;
+      return (data ?? []).map(mapPlatformRecord);
+    },
+    async getCostGroups() {
+      const { data, error } = await supabase.from('cost_groups').select('*').order('display_order');
+      if (error) throw error;
+      return (data ?? []).map(mapCostGroupRecord);
+    },
     async getServiceGroups() {
       const { data, error } = await supabase
         .from('service_groups')
-        .select('*')
+        .select(
+          'id, legacy_svc_num, name, cost_group_id, display_order, is_active, cost_groups(name)',
+        )
         .order('display_order');
       if (error) throw error;
-      return (data ?? []).map(mapServiceGroupRecord);
+      return (data ?? []).map((record) => mapServiceGroupRecord(record as Record<string, unknown>));
     },
     async getProjects() {
       const { data, error } = await supabase
         .from('projects')
-        .select('*')
+        .select('*, platforms(name)')
         .order('is_active', { ascending: false })
         .order('name');
       if (error) throw error;
@@ -360,7 +376,7 @@ function createSupabaseClient(): OpsDataClient {
 
       let queryBuilder = supabase
         .from('projects')
-        .select('*', { count: 'exact' })
+        .select('*, platforms(name)', { count: 'exact' })
         .order('is_active', { ascending: false })
         .order('start_date', { ascending: false })
         .order('name');
@@ -405,7 +421,7 @@ function createSupabaseClient(): OpsDataClient {
           p_project_id: input.id ?? null,
           p_project_type1: input.projectType1,
           p_name: input.name,
-          p_platform: input.platform,
+          p_platform_id: input.platformId,
           p_service_group_id: input.serviceGroupId,
           p_report_url: input.reportUrl,
           p_reporter_member_id: input.reporterMemberId,
@@ -647,21 +663,32 @@ function createSupabaseClient(): OpsDataClient {
       const [
         { data: projects, error: projectError },
         { data: members, error: membersError },
+        { data: costGroups, error: costGroupsError },
         { data: serviceGroups, error: serviceGroupsError },
       ] = await Promise.all([
-        supabase.from('projects').select('*'),
+        supabase.from('projects').select('*, platforms(name)'),
         supabase.from('members_public_view').select('*'),
-        supabase.from('service_groups').select('*'),
+        supabase.from('cost_groups').select('*'),
+        supabase
+          .from('service_groups')
+          .select(
+            'id, legacy_svc_num, name, cost_group_id, display_order, is_active, cost_groups(name)',
+          ),
       ]);
 
       if (projectError) throw projectError;
       if (membersError) throw membersError;
+      if (costGroupsError) throw costGroupsError;
       if (serviceGroupsError) throw serviceGroupsError;
 
       return buildDashboard({
         members: (members ?? []).map(mapMemberRecord),
+        platforms: [],
+        costGroups: (costGroups ?? []).map(mapCostGroupRecord),
         taskTypes: [],
-        serviceGroups: (serviceGroups ?? []).map(mapServiceGroupRecord),
+        serviceGroups: (serviceGroups ?? []).map((record) =>
+          mapServiceGroupRecord(record as Record<string, unknown>),
+        ),
         projects: (projects ?? []).map(mapProjectRecord),
         projectPages: [],
         tasks: [],
@@ -675,7 +702,7 @@ function createSupabaseClient(): OpsDataClient {
       ] = await Promise.all([
         supabase.from('project_pages_public_view').select('*'),
         supabase.from('tasks').select(taskSelectColumns),
-        supabase.from('projects').select('*'),
+        supabase.from('projects').select('*, platforms(name)'),
       ]);
       if (pagesError) throw pagesError;
       if (tasksError) throw tasksError;
@@ -704,6 +731,8 @@ function createUnconfiguredClient(): OpsDataClient {
     bindAuthSessionMember: fail,
     touchMemberLastLogin: fail,
     getTaskTypes: fail,
+    getPlatforms: fail,
+    getCostGroups: fail,
     getServiceGroups: fail,
     getProjects: fail,
     searchProjectsPage: fail,
@@ -766,26 +795,67 @@ function mapTaskTypeRecord(record: Record<string, unknown>): TaskType {
     label: String(record.display_label ?? `${record.type1 ?? ''} / ${record.type2 ?? ''}`),
     displayOrder: Number(record.display_order ?? 0),
     requiresServiceGroup: Boolean(record.requires_service_group ?? false),
+    isActive: Boolean(record.is_active ?? true),
+  };
+}
+
+function mapCostGroupRecord(record: Record<string, unknown>): CostGroup {
+  return {
+    id: String(record.id),
+    legacyCostGroupCode:
+      record.legacy_cost_group_code == null || record.legacy_cost_group_code === ''
+        ? null
+        : Number(record.legacy_cost_group_code),
+    name: String(record.name ?? ''),
+    displayOrder: Number(record.display_order ?? 0),
+    isActive: Boolean(record.is_active ?? true),
+  };
+}
+
+function mapPlatformRecord(record: Record<string, unknown>): Platform {
+  return {
+    id: String(record.id),
+    legacyPlatformName: record.legacy_platform_name ? String(record.legacy_platform_name) : null,
+    name: String(record.name ?? ''),
+    displayOrder: Number(record.display_order ?? 0),
+    isVisible: Boolean(record.is_visible ?? true),
   };
 }
 
 function mapServiceGroupRecord(record: Record<string, unknown>): ServiceGroup {
+  const costGroupRecord = Array.isArray(record.cost_groups)
+    ? record.cost_groups[0]
+    : record.cost_groups;
+  const costGroupName =
+    costGroupRecord && typeof costGroupRecord === 'object'
+      ? String((costGroupRecord as Record<string, unknown>).name ?? '')
+      : String(record.cost_group_name ?? '');
+
   return {
     id: String(record.id),
-    legacyServiceGroupId: String(record.legacy_service_group_id ?? ''),
+    legacyServiceGroupId: String(record.legacy_svc_num ?? ''),
     name: String(record.name ?? ''),
+    costGroupId: record.cost_group_id ? String(record.cost_group_id) : null,
+    costGroupName,
     displayOrder: Number(record.display_order ?? 0),
+    isActive: Boolean(record.is_active ?? true),
   };
 }
 
 function mapProjectRecord(record: Record<string, unknown>): Project {
+  const platformRecord = Array.isArray(record.platforms) ? record.platforms[0] : record.platforms;
+  const platformName =
+    platformRecord && typeof platformRecord === 'object'
+      ? String((platformRecord as Record<string, unknown>).name ?? '')
+      : String(record.platform ?? '');
   return {
     id: String(record.id),
     legacyProjectId: String(record.legacy_project_id ?? ''),
     createdByMemberId: record.created_by_member_id ? String(record.created_by_member_id) : null,
     projectType1: String(record.project_type1 ?? ''),
     name: String(record.name ?? ''),
-    platform: String(record.platform ?? ''),
+    platformId: record.platform_id ? String(record.platform_id) : null,
+    platform: platformName,
     serviceGroupId: record.service_group_id ? String(record.service_group_id) : null,
     reportUrl: String(record.report_url ?? ''),
     reporterMemberId: record.reporter_member_id ? String(record.reporter_member_id) : null,

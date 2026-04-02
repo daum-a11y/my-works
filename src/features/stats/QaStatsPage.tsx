@@ -13,6 +13,7 @@ import {
 import { PageSection } from '../../components/ui/PageSection';
 import { setDocumentTitle } from '../../app/navigation';
 import { opsDataClient } from '../../lib/dataClient';
+import { isQaProjectType } from '../../lib/taskTypeRules';
 import { getCurrentMonth, shiftMonth } from '../resource/resourceShared';
 import { useAuth } from '../auth/AuthContext';
 import styles from './shared.module.css';
@@ -70,8 +71,7 @@ function sortProjects(left: QaProject, right: QaProject) {
 }
 
 function isQaProject(project: QaProject) {
-  const normalizedType = project.type1.trim();
-  return normalizedType === 'QA' || normalizedType === '접근성테스트';
+  return isQaProjectType(project.type1);
 }
 
 function memberDisplay(
@@ -309,7 +309,7 @@ export function QaStatsPage() {
               <caption className={styles.srOnly}>QA 월별 표</caption>
               <thead>
                 <tr>
-                  <th scope="col">해당월</th>
+                  <th scope="col">월</th>
                   <th scope="col">총 QA</th>
                   <th scope="col">완료 QA</th>
                 </tr>
@@ -341,7 +341,7 @@ export function QaStatsPage() {
             <caption className={styles.srOnly}>필터링된 QA 프로젝트 목록</caption>
             <thead>
               <tr>
-                <th scope="col">QA종료일</th>
+                <th scope="col">월</th>
                 <th scope="col">서비스그룹</th>
                 <th scope="col">프로젝트명</th>
                 <th scope="col">리포터</th>

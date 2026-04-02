@@ -4,6 +4,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import { opsDataClient } from '../../lib/dataClient';
 import { type Member, type PageStatus, type Project, type ProjectPage } from '../../lib/domain';
+import { buildProjectTypeOptions } from '../../lib/taskTypeRules';
 import { getToday } from '../../lib/utils';
 import styles from './ProjectsFeature.module.css';
 
@@ -11,7 +12,7 @@ interface ProjectFormState {
   id?: string;
   projectType1: string;
   name: string;
-  platform: string;
+  platformId: string;
   serviceGroupId: string;
   reportUrl: string;
   reporterMemberId: string;
@@ -33,13 +34,10 @@ interface PageFormState {
   note: string;
 }
 
-const PLATFORM_OPTIONS = ['PC-Web', 'M-Web', 'iOS-App', 'And-App', 'Win-App'] as const;
-const PROJECT_TYPE1_OPTIONS = ['QA', '모니터링', '민원', '전수조사'] as const;
-
 const initialProjectDraft = (): ProjectFormState => ({
   projectType1: '',
   name: '',
-  platform: PLATFORM_OPTIONS[0],
+  platformId: '',
   serviceGroupId: '',
   reportUrl: '',
   reporterMemberId: '',
@@ -65,7 +63,7 @@ function toProjectDraft(project: Project): ProjectFormState {
     id: project.id,
     projectType1: project.projectType1,
     name: project.name,
-    platform: project.platform,
+    platformId: project.platformId ?? '',
     serviceGroupId: project.serviceGroupId ?? '',
     reportUrl: project.reportUrl,
     reporterMemberId: project.reporterMemberId ?? '',
@@ -95,7 +93,7 @@ function toProjectInput(draft: ProjectFormState) {
     id: draft.id,
     projectType1: draft.projectType1.trim(),
     name: draft.name.trim(),
-    platform: draft.platform.trim(),
+    platformId: draft.platformId.trim() || null,
     serviceGroupId: draft.serviceGroupId.trim() || null,
     reportUrl: draft.reportUrl.trim(),
     reporterMemberId: draft.reporterMemberId.trim() || null,
@@ -174,13 +172,15 @@ export function ProjectEditorPage() {
     queryKey: ['project-editor', member?.id],
     enabled: Boolean(member),
     queryFn: async () => {
-      const [projects, pages, members, serviceGroups] = await Promise.all([
+      const [projects, pages, members, serviceGroups, platforms, taskTypes] = await Promise.all([
         opsDataClient.getProjects(),
         opsDataClient.getProjectPages(member!),
         opsDataClient.getMembers(),
         opsDataClient.getServiceGroups(),
+        opsDataClient.getPlatforms(),
+        opsDataClient.getTaskTypes(),
       ]);
-      return { projects, pages, members, serviceGroups };
+      return { projects, pages, members, serviceGroups, platforms, taskTypes };
     },
   });
 
@@ -188,6 +188,12 @@ export function ProjectEditorPage() {
   const pages = useMemo(() => query.data?.pages ?? [], [query.data?.pages]);
   const members = useMemo(() => query.data?.members ?? [], [query.data?.members]);
   const serviceGroups = useMemo(() => query.data?.serviceGroups ?? [], [query.data?.serviceGroups]);
+  const platforms = useMemo(() => query.data?.platforms ?? [], [query.data?.platforms]);
+  const taskTypes = useMemo(() => query.data?.taskTypes ?? [], [query.data?.taskTypes]);
+  const projectTypeOptions = useMemo(
+    () => buildProjectTypeOptions(taskTypes, projectDraft.projectType1),
+    [projectDraft.projectType1, taskTypes],
+  );
 
   const selectedProject = useMemo(
     () => projects.find((project) => project.id === projectId) ?? null,
@@ -201,15 +207,6 @@ export function ProjectEditorPage() {
 
     return sortPages(pages.filter((page) => page.projectId === selectedProject.id));
   }, [pages, selectedProject]);
-
-  const availablePlatforms = useMemo(() => {
-    return Array.from(
-      new Set([
-        ...PLATFORM_OPTIONS,
-        ...projects.map((project) => project.platform).filter(Boolean),
-      ]),
-    );
-  }, [projects]);
 
   useEffect(() => {
     if (!isEditMode || !selectedProject) {
@@ -441,7 +438,7 @@ export function ProjectEditorPage() {
                 }
               >
                 <option value="">선택하세요</option>
-                {PROJECT_TYPE1_OPTIONS.map((projectType1) => (
+                {projectTypeOptions.map((projectType1) => (
                   <option key={projectType1} value={projectType1}>
                     {projectType1}
                   </option>
@@ -452,16 +449,21 @@ export function ProjectEditorPage() {
             <label className={styles.field}>
               <span>플랫폼</span>
               <select
-                value={projectDraft.platform}
+                value={projectDraft.platformId}
                 onChange={(event) =>
-                  setProjectDraft((current) => ({ ...current, platform: event.target.value }))
+                  setProjectDraft((current) => ({ ...current, platformId: event.target.value }))
                 }
               >
-                {availablePlatforms.map((platform) => (
-                  <option key={platform} value={platform}>
-                    {platform}
-                  </option>
-                ))}
+                <option value="">선택</option>
+                {platforms
+                  .filter(
+                    (platform) => platform.isVisible || platform.id === projectDraft.platformId,
+                  )
+                  .map((platform) => (
+                    <option key={platform.id} value={platform.id}>
+                      {platform.name}
+                    </option>
+                  ))}
               </select>
             </label>
 
@@ -474,11 +476,13 @@ export function ProjectEditorPage() {
                 }
               >
                 <option value="">선택</option>
-                {serviceGroups.map((group) => (
-                  <option key={group.id} value={group.id}>
-                    {group.name}
-                  </option>
-                ))}
+                {serviceGroups.map((group) =>
+                  group.isActive || group.id === projectDraft.serviceGroupId ? (
+                    <option key={group.id} value={group.id}>
+                      {group.costGroupName ? `${group.costGroupName} / ${group.name}` : group.name}
+                    </option>
+                  ) : null,
+                )}
               </select>
               <small className={styles.helpText}>검색되지 않는 서비스는 문의하십시오.</small>
             </label>

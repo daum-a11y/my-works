@@ -39,13 +39,33 @@ export interface TaskType {
   label: string;
   displayOrder: number;
   requiresServiceGroup: boolean;
+  isActive: boolean;
+}
+
+export interface CostGroup {
+  id: string;
+  legacyCostGroupCode: number | null;
+  name: string;
+  displayOrder: number;
+  isActive: boolean;
+}
+
+export interface Platform {
+  id: string;
+  legacyPlatformName: string | null;
+  name: string;
+  displayOrder: number;
+  isVisible: boolean;
 }
 
 export interface ServiceGroup {
   id: string;
   legacyServiceGroupId: string;
   name: string;
+  costGroupId: string | null;
+  costGroupName: string;
   displayOrder: number;
+  isActive: boolean;
 }
 
 export interface Project {
@@ -54,6 +74,7 @@ export interface Project {
   createdByMemberId: string | null;
   projectType1: string;
   name: string;
+  platformId: string | null;
   platform: string;
   serviceGroupId: string | null;
   reportUrl: string;
@@ -134,7 +155,7 @@ export interface SaveProjectInput {
   id?: string;
   projectType1: string;
   name: string;
-  platform: string;
+  platformId: string | null;
   serviceGroupId: string | null;
   reportUrl: string;
   reporterMemberId: string | null;
@@ -182,6 +203,8 @@ export interface StatsSnapshot {
 
 export interface OpsStore {
   members: Member[];
+  platforms: Platform[];
+  costGroups: CostGroup[];
   taskTypes: TaskType[];
   serviceGroups: ServiceGroup[];
   projects: Project[];

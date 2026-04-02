@@ -79,6 +79,7 @@ export function ProjectsFeature() {
   const query = useQuery({
     queryKey: ['projects', 'paged', appliedFilters, appliedSearch, currentPage, pageSize],
     enabled: Boolean(member),
+    placeholderData: (previousData) => previousData,
     queryFn: async () =>
       opsDataClient.searchProjectsPage(appliedFilters, appliedSearch, currentPage, pageSize),
   });

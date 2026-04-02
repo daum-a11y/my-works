@@ -206,15 +206,15 @@ export function getTaskServiceInfo(
   serviceGroupsById: Map<string, ServiceGroup>,
 ) {
   const project = task.projectId ? projectsById.get(task.projectId) : undefined;
-  const rawServiceGroupName = project?.serviceGroupId
-    ? (serviceGroupsById.get(project.serviceGroupId)?.name ?? '')
-    : '';
-  const parsedService = splitNormalizedServiceName(rawServiceGroupName);
-  const hasMergedServiceName = rawServiceGroupName.includes(' / ');
+  const serviceGroup = project?.serviceGroupId
+    ? serviceGroupsById.get(project.serviceGroupId)
+    : undefined;
+  const parsedService = splitNormalizedServiceName(serviceGroup?.name ?? '');
 
   return {
+    costGroup: serviceGroup?.costGroupName || '미분류',
     group: parsedService.group || '미분류',
-    name: hasMergedServiceName ? parsedService.name : '미분류',
+    name: parsedService.name || '미분류',
   };
 }
 
