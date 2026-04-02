@@ -47,7 +47,7 @@ export function AdminServiceGroupsPage() {
       [...(serviceGroupsQuery.data ?? [])].sort(
         (left, right) =>
           left.costGroupName.localeCompare(right.costGroupName) ||
-          (left.legacySvcNum ?? left.displayOrder) - (right.legacySvcNum ?? right.displayOrder) ||
+          left.displayOrder - right.displayOrder ||
           left.name.localeCompare(right.name),
       ),
     [serviceGroupsQuery.data],

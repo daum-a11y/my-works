@@ -16,7 +16,6 @@ function createDraft(item?: AdminPlatformItem): AdminPlatformPayload {
 
   return {
     id: item.id,
-    legacyPlatformName: item.legacyPlatformName,
     name: item.name,
     displayOrder: item.displayOrder,
     isVisible: item.isVisible,

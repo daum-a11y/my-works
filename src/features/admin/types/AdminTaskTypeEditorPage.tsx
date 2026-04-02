@@ -19,7 +19,6 @@ function createDraft(taskType?: AdminTaskTypeItem): AdminTaskTypePayload {
 
   return {
     id: taskType.id,
-    legacyTypeNum: taskType.legacyTypeNum,
     type1: taskType.type1,
     type2: taskType.type2,
     displayLabel: taskType.displayLabel,

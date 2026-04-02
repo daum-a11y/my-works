@@ -134,7 +134,6 @@ describe('Projects routes', () => {
     mockOpsDataClient.getServiceGroups.mockResolvedValue([
       {
         id: 'svc-1',
-        legacyServiceGroupId: 'legacy-svc-1',
         name: '접근성',
         costGroupId: null,
         costGroupName: '',
@@ -145,7 +144,6 @@ describe('Projects routes', () => {
     mockOpsDataClient.getPlatforms.mockResolvedValue([
       {
         id: 'platform-1',
-        legacyPlatformName: 'iOS-App',
         name: 'iOS-App',
         displayOrder: 1,
         isVisible: true,
@@ -165,7 +163,6 @@ describe('Projects routes', () => {
     mockOpsDataClient.getProjects.mockResolvedValue([
       {
         id: 'project-1',
-        legacyProjectId: 'legacy-project-1',
         createdByMemberId: null,
         projectType1: 'QA',
         name: '알파',
@@ -185,7 +182,6 @@ describe('Projects routes', () => {
         const items = [
           {
             id: 'project-1',
-            legacyProjectId: 'legacy-project-1',
             createdByMemberId: null,
             projectType1: 'QA',
             name: '알파',
@@ -226,7 +222,6 @@ describe('Projects routes', () => {
     mockOpsDataClient.getProjectPages.mockResolvedValue([
       {
         id: 'page-1',
-        legacyPageId: 'legacy-page-1',
         projectId: 'project-1',
         title: '로그인',
         url: 'https://example.com/login',
@@ -241,7 +236,6 @@ describe('Projects routes', () => {
     mockOpsDataClient.getProjectPagesByProjectIds.mockResolvedValue([
       {
         id: 'page-1',
-        legacyPageId: 'legacy-page-1',
         projectId: 'project-1',
         title: '로그인',
         url: 'https://example.com/login',
@@ -255,7 +249,6 @@ describe('Projects routes', () => {
     ]);
     mockOpsDataClient.saveProject.mockResolvedValue({
       id: 'project-1',
-      legacyProjectId: 'legacy-project-1',
       createdByMemberId: null,
       projectType1: 'QA',
       name: '알파 수정',
@@ -271,7 +264,6 @@ describe('Projects routes', () => {
     });
     mockOpsDataClient.saveProjectPage.mockResolvedValue({
       id: 'page-2',
-      legacyPageId: 'legacy-page-2',
       projectId: 'project-1',
       title: '신규 페이지',
       url: 'https://example.com/new',
@@ -384,7 +376,6 @@ describe('Projects routes', () => {
 
     const pagedProjects = Array.from({ length: 51 }, (_, index) => ({
       id: `project-${index + 1}`,
-      legacyProjectId: `legacy-project-${index + 1}`,
       createdByMemberId: null,
       projectType1: 'QA',
       name: `프로젝트 ${String(index + 1).padStart(3, '0')}`,
@@ -407,7 +398,6 @@ describe('Projects routes', () => {
     mockOpsDataClient.getProjectPagesByProjectIds.mockResolvedValue(
       Array.from({ length: 51 }, (_, index) => ({
         id: `page-${index + 1}`,
-        legacyPageId: `legacy-page-${index + 1}`,
         projectId: `project-${index + 1}`,
         title: `페이지 ${index + 1}`,
         url: `https://example.com/page-${index + 1}`,

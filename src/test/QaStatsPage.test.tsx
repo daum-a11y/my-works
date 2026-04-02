@@ -33,7 +33,6 @@ describe('QaStatsPage', () => {
     getProjects.mockResolvedValue([
       {
         id: 'project-1',
-        legacyProjectId: '',
         createdByMemberId: null,
         name: '접근성 포털',
         projectType1: 'QA',
@@ -48,7 +47,6 @@ describe('QaStatsPage', () => {
       },
       {
         id: 'project-3',
-        legacyProjectId: '',
         createdByMemberId: null,
         name: '메이커스 25년 3차',
         projectType1: 'QA',
@@ -63,7 +61,6 @@ describe('QaStatsPage', () => {
       },
       {
         id: 'project-4',
-        legacyProjectId: '',
         createdByMemberId: null,
         name: '2025년 6월 다음앱 정기모니터링',
         projectType1: '모니터링',
@@ -78,7 +75,6 @@ describe('QaStatsPage', () => {
       },
       {
         id: 'project-2',
-        legacyProjectId: '',
         createdByMemberId: null,
         name: '앱 운영',
         projectType1: '운영',

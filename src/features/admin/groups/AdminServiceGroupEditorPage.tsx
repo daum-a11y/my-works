@@ -21,7 +21,6 @@ function createDraft(item?: AdminServiceGroupItem): AdminServiceGroupPayload {
   return {
     id: item.id,
     name: item.name,
-    legacySvcNum: item.legacySvcNum,
     svcGroup: item.svcGroup,
     svcName: item.svcName,
     costGroupId: item.costGroupId ?? '',

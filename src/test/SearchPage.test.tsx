@@ -58,7 +58,6 @@ describe('SearchPage', () => {
     mockOpsDataClient.getProjects.mockResolvedValue([
       {
         id: 'project-1',
-        legacyProjectId: 'legacy-project-1',
         createdByMemberId: null,
         name: '알파',
         platform: 'iOS',
@@ -74,7 +73,6 @@ describe('SearchPage', () => {
     mockOpsDataClient.getProjectPages.mockResolvedValue([
       {
         id: 'page-1',
-        legacyPageId: 'legacy-page-1',
         projectId: 'project-1',
         title: '로그인',
         url: 'https://example.com/login',
@@ -90,7 +88,6 @@ describe('SearchPage', () => {
     mockOpsDataClient.searchTasks.mockResolvedValue([
       {
         id: 'task-1',
-        legacyTaskId: 'legacy-task-1',
         memberId: 'member-1',
         taskDate: '2026-03-24',
         projectId: 'project-1',

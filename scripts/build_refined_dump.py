@@ -471,8 +471,18 @@ def build_dump():
             "created_at": "1970-01-01 00:00:00",
             "updated_at": "1970-01-01 00:00:00",
         },
+        {
+            "id": stable_uuid("cost-group", "uncategorized"),
+            "source_cost_group_code": None,
+            "name": "기타",
+            "display_order": 999,
+            "is_active": True,
+            "created_at": "1970-01-01 00:00:00",
+            "updated_at": "1970-01-01 00:00:00",
+        },
     ]
     cost_group_by_code = {row["source_cost_group_code"]: row for row in cost_group_rows}
+    uncategorized_cost_group_id = stable_uuid("cost-group", "uncategorized")
 
     service_group_rows = []
     service_group_by_source = {}
@@ -490,7 +500,7 @@ def build_dump():
             "id": stable_uuid("service-group", row["svc_num"]),
             "source_service_num": source_service_num,
             "name": name,
-            "cost_group_id": cost_group_by_code.get(code, {}).get("id"),
+            "cost_group_id": cost_group_by_code.get(code, {}).get("id") or uncategorized_cost_group_id,
             "display_order": source_service_num,
             "is_active": bool_flag(row["svc_active"], True),
             "created_at": "1970-01-01 00:00:00",
@@ -521,7 +531,7 @@ def build_dump():
                     "id": stable_uuid("service-group-synthetic", synthetic_name),
                     "source_service_num": None,
                     "name": synthetic_name,
-                    "cost_group_id": service_group_cost_by_group.get(raw_group),
+                    "cost_group_id": service_group_cost_by_group.get(raw_group) or uncategorized_cost_group_id,
                     "display_order": service_group_order_by_group.get(
                         raw_group, max_service_order + len(synthetic_service_names)
                     ),
@@ -1000,7 +1010,8 @@ def build_dump():
                     "id": stable_uuid("service-group-synthetic", synthetic_name),
                     "source_service_num": None,
                     "name": synthetic_name,
-                    "cost_group_id": service_group_cost_by_group.get(project.get("raw_pj_sev_group")),
+                    "cost_group_id": service_group_cost_by_group.get(project.get("raw_pj_sev_group"))
+                    or uncategorized_cost_group_id,
                     "display_order": service_group_order_by_group.get(
                         project.get("raw_pj_sev_group"), max_service_order + len(synthetic_service_names)
                     ),

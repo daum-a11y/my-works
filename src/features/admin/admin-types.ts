@@ -53,7 +53,6 @@ export interface AdminTaskSaveInput {
 
 export interface AdminTaskTypeItem {
   id: string;
-  legacyTypeNum: number | null;
   type1: string;
   type2: string;
   displayLabel: string;
@@ -64,7 +63,6 @@ export interface AdminTaskTypeItem {
 
 export interface AdminTaskTypePayload {
   id?: string;
-  legacyTypeNum?: number | null;
   type1: string;
   type2: string;
   displayLabel: string;
@@ -79,7 +77,6 @@ export interface AdminTaskTypeUsageSummary {
 
 export interface AdminCostGroupItem {
   id: string;
-  legacyCostGroupCode: number | null;
   name: string;
   displayOrder: number;
   isActive: boolean;
@@ -87,7 +84,6 @@ export interface AdminCostGroupItem {
 
 export interface AdminCostGroupPayload {
   id?: string;
-  legacyCostGroupCode?: number | null;
   name: string;
   displayOrder: number;
   isActive: boolean;
@@ -95,7 +91,6 @@ export interface AdminCostGroupPayload {
 
 export interface AdminPlatformItem {
   id: string;
-  legacyPlatformName: string | null;
   name: string;
   displayOrder: number;
   isVisible: boolean;
@@ -103,7 +98,6 @@ export interface AdminPlatformItem {
 
 export interface AdminPlatformPayload {
   id?: string;
-  legacyPlatformName?: string | null;
   name: string;
   displayOrder: number;
   isVisible: boolean;
@@ -111,7 +105,6 @@ export interface AdminPlatformPayload {
 
 export interface AdminServiceGroupItem {
   id: string;
-  legacySvcNum: number | null;
   name: string;
   svcGroup: string;
   svcName: string;
@@ -124,7 +117,6 @@ export interface AdminServiceGroupItem {
 
 export interface AdminServiceGroupPayload {
   id?: string;
-  legacySvcNum?: number | null;
   name: string;
   svcGroup: string;
   svcName: string;

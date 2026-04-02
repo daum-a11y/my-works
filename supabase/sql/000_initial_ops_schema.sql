@@ -32,7 +32,6 @@ create table if not exists public.members (
 
 create table if not exists public.service_groups (
   id uuid primary key default gen_random_uuid(),
-  legacy_svc_num integer,
   name text not null,
   cost_group_id uuid,
   display_order integer not null default 0,
@@ -43,7 +42,6 @@ create table if not exists public.service_groups (
 
 create table if not exists public.cost_groups (
   id uuid primary key default gen_random_uuid(),
-  legacy_cost_group_code integer,
   name text not null,
   display_order integer not null default 0,
   is_active boolean not null default true,
@@ -53,7 +51,6 @@ create table if not exists public.cost_groups (
 
 create table if not exists public.platforms (
   id uuid primary key default gen_random_uuid(),
-  legacy_platform_name text,
   name text not null,
   display_order integer not null default 0,
   is_visible boolean not null default true,
@@ -70,7 +67,6 @@ alter table public.service_groups
 
 create table if not exists public.task_types (
   id uuid primary key default gen_random_uuid(),
-  legacy_type_num integer,
   type1 text not null,
   type2 text not null,
   display_label text not null,
@@ -83,7 +79,6 @@ create table if not exists public.task_types (
 
 create table if not exists public.projects (
   id uuid primary key default gen_random_uuid(),
-  legacy_project_id text,
   created_by_member_id uuid references public.members(id),
   project_type1 text not null default '',
   name text not null,
@@ -102,7 +97,6 @@ create table if not exists public.projects (
 
 create table if not exists public.project_pages (
   id uuid primary key default gen_random_uuid(),
-  legacy_page_id text,
   project_id uuid not null references public.projects(id) on delete cascade,
   owner_member_id uuid references public.members(id),
   title text not null,
@@ -120,7 +114,6 @@ create table if not exists public.project_pages (
 
 create table if not exists public.tasks (
   id uuid primary key default gen_random_uuid(),
-  legacy_task_id text,
   member_id uuid not null references public.members(id) on delete cascade,
   created_by_member_id uuid references public.members(id),
   task_date date not null,
@@ -167,7 +160,6 @@ create or replace view public.project_pages_public_view
 with (security_invoker = true) as
 select
   id,
-  legacy_page_id,
   project_id,
   owner_member_id,
   title,

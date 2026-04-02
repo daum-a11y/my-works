@@ -44,7 +44,6 @@ export interface TaskType {
 
 export interface CostGroup {
   id: string;
-  legacyCostGroupCode: number | null;
   name: string;
   displayOrder: number;
   isActive: boolean;
@@ -52,7 +51,6 @@ export interface CostGroup {
 
 export interface Platform {
   id: string;
-  legacyPlatformName: string | null;
   name: string;
   displayOrder: number;
   isVisible: boolean;
@@ -60,7 +58,6 @@ export interface Platform {
 
 export interface ServiceGroup {
   id: string;
-  legacyServiceGroupId: string;
   name: string;
   costGroupId: string | null;
   costGroupName: string;
@@ -70,7 +67,6 @@ export interface ServiceGroup {
 
 export interface Project {
   id: string;
-  legacyProjectId: string;
   createdByMemberId: string | null;
   projectType1: string;
   name: string;
@@ -87,7 +83,6 @@ export interface Project {
 
 export interface ProjectPage {
   id: string;
-  legacyPageId: string;
   projectId: string;
   title: string;
   url: string;
@@ -102,7 +97,6 @@ export interface ProjectPage {
 
 export interface Task {
   id: string;
-  legacyTaskId: string;
   memberId: string;
   taskDate: string;
   projectId: string | null;

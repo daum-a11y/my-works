@@ -16,7 +16,6 @@ function createDraft(item?: AdminCostGroupItem): AdminCostGroupPayload {
 
   return {
     id: item.id,
-    legacyCostGroupCode: item.legacyCostGroupCode,
     name: item.name,
     displayOrder: item.displayOrder,
     isActive: item.isActive,

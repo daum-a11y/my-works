@@ -237,7 +237,7 @@ function normalizeSearchQuery(value: string) {
 function createSupabaseClient(): OpsDataClient {
   const supabase = requireData(getSupabaseClient(), 'Supabase is not configured.');
   const taskSelectColumns =
-    'id, legacy_task_id, member_id, task_date, project_id, project_page_id, task_type1, task_type2, taskUsedtime, content, note, created_at, updated_at';
+    'id, member_id, task_date, project_id, project_page_id, task_type1, task_type2, task_usedtime, content, note, created_at, updated_at';
   const batchSize = 1000;
 
   async function fetchAllTaskRows<T extends Record<string, unknown>>(
@@ -336,9 +336,7 @@ function createSupabaseClient(): OpsDataClient {
     async getServiceGroups() {
       const { data, error } = await supabase
         .from('service_groups')
-        .select(
-          'id, legacy_svc_num, name, cost_group_id, display_order, is_active, cost_groups(name)',
-        )
+        .select('id, name, cost_group_id, display_order, is_active, cost_groups(name)')
         .order('display_order');
       if (error) throw error;
       return (data ?? []).map((record) => mapServiceGroupRecord(record as Record<string, unknown>));
@@ -533,7 +531,7 @@ function createSupabaseClient(): OpsDataClient {
     async getTaskActivities() {
       const { data, error } = await supabase
         .from('tasks')
-        .select('member_id, task_date, taskUsedtime');
+        .select('member_id, task_date, task_usedtime');
       if (error) throw error;
       return (data ?? []).map(mapTaskActivityRecord);
     },
@@ -584,9 +582,9 @@ function createSupabaseClient(): OpsDataClient {
         if (filters.taskType1) query = query.eq('task_type1', filters.taskType1);
         if (filters.taskType2) query = query.eq('task_type2', filters.taskType2);
         if (filters.minTaskUsedtime)
-          query = query.gte('taskUsedtime', Number.parseFloat(filters.minTaskUsedtime));
+          query = query.gte('task_usedtime', Number.parseFloat(filters.minTaskUsedtime));
         if (filters.maxTaskUsedtime)
-          query = query.lte('taskUsedtime', Number.parseFloat(filters.maxTaskUsedtime));
+          query = query.lte('task_usedtime', Number.parseFloat(filters.maxTaskUsedtime));
         return query.range(from, to);
       });
       const tasks = dedupeTasksById(rows.map(mapTaskRecord));
@@ -625,9 +623,15 @@ function createSupabaseClient(): OpsDataClient {
       if (filters.taskType1) queryBuilder = queryBuilder.eq('task_type1', filters.taskType1);
       if (filters.taskType2) queryBuilder = queryBuilder.eq('task_type2', filters.taskType2);
       if (filters.minTaskUsedtime)
-        queryBuilder = queryBuilder.gte('taskUsedtime', Number.parseFloat(filters.minTaskUsedtime));
+        queryBuilder = queryBuilder.gte(
+          'task_usedtime',
+          Number.parseFloat(filters.minTaskUsedtime),
+        );
       if (filters.maxTaskUsedtime)
-        queryBuilder = queryBuilder.lte('taskUsedtime', Number.parseFloat(filters.maxTaskUsedtime));
+        queryBuilder = queryBuilder.lte(
+          'task_usedtime',
+          Number.parseFloat(filters.maxTaskUsedtime),
+        );
 
       if (normalizedQuery) {
         const [projects, pages] = await Promise.all([
@@ -678,9 +682,7 @@ function createSupabaseClient(): OpsDataClient {
         supabase.from('cost_groups').select('*'),
         supabase
           .from('service_groups')
-          .select(
-            'id, legacy_svc_num, name, cost_group_id, display_order, is_active, cost_groups(name)',
-          ),
+          .select('id, name, cost_group_id, display_order, is_active, cost_groups(name)'),
       ]);
 
       if (projectError) throw projectError;
@@ -790,7 +792,7 @@ function mapTaskActivityRecord(record: Record<string, unknown>): TaskActivity {
   return {
     memberId: String(record.member_id ?? ''),
     taskDate: String(record.task_date ?? getToday()),
-    taskUsedtime: Number(record.taskUsedtime ?? 0),
+    taskUsedtime: Number(record.task_usedtime ?? 0),
   };
 }
 
@@ -809,10 +811,6 @@ function mapTaskTypeRecord(record: Record<string, unknown>): TaskType {
 function mapCostGroupRecord(record: Record<string, unknown>): CostGroup {
   return {
     id: String(record.id),
-    legacyCostGroupCode:
-      record.legacy_cost_group_code == null || record.legacy_cost_group_code === ''
-        ? null
-        : Number(record.legacy_cost_group_code),
     name: String(record.name ?? ''),
     displayOrder: Number(record.display_order ?? 0),
     isActive: Boolean(record.is_active ?? true),
@@ -822,7 +820,6 @@ function mapCostGroupRecord(record: Record<string, unknown>): CostGroup {
 function mapPlatformRecord(record: Record<string, unknown>): Platform {
   return {
     id: String(record.id),
-    legacyPlatformName: record.legacy_platform_name ? String(record.legacy_platform_name) : null,
     name: String(record.name ?? ''),
     displayOrder: Number(record.display_order ?? 0),
     isVisible: Boolean(record.is_visible ?? true),
@@ -840,7 +837,6 @@ function mapServiceGroupRecord(record: Record<string, unknown>): ServiceGroup {
 
   return {
     id: String(record.id),
-    legacyServiceGroupId: String(record.legacy_svc_num ?? ''),
     name: String(record.name ?? ''),
     costGroupId: record.cost_group_id ? String(record.cost_group_id) : null,
     costGroupName,
@@ -857,7 +853,6 @@ function mapProjectRecord(record: Record<string, unknown>): Project {
       : String(record.platform ?? '');
   return {
     id: String(record.id),
-    legacyProjectId: String(record.legacy_project_id ?? ''),
     createdByMemberId: record.created_by_member_id ? String(record.created_by_member_id) : null,
     projectType1: String(record.project_type1 ?? ''),
     name: String(record.name ?? ''),
@@ -876,7 +871,6 @@ function mapProjectRecord(record: Record<string, unknown>): Project {
 function mapProjectPageRecord(record: Record<string, unknown>): ProjectPage {
   return {
     id: String(record.id),
-    legacyPageId: String(record.legacy_page_id ?? ''),
     projectId: String(record.project_id ?? ''),
     title: String(record.title ?? ''),
     url: String(record.url ?? ''),
@@ -893,14 +887,13 @@ function mapProjectPageRecord(record: Record<string, unknown>): ProjectPage {
 function mapTaskRecord(record: Record<string, unknown>): Task {
   return {
     id: String(record.id),
-    legacyTaskId: String(record.legacy_task_id ?? ''),
     memberId: String(record.member_id ?? ''),
     taskDate: String(record.task_date ?? getToday()),
     projectId: record.project_id ? String(record.project_id) : null,
     pageId: record.project_page_id ? String(record.project_page_id) : null,
     taskType1: String(record.task_type1 ?? ''),
     taskType2: String(record.task_type2 ?? ''),
-    taskUsedtime: Number(record.taskUsedtime ?? 0),
+    taskUsedtime: Number(record.task_usedtime ?? 0),
     content: String(record.content ?? ''),
     note: String(record.note ?? ''),
     createdAt: String(record.created_at ?? getToday()),

@@ -71,7 +71,6 @@ describe('Stats pages', () => {
     mockOpsDataClient.getServiceGroups.mockResolvedValue([
       {
         id: 'service-group-1',
-        legacyServiceGroupId: 'legacy-service-group-1',
         name: '서비스그룹A',
         displayOrder: 1,
       },
@@ -79,7 +78,6 @@ describe('Stats pages', () => {
     mockOpsDataClient.getProjects.mockResolvedValue([
       {
         id: 'project-1',
-        legacyProjectId: 'legacy-project-1',
         createdByMemberId: null,
         name: 'QA 대상',
         projectType1: 'QA',
@@ -94,7 +92,6 @@ describe('Stats pages', () => {
       },
       {
         id: 'project-3',
-        legacyProjectId: 'legacy-project-3',
         createdByMemberId: null,
         name: '과거 QA 대상',
         projectType1: 'QA',
@@ -109,7 +106,6 @@ describe('Stats pages', () => {
       },
       {
         id: 'project-2',
-        legacyProjectId: 'legacy-project-2',
         createdByMemberId: null,
         name: '제외 대상',
         projectType1: '운영',
@@ -126,7 +122,6 @@ describe('Stats pages', () => {
     mockOpsDataClient.getAllProjectPages.mockResolvedValue([
       {
         id: 'page-1',
-        legacyPageId: 'legacy-page-1',
         projectId: 'project-1',
         title: '모니터링 페이지',
         url: '',
@@ -140,7 +135,6 @@ describe('Stats pages', () => {
       },
       {
         id: 'page-2',
-        legacyPageId: 'legacy-page-3',
         projectId: 'project-3',
         title: '과거 모니터링 페이지',
         url: '',
@@ -154,7 +148,6 @@ describe('Stats pages', () => {
       },
       {
         id: 'page-3',
-        legacyPageId: 'legacy-page-2',
         projectId: 'project-2',
         title: '제외 페이지',
         url: '',
@@ -169,7 +162,6 @@ describe('Stats pages', () => {
     ]);
     mockOpsDataClient.saveProjectPage.mockImplementation(async (input) => ({
       id: input.id ?? 'page-1',
-      legacyPageId: 'legacy-page-1',
       projectId: input.projectId,
       title: input.title,
       url: input.url,

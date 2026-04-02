@@ -71,13 +71,11 @@ describe('ResourceServicePage', () => {
     mockOpsDataClient.getServiceGroups.mockResolvedValue([
       {
         id: 'service-group-1',
-        legacyServiceGroupId: 'legacy-service-group-1',
         name: '커머스 / 선물하기',
         displayOrder: 1,
       },
       {
         id: 'service-group-2',
-        legacyServiceGroupId: 'legacy-service-group-2',
         name: '플랫폼 / 카카오맵',
         displayOrder: 2,
       },
@@ -85,7 +83,6 @@ describe('ResourceServicePage', () => {
     mockOpsDataClient.getProjects.mockResolvedValue([
       {
         id: 'project-1',
-        legacyProjectId: 'legacy-project-1',
         createdByMemberId: null,
         name: '선물하기',
         projectType1: 'QA',
@@ -100,7 +97,6 @@ describe('ResourceServicePage', () => {
       },
       {
         id: 'project-2',
-        legacyProjectId: 'legacy-project-2',
         createdByMemberId: null,
         name: '카카오맵',
         projectType1: 'QA',
@@ -115,7 +111,6 @@ describe('ResourceServicePage', () => {
       },
       {
         id: 'project-3',
-        legacyProjectId: 'legacy-project-3',
         createdByMemberId: null,
         name: '카카오 T',
         projectType1: 'QA',
@@ -132,7 +127,6 @@ describe('ResourceServicePage', () => {
     mockOpsDataClient.getTasks.mockResolvedValue([
       {
         id: 'task-1',
-        legacyTaskId: 'legacy-task-1',
         memberId: 'member-1',
         taskDate: '2023-04-03',
         projectId: 'project-1',
@@ -147,7 +141,6 @@ describe('ResourceServicePage', () => {
       },
       {
         id: 'task-2',
-        legacyTaskId: 'legacy-task-2',
         memberId: 'member-1',
         taskDate: '2023-05-03',
         projectId: 'project-2',
@@ -162,7 +155,6 @@ describe('ResourceServicePage', () => {
       },
       {
         id: 'task-3',
-        legacyTaskId: 'legacy-task-3',
         memberId: 'member-1',
         taskDate: '2024-01-15',
         projectId: 'project-3',

@@ -45,7 +45,6 @@ describe('ReportsPage', () => {
           id: 'project-1',
           project: {
             id: 'project-1',
-            legacyProjectId: 'legacy-project-1',
             createdByMemberId: null,
             projectType1: '기획',
             name: '접근성 포털',
@@ -158,7 +157,6 @@ describe('ReportsPage', () => {
       taskTypes: [
         {
           id: 'type-1',
-          legacyTypeId: '1',
           type1: '기획',
           type2: '작성',
           label: '기획 / 작성',

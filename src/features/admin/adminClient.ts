@@ -75,7 +75,7 @@ function toNullableString(value: string) {
 }
 
 const TASK_SELECT_COLUMNS =
-  'id, member_id, task_date, project_id, project_page_id, task_type1, task_type2, taskUsedtime, content, note, updated_at';
+  'id, member_id, task_date, project_id, project_page_id, task_type1, task_type2, task_usedtime, content, note, updated_at';
 
 function mapProject(record: Record<string, unknown>): AdminProjectOption {
   const platformRecord = Array.isArray(record.platforms) ? record.platforms[0] : record.platforms;
@@ -125,7 +125,7 @@ function mapTask(record: Record<string, unknown>): AdminTaskSearchItem {
     serviceName: String(record.service_name ?? ''),
     taskType1: String(record.task_type1 ?? ''),
     taskType2: String(record.task_type2 ?? ''),
-    taskUsedtime: Number(record.taskUsedtime ?? 0),
+    taskUsedtime: Number(record.task_usedtime ?? 0),
     content: String(record.content ?? ''),
     note: String(record.note ?? ''),
     updatedAt: String(record.updated_at ?? ''),
@@ -135,10 +135,6 @@ function mapTask(record: Record<string, unknown>): AdminTaskSearchItem {
 function mapTaskType(record: Record<string, unknown>): AdminTaskTypeItem {
   return {
     id: String(record.id ?? ''),
-    legacyTypeNum:
-      record.legacy_type_num == null || record.legacy_type_num === ''
-        ? null
-        : Number(record.legacy_type_num),
     type1: String(record.type1 ?? ''),
     type2: String(record.type2 ?? ''),
     displayLabel: String(record.display_label ?? `${record.type1 ?? ''} / ${record.type2 ?? ''}`),
@@ -151,10 +147,6 @@ function mapTaskType(record: Record<string, unknown>): AdminTaskTypeItem {
 function mapCostGroup(record: Record<string, unknown>): AdminCostGroupItem {
   return {
     id: String(record.id ?? ''),
-    legacyCostGroupCode:
-      record.legacy_cost_group_code == null || record.legacy_cost_group_code === ''
-        ? null
-        : Number(record.legacy_cost_group_code),
     name: String(record.name ?? ''),
     displayOrder: Number(record.display_order ?? 0),
     isActive: Boolean(record.is_active ?? true),
@@ -164,7 +156,6 @@ function mapCostGroup(record: Record<string, unknown>): AdminCostGroupItem {
 function mapPlatform(record: Record<string, unknown>): AdminPlatformItem {
   return {
     id: String(record.id ?? ''),
-    legacyPlatformName: record.legacy_platform_name ? String(record.legacy_platform_name) : null,
     name: String(record.name ?? ''),
     displayOrder: Number(record.display_order ?? 0),
     isVisible: Boolean(record.is_visible ?? true),
@@ -217,10 +208,6 @@ function mapServiceGroup(record: Record<string, unknown>): AdminServiceGroupItem
 
   return {
     id: String(record.id ?? ''),
-    legacySvcNum:
-      record.legacy_svc_num == null || record.legacy_svc_num === ''
-        ? null
-        : Number(record.legacy_svc_num),
     name,
     svcGroup: parts.svcGroup,
     svcName: parts.svcName,
@@ -551,7 +538,7 @@ function createSupabaseAdminClient(): AdminDataClient {
     async listPlatforms() {
       const { data, error } = await supabase
         .from('platforms')
-        .select('id, legacy_platform_name, name, display_order, is_visible')
+        .select('id, name, display_order, is_visible')
         .order('display_order');
       if (error) throw error;
       return (data ?? []).map((record) => mapPlatform(record as Record<string, unknown>));
@@ -560,7 +547,7 @@ function createSupabaseAdminClient(): AdminDataClient {
     async listCostGroups() {
       const { data, error } = await supabase
         .from('cost_groups')
-        .select('id, legacy_cost_group_code, name, display_order, is_active')
+        .select('id, name, display_order, is_active')
         .order('display_order');
       if (error) throw error;
       return (data ?? []).map((record) => mapCostGroup(record as Record<string, unknown>));
@@ -569,9 +556,7 @@ function createSupabaseAdminClient(): AdminDataClient {
     async listServiceGroups() {
       const { data, error } = await supabase
         .from('service_groups')
-        .select(
-          'id, legacy_svc_num, name, cost_group_id, display_order, is_active, cost_groups(name)',
-        )
+        .select('id, name, cost_group_id, display_order, is_active, cost_groups(name)')
         .order('display_order');
       if (error) throw error;
       return (data ?? []).map((record) => mapServiceGroup(record as Record<string, unknown>));
@@ -613,7 +598,7 @@ function createSupabaseAdminClient(): AdminDataClient {
         project_page_id: toNullableString(input.pageId),
         task_type1: input.taskType1,
         task_type2: input.taskType2,
-        taskUsedtime: input.taskUsedtime,
+        task_usedtime: input.taskUsedtime,
         content: input.content,
         note: input.note,
       };
@@ -736,7 +721,6 @@ function createSupabaseAdminClient(): AdminDataClient {
         .upsert(
           {
             id: payload.id ?? undefined,
-            legacy_type_num: payload.legacyTypeNum ?? null,
             type1: payload.type1,
             type2: payload.type2,
             display_label: payload.displayLabel,
@@ -746,9 +730,7 @@ function createSupabaseAdminClient(): AdminDataClient {
           },
           { onConflict: 'id' },
         )
-        .select(
-          'id, legacy_type_num, type1, type2, display_label, display_order, requires_service_group, is_active',
-        )
+        .select('id, type1, type2, display_label, display_order, requires_service_group, is_active')
         .single();
       if (error) throw error;
       return mapTaskType(data as Record<string, unknown>);
@@ -815,7 +797,6 @@ function createSupabaseAdminClient(): AdminDataClient {
         .upsert(
           {
             id: payload.id ?? undefined,
-            legacy_svc_num: payload.legacySvcNum ?? null,
             name,
             cost_group_id: payload.costGroupId,
             display_order: payload.displayOrder,
@@ -823,9 +804,7 @@ function createSupabaseAdminClient(): AdminDataClient {
           },
           { onConflict: 'id' },
         )
-        .select(
-          'id, legacy_svc_num, name, cost_group_id, display_order, is_active, cost_groups(name)',
-        )
+        .select('id, name, cost_group_id, display_order, is_active, cost_groups(name)')
         .single();
       if (error) throw error;
       return mapServiceGroup(data as Record<string, unknown>);
@@ -837,14 +816,13 @@ function createSupabaseAdminClient(): AdminDataClient {
         .upsert(
           {
             id: payload.id ?? undefined,
-            legacy_cost_group_code: payload.legacyCostGroupCode ?? null,
             name: payload.name.trim(),
             display_order: payload.displayOrder,
             is_active: payload.isActive,
           },
           { onConflict: 'id' },
         )
-        .select('id, legacy_cost_group_code, name, display_order, is_active')
+        .select('id, name, display_order, is_active')
         .single();
       if (error) throw error;
       return mapCostGroup(data as Record<string, unknown>);
@@ -856,14 +834,13 @@ function createSupabaseAdminClient(): AdminDataClient {
         .upsert(
           {
             id: payload.id ?? undefined,
-            legacy_platform_name: payload.legacyPlatformName ?? null,
             name: payload.name.trim(),
             display_order: payload.displayOrder,
             is_visible: payload.isVisible,
           },
           { onConflict: 'id' },
         )
-        .select('id, legacy_platform_name, name, display_order, is_visible')
+        .select('id, name, display_order, is_visible')
         .single();
       if (error) throw error;
       return mapPlatform(data as Record<string, unknown>);

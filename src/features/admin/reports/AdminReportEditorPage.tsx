@@ -63,7 +63,6 @@ function toServiceGroups(
 ): ServiceGroup[] {
   return items.map((item) => ({
     id: item.id,
-    legacyServiceGroupId: item.legacySvcNum == null ? '' : String(item.legacySvcNum),
     name: item.name,
     costGroupId: item.costGroupId,
     costGroupName: item.costGroupName,
@@ -75,7 +74,6 @@ function toServiceGroups(
 function toProjects(items: Awaited<ReturnType<typeof adminDataClient.listProjects>>): Project[] {
   return items.map((item) => ({
     id: item.id,
-    legacyProjectId: '',
     createdByMemberId: null,
     projectType1: item.projectType1,
     name: item.name,
@@ -94,7 +92,6 @@ function toProjects(items: Awaited<ReturnType<typeof adminDataClient.listProject
 function toPlatforms(items: Awaited<ReturnType<typeof adminDataClient.listPlatforms>>): Platform[] {
   return items.map((item) => ({
     id: item.id,
-    legacyPlatformName: item.legacyPlatformName,
     name: item.name,
     displayOrder: item.displayOrder,
     isVisible: item.isVisible,
@@ -106,7 +103,6 @@ function toPages(
 ): ProjectPage[] {
   return items.map((item) => ({
     id: item.id,
-    legacyPageId: '',
     projectId: item.projectId,
     title: item.title,
     url: item.url,

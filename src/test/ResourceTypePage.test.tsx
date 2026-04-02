@@ -73,7 +73,6 @@ describe('ResourceTypePage', () => {
     mockOpsDataClient.getTasks.mockResolvedValue([
       {
         id: 'task-1',
-        legacyTaskId: 'legacy-task-1',
         memberId: 'member-1',
         taskDate: '2023-04-03',
         projectId: null,
@@ -88,7 +87,6 @@ describe('ResourceTypePage', () => {
       },
       {
         id: 'task-2',
-        legacyTaskId: 'legacy-task-2',
         memberId: 'member-1',
         taskDate: '2023-04-04',
         projectId: null,
@@ -103,7 +101,6 @@ describe('ResourceTypePage', () => {
       },
       {
         id: 'task-3',
-        legacyTaskId: 'legacy-task-3',
         memberId: 'member-1',
         taskDate: '2023-04-05',
         projectId: null,
@@ -118,7 +115,6 @@ describe('ResourceTypePage', () => {
       },
       {
         id: 'task-4',
-        legacyTaskId: 'legacy-task-4',
         memberId: 'member-1',
         taskDate: '2024-02-01',
         projectId: null,
