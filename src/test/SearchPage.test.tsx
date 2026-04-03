@@ -18,10 +18,10 @@ const mockOpsDataClient = vi.hoisted(() => ({
   getProjectPages: vi.fn(),
   getAllProjectPages: vi.fn(),
   saveProjectPage: vi.fn(),
-  getTasks: vi.fn(),
+  getTasksByDate: vi.fn(),
   saveTask: vi.fn(),
   deleteTask: vi.fn(),
-  searchTasks: vi.fn(),
+  searchTasksPage: vi.fn(),
   exportTasks: vi.fn(),
   getDashboard: vi.fn(),
   getStats: vi.fn(),
@@ -85,22 +85,29 @@ describe('SearchPage', () => {
       },
     ]);
     mockOpsDataClient.getServiceGroups.mockResolvedValue([]);
-    mockOpsDataClient.searchTasks.mockResolvedValue([
-      {
-        id: 'task-1',
-        memberId: 'member-1',
-        taskDate: '2026-03-24',
-        projectId: 'project-1',
-        pageId: 'page-1',
-        taskType1: '기획',
-        taskType2: '작성',
-        taskUsedtime: 60,
-        content: '업무',
-        note: '비고',
-        createdAt: '2026-03-24T09:00:00.000Z',
-        updatedAt: '2026-03-24T09:00:00.000Z',
-      },
-    ]);
+    mockOpsDataClient.searchTasksPage.mockResolvedValue({
+      items: [
+        {
+          id: 'task-1',
+          taskDate: '2026-03-24',
+          costGroupId: 'cost-group-1',
+          costGroupName: '내부',
+          taskType1: '기획',
+          taskType2: '작성',
+          taskUsedtime: 60,
+          content: '업무',
+          note: '비고',
+          updatedAt: '2026-03-24T09:00:00.000Z',
+          platform: 'iOS',
+          serviceGroupName: '-',
+          serviceName: '-',
+          projectDisplayName: '알파',
+          pageDisplayName: '로그인',
+          pageUrl: 'https://example.com/login',
+        },
+      ],
+      totalCount: 1,
+    });
   });
 
   it('renders the filtered result table with current-month defaults', async () => {
@@ -117,22 +124,27 @@ describe('SearchPage', () => {
       expect(screen.getByRole('button', { name: '검색' })).toBeInTheDocument();
     });
 
-    expect(mockOpsDataClient.searchTasks).toHaveBeenCalledWith(
+    expect(mockOpsDataClient.searchTasksPage).toHaveBeenCalledWith(
       expect.objectContaining({ id: 'member-1' }),
       expect.objectContaining({ startDate: monthStart, endDate: monthEnd, query: '' }),
+      1,
+      25,
     );
 
     await user.type(screen.getByLabelText('검색어'), '로그인');
     await user.click(screen.getByRole('button', { name: '검색' }));
 
     await waitFor(() => {
-      expect(mockOpsDataClient.searchTasks).toHaveBeenLastCalledWith(
+      expect(mockOpsDataClient.searchTasksPage).toHaveBeenLastCalledWith(
         expect.objectContaining({ id: 'member-1' }),
         expect.objectContaining({ startDate: monthStart, endDate: monthEnd, query: '로그인' }),
+        1,
+        25,
       );
     });
 
     expect(screen.getByRole('button', { name: '다운로드' })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: '청구그룹' })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: '서비스그룹' })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: '페이지명' })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: '내용' })).toBeInTheDocument();

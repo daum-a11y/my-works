@@ -1,8 +1,14 @@
 import { useEffect, useMemo, useState, type FormEvent, type KeyboardEvent } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import type { Project, ProjectPage, ServiceGroup, TaskType } from '../../../lib/domain';
-import type { Platform } from '../../../lib/domain';
+import type {
+  CostGroup,
+  Platform,
+  Project,
+  ProjectPage,
+  ServiceGroup,
+  TaskType,
+} from '../../../lib/domain';
 import {
   buildProjectViewModels,
   buildSelectableTaskType1Options,
@@ -89,6 +95,17 @@ function toProjects(items: Awaited<ReturnType<typeof adminDataClient.listProject
   }));
 }
 
+function toCostGroups(
+  items: Awaited<ReturnType<typeof adminDataClient.listCostGroups>>,
+): CostGroup[] {
+  return items.map((item) => ({
+    id: item.id,
+    name: item.name,
+    displayOrder: item.displayOrder,
+    isActive: item.isActive,
+  }));
+}
+
 function toPlatforms(items: Awaited<ReturnType<typeof adminDataClient.listPlatforms>>): Platform[] {
   return items.map((item) => ({
     id: item.id,
@@ -119,6 +136,8 @@ function toPages(
 function createDraftFromTask(task: AdminTaskSearchItem): ReportDraft {
   return {
     reportDate: task.taskDate,
+    costGroupId: task.costGroupId,
+    costGroupName: task.costGroupName,
     projectId: task.projectId ?? '',
     pageId: task.pageId ?? '',
     type1: task.taskType1,
@@ -162,6 +181,10 @@ export function AdminReportEditorPage() {
     queryKey: ['admin', 'service-groups'],
     queryFn: () => adminDataClient.listServiceGroups(),
   });
+  const costGroupsQuery = useQuery({
+    queryKey: ['admin', 'cost-groups'],
+    queryFn: () => adminDataClient.listCostGroups(),
+  });
   const platformsQuery = useQuery({
     queryKey: ['admin', 'platforms'],
     queryFn: () => adminDataClient.listPlatforms(),
@@ -185,6 +208,10 @@ export function AdminReportEditorPage() {
   const serviceGroups = useMemo(
     () => toServiceGroups(serviceGroupsQuery.data ?? []),
     [serviceGroupsQuery.data],
+  );
+  const costGroups = useMemo(
+    () => toCostGroups(costGroupsQuery.data ?? []),
+    [costGroupsQuery.data],
   );
   const platforms = useMemo(() => toPlatforms(platformsQuery.data ?? []), [platformsQuery.data]);
   const projects = useMemo(() => toProjects(projectsQuery.data ?? []), [projectsQuery.data]);
@@ -225,16 +252,19 @@ export function AdminReportEditorPage() {
   );
   const normalizedProjectQuery = appliedProjectQuery.trim().toLowerCase();
   const filteredProjectOptions = useMemo(() => {
+    const base = draft.costGroupId
+      ? projectOptions.filter((project) => project.costGroupId === draft.costGroupId)
+      : projectOptions;
     if (!normalizedProjectQuery) {
-      return projectOptions.slice(0, 60);
+      return base.slice(0, 60);
     }
 
-    return projectOptions
+    return base
       .filter((project) =>
         project.project.name.trim().toLowerCase().includes(normalizedProjectQuery),
       )
       .slice(0, 60);
-  }, [normalizedProjectQuery, projectOptions]);
+  }, [draft.costGroupId, normalizedProjectQuery, projectOptions]);
   const draftPages = useMemo(
     () => pages.filter((page) => page.projectId === draft.projectId),
     [draft.projectId, pages],
@@ -311,10 +341,15 @@ export function AdminReportEditorPage() {
 
     return filteredProjectOptions.filter(
       (project) =>
-        project.project.platform === draft.platform && project.project.projectType1 === draft.type1,
+        project.costGroupId === draft.costGroupId &&
+        project.project.platform === draft.platform &&
+        project.project.projectType1 === draft.type1,
     );
-  }, [draft.platform, draft.type1, filteredProjectOptions]);
+  }, [draft.costGroupId, draft.platform, draft.type1, filteredProjectOptions]);
   const projectSearchPlaceholder = useMemo(() => {
+    if (!draft.costGroupId) {
+      return '청구그룹을 먼저 선택하세요';
+    }
     if (!projectQuery.trim()) {
       return '선택하세요';
     }
@@ -322,7 +357,7 @@ export function AdminReportEditorPage() {
       return '검색 결과가 없습니다.';
     }
     return `${projectQuery} 로 검색되었습니다. 목록을 선택하세요`;
-  }, [filteredProjectOptions.length, projectQuery]);
+  }, [draft.costGroupId, filteredProjectOptions.length, projectQuery]);
   const type2Placeholder = useMemo(() => {
     if (isProjectLinkedTab || draft.type1 === '휴무') {
       return '선택하세요';
@@ -351,6 +386,12 @@ export function AdminReportEditorPage() {
             next.type2 = '';
           }
           next.platform = project.platform;
+          next.costGroupId = project.serviceGroupId
+            ? (serviceGroupsById.get(project.serviceGroupId)?.costGroupId ?? '')
+            : '';
+          next.costGroupName = project.serviceGroupId
+            ? (serviceGroupsById.get(project.serviceGroupId)?.costGroupName ?? '')
+            : '';
           next.serviceGroupName =
             separator < 0 ? normalizedServiceName : normalizedServiceName.slice(0, separator);
           next.serviceName = separator < 0 ? '' : normalizedServiceName.slice(separator + 3);
@@ -363,6 +404,16 @@ export function AdminReportEditorPage() {
           next.serviceName = '';
           next.pageUrl = '';
         }
+      }
+
+      if (key === 'costGroupId') {
+        next.projectId = '';
+        next.pageId = '';
+        const costGroup = costGroups.find((item) => item.id === String(value)) ?? null;
+        next.costGroupName = costGroup?.name ?? '';
+        next.serviceGroupName = '';
+        next.serviceName = '';
+        next.pageUrl = '';
       }
 
       if (key === 'pageId') {
@@ -440,6 +491,7 @@ export function AdminReportEditorPage() {
         id: isEdit ? taskId : undefined,
         memberId: selectedMemberId,
         taskDate: draft.reportDate,
+        costGroupId: draft.costGroupId,
         projectId: draft.projectId,
         pageId: draft.pageId,
         taskType1: taskType.type1,
@@ -465,6 +517,7 @@ export function AdminReportEditorPage() {
     membersQuery.isLoading ||
     taskTypesQuery.isLoading ||
     serviceGroupsQuery.isLoading ||
+    costGroupsQuery.isLoading ||
     projectsQuery.isLoading ||
     pagesQuery.isLoading ||
     taskQuery.isLoading;
@@ -472,6 +525,7 @@ export function AdminReportEditorPage() {
     (membersQuery.error instanceof Error && membersQuery.error.message) ||
     (taskTypesQuery.error instanceof Error && taskTypesQuery.error.message) ||
     (serviceGroupsQuery.error instanceof Error && serviceGroupsQuery.error.message) ||
+    (costGroupsQuery.error instanceof Error && costGroupsQuery.error.message) ||
     (platformsQuery.error instanceof Error && platformsQuery.error.message) ||
     (projectsQuery.error instanceof Error && projectsQuery.error.message) ||
     (pagesQuery.error instanceof Error && pagesQuery.error.message) ||
@@ -559,6 +613,23 @@ export function AdminReportEditorPage() {
             {activeTab === 'report' ? (
               <div className={styles.formGrid}>
                 <label className={styles.field}>
+                  <span>청구그룹</span>
+                  <select
+                    value={draft.costGroupId}
+                    onChange={(event) => setDraftField('costGroupId', event.target.value)}
+                  >
+                    <option value="">
+                      {costGroups.length ? '선택하세요' : '청구그룹이 없습니다.'}
+                    </option>
+                    {costGroups.map((group) => (
+                      <option key={group.id} value={group.id}>
+                        {group.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                <label className={styles.field}>
                   <span>프로젝트검색</span>
                   <input
                     value={projectQuery}
@@ -584,6 +655,7 @@ export function AdminReportEditorPage() {
                   <select
                     value={draft.projectId}
                     onChange={(event) => setDraftField('projectId', event.target.value)}
+                    disabled={!draft.costGroupId}
                   >
                     <option value="">{projectSearchPlaceholder}</option>
                     {filteredProjectOptions.map((project) => (
@@ -656,6 +728,10 @@ export function AdminReportEditorPage() {
               {showReadonlyService ? (
                 <>
                   <label className={styles.field}>
+                    <span>청구그룹</span>
+                    <input value={draft.costGroupName} readOnly />
+                  </label>
+                  <label className={styles.field}>
                     <span>서비스 그룹</span>
                     <input value={draft.serviceGroupName} readOnly />
                   </label>
@@ -672,6 +748,7 @@ export function AdminReportEditorPage() {
                   <select
                     value={draft.projectId}
                     onChange={(event) => setDraftField('projectId', event.target.value)}
+                    disabled={!draft.costGroupId}
                   >
                     <option value="">
                       {typeFilteredProjects.length ? '선택하세요' : '프로젝트가 존재하지 않습니다.'}

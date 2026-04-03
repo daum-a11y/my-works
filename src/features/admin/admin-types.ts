@@ -2,11 +2,11 @@ export interface AdminTaskSearchFilters {
   startDate: string;
   endDate: string;
   memberId: string;
+  costGroupId: string;
   projectId: string;
   pageId: string;
   taskType1: string;
   taskType2: string;
-  serviceGroupId: string;
   keyword: string;
 }
 
@@ -16,6 +16,8 @@ export interface AdminTaskSearchItem {
   memberName: string;
   memberEmail: string;
   taskDate: string;
+  costGroupId: string;
+  costGroupName: string;
   platform: string;
   projectId: string | null;
   projectName: string;
@@ -42,6 +44,7 @@ export interface AdminTaskSaveInput {
   id?: string;
   memberId: string;
   taskDate: string;
+  costGroupId: string;
   projectId: string;
   pageId: string;
   taskType1: string;
@@ -137,6 +140,8 @@ export interface AdminProjectOption {
   projectType1: string;
   platformId: string | null;
   platform: string;
+  costGroupId: string | null;
+  costGroupName: string;
   serviceGroupId: string | null;
   reportUrl: string;
   isActive: boolean;
@@ -205,11 +210,11 @@ export function createDefaultAdminTaskSearchFilters(
     startDate: formatDate(new Date(referenceDate.getFullYear(), referenceDate.getMonth(), 1)),
     endDate: formatDate(referenceDate),
     memberId: '',
+    costGroupId: '',
     projectId: '',
     pageId: '',
     taskType1: '',
     taskType2: '',
-    serviceGroupId: '',
     keyword: '',
   };
 }

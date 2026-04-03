@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { useAuth } from '../auth/AuthContext';
 import { opsDataClient } from '../../lib/dataClient';
-import type { Platform, ProjectPage, TaskType } from '../../lib/domain';
+import type { CostGroup, Platform, ProjectPage, TaskType } from '../../lib/domain';
 import {
   buildProjectViewModels,
   buildTaskReportViewModel,
@@ -31,6 +31,7 @@ export interface ReportsSlice {
   projectOptions: ProjectViewModel[];
   filteredProjectOptions: ProjectViewModel[];
   draftPages: ProjectPage[];
+  costGroupOptions: CostGroup[];
   taskTypes: TaskType[];
   type1Options: string[];
   type2Options: string[];
@@ -129,6 +130,11 @@ export function useReportsSlice(): ReportsSlice {
     queryFn: async () => opsDataClient.getServiceGroups(),
     enabled: Boolean(member),
   });
+  const costGroupsQuery = useQuery({
+    queryKey: ['reports', 'cost-groups'],
+    queryFn: async () => opsDataClient.getCostGroups(),
+    enabled: Boolean(member),
+  });
 
   const pagesQuery = useQuery({
     queryKey: ['reports', 'pages', member?.id],
@@ -147,6 +153,7 @@ export function useReportsSlice(): ReportsSlice {
     enabled: Boolean(member),
   });
   const projects = useMemo(() => projectsQuery.data ?? [], [projectsQuery.data]);
+  const costGroupOptions = useMemo(() => costGroupsQuery.data ?? [], [costGroupsQuery.data]);
   const platformOptions = useMemo(() => platformsQuery.data ?? [], [platformsQuery.data]);
   const serviceGroups = useMemo(() => serviceGroupsQuery.data ?? [], [serviceGroupsQuery.data]);
   const pages = useMemo(() => pagesQuery.data ?? [], [pagesQuery.data]);
@@ -187,16 +194,20 @@ export function useReportsSlice(): ReportsSlice {
 
   const normalizedProjectQuery = appliedProjectQuery.trim().toLowerCase();
   const filteredProjectOptions = useMemo(() => {
+    const base = draft.costGroupId
+      ? projectOptions.filter((project) => project.costGroupId === draft.costGroupId)
+      : projectOptions;
+
     if (!normalizedProjectQuery) {
-      return projectOptions.slice(0, 60);
+      return base.slice(0, 60);
     }
 
-    return projectOptions
+    return base
       .filter((project) =>
         project.project.name.trim().toLowerCase().includes(normalizedProjectQuery),
       )
       .slice(0, 60);
-  }, [projectOptions, normalizedProjectQuery]);
+  }, [draft.costGroupId, normalizedProjectQuery, projectOptions]);
 
   const draftPages = useMemo(
     () => pages.filter((page) => page.projectId === draft.projectId),
@@ -224,6 +235,7 @@ export function useReportsSlice(): ReportsSlice {
     mutationFn: async (input: {
       id?: string;
       taskDate: string;
+      costGroupId: string;
       projectId: string;
       pageId: string;
       taskType1: string;
@@ -246,7 +258,12 @@ export function useReportsSlice(): ReportsSlice {
       }
 
       let projectId = input.projectId.trim();
+      const costGroupId = input.costGroupId.trim();
       const pageId = input.pageId.trim();
+
+      if (!costGroupId) {
+        throw new Error('청구그룹을 선택해 주세요.');
+      }
 
       if (pageId) {
         const page = pagesById.get(pageId);
@@ -263,11 +280,27 @@ export function useReportsSlice(): ReportsSlice {
         }
       }
 
+      if (projectId) {
+        const project = projectsById.get(projectId);
+        if (!project) {
+          throw new Error('선택한 프로젝트 정보를 확인할 수 없습니다.');
+        }
+
+        const projectCostGroupId = project.serviceGroupId
+          ? (serviceGroupsById.get(project.serviceGroupId)?.costGroupId ?? '')
+          : '';
+
+        if (!projectCostGroupId || projectCostGroupId !== costGroupId) {
+          throw new Error('선택한 프로젝트의 청구그룹과 입력값이 일치하지 않습니다.');
+        }
+      }
+
       const taskType = validateTaskTypeSelection(taskTypes, input.taskType1, input.taskType2);
 
       return opsDataClient.saveTask(member, {
         id: input.id,
         taskDate: normalizedTaskDate,
+        costGroupId,
         projectId: projectId || null,
         pageId: pageId || null,
         taskType1: taskType.type1,
@@ -338,6 +371,12 @@ export function useReportsSlice(): ReportsSlice {
           const normalizedServiceName = project.serviceGroupId
             ? (serviceGroupsById.get(project.serviceGroupId)?.name ?? '')
             : '';
+          const costGroup = project.serviceGroupId
+            ? (serviceGroupsById.get(project.serviceGroupId)?.costGroupName ?? '')
+            : '';
+          const costGroupId = project.serviceGroupId
+            ? (serviceGroupsById.get(project.serviceGroupId)?.costGroupId ?? '')
+            : '';
           const separator = normalizedServiceName.indexOf(' / ');
           next.type1 = project.projectType1;
           const nextType2Options = buildTaskType2OptionsForValue(taskTypes, next.type1, next.type2);
@@ -345,6 +384,8 @@ export function useReportsSlice(): ReportsSlice {
             next.type2 = '';
           }
           next.platform = project.platform;
+          next.costGroupId = costGroupId;
+          next.costGroupName = costGroup;
           next.serviceGroupName =
             separator < 0 ? normalizedServiceName : normalizedServiceName.slice(0, separator);
           next.serviceName = separator < 0 ? '' : normalizedServiceName.slice(separator + 3);
@@ -357,6 +398,16 @@ export function useReportsSlice(): ReportsSlice {
           next.serviceName = '';
           next.pageUrl = '';
         }
+      }
+
+      if (key === 'costGroupId') {
+        next.projectId = '';
+        next.pageId = '';
+        const costGroup = costGroupOptions.find((item) => item.id === String(value)) ?? null;
+        next.costGroupName = costGroup?.name ?? '';
+        next.serviceGroupName = '';
+        next.serviceName = '';
+        next.pageUrl = '';
       }
 
       if (key === 'pageId') {
@@ -430,6 +481,7 @@ export function useReportsSlice(): ReportsSlice {
       await saveMutation.mutateAsync({
         id: selectedReportId ?? undefined,
         taskDate,
+        costGroupId: draft.costGroupId,
         projectId: draft.projectId,
         pageId: draft.pageId,
         taskType1: taskType.type1,
@@ -471,6 +523,7 @@ export function useReportsSlice(): ReportsSlice {
 
       await saveMutation.mutateAsync({
         taskDate,
+        costGroupId: draft.costGroupId,
         projectId: '',
         pageId: '',
         taskType1: taskType.type1,
@@ -500,6 +553,7 @@ export function useReportsSlice(): ReportsSlice {
     projectQuery,
     projectOptions,
     filteredProjectOptions,
+    costGroupOptions,
     draftPages,
     taskTypes,
     type1Options,

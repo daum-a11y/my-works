@@ -88,6 +88,7 @@ function renderReportTable(
           <thead>
             <tr>
               <th scope="col">일자</th>
+              <th scope="col">청구그룹</th>
               <th scope="col">타입1</th>
               <th scope="col">타입2</th>
               <th scope="col">플랫폼</th>
@@ -118,6 +119,9 @@ function renderReportTable(
                     ) : (
                       formatReportDate(report.reportDate)
                     )}
+                  </td>
+                  <td>
+                    <strong>{report.costGroupName || '-'}</strong>
                   </td>
                   <td>
                     <strong>{report.type1}</strong>
@@ -219,7 +223,7 @@ function renderReportTable(
             })}
             {!rows.length && (
               <tr>
-                <td colSpan={12} className={styles.emptyState}>
+                <td colSpan={13} className={styles.emptyState}>
                   {emptyMessage}
                 </td>
               </tr>
@@ -258,6 +262,7 @@ export function ReportsPage() {
     activeTab,
     draft,
     draftPages,
+    costGroupOptions,
     filteredProjectOptions,
     projectOptions,
     applyProjectQuery,
@@ -361,16 +366,21 @@ export function ReportsPage() {
     return '페이지명 & 내용';
   }, [isVacationType, typeRule.projectLinked, typeRule.projectPageSelectable, usesManualPageOnly]);
   const typeFilteredProjects = useMemo(() => {
-    if (!draft.platform || !draft.type1) {
+    if (!draft.platform || !draft.type1 || !draft.costGroupId) {
       return [] as typeof filteredProjectOptions;
     }
 
     return filteredProjectOptions.filter(
       (project) =>
-        project.project.platform === draft.platform && project.project.projectType1 === draft.type1,
+        project.costGroupId === draft.costGroupId &&
+        project.project.platform === draft.platform &&
+        project.project.projectType1 === draft.type1,
     );
-  }, [draft.platform, draft.type1, filteredProjectOptions]);
+  }, [draft.costGroupId, draft.platform, draft.type1, filteredProjectOptions]);
   const projectSearchPlaceholder = useMemo(() => {
+    if (!draft.costGroupId) {
+      return '청구그룹을 먼저 선택하세요';
+    }
     if (!projectQuery.trim()) {
       return '선택하세요';
     }
@@ -378,7 +388,7 @@ export function ReportsPage() {
       return '검색 결과가 없습니다.';
     }
     return `${projectQuery} 로 검색되었습니다. 목록을 선택하세요`;
-  }, [filteredProjectOptions.length, projectQuery]);
+  }, [draft.costGroupId, filteredProjectOptions.length, projectQuery]);
   const type2Placeholder = useMemo(() => {
     if (isProjectLinkedTab) {
       return '선택하세요';
@@ -554,6 +564,23 @@ export function ReportsPage() {
               {activeTab === 'report' ? (
                 <div className={styles.formGrid}>
                   <label className={styles.field}>
+                    <span>청구그룹</span>
+                    <select
+                      value={draft.costGroupId}
+                      onChange={(event) => setDraftField('costGroupId', event.target.value)}
+                    >
+                      <option value="">
+                        {costGroupOptions.length ? '선택하세요' : '청구그룹이 없습니다.'}
+                      </option>
+                      {costGroupOptions.map((group) => (
+                        <option key={group.id} value={group.id}>
+                          {group.name}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+
+                  <label className={styles.field}>
                     <span>프로젝트검색</span>
                     <input
                       value={projectQuery}
@@ -579,6 +606,7 @@ export function ReportsPage() {
                     <select
                       value={draft.projectId}
                       onChange={(event) => setDraftField('projectId', event.target.value)}
+                      disabled={!draft.costGroupId}
                     >
                       <option value="">{projectSearchPlaceholder}</option>
                       {filteredProjectOptions.map((project) => (
@@ -653,6 +681,10 @@ export function ReportsPage() {
                 {showReadonlyService ? (
                   <>
                     <label className={styles.field}>
+                      <span>청구그룹</span>
+                      <input value={draft.costGroupName} readOnly />
+                    </label>
+                    <label className={styles.field}>
                       <span>서비스 그룹</span>
                       <input value={draft.serviceGroupName} readOnly />
                     </label>
@@ -669,6 +701,7 @@ export function ReportsPage() {
                     <select
                       value={draft.projectId}
                       onChange={(event) => setDraftField('projectId', event.target.value)}
+                      disabled={!draft.costGroupId}
                     >
                       <option value="">
                         {typeFilteredProjects.length

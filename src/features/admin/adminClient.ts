@@ -80,12 +80,36 @@ function mapProject(record: Record<string, unknown>): AdminProjectOption {
     platformRecord && typeof platformRecord === 'object'
       ? String((platformRecord as Record<string, unknown>).name ?? '')
       : String(record.platform ?? '');
+  const serviceGroupRecord = Array.isArray(record.service_groups)
+    ? record.service_groups[0]
+    : record.service_groups;
+  const costGroupRecord =
+    serviceGroupRecord &&
+    typeof serviceGroupRecord === 'object' &&
+    'cost_groups' in (serviceGroupRecord as Record<string, unknown>)
+      ? Array.isArray((serviceGroupRecord as Record<string, unknown>).cost_groups)
+        ? (
+            (serviceGroupRecord as Record<string, unknown>).cost_groups as Record<string, unknown>[]
+          )[0]
+        : ((serviceGroupRecord as Record<string, unknown>).cost_groups as Record<
+            string,
+            unknown
+          > | null)
+      : null;
   return {
     id: String(record.id ?? ''),
     name: String(record.name ?? ''),
     projectType1: String(record.project_type1 ?? ''),
     platformId: record.platform_id ? String(record.platform_id) : null,
     platform: platformName,
+    costGroupId:
+      serviceGroupRecord && typeof serviceGroupRecord === 'object'
+        ? String((serviceGroupRecord as Record<string, unknown>).cost_group_id ?? '') || null
+        : null,
+    costGroupName:
+      costGroupRecord && typeof costGroupRecord === 'object'
+        ? String((costGroupRecord as Record<string, unknown>).name ?? '')
+        : '',
     serviceGroupId: record.service_group_id ? String(record.service_group_id) : null,
     reportUrl: String(record.report_url ?? ''),
     isActive: Boolean(record.is_active ?? true),
@@ -111,6 +135,8 @@ function mapTask(record: Record<string, unknown>): AdminTaskSearchItem {
     memberName: String(record.member_name ?? ''),
     memberEmail: String(record.member_email ?? ''),
     taskDate: String(record.task_date ?? ''),
+    costGroupId: String(record.cost_group_id ?? ''),
+    costGroupName: String(record.cost_group_name ?? ''),
     platform: String(record.platform ?? ''),
     projectId: record.project_id ? String(record.project_id) : null,
     projectName: String(record.project_name ?? ''),
@@ -307,7 +333,7 @@ async function fetchAdminTasks(
         p_project_page_id: pageId,
         p_task_type1: taskType1,
         p_task_type2: taskType2,
-        p_service_group_id: toNullableString(filters.serviceGroupId),
+        p_cost_group_id: toNullableString(filters.costGroupId),
         p_keyword: toNullableString(filters.keyword),
       },
       { count: 'exact' },
@@ -492,7 +518,7 @@ function createSupabaseAdminClient(): AdminDataClient {
       const { data, error } = await supabase
         .from('projects')
         .select(
-          'id, name, project_type1, platform_id, platform, service_group_id, report_url, is_active, platforms(name)',
+          'id, name, project_type1, platform_id, platform, service_group_id, report_url, is_active, platforms(name), service_groups(cost_group_id, cost_groups(name))',
         )
         .order('name');
       if (error) throw error;
@@ -521,6 +547,7 @@ function createSupabaseAdminClient(): AdminDataClient {
         p_task_id: input.id ?? null,
         p_member_id: input.memberId,
         p_task_date: input.taskDate,
+        p_cost_group_id: input.costGroupId,
         p_project_id: await resolveProjectId(supabase, input.projectId, input.pageId),
         p_project_page_id: toNullableString(input.pageId),
         p_task_type1: input.taskType1,

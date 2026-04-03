@@ -99,6 +99,8 @@ export interface Task {
   id: string;
   memberId: string;
   taskDate: string;
+  costGroupId: string;
+  costGroupName: string;
   projectId: string | null;
   pageId: string | null;
   taskType1: string;
@@ -113,6 +115,8 @@ export interface Task {
 export interface SearchTaskRow {
   id: string;
   taskDate: string;
+  costGroupId: string;
+  costGroupName: string;
   taskType1: string;
   taskType2: string;
   taskUsedtime: number;
@@ -180,6 +184,7 @@ export interface ResourceMonthReportRow {
   memberId: string;
   accountId: string;
   taskDate: string;
+  costGroupId: string;
   taskType1: string;
   taskType2: string;
   taskUsedtime: number;
@@ -209,6 +214,7 @@ export interface ReportFilters {
 export interface SaveTaskInput {
   id?: string;
   taskDate: string;
+  costGroupId: string;
   projectId: string | null;
   pageId: string | null;
   taskType1: string;

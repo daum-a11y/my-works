@@ -11,8 +11,8 @@ import {
 import { toLocalDateInputValue } from '../../../lib/utils';
 import { adminDataClient } from '../adminClient';
 import type {
+  AdminCostGroupItem,
   AdminProjectOption,
-  AdminServiceGroupItem,
   AdminTaskSearchFilters,
   AdminTaskSearchItem,
   AdminTaskTypeItem,
@@ -24,6 +24,7 @@ type SortKey =
   | 'id'
   | 'taskDate'
   | 'member'
+  | 'costGroup'
   | 'taskType1'
   | 'taskType2'
   | 'platform'
@@ -107,6 +108,8 @@ function getSortValue(
       return task.id;
     case 'member':
       return membersById.get(task.memberId)?.accountId ?? task.memberId;
+    case 'costGroup':
+      return task.costGroupName;
     case 'taskType1':
       return task.taskType1;
     case 'taskType2':
@@ -245,9 +248,9 @@ export function AdminReportsPage() {
     queryKey: ['admin', 'task-types'],
     queryFn: () => adminDataClient.listTaskTypes(),
   });
-  const serviceGroupsQuery = useQuery({
-    queryKey: ['admin', 'service-groups'],
-    queryFn: () => adminDataClient.listServiceGroups(),
+  const costGroupsQuery = useQuery({
+    queryKey: ['admin', 'cost-groups'],
+    queryFn: () => adminDataClient.listCostGroups(),
   });
   const projectsQuery = useQuery({
     queryKey: ['admin', 'projects'],
@@ -272,7 +275,7 @@ export function AdminReportsPage() {
     });
   }, [membersQuery.data]);
   const taskTypes = useMemo(() => taskTypesQuery.data ?? [], [taskTypesQuery.data]);
-  const serviceGroups = useMemo(() => serviceGroupsQuery.data ?? [], [serviceGroupsQuery.data]);
+  const costGroups = useMemo(() => costGroupsQuery.data ?? [], [costGroupsQuery.data]);
   const projects = useMemo(() => projectsQuery.data ?? [], [projectsQuery.data]);
   const tasks = useMemo(() => searchQuery.data?.items ?? [], [searchQuery.data]);
   const membersById = useMemo(
@@ -282,10 +285,10 @@ export function AdminReportsPage() {
 
   const visibleProjects = useMemo(
     () =>
-      filters.serviceGroupId
-        ? projects.filter((project) => project.serviceGroupId === filters.serviceGroupId)
+      filters.costGroupId
+        ? projects.filter((project) => project.costGroupId === filters.costGroupId)
         : projects,
-    [filters.serviceGroupId, projects],
+    [filters.costGroupId, projects],
   );
 
   const taskType1Options = useMemo(
@@ -357,7 +360,7 @@ export function AdminReportsPage() {
     setFilters((current) => {
       const next = { ...current, [key]: value };
 
-      if (key === 'serviceGroupId') {
+      if (key === 'costGroupId') {
         next.projectId = '';
       }
 
@@ -404,6 +407,7 @@ export function AdminReportsPage() {
           value: (task) => membersById.get(task.memberId)?.accountId ?? task.memberId,
           width: 18,
         },
+        { header: '청구그룹', value: (task) => task.costGroupName, width: 16 },
         { header: '타입1', value: (task) => task.taskType1, width: 14 },
         { header: '타입2', value: (task) => task.taskType2, width: 14 },
         { header: '플랫폼', value: (task) => task.platform, width: 12 },
@@ -432,13 +436,13 @@ export function AdminReportsPage() {
   const loading =
     membersQuery.isLoading ||
     taskTypesQuery.isLoading ||
-    serviceGroupsQuery.isLoading ||
+    costGroupsQuery.isLoading ||
     projectsQuery.isLoading ||
     searchQuery.isLoading;
   const queryError =
     (membersQuery.error instanceof Error && membersQuery.error.message) ||
     (taskTypesQuery.error instanceof Error && taskTypesQuery.error.message) ||
-    (serviceGroupsQuery.error instanceof Error && serviceGroupsQuery.error.message) ||
+    (costGroupsQuery.error instanceof Error && costGroupsQuery.error.message) ||
     (projectsQuery.error instanceof Error && projectsQuery.error.message) ||
     (searchQuery.error instanceof Error && searchQuery.error.message) ||
     '';
@@ -544,14 +548,14 @@ export function AdminReportsPage() {
               </select>
             </label>
             <label className={styles.filterField}>
-              <span>서비스그룹</span>
+              <span>청구그룹</span>
               <select
-                id="admin-reports-service-group"
-                value={filters.serviceGroupId}
-                onChange={(event) => handleFilterField('serviceGroupId', event.target.value)}
+                id="admin-reports-cost-group"
+                value={filters.costGroupId}
+                onChange={(event) => handleFilterField('costGroupId', event.target.value)}
               >
                 <option value="">전체</option>
-                {serviceGroups.map((group: AdminServiceGroupItem) => (
+                {costGroups.map((group: AdminCostGroupItem) => (
                   <option key={group.id} value={group.id}>
                     {group.name}
                   </option>
@@ -559,12 +563,12 @@ export function AdminReportsPage() {
               </select>
             </label>
             <label className={styles.filterField}>
-              <span>서비스명</span>
+              <span>프로젝트</span>
               <select
                 id="admin-reports-service-name"
                 value={filters.projectId}
                 onChange={(event) => handleFilterField('projectId', event.target.value)}
-                disabled={!filters.serviceGroupId}
+                disabled={!filters.costGroupId}
               >
                 <option value="">전체</option>
                 {visibleProjects.map((project: AdminProjectOption) => (
@@ -796,6 +800,14 @@ export function AdminReportsPage() {
                 </th>
                 <th>
                   <SortButton
+                    label="청구그룹"
+                    sortKey="costGroup"
+                    sortState={sortState}
+                    onChange={setSortState}
+                  />
+                </th>
+                <th>
+                  <SortButton
                     label="type 1"
                     sortKey="taskType1"
                     sortState={sortState}
@@ -866,7 +878,7 @@ export function AdminReportsPage() {
             <tbody>
               {sortedTasks.length === 0 ? (
                 <tr>
-                  <td colSpan={14} className={styles.emptyState}>
+                  <td colSpan={15} className={styles.emptyState}>
                     검색 결과가 없습니다.
                   </td>
                 </tr>
@@ -882,6 +894,7 @@ export function AdminReportsPage() {
                         <strong>{member?.accountId ?? task.memberId}</strong>
                         <div className={styles.muted}>{member?.name ?? task.memberName}</div>
                       </td>
+                      <td>{task.costGroupName || '-'}</td>
                       <td>{task.taskType1}</td>
                       <td>{task.taskType2}</td>
                       <td>{task.platform || '-'}</td>
@@ -942,11 +955,11 @@ function createDefaultFilters(): AdminTaskSearchFilters {
     startDate: today,
     endDate: today,
     memberId: '',
+    costGroupId: '',
     projectId: '',
     pageId: '',
     taskType1: '',
     taskType2: '',
-    serviceGroupId: '',
     keyword: '',
   };
 }

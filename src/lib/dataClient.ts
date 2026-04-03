@@ -467,6 +467,7 @@ function createSupabaseClient(): OpsDataClient {
         .rpc('save_task', {
           p_task_id: input.id ?? null,
           p_task_date: taskDate,
+          p_cost_group_id: input.costGroupId,
           p_project_id: input.projectId || null,
           p_project_page_id: input.pageId || null,
           p_task_type1: input.taskType1,
@@ -782,6 +783,7 @@ function mapResourceMonthReportRowRecord(record: Record<string, unknown>): Resou
     memberId: String(record.member_id ?? ''),
     accountId: String(record.account_id ?? ''),
     taskDate: String(record.task_date ?? getToday()),
+    costGroupId: String(record.cost_group_id ?? ''),
     taskType1: String(record.task_type1 ?? ''),
     taskType2: String(record.task_type2 ?? ''),
     taskUsedtime: Number(record.task_usedtime ?? 0),
@@ -885,6 +887,8 @@ function mapTaskRecord(record: Record<string, unknown>): Task {
     id: String(record.id),
     memberId: String(record.member_id ?? ''),
     taskDate: String(record.task_date ?? getToday()),
+    costGroupId: String(record.cost_group_id ?? ''),
+    costGroupName: String(record.cost_group_name ?? ''),
     projectId: record.project_id ? String(record.project_id) : null,
     pageId: record.project_page_id ? String(record.project_page_id) : null,
     taskType1: String(record.task_type1 ?? ''),
@@ -901,6 +905,8 @@ function mapSearchTaskRowRecord(record: Record<string, unknown>): SearchTaskRow 
   return {
     id: String(record.id ?? ''),
     taskDate: String(record.task_date ?? getToday()),
+    costGroupId: String(record.cost_group_id ?? ''),
+    costGroupName: String(record.cost_group_name ?? ''),
     taskType1: String(record.task_type1 ?? ''),
     taskType2: String(record.task_type2 ?? ''),
     taskUsedtime: Number(record.task_usedtime ?? 0),

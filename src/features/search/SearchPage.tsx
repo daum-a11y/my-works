@@ -184,6 +184,7 @@ export function SearchPage() {
       sortSearchRows(downloadTasks),
       [
         { header: '일자', value: (report) => formatReportDate(report.taskDate), width: 12 },
+        { header: '청구그룹', value: (report) => report.costGroupName || '-', width: 16 },
         { header: '타입1', value: (report) => report.taskType1, width: 12 },
         { header: '타입2', value: (report) => report.taskType2, width: 12 },
         { header: '플랫폼', value: (report) => report.platform || '-', width: 14 },
@@ -330,6 +331,7 @@ export function SearchPage() {
             <thead>
               <tr>
                 <th scope="col">일자</th>
+                <th scope="col">청구그룹</th>
                 <th scope="col">타입1</th>
                 <th scope="col">타입2</th>
                 <th scope="col">플랫폼</th>
@@ -347,6 +349,9 @@ export function SearchPage() {
               {sortedReports.map((report) => (
                 <tr key={report.id}>
                   <td className="tabularNums">{formatReportDate(report.taskDate)}</td>
+                  <td>
+                    <strong>{report.costGroupName || '-'}</strong>
+                  </td>
                   <td>
                     <strong>{report.taskType1}</strong>
                   </td>
@@ -384,7 +389,7 @@ export function SearchPage() {
               ))}
               {!sortedReports.length ? (
                 <tr>
-                  <td colSpan={12} className={styles.emptyState}>
+                  <td colSpan={13} className={styles.emptyState}>
                     검색 결과가 없습니다.
                   </td>
                 </tr>

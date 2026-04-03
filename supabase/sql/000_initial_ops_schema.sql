@@ -117,6 +117,7 @@ create table if not exists public.tasks (
   member_id uuid not null references public.members(id) on delete cascade,
   created_by_member_id uuid references public.members(id),
   task_date date not null,
+  cost_group_id uuid references public.cost_groups(id),
   project_id uuid references public.projects(id),
   project_page_id uuid references public.project_pages(id),
   task_type_id uuid references public.task_types(id),
@@ -128,6 +129,48 @@ create table if not exists public.tasks (
   created_at timestamptz not null default timezone('utc', now()),
   updated_at timestamptz not null default timezone('utc', now())
 );
+
+alter table public.tasks
+  add column if not exists cost_group_id uuid;
+
+alter table public.tasks
+  drop constraint if exists tasks_cost_group_id_fkey;
+
+alter table public.tasks
+  add constraint tasks_cost_group_id_fkey
+  foreign key (cost_group_id) references public.cost_groups(id);
+
+insert into public.cost_groups (name, display_order, is_active)
+select '내부', 0, true
+where not exists (
+  select 1
+  from public.cost_groups
+  where trim(name) = '내부'
+);
+
+update public.tasks t
+set cost_group_id = coalesce(
+  (
+    select sg.cost_group_id
+    from public.projects p
+    left join public.service_groups sg on sg.id = p.service_group_id
+    where p.id = t.project_id
+  ),
+  (
+    select cg.id
+    from public.cost_groups cg
+    where trim(cg.name) = '내부'
+    order by cg.display_order asc, cg.created_at asc
+    limit 1
+  )
+)
+where t.cost_group_id is null;
+
+alter table public.tasks
+  alter column cost_group_id set not null;
+
+create index if not exists tasks_cost_group_id_idx on public.tasks(cost_group_id);
+create index if not exists tasks_task_date_cost_group_id_idx on public.tasks(task_date, cost_group_id);
 
 create or replace view public.members_public_view
 with (security_invoker = true) as
@@ -387,9 +430,12 @@ create trigger on_auth_user_created_bind_member
 after insert on auth.users
 for each row execute function public.handle_auth_user_created();
 
+drop function if exists public.save_task(uuid, date, uuid, uuid, text, text, numeric, text, text);
+
 create or replace function public.save_task(
   p_task_id uuid default null,
   p_task_date date default null,
+  p_cost_group_id uuid default null,
   p_project_id uuid default null,
   p_project_page_id uuid default null,
   p_task_type1 text default null,
@@ -406,6 +452,7 @@ as $$
 declare
   v_member_id uuid := public.current_member_id();
   v_task public.tasks;
+  v_project_cost_group_id uuid;
 begin
   if v_member_id is null then
     raise exception 'member not bound';
@@ -427,8 +474,32 @@ begin
     raise exception 'task_usedtime required';
   end if;
 
+  if p_cost_group_id is null then
+    raise exception 'cost_group_id required';
+  end if;
+
   if coalesce(trim(p_content), '') = '' then
     raise exception 'content required';
+  end if;
+
+  if not exists (
+    select 1
+    from public.cost_groups
+    where id = p_cost_group_id
+  ) then
+    raise exception 'cost_group not found';
+  end if;
+
+  if p_project_id is not null then
+    select sg.cost_group_id
+    into v_project_cost_group_id
+    from public.projects p
+    left join public.service_groups sg on sg.id = p.service_group_id
+    where p.id = p_project_id;
+
+    if v_project_cost_group_id is distinct from p_cost_group_id then
+      raise exception 'project cost_group mismatch';
+    end if;
   end if;
 
   if p_task_id is null then
@@ -436,6 +507,7 @@ begin
       member_id,
       created_by_member_id,
       task_date,
+      cost_group_id,
       project_id,
       project_page_id,
       task_type1,
@@ -448,6 +520,7 @@ begin
       v_member_id,
       v_member_id,
       p_task_date,
+      p_cost_group_id,
       p_project_id,
       p_project_page_id,
       p_task_type1,
@@ -461,6 +534,7 @@ begin
     update public.tasks
     set
       task_date = p_task_date,
+      cost_group_id = p_cost_group_id,
       project_id = p_project_id,
       project_page_id = p_project_page_id,
       task_type1 = p_task_type1,
@@ -537,6 +611,8 @@ as $$
   order by t.task_date asc
 $$;
 
+drop function if exists public.get_tasks_by_date(uuid, date);
+
 create or replace function public.get_tasks_by_date(
   p_member_id uuid default null,
   p_task_date date default null
@@ -545,11 +621,16 @@ returns table (
   id uuid,
   member_id uuid,
   task_date date,
+  cost_group_id uuid,
+  cost_group_name text,
+  project_id uuid,
+  project_page_id uuid,
   task_type1 text,
   task_type2 text,
   task_usedtime numeric,
   content text,
   note text,
+  created_at timestamptz,
   updated_at timestamptz,
   platform text,
   service_group_name text,
@@ -567,6 +648,8 @@ as $$
     t.id,
     t.member_id,
     t.task_date,
+    t.cost_group_id,
+    coalesce(cg.name, '') as cost_group_name,
     t.project_id,
     t.project_page_id,
     t.task_type1,
@@ -576,7 +659,26 @@ as $$
     t.note,
     t.created_at,
     t.updated_at
+    ,
+    coalesce(nullif(p.platform, ''), '-') as platform,
+    case
+      when coalesce(sg.name, '') = '' or sg.name = '미분류' then ''
+      when position(' / ' in sg.name) > 0 then split_part(sg.name, ' / ', 1)
+      else sg.name
+    end as service_group_name,
+    case
+      when coalesce(sg.name, '') = '' or sg.name = '미분류' then ''
+      when position(' / ' in sg.name) > 0 then coalesce(nullif(split_part(sg.name, ' / ', 2), ''), '')
+      else sg.name
+    end as service_name,
+    coalesce(nullif(p.name, ''), '') as project_display_name,
+    coalesce(nullif(pp.title, ''), '') as page_display_name,
+    coalesce(pp.url, '') as page_url
   from public.tasks t
+  left join public.cost_groups cg on cg.id = t.cost_group_id
+  left join public.projects p on p.id = t.project_id
+  left join public.project_pages pp on pp.id = t.project_page_id
+  left join public.service_groups sg on sg.id = p.service_group_id
   where public.current_member_id() is not null
     and p_task_date is not null
     and (
@@ -776,7 +878,7 @@ as $$
   select
     to_char(t.task_date, 'YYYY') as year,
     to_char(t.task_date, 'MM') as month,
-    coalesce(cg.name, '미분류') as cost_group_name,
+    cg.name as cost_group_name,
     case
       when coalesce(sg.name, '') = '' or sg.name = '미분류' then '미분류'
       when position(' / ' in sg.name) > 0 then split_part(sg.name, ' / ', 1)
@@ -790,9 +892,9 @@ as $$
     sum(t.task_usedtime) as task_usedtime
   from public.tasks t
   join public.members m on m.id = t.member_id
+  join public.cost_groups cg on cg.id = t.cost_group_id
   left join public.projects p on p.id = t.project_id
   left join public.service_groups sg on sg.id = p.service_group_id
-  left join public.cost_groups cg on cg.id = sg.cost_group_id
   left join public.task_types tt
     on tt.type1 = t.task_type1
    and tt.type2 = t.task_type2
@@ -810,7 +912,7 @@ as $$
   group by
     to_char(t.task_date, 'YYYY'),
     to_char(t.task_date, 'MM'),
-    coalesce(cg.name, '미분류'),
+    cg.name,
     case
       when coalesce(sg.name, '') = '' or sg.name = '미분류' then '미분류'
       when position(' / ' in sg.name) > 0 then split_part(sg.name, ' / ', 1)
@@ -926,6 +1028,8 @@ as $$
   order by month desc, cost_group_name asc, service_group_name asc, service_name asc
 $$;
 
+drop function if exists public.get_resource_month_report(uuid, text);
+
 create or replace function public.get_resource_month_report(
   p_member_id uuid default null,
   p_month text default null
@@ -934,6 +1038,7 @@ returns table (
   member_id uuid,
   account_id text,
   task_date date,
+  cost_group_id uuid,
   task_type1 text,
   task_type2 text,
   task_usedtime numeric,
@@ -956,11 +1061,12 @@ as $$
     t.member_id,
     m.account_id,
     t.task_date,
+    t.cost_group_id,
     t.task_type1,
     t.task_type2,
     t.task_usedtime,
     coalesce(tt.requires_service_group, t.project_id is not null) as is_service_task,
-    coalesce(cg.name, '미분류') as cost_group_name,
+    cg.name as cost_group_name,
     case
       when coalesce(sg.name, '') = '' or sg.name = '미분류' then '미분류'
       when position(' / ' in sg.name) > 0 then split_part(sg.name, ' / ', 1)
@@ -974,9 +1080,9 @@ as $$
   from public.tasks t
   join public.members m on m.id = t.member_id
   join month_bounds mb on true
+  join public.cost_groups cg on cg.id = t.cost_group_id
   left join public.projects p on p.id = t.project_id
   left join public.service_groups sg on sg.id = p.service_group_id
-  left join public.cost_groups cg on cg.id = sg.cost_group_id
   left join public.task_types tt
     on tt.type1 = t.task_type1
    and tt.type2 = t.task_type2
@@ -1185,6 +1291,8 @@ as $$
   order by p.end_date desc, p.name asc
 $$;
 
+drop function if exists public.search_tasks_export(uuid, date, date, uuid, uuid, text, text, numeric, numeric, text);
+
 create or replace function public.search_tasks_export(
   p_member_id uuid default null,
   p_start_date date default null,
@@ -1201,6 +1309,8 @@ returns table (
   id uuid,
   member_id uuid,
   task_date date,
+  cost_group_id uuid,
+  cost_group_name text,
   project_id uuid,
   project_page_id uuid,
   task_type1 text,
@@ -1220,11 +1330,16 @@ as $$
     t.id,
     t.member_id,
     t.task_date,
+    t.cost_group_id,
+    cg.name as cost_group_name,
+    t.project_id,
+    t.project_page_id,
     t.task_type1,
     t.task_type2,
     t.task_usedtime,
     t.content,
     t.note,
+    t.created_at,
     t.updated_at,
     coalesce(nullif(p.platform, ''), '-') as platform,
     case
@@ -1241,6 +1356,7 @@ as $$
     coalesce(nullif(pp.title, ''), '-') as page_display_name,
     coalesce(pp.url, '') as page_url
   from public.tasks t
+  join public.cost_groups cg on cg.id = t.cost_group_id
   left join public.projects p on p.id = t.project_id
   left join public.project_pages pp on pp.id = t.project_page_id
   left join public.service_groups sg on sg.id = p.service_group_id
@@ -1276,6 +1392,8 @@ as $$
   order by t.task_date desc, t.id desc
 $$;
 
+drop function if exists public.search_tasks_page(uuid, date, date, uuid, uuid, text, text, numeric, numeric, text);
+
 create or replace function public.search_tasks_page(
   p_member_id uuid default null,
   p_start_date date default null,
@@ -1292,6 +1410,8 @@ returns table (
   id uuid,
   member_id uuid,
   task_date date,
+  cost_group_id uuid,
+  cost_group_name text,
   task_type1 text,
   task_type2 text,
   task_usedtime numeric,
@@ -1314,6 +1434,8 @@ as $$
     t.id,
     t.member_id,
     t.task_date,
+    t.cost_group_id,
+    cg.name as cost_group_name,
     t.task_type1,
     t.task_type2,
     t.task_usedtime,
@@ -1335,6 +1457,7 @@ as $$
     coalesce(nullif(pp.title, ''), '-') as page_display_name,
     coalesce(pp.url, '') as page_url
   from public.tasks t
+  join public.cost_groups cg on cg.id = t.cost_group_id
   left join public.projects p on p.id = t.project_id
   left join public.project_pages pp on pp.id = t.project_page_id
   left join public.service_groups sg on sg.id = p.service_group_id
@@ -1627,6 +1750,8 @@ begin
 end;
 $$;
 
+drop function if exists public.admin_get_task(uuid);
+
 create or replace function public.admin_get_task(
   p_task_id uuid
 )
@@ -1634,6 +1759,8 @@ returns table (
   id uuid,
   member_id uuid,
   task_date date,
+  cost_group_id uuid,
+  cost_group_name text,
   project_id uuid,
   project_page_id uuid,
   task_type1 text,
@@ -1661,6 +1788,8 @@ as $$
     t.id,
     t.member_id,
     t.task_date,
+    t.cost_group_id,
+    cg.name as cost_group_name,
     t.project_id,
     t.project_page_id,
     t.task_type1,
@@ -1688,6 +1817,7 @@ as $$
     end as service_name
   from public.tasks t
   join public.members m on m.id = t.member_id
+  join public.cost_groups cg on cg.id = t.cost_group_id
   left join public.projects p on p.id = t.project_id
   left join public.project_pages pp on pp.id = t.project_page_id
   left join public.service_groups sg on sg.id = p.service_group_id
@@ -1695,10 +1825,13 @@ as $$
     and t.id = p_task_id
 $$;
 
+drop function if exists public.admin_save_task(uuid, uuid, date, uuid, uuid, text, text, numeric, text, text);
+
 create or replace function public.admin_save_task(
   p_task_id uuid default null,
   p_member_id uuid default null,
   p_task_date date default null,
+  p_cost_group_id uuid default null,
   p_project_id uuid default null,
   p_project_page_id uuid default null,
   p_task_type1 text default null,
@@ -1711,6 +1844,8 @@ returns table (
   id uuid,
   member_id uuid,
   task_date date,
+  cost_group_id uuid,
+  cost_group_name text,
   project_id uuid,
   project_page_id uuid,
   task_type1 text,
@@ -1735,6 +1870,7 @@ set search_path = public
 as $$
 declare
   v_task public.tasks;
+  v_project_cost_group_id uuid;
 begin
   if not public.current_user_is_admin() then
     raise exception 'admin only';
@@ -1760,11 +1896,36 @@ begin
     raise exception 'task_usedtime required';
   end if;
 
+  if p_cost_group_id is null then
+    raise exception 'cost_group_id required';
+  end if;
+
+  if not exists (
+    select 1
+    from public.cost_groups
+    where id = p_cost_group_id
+  ) then
+    raise exception 'cost_group not found';
+  end if;
+
+  if p_project_id is not null then
+    select sg.cost_group_id
+    into v_project_cost_group_id
+    from public.projects p
+    left join public.service_groups sg on sg.id = p.service_group_id
+    where p.id = p_project_id;
+
+    if v_project_cost_group_id is distinct from p_cost_group_id then
+      raise exception 'project cost_group mismatch';
+    end if;
+  end if;
+
   if p_task_id is null then
     insert into public.tasks (
       member_id,
       created_by_member_id,
       task_date,
+      cost_group_id,
       project_id,
       project_page_id,
       task_type1,
@@ -1777,6 +1938,7 @@ begin
       p_member_id,
       public.current_member_id(),
       p_task_date,
+      p_cost_group_id,
       p_project_id,
       p_project_page_id,
       trim(p_task_type1),
@@ -1791,6 +1953,7 @@ begin
     set
       member_id = p_member_id,
       task_date = p_task_date,
+      cost_group_id = p_cost_group_id,
       project_id = p_project_id,
       project_page_id = p_project_page_id,
       task_type1 = trim(p_task_type1),
@@ -1894,13 +2057,15 @@ create or replace function public.admin_search_tasks(
   p_project_page_id uuid default null,
   p_task_type1 text default null,
   p_task_type2 text default null,
-  p_service_group_id uuid default null,
+  p_cost_group_id uuid default null,
   p_keyword text default null
 )
 returns table (
   id uuid,
   member_id uuid,
   task_date date,
+  cost_group_id uuid,
+  cost_group_name text,
   project_id uuid,
   project_page_id uuid,
   task_type1 text,
@@ -1928,6 +2093,8 @@ as $$
     t.id,
     t.member_id,
     t.task_date,
+    t.cost_group_id,
+    cg.name as cost_group_name,
     t.project_id,
     t.project_page_id,
     t.task_type1,
@@ -1955,6 +2122,7 @@ as $$
     end as service_name
   from public.tasks t
   join public.members m on m.id = t.member_id
+  join public.cost_groups cg on cg.id = t.cost_group_id
   left join public.projects p on p.id = t.project_id
   left join public.project_pages pp on pp.id = t.project_page_id
   left join public.service_groups sg on sg.id = p.service_group_id
@@ -1966,7 +2134,7 @@ as $$
     and (p_project_page_id is null or t.project_page_id = p_project_page_id)
     and (p_task_type1 is null or t.task_type1 = p_task_type1)
     and (p_task_type2 is null or t.task_type2 = p_task_type2)
-    and (p_service_group_id is null or p.service_group_id = p_service_group_id)
+    and (p_cost_group_id is null or t.cost_group_id = p_cost_group_id)
     and (
       p_keyword is null
       or concat_ws(
@@ -1990,7 +2158,7 @@ grant execute on function public.current_user_is_admin() to authenticated;
 grant execute on function public.next_member_account_id(text) to authenticated;
 grant execute on function public.bind_auth_session_member(uuid, text) to authenticated;
 grant execute on function public.touch_member_last_login(uuid, text) to authenticated;
-grant execute on function public.save_task(uuid, date, uuid, uuid, text, text, numeric, text, text) to authenticated;
+grant execute on function public.save_task(uuid, date, uuid, uuid, uuid, text, text, numeric, text, text) to authenticated;
 grant execute on function public.delete_task(uuid) to authenticated;
 grant execute on function public.get_tasks_by_date(uuid, date) to authenticated;
 grant execute on function public.get_task_activities() to authenticated;
@@ -2009,7 +2177,7 @@ grant execute on function public.get_qa_stats_projects() to authenticated;
 grant execute on function public.search_tasks_export(uuid, date, date, uuid, uuid, text, text, numeric, numeric, text) to authenticated;
 grant execute on function public.search_tasks_page(uuid, date, date, uuid, uuid, text, text, numeric, numeric, text) to authenticated;
 grant execute on function public.admin_get_task(uuid) to authenticated;
-grant execute on function public.admin_save_task(uuid, uuid, date, uuid, uuid, text, text, numeric, text, text) to authenticated;
+grant execute on function public.admin_save_task(uuid, uuid, date, uuid, uuid, uuid, text, text, numeric, text, text) to authenticated;
 grant execute on function public.admin_delete_task(uuid) to authenticated;
 grant execute on function public.admin_get_task_type_usage_summary(uuid, text, text) to authenticated;
 grant execute on function public.admin_replace_task_type_usage(text, text, text, text) to authenticated;

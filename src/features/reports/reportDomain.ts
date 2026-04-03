@@ -39,6 +39,8 @@ export interface ReportRecord {
   ownerId: string;
   ownerName: string;
   reportDate: string;
+  costGroupId: string;
+  costGroupName: string;
   projectId: string;
   pageId: string;
   projectName: string;
@@ -54,6 +56,8 @@ export interface ReportRecord {
 
 export interface ReportDraft {
   reportDate: string;
+  costGroupId: string;
+  costGroupName: string;
   projectId: string;
   pageId: string;
   type1: ReportType1;
@@ -71,6 +75,8 @@ export interface ReportDraft {
 export interface ProjectViewModel {
   id: string;
   project: Project;
+  costGroupId: string | null;
+  costGroupName: string;
   serviceGroupId: string | null;
   serviceGroupName: string;
   serviceName: string;
@@ -193,6 +199,8 @@ function buildProjectLookup(project: Project, normalizedServiceName: string) {
   return {
     id: project.id,
     project,
+    costGroupId: null,
+    costGroupName: '',
     serviceGroupId: project.serviceGroupId,
     serviceGroupName,
     serviceName,
@@ -227,10 +235,15 @@ export function buildProjectViewModels(projects: Project[], serviceGroups: Servi
   const serviceGroupsById = buildServiceGroupMap(serviceGroups);
 
   return projects.map((project) => {
-    const serviceGroupName = project.serviceGroupId
-      ? (serviceGroupsById.get(project.serviceGroupId)?.name ?? '')
-      : '';
-    return buildProjectLookup(project, serviceGroupName);
+    const serviceGroup = project.serviceGroupId
+      ? serviceGroupsById.get(project.serviceGroupId)
+      : null;
+    const next = buildProjectLookup(project, serviceGroup?.name ?? '');
+    return {
+      ...next,
+      costGroupId: serviceGroup?.costGroupId ?? null,
+      costGroupName: serviceGroup?.costGroupName ?? '',
+    };
   });
 }
 
@@ -340,6 +353,8 @@ export function shiftDateInput(value: string, offsetDays: number) {
 export function createEmptyReportDraft(referenceDate = new Date()): ReportDraft {
   return {
     reportDate: getTodayInputValue(referenceDate),
+    costGroupId: '',
+    costGroupName: '',
     projectId: '',
     pageId: '',
     type1: '',
@@ -359,6 +374,8 @@ export function draftFromReport(report: ReportRecord): ReportDraft {
   const reportView = report as Partial<ReportViewModel>;
   return {
     reportDate: isoToDateInput(report.reportDate),
+    costGroupId: reportView.costGroupId ?? '',
+    costGroupName: reportView.costGroupName ?? '',
     projectId: report.projectId,
     pageId: report.pageId,
     type1: report.type1,
@@ -391,6 +408,8 @@ export function buildReportFromDraft(
     ownerId: existing?.ownerId ?? PERSONAL_REPORT_OWNER.id,
     ownerName: existing?.ownerName ?? PERSONAL_REPORT_OWNER.name,
     reportDate: draft.reportDate,
+    costGroupId: draft.costGroupId,
+    costGroupName: draft.costGroupName,
     projectId: draft.projectId,
     pageId: draft.pageId,
     projectName: existing?.projectName ?? '',
@@ -416,6 +435,7 @@ export function buildReportViewModel(
   const splitProjectService = project?.serviceGroupId
     ? splitServiceGroupName(serviceGroupsById.get(project.serviceGroupId)?.name ?? '')
     : null;
+  const costGroupName = report.costGroupName ?? '';
   const serviceGroupName = splitProjectService?.serviceGroupName ?? '';
   const platform = project?.platform ?? '';
   const serviceName = splitProjectService?.serviceName ?? '';
@@ -426,6 +446,7 @@ export function buildReportViewModel(
   const searchText = normalizeText(
     [
       report.reportDate,
+      costGroupName,
       platform,
       serviceGroupName,
       serviceName,
@@ -440,6 +461,7 @@ export function buildReportViewModel(
 
   return {
     ...report,
+    costGroupName,
     platform,
     serviceGroupName,
     serviceName,
@@ -463,6 +485,8 @@ export function buildTaskReportViewModel(
       ownerId: owner.id,
       ownerName: owner.name,
       reportDate: task.taskDate,
+      costGroupId: task.costGroupId,
+      costGroupName: task.costGroupName,
       projectId: task.projectId ?? '',
       pageId: task.pageId ?? '',
       projectName: task.projectId ? (projectsById.get(task.projectId)?.name ?? '') : '',
