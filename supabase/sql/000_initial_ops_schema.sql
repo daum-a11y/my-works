@@ -1183,6 +1183,209 @@ begin
 end;
 $$;
 
+create or replace function public.admin_get_task(
+  p_task_id uuid
+)
+returns table (
+  id uuid,
+  member_id uuid,
+  task_date date,
+  project_id uuid,
+  project_page_id uuid,
+  task_type1 text,
+  task_type2 text,
+  task_usedtime numeric,
+  content text,
+  note text,
+  updated_at timestamptz,
+  member_name text,
+  member_email text,
+  project_name text,
+  page_title text,
+  page_url text,
+  platform text,
+  service_group_id uuid,
+  service_group_name text,
+  service_name text
+)
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select
+    t.id,
+    t.member_id,
+    t.task_date,
+    t.project_id,
+    t.project_page_id,
+    t.task_type1,
+    t.task_type2,
+    t.task_usedtime,
+    t.content,
+    t.note,
+    t.updated_at,
+    m.name as member_name,
+    m.email as member_email,
+    coalesce(p.name, '') as project_name,
+    coalesce(pp.title, '') as page_title,
+    coalesce(pp.url, '') as page_url,
+    coalesce(p.platform, '') as platform,
+    p.service_group_id,
+    case
+      when coalesce(sg.name, '') = '' or sg.name = '미분류' then '미분류'
+      when position(' / ' in sg.name) > 0 then split_part(sg.name, ' / ', 1)
+      else sg.name
+    end as service_group_name,
+    case
+      when coalesce(sg.name, '') = '' or sg.name = '미분류' then '미분류'
+      when position(' / ' in sg.name) > 0 then coalesce(nullif(split_part(sg.name, ' / ', 2), ''), '미분류')
+      else sg.name
+    end as service_name
+  from public.tasks t
+  join public.members m on m.id = t.member_id
+  left join public.projects p on p.id = t.project_id
+  left join public.project_pages pp on pp.id = t.project_page_id
+  left join public.service_groups sg on sg.id = p.service_group_id
+  where public.current_user_is_admin()
+    and t.id = p_task_id
+$$;
+
+create or replace function public.admin_save_task(
+  p_task_id uuid default null,
+  p_member_id uuid default null,
+  p_task_date date default null,
+  p_project_id uuid default null,
+  p_project_page_id uuid default null,
+  p_task_type1 text default null,
+  p_task_type2 text default null,
+  p_task_usedtime numeric default null,
+  p_content text default '',
+  p_note text default ''
+)
+returns table (
+  id uuid,
+  member_id uuid,
+  task_date date,
+  project_id uuid,
+  project_page_id uuid,
+  task_type1 text,
+  task_type2 text,
+  task_usedtime numeric,
+  content text,
+  note text,
+  updated_at timestamptz,
+  member_name text,
+  member_email text,
+  project_name text,
+  page_title text,
+  page_url text,
+  platform text,
+  service_group_id uuid,
+  service_group_name text,
+  service_name text
+)
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_task public.tasks;
+begin
+  if not public.current_user_is_admin() then
+    raise exception 'admin only';
+  end if;
+
+  if p_member_id is null then
+    raise exception 'member_id required';
+  end if;
+
+  if p_task_date is null then
+    raise exception 'task_date required';
+  end if;
+
+  if coalesce(trim(p_task_type1), '') = '' then
+    raise exception 'task_type1 required';
+  end if;
+
+  if coalesce(trim(p_task_type2), '') = '' then
+    raise exception 'task_type2 required';
+  end if;
+
+  if p_task_usedtime is null then
+    raise exception 'task_usedtime required';
+  end if;
+
+  if p_task_id is null then
+    insert into public.tasks (
+      member_id,
+      created_by_member_id,
+      task_date,
+      project_id,
+      project_page_id,
+      task_type1,
+      task_type2,
+      task_usedtime,
+      content,
+      note
+    )
+    values (
+      p_member_id,
+      public.current_member_id(),
+      p_task_date,
+      p_project_id,
+      p_project_page_id,
+      trim(p_task_type1),
+      trim(p_task_type2),
+      p_task_usedtime,
+      coalesce(p_content, ''),
+      coalesce(p_note, '')
+    )
+    returning * into v_task;
+  else
+    update public.tasks
+    set
+      member_id = p_member_id,
+      task_date = p_task_date,
+      project_id = p_project_id,
+      project_page_id = p_project_page_id,
+      task_type1 = trim(p_task_type1),
+      task_type2 = trim(p_task_type2),
+      task_usedtime = p_task_usedtime,
+      content = coalesce(p_content, ''),
+      note = coalesce(p_note, ''),
+      updated_at = timezone('utc', now())
+    where id = p_task_id
+    returning * into v_task;
+
+    if v_task is null then
+      raise exception 'task not found';
+    end if;
+  end if;
+
+  return query
+  select * from public.admin_get_task(v_task.id);
+end;
+$$;
+
+create or replace function public.admin_delete_task(
+  p_task_id uuid
+)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if not public.current_user_is_admin() then
+    raise exception 'admin only';
+  end if;
+
+  delete from public.tasks
+  where id = p_task_id;
+end;
+$$;
+
 drop function if exists public.admin_search_tasks(uuid, date, date, uuid, uuid, text, text, uuid, text);
 
 create or replace function public.admin_search_tasks(
@@ -1284,6 +1487,9 @@ grant execute on function public.get_resource_service_summary(uuid) to authentic
 grant execute on function public.get_resource_month_report(uuid, text) to authenticated;
 grant execute on function public.get_stats() to authenticated;
 grant execute on function public.search_tasks_export(uuid, date, date, uuid, uuid, text, text, numeric, numeric, text) to authenticated;
+grant execute on function public.admin_get_task(uuid) to authenticated;
+grant execute on function public.admin_save_task(uuid, uuid, date, uuid, uuid, text, text, numeric, text, text) to authenticated;
+grant execute on function public.admin_delete_task(uuid) to authenticated;
 grant execute on function public.upsert_project(uuid, text, text, uuid, uuid, text, uuid, uuid, date, date, boolean) to authenticated;
 grant execute on function public.upsert_project_page(uuid, uuid, text, text, uuid, text, text, boolean, boolean, text) to authenticated;
 grant execute on function public.admin_search_tasks(uuid, date, date, uuid, uuid, text, text, uuid, text) to authenticated;

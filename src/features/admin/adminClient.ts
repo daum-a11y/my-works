@@ -74,9 +74,6 @@ function toNullableString(value: string) {
   return normalized.length > 0 ? normalized : null;
 }
 
-const TASK_SELECT_COLUMNS =
-  'id, member_id, task_date, project_id, project_page_id, task_type1, task_type2, task_usedtime, content, note, updated_at';
-
 function mapProject(record: Record<string, unknown>): AdminProjectOption {
   const platformRecord = Array.isArray(record.platforms) ? record.platforms[0] : record.platforms;
   const platformName =
@@ -399,14 +396,15 @@ async function fetchAdminTaskById(
   supabase: NonNullable<ReturnType<typeof getSupabaseClient>>,
   taskId: string,
 ) {
-  const { data, error } = await supabase
-    .from('tasks')
-    .select(TASK_SELECT_COLUMNS)
-    .eq('id', taskId)
-    .single();
+  const { data, error } = await supabase.rpc('admin_get_task', {
+    p_task_id: taskId,
+  });
   if (error) throw error;
-  const maps = await loadAdminReferenceMaps(supabase);
-  return enrichTaskRecords([data as Record<string, unknown>], maps)[0];
+  const rows = Array.isArray(data) ? data : [];
+  if (rows.length === 0) {
+    throw new Error('업무보고를 찾을 수 없습니다.');
+  }
+  return mapTask(rows[0] as Record<string, unknown>);
 }
 
 async function resolveProjectId(
@@ -591,36 +589,30 @@ function createSupabaseAdminClient(): AdminDataClient {
     },
 
     async saveTaskAdmin(input: AdminTaskSaveInput) {
-      const record = {
-        member_id: input.memberId,
-        task_date: input.taskDate,
-        project_id: await resolveProjectId(supabase, input.projectId, input.pageId),
-        project_page_id: toNullableString(input.pageId),
-        task_type1: input.taskType1,
-        task_type2: input.taskType2,
-        task_usedtime: input.taskUsedtime,
-        content: input.content,
-        note: input.note,
-      };
-
-      if (input.id) {
-        const { data, error } = await supabase
-          .from('tasks')
-          .update(record)
-          .eq('id', input.id)
-          .select('id')
-          .single();
-        if (error) throw error;
-        return fetchAdminTaskById(supabase, String(data.id));
-      }
-
-      const { data, error } = await supabase.from('tasks').insert(record).select('id').single();
+      const { data, error } = await supabase.rpc('admin_save_task', {
+        p_task_id: input.id ?? null,
+        p_member_id: input.memberId,
+        p_task_date: input.taskDate,
+        p_project_id: await resolveProjectId(supabase, input.projectId, input.pageId),
+        p_project_page_id: toNullableString(input.pageId),
+        p_task_type1: input.taskType1,
+        p_task_type2: input.taskType2,
+        p_task_usedtime: input.taskUsedtime,
+        p_content: input.content,
+        p_note: input.note,
+      });
       if (error) throw error;
-      return fetchAdminTaskById(supabase, String(data.id));
+      const rows = Array.isArray(data) ? data : [];
+      if (rows.length === 0) {
+        throw new Error('저장된 업무보고를 확인할 수 없습니다.');
+      }
+      return mapTask(rows[0] as Record<string, unknown>);
     },
 
     async deleteTaskAdmin(taskId: string) {
-      const { error } = await supabase.from('tasks').delete().eq('id', taskId);
+      const { error } = await supabase.rpc('admin_delete_task', {
+        p_task_id: taskId,
+      });
       if (error) throw error;
     },
 
