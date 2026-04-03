@@ -1,4 +1,5 @@
 import { Fragment, useEffect, useMemo, useState } from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import clsx from 'clsx';
 import { Bar, BarChart, LabelList, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
@@ -429,31 +430,25 @@ export function ResourceMonthPage() {
           <section className={styles.monthContext}>
             <div className={dashboardStyles.sectionHead}>
               <div className={dashboardStyles.calendarHeading}>
-                <div className={dashboardStyles.calendarTitleBlock}>
-                  <h2 className={dashboardStyles.calendarTitle}>
-                    {year}년 {month}월
-                  </h2>
-                </div>
                 <div className={dashboardStyles.calendarNav} aria-label="월간 리포트 월 이동">
                   <Link
                     className={dashboardStyles.calendarNavButton}
                     to={`/resource/month/${beforeMonth}`}
                     aria-label="이전달 보기"
                   >
-                    <span aria-hidden="true" className={dashboardStyles.calendarNavIcon}>
-                      &lt;
-                    </span>
-                    이전달
+                    <ChevronLeft size={16} strokeWidth={2.4} aria-hidden="true" />
+                    <span className={styles.srOnly}>이전달 보기</span>
                   </Link>
+                  <h2 className={dashboardStyles.calendarTitle}>
+                    {year}년 {month}월
+                  </h2>
                   <Link
                     className={dashboardStyles.calendarNavButton}
                     to={`/resource/month/${afterMonth}`}
                     aria-label="다음달 보기"
                   >
-                    다음달
-                    <span aria-hidden="true" className={dashboardStyles.calendarNavIcon}>
-                      &gt;
-                    </span>
+                    <ChevronRight size={16} strokeWidth={2.4} aria-hidden="true" />
+                    <span className={styles.srOnly}>다음달 보기</span>
                   </Link>
                 </div>
               </div>

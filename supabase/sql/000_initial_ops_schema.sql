@@ -545,15 +545,18 @@ returns table (
   id uuid,
   member_id uuid,
   task_date date,
-  project_id uuid,
-  project_page_id uuid,
   task_type1 text,
   task_type2 text,
   task_usedtime numeric,
   content text,
   note text,
-  created_at timestamptz,
-  updated_at timestamptz
+  updated_at timestamptz,
+  platform text,
+  service_group_name text,
+  service_name text,
+  project_display_name text,
+  page_display_name text,
+  page_url text
 )
 language sql
 stable
@@ -689,8 +692,173 @@ as $$
   order by year desc, month desc, task_type1 asc
 $$;
 
+create or replace function public.get_resource_type_summary_years(
+  p_member_id uuid default null
+)
+returns table (
+  year text
+)
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select distinct to_char(t.task_date, 'YYYY') as year
+  from public.tasks t
+  join public.members m on m.id = t.member_id
+  where public.current_member_id() is not null
+    and m.user_active = true
+    and (
+      (public.current_user_is_admin() and (p_member_id is null or t.member_id = p_member_id))
+      or (
+        not public.current_user_is_admin()
+        and t.member_id = public.current_member_id()
+        and (p_member_id is null or p_member_id = public.current_member_id())
+      )
+    )
+  order by year desc
+$$;
+
+create or replace function public.get_resource_type_summary_by_year(
+  p_member_id uuid default null,
+  p_year text default null
+)
+returns table (
+  year text,
+  month text,
+  task_type1 text,
+  task_usedtime numeric
+)
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select
+    to_char(t.task_date, 'YYYY') as year,
+    to_char(t.task_date, 'MM') as month,
+    t.task_type1,
+    sum(t.task_usedtime) as task_usedtime
+  from public.tasks t
+  join public.members m on m.id = t.member_id
+  where public.current_member_id() is not null
+    and p_year is not null
+    and m.user_active = true
+    and (
+      (public.current_user_is_admin() and (p_member_id is null or t.member_id = p_member_id))
+      or (
+        not public.current_user_is_admin()
+        and t.member_id = public.current_member_id()
+        and (p_member_id is null or p_member_id = public.current_member_id())
+      )
+    )
+    and to_char(t.task_date, 'YYYY') = p_year
+  group by to_char(t.task_date, 'YYYY'), to_char(t.task_date, 'MM'), t.task_type1
+  order by month desc, task_type1 asc
+$$;
+
 create or replace function public.get_resource_service_summary(
   p_member_id uuid default null
+)
+returns table (
+  year text,
+  month text,
+  cost_group_name text,
+  service_group_name text,
+  service_name text,
+  task_usedtime numeric
+)
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select
+    to_char(t.task_date, 'YYYY') as year,
+    to_char(t.task_date, 'MM') as month,
+    coalesce(cg.name, '미분류') as cost_group_name,
+    case
+      when coalesce(sg.name, '') = '' or sg.name = '미분류' then '미분류'
+      when position(' / ' in sg.name) > 0 then split_part(sg.name, ' / ', 1)
+      else sg.name
+    end as service_group_name,
+    case
+      when coalesce(sg.name, '') = '' or sg.name = '미분류' then '미분류'
+      when position(' / ' in sg.name) > 0 then coalesce(nullif(split_part(sg.name, ' / ', 2), ''), '미분류')
+      else sg.name
+    end as service_name,
+    sum(t.task_usedtime) as task_usedtime
+  from public.tasks t
+  join public.members m on m.id = t.member_id
+  left join public.projects p on p.id = t.project_id
+  left join public.service_groups sg on sg.id = p.service_group_id
+  left join public.cost_groups cg on cg.id = sg.cost_group_id
+  left join public.task_types tt
+    on tt.type1 = t.task_type1
+   and tt.type2 = t.task_type2
+  where public.current_member_id() is not null
+    and m.user_active = true
+    and (
+      (public.current_user_is_admin() and (p_member_id is null or t.member_id = p_member_id))
+      or (
+        not public.current_user_is_admin()
+        and t.member_id = public.current_member_id()
+        and (p_member_id is null or p_member_id = public.current_member_id())
+      )
+    )
+    and coalesce(tt.requires_service_group, t.project_id is not null)
+  group by
+    to_char(t.task_date, 'YYYY'),
+    to_char(t.task_date, 'MM'),
+    coalesce(cg.name, '미분류'),
+    case
+      when coalesce(sg.name, '') = '' or sg.name = '미분류' then '미분류'
+      when position(' / ' in sg.name) > 0 then split_part(sg.name, ' / ', 1)
+      else sg.name
+    end,
+    case
+      when coalesce(sg.name, '') = '' or sg.name = '미분류' then '미분류'
+      when position(' / ' in sg.name) > 0 then coalesce(nullif(split_part(sg.name, ' / ', 2), ''), '미분류')
+      else sg.name
+    end
+  order by year desc, month desc, cost_group_name asc, service_group_name asc, service_name asc
+$$;
+
+create or replace function public.get_resource_service_summary_years(
+  p_member_id uuid default null
+)
+returns table (
+  year text
+)
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select distinct to_char(t.task_date, 'YYYY') as year
+  from public.tasks t
+  join public.members m on m.id = t.member_id
+  left join public.projects p on p.id = t.project_id
+  left join public.task_types tt
+    on tt.type1 = t.task_type1
+   and tt.type2 = t.task_type2
+  where public.current_member_id() is not null
+    and m.user_active = true
+    and (
+      (public.current_user_is_admin() and (p_member_id is null or t.member_id = p_member_id))
+      or (
+        not public.current_user_is_admin()
+        and t.member_id = public.current_member_id()
+        and (p_member_id is null or p_member_id = public.current_member_id())
+      )
+    )
+    and coalesce(tt.requires_service_group, t.project_id is not null)
+  order by year desc
+$$;
+
+create or replace function public.get_resource_service_summary_by_year(
+  p_member_id uuid default null,
+  p_year text default null
 )
 returns table (
   year text,
@@ -729,6 +897,7 @@ as $$
     on tt.type1 = t.task_type1
    and tt.type2 = t.task_type2
   where public.current_member_id() is not null
+    and p_year is not null
     and m.user_active = true
     and (
       (public.current_user_is_admin() and (p_member_id is null or t.member_id = p_member_id))
@@ -738,6 +907,7 @@ as $$
         and (p_member_id is null or p_member_id = public.current_member_id())
       )
     )
+    and to_char(t.task_date, 'YYYY') = p_year
     and coalesce(tt.requires_service_group, t.project_id is not null)
   group by
     to_char(t.task_date, 'YYYY'),
@@ -753,7 +923,7 @@ as $$
       when position(' / ' in sg.name) > 0 then coalesce(nullif(split_part(sg.name, ' / ', 2), ''), '미분류')
       else sg.name
     end
-  order by year desc, month desc, cost_group_name asc, service_group_name asc, service_name asc
+  order by month desc, cost_group_name asc, service_group_name asc, service_name asc
 $$;
 
 create or replace function public.get_resource_month_report(
@@ -1050,18 +1220,30 @@ as $$
     t.id,
     t.member_id,
     t.task_date,
-    t.project_id,
-    t.project_page_id,
     t.task_type1,
     t.task_type2,
     t.task_usedtime,
     t.content,
     t.note,
-    t.created_at,
-    t.updated_at
+    t.updated_at,
+    coalesce(nullif(p.platform, ''), '-') as platform,
+    case
+      when coalesce(sg.name, '') = '' or sg.name = '미분류' then '미분류'
+      when position(' / ' in sg.name) > 0 then split_part(sg.name, ' / ', 1)
+      else sg.name
+    end as service_group_name,
+    case
+      when coalesce(sg.name, '') = '' or sg.name = '미분류' then '미분류'
+      when position(' / ' in sg.name) > 0 then coalesce(nullif(split_part(sg.name, ' / ', 2), ''), '미분류')
+      else sg.name
+    end as service_name,
+    coalesce(nullif(p.name, ''), '-') as project_display_name,
+    coalesce(nullif(pp.title, ''), '-') as page_display_name,
+    coalesce(pp.url, '') as page_url
   from public.tasks t
   left join public.projects p on p.id = t.project_id
   left join public.project_pages pp on pp.id = t.project_page_id
+  left join public.service_groups sg on sg.id = p.service_group_id
   where public.current_member_id() is not null
     and (
       (public.current_user_is_admin() and (p_member_id is null or t.member_id = p_member_id))
@@ -1110,15 +1292,18 @@ returns table (
   id uuid,
   member_id uuid,
   task_date date,
-  project_id uuid,
-  project_page_id uuid,
   task_type1 text,
   task_type2 text,
   task_usedtime numeric,
   content text,
   note text,
-  created_at timestamptz,
-  updated_at timestamptz
+  updated_at timestamptz,
+  platform text,
+  service_group_name text,
+  service_name text,
+  project_display_name text,
+  page_display_name text,
+  page_url text
 )
 language sql
 stable
@@ -1129,18 +1314,30 @@ as $$
     t.id,
     t.member_id,
     t.task_date,
-    t.project_id,
-    t.project_page_id,
     t.task_type1,
     t.task_type2,
     t.task_usedtime,
     t.content,
     t.note,
-    t.created_at,
-    t.updated_at
+    t.updated_at,
+    coalesce(nullif(p.platform, ''), '-') as platform,
+    case
+      when coalesce(sg.name, '') = '' or sg.name = '미분류' then '미분류'
+      when position(' / ' in sg.name) > 0 then split_part(sg.name, ' / ', 1)
+      else sg.name
+    end as service_group_name,
+    case
+      when coalesce(sg.name, '') = '' or sg.name = '미분류' then '미분류'
+      when position(' / ' in sg.name) > 0 then coalesce(nullif(split_part(sg.name, ' / ', 2), ''), '미분류')
+      else sg.name
+    end as service_name,
+    coalesce(nullif(p.name, ''), '-') as project_display_name,
+    coalesce(nullif(pp.title, ''), '-') as page_display_name,
+    coalesce(pp.url, '') as page_url
   from public.tasks t
   left join public.projects p on p.id = t.project_id
   left join public.project_pages pp on pp.id = t.project_page_id
+  left join public.service_groups sg on sg.id = p.service_group_id
   where public.current_member_id() is not null
     and t.member_id = coalesce(p_member_id, public.current_member_id())
     and (p_start_date is null or t.task_date >= p_start_date)
@@ -1716,8 +1913,11 @@ returns table (
   member_email text,
   project_name text,
   page_title text,
+  page_url text,
+  platform text,
   service_group_id uuid,
-  service_group_name text
+  service_group_name text,
+  service_name text
 )
 language sql
 stable
@@ -1740,8 +1940,19 @@ as $$
     m.email as member_email,
     coalesce(p.name, '') as project_name,
     coalesce(pp.title, '') as page_title,
+    coalesce(pp.url, '') as page_url,
+    coalesce(p.platform, '') as platform,
     p.service_group_id,
-    coalesce(sg.name, '') as service_group_name
+    case
+      when coalesce(sg.name, '') = '' or sg.name = '미분류' then '미분류'
+      when position(' / ' in sg.name) > 0 then split_part(sg.name, ' / ', 1)
+      else sg.name
+    end as service_group_name,
+    case
+      when coalesce(sg.name, '') = '' or sg.name = '미분류' then '미분류'
+      when position(' / ' in sg.name) > 0 then coalesce(nullif(split_part(sg.name, ' / ', 2), ''), '미분류')
+      else sg.name
+    end as service_name
   from public.tasks t
   join public.members m on m.id = t.member_id
   left join public.projects p on p.id = t.project_id
@@ -1786,7 +1997,11 @@ grant execute on function public.get_task_activities() to authenticated;
 grant execute on function public.get_dashboard_task_calendar(uuid, text) to authenticated;
 grant execute on function public.get_resource_summary(uuid, text) to authenticated;
 grant execute on function public.get_resource_type_summary(uuid) to authenticated;
+grant execute on function public.get_resource_type_summary_years(uuid) to authenticated;
+grant execute on function public.get_resource_type_summary_by_year(uuid, text) to authenticated;
 grant execute on function public.get_resource_service_summary(uuid) to authenticated;
+grant execute on function public.get_resource_service_summary_years(uuid) to authenticated;
+grant execute on function public.get_resource_service_summary_by_year(uuid, text) to authenticated;
 grant execute on function public.get_resource_month_report(uuid, text) to authenticated;
 grant execute on function public.get_stats() to authenticated;
 grant execute on function public.get_monitoring_stats_rows() to authenticated;

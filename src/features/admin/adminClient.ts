@@ -268,76 +268,6 @@ function mapMember(record: Record<string, unknown>): MemberAdminItem {
   };
 }
 
-async function loadAdminReferenceMaps(supabase: NonNullable<ReturnType<typeof getSupabaseClient>>) {
-  const [membersResult, projectsResult, pagesResult, serviceGroupsResult] = await Promise.all([
-    supabase.from('members').select('id, name, email'),
-    supabase.from('projects').select('id, name, platform, service_group_id'),
-    supabase.from('project_pages').select('id, project_id, title, url'),
-    supabase.from('service_groups').select('id, name, cost_group_id, cost_groups(name)'),
-  ]);
-
-  if (membersResult.error) throw membersResult.error;
-  if (projectsResult.error) throw projectsResult.error;
-  if (pagesResult.error) throw pagesResult.error;
-  if (serviceGroupsResult.error) throw serviceGroupsResult.error;
-
-  return {
-    members: new Map(
-      (membersResult.data ?? []).map((record) => [
-        String(record.id),
-        record as Record<string, unknown>,
-      ]),
-    ),
-    projects: new Map(
-      (projectsResult.data ?? []).map((record) => [
-        String(record.id),
-        record as Record<string, unknown>,
-      ]),
-    ),
-    pages: new Map(
-      (pagesResult.data ?? []).map((record) => [
-        String(record.id),
-        record as Record<string, unknown>,
-      ]),
-    ),
-    serviceGroups: new Map(
-      (serviceGroupsResult.data ?? []).map((record) => [
-        String(record.id),
-        record as Record<string, unknown>,
-      ]),
-    ),
-  };
-}
-
-function enrichTaskRecords(
-  records: Record<string, unknown>[],
-  maps: Awaited<ReturnType<typeof loadAdminReferenceMaps>>,
-) {
-  return records.map((record) => {
-    const memberId = String(record.member_id ?? '');
-    const projectId = record.project_id ? String(record.project_id) : null;
-    const pageId = record.project_page_id ? String(record.project_page_id) : null;
-    const member = maps.members.get(memberId);
-    const project = projectId ? maps.projects.get(projectId) : undefined;
-    const page = pageId ? maps.pages.get(pageId) : undefined;
-    const serviceGroupId = project?.service_group_id ? String(project.service_group_id) : null;
-    const serviceGroup = serviceGroupId ? maps.serviceGroups.get(serviceGroupId) : undefined;
-
-    return mapTask({
-      ...record,
-      member_name: member?.name ?? '',
-      member_email: member?.email ?? '',
-      platform: project?.platform ?? '',
-      project_name: project?.name ?? '',
-      page_title: page?.title ?? '',
-      page_url: page?.url ?? '',
-      service_group_id: serviceGroupId,
-      service_group_name: serviceGroup?.svcGroup ?? '',
-      service_name: serviceGroup?.svcName ?? '',
-    });
-  });
-}
-
 function dedupeAdminTasksById(items: AdminTaskSearchItem[]) {
   const seen = new Set<string>();
 
@@ -384,10 +314,8 @@ async function fetchAdminTasks(
     )
     .range(from, to);
   if (error) throw error;
-
-  const maps = await loadAdminReferenceMaps(supabase);
   return {
-    items: dedupeAdminTasksById(enrichTaskRecords((data ?? []) as Record<string, unknown>[], maps)),
+    items: dedupeAdminTasksById(((data ?? []) as Record<string, unknown>[]).map(mapTask)),
     totalCount: count ?? 0,
   };
 }

@@ -10,14 +10,20 @@ import { useAuth } from '../auth/AuthContext';
 export function ResourceServicePage() {
   const { session } = useAuth();
   const member = session?.member ?? null;
-  const query = useQuery({
-    queryKey: ['resource', 'service-summary', member?.id],
-    queryFn: () => opsDataClient.getResourceServiceSummary(member!),
+  const [activeYear, setActiveYear] = useState('');
+  const yearsQuery = useQuery({
+    queryKey: ['resource', 'service-summary-years', member?.id],
+    queryFn: () => opsDataClient.getResourceServiceSummaryYears(member!),
     enabled: Boolean(member),
   });
-  const rowsData = useMemo(() => query.data ?? [], [query.data]);
+  const detailQuery = useQuery({
+    queryKey: ['resource', 'service-summary', member?.id, activeYear],
+    queryFn: () => opsDataClient.getResourceServiceSummaryByYear(member!, activeYear),
+    enabled: Boolean(member && activeYear),
+  });
+  const years = useMemo(() => yearsQuery.data ?? [], [yearsQuery.data]);
+  const rowsData = useMemo(() => detailQuery.data ?? [], [detailQuery.data]);
   const [fold, setFold] = useState(false);
-  const [activeYear, setActiveYear] = useState('');
 
   useEffect(() => {
     setDocumentTitle('서비스그룹 집계');
@@ -104,17 +110,17 @@ export function ResourceServicePage() {
   }, [rowsData]);
 
   useEffect(() => {
-    if (!rows.length) {
+    if (!years.length) {
       setActiveYear('');
       return;
     }
 
-    if (!rows.some((row) => row.year === activeYear)) {
-      setActiveYear(rows[0].year);
+    if (!years.includes(activeYear)) {
+      setActiveYear(years[0]);
     }
-  }, [activeYear, rows]);
+  }, [activeYear, years]);
 
-  const activeRow = rows.find((row) => row.year === activeYear) ?? null;
+  const activeRow = rows[0] ?? null;
 
   return (
     <section className={projectStyles.shell}>
@@ -133,26 +139,26 @@ export function ResourceServicePage() {
         </div>
       </header>
 
-      {rows.length ? (
+      {years.length ? (
         <section className={styles.tableTabsSection}>
           <div className={styles.tableTabsScroller}>
             <div className={styles.tableTabs} role="tablist" aria-label="서비스그룹 집계 연도">
-              {rows.map((row) => {
-                const selected = row.year === activeYear;
+              {years.map((year) => {
+                const selected = year === activeYear;
 
                 return (
                   <button
-                    key={row.year}
-                    id={`resource-service-tab-${row.year}`}
+                    key={year}
+                    id={`resource-service-tab-${year}`}
                     type="button"
                     role="tab"
                     aria-selected={selected}
-                    aria-controls={`resource-service-panel-${row.year}`}
+                    aria-controls={`resource-service-panel-${year}`}
                     tabIndex={selected ? 0 : -1}
                     className={selected ? styles.tableTabActive : styles.tableTab}
-                    onClick={() => setActiveYear(row.year)}
+                    onClick={() => setActiveYear(year)}
                   >
-                    {row.year}년
+                    {year}년
                   </button>
                 );
               })}

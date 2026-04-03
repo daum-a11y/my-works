@@ -110,6 +110,23 @@ export interface Task {
   updatedAt: string;
 }
 
+export interface SearchTaskRow {
+  id: string;
+  taskDate: string;
+  taskType1: string;
+  taskType2: string;
+  taskUsedtime: number;
+  content: string;
+  note: string;
+  updatedAt: string;
+  platform: string;
+  serviceGroupName: string;
+  serviceName: string;
+  projectDisplayName: string;
+  pageDisplayName: string;
+  pageUrl: string;
+}
+
 export interface DailyTask {
   id: string;
   taskDate: string;

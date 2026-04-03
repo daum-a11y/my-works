@@ -7,11 +7,9 @@ import { opsDataClient } from '../../lib/dataClient';
 import { downloadExcelFile } from '../../lib/excelExport';
 import { getToday, parseLocalDateInput, toLocalDateInputValue } from '../../lib/utils';
 import {
-  buildTaskReportViewModel,
   DEFAULT_REPORT_FILTERS,
   formatReportDate,
   formatReportTaskUsedtime,
-  sortReportsDescending,
 } from '../reports/reportDomain';
 import styles from './SearchPage.module.css';
 
@@ -70,6 +68,15 @@ const PAGE_SIZE_OPTIONS = [25, 50, 100] as const;
 const DEFAULT_PAGE_SIZE = 25;
 const numberFormatter = new Intl.NumberFormat('ko-KR');
 
+function sortSearchRows<T extends { taskDate: string; updatedAt: string; id: string }>(items: T[]) {
+  return [...items].sort(
+    (left, right) =>
+      right.taskDate.localeCompare(left.taskDate) ||
+      right.updatedAt.localeCompare(left.updatedAt) ||
+      right.id.localeCompare(left.id),
+  );
+}
+
 export function SearchPage() {
   const { session } = useAuth();
   const member = session?.member ?? null;
@@ -84,24 +91,6 @@ export function SearchPage() {
   useEffect(() => {
     setDocumentTitle('내 업무내역');
   }, []);
-
-  const projectsQuery = useQuery({
-    queryKey: ['search', 'projects'],
-    queryFn: async () => opsDataClient.getProjects(),
-    enabled: Boolean(member),
-  });
-
-  const serviceGroupsQuery = useQuery({
-    queryKey: ['search', 'service-groups'],
-    queryFn: async () => opsDataClient.getServiceGroups(),
-    enabled: Boolean(member),
-  });
-
-  const pagesQuery = useQuery({
-    queryKey: ['search', 'pages', member?.id],
-    queryFn: async () => opsDataClient.getProjectPages(member!),
-    enabled: Boolean(member),
-  });
 
   const tasksQuery = useQuery({
     queryKey: [
@@ -129,32 +118,8 @@ export function SearchPage() {
     enabled: Boolean(member),
   });
 
-  const projects = useMemo(() => projectsQuery.data ?? [], [projectsQuery.data]);
-  const serviceGroups = useMemo(() => serviceGroupsQuery.data ?? [], [serviceGroupsQuery.data]);
-  const pages = useMemo(() => pagesQuery.data ?? [], [pagesQuery.data]);
   const tasks = useMemo(() => tasksQuery.data?.items ?? [], [tasksQuery.data]);
-
-  const projectsById = useMemo(
-    () => new Map(projects.map((project) => [project.id, project] as const)),
-    [projects],
-  );
-  const pagesById = useMemo(() => new Map(pages.map((page) => [page.id, page] as const)), [pages]);
-  const serviceGroupsById = useMemo(
-    () => new Map(serviceGroups.map((group) => [group.id, group] as const)),
-    [serviceGroups],
-  );
-
-  const reports = useMemo(() => {
-    if (!member) {
-      return [];
-    }
-
-    return tasks.map((task) =>
-      buildTaskReportViewModel(task, member, projectsById, serviceGroupsById, pagesById),
-    );
-  }, [member, tasks, projectsById, pagesById, serviceGroupsById]);
-
-  const sortedReports = useMemo(() => sortReportsDescending(reports), [reports]);
+  const sortedReports = useMemo(() => sortSearchRows(tasks), [tasks]);
   const totalMinutes = useMemo(
     () => sortedReports.reduce((sum, report) => sum + report.taskUsedtime, 0),
     [sortedReports],
@@ -213,17 +178,14 @@ export function SearchPage() {
       startDate: appliedFilters.startDate,
       endDate: appliedFilters.endDate,
     });
-    const downloadReports = downloadTasks.map((task) =>
-      buildTaskReportViewModel(task, member, projectsById, serviceGroupsById, pagesById),
-    );
     downloadExcelFile(
       buildExportFilename(appliedFilters.startDate, appliedFilters.endDate),
       '검색결과',
-      sortReportsDescending(downloadReports),
+      sortSearchRows(downloadTasks),
       [
-        { header: '일자', value: (report) => formatReportDate(report.reportDate), width: 12 },
-        { header: '타입1', value: (report) => report.type1, width: 12 },
-        { header: '타입2', value: (report) => report.type2, width: 12 },
+        { header: '일자', value: (report) => formatReportDate(report.taskDate), width: 12 },
+        { header: '타입1', value: (report) => report.taskType1, width: 12 },
+        { header: '타입2', value: (report) => report.taskType2, width: 12 },
         { header: '플랫폼', value: (report) => report.platform || '-', width: 14 },
         { header: '서비스그룹', value: (report) => report.serviceGroupName || '-', width: 16 },
         { header: '서비스명', value: (report) => report.serviceName || '-', width: 18 },
@@ -384,12 +346,12 @@ export function SearchPage() {
             <tbody>
               {sortedReports.map((report) => (
                 <tr key={report.id}>
-                  <td className="tabularNums">{formatReportDate(report.reportDate)}</td>
+                  <td className="tabularNums">{formatReportDate(report.taskDate)}</td>
                   <td>
-                    <strong>{report.type1}</strong>
+                    <strong>{report.taskType1}</strong>
                   </td>
                   <td>
-                    <strong>{report.type2}</strong>
+                    <strong>{report.taskType2}</strong>
                   </td>
                   <td>
                     <strong>{report.platform || '-'}</strong>
