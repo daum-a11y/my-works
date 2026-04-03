@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { setDocumentTitle } from '../../app/navigation';
 import { useAuth } from '../auth/AuthContext';
-import { PageSection } from '../../components/ui/PageSection';
+import { PageSection } from '../../components/common/PageSection';
 import { opsDataClient } from '../../lib/dataClient';
 import { type Member } from '../../lib/domain';
 import {

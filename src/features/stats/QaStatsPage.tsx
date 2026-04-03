@@ -10,7 +10,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { PageSection } from '../../components/ui/PageSection';
+import { PageSection } from '../../components/common/PageSection';
 import { setDocumentTitle } from '../../app/navigation';
 import { opsDataClient } from '../../lib/dataClient';
 import type { QaStatsProjectRow } from '../../lib/domain';

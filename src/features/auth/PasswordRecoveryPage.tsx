@@ -38,7 +38,7 @@ export function PasswordRecoveryPage() {
   });
 
   useEffect(() => {
-    document.title = 'My Works · 비밀번호 재설정';
+    document.title = 'My Works | 비밀번호 재설정';
   }, []);
 
   if (!isRecoverySession) {

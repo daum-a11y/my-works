@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { LoginPage } from '../features/auth/LoginPage';
-import { UserProfilePage } from '../features/settings/UserProfilePage';
+import { UserProfilePage } from '../features/profile/UserProfilePage';
 
 const mockUseAuth = vi.hoisted(() => vi.fn());
 

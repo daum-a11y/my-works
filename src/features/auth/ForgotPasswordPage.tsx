@@ -32,7 +32,7 @@ export function ForgotPasswordPage() {
   });
 
   useEffect(() => {
-    document.title = 'My Works · 비밀번호 찾기';
+    document.title = 'My Works | 비밀번호 찾기';
   }, []);
 
   return (

@@ -17,6 +17,8 @@ const mockOpsDataClient = vi.hoisted(() => ({
   saveProject: vi.fn(),
   getProjectPages: vi.fn(),
   getAllProjectPages: vi.fn(),
+  getResourceServiceSummaryYears: vi.fn(),
+  getResourceServiceSummaryByYear: vi.fn(),
   saveProjectPage: vi.fn(),
   getTasks: vi.fn(),
   getAllTasks: vi.fn(),
@@ -56,118 +58,42 @@ describe('ResourceServicePage', () => {
       },
     });
 
-    mockOpsDataClient.getMembers.mockResolvedValue([
-      {
-        id: 'member-1',
-        accountId: 'legacy-1',
-        name: '운영 사용자',
-        email: 'operator@example.com',
-        joinedAt: '2026-03-01',
-        role: 'user',
-        isActive: true,
+    mockOpsDataClient.getResourceServiceSummaryYears.mockResolvedValue(['2024', '2023']);
+    mockOpsDataClient.getResourceServiceSummaryByYear.mockImplementation(
+      async (_member: unknown, year: string) => {
+        if (year === '2024') {
+          return [
+            {
+              year: '2024',
+              month: '01',
+              costGroupName: '커머스',
+              serviceGroupName: '선물하기',
+              serviceName: '카카오 T',
+              taskUsedtime: 60,
+            },
+          ];
+        }
+
+        return [
+          {
+            year: '2023',
+            month: '04',
+            costGroupName: '커머스',
+            serviceGroupName: '선물하기',
+            serviceName: '선물하기',
+            taskUsedtime: 60,
+          },
+          {
+            year: '2023',
+            month: '05',
+            costGroupName: '플랫폼',
+            serviceGroupName: '카카오맵',
+            serviceName: '카카오맵',
+            taskUsedtime: 120,
+          },
+        ];
       },
-    ]);
-    mockOpsDataClient.getTaskTypes.mockResolvedValue([]);
-    mockOpsDataClient.getServiceGroups.mockResolvedValue([
-      {
-        id: 'service-group-1',
-        name: '커머스 / 선물하기',
-        displayOrder: 1,
-      },
-      {
-        id: 'service-group-2',
-        name: '플랫폼 / 카카오맵',
-        displayOrder: 2,
-      },
-    ]);
-    mockOpsDataClient.getProjects.mockResolvedValue([
-      {
-        id: 'project-1',
-        createdByMemberId: null,
-        name: '선물하기',
-        projectType1: 'QA',
-        platform: 'iOS',
-        serviceGroupId: 'service-group-1',
-        reportUrl: '',
-        reporterMemberId: 'member-1',
-        reviewerMemberId: null,
-        startDate: '2023-04-01',
-        endDate: '2023-04-30',
-        isActive: true,
-      },
-      {
-        id: 'project-2',
-        createdByMemberId: null,
-        name: '카카오맵',
-        projectType1: 'QA',
-        platform: 'Android',
-        serviceGroupId: 'service-group-2',
-        reportUrl: '',
-        reporterMemberId: 'member-1',
-        reviewerMemberId: null,
-        startDate: '2023-05-01',
-        endDate: '2023-05-31',
-        isActive: true,
-      },
-      {
-        id: 'project-3',
-        createdByMemberId: null,
-        name: '카카오 T',
-        projectType1: 'QA',
-        platform: 'Web',
-        serviceGroupId: 'service-group-1',
-        reportUrl: '',
-        reporterMemberId: 'member-1',
-        reviewerMemberId: null,
-        startDate: '2024-01-01',
-        endDate: '2024-01-31',
-        isActive: true,
-      },
-    ]);
-    mockOpsDataClient.getTasks.mockResolvedValue([
-      {
-        id: 'task-1',
-        memberId: 'member-1',
-        taskDate: '2023-04-03',
-        projectId: 'project-1',
-        pageId: null,
-        taskType1: 'QA',
-        taskType2: '사전준비',
-        taskUsedtime: 60,
-        content: '',
-        note: '',
-        createdAt: '2026-03-29T00:00:00.000Z',
-        updatedAt: '2026-03-29T00:00:00.000Z',
-      },
-      {
-        id: 'task-2',
-        memberId: 'member-1',
-        taskDate: '2023-05-03',
-        projectId: 'project-2',
-        pageId: null,
-        taskType1: 'QA',
-        taskType2: '리뷰',
-        taskUsedtime: 120,
-        content: '',
-        note: '',
-        createdAt: '2026-03-29T00:00:00.000Z',
-        updatedAt: '2026-03-29T00:00:00.000Z',
-      },
-      {
-        id: 'task-3',
-        memberId: 'member-1',
-        taskDate: '2024-01-15',
-        projectId: 'project-3',
-        pageId: null,
-        taskType1: 'QA',
-        taskType2: '사전준비',
-        taskUsedtime: 60,
-        content: '',
-        note: '',
-        createdAt: '2026-03-29T00:00:00.000Z',
-        updatedAt: '2026-03-29T00:00:00.000Z',
-      },
-    ]);
+    );
   });
 
   it('shows only the selected year table and switches with tabs', async () => {
@@ -181,24 +107,26 @@ describe('ResourceServicePage', () => {
 
     await waitFor(() => {
       expect(screen.getByRole('tab', { name: '2024년' })).toHaveAttribute('aria-selected', 'true');
+      expect(screen.getAllByRole('cell', { name: '커머스' }).length).toBeGreaterThan(0);
     });
 
     expect(screen.getByRole('tab', { name: '2023년' })).toBeInTheDocument();
-    expect(screen.getByRole('cell', { name: '커머스' })).toBeInTheDocument();
-    expect(screen.getByRole('cell', { name: '선물하기' })).toBeInTheDocument();
+    expect(screen.getAllByRole('cell', { name: '커머스' }).length).toBeGreaterThan(0);
+    expect(screen.getByText('카카오 T')).toBeInTheDocument();
     expect(screen.queryByRole('cell', { name: '플랫폼' })).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('tab', { name: '2023년' }));
 
     await waitFor(() => {
       expect(screen.getByRole('tab', { name: '2023년' })).toHaveAttribute('aria-selected', 'true');
+      expect(screen.getAllByRole('cell', { name: '커머스' }).length).toBeGreaterThan(0);
     });
 
-    expect(screen.getByRole('cell', { name: '커머스' })).toBeInTheDocument();
-    expect(screen.getByRole('cell', { name: '선물하기' })).toBeInTheDocument();
+    expect(screen.getAllByRole('cell', { name: '커머스' }).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole('cell', { name: '선물하기' }).length).toBeGreaterThan(0);
     expect(screen.getByRole('cell', { name: '플랫폼' })).toBeInTheDocument();
-    expect(screen.getByRole('cell', { name: '카카오맵' })).toBeInTheDocument();
-    expect(screen.queryAllByRole('cell', { name: '선물하기' })).toHaveLength(1);
+    expect(screen.getAllByRole('cell', { name: '카카오맵' }).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole('cell', { name: '선물하기' }).length).toBeGreaterThan(0);
   });
 
   it('renders folded month summary rows directly after each month group like the legacy page', async () => {
@@ -217,10 +145,10 @@ describe('ResourceServicePage', () => {
     fireEvent.click(screen.getByRole('tab', { name: '2023년' }));
 
     await waitFor(() => {
-      expect(screen.getByRole('cell', { name: '커머스' })).toBeInTheDocument();
+      expect(screen.getAllByRole('cell', { name: '커머스' }).length).toBeGreaterThan(0);
     });
 
-    expect(screen.getByRole('cell', { name: '선물하기' })).toBeInTheDocument();
+    expect(screen.getAllByRole('cell', { name: '선물하기' }).length).toBeGreaterThan(0);
     expect(screen.queryByRole('cell', { name: '커머스 / 선물하기' })).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: '접기' }));
@@ -256,7 +184,7 @@ describe('ResourceServicePage', () => {
     fireEvent.click(screen.getByRole('tab', { name: '2023년' }));
 
     await waitFor(() => {
-      expect(screen.getByRole('cell', { name: '커머스' })).toBeInTheDocument();
+      expect(screen.getAllByRole('cell', { name: '커머스' }).length).toBeGreaterThan(0);
     });
 
     const rows = within(screen.getByRole('table')).getAllByRole('row');

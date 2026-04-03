@@ -16,6 +16,8 @@ const mockOpsDataClient = vi.hoisted(() => ({
   saveProject: vi.fn(),
   getProjectPages: vi.fn(),
   getAllProjectPages: vi.fn(),
+  getMonitoringStatsRows: vi.fn(),
+  getQaStatsProjects: vi.fn(),
   saveProjectPage: vi.fn(),
   getTasks: vi.fn(),
   saveTask: vi.fn(),
@@ -57,107 +59,92 @@ describe('Stats pages', () => {
       },
     });
 
-    mockOpsDataClient.getMembers.mockResolvedValue([
+    mockOpsDataClient.getMonitoringStatsRows.mockResolvedValue([
       {
-        id: 'member-1',
-        accountId: 'legacy-1',
-        name: '운영 사용자',
-        email: 'operator@example.com',
-        joinedAt: '2026-03-01',
-        role: 'user',
-        isActive: true,
+        pageId: 'page-1',
+        projectId: 'project-1',
+        title: '모니터링 페이지',
+        reportUrl: '',
+        ownerMemberId: 'member-1',
+        monitoringMonth: '2603',
+        trackStatus: '전체 수정',
+        monitoringInProgress: true,
+        qaInProgress: true,
+        note: '진행 내역\n공유 메모',
+        updatedAt: '2026-03-24T09:00:00.000Z',
+        serviceGroupName: '서비스그룹A',
+        projectName: 'QA 대상',
+        platform: 'iOS',
+        assigneeDisplay: 'legacy-1(운영 사용자)',
+      },
+      {
+        pageId: 'page-2',
+        projectId: 'project-3',
+        title: '과거 모니터링 페이지',
+        reportUrl: '',
+        ownerMemberId: 'member-1',
+        monitoringMonth: '2507',
+        trackStatus: '미수정',
+        monitoringInProgress: false,
+        qaInProgress: false,
+        note: '',
+        updatedAt: '2025-07-24T09:00:00.000Z',
+        serviceGroupName: '서비스그룹A',
+        projectName: '과거 QA 대상',
+        platform: 'Web',
+        assigneeDisplay: 'legacy-1(운영 사용자)',
+      },
+      {
+        pageId: 'page-3',
+        projectId: 'project-2',
+        title: '제외 페이지',
+        reportUrl: '',
+        ownerMemberId: 'member-1',
+        monitoringMonth: '',
+        trackStatus: '미수정',
+        monitoringInProgress: false,
+        qaInProgress: false,
+        note: '',
+        updatedAt: '2026-03-24T09:00:00.000Z',
+        serviceGroupName: '서비스그룹A',
+        projectName: '제외 대상',
+        platform: 'Android',
+        assigneeDisplay: 'legacy-1(운영 사용자)',
       },
     ]);
-    mockOpsDataClient.getServiceGroups.mockResolvedValue([
-      {
-        id: 'service-group-1',
-        name: '서비스그룹A',
-        displayOrder: 1,
-      },
-    ]);
-    mockOpsDataClient.getProjects.mockResolvedValue([
+    mockOpsDataClient.getQaStatsProjects.mockResolvedValue([
       {
         id: 'project-1',
-        createdByMemberId: null,
+        type1: 'QA',
         name: 'QA 대상',
-        projectType1: 'QA',
-        platform: 'iOS',
-        serviceGroupId: null,
+        serviceGroupName: '서비스그룹A',
         reportUrl: '',
-        reporterMemberId: 'member-1',
-        reviewerMemberId: null,
+        reporterDisplay: 'legacy-1(운영 사용자)',
         startDate: '2026-03-01',
         endDate: '2026-03-31',
         isActive: true,
       },
       {
         id: 'project-3',
-        createdByMemberId: null,
+        type1: 'QA',
         name: '과거 QA 대상',
-        projectType1: 'QA',
-        platform: 'Web',
-        serviceGroupId: null,
+        serviceGroupName: '서비스그룹A',
         reportUrl: '',
-        reporterMemberId: 'member-1',
-        reviewerMemberId: null,
+        reporterDisplay: 'legacy-1(운영 사용자)',
         startDate: '2025-07-01',
         endDate: '2025-07-31',
         isActive: true,
       },
       {
         id: 'project-2',
-        createdByMemberId: null,
-        name: '제외 대상',
-        projectType1: '운영',
-        platform: 'Android',
-        serviceGroupId: null,
+        type1: 'QA',
+        name: '추가 QA 대상',
+        serviceGroupName: '서비스그룹A',
         reportUrl: '',
-        reporterMemberId: 'member-1',
-        reviewerMemberId: null,
+        reporterDisplay: 'legacy-1(운영 사용자)',
         startDate: '2026-03-01',
         endDate: '2026-03-31',
         isActive: true,
-      },
-    ]);
-    mockOpsDataClient.getAllProjectPages.mockResolvedValue([
-      {
-        id: 'page-1',
-        projectId: 'project-1',
-        title: '모니터링 페이지',
-        url: '',
-        ownerMemberId: 'member-1',
-        trackStatus: '전체 수정',
-        monitoringInProgress: true,
-        qaInProgress: true,
-        note: '진행 내역\n공유 메모',
-        monitoringMonth: '2603',
-        updatedAt: '2026-03-24T09:00:00.000Z',
-      },
-      {
-        id: 'page-2',
-        projectId: 'project-3',
-        title: '과거 모니터링 페이지',
-        url: '',
-        ownerMemberId: 'member-1',
-        trackStatus: '미수정',
-        monitoringInProgress: false,
-        qaInProgress: false,
-        note: '',
-        monitoringMonth: '2507',
-        updatedAt: '2025-07-24T09:00:00.000Z',
-      },
-      {
-        id: 'page-3',
-        projectId: 'project-2',
-        title: '제외 페이지',
-        url: '',
-        ownerMemberId: 'member-1',
-        trackStatus: '미수정',
-        monitoringInProgress: false,
-        qaInProgress: false,
-        note: '',
-        monitoringMonth: '',
-        updatedAt: '2026-03-24T09:00:00.000Z',
       },
     ]);
     mockOpsDataClient.saveProjectPage.mockImplementation(async (input) => ({
@@ -196,7 +183,7 @@ describe('Stats pages', () => {
     expect(screen.getByRole('columnheader', { name: '서비스그룹' })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: '프로젝트명' })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: '페이지명' })).toBeInTheDocument();
-    expect(screen.getByText('legacy-1(운영 사용자)')).toBeInTheDocument();
+    expect(screen.getAllByText('legacy-1(운영 사용자)').length).toBeGreaterThan(0);
     expect(screen.getByRole('button', { name: '모니터링 페이지 내용 보기' })).toBeInTheDocument();
     expect(screen.queryByText(/적용 기간/)).not.toBeInTheDocument();
     expect(screen.queryByText('2025-10 ~ 2026-03')).not.toBeInTheDocument();
@@ -298,11 +285,11 @@ describe('Stats pages', () => {
     expect(screen.getByRole('columnheader', { name: '서비스그룹' })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: '프로젝트명' })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: '리포터' })).toBeInTheDocument();
-    expect(screen.getByText('legacy-1(운영 사용자)')).toBeInTheDocument();
+    expect(screen.getAllByText('legacy-1(운영 사용자)').length).toBeGreaterThan(0);
     expect(screen.queryByText('iOS')).not.toBeInTheDocument();
     expect(screen.queryByText(/적용 기간/)).not.toBeInTheDocument();
     expect(screen.queryByText('2025-10 ~ 2026-03')).not.toBeInTheDocument();
-    expect(screen.queryByText('제외 대상')).not.toBeInTheDocument();
+    expect(screen.getByText('추가 QA 대상')).toBeInTheDocument();
     expect((screen.getByLabelText('QA 시작월') as HTMLInputElement).value).toBe(defaultStartMonth);
     expect((screen.getByLabelText('QA 종료월') as HTMLInputElement).value).toBe(defaultEndMonth);
   });

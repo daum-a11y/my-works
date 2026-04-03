@@ -88,7 +88,7 @@ vi.mock('../features/stats', () => ({
   QaStatsPage: () => <div>qa-stats-page</div>,
 }));
 
-vi.mock('../features/settings', () => ({
+vi.mock('../features/profile', () => ({
   UserProfilePage: () => <div>profile-page</div>,
 }));
 

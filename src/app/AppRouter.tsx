@@ -29,7 +29,7 @@ import {
 } from '../features/resource';
 import { SearchPage } from '../features/search';
 import { MonitoringStatsPage, QaStatsPage } from '../features/stats';
-import { UserProfilePage } from '../features/settings';
+import { UserProfilePage } from '../features/profile';
 import { AppShell } from './AppShell';
 import { GlobalLoadingSpinner } from './GlobalLoadingSpinner';
 

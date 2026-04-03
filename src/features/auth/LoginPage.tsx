@@ -42,7 +42,7 @@ export function LoginPage() {
   });
 
   useEffect(() => {
-    document.title = 'My Works · 로그인';
+    document.title = 'My Works | 로그인';
   }, []);
 
   useEffect(() => {

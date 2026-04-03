@@ -2,7 +2,7 @@ import { type FormEvent, useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { setDocumentTitle } from '../../app/navigation';
 import { useAuth } from '../auth/AuthContext';
-import { PageSection } from '../../components/ui/PageSection';
+import { PageSection } from '../../components/common/PageSection';
 import { opsDataClient } from '../../lib/dataClient';
 import { downloadExcelFile } from '../../lib/excelExport';
 import { getToday, parseLocalDateInput, toLocalDateInputValue } from '../../lib/utils';

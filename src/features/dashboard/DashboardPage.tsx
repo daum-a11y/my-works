@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { setDocumentTitle } from '../../app/navigation';
-import { MonthlyReportCalendar } from '../../components/ui/MonthlyReportCalendar';
+import { MonthlyReportCalendar } from '../../components/common/MonthlyReportCalendar';
 import { opsDataClient } from '../../lib/dataClient';
 import { useAuth } from '../auth/AuthContext';
 import { buildCalendarWeeks, getCurrentMonth, shiftMonth } from '../resource/resourceShared';

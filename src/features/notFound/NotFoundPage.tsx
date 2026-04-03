@@ -14,7 +14,7 @@ export function NotFoundPage() {
   const secondaryDestination = isAuthenticated ? '/reports' : null;
 
   useEffect(() => {
-    document.title = 'My Works · 페이지를 찾을 수 없음';
+    document.title = 'My Works | 페이지를 찾을 수 없음';
   }, []);
 
   return (

@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { cleanup, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
@@ -18,6 +19,11 @@ describe('AppShell', () => {
   it('opens the user menu and keeps profile and logout actions inside it', async () => {
     const user = userEvent.setup();
     const logout = vi.fn().mockResolvedValue(undefined);
+    const queryClient = new QueryClient({
+      defaultOptions: {
+        queries: { retry: false },
+      },
+    });
 
     mockUseAuth.mockReturnValue({
       session: {
@@ -31,14 +37,16 @@ describe('AppShell', () => {
     });
 
     render(
-      <MemoryRouter initialEntries={['/dashboard']}>
-        <Routes>
-          <Route path="/" element={<AppShell />}>
-            <Route path="dashboard" element={<div>dashboard-page</div>} />
-            <Route path="profile" element={<div>profile-page</div>} />
-          </Route>
-        </Routes>
-      </MemoryRouter>,
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter initialEntries={['/dashboard']}>
+          <Routes>
+            <Route path="/" element={<AppShell />}>
+              <Route path="dashboard" element={<div>dashboard-page</div>} />
+              <Route path="profile" element={<div>profile-page</div>} />
+            </Route>
+          </Routes>
+        </MemoryRouter>
+      </QueryClientProvider>,
     );
 
     expect(screen.queryByRole('menu', { name: '사용자 메뉴' })).not.toBeInTheDocument();
@@ -57,6 +65,12 @@ describe('AppShell', () => {
   });
 
   it('uses the same stats labels in the sidebar and breadcrumbs', () => {
+    const queryClient = new QueryClient({
+      defaultOptions: {
+        queries: { retry: false },
+      },
+    });
+
     mockUseAuth.mockReturnValue({
       session: {
         member: {
@@ -69,13 +83,15 @@ describe('AppShell', () => {
     });
 
     render(
-      <MemoryRouter initialEntries={['/stats/monitoring']}>
-        <Routes>
-          <Route path="/" element={<AppShell />}>
-            <Route path="stats/monitoring" element={<div>monitoring-stats-page</div>} />
-          </Route>
-        </Routes>
-      </MemoryRouter>,
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter initialEntries={['/stats/monitoring']}>
+          <Routes>
+            <Route path="/" element={<AppShell />}>
+              <Route path="stats/monitoring" element={<div>monitoring-stats-page</div>} />
+            </Route>
+          </Routes>
+        </MemoryRouter>
+      </QueryClientProvider>,
     );
 
     expect(screen.getAllByText('모니터링 통계').length).toBeGreaterThan(0);
@@ -83,6 +99,11 @@ describe('AppShell', () => {
 
   it('moves to dashboard when clicking breadcrumb home', async () => {
     const user = userEvent.setup();
+    const queryClient = new QueryClient({
+      defaultOptions: {
+        queries: { retry: false },
+      },
+    });
 
     mockUseAuth.mockReturnValue({
       session: {
@@ -97,14 +118,16 @@ describe('AppShell', () => {
     });
 
     render(
-      <MemoryRouter initialEntries={['/stats/monitoring']}>
-        <Routes>
-          <Route path="/" element={<AppShell />}>
-            <Route path="stats/monitoring" element={<div>monitoring-stats-page</div>} />
-            <Route path="dashboard" element={<div>dashboard-page</div>} />
-          </Route>
-        </Routes>
-      </MemoryRouter>,
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter initialEntries={['/stats/monitoring']}>
+          <Routes>
+            <Route path="/" element={<AppShell />}>
+              <Route path="stats/monitoring" element={<div>monitoring-stats-page</div>} />
+              <Route path="dashboard" element={<div>dashboard-page</div>} />
+            </Route>
+          </Routes>
+        </MemoryRouter>
+      </QueryClientProvider>,
     );
 
     const breadcrumbNav = screen.getAllByRole('navigation', { name: '브래드크럼' })[0];

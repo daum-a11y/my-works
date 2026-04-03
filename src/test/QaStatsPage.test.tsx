@@ -12,9 +12,7 @@ const member = {
   isActive: true,
 };
 
-const getProjects = vi.fn();
-const getMembers = vi.fn();
-const getServiceGroups = vi.fn();
+const getQaStatsProjects = vi.fn();
 
 vi.mock('../features/auth/AuthContext', () => ({
   useAuth: () => ({ session: { member } }),
@@ -22,74 +20,47 @@ vi.mock('../features/auth/AuthContext', () => ({
 
 vi.mock('../lib/dataClient', () => ({
   opsDataClient: {
-    getProjects: (...args: unknown[]) => getProjects(...args),
-    getMembers: (...args: unknown[]) => getMembers(...args),
-    getServiceGroups: (...args: unknown[]) => getServiceGroups(...args),
+    getQaStatsProjects: (...args: unknown[]) => getQaStatsProjects(...args),
   },
 }));
 
 describe('QaStatsPage', () => {
   it('shows QA stats based on the current project structure', async () => {
-    getProjects.mockResolvedValue([
+    getQaStatsProjects.mockResolvedValue([
       {
         id: 'project-1',
-        createdByMemberId: null,
+        type1: 'QA',
         name: '접근성 포털',
-        projectType1: 'QA',
-        platform: 'WEB',
-        serviceGroupId: null,
+        serviceGroupName: '-',
         reportUrl: '',
-        reporterMemberId: 'member-1',
-        reviewerMemberId: null,
+        reporterDisplay: 'user1(운영자)',
         startDate: '2026-03-01',
         endDate: '2026-03-31',
         isActive: true,
       },
       {
         id: 'project-3',
-        createdByMemberId: null,
+        type1: 'QA',
         name: '메이커스 25년 3차',
-        projectType1: 'QA',
-        platform: 'WEB',
-        serviceGroupId: null,
+        serviceGroupName: '-',
         reportUrl: '',
-        reporterMemberId: 'member-1',
-        reviewerMemberId: null,
+        reporterDisplay: 'user1(운영자)',
         startDate: '2025-06-18',
         endDate: '2025-06-30',
         isActive: true,
       },
       {
         id: 'project-4',
-        createdByMemberId: null,
-        name: '2025년 6월 다음앱 정기모니터링',
-        projectType1: '모니터링',
-        platform: 'APP',
-        serviceGroupId: null,
+        type1: 'QA',
+        name: '메이커스 25년 3차 - 후속',
+        serviceGroupName: '-',
         reportUrl: '',
-        reporterMemberId: 'member-1',
-        reviewerMemberId: null,
+        reporterDisplay: 'user1(운영자)',
         startDate: '2025-06-23',
         endDate: '2025-06-30',
         isActive: true,
       },
-      {
-        id: 'project-2',
-        createdByMemberId: null,
-        name: '앱 운영',
-        projectType1: '운영',
-        platform: 'APP',
-        serviceGroupId: null,
-        reportUrl: '',
-        reporterMemberId: 'member-1',
-        reviewerMemberId: null,
-        startDate: '2026-03-01',
-        endDate: '2026-03-31',
-        isActive: true,
-      },
     ]);
-    getMembers.mockResolvedValue([{ ...member, authUserId: 'auth-1' }]);
-    getServiceGroups.mockResolvedValue([]);
 
     const queryClient = new QueryClient({
       defaultOptions: {
@@ -108,8 +79,7 @@ describe('QaStatsPage', () => {
     });
 
     expect(screen.queryByText('메이커스 25년 3차')).not.toBeInTheDocument();
-    expect(screen.queryByText('2025년 6월 다음앱 정기모니터링')).not.toBeInTheDocument();
-    expect(screen.queryByText('앱 운영')).not.toBeInTheDocument();
+    expect(screen.queryByText('메이커스 25년 3차 - 후속')).not.toBeInTheDocument();
 
     fireEvent.change(screen.getByLabelText('QA 시작월'), { target: { value: '2025-06' } });
     fireEvent.change(screen.getByLabelText('QA 종료월'), { target: { value: '2025-06' } });
@@ -119,8 +89,7 @@ describe('QaStatsPage', () => {
       expect(screen.getAllByText('메이커스 25년 3차').length).toBeGreaterThan(0);
     });
 
-    expect(screen.getByText('user1(운영자)')).toBeInTheDocument();
-    expect(screen.queryByText('2025년 6월 다음앱 정기모니터링')).not.toBeInTheDocument();
-    expect(screen.queryByText('앱 운영')).not.toBeInTheDocument();
+    expect(screen.getAllByText('user1(운영자)').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('메이커스 25년 3차 - 후속').length).toBeGreaterThan(0);
   });
 });

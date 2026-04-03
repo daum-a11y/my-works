@@ -13,7 +13,7 @@ export function HealthCheckPage() {
   useEffect(() => {
     let active = true;
 
-    document.title = 'My Works · Health Check';
+    document.title = 'My Works | Health Check';
 
     const supabase = getSupabaseClient();
     if (!supabase) {
@@ -50,22 +50,5 @@ export function HealthCheckPage() {
 
   const label = status === 'ok' ? 'OK' : status === 'error' ? 'ERROR' : '';
 
-  return (
-    <main
-      aria-live="polite"
-      style={{
-        display: 'grid',
-        placeItems: 'center',
-        minHeight: '100vh',
-        background: '#ffffff',
-        color: '#111111',
-        fontFamily: 'system-ui, sans-serif',
-        fontSize: '4rem',
-        fontWeight: 700,
-        letterSpacing: '0.08em',
-      }}
-    >
-      {label}
-    </main>
-  );
+  return <span>{label}</span>;
 }

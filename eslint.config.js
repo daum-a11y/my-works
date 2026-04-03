@@ -14,10 +14,13 @@ export default tseslint.config(
     extends: [
       js.configs.recommended,
       ...tseslint.configs.recommended,
-      reactHooks.configs['recommended-latest'],
+      reactHooks.configs.flat['recommended-latest'],
       reactRefresh.configs.vite,
       eslintConfigPrettier,
     ],
+    rules: {
+      'react-hooks/set-state-in-effect': 'off',
+    },
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'module',
@@ -40,6 +43,12 @@ export default tseslint.config(
         afterEach: 'readonly',
         vi: 'readonly',
       },
+    },
+  },
+  {
+    files: ['supabase/functions/**/*.ts'],
+    rules: {
+      'no-useless-assignment': 'off',
     },
   },
 );

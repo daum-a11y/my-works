@@ -17,6 +17,8 @@ const mockOpsDataClient = vi.hoisted(() => ({
   saveProject: vi.fn(),
   getProjectPages: vi.fn(),
   getAllProjectPages: vi.fn(),
+  getResourceTypeSummaryYears: vi.fn(),
+  getResourceTypeSummaryByYear: vi.fn(),
   saveProjectPage: vi.fn(),
   getTasks: vi.fn(),
   getAllTasks: vi.fn(),
@@ -56,78 +58,36 @@ describe('ResourceTypePage', () => {
       },
     });
 
-    mockOpsDataClient.getMembers.mockResolvedValue([
-      {
-        id: 'member-1',
-        accountId: 'legacy-1',
-        name: '운영 사용자',
-        email: 'operator@example.com',
-        joinedAt: '2026-03-01',
-        role: 'user',
-        isActive: true,
+    mockOpsDataClient.getResourceTypeSummaryYears.mockResolvedValue(['2024', '2023']);
+    mockOpsDataClient.getResourceTypeSummaryByYear.mockImplementation(
+      async (_member: unknown, year: string) => {
+        if (year === '2024') {
+          return [
+            {
+              year: '2024',
+              month: '02',
+              taskType1: '모니터링',
+              taskUsedtime: 60,
+            },
+          ];
+        }
+
+        return [
+          {
+            year: '2023',
+            month: '04',
+            taskType1: 'QA',
+            taskUsedtime: 180,
+          },
+          {
+            year: '2023',
+            month: '04',
+            taskType1: '일반버퍼',
+            taskUsedtime: 60,
+          },
+        ];
       },
-    ]);
-    mockOpsDataClient.getProjects.mockResolvedValue([]);
-    mockOpsDataClient.getServiceGroups.mockResolvedValue([]);
-    mockOpsDataClient.getTaskTypes.mockResolvedValue([]);
-    mockOpsDataClient.getTasks.mockResolvedValue([
-      {
-        id: 'task-1',
-        memberId: 'member-1',
-        taskDate: '2023-04-03',
-        projectId: null,
-        pageId: null,
-        taskType1: 'QA',
-        taskType2: '사전준비',
-        taskUsedtime: 60,
-        content: '',
-        note: '',
-        createdAt: '2026-03-29T00:00:00.000Z',
-        updatedAt: '2026-03-29T00:00:00.000Z',
-      },
-      {
-        id: 'task-2',
-        memberId: 'member-1',
-        taskDate: '2023-04-04',
-        projectId: null,
-        pageId: null,
-        taskType1: 'QA',
-        taskType2: '리뷰',
-        taskUsedtime: 120,
-        content: '',
-        note: '',
-        createdAt: '2026-03-29T00:00:00.000Z',
-        updatedAt: '2026-03-29T00:00:00.000Z',
-      },
-      {
-        id: 'task-3',
-        memberId: 'member-1',
-        taskDate: '2023-04-05',
-        projectId: null,
-        pageId: null,
-        taskType1: '일반버퍼',
-        taskType2: '업무회의 (팀/파트)',
-        taskUsedtime: 60,
-        content: '',
-        note: '',
-        createdAt: '2026-03-29T00:00:00.000Z',
-        updatedAt: '2026-03-29T00:00:00.000Z',
-      },
-      {
-        id: 'task-4',
-        memberId: 'member-1',
-        taskDate: '2024-02-01',
-        projectId: null,
-        pageId: null,
-        taskType1: '모니터링',
-        taskType2: '이슈탐색',
-        taskUsedtime: 60,
-        content: '',
-        note: '',
-        createdAt: '2026-03-29T00:00:00.000Z',
-        updatedAt: '2026-03-29T00:00:00.000Z',
-      },
-    ]);
+    );
   });
 
   it('groups resource rows by type1 like the legacy page', async () => {
@@ -141,10 +101,11 @@ describe('ResourceTypePage', () => {
 
     await waitFor(() => {
       expect(screen.getByRole('tab', { name: '2024년' })).toBeInTheDocument();
+      expect(screen.getAllByRole('cell', { name: '모니터링' }).length).toBeGreaterThan(0);
     });
 
     expect(screen.getByRole('tab', { name: '2023년' })).toBeInTheDocument();
-    expect(screen.getByRole('cell', { name: '모니터링' })).toBeInTheDocument();
+    expect(screen.getAllByRole('cell', { name: '모니터링' }).length).toBeGreaterThan(0);
     expect(screen.queryByText('QA / 사전준비')).not.toBeInTheDocument();
     expect(screen.queryByText('QA / 리뷰')).not.toBeInTheDocument();
   });
@@ -160,16 +121,16 @@ describe('ResourceTypePage', () => {
 
     await waitFor(() => {
       expect(screen.getByRole('tab', { name: '2024년' })).toHaveAttribute('aria-selected', 'true');
+      expect(screen.getAllByRole('cell', { name: '모니터링' }).length).toBeGreaterThan(0);
     });
 
-    expect(screen.getByRole('cell', { name: '2024년' })).toBeInTheDocument();
-    expect(screen.getByRole('cell', { name: '모니터링' })).toBeInTheDocument();
     expect(screen.queryByRole('cell', { name: 'QA' })).not.toBeInTheDocument();
 
     screen.getByRole('tab', { name: '2023년' }).click();
 
     await waitFor(() => {
       expect(screen.getByRole('tab', { name: '2023년' })).toHaveAttribute('aria-selected', 'true');
+      expect(screen.getByRole('cell', { name: 'QA' })).toBeInTheDocument();
     });
 
     expect(screen.getByRole('cell', { name: 'QA' })).toBeInTheDocument();

@@ -2,7 +2,7 @@ import { type FormEvent, useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { setDocumentTitle } from '../../../app/navigation';
-import { PageSection } from '../../../components/ui/PageSection';
+import { PageSection } from '../../../components/common/PageSection';
 import { downloadExcelFile } from '../../../lib/excelExport';
 import {
   buildTaskType1Options as buildTaskType1OptionValues,

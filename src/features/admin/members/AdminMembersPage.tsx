@@ -1,7 +1,7 @@
 import { type FormEvent, useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useLocation } from 'react-router-dom';
-import { PageSection } from '../../../components/ui/PageSection';
+import { PageSection } from '../../../components/common/PageSection';
 import { adminDataClient } from '../adminClient';
 import type { MemberAdminItem } from '../admin-types';
 import { AdminMemberRow } from './AdminMemberRow';
