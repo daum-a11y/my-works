@@ -756,6 +756,107 @@ as $$
   order by t.task_date asc, m.account_id asc, t.id asc
 $$;
 
+create or replace function public.get_stats()
+returns jsonb
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  with page_rows as (
+    select
+      pp.track_status,
+      pp.note,
+      p.start_date,
+      p.end_date,
+      pp.monitoring_month
+    from public.project_pages pp
+    join public.projects p on p.id = pp.project_id
+  ),
+  status_counts as (
+    select
+      pr.track_status as status,
+      count(*)::bigint as count
+    from page_rows pr
+    group by pr.track_status
+  ),
+  type_counts as (
+    select
+      t.task_type1 as type,
+      sum(t.task_usedtime) as task_usedtime
+    from public.tasks t
+    group by t.task_type1
+  ),
+  monitoring_count as (
+    select count(*)::bigint as count
+    from page_rows pr
+    where regexp_replace(coalesce(pr.monitoring_month, ''), '\D', '', 'g') <> ''
+      and (
+        case
+          when length(regexp_replace(coalesce(pr.monitoring_month, ''), '\D', '', 'g')) = 4
+            then
+              '20' || left(regexp_replace(pr.monitoring_month, '\D', '', 'g'), 2) || '-' ||
+              right(regexp_replace(pr.monitoring_month, '\D', '', 'g'), 2)
+          else ''
+        end
+      ) in (
+        to_char(date_trunc('month', current_date), 'YYYY-MM'),
+        to_char(date_trunc('month', current_date - interval '1 month'), 'YYYY-MM')
+      )
+      and coalesce(pr.note, '') !~ 'agit_date:\s*\d{4}-\d{2}-\d{2}'
+      and pr.track_status <> '미수정'
+  ),
+  qa_count as (
+    select count(*)::bigint as count
+    from page_rows pr
+    where pr.start_date <= current_date
+      and pr.end_date > current_date
+  ),
+  task_totals as (
+    select
+      count(*)::bigint as total_tasks,
+      coalesce(sum(t.task_usedtime), 0) as total_task_usedtime
+    from public.tasks t
+  )
+  select jsonb_build_object(
+    'total_task_usedtime', tt.total_task_usedtime,
+    'total_tasks', tt.total_tasks,
+    'monitoring_in_progress', mc.count,
+    'qa_in_progress', qc.count,
+    'status_breakdown',
+      coalesce(
+        (
+          select jsonb_agg(
+            jsonb_build_object(
+              'status', sc.status,
+              'count', sc.count
+            )
+            order by sc.status
+          )
+          from status_counts sc
+        ),
+        '[]'::jsonb
+      ),
+    'type_breakdown',
+      coalesce(
+        (
+          select jsonb_agg(
+            jsonb_build_object(
+              'type', tc.type,
+              'task_usedtime', tc.task_usedtime
+            )
+            order by tc.type
+          )
+          from type_counts tc
+        ),
+        '[]'::jsonb
+      )
+  )
+  from task_totals tt
+  cross join monitoring_count mc
+  cross join qa_count qc
+$$;
+
 create or replace function public.search_tasks_export(
   p_member_id uuid default null,
   p_start_date date default null,
@@ -1181,6 +1282,7 @@ grant execute on function public.get_resource_summary(uuid, text) to authenticat
 grant execute on function public.get_resource_type_summary(uuid) to authenticated;
 grant execute on function public.get_resource_service_summary(uuid) to authenticated;
 grant execute on function public.get_resource_month_report(uuid, text) to authenticated;
+grant execute on function public.get_stats() to authenticated;
 grant execute on function public.search_tasks_export(uuid, date, date, uuid, uuid, text, text, numeric, numeric, text) to authenticated;
 grant execute on function public.upsert_project(uuid, text, text, uuid, uuid, text, uuid, uuid, date, date, boolean) to authenticated;
 grant execute on function public.upsert_project_page(uuid, uuid, text, text, uuid, text, text, boolean, boolean, text) to authenticated;

@@ -26,53 +26,6 @@ import {
 } from './domain';
 import { getToday, readBooleanFlag } from './utils';
 
-function monthKeyFromMonitoringMonth(value: string): string {
-  const digits = value.replace(/\D/g, '');
-  if (digits.length === 4) {
-    return `20${digits.slice(0, 2)}-${digits.slice(2, 4)}`;
-  }
-  return '';
-}
-
-function hasAgitDate(note: string) {
-  return /agit_date:\s*\d{4}-\d{2}-\d{2}/.test(note);
-}
-
-function getCurrentMonthKey(reference = new Date()) {
-  return `${reference.getFullYear()}-${String(reference.getMonth() + 1).padStart(2, '0')}`;
-}
-
-function getPreviousMonthKey(reference = new Date()) {
-  const previous = new Date(reference.getFullYear(), reference.getMonth() - 1, 1);
-  return `${previous.getFullYear()}-${String(previous.getMonth() + 1).padStart(2, '0')}`;
-}
-
-function isDashboardMonitoringPage(page: ProjectPage, reference = new Date()) {
-  const monthKey = monthKeyFromMonitoringMonth(page.monitoringMonth);
-  if (!monthKey) {
-    return false;
-  }
-
-  return (
-    (monthKey === getCurrentMonthKey(reference) || monthKey === getPreviousMonthKey(reference)) &&
-    !hasAgitDate(page.note) &&
-    page.trackStatus !== '미수정'
-  );
-}
-
-function isDashboardQaPage(
-  page: ProjectPage,
-  project: Project | undefined,
-  reference = new Date(),
-) {
-  if (!project) {
-    return false;
-  }
-
-  const today = reference.toISOString().slice(0, 10);
-  return project.startDate <= today && project.endDate > today;
-}
-
 export interface OpsDataClient {
   mode: 'supabase' | 'unconfigured';
   getMembers(): Promise<Member[]>;
@@ -138,39 +91,6 @@ function buildDashboard(store: OpsStore): DashboardSnapshot {
         startDate: project.startDate,
         endDate: project.endDate,
       })),
-  };
-}
-
-function buildStats(store: Pick<OpsStore, 'projectPages' | 'projects' | 'tasks'>): StatsSnapshot {
-  const totalTaskUsedtime = store.tasks.reduce((sum, task) => sum + task.taskUsedtime, 0);
-  const statusMap = new Map<string, number>();
-  const typeMap = new Map<string, number>();
-  const projectsById = new Map(store.projects.map((project) => [project.id, project] as const));
-
-  for (const page of store.projectPages) {
-    statusMap.set(page.trackStatus, (statusMap.get(page.trackStatus) ?? 0) + 1);
-  }
-
-  for (const task of store.tasks) {
-    typeMap.set(task.taskType1, (typeMap.get(task.taskType1) ?? 0) + task.taskUsedtime);
-  }
-
-  return {
-    totalTaskUsedtime,
-    totalTasks: store.tasks.length,
-    monitoringInProgress: store.projectPages.filter((page) => isDashboardMonitoringPage(page))
-      .length,
-    qaInProgress: store.projectPages.filter((page) =>
-      isDashboardQaPage(page, projectsById.get(page.projectId)),
-    ).length,
-    statusBreakdown: Array.from(statusMap.entries()).map(([status, count]) => ({
-      status: status as StatsSnapshot['statusBreakdown'][number]['status'],
-      count,
-    })),
-    typeBreakdown: Array.from(typeMap.entries()).map(([type, taskUsedtime]) => ({
-      type,
-      taskUsedtime,
-    })),
   };
 }
 
@@ -668,24 +588,37 @@ function createSupabaseClient(): OpsDataClient {
       });
     },
     async getStats() {
-      const [
-        { data: pages, error: pagesError },
-        { data: tasks, error: tasksError },
-        { data: projects, error: projectsError },
-      ] = await Promise.all([
-        supabase.from('project_pages_public_view').select('*'),
-        supabase.from('tasks').select(taskSelectColumns),
-        supabase.from('projects').select('*, platforms(name)'),
-      ]);
-      if (pagesError) throw pagesError;
-      if (tasksError) throw tasksError;
-      if (projectsError) throw projectsError;
+      const { data, error } = await supabase.rpc('get_stats');
+      if (error) throw error;
 
-      return buildStats({
-        projects: (projects ?? []).map(mapProjectRecord),
-        projectPages: (pages ?? []).map(mapProjectPageRecord),
-        tasks: (tasks ?? []).map(mapTaskRecord),
-      });
+      const record = requireRecord(data, '통계 결과를 확인할 수 없습니다.');
+      const statusBreakdownRaw = Array.isArray(record.status_breakdown)
+        ? record.status_breakdown
+        : [];
+      const typeBreakdownRaw = Array.isArray(record.type_breakdown) ? record.type_breakdown : [];
+
+      return {
+        totalTaskUsedtime: Number(record.total_task_usedtime ?? 0),
+        totalTasks: Number(record.total_tasks ?? 0),
+        monitoringInProgress: Number(record.monitoring_in_progress ?? 0),
+        qaInProgress: Number(record.qa_in_progress ?? 0),
+        statusBreakdown: statusBreakdownRaw.map((item) => {
+          const row = requireRecord(item, '상태 통계 결과를 확인할 수 없습니다.');
+          return {
+            status: String(
+              row.status ?? '미수정',
+            ) as StatsSnapshot['statusBreakdown'][number]['status'],
+            count: Number(row.count ?? 0),
+          };
+        }),
+        typeBreakdown: typeBreakdownRaw.map((item) => {
+          const row = requireRecord(item, '업무유형 통계 결과를 확인할 수 없습니다.');
+          return {
+            type: String(row.type ?? ''),
+            taskUsedtime: Number(row.task_usedtime ?? 0),
+          };
+        }),
+      };
     },
   };
 }
