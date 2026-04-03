@@ -3,45 +3,35 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { useAuth } from '../auth/AuthContext';
 import { opsDataClient } from '../../lib/dataClient';
-import type {
-  Platform,
-  Project,
-  ProjectPage,
-  ReportFilters,
-  Task,
-  TaskType,
-} from '../../lib/domain';
+import type { Platform, ProjectPage, TaskType } from '../../lib/domain';
 import {
   buildProjectViewModels,
-  buildReportViewModel,
+  buildTaskReportViewModel,
   buildSelectableTaskType1Options,
   buildTaskType2OptionsForValue,
   createEmptyReportDraft,
-  DEFAULT_REPORT_FILTERS,
   draftFromReport,
   getTodayInputValue,
   parseReportTaskUsedtimeInput,
-  reportMatchesFilters,
   shiftDateInput,
   sortReportsDescending,
   validateTaskTypeSelection,
   type ProjectViewModel,
   type ReportDraft,
-  type ReportRecord,
   type ReportViewModel,
 } from './reportDomain';
 
 export interface ReportsSlice {
-  periodReports: ReportViewModel[];
+  dailyReports: ReportViewModel[];
   selectedReport: ReportViewModel | null;
   selectedReportId: string | null;
   draft: ReportDraft;
+  selectedDate: string;
   projectQuery: string;
   projectOptions: ProjectViewModel[];
   filteredProjectOptions: ProjectViewModel[];
   draftPages: ProjectPage[];
   taskTypes: TaskType[];
-  periodFilters: ReportFilters;
   type1Options: string[];
   type2Options: string[];
   platformOptions: Platform[];
@@ -51,10 +41,9 @@ export interface ReportsSlice {
   activeTab: 'report' | 'period';
   setActiveTab: (tab: 'report' | 'period') => void;
   setDraftField: <K extends keyof ReportDraft>(key: K, value: ReportDraft[K]) => void;
+  setSelectedDate: (value: string) => void;
   setProjectQuery: (value: string) => void;
   applyProjectQuery: () => void;
-  setPeriodField: <K extends keyof ReportFilters>(key: K, value: ReportFilters[K]) => void;
-  applyPeriodFilters: (nextFilters?: ReportFilters) => void;
   selectReport: (id: string) => void;
   startNewReport: () => void;
   resetDraft: () => void;
@@ -62,15 +51,6 @@ export interface ReportsSlice {
   deleteDraft: (id: string) => Promise<void>;
   saveOverheadReport: (taskUsedtime: number, reportDate?: string) => Promise<void>;
   jumpDraftDate: (offsetDays: number) => void;
-  clearPeriodFilters: () => void;
-}
-
-function createCurrentDateFilters(referenceDate = getTodayInputValue()): ReportFilters {
-  return {
-    ...DEFAULT_REPORT_FILTERS,
-    startDate: referenceDate,
-    endDate: referenceDate,
-  };
 }
 
 function toErrorMessage(error: unknown, fallback: string) {
@@ -91,34 +71,6 @@ function toErrorMessage(error: unknown, fallback: string) {
   }
 
   return fallback;
-}
-
-function toReportRecord(
-  task: Task,
-  currentMember: { id: string; name: string },
-  projectsById: Map<string, Project>,
-  pagesById: Map<string, ProjectPage>,
-): ReportRecord {
-  const project = task.projectId ? (projectsById.get(task.projectId) ?? null) : null;
-  const page = task.pageId ? (pagesById.get(task.pageId) ?? null) : null;
-
-  return {
-    id: task.id,
-    ownerId: currentMember.id,
-    ownerName: currentMember.name,
-    reportDate: task.taskDate,
-    projectId: task.projectId ?? '',
-    pageId: task.pageId ?? '',
-    projectName: project?.name ?? '',
-    pageName: page?.title ?? '',
-    type1: task.taskType1 as ReportRecord['type1'],
-    type2: task.taskType2 as ReportRecord['type2'],
-    taskUsedtime: task.taskUsedtime,
-    content: task.content,
-    note: task.note,
-    createdAt: task.createdAt,
-    updatedAt: task.updatedAt,
-  };
 }
 
 function isValidTaskDate(value: string) {
@@ -155,20 +107,14 @@ export function useReportsSlice(): ReportsSlice {
   const [activeTab, setActiveTab] = useState<'report' | 'period'>('report');
   const [selectedReportId, setSelectedReportId] = useState<string | null>(null);
   const [draft, setDraft] = useState<ReportDraft>(() => createEmptyReportDraft());
+  const [selectedDate, setSelectedDate] = useState(() => getTodayInputValue());
   const [projectQuery, setProjectQuery] = useState('');
-  const [periodFilters, setPeriodFilters] = useState<ReportFilters>(() =>
-    createCurrentDateFilters(),
-  );
   const [appliedProjectQuery, setAppliedProjectQuery] = useState('');
-  const [appliedPeriodFilters, setAppliedPeriodFilters] = useState<ReportFilters>(() =>
-    createCurrentDateFilters(),
-  );
   const [statusMessage, setStatusMessage] = useState('');
-  const currentReportDate = appliedPeriodFilters.startDate || getTodayInputValue();
 
   const tasksQuery = useQuery({
-    queryKey: ['reports', 'tasks', member?.id, currentReportDate],
-    queryFn: async () => opsDataClient.getTasksByDate(member!, currentReportDate),
+    queryKey: ['reports', 'tasks', member?.id, selectedDate],
+    queryFn: async () => opsDataClient.getTasksByDate(member!, selectedDate),
     enabled: Boolean(member),
   });
 
@@ -224,12 +170,7 @@ export function useReportsSlice(): ReportsSlice {
 
     return sortReportsDescending(
       tasks.map((task) =>
-        buildReportViewModel(
-          toReportRecord(task, member, projectsById, pagesById),
-          projectsById,
-          serviceGroupsById,
-          pagesById,
-        ),
+        buildTaskReportViewModel(task, member, projectsById, serviceGroupsById, pagesById),
       ),
     );
   }, [member, tasks, projectsById, pagesById, serviceGroupsById]);
@@ -237,14 +178,6 @@ export function useReportsSlice(): ReportsSlice {
   const selectedReport = useMemo(
     () => reports.find((report) => report.id === selectedReportId) ?? null,
     [reports, selectedReportId],
-  );
-
-  const periodReports = useMemo(
-    () =>
-      sortReportsDescending(
-        reports.filter((report) => reportMatchesFilters(report, appliedPeriodFilters)),
-      ),
-    [reports, appliedPeriodFilters],
   );
 
   const projectOptions = useMemo(
@@ -347,18 +280,11 @@ export function useReportsSlice(): ReportsSlice {
     onSuccess: async (task, variables) => {
       await invalidateReportQueries();
 
-      const nextPeriodFilters = {
-        ...DEFAULT_REPORT_FILTERS,
-        startDate: task.taskDate,
-        endDate: task.taskDate,
-      };
-
       setSelectedReportId(null);
       setDraft(createEmptyReportDraft());
+      setSelectedDate(task.taskDate);
       setProjectQuery('');
       setAppliedProjectQuery('');
-      setPeriodFilters(nextPeriodFilters);
-      setAppliedPeriodFilters(nextPeriodFilters);
       setActiveTab('report');
       setStatusMessage(variables.id ? '수정되었습니다.' : '등록되었습니다.');
     },
@@ -455,26 +381,8 @@ export function useReportsSlice(): ReportsSlice {
     });
   };
 
-  const setPeriodField = <K extends keyof ReportFilters>(key: K, value: ReportFilters[K]) => {
-    setPeriodFilters((current) => {
-      if (key === 'projectId') {
-        return {
-          ...current,
-          projectId: value as ReportFilters['projectId'],
-          pageId: '',
-        };
-      }
-
-      return { ...current, [key]: value };
-    });
-  };
-
   const applyProjectQuery = () => {
     setAppliedProjectQuery(projectQuery);
-  };
-
-  const applyPeriodFilters = (nextFilters = periodFilters) => {
-    setAppliedPeriodFilters(nextFilters);
   };
 
   const selectReport = (id: string) => {
@@ -583,23 +491,17 @@ export function useReportsSlice(): ReportsSlice {
     );
   };
 
-  const clearPeriodFilters = () => {
-    const nextFilters = createCurrentDateFilters();
-    setPeriodFilters(nextFilters);
-    setAppliedPeriodFilters(nextFilters);
-  };
-
   return {
-    periodReports,
+    dailyReports: reports,
     selectedReport,
     selectedReportId,
     draft,
+    selectedDate,
     projectQuery,
     projectOptions,
     filteredProjectOptions,
     draftPages,
     taskTypes,
-    periodFilters,
     type1Options,
     type2Options,
     platformOptions,
@@ -609,10 +511,9 @@ export function useReportsSlice(): ReportsSlice {
     activeTab,
     setActiveTab,
     setDraftField,
+    setSelectedDate,
     setProjectQuery,
     applyProjectQuery,
-    setPeriodField,
-    applyPeriodFilters,
     selectReport,
     startNewReport,
     resetDraft,
@@ -620,6 +521,5 @@ export function useReportsSlice(): ReportsSlice {
     deleteDraft,
     saveOverheadReport,
     jumpDraftDate,
-    clearPeriodFilters,
   };
 }

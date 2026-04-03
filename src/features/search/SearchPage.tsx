@@ -5,15 +5,13 @@ import { useAuth } from '../auth/AuthContext';
 import { PageSection } from '../../components/ui/PageSection';
 import { opsDataClient } from '../../lib/dataClient';
 import { downloadExcelFile } from '../../lib/excelExport';
-import type { Project, ProjectPage, Task } from '../../lib/domain';
 import { getToday, parseLocalDateInput, toLocalDateInputValue } from '../../lib/utils';
 import {
-  buildReportViewModel,
+  buildTaskReportViewModel,
   DEFAULT_REPORT_FILTERS,
   formatReportDate,
   formatReportTaskUsedtime,
   sortReportsDescending,
-  type ReportViewModel,
 } from '../reports/reportDomain';
 import styles from './SearchPage.module.css';
 
@@ -66,34 +64,6 @@ function isDownloadRangeWithinThreeMonths(startDate: string, endDate: string) {
   const maxEnd = new Date(start);
   maxEnd.setMonth(maxEnd.getMonth() + 3);
   return end <= maxEnd;
-}
-
-function toReportRecord(
-  task: Task,
-  member: { id: string; name: string },
-  projectsById: Map<string, Project>,
-  pagesById: Map<string, ProjectPage>,
-) {
-  const project = task.projectId ? (projectsById.get(task.projectId) ?? null) : null;
-  const page = task.pageId ? (pagesById.get(task.pageId) ?? null) : null;
-
-  return {
-    id: task.id,
-    ownerId: member.id,
-    ownerName: member.name,
-    reportDate: task.taskDate,
-    projectId: task.projectId ?? '',
-    pageId: task.pageId ?? '',
-    projectName: project?.name ?? '',
-    pageName: page?.title ?? '',
-    type1: task.taskType1 as ReportViewModel['type1'],
-    type2: task.taskType2 as ReportViewModel['type2'],
-    taskUsedtime: task.taskUsedtime,
-    content: task.content,
-    note: task.note,
-    createdAt: task.createdAt,
-    updatedAt: task.updatedAt,
-  };
 }
 
 const PAGE_SIZE_OPTIONS = [25, 50, 100] as const;
@@ -180,12 +150,7 @@ export function SearchPage() {
     }
 
     return tasks.map((task) =>
-      buildReportViewModel(
-        toReportRecord(task, member, projectsById, pagesById),
-        projectsById,
-        serviceGroupsById,
-        pagesById,
-      ),
+      buildTaskReportViewModel(task, member, projectsById, serviceGroupsById, pagesById),
     );
   }, [member, tasks, projectsById, pagesById, serviceGroupsById]);
 
@@ -249,12 +214,7 @@ export function SearchPage() {
       endDate: appliedFilters.endDate,
     });
     const downloadReports = downloadTasks.map((task) =>
-      buildReportViewModel(
-        toReportRecord(task, member, projectsById, pagesById),
-        projectsById,
-        serviceGroupsById,
-        pagesById,
-      ),
+      buildTaskReportViewModel(task, member, projectsById, serviceGroupsById, pagesById),
     );
     downloadExcelFile(
       buildExportFilename(appliedFilters.startDate, appliedFilters.endDate),

@@ -3,6 +3,7 @@ import type {
   ProjectPage,
   ReportFilters as OpsReportFilters,
   ServiceGroup,
+  Task,
   TaskType,
 } from '../../lib/domain';
 import {
@@ -447,6 +448,37 @@ export function buildReportViewModel(
     pageUrl,
     searchText,
   } satisfies ReportViewModel;
+}
+
+export function buildTaskReportViewModel(
+  task: Task,
+  owner: { id: string; name: string },
+  projectsById: Map<string, Project>,
+  serviceGroupsById: Map<string, ServiceGroup>,
+  pagesById: Map<string, ProjectPage>,
+) {
+  return buildReportViewModel(
+    {
+      id: task.id,
+      ownerId: owner.id,
+      ownerName: owner.name,
+      reportDate: task.taskDate,
+      projectId: task.projectId ?? '',
+      pageId: task.pageId ?? '',
+      projectName: task.projectId ? (projectsById.get(task.projectId)?.name ?? '') : '',
+      pageName: task.pageId ? (pagesById.get(task.pageId)?.title ?? '') : '',
+      type1: task.taskType1 as ReportViewModel['type1'],
+      type2: task.taskType2 as ReportViewModel['type2'],
+      taskUsedtime: task.taskUsedtime,
+      content: task.content,
+      note: task.note,
+      createdAt: task.createdAt,
+      updatedAt: task.updatedAt,
+    },
+    projectsById,
+    serviceGroupsById,
+    pagesById,
+  );
 }
 
 export function sortReportsByMode<T extends ReportRecord>(

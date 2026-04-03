@@ -261,19 +261,18 @@ export function ReportsPage() {
     filteredProjectOptions,
     projectOptions,
     applyProjectQuery,
+    dailyReports,
     isSaving,
-    periodReports,
-    periodFilters,
     saveDraft,
     saveOverheadReport,
     deleteDraft,
     selectReport,
+    selectedDate,
     selectedReport,
     selectedReportId,
     setDraftField,
     setActiveTab,
-    setPeriodField,
-    applyPeriodFilters,
+    setSelectedDate,
     setProjectQuery,
     projectQuery,
     statusMessage,
@@ -393,12 +392,12 @@ export function ReportsPage() {
     return '';
   }, [draft.type1, isProjectLinkedTab, type2Options.length]);
   const currentListDateText = useMemo(() => {
-    const value = periodFilters.startDate || periodFilters.endDate || todayInputValue;
+    const value = selectedDate || todayInputValue;
     return value ? value.slice(0, 10) : '';
-  }, [periodFilters.endDate, periodFilters.startDate, todayInputValue]);
+  }, [selectedDate, todayInputValue]);
   const currentListDateValue = useMemo(
-    () => periodFilters.startDate || periodFilters.endDate || todayInputValue,
-    [periodFilters.endDate, periodFilters.startDate, todayInputValue],
+    () => selectedDate || todayInputValue,
+    [selectedDate, todayInputValue],
   );
 
   const onSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -447,22 +446,15 @@ export function ReportsPage() {
     setDraftField('taskUsedtime', '');
   };
 
-  const applyPeriodDate = (date: string) => {
-    const nextFilters = {
-      ...periodFilters,
-      startDate: date,
-      endDate: date,
-    };
-    setPeriodField('startDate', date);
-    setPeriodField('endDate', date);
-    applyPeriodFilters(nextFilters);
+  const applySelectedDate = (date: string) => {
+    setSelectedDate(date);
   };
 
-  const shiftPeriodDate = (offsetDays: number) => {
-    const base = periodFilters.startDate || periodFilters.endDate || todayInputValue;
+  const shiftSelectedDate = (offsetDays: number) => {
+    const base = selectedDate || todayInputValue;
 
     if (offsetDays === 0) {
-      applyPeriodDate(todayInputValue);
+      applySelectedDate(todayInputValue);
       return;
     }
 
@@ -477,7 +469,7 @@ export function ReportsPage() {
       nextDate = shiftDateInput(nextDate, 2);
     }
 
-    applyPeriodDate(nextDate);
+    applySelectedDate(nextDate);
   };
 
   const handleDelete = (id: string) => {
@@ -510,7 +502,7 @@ export function ReportsPage() {
           <button
             type="button"
             className={styles.secondaryButton}
-            onClick={() => shiftPeriodDate(-1)}
+            onClick={() => shiftSelectedDate(-1)}
             aria-label="이전일 조회"
           >
             이전일
@@ -518,7 +510,7 @@ export function ReportsPage() {
           <button
             type="button"
             className={styles.secondaryButton}
-            onClick={() => shiftPeriodDate(0)}
+            onClick={() => shiftSelectedDate(0)}
             aria-label="오늘 조회"
           >
             오늘
@@ -526,7 +518,7 @@ export function ReportsPage() {
           <button
             type="button"
             className={styles.secondaryButton}
-            onClick={() => shiftPeriodDate(1)}
+            onClick={() => shiftSelectedDate(1)}
             aria-label="다음일 조회"
           >
             다음일
@@ -782,7 +774,7 @@ export function ReportsPage() {
       </div>
 
       <section className={canEditReports ? styles.panel : undefined}>
-        {renderReportTable(periodReports, {
+        {renderReportTable(dailyReports, {
           canEdit: canEditReports,
           selectedReportId,
           selectedReport,

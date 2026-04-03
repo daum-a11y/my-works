@@ -110,6 +110,20 @@ export interface Task {
   updatedAt: string;
 }
 
+export interface DailyTask {
+  id: string;
+  taskDate: string;
+  projectId: string | null;
+  pageId: string | null;
+  taskType1: string;
+  taskType2: string;
+  taskUsedtime: number;
+  content: string;
+  note: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface TaskActivity {
   memberId: string;
   taskDate: string;
