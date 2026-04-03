@@ -13,22 +13,10 @@ import {
 import { PageSection } from '../../components/ui/PageSection';
 import { setDocumentTitle } from '../../app/navigation';
 import { opsDataClient } from '../../lib/dataClient';
-import { isQaProjectType } from '../../lib/taskTypeRules';
+import type { QaStatsProjectRow } from '../../lib/domain';
 import { getCurrentMonth, shiftMonth } from '../resource/resourceShared';
 import { useAuth } from '../auth/AuthContext';
 import styles from './shared.module.css';
-
-interface QaProject {
-  id: string;
-  type1: string;
-  name: string;
-  serviceGroupName: string;
-  reportUrl: string;
-  reporterDisplay: string;
-  startDate: string;
-  endDate: string;
-  isActive: boolean;
-}
 
 interface MonthlyQaRow {
   monthKey: string;
@@ -66,29 +54,8 @@ function buildMonthRange(monthKeys: string[]): string[] {
   return range;
 }
 
-function sortProjects(left: QaProject, right: QaProject) {
+function sortProjects(left: QaStatsProjectRow, right: QaStatsProjectRow) {
   return right.endDate.localeCompare(left.endDate) || left.name.localeCompare(right.name);
-}
-
-function isQaProject(project: QaProject) {
-  return isQaProjectType(project.type1);
-}
-
-function memberDisplay(
-  memberId: string | null | undefined,
-  membersById: Map<string, { accountId: string; name: string }>,
-) {
-  if (!memberId) {
-    return '미지정';
-  }
-
-  const member = membersById.get(memberId);
-
-  if (!member) {
-    return memberId;
-  }
-
-  return `${member.accountId}(${member.name})`;
 }
 
 export function QaStatsPage() {
@@ -100,35 +67,7 @@ export function QaStatsPage() {
 
   const projectsQuery = useQuery({
     queryKey: ['qa-projects', member?.id],
-    queryFn: async () => {
-      const [projects, members, serviceGroups] = await Promise.all([
-        opsDataClient.getProjects(),
-        opsDataClient.getMembers(),
-        opsDataClient.getServiceGroups(),
-      ]);
-
-      const membersById = new Map(
-        members.map((item) => [item.id, { accountId: item.accountId, name: item.name }]),
-      );
-      const serviceGroupsById = new Map(serviceGroups.map((item) => [item.id, item.name]));
-
-      return projects
-        .map((project) => ({
-          id: project.id,
-          type1: project.projectType1,
-          name: project.name,
-          serviceGroupName: project.serviceGroupId
-            ? (serviceGroupsById.get(project.serviceGroupId) ?? '-')
-            : '-',
-          reportUrl: project.reportUrl,
-          reporterDisplay: memberDisplay(project.reporterMemberId, membersById),
-          startDate: project.startDate,
-          endDate: project.endDate,
-          isActive: Boolean(project.isActive),
-        }))
-        .filter(isQaProject)
-        .sort(sortProjects);
-    },
+    queryFn: async () => opsDataClient.getQaStatsProjects(),
     enabled: Boolean(member),
   });
 
@@ -166,16 +105,18 @@ export function QaStatsPage() {
   };
 
   const filteredProjects = useMemo(() => {
-    return qaProjects.filter((project) => {
-      const monthKey = monthKeyFromDate(project.endDate);
-      if (startMonth && monthKey < startMonth) {
-        return false;
-      }
-      if (endMonth && monthKey > endMonth) {
-        return false;
-      }
-      return true;
-    });
+    return qaProjects
+      .filter((project) => {
+        const monthKey = monthKeyFromDate(project.endDate);
+        if (startMonth && monthKey < startMonth) {
+          return false;
+        }
+        if (endMonth && monthKey > endMonth) {
+          return false;
+        }
+        return true;
+      })
+      .sort(sortProjects);
   }, [endMonth, qaProjects, startMonth]);
 
   const monthlyRows = useMemo<MonthlyQaRow[]>(() => {

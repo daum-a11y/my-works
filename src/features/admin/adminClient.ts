@@ -686,14 +686,14 @@ function createSupabaseAdminClient(): AdminDataClient {
     },
 
     async deleteMemberAdmin(memberId: string) {
-      const { count, error: countError } = await supabase
-        .from('tasks')
-        .select('id', { count: 'exact', head: true })
-        .eq('member_id', memberId);
-
+      const { data, error: countError } = await supabase.rpc('admin_get_member_task_count', {
+        p_member_id: memberId,
+      });
       if (countError) throw countError;
+      const rows = Array.isArray(data) ? data : [];
+      const count = Number(rows[0]?.task_count ?? 0);
 
-      if ((count ?? 0) > 0) {
+      if (count > 0) {
         const { error } = await supabase
           .from('members')
           .update({ user_active: false })
@@ -729,33 +729,15 @@ function createSupabaseAdminClient(): AdminDataClient {
     },
 
     async getTaskTypeUsageSummary(taskTypeId: string, type1: string, type2: string) {
-      const taskIds = new Set<string>();
-
-      const normalizedType1 = type1.trim();
-      const normalizedType2 = type2.trim();
-
-      const [byIdResult, byTextResult] = await Promise.all([
-        supabase.from('tasks').select('id').eq('task_type_id', taskTypeId),
-        supabase
-          .from('tasks')
-          .select('id')
-          .eq('task_type1', normalizedType1)
-          .eq('task_type2', normalizedType2),
-      ]);
-
-      if (byIdResult.error) throw byIdResult.error;
-      if (byTextResult.error) throw byTextResult.error;
-
-      for (const row of byIdResult.data ?? []) {
-        taskIds.add(String(row.id));
-      }
-
-      for (const row of byTextResult.data ?? []) {
-        taskIds.add(String(row.id));
-      }
-
+      const { data, error } = await supabase.rpc('admin_get_task_type_usage_summary', {
+        p_task_type_id: taskTypeId,
+        p_type1: type1.trim(),
+        p_type2: type2.trim(),
+      });
+      if (error) throw error;
+      const rows = Array.isArray(data) ? data : [];
       return {
-        taskCount: taskIds.size,
+        taskCount: Number(rows[0]?.task_count ?? 0),
       };
     },
 
@@ -770,15 +752,12 @@ function createSupabaseAdminClient(): AdminDataClient {
       nextType1: string,
       nextType2: string,
     ) {
-      const { error } = await supabase
-        .from('tasks')
-        .update({
-          task_type1: nextType1,
-          task_type2: nextType2,
-        })
-        .eq('task_type1', oldType1)
-        .eq('task_type2', oldType2);
-
+      const { error } = await supabase.rpc('admin_replace_task_type_usage', {
+        p_old_type1: oldType1,
+        p_old_type2: oldType2,
+        p_next_type1: nextType1,
+        p_next_type2: nextType2,
+      });
       if (error) throw error;
     },
 

@@ -251,6 +251,37 @@ export interface StatsSnapshot {
   typeBreakdown: Array<{ type: string; taskUsedtime: number }>;
 }
 
+export interface MonitoringStatsRow {
+  pageId: string;
+  projectId: string;
+  title: string;
+  url: string;
+  ownerMemberId: string | null;
+  monitoringMonth: string;
+  trackStatus: PageStatus;
+  monitoringInProgress: boolean;
+  qaInProgress: boolean;
+  note: string;
+  updatedAt: string;
+  serviceGroupName: string;
+  projectName: string;
+  platform: string;
+  assigneeDisplay: string;
+  reportUrl: string;
+}
+
+export interface QaStatsProjectRow {
+  id: string;
+  type1: string;
+  name: string;
+  serviceGroupName: string;
+  reportUrl: string;
+  reporterDisplay: string;
+  startDate: string;
+  endDate: string;
+  isActive: boolean;
+}
+
 export interface OpsStore {
   members: Member[];
   platforms: Platform[];

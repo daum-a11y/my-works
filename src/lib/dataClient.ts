@@ -4,12 +4,14 @@ import {
   type DashboardTaskCalendarDay,
   type DashboardSnapshot,
   type Member,
+  type MonitoringStatsRow,
   normalizePageStatus,
   type OpsStore,
   type PagedResult,
   type Platform,
   type Project,
   type ProjectPage,
+  type QaStatsProjectRow,
   type ReportFilters,
   type SaveProjectInput,
   type SaveProjectPageInput,
@@ -70,6 +72,8 @@ export interface OpsDataClient {
   ): Promise<PagedResult<Task>>;
   getDashboard(member: Member): Promise<DashboardSnapshot>;
   getStats(member: Member): Promise<StatsSnapshot>;
+  getMonitoringStatsRows(): Promise<MonitoringStatsRow[]>;
+  getQaStatsProjects(): Promise<QaStatsProjectRow[]>;
 }
 
 function buildDashboard(store: OpsStore): DashboardSnapshot {
@@ -150,8 +154,6 @@ function normalizeSearchQuery(value: string) {
 
 function createSupabaseClient(): OpsDataClient {
   const supabase = requireData(getSupabaseClient(), 'Supabase is not configured.');
-  const taskSelectColumns =
-    'id, member_id, task_date, project_id, project_page_id, task_type1, task_type2, task_usedtime, content, note, created_at, updated_at';
 
   return {
     mode: 'supabase',
@@ -383,14 +385,12 @@ function createSupabaseClient(): OpsDataClient {
       if (error) throw error;
     },
     async getTasksByDate(member, taskDate) {
-      const { data, error } = await supabase
-        .from('tasks')
-        .select(taskSelectColumns)
-        .eq('member_id', member.id)
-        .eq('task_date', taskDate)
-        .order('id', { ascending: false });
+      const { data, error } = await supabase.rpc('get_tasks_by_date', {
+        p_member_id: member.id,
+        p_task_date: taskDate,
+      });
       if (error) throw error;
-      return dedupeTasksById((data ?? []).map(mapTaskRecord));
+      return dedupeTasksById(((data ?? []) as Record<string, unknown>[]).map(mapTaskRecord));
     },
     async getDashboardTaskCalendar(member, month) {
       const { data, error } = await supabase.rpc('get_dashboard_task_calendar', {
@@ -431,9 +431,7 @@ function createSupabaseClient(): OpsDataClient {
       return ((data ?? []) as Record<string, unknown>[]).map(mapResourceMonthReportRowRecord);
     },
     async getTaskActivities() {
-      const { data, error } = await supabase
-        .from('tasks')
-        .select('member_id, task_date, task_usedtime');
+      const { data, error } = await supabase.rpc('get_task_activities');
       if (error) throw error;
       return (data ?? []).map(mapTaskActivityRecord);
     },
@@ -492,65 +490,32 @@ function createSupabaseClient(): OpsDataClient {
     async searchTasksPage(member, filters, page, pageSize) {
       const from = Math.max(0, (page - 1) * pageSize);
       const to = from + pageSize - 1;
-      const normalizedQuery = normalizeSearchQuery(filters.query);
-      let queryBuilder = supabase
-        .from('tasks')
-        .select(taskSelectColumns, { count: 'exact' })
-        .eq('member_id', member.id)
-        .order('task_date', { ascending: false })
-        .order('id', { ascending: false });
-
-      if (filters.startDate) queryBuilder = queryBuilder.gte('task_date', filters.startDate);
-      if (filters.endDate) queryBuilder = queryBuilder.lte('task_date', filters.endDate);
-      if (filters.projectId) queryBuilder = queryBuilder.eq('project_id', filters.projectId);
-      if (filters.pageId) queryBuilder = queryBuilder.eq('project_page_id', filters.pageId);
-      if (filters.taskType1) queryBuilder = queryBuilder.eq('task_type1', filters.taskType1);
-      if (filters.taskType2) queryBuilder = queryBuilder.eq('task_type2', filters.taskType2);
-      if (filters.minTaskUsedtime)
-        queryBuilder = queryBuilder.gte(
-          'task_usedtime',
-          Number.parseFloat(filters.minTaskUsedtime),
-        );
-      if (filters.maxTaskUsedtime)
-        queryBuilder = queryBuilder.lte(
-          'task_usedtime',
-          Number.parseFloat(filters.maxTaskUsedtime),
-        );
-
-      if (normalizedQuery) {
-        const [projects, pages] = await Promise.all([
-          this.getProjects(),
-          this.getProjectPages(member),
-        ]);
-        const matchedProjectIds = projects
-          .filter((project) => project.name.toLowerCase().includes(normalizedQuery))
-          .map((project) => project.id);
-        const matchedPageIds = pages
-          .filter((page) => page.title.toLowerCase().includes(normalizedQuery))
-          .map((page) => page.id);
-        const safeQuery = escapeLikeQuery(normalizedQuery);
-        const orFilters = [
-          `content.ilike.*${safeQuery}*`,
-          `note.ilike.*${safeQuery}*`,
-          `task_type1.ilike.*${safeQuery}*`,
-          `task_type2.ilike.*${safeQuery}*`,
-        ];
-
-        if (matchedProjectIds.length > 0) {
-          orFilters.push(`project_id.in.(${buildInFilter(matchedProjectIds)})`);
-        }
-        if (matchedPageIds.length > 0) {
-          orFilters.push(`project_page_id.in.(${buildInFilter(matchedPageIds)})`);
-        }
-
-        queryBuilder = queryBuilder.or(orFilters.join(','));
-      }
-
-      const { data, error, count } = await queryBuilder.range(from, to);
+      const { data, error, count } = await supabase
+        .rpc(
+          'search_tasks_page',
+          {
+            p_member_id: member.id,
+            p_start_date: filters.startDate || null,
+            p_end_date: filters.endDate || null,
+            p_project_id: filters.projectId || null,
+            p_project_page_id: filters.pageId || null,
+            p_task_type1: filters.taskType1 || null,
+            p_task_type2: filters.taskType2 || null,
+            p_min_task_usedtime: filters.minTaskUsedtime
+              ? Number.parseFloat(filters.minTaskUsedtime)
+              : null,
+            p_max_task_usedtime: filters.maxTaskUsedtime
+              ? Number.parseFloat(filters.maxTaskUsedtime)
+              : null,
+            p_keyword: filters.query.trim() || null,
+          },
+          { count: 'exact' },
+        )
+        .range(from, to);
       if (error) throw error;
 
       return {
-        items: dedupeTasksById((data ?? []).map(mapTaskRecord)),
+        items: dedupeTasksById(((data ?? []) as Record<string, unknown>[]).map(mapTaskRecord)),
         totalCount: count ?? 0,
       };
     },
@@ -620,6 +585,16 @@ function createSupabaseClient(): OpsDataClient {
         }),
       };
     },
+    async getMonitoringStatsRows() {
+      const { data, error } = await supabase.rpc('get_monitoring_stats_rows');
+      if (error) throw error;
+      return ((data ?? []) as Record<string, unknown>[]).map(mapMonitoringStatsRowRecord);
+    },
+    async getQaStatsProjects() {
+      const { data, error } = await supabase.rpc('get_qa_stats_projects');
+      if (error) throw error;
+      return ((data ?? []) as Record<string, unknown>[]).map(mapQaStatsProjectRowRecord);
+    },
   };
 }
 
@@ -662,6 +637,8 @@ function createUnconfiguredClient(): OpsDataClient {
     searchTasksPage: fail,
     getDashboard: fail,
     getStats: fail,
+    getMonitoringStatsRows: fail,
+    getQaStatsProjects: fail,
   };
 }
 
@@ -693,6 +670,41 @@ function mapTaskActivityRecord(record: Record<string, unknown>): TaskActivity {
     memberId: String(record.member_id ?? ''),
     taskDate: String(record.task_date ?? getToday()),
     taskUsedtime: Number(record.task_usedtime ?? 0),
+  };
+}
+
+function mapMonitoringStatsRowRecord(record: Record<string, unknown>): MonitoringStatsRow {
+  return {
+    pageId: String(record.page_id ?? ''),
+    projectId: String(record.project_id ?? ''),
+    title: String(record.title ?? ''),
+    url: String(record.url ?? ''),
+    ownerMemberId: record.owner_member_id ? String(record.owner_member_id) : null,
+    monitoringMonth: String(record.monitoring_month ?? ''),
+    trackStatus: normalizePageStatus(String(record.track_status ?? '미수정')),
+    monitoringInProgress: Boolean(record.monitoring_in_progress ?? false),
+    qaInProgress: Boolean(record.qa_in_progress ?? false),
+    note: String(record.note ?? ''),
+    updatedAt: String(record.updated_at ?? ''),
+    serviceGroupName: String(record.service_group_name ?? '-'),
+    projectName: String(record.project_name ?? '-'),
+    platform: String(record.platform ?? '-'),
+    assigneeDisplay: String(record.assignee_display ?? '미지정'),
+    reportUrl: String(record.report_url ?? ''),
+  };
+}
+
+function mapQaStatsProjectRowRecord(record: Record<string, unknown>): QaStatsProjectRow {
+  return {
+    id: String(record.id ?? ''),
+    type1: String(record.type1 ?? ''),
+    name: String(record.name ?? ''),
+    serviceGroupName: String(record.service_group_name ?? '-'),
+    reportUrl: String(record.report_url ?? ''),
+    reporterDisplay: String(record.reporter_display ?? '미지정'),
+    startDate: String(record.start_date ?? ''),
+    endDate: String(record.end_date ?? ''),
+    isActive: Boolean(record.is_active ?? true),
   };
 }
 

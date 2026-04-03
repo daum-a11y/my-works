@@ -537,6 +537,76 @@ as $$
   order by t.task_date asc
 $$;
 
+create or replace function public.get_tasks_by_date(
+  p_member_id uuid default null,
+  p_task_date date default null
+)
+returns table (
+  id uuid,
+  member_id uuid,
+  task_date date,
+  project_id uuid,
+  project_page_id uuid,
+  task_type1 text,
+  task_type2 text,
+  task_usedtime numeric,
+  content text,
+  note text,
+  created_at timestamptz,
+  updated_at timestamptz
+)
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select
+    t.id,
+    t.member_id,
+    t.task_date,
+    t.project_id,
+    t.project_page_id,
+    t.task_type1,
+    t.task_type2,
+    t.task_usedtime,
+    t.content,
+    t.note,
+    t.created_at,
+    t.updated_at
+  from public.tasks t
+  where public.current_member_id() is not null
+    and p_task_date is not null
+    and (
+      (public.current_user_is_admin() and t.member_id = coalesce(p_member_id, public.current_member_id()))
+      or (
+        not public.current_user_is_admin()
+        and t.member_id = public.current_member_id()
+        and (p_member_id is null or p_member_id = public.current_member_id())
+      )
+    )
+    and t.task_date = p_task_date
+  order by t.id desc
+$$;
+
+create or replace function public.get_task_activities()
+returns table (
+  member_id uuid,
+  task_date date,
+  task_usedtime numeric
+)
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select
+    t.member_id,
+    t.task_date,
+    t.task_usedtime
+  from public.tasks t
+  where public.current_member_id() is not null
+$$;
+
 create or replace function public.get_resource_summary(
   p_member_id uuid default null,
   p_month text default null
@@ -857,6 +927,94 @@ as $$
   cross join qa_count qc
 $$;
 
+create or replace function public.get_monitoring_stats_rows()
+returns table (
+  page_id uuid,
+  project_id uuid,
+  title text,
+  url text,
+  owner_member_id uuid,
+  monitoring_month text,
+  track_status text,
+  monitoring_in_progress boolean,
+  qa_in_progress boolean,
+  note text,
+  updated_at timestamptz,
+  service_group_name text,
+  project_name text,
+  platform text,
+  assignee_display text,
+  report_url text
+)
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select
+    pp.id as page_id,
+    p.id as project_id,
+    pp.title,
+    pp.url,
+    pp.owner_member_id,
+    coalesce(pp.monitoring_month, '') as monitoring_month,
+    pp.track_status,
+    pp.monitoring_in_progress,
+    pp.qa_in_progress,
+    coalesce(pp.note, '') as note,
+    pp.updated_at,
+    coalesce(sg.name, '-') as service_group_name,
+    p.name as project_name,
+    coalesce(nullif(p.platform, ''), '-') as platform,
+    coalesce(
+      nullif(concat_ws(' ', nullif(owner.account_id, ''), nullif(owner.name, '')), ''),
+      '미지정'
+    ) as assignee_display,
+    coalesce(p.report_url, '') as report_url
+  from public.project_pages pp
+  join public.projects p on p.id = pp.project_id
+  left join public.service_groups sg on sg.id = p.service_group_id
+  left join public.members owner on owner.id = pp.owner_member_id
+  order by pp.updated_at desc, pp.id desc
+$$;
+
+create or replace function public.get_qa_stats_projects()
+returns table (
+  id uuid,
+  type1 text,
+  name text,
+  service_group_name text,
+  report_url text,
+  reporter_display text,
+  start_date date,
+  end_date date,
+  is_active boolean
+)
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select
+    p.id,
+    p.project_type1 as type1,
+    p.name,
+    coalesce(sg.name, '-') as service_group_name,
+    coalesce(p.report_url, '') as report_url,
+    coalesce(
+      nullif(concat_ws(' ', nullif(reporter.account_id, ''), nullif(reporter.name, '')), ''),
+      '미지정'
+    ) as reporter_display,
+    p.start_date,
+    p.end_date,
+    p.is_active
+  from public.projects p
+  left join public.service_groups sg on sg.id = p.service_group_id
+  left join public.members reporter on reporter.id = p.reporter_member_id
+  where lower(trim(p.project_type1)) in ('qa', '접근성테스트')
+  order by p.end_date desc, p.name asc
+$$;
+
 create or replace function public.search_tasks_export(
   p_member_id uuid default null,
   p_start_date date default null,
@@ -934,6 +1092,95 @@ as $$
       ) ilike '%' || p_keyword || '%'
     )
   order by t.task_date desc, t.id desc
+$$;
+
+create or replace function public.search_tasks_page(
+  p_member_id uuid default null,
+  p_start_date date default null,
+  p_end_date date default null,
+  p_project_id uuid default null,
+  p_project_page_id uuid default null,
+  p_task_type1 text default null,
+  p_task_type2 text default null,
+  p_min_task_usedtime numeric default null,
+  p_max_task_usedtime numeric default null,
+  p_keyword text default null
+)
+returns table (
+  id uuid,
+  member_id uuid,
+  task_date date,
+  project_id uuid,
+  project_page_id uuid,
+  task_type1 text,
+  task_type2 text,
+  task_usedtime numeric,
+  content text,
+  note text,
+  created_at timestamptz,
+  updated_at timestamptz
+)
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select
+    t.id,
+    t.member_id,
+    t.task_date,
+    t.project_id,
+    t.project_page_id,
+    t.task_type1,
+    t.task_type2,
+    t.task_usedtime,
+    t.content,
+    t.note,
+    t.created_at,
+    t.updated_at
+  from public.tasks t
+  left join public.projects p on p.id = t.project_id
+  left join public.project_pages pp on pp.id = t.project_page_id
+  where public.current_member_id() is not null
+    and t.member_id = coalesce(p_member_id, public.current_member_id())
+    and (p_start_date is null or t.task_date >= p_start_date)
+    and (p_end_date is null or t.task_date <= p_end_date)
+    and (p_project_id is null or t.project_id = p_project_id)
+    and (p_project_page_id is null or t.project_page_id = p_project_page_id)
+    and (p_task_type1 is null or t.task_type1 = p_task_type1)
+    and (p_task_type2 is null or t.task_type2 = p_task_type2)
+    and (p_min_task_usedtime is null or t.task_usedtime >= p_min_task_usedtime)
+    and (p_max_task_usedtime is null or t.task_usedtime <= p_max_task_usedtime)
+    and (
+      p_keyword is null
+      or concat_ws(
+        ' ',
+        coalesce(t.content, ''),
+        coalesce(t.note, ''),
+        coalesce(t.task_type1, ''),
+        coalesce(t.task_type2, ''),
+        coalesce(p.name, ''),
+        coalesce(pp.title, '')
+      ) ilike '%' || p_keyword || '%'
+    )
+  order by t.task_date desc, t.id desc
+$$;
+
+create or replace function public.admin_get_member_task_count(
+  p_member_id uuid
+)
+returns table (
+  task_count bigint
+)
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select count(*)::bigint as task_count
+  from public.tasks t
+  where public.current_user_is_admin()
+    and t.member_id = p_member_id
 $$;
 
 create or replace function public.touch_member_last_login(
@@ -1386,6 +1633,60 @@ begin
 end;
 $$;
 
+create or replace function public.admin_get_task_type_usage_summary(
+  p_task_type_id uuid,
+  p_type1 text,
+  p_type2 text
+)
+returns table (
+  task_count bigint
+)
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  with matched as (
+    select t.id
+    from public.tasks t
+    where t.task_type_id = p_task_type_id
+    union
+    select t.id
+    from public.tasks t
+    where t.task_type1 = p_type1
+      and t.task_type2 = p_type2
+  )
+  select count(*)::bigint as task_count
+  from matched
+  where public.current_user_is_admin()
+$$;
+
+create or replace function public.admin_replace_task_type_usage(
+  p_old_type1 text,
+  p_old_type2 text,
+  p_next_type1 text,
+  p_next_type2 text
+)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if not public.current_user_is_admin() then
+    raise exception 'admin only';
+  end if;
+
+  update public.tasks
+  set
+    task_type1 = p_next_type1,
+    task_type2 = p_next_type2,
+    updated_at = timezone('utc', now())
+  where task_type1 = p_old_type1
+    and task_type2 = p_old_type2;
+end;
+$$;
+
 drop function if exists public.admin_search_tasks(uuid, date, date, uuid, uuid, text, text, uuid, text);
 
 create or replace function public.admin_search_tasks(
@@ -1480,16 +1781,24 @@ grant execute on function public.bind_auth_session_member(uuid, text) to authent
 grant execute on function public.touch_member_last_login(uuid, text) to authenticated;
 grant execute on function public.save_task(uuid, date, uuid, uuid, text, text, numeric, text, text) to authenticated;
 grant execute on function public.delete_task(uuid) to authenticated;
+grant execute on function public.get_tasks_by_date(uuid, date) to authenticated;
+grant execute on function public.get_task_activities() to authenticated;
 grant execute on function public.get_dashboard_task_calendar(uuid, text) to authenticated;
 grant execute on function public.get_resource_summary(uuid, text) to authenticated;
 grant execute on function public.get_resource_type_summary(uuid) to authenticated;
 grant execute on function public.get_resource_service_summary(uuid) to authenticated;
 grant execute on function public.get_resource_month_report(uuid, text) to authenticated;
 grant execute on function public.get_stats() to authenticated;
+grant execute on function public.get_monitoring_stats_rows() to authenticated;
+grant execute on function public.get_qa_stats_projects() to authenticated;
 grant execute on function public.search_tasks_export(uuid, date, date, uuid, uuid, text, text, numeric, numeric, text) to authenticated;
+grant execute on function public.search_tasks_page(uuid, date, date, uuid, uuid, text, text, numeric, numeric, text) to authenticated;
 grant execute on function public.admin_get_task(uuid) to authenticated;
 grant execute on function public.admin_save_task(uuid, uuid, date, uuid, uuid, text, text, numeric, text, text) to authenticated;
 grant execute on function public.admin_delete_task(uuid) to authenticated;
+grant execute on function public.admin_get_task_type_usage_summary(uuid, text, text) to authenticated;
+grant execute on function public.admin_replace_task_type_usage(text, text, text, text) to authenticated;
+grant execute on function public.admin_get_member_task_count(uuid) to authenticated;
 grant execute on function public.upsert_project(uuid, text, text, uuid, uuid, text, uuid, uuid, date, date, boolean) to authenticated;
 grant execute on function public.upsert_project_page(uuid, uuid, text, text, uuid, text, text, boolean, boolean, text) to authenticated;
 grant execute on function public.admin_search_tasks(uuid, date, date, uuid, uuid, text, text, uuid, text) to authenticated;

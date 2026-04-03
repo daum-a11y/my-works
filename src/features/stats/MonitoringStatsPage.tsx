@@ -14,19 +14,10 @@ import {
 import { PageSection } from '../../components/ui/PageSection';
 import { setDocumentTitle } from '../../app/navigation';
 import { opsDataClient } from '../../lib/dataClient';
-import { pageStatusOptions, type PageStatus, type ProjectPage } from '../../lib/domain';
+import { pageStatusOptions, type MonitoringStatsRow, type PageStatus } from '../../lib/domain';
 import { getCurrentMonth, shiftMonth } from '../resource/resourceShared';
 import { useAuth } from '../auth/AuthContext';
 import styles from './shared.module.css';
-
-interface MonitoringRow {
-  page: ProjectPage;
-  serviceGroupName: string;
-  projectName: string;
-  platform: string;
-  assigneeDisplay: string;
-  reportUrl: string;
-}
 
 interface MonthlyMonitoringRow {
   monthKey: string;
@@ -74,25 +65,8 @@ function buildMonthRange(monthKeys: string[]): string[] {
   return range;
 }
 
-function sortRows(left: MonitoringRow, right: MonitoringRow) {
-  return new Date(right.page.updatedAt).getTime() - new Date(left.page.updatedAt).getTime();
-}
-
-function memberDisplay(
-  memberId: string | null | undefined,
-  membersById: Map<string, { accountId: string; name: string }>,
-) {
-  if (!memberId) {
-    return '미지정';
-  }
-
-  const member = membersById.get(memberId);
-
-  if (!member) {
-    return memberId;
-  }
-
-  return `${member.accountId}(${member.name})`;
+function sortRows(left: MonitoringStatsRow, right: MonitoringStatsRow) {
+  return new Date(right.updatedAt).getTime() - new Date(left.updatedAt).getTime();
 }
 
 export function MonitoringStatsPage() {
@@ -104,37 +78,11 @@ export function MonitoringStatsPage() {
 
   const monitoringQuery = useQuery({
     queryKey: ['monitoring-detail', member?.id],
-    queryFn: async () => {
-      const [pages, projects, members, serviceGroups] = await Promise.all([
-        opsDataClient.getAllProjectPages(),
-        opsDataClient.getProjects(),
-        opsDataClient.getMembers(),
-        opsDataClient.getServiceGroups(),
-      ]);
-      const projectsById = new Map(projects.map((project) => [project.id, project]));
-      const membersById = new Map(
-        members.map((item) => [item.id, { accountId: item.accountId, name: item.name }]),
-      );
-      const serviceGroupsById = new Map(serviceGroups.map((item) => [item.id, item.name]));
-
-      return pages
-        .filter((page) => Boolean(page.monitoringMonth))
-        .map((page) => ({
-          page,
-          serviceGroupName: projectsById.get(page.projectId)?.serviceGroupId
-            ? (serviceGroupsById.get(projectsById.get(page.projectId)?.serviceGroupId ?? '') ?? '-')
-            : '-',
-          projectName: projectsById.get(page.projectId)?.name ?? '-',
-          platform: projectsById.get(page.projectId)?.platform ?? '-',
-          assigneeDisplay: memberDisplay(page.ownerMemberId, membersById),
-          reportUrl: projectsById.get(page.projectId)?.reportUrl ?? page.url,
-        }))
-        .sort(sortRows);
-    },
+    queryFn: async () => opsDataClient.getMonitoringStatsRows(),
     enabled: Boolean(member),
   });
 
-  const monitoringRows = useMemo<MonitoringRow[]>(
+  const monitoringRows = useMemo<MonitoringStatsRow[]>(
     () => monitoringQuery.data ?? [],
     [monitoringQuery.data],
   );
@@ -154,17 +102,17 @@ export function MonitoringStatsPage() {
   }, []);
 
   const savePageMutation = useMutation({
-    mutationFn: async (page: ProjectPage) =>
+    mutationFn: async (row: MonitoringStatsRow) =>
       opsDataClient.saveProjectPage({
-        id: page.id,
-        projectId: page.projectId,
-        title: page.title,
-        url: page.url,
-        ownerMemberId: page.ownerMemberId,
-        monitoringMonth: page.monitoringMonth,
+        id: row.pageId,
+        projectId: row.projectId,
+        title: row.title,
+        url: row.url,
+        ownerMemberId: row.ownerMemberId,
+        monitoringMonth: row.monitoringMonth,
         trackStatus: draftStatus,
-        monitoringInProgress: page.monitoringInProgress,
-        qaInProgress: page.qaInProgress,
+        monitoringInProgress: row.monitoringInProgress,
+        qaInProgress: row.qaInProgress,
         note: draftNote.trim(),
       }),
     onSuccess: async () => {
@@ -173,10 +121,10 @@ export function MonitoringStatsPage() {
     },
   });
 
-  const startEdit = (row: MonitoringRow) => {
-    setEditingPageId(row.page.id);
-    setDraftStatus(row.page.trackStatus);
-    setDraftNote(row.page.note);
+  const startEdit = (row: MonitoringStatsRow) => {
+    setEditingPageId(row.pageId);
+    setDraftStatus(row.trackStatus);
+    setDraftNote(row.note);
   };
 
   const cancelEdit = () => {
@@ -211,19 +159,21 @@ export function MonitoringStatsPage() {
   };
 
   const filteredRows = useMemo(() => {
-    return monitoringRows.filter((row) => {
-      const monthKey = monthKeyFromMonitoringMonth(row.page.monitoringMonth);
-      if (!monthKey) {
-        return false;
-      }
-      if (startMonth && monthKey < startMonth) {
-        return false;
-      }
-      if (endMonth && monthKey > endMonth) {
-        return false;
-      }
-      return true;
-    });
+    return monitoringRows
+      .filter((row) => {
+        const monthKey = monthKeyFromMonitoringMonth(row.monitoringMonth);
+        if (!monthKey) {
+          return false;
+        }
+        if (startMonth && monthKey < startMonth) {
+          return false;
+        }
+        if (endMonth && monthKey > endMonth) {
+          return false;
+        }
+        return true;
+      })
+      .sort(sortRows);
   }, [endMonth, monitoringRows, startMonth]);
 
   const monthlyRows = useMemo<MonthlyMonitoringRow[]>(() => {
@@ -241,11 +191,11 @@ export function MonitoringStatsPage() {
       }
     >();
     const monthKeys = filteredRows
-      .map((row) => monthKeyFromMonitoringMonth(row.page.monitoringMonth))
+      .map((row) => monthKeyFromMonitoringMonth(row.monitoringMonth))
       .filter(Boolean);
 
     for (const row of filteredRows) {
-      const monthKey = monthKeyFromMonitoringMonth(row.page.monitoringMonth);
+      const monthKey = monthKeyFromMonitoringMonth(row.monitoringMonth);
       if (!monthKey) {
         continue;
       }
@@ -256,9 +206,9 @@ export function MonitoringStatsPage() {
         completed: 0,
       };
       current.count += 1;
-      if (row.page.trackStatus === '전체 수정') {
+      if (row.trackStatus === '전체 수정') {
         current.completed += 1;
-      } else if (row.page.trackStatus === '일부 수정') {
+      } else if (row.trackStatus === '일부 수정') {
         current.partial += 1;
       } else {
         current.untouched += 1;
@@ -448,17 +398,17 @@ export function MonitoringStatsPage() {
             </thead>
             <tbody>
               {filteredRows.map((row) => (
-                <tr key={row.page.id}>
-                  <td>{formatMonthLabel(monthKeyFromMonitoringMonth(row.page.monitoringMonth))}</td>
+                <tr key={row.pageId}>
+                  <td>{formatMonthLabel(monthKeyFromMonitoringMonth(row.monitoringMonth))}</td>
                   <td>{row.platform}</td>
                   <td>{row.serviceGroupName}</td>
                   <td>{row.projectName}</td>
-                  <td>{row.page.title}</td>
+                  <td>{row.title}</td>
                   <td>{row.assigneeDisplay}</td>
                   <td>
-                    {editingPageId === row.page.id ? (
+                    {editingPageId === row.pageId ? (
                       <select
-                        aria-label={`${row.page.title} 상태`}
+                        aria-label={`${row.title} 상태`}
                         className={styles.inlineSelect}
                         value={draftStatus}
                         onChange={(event) => setDraftStatus(event.target.value as PageStatus)}
@@ -470,36 +420,36 @@ export function MonitoringStatsPage() {
                         ))}
                       </select>
                     ) : (
-                      <span className="uiStatusBadge" data-status={row.page.trackStatus}>
-                        {formatTrackStatus(row.page.trackStatus)}
+                      <span className="uiStatusBadge" data-status={row.trackStatus}>
+                        {formatTrackStatus(row.trackStatus)}
                       </span>
                     )}
                   </td>
                   <td>
-                    {editingPageId === row.page.id ? (
+                    {editingPageId === row.pageId ? (
                       <textarea
-                        aria-label={`${row.page.title} 비고`}
+                        aria-label={`${row.title} 비고`}
                         className={styles.inlineTextarea}
                         value={draftNote}
                         onChange={(event) => setDraftNote(event.target.value)}
                         rows={3}
                       />
-                    ) : row.page.note ? (
+                    ) : row.note ? (
                       <div
                         className={styles.noteCell}
-                        onMouseEnter={() => setHoveredNotePageId(row.page.id)}
+                        onMouseEnter={() => setHoveredNotePageId(row.pageId)}
                         onMouseLeave={() =>
                           setHoveredNotePageId((current) =>
-                            current === row.page.id && pinnedNotePageId !== row.page.id
+                            current === row.pageId && pinnedNotePageId !== row.pageId
                               ? null
                               : current,
                           )
                         }
-                        onFocusCapture={() => setHoveredNotePageId(row.page.id)}
+                        onFocusCapture={() => setHoveredNotePageId(row.pageId)}
                         onBlurCapture={(event) => {
                           if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
                             setHoveredNotePageId((current) =>
-                              current === row.page.id && pinnedNotePageId !== row.page.id
+                              current === row.pageId && pinnedNotePageId !== row.pageId
                                 ? null
                                 : current,
                             );
@@ -508,21 +458,21 @@ export function MonitoringStatsPage() {
                       >
                         <button
                           type="button"
-                          className={`${styles.noteToggle} ${isNoteOpen(row.page.id) ? styles.noteToggleActive : ''}`.trim()}
-                          aria-expanded={isNoteOpen(row.page.id)}
-                          aria-label={`${row.page.title} 내용 보기`}
+                          className={`${styles.noteToggle} ${isNoteOpen(row.pageId) ? styles.noteToggleActive : ''}`.trim()}
+                          aria-expanded={isNoteOpen(row.pageId)}
+                          aria-label={`${row.title} 내용 보기`}
                           onClick={() => {
                             setPinnedNotePageId((current) =>
-                              current === row.page.id ? null : row.page.id,
+                              current === row.pageId ? null : row.pageId,
                             );
-                            setHoveredNotePageId(row.page.id);
+                            setHoveredNotePageId(row.pageId);
                           }}
                         >
                           내용 보기
                         </button>
-                        {isNoteOpen(row.page.id) ? (
+                        {isNoteOpen(row.pageId) ? (
                           <div className={styles.notePopover} role="tooltip">
-                            {row.page.note}
+                            {row.note}
                           </div>
                         ) : null}
                       </div>
@@ -545,12 +495,12 @@ export function MonitoringStatsPage() {
                     )}
                   </td>
                   <td>
-                    {editingPageId === row.page.id ? (
+                    {editingPageId === row.pageId ? (
                       <div className={styles.inlineActions}>
                         <button
                           type="button"
                           className={styles.inlineActionPrimary}
-                          onClick={() => savePageMutation.mutate(row.page)}
+                          onClick={() => savePageMutation.mutate(row)}
                           disabled={savePageMutation.isPending}
                         >
                           저장
