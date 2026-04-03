@@ -759,6 +759,37 @@ as $$
   order by m.account_id asc, t.task_date asc
 $$;
 
+create or replace function public.get_resource_summary_members(
+  p_member_id uuid default null
+)
+returns table (
+  id uuid,
+  account_id text,
+  name text
+)
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select
+    m.id,
+    m.account_id,
+    m.name
+  from public.members m
+  where public.current_member_id() is not null
+    and m.user_active = true
+    and (
+      (public.current_user_is_admin() and (p_member_id is null or m.id = p_member_id))
+      or (
+        not public.current_user_is_admin()
+        and m.id = public.current_member_id()
+        and (p_member_id is null or p_member_id = public.current_member_id())
+      )
+    )
+  order by m.account_id asc
+$$;
+
 create or replace function public.get_resource_type_summary(
   p_member_id uuid default null
 )
@@ -1651,6 +1682,168 @@ begin
 end;
 $$;
 
+create or replace function public.search_projects_page(
+  p_start_date date default null,
+  p_end_date date default null,
+  p_keyword text default null
+)
+returns table (
+  id uuid,
+  created_by_member_id uuid,
+  project_type1 text,
+  name text,
+  platform_id uuid,
+  platform text,
+  service_group_id uuid,
+  service_group_name text,
+  report_url text,
+  reporter_member_id uuid,
+  reporter_display text,
+  reviewer_member_id uuid,
+  reviewer_display text,
+  start_date date,
+  end_date date,
+  is_active boolean,
+  page_count bigint
+)
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select
+    p.id,
+    p.created_by_member_id,
+    p.project_type1,
+    p.name,
+    p.platform_id,
+    p.platform,
+    p.service_group_id,
+    coalesce(sg.name, '-') as service_group_name,
+    p.report_url,
+    p.reporter_member_id,
+    coalesce(
+      nullif(concat_ws(' ', nullif(reporter.account_id, ''), nullif(reporter.name, '')), ''),
+      '-'
+    ) as reporter_display,
+    p.reviewer_member_id,
+    coalesce(
+      nullif(concat_ws(' ', nullif(reviewer.account_id, ''), nullif(reviewer.name, '')), ''),
+      '-'
+    ) as reviewer_display,
+    p.start_date,
+    p.end_date,
+    p.is_active,
+    count(pp.id)::bigint as page_count
+  from public.projects p
+  left join public.service_groups sg on sg.id = p.service_group_id
+  left join public.members reporter on reporter.id = p.reporter_member_id
+  left join public.members reviewer on reviewer.id = p.reviewer_member_id
+  left join public.project_pages pp on pp.project_id = p.id
+  where public.current_member_id() is not null
+    and (p_start_date is null or p.end_date >= p_start_date)
+    and (p_end_date is null or p.start_date <= p_end_date)
+    and (
+      p_keyword is null
+      or concat_ws(
+        ' ',
+        coalesce(p.project_type1, ''),
+        coalesce(p.name, ''),
+        coalesce(p.platform, ''),
+        coalesce(p.report_url, ''),
+        coalesce(sg.name, ''),
+        coalesce(reporter.account_id, ''),
+        coalesce(reporter.name, ''),
+        coalesce(reviewer.account_id, ''),
+        coalesce(reviewer.name, ''),
+        coalesce(to_char(p.start_date, 'YYYY-MM-DD'), ''),
+        coalesce(to_char(p.end_date, 'YYYY-MM-DD'), '')
+      ) ilike '%' || p_keyword || '%'
+    )
+  group by
+    p.id,
+    p.created_by_member_id,
+    p.project_type1,
+    p.name,
+    p.platform_id,
+    p.platform,
+    p.service_group_id,
+    sg.name,
+    p.report_url,
+    p.reporter_member_id,
+    reporter.account_id,
+    reporter.name,
+    p.reviewer_member_id,
+    reviewer.account_id,
+    reviewer.name,
+    p.start_date,
+    p.end_date,
+    p.is_active
+  order by p.is_active desc, p.start_date desc, p.name asc
+$$;
+
+create or replace function public.search_report_projects(
+  p_cost_group_id uuid default null,
+  p_platform text default null,
+  p_project_type1 text default null,
+  p_keyword text default null
+)
+returns table (
+  id uuid,
+  project_type1 text,
+  name text,
+  platform text,
+  service_group_id uuid,
+  service_group_name text,
+  service_name text,
+  cost_group_id uuid,
+  cost_group_name text,
+  report_url text
+)
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select
+    p.id,
+    p.project_type1,
+    p.name,
+    p.platform,
+    p.service_group_id,
+    coalesce(nullif(split_part(sg.name, ' / ', 1), ''), coalesce(sg.name, '')) as service_group_name,
+    case
+      when coalesce(sg.name, '') = '' or sg.name = '미분류' then ''
+      when position(' / ' in sg.name) > 0 then coalesce(nullif(split_part(sg.name, ' / ', 2), ''), '')
+      else ''
+    end as service_name,
+    sg.cost_group_id,
+    coalesce(cg.name, '') as cost_group_name,
+    p.report_url
+  from public.projects p
+  join public.service_groups sg on sg.id = p.service_group_id
+  left join public.cost_groups cg on cg.id = sg.cost_group_id
+  where public.current_member_id() is not null
+    and p.is_active = true
+    and (p_cost_group_id is null or sg.cost_group_id = p_cost_group_id)
+    and (p_platform is null or p.platform = p_platform)
+    and (p_project_type1 is null or p.project_type1 = p_project_type1)
+    and (
+      p_keyword is null
+      or concat_ws(
+        ' ',
+        coalesce(p.project_type1, ''),
+        coalesce(p.name, ''),
+        coalesce(p.platform, ''),
+        coalesce(sg.name, ''),
+        coalesce(cg.name, ''),
+        coalesce(p.report_url, '')
+      ) ilike '%' || p_keyword || '%'
+    )
+  order by p.name asc
+  limit 60
+$$;
+
 create or replace function public.upsert_project_page(
   p_page_id uuid default null,
   p_project_id uuid default null,
@@ -2164,6 +2357,7 @@ grant execute on function public.get_tasks_by_date(uuid, date) to authenticated;
 grant execute on function public.get_task_activities() to authenticated;
 grant execute on function public.get_dashboard_task_calendar(uuid, text) to authenticated;
 grant execute on function public.get_resource_summary(uuid, text) to authenticated;
+grant execute on function public.get_resource_summary_members(uuid) to authenticated;
 grant execute on function public.get_resource_type_summary(uuid) to authenticated;
 grant execute on function public.get_resource_type_summary_years(uuid) to authenticated;
 grant execute on function public.get_resource_type_summary_by_year(uuid, text) to authenticated;
@@ -2182,6 +2376,8 @@ grant execute on function public.admin_delete_task(uuid) to authenticated;
 grant execute on function public.admin_get_task_type_usage_summary(uuid, text, text) to authenticated;
 grant execute on function public.admin_replace_task_type_usage(text, text, text, text) to authenticated;
 grant execute on function public.admin_get_member_task_count(uuid) to authenticated;
+grant execute on function public.search_projects_page(date, date, text) to authenticated;
+grant execute on function public.search_report_projects(uuid, text, text, text) to authenticated;
 grant execute on function public.upsert_project(uuid, text, text, uuid, uuid, text, uuid, uuid, date, date, boolean) to authenticated;
 grant execute on function public.upsert_project_page(uuid, uuid, text, text, uuid, text, text, boolean, boolean, text) to authenticated;
 grant execute on function public.admin_search_tasks(uuid, date, date, uuid, uuid, text, text, uuid, text) to authenticated;

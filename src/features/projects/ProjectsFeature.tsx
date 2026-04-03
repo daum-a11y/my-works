@@ -5,7 +5,6 @@ import { setDocumentTitle } from '../../app/navigation';
 import { useAuth } from '../auth/AuthContext';
 import { PageSection } from '../../components/common/PageSection';
 import { opsDataClient } from '../../lib/dataClient';
-import { type Member } from '../../lib/domain';
 import {
   formatDateLabel,
   getToday,
@@ -17,31 +16,6 @@ import styles from './ProjectsFeature.module.css';
 interface ProjectFilterState {
   startDate: string;
   endDate: string;
-}
-
-function memberDisplay(memberId: string | null | undefined, membersById: Map<string, Member>) {
-  if (!memberId) {
-    return '-';
-  }
-
-  const member = membersById.get(memberId);
-
-  if (!member) {
-    return memberId;
-  }
-
-  return `${member.accountId}(${member.name})`;
-}
-
-function serviceGroupName(
-  serviceGroupId: string | null | undefined,
-  serviceGroupsById: Map<string, string>,
-) {
-  if (!serviceGroupId) {
-    return '-';
-  }
-
-  return serviceGroupsById.get(serviceGroupId) ?? '-';
 }
 
 function createInitialProjectFilters(): ProjectFilterState {
@@ -84,49 +58,7 @@ export function ProjectsFeature() {
       opsDataClient.searchProjectsPage(appliedFilters, appliedSearch, currentPage, pageSize),
   });
 
-  const refsQuery = useQuery({
-    queryKey: ['projects', 'refs'],
-    enabled: Boolean(member),
-    queryFn: async () => {
-      const [members, serviceGroups] = await Promise.all([
-        opsDataClient.getMembers(),
-        opsDataClient.getServiceGroups(),
-      ]);
-      return { members, serviceGroups };
-    },
-  });
-
   const projects = useMemo(() => query.data?.items ?? [], [query.data?.items]);
-  const members = useMemo(() => refsQuery.data?.members ?? [], [refsQuery.data?.members]);
-  const serviceGroups = useMemo(
-    () => refsQuery.data?.serviceGroups ?? [],
-    [refsQuery.data?.serviceGroups],
-  );
-
-  const pageCountQuery = useQuery({
-    queryKey: ['projects', 'page-counts', projects.map((project) => project.id).join(',')],
-    enabled: projects.length > 0,
-    queryFn: async () =>
-      opsDataClient.getProjectPagesByProjectIds(projects.map((project) => project.id)),
-  });
-
-  const membersById = useMemo(
-    () => new Map(members.map((item) => [item.id, item] as const)),
-    [members],
-  );
-  const serviceGroupsById = useMemo(
-    () => new Map(serviceGroups.map((item) => [item.id, item.name] as const)),
-    [serviceGroups],
-  );
-  const pageCountByProjectId = useMemo(() => {
-    const counts = new Map<string, number>();
-
-    (pageCountQuery.data ?? []).forEach((page) => {
-      counts.set(page.projectId, (counts.get(page.projectId) ?? 0) + 1);
-    });
-
-    return counts;
-  }, [pageCountQuery.data]);
 
   const totalProjects = query.data?.totalCount ?? 0;
   const totalPages = Math.max(1, Math.ceil(totalProjects / pageSize));
@@ -279,15 +211,13 @@ export function ProjectsFeature() {
           </thead>
           <tbody>
             {projects.map((project) => {
-              const groupLabel = serviceGroupName(project.serviceGroupId, serviceGroupsById);
-
               return (
                 <tr key={project.id}>
                   <td>{project.projectType1 || '-'}</td>
                   <td>{project.platform}</td>
-                  <td>{groupLabel}</td>
+                  <td>{project.serviceGroupName || '-'}</td>
                   <td>{project.name}</td>
-                  <td>{pageCountByProjectId.get(project.id) ?? 0}</td>
+                  <td>{project.pageCount}</td>
                   <td>
                     {project.reportUrl ? (
                       <a
@@ -304,8 +234,8 @@ export function ProjectsFeature() {
                   </td>
                   <td className={styles.dateCell}>{formatDateLabel(project.startDate)}</td>
                   <td className={styles.dateCell}>{formatDateLabel(project.endDate)}</td>
-                  <td>{memberDisplay(project.reporterMemberId, membersById)}</td>
-                  <td>{memberDisplay(project.reviewerMemberId, membersById)}</td>
+                  <td>{project.reporterDisplay || '-'}</td>
+                  <td>{project.reviewerDisplay || '-'}</td>
                   <td>
                     <Link to={`/projects/${project.id}/edit`} className={styles.actionButton}>
                       수정

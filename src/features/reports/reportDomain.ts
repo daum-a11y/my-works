@@ -1,6 +1,7 @@
 import type {
   Project,
   ProjectPage,
+  ReportProjectOptionRow,
   ReportFilters as OpsReportFilters,
   ServiceGroup,
   Task,
@@ -247,6 +248,36 @@ export function buildProjectViewModels(projects: Project[], serviceGroups: Servi
   });
 }
 
+export function buildProjectViewModelsFromRows(rows: ReportProjectOptionRow[]) {
+  return rows.map((row) => {
+    const next = buildProjectLookup(
+      {
+        id: row.id,
+        createdByMemberId: null,
+        projectType1: row.projectType1,
+        name: row.name,
+        platformId: null,
+        platform: row.platform,
+        serviceGroupId: row.serviceGroupId,
+        reportUrl: row.reportUrl,
+        reporterMemberId: null,
+        reviewerMemberId: null,
+        startDate: '',
+        endDate: '',
+        isActive: true,
+      },
+      row.serviceName ? `${row.serviceGroupName} / ${row.serviceName}` : row.serviceGroupName,
+    );
+    return {
+      ...next,
+      costGroupId: row.costGroupId,
+      costGroupName: row.costGroupName,
+      serviceGroupName: row.serviceGroupName,
+      serviceName: row.serviceName,
+    };
+  });
+}
+
 export function buildProjectPageViewModels(
   pages: ProjectPage[],
   projects: Project[],
@@ -472,37 +503,52 @@ export function buildReportViewModel(
   } satisfies ReportViewModel;
 }
 
-export function buildTaskReportViewModel(
-  task: Task,
-  owner: { id: string; name: string },
-  projectsById: Map<string, Project>,
-  serviceGroupsById: Map<string, ServiceGroup>,
-  pagesById: Map<string, ProjectPage>,
-) {
-  return buildReportViewModel(
-    {
-      id: task.id,
-      ownerId: owner.id,
-      ownerName: owner.name,
-      reportDate: task.taskDate,
-      costGroupId: task.costGroupId,
-      costGroupName: task.costGroupName,
-      projectId: task.projectId ?? '',
-      pageId: task.pageId ?? '',
-      projectName: task.projectId ? (projectsById.get(task.projectId)?.name ?? '') : '',
-      pageName: task.pageId ? (pagesById.get(task.pageId)?.title ?? '') : '',
-      type1: task.taskType1 as ReportViewModel['type1'],
-      type2: task.taskType2 as ReportViewModel['type2'],
-      taskUsedtime: task.taskUsedtime,
-      content: task.content,
-      note: task.note,
-      createdAt: task.createdAt,
-      updatedAt: task.updatedAt,
-    },
-    projectsById,
-    serviceGroupsById,
-    pagesById,
+export function buildTaskReportViewModel(task: Task, owner: { id: string; name: string }) {
+  const projectDisplayName = task.projectDisplayName || '-';
+  const pageDisplayName = task.pageDisplayName || task.content || '-';
+  const searchText = normalizeText(
+    [
+      task.costGroupName,
+      task.platform,
+      task.serviceGroupName,
+      task.serviceName,
+      projectDisplayName,
+      pageDisplayName,
+      task.taskType1,
+      task.taskType2,
+      task.content,
+      task.note,
+      task.pageUrl,
+      task.id,
+    ].join(' '),
   );
+
+  return {
+    id: task.id,
+    ownerId: owner.id,
+    ownerName: owner.name,
+    reportDate: task.taskDate,
+    costGroupId: task.costGroupId,
+    costGroupName: task.costGroupName,
+    projectId: task.projectId ?? '',
+    pageId: task.pageId ?? '',
+    projectName: task.projectDisplayName || '',
+    pageName: task.pageDisplayName || task.content || '',
+    type1: task.taskType1 as ReportViewModel['type1'],
+    type2: task.taskType2 as ReportViewModel['type2'],
+    taskUsedtime: task.taskUsedtime,
+    content: task.content,
+    note: task.note,
+    createdAt: task.createdAt,
+    updatedAt: task.updatedAt,
+    platform: task.platform || '-',
+    serviceGroupName: task.serviceGroupName || '',
+    serviceName: task.serviceName || '',
+    projectDisplayName,
+    pageDisplayName,
+    pageUrl: task.pageUrl || '',
+    searchText,
+  } satisfies ReportViewModel;
 }
 
 export function sortReportsByMode<T extends ReportRecord>(

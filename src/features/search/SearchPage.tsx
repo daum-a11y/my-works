@@ -178,7 +178,7 @@ export function SearchPage() {
       startDate: appliedFilters.startDate,
       endDate: appliedFilters.endDate,
     });
-    downloadExcelFile(
+    await downloadExcelFile(
       buildExportFilename(appliedFilters.startDate, appliedFilters.endDate),
       '검색결과',
       sortSearchRows(downloadTasks),

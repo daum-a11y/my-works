@@ -1,5 +1,3 @@
-import * as XLSX from 'xlsx';
-
 type CellValue = string | number | boolean | null | undefined;
 
 interface ColumnDefinition<Row> {
@@ -8,22 +6,40 @@ interface ColumnDefinition<Row> {
   width?: number;
 }
 
-export function downloadExcelFile<Row>(
+function triggerBrowserDownload(filename: string, buffer: ArrayBuffer) {
+  const blob = new Blob([buffer], {
+    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+export async function downloadExcelFile<Row>(
   filename: string,
   sheetName: string,
   rows: readonly Row[],
   columns: readonly ColumnDefinition<Row>[],
 ) {
-  const worksheet = XLSX.utils.json_to_sheet(
-    rows.map((row) =>
+  const { Workbook } = await import('exceljs');
+  const workbook = new Workbook();
+  const worksheet = workbook.addWorksheet(sheetName);
+
+  worksheet.columns = columns.map((column) => ({
+    header: column.header,
+    key: column.header,
+    width: column.width ?? 16,
+  }));
+
+  rows.forEach((row) => {
+    worksheet.addRow(
       Object.fromEntries(columns.map((column) => [column.header, column.value(row)])),
-    ),
-    { header: columns.map((column) => column.header) },
-  );
+    );
+  });
 
-  worksheet['!cols'] = columns.map((column) => ({ wch: column.width ?? 16 }));
-
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
-  XLSX.writeFile(workbook, filename);
+  const buffer = await workbook.xlsx.writeBuffer();
+  triggerBrowserDownload(filename, buffer as ArrayBuffer);
 }

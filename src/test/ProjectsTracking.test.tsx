@@ -18,9 +18,11 @@ const mockOpsDataClient = vi.hoisted(() => ({
   getServiceGroups: vi.fn(),
   getProjects: vi.fn(),
   searchProjectsPage: vi.fn(),
+  getProject: vi.fn(),
   saveProject: vi.fn(),
   deleteProject: vi.fn(),
   getProjectPages: vi.fn(),
+  getProjectPagesByProjectId: vi.fn(),
   getProjectPagesByProjectIds: vi.fn(),
   getAllProjectPages: vi.fn(),
   saveProjectPage: vi.fn(),
@@ -84,9 +86,11 @@ describe('Projects routes', () => {
     mockOpsDataClient.getServiceGroups.mockReset();
     mockOpsDataClient.getProjects.mockReset();
     mockOpsDataClient.searchProjectsPage.mockReset();
+    mockOpsDataClient.getProject.mockReset();
     mockOpsDataClient.saveProject.mockReset();
     mockOpsDataClient.deleteProject.mockReset();
     mockOpsDataClient.getProjectPages.mockReset();
+    mockOpsDataClient.getProjectPagesByProjectId.mockReset();
     mockOpsDataClient.getProjectPagesByProjectIds.mockReset();
     mockOpsDataClient.getAllProjectPages.mockReset();
     mockOpsDataClient.saveProjectPage.mockReset();
@@ -160,40 +164,33 @@ describe('Projects routes', () => {
         isActive: true,
       },
     ]);
-    mockOpsDataClient.getProjects.mockResolvedValue([
-      {
-        id: 'project-1',
-        createdByMemberId: null,
-        projectType1: 'QA',
-        name: '알파',
-        platformId: 'platform-1',
-        platform: 'iOS-App',
-        serviceGroupId: 'svc-1',
-        reportUrl: 'https://example.com/report',
-        reporterMemberId: 'member-1',
-        reviewerMemberId: 'member-2',
-        startDate: '2026-03-01',
-        endDate: '2026-03-31',
-        isActive: true,
-      },
-    ]);
+    const baseProject = {
+      id: 'project-1',
+      createdByMemberId: null,
+      projectType1: 'QA',
+      name: '알파',
+      platformId: 'platform-1',
+      platform: 'iOS-App',
+      serviceGroupId: 'svc-1',
+      reportUrl: 'https://example.com/report',
+      reporterMemberId: 'member-1',
+      reviewerMemberId: 'member-2',
+      startDate: '2026-03-01',
+      endDate: '2026-03-31',
+      isActive: true,
+    } as const;
+
+    mockOpsDataClient.getProjects.mockResolvedValue([baseProject]);
+    mockOpsDataClient.getProject.mockResolvedValue(baseProject);
     mockOpsDataClient.searchProjectsPage.mockImplementation(
       async (filters, query, page, pageSize) => {
         const items = [
           {
-            id: 'project-1',
-            createdByMemberId: null,
-            projectType1: 'QA',
-            name: '알파',
-            platformId: 'platform-1',
-            platform: 'iOS-App',
-            serviceGroupId: 'svc-1',
-            reportUrl: 'https://example.com/report',
-            reporterMemberId: 'member-1',
-            reviewerMemberId: 'member-2',
-            startDate: '2026-03-01',
-            endDate: '2026-03-31',
-            isActive: true,
+            ...baseProject,
+            serviceGroupName: '접근성',
+            reporterDisplay: 'legacy-1(운영 사용자)',
+            reviewerDisplay: 'legacy-2(리뷰어)',
+            pageCount: 1,
           },
         ].filter((project) => {
           if (filters.startDate && project.endDate < filters.startDate) {
@@ -220,6 +217,20 @@ describe('Projects routes', () => {
       },
     );
     mockOpsDataClient.getProjectPages.mockResolvedValue([
+      {
+        id: 'page-1',
+        projectId: 'project-1',
+        title: '로그인',
+        url: 'https://example.com/login',
+        ownerMemberId: 'member-1',
+        trackStatus: '전체 수정',
+        monitoringInProgress: true,
+        qaInProgress: false,
+        note: '메모',
+        updatedAt: '2026-03-24T09:00:00.000Z',
+      },
+    ]);
+    mockOpsDataClient.getProjectPagesByProjectId.mockResolvedValue([
       {
         id: 'page-1',
         projectId: 'project-1',

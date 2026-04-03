@@ -6,6 +6,7 @@ import { opsDataClient } from '../../lib/dataClient';
 import type { CostGroup, Platform, ProjectPage, TaskType } from '../../lib/domain';
 import {
   buildProjectViewModels,
+  buildProjectViewModelsFromRows,
   buildTaskReportViewModel,
   buildSelectableTaskType1Options,
   buildTaskType2OptionsForValue,
@@ -118,11 +119,25 @@ export function useReportsSlice(): ReportsSlice {
     queryFn: async () => opsDataClient.getTasksByDate(member!, selectedDate),
     enabled: Boolean(member),
   });
+  const tasks = useMemo(() => tasksQuery.data ?? [], [tasksQuery.data]);
 
-  const projectsQuery = useQuery({
-    queryKey: ['reports', 'projects'],
-    queryFn: async () => opsDataClient.getProjects(),
-    enabled: Boolean(member),
+  const reportProjectsQuery = useQuery({
+    queryKey: [
+      'reports',
+      'project-options',
+      draft.costGroupId,
+      draft.platform,
+      draft.type1,
+      appliedProjectQuery,
+    ],
+    queryFn: async () =>
+      opsDataClient.searchReportProjects({
+        costGroupId: draft.costGroupId,
+        platform: draft.platform,
+        projectType1: draft.type1,
+        query: appliedProjectQuery,
+      }),
+    enabled: Boolean(member && draft.costGroupId && draft.platform && draft.type1),
   });
 
   const serviceGroupsQuery = useQuery({
@@ -137,9 +152,27 @@ export function useReportsSlice(): ReportsSlice {
   });
 
   const pagesQuery = useQuery({
-    queryKey: ['reports', 'pages', member?.id],
-    queryFn: async () => opsDataClient.getProjectPages(member!),
+    queryKey: ['reports', 'pages', member?.id, draft.projectId],
+    queryFn: async () => {
+      if (!draft.projectId) {
+        return [];
+      }
+
+      return opsDataClient.getProjectPagesByProjectId(draft.projectId);
+    },
     enabled: Boolean(member),
+  });
+
+  const selectedProjectQuery = useQuery({
+    queryKey: ['reports', 'project', draft.projectId],
+    queryFn: async () => {
+      if (!draft.projectId) {
+        return null;
+      }
+
+      return opsDataClient.getProject(draft.projectId);
+    },
+    enabled: Boolean(member && draft.projectId),
   });
 
   const taskTypesQuery = useQuery({
@@ -152,17 +185,43 @@ export function useReportsSlice(): ReportsSlice {
     queryFn: async () => opsDataClient.getPlatforms(),
     enabled: Boolean(member),
   });
-  const projects = useMemo(() => projectsQuery.data ?? [], [projectsQuery.data]);
+  const reportProjectRows = useMemo(
+    () => reportProjectsQuery.data ?? [],
+    [reportProjectsQuery.data],
+  );
   const costGroupOptions = useMemo(() => costGroupsQuery.data ?? [], [costGroupsQuery.data]);
   const platformOptions = useMemo(() => platformsQuery.data ?? [], [platformsQuery.data]);
   const serviceGroups = useMemo(() => serviceGroupsQuery.data ?? [], [serviceGroupsQuery.data]);
   const pages = useMemo(() => pagesQuery.data ?? [], [pagesQuery.data]);
   const taskTypes = useMemo(() => taskTypesQuery.data ?? [], [taskTypesQuery.data]);
-  const tasks = useMemo(() => tasksQuery.data ?? [], [tasksQuery.data]);
 
-  const projectsById = useMemo(
-    () => new Map(projects.map((project) => [project.id, project] as const)),
-    [projects],
+  const projectOptionsFromSearch = useMemo(
+    () => buildProjectViewModelsFromRows(reportProjectRows),
+    [reportProjectRows],
+  );
+  const selectedProjectOptions = useMemo(() => {
+    if (!selectedProjectQuery.data) {
+      return [];
+    }
+
+    return buildProjectViewModels([selectedProjectQuery.data], serviceGroups);
+  }, [selectedProjectQuery.data, serviceGroups]);
+  const projectOptions = useMemo(() => {
+    const merged = [...selectedProjectOptions, ...projectOptionsFromSearch];
+    const seen = new Set<string>();
+
+    return merged.filter((project) => {
+      if (seen.has(project.id)) {
+        return false;
+      }
+
+      seen.add(project.id);
+      return true;
+    });
+  }, [projectOptionsFromSearch, selectedProjectOptions]);
+  const projectOptionsById = useMemo(
+    () => new Map(projectOptions.map((project) => [project.id, project] as const)),
+    [projectOptions],
   );
   const pagesById = useMemo(() => new Map(pages.map((page) => [page.id, page] as const)), [pages]);
   const serviceGroupsById = useMemo(
@@ -175,28 +234,17 @@ export function useReportsSlice(): ReportsSlice {
       return [];
     }
 
-    return sortReportsDescending(
-      tasks.map((task) =>
-        buildTaskReportViewModel(task, member, projectsById, serviceGroupsById, pagesById),
-      ),
-    );
-  }, [member, tasks, projectsById, pagesById, serviceGroupsById]);
+    return sortReportsDescending(tasks.map((task) => buildTaskReportViewModel(task, member)));
+  }, [member, tasks]);
 
   const selectedReport = useMemo(
     () => reports.find((report) => report.id === selectedReportId) ?? null,
     [reports, selectedReportId],
   );
 
-  const projectOptions = useMemo(
-    () => buildProjectViewModels(projects, serviceGroups),
-    [projects, serviceGroups],
-  );
-
   const normalizedProjectQuery = appliedProjectQuery.trim().toLowerCase();
   const filteredProjectOptions = useMemo(() => {
-    const base = draft.costGroupId
-      ? projectOptions.filter((project) => project.costGroupId === draft.costGroupId)
-      : projectOptions;
+    const base = projectOptions;
 
     if (!normalizedProjectQuery) {
       return base.slice(0, 60);
@@ -207,7 +255,7 @@ export function useReportsSlice(): ReportsSlice {
         project.project.name.trim().toLowerCase().includes(normalizedProjectQuery),
       )
       .slice(0, 60);
-  }, [draft.costGroupId, normalizedProjectQuery, projectOptions]);
+  }, [normalizedProjectQuery, projectOptions]);
 
   const draftPages = useMemo(
     () => pages.filter((page) => page.projectId === draft.projectId),
@@ -281,7 +329,7 @@ export function useReportsSlice(): ReportsSlice {
       }
 
       if (projectId) {
-        const project = projectsById.get(projectId);
+        const project = projectOptionsById.get(projectId)?.project ?? selectedProjectQuery.data;
         if (!project) {
           throw new Error('선택한 프로젝트 정보를 확인할 수 없습니다.');
         }
@@ -366,7 +414,7 @@ export function useReportsSlice(): ReportsSlice {
 
       if (key === 'projectId') {
         next.pageId = '';
-        const project = projectsById.get(String(value));
+        const project = projectOptionsById.get(String(value))?.project ?? selectedProjectQuery.data;
         if (project) {
           const normalizedServiceName = project.serviceGroupId
             ? (serviceGroupsById.get(project.serviceGroupId)?.name ?? '')

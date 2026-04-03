@@ -169,22 +169,22 @@ export function ProjectEditorPage() {
   const [statusMessage, setStatusMessage] = useState('');
 
   const query = useQuery({
-    queryKey: ['project-editor', member?.id],
+    queryKey: ['project-editor', member?.id, projectId ?? 'new'],
     enabled: Boolean(member),
     queryFn: async () => {
-      const [projects, pages, members, serviceGroups, platforms, taskTypes] = await Promise.all([
-        opsDataClient.getProjects(),
-        opsDataClient.getProjectPages(member!),
+      const [project, pages, members, serviceGroups, platforms, taskTypes] = await Promise.all([
+        projectId ? opsDataClient.getProject(projectId) : Promise.resolve(null),
+        projectId ? opsDataClient.getProjectPagesByProjectId(projectId) : Promise.resolve([]),
         opsDataClient.getMembers(),
         opsDataClient.getServiceGroups(),
         opsDataClient.getPlatforms(),
         opsDataClient.getTaskTypes(),
       ]);
-      return { projects, pages, members, serviceGroups, platforms, taskTypes };
+      return { project, pages, members, serviceGroups, platforms, taskTypes };
     },
   });
 
-  const projects = useMemo(() => query.data?.projects ?? [], [query.data?.projects]);
+  const selectedProject = useMemo(() => query.data?.project ?? null, [query.data?.project]);
   const pages = useMemo(() => query.data?.pages ?? [], [query.data?.pages]);
   const members = useMemo(() => query.data?.members ?? [], [query.data?.members]);
   const serviceGroups = useMemo(() => query.data?.serviceGroups ?? [], [query.data?.serviceGroups]);
@@ -195,18 +195,7 @@ export function ProjectEditorPage() {
     [projectDraft.projectType1, taskTypes],
   );
 
-  const selectedProject = useMemo(
-    () => projects.find((project) => project.id === projectId) ?? null,
-    [projectId, projects],
-  );
-
-  const selectedProjectPages = useMemo(() => {
-    if (!selectedProject) {
-      return [];
-    }
-
-    return sortPages(pages.filter((page) => page.projectId === selectedProject.id));
-  }, [pages, selectedProject]);
+  const selectedProjectPages = useMemo(() => sortPages(pages), [pages]);
 
   useEffect(() => {
     if (!isEditMode || !selectedProject) {

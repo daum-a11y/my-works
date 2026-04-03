@@ -61,7 +61,7 @@ export function ResourceSummaryPage() {
 
   const membersQuery = useQuery({
     queryKey: ['resource', 'members', member?.id],
-    queryFn: () => opsDataClient.getMembers(),
+    queryFn: () => opsDataClient.getResourceSummaryMembers(member!),
     enabled: Boolean(member),
   });
 
@@ -71,10 +71,7 @@ export function ResourceSummaryPage() {
     enabled: Boolean(member),
   });
 
-  const activeMembers = useMemo(
-    () => (membersQuery.data ?? []).filter((item) => item.isActive),
-    [membersQuery.data],
-  );
+  const activeMembers = useMemo(() => membersQuery.data ?? [], [membersQuery.data]);
   const summaryRows = useMemo(() => summaryQuery.data ?? [], [summaryQuery.data]);
 
   const rows = useMemo(() => {

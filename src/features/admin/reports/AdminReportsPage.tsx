@@ -385,7 +385,7 @@ export function AdminReportsPage() {
     setCurrentPage(1);
   };
 
-  const handleExport = () => {
+  const handleExport = async () => {
     if (
       appliedFilters.startDate &&
       appliedFilters.endDate &&
@@ -395,7 +395,7 @@ export function AdminReportsPage() {
       return;
     }
 
-    downloadExcelFile(
+    await downloadExcelFile(
       buildExportFilename(appliedFilters.startDate, appliedFilters.endDate),
       '검색결과',
       sortedTasks,

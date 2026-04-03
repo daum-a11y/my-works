@@ -81,6 +81,39 @@ export interface Project {
   isActive: boolean;
 }
 
+export interface ProjectListRow {
+  id: string;
+  createdByMemberId: string | null;
+  projectType1: string;
+  name: string;
+  platformId: string | null;
+  platform: string;
+  serviceGroupId: string | null;
+  serviceGroupName: string;
+  reportUrl: string;
+  reporterMemberId: string | null;
+  reporterDisplay: string;
+  reviewerMemberId: string | null;
+  reviewerDisplay: string;
+  startDate: string;
+  endDate: string;
+  isActive: boolean;
+  pageCount: number;
+}
+
+export interface ReportProjectOptionRow {
+  id: string;
+  projectType1: string;
+  name: string;
+  platform: string;
+  serviceGroupId: string | null;
+  serviceGroupName: string;
+  serviceName: string;
+  costGroupId: string | null;
+  costGroupName: string;
+  reportUrl: string;
+}
+
 export interface ProjectPage {
   id: string;
   projectId: string;
@@ -110,6 +143,12 @@ export interface Task {
   note: string;
   createdAt: string;
   updatedAt: string;
+  platform: string;
+  serviceGroupName: string;
+  serviceName: string;
+  projectDisplayName: string;
+  pageDisplayName: string;
+  pageUrl: string;
 }
 
 export interface SearchTaskRow {
@@ -162,6 +201,12 @@ export interface ResourceSummaryDayRow {
   memberName: string;
   taskDate: string;
   taskUsedtime: number;
+}
+
+export interface ResourceSummaryMemberRow {
+  id: string;
+  accountId: string;
+  name: string;
 }
 
 export interface ResourceTypeSummaryRow {

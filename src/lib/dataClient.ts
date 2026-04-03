@@ -10,6 +10,7 @@ import {
   type PagedResult,
   type Platform,
   type Project,
+  type ProjectListRow,
   type ProjectPage,
   type QaStatsProjectRow,
   type ReportFilters,
@@ -21,6 +22,8 @@ import {
   type TaskActivity,
   type Task,
   type ResourceMonthReportRow,
+  type ReportProjectOptionRow,
+  type ResourceSummaryMemberRow,
   type ResourceServiceSummaryRow,
   type ResourceSummaryDayRow,
   type ResourceTypeSummaryRow,
@@ -47,17 +50,26 @@ export interface OpsDataClient {
     query: string,
     page: number,
     pageSize: number,
-  ): Promise<PagedResult<Project>>;
+  ): Promise<PagedResult<ProjectListRow>>;
+  searchReportProjects(filters: {
+    costGroupId: string;
+    platform: string;
+    projectType1: string;
+    query: string;
+  }): Promise<ReportProjectOptionRow[]>;
+  getProject(projectId: string): Promise<Project | null>;
   saveProject(input: SaveProjectInput): Promise<Project>;
   deleteProject(projectId: string): Promise<void>;
   getProjectPages(member: Member): Promise<ProjectPage[]>;
   getAllProjectPages(): Promise<ProjectPage[]>;
+  getProjectPagesByProjectId(projectId: string): Promise<ProjectPage[]>;
   getProjectPagesByProjectIds(projectIds: string[]): Promise<ProjectPage[]>;
   saveProjectPage(input: SaveProjectPageInput): Promise<ProjectPage>;
   deleteProjectPage(pageId: string): Promise<void>;
   getTasksByDate(member: Member, taskDate: string): Promise<Task[]>;
   getDashboardTaskCalendar(member: Member, month: string): Promise<DashboardTaskCalendarDay[]>;
   getResourceSummary(member: Member, month: string): Promise<ResourceSummaryDayRow[]>;
+  getResourceSummaryMembers(member: Member): Promise<ResourceSummaryMemberRow[]>;
   getResourceTypeSummaryYears(member: Member): Promise<string[]>;
   getResourceTypeSummaryByYear(member: Member, year: string): Promise<ResourceTypeSummaryRow[]>;
   getResourceServiceSummaryYears(member: Member): Promise<string[]>;
@@ -133,7 +145,7 @@ function dedupeTasksById(tasks: Task[]) {
   });
 }
 
-function dedupeProjectsById(projects: Project[]) {
+function dedupeProjectListRowsById(projects: ProjectListRow[]) {
   const seen = new Set<string>();
 
   return projects.filter((project) => {
@@ -146,16 +158,17 @@ function dedupeProjectsById(projects: Project[]) {
   });
 }
 
-function escapeLikeQuery(value: string) {
-  return value.replaceAll('%', '\\%').replaceAll('_', '\\_').trim();
-}
+function dedupeReportProjectOptionsById(projects: ReportProjectOptionRow[]) {
+  const seen = new Set<string>();
 
-function buildInFilter(ids: string[]) {
-  return ids.join(',');
-}
+  return projects.filter((project) => {
+    if (seen.has(project.id)) {
+      return false;
+    }
 
-function normalizeSearchQuery(value: string) {
-  return value.trim().toLowerCase();
+    seen.add(project.id);
+    return true;
+  });
 }
 
 function createSupabaseClient(): OpsDataClient {
@@ -251,68 +264,46 @@ function createSupabaseClient(): OpsDataClient {
     async searchProjectsPage(filters, query, page, pageSize) {
       const from = Math.max(0, (page - 1) * pageSize);
       const to = from + pageSize - 1;
-      const normalizedQuery = normalizeSearchQuery(query);
-      let matchedServiceGroupIds: string[] = [];
-      let matchedMemberIds: string[] = [];
-
-      if (normalizedQuery) {
-        const [serviceGroups, members] = await Promise.all([
-          this.getServiceGroups(),
-          this.getMembers(),
-        ]);
-        matchedServiceGroupIds = serviceGroups
-          .filter((group) => group.name.toLowerCase().includes(normalizedQuery))
-          .map((group) => group.id);
-        matchedMemberIds = members
-          .filter((item) =>
-            [item.accountId, item.name, item.email]
-              .join(' ')
-              .toLowerCase()
-              .includes(normalizedQuery),
-          )
-          .map((item) => item.id);
-      }
-
-      let queryBuilder = supabase
-        .from('projects')
-        .select('*, platforms(name)', { count: 'exact' })
-        .order('is_active', { ascending: false })
-        .order('start_date', { ascending: false })
-        .order('name');
-
-      if (filters.startDate) queryBuilder = queryBuilder.gte('end_date', filters.startDate);
-      if (filters.endDate) queryBuilder = queryBuilder.lte('start_date', filters.endDate);
-
-      if (normalizedQuery) {
-        const safeQuery = escapeLikeQuery(normalizedQuery);
-        const orFilters = [
-          `project_type1.ilike.*${safeQuery}*`,
-          `name.ilike.*${safeQuery}*`,
-          `platform.ilike.*${safeQuery}*`,
-          `report_url.ilike.*${safeQuery}*`,
-          `start_date.ilike.*${safeQuery}*`,
-          `end_date.ilike.*${safeQuery}*`,
-        ];
-
-        if (matchedServiceGroupIds.length > 0) {
-          orFilters.push(`service_group_id.in.(${buildInFilter(matchedServiceGroupIds)})`);
-        }
-        if (matchedMemberIds.length > 0) {
-          const memberFilter = buildInFilter(matchedMemberIds);
-          orFilters.push(`reporter_member_id.in.(${memberFilter})`);
-          orFilters.push(`reviewer_member_id.in.(${memberFilter})`);
-        }
-
-        queryBuilder = queryBuilder.or(orFilters.join(','));
-      }
-
-      const { data, error, count } = await queryBuilder.range(from, to);
+      const { data, error, count } = await supabase
+        .rpc(
+          'search_projects_page',
+          {
+            p_start_date: filters.startDate || null,
+            p_end_date: filters.endDate || null,
+            p_keyword: query.trim() || null,
+          },
+          { count: 'exact' },
+        )
+        .range(from, to);
       if (error) throw error;
 
       return {
-        items: dedupeProjectsById((data ?? []).map(mapProjectRecord)),
+        items: dedupeProjectListRowsById(
+          ((data ?? []) as Record<string, unknown>[]).map(mapProjectListRowRecord),
+        ),
         totalCount: count ?? 0,
       };
+    },
+    async searchReportProjects(filters) {
+      const { data, error } = await supabase.rpc('search_report_projects', {
+        p_cost_group_id: filters.costGroupId || null,
+        p_platform: filters.platform || null,
+        p_project_type1: filters.projectType1 || null,
+        p_keyword: filters.query.trim() || null,
+      });
+      if (error) throw error;
+      return dedupeReportProjectOptionsById(
+        ((data ?? []) as Record<string, unknown>[]).map(mapReportProjectOptionRowRecord),
+      );
+    },
+    async getProject(projectId) {
+      const { data, error } = await supabase
+        .from('projects')
+        .select('*, platforms(name)')
+        .eq('id', projectId)
+        .maybeSingle();
+      if (error) throw error;
+      return data ? mapProjectRecord(data as Record<string, unknown>) : null;
     },
     async saveProject(input) {
       const { data, error } = await supabase
@@ -349,6 +340,15 @@ function createSupabaseClient(): OpsDataClient {
       const { data, error } = await supabase
         .from('project_pages_public_view')
         .select('*')
+        .order('updated_at', { ascending: false });
+      if (error) throw error;
+      return (data ?? []).map(mapProjectPageRecord);
+    },
+    async getProjectPagesByProjectId(projectId) {
+      const { data, error } = await supabase
+        .from('project_pages_public_view')
+        .select('*')
+        .eq('project_id', projectId)
         .order('updated_at', { ascending: false });
       if (error) throw error;
       return (data ?? []).map(mapProjectPageRecord);
@@ -413,6 +413,13 @@ function createSupabaseClient(): OpsDataClient {
       });
       if (error) throw error;
       return ((data ?? []) as Record<string, unknown>[]).map(mapResourceSummaryDayRowRecord);
+    },
+    async getResourceSummaryMembers(member) {
+      const { data, error } = await supabase.rpc('get_resource_summary_members', {
+        p_member_id: member.role === 'admin' ? null : member.id,
+      });
+      if (error) throw error;
+      return ((data ?? []) as Record<string, unknown>[]).map(mapResourceSummaryMemberRowRecord);
     },
     async getResourceTypeSummaryYears(member) {
       const { data, error } = await supabase.rpc('get_resource_type_summary_years', {
@@ -644,16 +651,20 @@ function createUnconfiguredClient(): OpsDataClient {
     getServiceGroups: fail,
     getProjects: fail,
     searchProjectsPage: fail,
+    searchReportProjects: fail,
+    getProject: fail,
     saveProject: fail,
     deleteProject: fail,
     getProjectPages: fail,
     getAllProjectPages: fail,
+    getProjectPagesByProjectId: fail,
     getProjectPagesByProjectIds: fail,
     saveProjectPage: fail,
     deleteProjectPage: fail,
     getTasksByDate: fail,
     getDashboardTaskCalendar: fail,
     getResourceSummary: fail,
+    getResourceSummaryMembers: fail,
     getResourceTypeSummaryYears: fail,
     getResourceTypeSummaryByYear: fail,
     getResourceServiceSummaryYears: fail,
@@ -753,6 +764,16 @@ function mapResourceSummaryDayRowRecord(record: Record<string, unknown>): Resour
     memberName: String(record.member_name ?? ''),
     taskDate: String(record.task_date ?? getToday()),
     taskUsedtime: Number(record.task_usedtime ?? 0),
+  };
+}
+
+function mapResourceSummaryMemberRowRecord(
+  record: Record<string, unknown>,
+): ResourceSummaryMemberRow {
+  return {
+    id: String(record.id ?? ''),
+    accountId: String(record.account_id ?? ''),
+    name: String(record.name ?? ''),
   };
 }
 
@@ -882,6 +903,43 @@ function mapProjectPageRecord(record: Record<string, unknown>): ProjectPage {
   };
 }
 
+function mapProjectListRowRecord(record: Record<string, unknown>): ProjectListRow {
+  return {
+    id: String(record.id),
+    createdByMemberId: record.created_by_member_id ? String(record.created_by_member_id) : null,
+    projectType1: String(record.project_type1 ?? ''),
+    name: String(record.name ?? ''),
+    platformId: record.platform_id ? String(record.platform_id) : null,
+    platform: String(record.platform ?? ''),
+    serviceGroupId: record.service_group_id ? String(record.service_group_id) : null,
+    serviceGroupName: String(record.service_group_name ?? '-'),
+    reportUrl: String(record.report_url ?? ''),
+    reporterMemberId: record.reporter_member_id ? String(record.reporter_member_id) : null,
+    reporterDisplay: String(record.reporter_display ?? '-'),
+    reviewerMemberId: record.reviewer_member_id ? String(record.reviewer_member_id) : null,
+    reviewerDisplay: String(record.reviewer_display ?? '-'),
+    startDate: String(record.start_date ?? getToday()),
+    endDate: String(record.end_date ?? getToday()),
+    isActive: Boolean(record.is_active ?? true),
+    pageCount: Number(record.page_count ?? 0),
+  };
+}
+
+function mapReportProjectOptionRowRecord(record: Record<string, unknown>): ReportProjectOptionRow {
+  return {
+    id: String(record.id ?? ''),
+    projectType1: String(record.project_type1 ?? ''),
+    name: String(record.name ?? ''),
+    platform: String(record.platform ?? ''),
+    serviceGroupId: record.service_group_id ? String(record.service_group_id) : null,
+    serviceGroupName: String(record.service_group_name ?? ''),
+    serviceName: String(record.service_name ?? ''),
+    costGroupId: record.cost_group_id ? String(record.cost_group_id) : null,
+    costGroupName: String(record.cost_group_name ?? ''),
+    reportUrl: String(record.report_url ?? ''),
+  };
+}
+
 function mapTaskRecord(record: Record<string, unknown>): Task {
   return {
     id: String(record.id),
@@ -898,6 +956,12 @@ function mapTaskRecord(record: Record<string, unknown>): Task {
     note: String(record.note ?? ''),
     createdAt: String(record.created_at ?? getToday()),
     updatedAt: String(record.updated_at ?? getToday()),
+    platform: String(record.platform ?? '-'),
+    serviceGroupName: String(record.service_group_name ?? ''),
+    serviceName: String(record.service_name ?? ''),
+    projectDisplayName: String(record.project_display_name ?? ''),
+    pageDisplayName: String(record.page_display_name ?? ''),
+    pageUrl: String(record.page_url ?? ''),
   };
 }
 
