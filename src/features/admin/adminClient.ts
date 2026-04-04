@@ -31,6 +31,14 @@ interface AdminDataClient {
   listServiceGroups(): Promise<AdminServiceGroupItem[]>;
   listProjects(): Promise<AdminProjectOption[]>;
   listProjectPages(): Promise<AdminPageOption[]>;
+  getProjectAdminOption(projectId: string): Promise<AdminProjectOption | null>;
+  listProjectPagesByProjectId(projectId: string): Promise<AdminPageOption[]>;
+  searchReportProjectsAdmin(filters: {
+    costGroupId: string;
+    platform: string;
+    projectType1: string;
+    query: string;
+  }): Promise<AdminProjectOption[]>;
   searchTasksAdmin(
     filters: AdminTaskSearchFilters,
     page: number,
@@ -407,6 +415,15 @@ function createUnconfiguredAdminClient(): AdminDataClient {
     async listProjectPages() {
       return [] as AdminPageOption[];
     },
+    async getProjectAdminOption() {
+      throw configurationError;
+    },
+    async listProjectPagesByProjectId() {
+      return [] as AdminPageOption[];
+    },
+    async searchReportProjectsAdmin() {
+      return [] as AdminProjectOption[];
+    },
     async searchTasksAdmin() {
       return { items: [], totalCount: 0 } as AdminTaskSearchPage;
     },
@@ -532,6 +549,56 @@ function createSupabaseAdminClient(): AdminDataClient {
         .order('updated_at', { ascending: false });
       if (error) throw error;
       return (data ?? []).map((record) => mapPage(record as Record<string, unknown>));
+    },
+
+    async getProjectAdminOption(projectId: string) {
+      const { data, error } = await supabase
+        .from('projects')
+        .select(
+          'id, name, project_type1, platform_id, platform, service_group_id, report_url, is_active, platforms(name), service_groups(cost_group_id, cost_groups(name))',
+        )
+        .eq('id', projectId)
+        .maybeSingle();
+      if (error) throw error;
+      return data ? mapProject(data as Record<string, unknown>) : null;
+    },
+
+    async listProjectPagesByProjectId(projectId: string) {
+      const { data, error } = await supabase
+        .from('project_pages')
+        .select('id, project_id, title, url, track_status, monitoring_in_progress, qa_in_progress')
+        .eq('project_id', projectId)
+        .order('updated_at', { ascending: false });
+      if (error) throw error;
+      return (data ?? []).map((record) => mapPage(record as Record<string, unknown>));
+    },
+
+    async searchReportProjectsAdmin(filters) {
+      let query = supabase
+        .from('projects')
+        .select(
+          'id, name, project_type1, platform_id, platform, service_group_id, report_url, is_active, platforms(name), service_groups!inner(cost_group_id, cost_groups(name))',
+        )
+        .eq('is_active', true)
+        .order('name')
+        .limit(60);
+
+      if (filters.costGroupId.trim()) {
+        query = query.eq('service_groups.cost_group_id', filters.costGroupId.trim());
+      }
+      if (filters.platform.trim()) {
+        query = query.eq('platform', filters.platform.trim());
+      }
+      if (filters.projectType1.trim()) {
+        query = query.eq('project_type1', filters.projectType1.trim());
+      }
+      if (filters.query.trim()) {
+        query = query.ilike('name', `%${filters.query.trim()}%`);
+      }
+
+      const { data, error } = await query;
+      if (error) throw error;
+      return ((data ?? []) as Record<string, unknown>[]).map(mapProject);
     },
 
     async searchTasksAdmin(filters: AdminTaskSearchFilters, page: number, pageSize: number) {

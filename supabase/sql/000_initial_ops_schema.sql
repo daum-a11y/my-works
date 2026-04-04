@@ -611,6 +611,37 @@ as $$
   order by t.task_date asc
 $$;
 
+create or replace function public.get_dashboard_snapshot()
+returns table (
+  project_id uuid,
+  type1 text,
+  project_name text,
+  platform text,
+  service_group_name text,
+  start_date date,
+  end_date date
+)
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select
+    p.id as project_id,
+    coalesce(nullif(p.project_type1, ''), '-') as type1,
+    coalesce(nullif(p.name, ''), '-') as project_name,
+    coalesce(nullif(p.platform, ''), '-') as platform,
+    coalesce(nullif(sg.name, ''), '-') as service_group_name,
+    p.start_date,
+    p.end_date
+  from public.projects p
+  left join public.service_groups sg on sg.id = p.service_group_id
+  where public.current_member_id() is not null
+    and p.start_date <= current_date
+    and p.end_date >= current_date
+  order by p.end_date asc, p.name asc
+$$;
+
 drop function if exists public.get_tasks_by_date(uuid, date);
 
 create or replace function public.get_tasks_by_date(
@@ -2356,6 +2387,7 @@ grant execute on function public.delete_task(uuid) to authenticated;
 grant execute on function public.get_tasks_by_date(uuid, date) to authenticated;
 grant execute on function public.get_task_activities() to authenticated;
 grant execute on function public.get_dashboard_task_calendar(uuid, text) to authenticated;
+grant execute on function public.get_dashboard_snapshot() to authenticated;
 grant execute on function public.get_resource_summary(uuid, text) to authenticated;
 grant execute on function public.get_resource_summary_members(uuid) to authenticated;
 grant execute on function public.get_resource_type_summary(uuid) to authenticated;

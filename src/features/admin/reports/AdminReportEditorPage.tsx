@@ -189,13 +189,33 @@ export function AdminReportEditorPage() {
     queryKey: ['admin', 'platforms'],
     queryFn: () => adminDataClient.listPlatforms(),
   });
-  const projectsQuery = useQuery({
-    queryKey: ['admin', 'projects'],
-    queryFn: () => adminDataClient.listProjects(),
+  const selectedProjectQuery = useQuery({
+    queryKey: ['admin', 'project-option', draft.projectId],
+    queryFn: () => adminDataClient.getProjectAdminOption(draft.projectId),
+    enabled: Boolean(draft.projectId),
+  });
+  const reportProjectsQuery = useQuery({
+    queryKey: [
+      'admin',
+      'report-project-options',
+      draft.costGroupId,
+      draft.platform,
+      draft.type1,
+      appliedProjectQuery,
+    ],
+    queryFn: () =>
+      adminDataClient.searchReportProjectsAdmin({
+        costGroupId: draft.costGroupId,
+        platform: draft.platform,
+        projectType1: draft.type1,
+        query: appliedProjectQuery,
+      }),
+    enabled: Boolean(draft.costGroupId && draft.platform && draft.type1),
   });
   const pagesQuery = useQuery({
-    queryKey: ['admin', 'project-pages'],
-    queryFn: () => adminDataClient.listProjectPages(),
+    queryKey: ['admin', 'project-pages', draft.projectId],
+    queryFn: () => adminDataClient.listProjectPagesByProjectId(draft.projectId),
+    enabled: Boolean(draft.projectId),
   });
   const taskQuery = useQuery({
     queryKey: ['admin', 'task', taskId],
@@ -214,8 +234,29 @@ export function AdminReportEditorPage() {
     [costGroupsQuery.data],
   );
   const platforms = useMemo(() => toPlatforms(platformsQuery.data ?? []), [platformsQuery.data]);
-  const projects = useMemo(() => toProjects(projectsQuery.data ?? []), [projectsQuery.data]);
+  const searchedProjects = useMemo(
+    () => toProjects(reportProjectsQuery.data ?? []),
+    [reportProjectsQuery.data],
+  );
+  const selectedProjects = useMemo(() => {
+    if (!selectedProjectQuery.data) {
+      return [] as Project[];
+    }
+    return toProjects([selectedProjectQuery.data]);
+  }, [selectedProjectQuery.data]);
   const pages = useMemo(() => toPages(pagesQuery.data ?? []), [pagesQuery.data]);
+
+  const projects = useMemo(() => {
+    const merged = [...selectedProjects, ...searchedProjects];
+    const seen = new Set<string>();
+    return merged.filter((item) => {
+      if (seen.has(item.id)) {
+        return false;
+      }
+      seen.add(item.id);
+      return true;
+    });
+  }, [searchedProjects, selectedProjects]);
 
   const projectsById = useMemo(
     () => new Map(projects.map((item) => [item.id, item] as const)),
@@ -518,7 +559,8 @@ export function AdminReportEditorPage() {
     taskTypesQuery.isLoading ||
     serviceGroupsQuery.isLoading ||
     costGroupsQuery.isLoading ||
-    projectsQuery.isLoading ||
+    selectedProjectQuery.isLoading ||
+    reportProjectsQuery.isLoading ||
     pagesQuery.isLoading ||
     taskQuery.isLoading;
   const queryError =
@@ -527,7 +569,8 @@ export function AdminReportEditorPage() {
     (serviceGroupsQuery.error instanceof Error && serviceGroupsQuery.error.message) ||
     (costGroupsQuery.error instanceof Error && costGroupsQuery.error.message) ||
     (platformsQuery.error instanceof Error && platformsQuery.error.message) ||
-    (projectsQuery.error instanceof Error && projectsQuery.error.message) ||
+    (selectedProjectQuery.error instanceof Error && selectedProjectQuery.error.message) ||
+    (reportProjectsQuery.error instanceof Error && reportProjectsQuery.error.message) ||
     (pagesQuery.error instanceof Error && pagesQuery.error.message) ||
     (taskQuery.error instanceof Error && taskQuery.error.message) ||
     '';

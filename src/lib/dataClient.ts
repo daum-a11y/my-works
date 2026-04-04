@@ -6,7 +6,6 @@ import {
   type Member,
   type MonitoringStatsRow,
   normalizePageStatus,
-  type OpsStore,
   type PagedResult,
   type Platform,
   type Project,
@@ -92,28 +91,6 @@ export interface OpsDataClient {
   getStats(member: Member): Promise<StatsSnapshot>;
   getMonitoringStatsRows(): Promise<MonitoringStatsRow[]>;
   getQaStatsProjects(): Promise<QaStatsProjectRow[]>;
-}
-
-function buildDashboard(store: OpsStore): DashboardSnapshot {
-  const serviceGroupsById = new Map(store.serviceGroups.map((group) => [group.id, group.name]));
-  const today = new Date().toISOString().slice(0, 10);
-
-  return {
-    inProgressProjects: [...store.projects]
-      .filter((project) => project.startDate <= today && project.endDate >= today)
-      .sort((left, right) => left.endDate.localeCompare(right.endDate))
-      .map((project) => ({
-        projectId: project.id,
-        type1: project.projectType1 || '-',
-        platform: project.platform || '-',
-        serviceGroupName: project.serviceGroupId
-          ? (serviceGroupsById.get(project.serviceGroupId) ?? '-')
-          : '-',
-        projectName: project.name || '-',
-        startDate: project.startDate,
-        endDate: project.endDate,
-      })),
-  };
 }
 
 function requireData<T>(data: T | null, message: string): T {
@@ -554,37 +531,14 @@ function createSupabaseClient(): OpsDataClient {
       };
     },
     async getDashboard() {
-      const [
-        { data: projects, error: projectError },
-        { data: members, error: membersError },
-        { data: costGroups, error: costGroupsError },
-        { data: serviceGroups, error: serviceGroupsError },
-      ] = await Promise.all([
-        supabase.from('projects').select('*, platforms(name)'),
-        supabase.from('members_public_view').select('*'),
-        supabase.from('cost_groups').select('*'),
-        supabase
-          .from('service_groups')
-          .select('id, name, cost_group_id, display_order, is_active, cost_groups(name)'),
-      ]);
+      const { data, error } = await supabase.rpc('get_dashboard_snapshot');
+      if (error) throw error;
 
-      if (projectError) throw projectError;
-      if (membersError) throw membersError;
-      if (costGroupsError) throw costGroupsError;
-      if (serviceGroupsError) throw serviceGroupsError;
-
-      return buildDashboard({
-        members: (members ?? []).map(mapMemberRecord),
-        platforms: [],
-        costGroups: (costGroups ?? []).map(mapCostGroupRecord),
-        taskTypes: [],
-        serviceGroups: (serviceGroups ?? []).map((record) =>
-          mapServiceGroupRecord(record as Record<string, unknown>),
+      return {
+        inProgressProjects: ((data ?? []) as Record<string, unknown>[]).map(
+          mapDashboardProjectItemRecord,
         ),
-        projects: (projects ?? []).map(mapProjectRecord),
-        projectPages: [],
-        tasks: [],
-      });
+      };
     },
     async getStats() {
       const { data, error } = await supabase.rpc('get_stats');
@@ -755,6 +709,18 @@ function mapDashboardTaskCalendarDayRecord(
     taskDate: String(record.task_date ?? getToday()),
     taskUsedtime: Number(record.task_usedtime ?? 0),
   };
+}
+
+function mapDashboardProjectItemRecord(record: Record<string, unknown>) {
+  return {
+    projectId: String(record.project_id ?? ''),
+    type1: String(record.type1 ?? '-'),
+    projectName: String(record.project_name ?? '-'),
+    platform: String(record.platform ?? '-'),
+    serviceGroupName: String(record.service_group_name ?? '-'),
+    startDate: String(record.start_date ?? getToday()),
+    endDate: String(record.end_date ?? getToday()),
+  } satisfies DashboardSnapshot['inProgressProjects'][number];
 }
 
 function mapResourceSummaryDayRowRecord(record: Record<string, unknown>): ResourceSummaryDayRow {
