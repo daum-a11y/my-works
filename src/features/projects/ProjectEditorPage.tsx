@@ -118,6 +118,29 @@ function toPageInput(draft: PageFormState) {
   };
 }
 
+function splitServiceGroupName(value: string) {
+  const normalized = value.trim();
+  if (!normalized) {
+    return {
+      serviceGroup: '',
+      serviceName: '',
+    };
+  }
+
+  const separator = normalized.indexOf(' / ');
+  if (separator < 0) {
+    return {
+      serviceGroup: normalized,
+      serviceName: '',
+    };
+  }
+
+  return {
+    serviceGroup: normalized.slice(0, separator),
+    serviceName: normalized.slice(separator + 3),
+  };
+}
+
 function sortPages(pages: ProjectPage[]) {
   return [...pages].sort(
     (left, right) =>
@@ -196,6 +219,62 @@ export function ProjectEditorPage() {
   );
 
   const selectedProjectPages = useMemo(() => sortPages(pages), [pages]);
+  const visibleServiceGroups = useMemo(
+    () =>
+      serviceGroups.filter((group) => group.isActive || group.id === projectDraft.serviceGroupId),
+    [projectDraft.serviceGroupId, serviceGroups],
+  );
+  const selectedServiceGroup = useMemo(
+    () => visibleServiceGroups.find((group) => group.id === projectDraft.serviceGroupId) ?? null,
+    [projectDraft.serviceGroupId, visibleServiceGroups],
+  );
+  const selectedServiceParts = useMemo(
+    () => splitServiceGroupName(selectedServiceGroup?.name ?? ''),
+    [selectedServiceGroup?.name],
+  );
+  const serviceGroupOptions = useMemo(() => {
+    const seen = new Set<string>();
+    return visibleServiceGroups.filter((group) => {
+      if (seen.has(group.costGroupId ?? '')) {
+        return false;
+      }
+      seen.add(group.costGroupId ?? '');
+      return true;
+    });
+  }, [visibleServiceGroups]);
+  const selectedCostGroupId = selectedServiceGroup?.costGroupId ?? '';
+  const serviceGroupNameOptions = useMemo(() => {
+    if (!selectedCostGroupId) {
+      return [] as string[];
+    }
+
+    return Array.from(
+      new Set(
+        visibleServiceGroups
+          .filter((group) => group.costGroupId === selectedCostGroupId)
+          .map((group) => splitServiceGroupName(group.name).serviceGroup)
+          .filter(Boolean),
+      ),
+    ).sort((left, right) => left.localeCompare(right, 'ko'));
+  }, [selectedCostGroupId, visibleServiceGroups]);
+  const serviceNameOptions = useMemo(() => {
+    if (!selectedCostGroupId || !selectedServiceParts.serviceGroup) {
+      return [] as string[];
+    }
+
+    return Array.from(
+      new Set(
+        visibleServiceGroups
+          .filter((group) => group.costGroupId === selectedCostGroupId)
+          .filter(
+            (group) =>
+              splitServiceGroupName(group.name).serviceGroup === selectedServiceParts.serviceGroup,
+          )
+          .map((group) => splitServiceGroupName(group.name).serviceName)
+          .filter(Boolean),
+      ),
+    ).sort((left, right) => left.localeCompare(right, 'ko'));
+  }, [selectedCostGroupId, selectedServiceParts.serviceGroup, visibleServiceGroups]);
 
   useEffect(() => {
     if (!isEditMode || !selectedProject) {
@@ -224,6 +303,48 @@ export function ProjectEditorPage() {
   useEffect(() => {
     titleRef.current?.focus();
   }, [projectId]);
+
+  const handleCostGroupChange = (costGroupId: string) => {
+    setProjectDraft((current) => {
+      const matched = visibleServiceGroups.find((group) => group.costGroupId === costGroupId);
+      return {
+        ...current,
+        serviceGroupId: matched?.id ?? '',
+      };
+    });
+  };
+
+  const handleServiceGroupChange = (serviceGroupName: string) => {
+    setProjectDraft((current) => {
+      const matched = visibleServiceGroups.find((group) => {
+        const parts = splitServiceGroupName(group.name);
+        return group.costGroupId === selectedCostGroupId && parts.serviceGroup === serviceGroupName;
+      });
+
+      return {
+        ...current,
+        serviceGroupId: matched?.id ?? '',
+      };
+    });
+  };
+
+  const handleServiceNameChange = (serviceName: string) => {
+    setProjectDraft((current) => {
+      const matched = visibleServiceGroups.find((group) => {
+        const parts = splitServiceGroupName(group.name);
+        return (
+          group.costGroupId === selectedCostGroupId &&
+          parts.serviceGroup === selectedServiceParts.serviceGroup &&
+          parts.serviceName === serviceName
+        );
+      });
+
+      return {
+        ...current,
+        serviceGroupId: matched?.id ?? '',
+      };
+    });
+  };
 
   const saveProjectMutation = useMutation({
     mutationFn: async (draft: ProjectFormState) => {
@@ -456,24 +577,53 @@ export function ProjectEditorPage() {
               </select>
             </label>
 
-            <label className={`${styles.field} ${styles.editorFieldWide}`}>
-              <span>서비스그룹</span>
+            <label className={styles.field}>
+              <span>청구그룹</span>
               <select
-                value={projectDraft.serviceGroupId}
-                onChange={(event) =>
-                  setProjectDraft((current) => ({ ...current, serviceGroupId: event.target.value }))
-                }
+                value={selectedCostGroupId}
+                onChange={(event) => handleCostGroupChange(event.target.value)}
               >
                 <option value="">선택</option>
-                {serviceGroups.map((group) =>
-                  group.isActive || group.id === projectDraft.serviceGroupId ? (
-                    <option key={group.id} value={group.id}>
-                      {group.costGroupName ? `${group.costGroupName} / ${group.name}` : group.name}
+                {serviceGroupOptions.map((group) =>
+                  group.costGroupId ? (
+                    <option key={group.costGroupId} value={group.costGroupId}>
+                      {group.costGroupName}
                     </option>
                   ) : null,
                 )}
               </select>
-              <small className={styles.helpText}>검색되지 않는 서비스는 문의하십시오.</small>
+            </label>
+
+            <label className={styles.field}>
+              <span>서비스그룹</span>
+              <select
+                value={selectedServiceParts.serviceGroup}
+                onChange={(event) => handleServiceGroupChange(event.target.value)}
+                disabled={!selectedCostGroupId}
+              >
+                <option value="">선택</option>
+                {serviceGroupNameOptions.map((name) => (
+                  <option key={name} value={name}>
+                    {name}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label className={styles.field}>
+              <span>서비스명</span>
+              <select
+                value={selectedServiceParts.serviceName}
+                onChange={(event) => handleServiceNameChange(event.target.value)}
+                disabled={!selectedServiceParts.serviceGroup}
+              >
+                <option value="">선택</option>
+                {serviceNameOptions.map((name) => (
+                  <option key={name} value={name}>
+                    {name}
+                  </option>
+                ))}
+              </select>
             </label>
 
             <label className={`${styles.field} ${styles.editorFieldWide}`}>

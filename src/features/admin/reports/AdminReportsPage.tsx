@@ -253,8 +253,17 @@ export function AdminReportsPage() {
     queryFn: () => adminDataClient.listCostGroups(),
   });
   const projectsQuery = useQuery({
-    queryKey: ['admin', 'projects'],
-    queryFn: () => adminDataClient.listProjects(),
+    queryKey: ['admin', 'report-project-options', filters.costGroupId],
+    queryFn: () =>
+      filters.costGroupId
+        ? adminDataClient.searchReportProjectsAdmin({
+            costGroupId: filters.costGroupId,
+            platform: '',
+            projectType1: '',
+            query: '',
+          })
+        : Promise.resolve([]),
+    enabled: Boolean(filters.costGroupId),
   });
   const searchQuery = useQuery({
     queryKey: ['admin', 'task-search', appliedFilters, currentPage, pageSize],
@@ -283,13 +292,7 @@ export function AdminReportsPage() {
     [members],
   );
 
-  const visibleProjects = useMemo(
-    () =>
-      filters.costGroupId
-        ? projects.filter((project) => project.costGroupId === filters.costGroupId)
-        : projects,
-    [filters.costGroupId, projects],
-  );
+  const visibleProjects = useMemo(() => projects, [projects]);
 
   const taskType1Options = useMemo(
     () => getTaskType1Options(taskTypes, filters.taskType1),
