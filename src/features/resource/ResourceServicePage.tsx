@@ -254,14 +254,14 @@ function ServiceYearRows({
                 {groupIndex === 0 ? (
                   <td rowSpan={month.groups.length + 1}>{month.month}월</td>
                 ) : null}
-                <td>{group.costGroup}</td>
+                {renderCostGroupCell(month.groups, groupIndex, 1, group.costGroup)}
                 <td>{group.group}</td>
                 <td>합계</td>
                 <td>{formatMm(group.totalMinutes, month.workingDays)}</td>
               </tr>
             ))}
             <tr key={`${row.year}-${month.month}-sum`} className={styles.summaryStrongRow}>
-              <td colSpan={4}>{month.month}월 합계</td>
+              <td colSpan={3}>{month.month}월 합계</td>
               <td>{formatMm(month.totalMinutes, month.workingDays)}</td>
             </tr>
           </Fragment>
@@ -312,7 +312,14 @@ function ServiceMonthDetailRows({
             {groupIndex === 0 && nameIndex === 0 ? (
               <td rowSpan={monthRowSpan}>{month.month}월</td>
             ) : null}
-            {nameIndex === 0 ? <td rowSpan={group.names.length}>{group.costGroup}</td> : null}
+            {nameIndex === 0
+              ? renderCostGroupCell(
+                  month.groups,
+                  groupIndex,
+                  (currentGroup) => currentGroup.names.length,
+                  group.costGroup,
+                )
+              : null}
             {nameIndex === 0 ? <td rowSpan={group.names.length}>{group.group}</td> : null}
             <td>{name.name}</td>
             <td>{formatMm(name.minutes, month.workingDays)}</td>
@@ -320,9 +327,49 @@ function ServiceMonthDetailRows({
         )),
       )}
       <tr className={styles.summaryStrongRow}>
-        <td colSpan={4}>{month.month}월 합계</td>
+        <td colSpan={3}>{month.month}월 합계</td>
         <td>{formatMm(month.totalMinutes, month.workingDays)}</td>
       </tr>
     </>
   );
+}
+
+function renderCostGroupCell(
+  groups: Array<{
+    costGroup: string;
+    group: string;
+    totalMinutes: number;
+    names: Array<{ name: string; minutes: number }>;
+  }>,
+  groupIndex: number,
+  rowCount:
+    | number
+    | ((group: {
+        costGroup: string;
+        group: string;
+        totalMinutes: number;
+        names: Array<{ name: string; minutes: number }>;
+      }) => number),
+  costGroup: string,
+) {
+  const previousGroup = groups[groupIndex - 1];
+
+  if (previousGroup?.costGroup === costGroup) {
+    return null;
+  }
+
+  const resolveRowCount = typeof rowCount === 'number' ? () => rowCount : rowCount;
+  let span = 0;
+
+  for (let index = groupIndex; index < groups.length; index += 1) {
+    const group = groups[index];
+
+    if (group.costGroup !== costGroup) {
+      break;
+    }
+
+    span += resolveRowCount(group);
+  }
+
+  return <td rowSpan={span}>{costGroup}</td>;
 }

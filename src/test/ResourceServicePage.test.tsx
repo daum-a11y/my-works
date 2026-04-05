@@ -85,6 +85,14 @@ describe('ResourceServicePage', () => {
           },
           {
             year: '2023',
+            month: '04',
+            costGroupName: '커머스',
+            serviceGroupName: '톡딜',
+            serviceName: '톡딜',
+            taskUsedtime: 30,
+          },
+          {
+            year: '2023',
             month: '05',
             costGroupName: '플랫폼',
             serviceGroupName: '카카오맵',
@@ -195,5 +203,30 @@ describe('ResourceServicePage', () => {
     expect(yearSummaryRow).toBeDefined();
     expect(within(monthSummaryRow!).getAllByRole('cell')).toHaveLength(2);
     expect(within(yearSummaryRow!).getAllByRole('cell')).toHaveLength(2);
+  });
+
+  it('merges repeated cost group cells with rowspan inside the same month', async () => {
+    const queryClient = new QueryClient();
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <ResourceServicePage />
+      </QueryClientProvider>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByRole('tab', { name: '2023년' })).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole('tab', { name: '2023년' }));
+
+    await waitFor(() => {
+      expect(screen.getAllByText('톡딜').length).toBeGreaterThan(0);
+    });
+
+    const commerceCells = screen.getAllByRole('cell', { name: '커머스' });
+
+    expect(commerceCells).toHaveLength(1);
+    expect(commerceCells[0]).toHaveAttribute('rowspan', '2');
   });
 });

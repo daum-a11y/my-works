@@ -893,7 +893,7 @@ stable
 security definer
 set search_path = public
 as $$
-  select distinct extract(year from t.task_date)::text as year
+  select extract(year from t.task_date)::text as year
   from public.tasks t
   where public.current_member_id() is not null
     and (
@@ -904,6 +904,7 @@ as $$
         and (p_member_id is null or p_member_id = public.current_member_id())
       )
     )
+  group by extract(year from t.task_date)
   order by year desc
 $$;
 
@@ -1026,9 +1027,8 @@ stable
 security definer
 set search_path = public
 as $$
-  select distinct extract(year from t.task_date)::text as year
+  select extract(year from t.task_date)::text as year
   from public.tasks t
-  left join public.projects p on p.id = t.project_id
   left join public.task_types tt
     on tt.type1 = t.task_type1
    and tt.type2 = t.task_type2
@@ -1042,6 +1042,7 @@ as $$
       )
     )
     and coalesce(tt.requires_service_group, t.project_id is not null)
+  group by extract(year from t.task_date)
   order by year desc
 $$;
 

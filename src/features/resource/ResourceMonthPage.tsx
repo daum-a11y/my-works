@@ -415,7 +415,7 @@ export function ResourceMonthPage() {
                       </thead>
                       <tfoot>
                         <tr className={styles.sumRow}>
-                          <th colSpan={2}>합계</th>
+                          <td colSpan={2}>합계</td>
                           <td className={clsx(styles.numberCell, styles.sumCell)}>
                             {formatIntegerValue(totalMinutes)}
                           </td>
@@ -435,8 +435,8 @@ export function ResourceMonthPage() {
                                 !row.requiresServiceGroup ? styles.lightGrayRow : undefined
                               }
                             >
-                              <th rowSpan={workFold ? 1 : row.items.length + 1}>{row.type1}</th>
-                              <th className={styles.tableSummaryCell}>합계</th>
+                              <td rowSpan={workFold ? 1 : row.items.length + 1}>{row.type1}</td>
+                              <td className={styles.tableSummaryCell}>합계</td>
                               <td className={clsx(styles.numberCell, styles.tableSummaryCell)}>
                                 {formatIntegerValue(row.totalMinutes)}
                               </td>
@@ -455,7 +455,7 @@ export function ResourceMonthPage() {
                                       item.requiresServiceGroup ? undefined : styles.lightGrayRow
                                     }
                                   >
-                                    <th>{item.type2}</th>
+                                    <td>{item.type2}</td>
                                     <td className={styles.numberCell}>
                                       {formatIntegerValue(item.minutes)}
                                     </td>
@@ -510,7 +510,7 @@ export function ResourceMonthPage() {
                       </thead>
                       <tfoot>
                         <tr className={styles.sumRow}>
-                          <th colSpan={4}>합계</th>
+                          <td colSpan={4}>합계</td>
                           <td className={styles.numberCell}>
                             {formatIntegerValue(projectMinutes)}
                           </td>
@@ -532,11 +532,11 @@ export function ResourceMonthPage() {
                           return (
                             <Fragment key={group.group}>
                               <tr>
-                                <th rowSpan={svcFold ? 1 : detailLength + 1}>{group.costGroup}</th>
-                                <th rowSpan={svcFold ? 1 : detailLength + 1}>{group.group}</th>
-                                <th colSpan={2} className={styles.tableSummaryCell}>
+                                <td rowSpan={svcFold ? 1 : detailLength + 1}>{group.costGroup}</td>
+                                <td rowSpan={svcFold ? 1 : detailLength + 1}>{group.group}</td>
+                                <td colSpan={2} className={styles.tableSummaryCell}>
                                   합계
-                                </th>
+                                </td>
                                 <td className={clsx(styles.numberCell, styles.tableSummaryCell)}>
                                   {formatIntegerValue(group.totalMinutes)}
                                 </td>
@@ -552,9 +552,9 @@ export function ResourceMonthPage() {
                                     name.items.map((item, index) => (
                                       <tr key={`${group.group}-${name.name}-${item.type1}`}>
                                         {index === 0 ? (
-                                          <th rowSpan={name.items.length}>{name.name}</th>
+                                          <td rowSpan={name.items.length}>{name.name}</td>
                                         ) : null}
-                                        <th>{item.type1}</th>
+                                        <td>{item.type1}</td>
                                         <td className={styles.numberCell}>
                                           {formatIntegerValue(item.minutes)}
                                         </td>
@@ -591,7 +591,7 @@ export function ResourceMonthPage() {
                       </thead>
                       <tfoot>
                         <tr className={styles.sumRow}>
-                          <th colSpan={3}>합계</th>
+                          <td colSpan={3}>합계</td>
                           <td className={styles.numberCell}>
                             {formatMm(adjustedTotalMinutes, workingDays)}
                           </td>
@@ -601,19 +601,14 @@ export function ResourceMonthPage() {
                         {serviceSummaryRows.map((group) => (
                           <Fragment key={group.group}>
                             <tr>
-                              <th rowSpan={group.names.length + 1}>{group.costGroup}</th>
-                              <th rowSpan={group.names.length + 1}>{group.group}</th>
-                              <th className={styles.tableSummaryCell}>합계</th>
-                              <td className={clsx(styles.numberCell, styles.tableSummaryCell)}>
-                                {formatMm(group.totalMinutes, workingDays)}
-                              </td>
+                              <td rowSpan={group.names.length + 1}>{group.costGroup}</td>
+                              <td rowSpan={group.names.length + 1}>{group.group}</td>
+                              <td className={styles.tableSummaryCell}>합계</td>
+                              <td>{formatMm(group.totalMinutes, workingDays)}</td>
                             </tr>
                             {group.names.map((name) => (
-                              <tr
-                                key={`${group.group}-${name.name}`}
-                                className={styles.summaryStrongRow}
-                              >
-                                <th>{name.name}</th>
+                              <tr key={`${group.group}-${name.name}`}>
+                                <td>{name.name}</td>
                                 <td className={styles.numberCell}>
                                   {formatMm(name.minutes, workingDays)}
                                 </td>
@@ -622,8 +617,8 @@ export function ResourceMonthPage() {
                           </Fragment>
                         ))}
                         {unpaidRows.map((row) => (
-                          <tr key={row.type1} className={styles.summaryStrongRow}>
-                            <th colSpan={2}>{row.type1}</th>
+                          <tr key={row.type1}>
+                            <td colSpan={3}>{row.type1}</td>
                             <td className={styles.numberCell}>
                               {formatMm(row.totalMinutes, workingDays)}
                             </td>
