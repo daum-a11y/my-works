@@ -1,10 +1,13 @@
 .app-shell {
+  --app-shell-min-layout-width: 1200px;
+  --app-shell-min-content-width: calc(var(--app-shell-min-layout-width) - var(--shell-rail-width));
+
   .app-shell__layout {
     display: grid;
     grid-template-columns: var(--shell-rail-width) minmax(0, 1fr);
     grid-template-rows: var(--shell-header-height) minmax(0, 1fr);
     height: 100vh;
-    min-width: 1220px;
+    min-width: 0;
     overflow: hidden;
     background:
       linear-gradient(
@@ -68,7 +71,9 @@
     min-width: 0;
     min-height: 0;
     overflow-y: auto;
+    overflow-x: hidden;
     overscroll-behavior: contain;
+    scrollbar-gutter: stable;
     padding: 14px 11px 18px;
   }
 
@@ -153,7 +158,10 @@
     position: relative;
     min-width: 0;
     min-height: 0;
-    overflow: auto;
+    overflow-x: auto;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable both-edges;
   }
 
   .app-shell__global-loading-overlay {
@@ -447,6 +455,7 @@
   }
 
   .app-shell__main {
+    width: max(100%, var(--app-shell-min-content-width));
     min-width: 0;
     min-height: 100%;
     box-sizing: border-box;
