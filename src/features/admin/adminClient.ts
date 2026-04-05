@@ -23,6 +23,7 @@ import type {
   MemberInvitePayload,
   MemberAdminPayload,
   MemberCreateResult,
+  MemberPasswordResetPayload,
 } from './admin-types';
 
 interface AdminDataClient {
@@ -52,6 +53,7 @@ interface AdminDataClient {
   saveMemberAdmin(payload: MemberAdminPayload): Promise<MemberAdminItem>;
   createMemberAdmin(payload: MemberAdminPayload): Promise<MemberCreateResult>;
   inviteMemberAdmin(payload: MemberInvitePayload): Promise<void>;
+  resetMemberPasswordAdmin(payload: MemberPasswordResetPayload): Promise<void>;
   deleteMemberAdmin(memberId: string): Promise<'deleted' | 'deactivated'>;
   saveTaskTypeAdmin(payload: AdminTaskTypePayload): Promise<AdminTaskTypeItem>;
   getTaskTypeUsageSummary(
@@ -447,6 +449,9 @@ function createUnconfiguredAdminClient(): AdminDataClient {
     async inviteMemberAdmin() {
       throw configurationError;
     },
+    async resetMemberPasswordAdmin() {
+      throw configurationError;
+    },
     async deleteMemberAdmin() {
       throw configurationError;
     },
@@ -743,6 +748,21 @@ function createSupabaseAdminClient(): AdminDataClient {
           role: payload.role,
           redirectTo: getPasswordRecoveryRedirectUrl(),
         },
+      });
+
+      if (error) {
+        throw error;
+      }
+    },
+
+    async resetMemberPasswordAdmin(payload: MemberPasswordResetPayload) {
+      const email = payload.email.trim().toLowerCase();
+      if (!email) {
+        throw new Error('비밀번호 재설정 메일을 보낼 이메일을 입력해 주세요.');
+      }
+
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: getPasswordRecoveryRedirectUrl(),
       });
 
       if (error) {

@@ -27,6 +27,8 @@ export function AdminMemberEditorPage() {
   const roleLabel = draft.role === 'admin' ? '관리자' : '팀원';
   const activeLabel = draft.userActive ? '활성' : '비활성';
   const memberStatusLabel = draft.memberStatus === 'pending' ? '승인대기' : '활성';
+  const hasAuthAccount = Boolean(selectedMember?.authUserId);
+  const authActionLabel = hasAuthAccount ? '비밀번호 재설정 메일' : '초대 메일 재발송';
 
   useEffect(() => {
     if (!isEditMode) {
@@ -66,7 +68,14 @@ export function AdminMemberEditorPage() {
   const inviteMutation = useMutation({
     mutationFn: async () => {
       if (!selectedMember) {
-        throw new Error('초대할 사용자 정보가 없습니다.');
+        throw new Error('인증 메일을 보낼 사용자 정보가 없습니다.');
+      }
+
+      if (selectedMember.authUserId) {
+        await adminDataClient.resetMemberPasswordAdmin({
+          email: selectedMember.email,
+        });
+        return;
       }
 
       await adminDataClient.inviteMemberAdmin({
@@ -80,7 +89,11 @@ export function AdminMemberEditorPage() {
       await queryClient.invalidateQueries({ queryKey: ['admin', 'members'] });
       navigate('/admin/members', {
         replace: true,
-        state: { statusMessage: '초대 메일을 보냈습니다.' },
+        state: {
+          statusMessage: hasAuthAccount
+            ? '비밀번호 재설정 메일을 보냈습니다.'
+            : '초대 메일을 다시 보냈습니다.',
+        },
       });
     },
   });
@@ -170,7 +183,13 @@ export function AdminMemberEditorPage() {
       return;
     }
 
-    if (!window.confirm(`${selectedMember.name}에게 초대 메일을 보내시겠습니까?`)) {
+    if (
+      !window.confirm(
+        hasAuthAccount
+          ? `${selectedMember.name}에게 비밀번호 재설정 메일을 보내시겠습니까?`
+          : `${selectedMember.name}에게 초대 메일을 다시 보내시겠습니까?`,
+      )
+    ) {
       return;
     }
 
@@ -375,7 +394,7 @@ export function AdminMemberEditorPage() {
                       onClick={() => void handleInvite()}
                       disabled={inviteMutation.isPending}
                     >
-                      초대 메일
+                      {authActionLabel}
                     </button>
                   ) : null}
                   {isInactiveMember ? (

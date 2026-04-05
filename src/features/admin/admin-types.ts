@@ -197,6 +197,10 @@ export interface MemberInvitePayload {
   role: 'user' | 'admin';
 }
 
+export interface MemberPasswordResetPayload {
+  email: string;
+}
+
 export interface MemberCreateResult {
   action: 'updated' | 'created';
   memberId: string;
