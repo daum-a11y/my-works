@@ -1,10 +1,10 @@
 import { Outlet } from 'react-router-dom';
-import styles from './ResourcePage.module.css';
+import '../../styles/domain/pages/resource-page.scss';
 
 export function ResourceLayout() {
   return (
-    <section className={styles.page}>
-      <div className={styles.content}>
+    <section className="resourcePageScope page">
+      <div className="content">
         <Outlet />
       </div>
     </section>

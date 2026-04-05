@@ -1,0 +1,78 @@
+.uiButtonScope {
+  &.button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: var(--control-height-md);
+    padding: 0 16px;
+    border: 1px solid transparent;
+    font-family: inherit;
+    font-size: var(--text-form-size);
+    font-weight: var(--text-form-weight);
+    line-height: 1;
+    transition:
+      background-color 160ms cubic-bezier(0.25, 1, 0.5, 1),
+      border-color 160ms cubic-bezier(0.25, 1, 0.5, 1),
+      color 160ms cubic-bezier(0.25, 1, 0.5, 1),
+      transform 120ms cubic-bezier(0.25, 1, 0.5, 1),
+      box-shadow 160ms cubic-bezier(0.25, 1, 0.5, 1);
+  }
+
+  .button[data-disabled] {
+    opacity: 0.62;
+    cursor: not-allowed;
+  }
+
+  .button:not([data-disabled]):focus-visible {
+    outline: 2px solid var(--focus-ring-color);
+    outline-offset: 1px;
+  }
+
+  .button:not([data-disabled]):hover {
+    transform: translateY(-1px);
+  }
+
+  .button:not([data-disabled]):active {
+    transform: translateY(0);
+  }
+
+  &.primary {
+    color: var(--text-inverse);
+    background: var(--button-primary-bg);
+    border-color: color-mix(in srgb, var(--button-primary-bg) 74%, black);
+  }
+
+  &.primary:not([data-disabled]):hover {
+    background: var(--button-primary-bg-hover);
+    box-shadow: 0 8px 18px rgba(48, 66, 122, 0.14);
+  }
+
+  &.secondary {
+    color: var(--text-primary);
+    background: var(--button-secondary-bg);
+    border-color: var(--button-secondary-border);
+  }
+
+  &.secondary:not([data-disabled]):hover {
+    background: var(--button-secondary-hover);
+    border-color: var(--border-strong);
+  }
+
+  &.ghost {
+    color: var(--text-secondary);
+    background: transparent;
+    border-color: transparent;
+  }
+
+  &.ghost:not([data-disabled]):hover {
+    background: var(--button-ghost-hover);
+    color: var(--text-primary);
+  }
+
+  &.danger {
+    color: var(--text-inverse);
+    background: var(--button-danger-bg);
+    border-color: color-mix(in srgb, var(--button-danger-bg) 82%, white);
+  }
+}

@@ -23,7 +23,7 @@ import {
 import { getTaskTypeUiRule } from '../../../lib/taskTypeRules';
 import { adminDataClient } from '../adminClient';
 import type { AdminTaskSearchItem, MemberAdminItem } from '../admin-types';
-import styles from '../../reports/ReportsPage.module.css';
+import '../../../styles/domain/pages/reports-page.scss';
 
 function formatCompactDate(value: string, mode: 'short' | 'long') {
   if (!value) {
@@ -583,30 +583,30 @@ export function AdminReportEditorPage() {
   };
 
   return (
-    <section className={styles.page}>
-      <header className={styles.hero}>
-        <div className={styles.heroMain}>
-          <h1 className={styles.title}>{isEdit ? '업무 임의수정' : '업무 임의 추가'}</h1>
+    <section className={'reportsPageScope page'}>
+      <header className={'hero'}>
+        <div className={'heroMain'}>
+          <h1 className={'title'}>{isEdit ? '업무 임의수정' : '업무 임의 추가'}</h1>
         </div>
       </header>
 
-      <section className={styles.panel}>
-        <div className={styles.panelHead}>
+      <section className={'panel'}>
+        <div className={'panelHead'}>
           <div>
-            <h2 className={styles.panelTitle}>업무 입력</h2>
-            <p className={styles.dateText}>{draft.reportDate || getTodayInputValue()}</p>
+            <h2 className={'panelTitle'}>업무 입력</h2>
+            <p className={'dateText'}>{draft.reportDate || getTodayInputValue()}</p>
           </div>
-          <div className={styles.tabRow}>
+          <div className={'tabRow'}>
             <button
               type="button"
-              className={`${styles.tabButton} ${activeTab === 'report' ? styles.tabButtonActive : ''}`}
+              className={`${'tabButton'} ${activeTab === 'report' ? 'tabButtonActive' : ''}`}
               onClick={() => setActiveTab('report')}
             >
               기본 입력
             </button>
             <button
               type="button"
-              className={`${styles.tabButton} ${activeTab === 'period' ? styles.tabButtonActive : ''}`}
+              className={`${'tabButton'} ${activeTab === 'period' ? 'tabButtonActive' : ''}`}
               onClick={() => setActiveTab('period')}
             >
               TYPE 입력
@@ -614,17 +614,17 @@ export function AdminReportEditorPage() {
           </div>
         </div>
 
-        {queryError ? <p className={styles.statusMsg}>{queryError}</p> : null}
-        {statusMessage ? <p className={styles.statusMsg}>{statusMessage}</p> : null}
+        {queryError ? <p className={'statusMsg'}>{queryError}</p> : null}
+        {statusMessage ? <p className={'statusMsg'}>{statusMessage}</p> : null}
 
         {loading ? (
-          <p className={styles.status}>불러오는 중입니다...</p>
+          <p className={'status'}>불러오는 중입니다...</p>
         ) : isEdit && !taskQuery.data ? (
-          <p className={styles.status}>수정할 업무를 찾을 수 없습니다.</p>
+          <p className={'status'}>수정할 업무를 찾을 수 없습니다.</p>
         ) : (
-          <form className={styles.form} onSubmit={onSubmit}>
-            <div className={styles.formGrid}>
-              <label className={styles.field}>
+          <form className={'form'} onSubmit={onSubmit}>
+            <div className={'formGrid'}>
+              <label className={'field'}>
                 <span>사용자</span>
                 <select
                   value={selectedMemberId}
@@ -640,7 +640,7 @@ export function AdminReportEditorPage() {
                 </select>
               </label>
 
-              <label className={styles.field}>
+              <label className={'field'}>
                 <span>일자</span>
                 <input
                   type="text"
@@ -654,8 +654,8 @@ export function AdminReportEditorPage() {
             </div>
 
             {activeTab === 'report' ? (
-              <div className={styles.formGrid}>
-                <label className={styles.field}>
+              <div className={'formGrid'}>
+                <label className={'field'}>
                   <span>청구그룹</span>
                   <select
                     value={draft.costGroupId}
@@ -672,7 +672,7 @@ export function AdminReportEditorPage() {
                   </select>
                 </label>
 
-                <label className={styles.field}>
+                <label className={'field'}>
                   <span>프로젝트검색</span>
                   <input
                     value={projectQuery}
@@ -682,18 +682,18 @@ export function AdminReportEditorPage() {
                   />
                 </label>
 
-                <div className={styles.searchButtonField}>
-                  <span className={styles.srOnly}>프로젝트 검색</span>
+                <div className={'searchButtonField'}>
+                  <span className={'srOnly'}>프로젝트 검색</span>
                   <button
                     type="button"
-                    className={styles.secondaryButton}
+                    className={'secondaryButton'}
                     onClick={() => setAppliedProjectQuery(projectQuery)}
                   >
                     검색
                   </button>
                 </div>
 
-                <label className={styles.field}>
+                <label className={'field'}>
                   <span>프로젝트</span>
                   <select
                     value={draft.projectId}
@@ -711,14 +711,14 @@ export function AdminReportEditorPage() {
               </div>
             ) : null}
 
-            <div className={styles.formGrid}>
+            <div className={'formGrid'}>
               {projectTypeSelected ? (
-                <label className={styles.field}>
+                <label className={'field'}>
                   <span>타입1</span>
                   <input value={type1Value} readOnly />
                 </label>
               ) : (
-                <label className={styles.field}>
+                <label className={'field'}>
                   <span>타입1</span>
                   <select
                     value={draft.type1}
@@ -734,7 +734,7 @@ export function AdminReportEditorPage() {
                 </label>
               )}
 
-              <label className={styles.field}>
+              <label className={'field'}>
                 <span>타입2</span>
                 <select
                   value={draft.type2}
@@ -750,7 +750,7 @@ export function AdminReportEditorPage() {
               </label>
 
               {showPlatformSelect ? (
-                <label className={styles.field}>
+                <label className={'field'}>
                   <span>플랫폼</span>
                   <select
                     value={draft.platform}
@@ -770,15 +770,15 @@ export function AdminReportEditorPage() {
 
               {showReadonlyService ? (
                 <>
-                  <label className={styles.field}>
+                  <label className={'field'}>
                     <span>청구그룹</span>
                     <input value={draft.costGroupName} readOnly />
                   </label>
-                  <label className={styles.field}>
+                  <label className={'field'}>
                     <span>서비스 그룹</span>
                     <input value={draft.serviceGroupName} readOnly />
                   </label>
-                  <label className={styles.field}>
+                  <label className={'field'}>
                     <span>서비스 명</span>
                     <input value={draft.serviceName} readOnly />
                   </label>
@@ -786,7 +786,7 @@ export function AdminReportEditorPage() {
               ) : null}
 
               {showProjectSelect && !isProjectLinkedTab ? (
-                <label className={styles.field}>
+                <label className={'field'}>
                   <span>프로젝트</span>
                   <select
                     value={draft.projectId}
@@ -806,7 +806,7 @@ export function AdminReportEditorPage() {
               ) : null}
 
               {showPageSelect ? (
-                <label className={styles.field}>
+                <label className={'field'}>
                   <span>{isProjectLinkedTab ? '페이지명' : '프로젝트 페이지'}</span>
                   <select
                     value={draft.pageId}
@@ -825,7 +825,7 @@ export function AdminReportEditorPage() {
               ) : null}
 
               {showManualPageName ? (
-                <label className={styles.field}>
+                <label className={'field'}>
                   <span>{manualPageLabel}</span>
                   {isVacationType ? (
                     <select
@@ -848,7 +848,7 @@ export function AdminReportEditorPage() {
               ) : null}
 
               {showPageUrl ? (
-                <label className={styles.field}>
+                <label className={'field'}>
                   <span>{showPageSelect ? '페이지 URL' : 'URL'}</span>
                   <input
                     value={draft.pageUrl}
@@ -858,7 +858,7 @@ export function AdminReportEditorPage() {
                 </label>
               ) : null}
 
-              <label className={styles.field}>
+              <label className={'field'}>
                 <span>총시간</span>
                 <input
                   type="number"
@@ -871,7 +871,7 @@ export function AdminReportEditorPage() {
               </label>
             </div>
 
-            <label className={styles.field}>
+            <label className={'field'}>
               <span>비고</span>
               <textarea
                 value={draft.note}
@@ -881,29 +881,25 @@ export function AdminReportEditorPage() {
             </label>
 
             {isEdit && currentMember ? (
-              <p className={styles.status}>
+              <p className={'status'}>
                 사용자: {currentMember.accountId} ({currentMember.name})
               </p>
             ) : null}
 
-            <div className={styles.actionRow}>
-              <button
-                type="submit"
-                className={styles.primaryButton}
-                disabled={saveMutation.isPending}
-              >
+            <div className={'actionRow'}>
+              <button type="submit" className={'primaryButton'} disabled={saveMutation.isPending}>
                 저장
               </button>
               <button
                 type="button"
-                className={styles.secondaryButton}
+                className={'secondaryButton'}
                 onClick={() => navigate('/org/search')}
               >
                 취소
               </button>
               <button
                 type="button"
-                className={styles.secondaryButton}
+                className={'secondaryButton'}
                 onClick={() =>
                   setDraftField(
                     'reportDate',
@@ -915,14 +911,14 @@ export function AdminReportEditorPage() {
               </button>
               <button
                 type="button"
-                className={styles.secondaryButton}
+                className={'secondaryButton'}
                 onClick={() => setDraftField('reportDate', getTodayInputValue())}
               >
                 오늘
               </button>
               <button
                 type="button"
-                className={styles.secondaryButton}
+                className={'secondaryButton'}
                 onClick={() =>
                   setDraftField(
                     'reportDate',

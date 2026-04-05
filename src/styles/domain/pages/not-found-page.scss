@@ -1,0 +1,195 @@
+.notFoundPageScope {
+  &.page {
+    display: grid;
+    justify-items: center;
+    align-content: center;
+    min-height: 100vh;
+    padding: clamp(20px, 4vw, 44px);
+    background:
+      radial-gradient(
+        circle at top left,
+        color-mix(in oklab, var(--accent-soft) 58%, var(--surface-canvas)) 0,
+        transparent 34%
+      ),
+      linear-gradient(
+        180deg,
+        color-mix(in oklab, var(--surface-canvas) 88%, var(--accent-soft)) 0%,
+        var(--surface-canvas) 24%,
+        var(--surface-canvas) 100%
+      );
+  }
+
+  .panel {
+    width: min(100%, 672px);
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding: clamp(18px, 2vw, 23px);
+    background: var(--surface-panel);
+    border: 1px solid var(--border-default);
+    box-shadow: var(--elevation-1);
+    position: relative;
+    overflow: hidden;
+    animation: page-enter 320ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .panel::before {
+    content: '';
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 5px;
+    background: linear-gradient(
+      180deg,
+      var(--accent-strong) 0%,
+      color-mix(in oklab, var(--accent-strong) 42%, var(--surface-panel)) 100%
+    );
+  }
+
+  .hero {
+    display: grid;
+    gap: 6px;
+    padding: 0 0 20px 9px;
+    border-bottom: 1px solid var(--border-default);
+  }
+
+  .logoHeading {
+    margin: 0;
+  }
+
+  .logo {
+    display: block;
+    height: auto;
+  }
+
+  .bodyBlock {
+    display: grid;
+    gap: 6px;
+    align-content: start;
+    padding: 8px 0 0 9px;
+  }
+
+  .caption {
+    margin: 0;
+    color: var(--text-tertiary);
+    font-size: var(--text-label-size);
+    font-weight: var(--text-label-weight);
+    line-height: var(--text-label-line-height);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .title {
+    margin: 0;
+    color: var(--text-primary);
+    font-size: clamp(24px, 2vw, 32px);
+    font-weight: var(--font-weight-heavy);
+    line-height: 1.08;
+    letter-spacing: -1px;
+  }
+
+  .body {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: var(--text-body-size);
+    font-weight: var(--text-body-weight);
+    line-height: var(--text-body-line-height);
+    letter-spacing: var(--text-body-tracking);
+  }
+
+  .actionRow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  .link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: var(--control-height-md);
+    padding: 0 16px;
+    border: 1px solid color-mix(in oklab, var(--button-primary-bg) 74%, black);
+    background: var(--button-primary-bg);
+    color: var(--text-inverse);
+    text-decoration: none;
+    font-size: var(--text-form-size);
+    font-weight: var(--text-form-weight);
+    line-height: var(--text-form-line-height);
+    letter-spacing: var(--text-form-tracking);
+    transition:
+      background-color 160ms cubic-bezier(0.25, 1, 0.5, 1),
+      transform 160ms cubic-bezier(0.25, 1, 0.5, 1),
+      box-shadow 160ms cubic-bezier(0.25, 1, 0.5, 1);
+  }
+
+  .link:hover,
+  .link:focus-visible {
+    background: var(--button-primary-bg-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 16px rgba(48, 66, 122, 0.12);
+  }
+
+  .link:active {
+    transform: translateY(0);
+  }
+
+  .secondaryLink {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: var(--control-height-md);
+    padding: 0 16px;
+    border: 1px solid var(--button-secondary-border);
+    background: var(--button-secondary-bg);
+    color: var(--text-primary);
+    text-decoration: none;
+    font-size: var(--text-form-size);
+    font-weight: var(--text-form-weight);
+    line-height: var(--text-form-line-height);
+    letter-spacing: var(--text-form-tracking);
+    cursor: pointer;
+    transition:
+      background-color 160ms cubic-bezier(0.25, 1, 0.5, 1),
+      border-color 160ms cubic-bezier(0.25, 1, 0.5, 1),
+      transform 160ms cubic-bezier(0.25, 1, 0.5, 1);
+  }
+
+  .secondaryLink:hover,
+  .secondaryLink:focus-visible {
+    background: var(--button-secondary-hover);
+    border-color: var(--border-strong);
+    transform: translateY(-1px);
+  }
+
+  .secondaryLink:active {
+    transform: translateY(0);
+  }
+
+  @media (max-width: 640px) {
+    .page {
+      padding: 16px;
+    }
+
+    .panel {
+      width: 100%;
+    }
+
+    .hero,
+    .bodyBlock {
+      padding-left: 5px;
+    }
+  }
+
+  @keyframes page-enter {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}

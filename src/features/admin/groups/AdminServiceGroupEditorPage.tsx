@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { adminDataClient } from '../adminClient';
 import type { AdminServiceGroupItem, AdminServiceGroupPayload } from '../admin-types';
-import styles from '../../projects/ProjectsFeature.module.css';
+import '../../../styles/domain/pages/projects-feature.scss';
 
 function createDraft(item?: AdminServiceGroupItem): AdminServiceGroupPayload {
   if (!item) {
@@ -171,38 +171,35 @@ export function AdminServiceGroupEditorPage() {
 
   if (serviceGroupsQuery.isLoading && isEditMode) {
     return (
-      <section className={`${styles.shell} ${styles.editorShell}`}>
-        <p className={styles.statusMessage}>불러오는 중...</p>
+      <section className="projectsFeatureScope shell editorShell">
+        <p className={'statusMessage'}>불러오는 중...</p>
       </section>
     );
   }
 
   if (isEditMode && !selectedServiceGroup && !serviceGroupsQuery.isLoading) {
     return (
-      <section className={`${styles.shell} ${styles.editorShell}`}>
-        <header className={styles.editorHeader}>
-          <h1 className={styles.title}>서비스그룹 수정</h1>
+      <section className="projectsFeatureScope shell editorShell">
+        <header className={'editorHeader'}>
+          <h1 className={'title'}>서비스그룹 수정</h1>
         </header>
-        <p className={styles.statusMessage}>서비스그룹을 찾을 수 없습니다.</p>
+        <p className={'statusMessage'}>서비스그룹을 찾을 수 없습니다.</p>
       </section>
     );
   }
 
   return (
-    <section className={`${styles.shell} ${styles.editorShell}`}>
-      <header className={styles.editorHeader}>
-        <h1 className={styles.title}>{isEditMode ? '서비스그룹 수정' : '서비스그룹 추가'}</h1>
+    <section className="projectsFeatureScope shell editorShell">
+      <header className={'editorHeader'}>
+        <h1 className={'title'}>{isEditMode ? '서비스그룹 수정' : '서비스그룹 추가'}</h1>
       </header>
 
-      {errorMessage ? <p className={styles.statusMessage}>{errorMessage}</p> : null}
+      {errorMessage ? <p className={'statusMessage'}>{errorMessage}</p> : null}
 
-      <section
-        className={`${styles.modal} ${styles.editorSurface}`}
-        aria-label="서비스그룹 편집 패널"
-      >
-        <form className={`${styles.detailForm} ${styles.editorDetailForm}`} onSubmit={handleSubmit}>
-          <div className={styles.editorFormGrid}>
-            <label className={styles.field}>
+      <section className={`${'modal'} ${'editorSurface'}`} aria-label="서비스그룹 편집 패널">
+        <form className={`${'detailForm'} ${'editorDetailForm'}`} onSubmit={handleSubmit}>
+          <div className={'editorFormGrid'}>
+            <label className={'field'}>
               <span>서비스그룹</span>
               <input
                 ref={titleRef}
@@ -213,7 +210,7 @@ export function AdminServiceGroupEditorPage() {
               />
             </label>
 
-            <label className={styles.field}>
+            <label className={'field'}>
               <span>서비스명</span>
               <input
                 value={draft.svcName}
@@ -223,7 +220,7 @@ export function AdminServiceGroupEditorPage() {
               />
             </label>
 
-            <label className={styles.field}>
+            <label className={'field'}>
               <span>청구그룹</span>
               <select
                 value={draft.costGroupId}
@@ -240,7 +237,7 @@ export function AdminServiceGroupEditorPage() {
               </select>
             </label>
 
-            <label className={styles.field}>
+            <label className={'field'}>
               <span>노출여부</span>
               <select
                 value={draft.svcActive ? '1' : '0'}
@@ -259,29 +256,29 @@ export function AdminServiceGroupEditorPage() {
             </label>
           </div>
 
-          <div className={`${styles.formActions} ${styles.editorFormActions}`}>
-            <div className={styles.editorFormActionsStart}>
+          <div className={`${'formActions'} ${'editorFormActions'}`}>
+            <div className={'editorFormActionsStart'}>
               {isEditMode ? (
                 <>
                   <button
                     type="button"
-                    className={styles.deleteButton}
+                    className={'deleteButton'}
                     onClick={() => void handleDelete()}
                     disabled={deleteMutation.isPending || deleteBlocked}
                   >
                     삭제
                   </button>
-                  {deleteHelpText ? <p className={styles.helpText}>{deleteHelpText}</p> : null}
+                  {deleteHelpText ? <p className={'helpText'}>{deleteHelpText}</p> : null}
                 </>
               ) : null}
             </div>
-            <div className={styles.editorFormActionsEnd}>
-              <Link to="/org/group" className={styles.secondaryButton}>
+            <div className={'editorFormActionsEnd'}>
+              <Link to="/org/group" className={'secondaryButton'}>
                 취소
               </Link>
               <button
                 type="submit"
-                className={styles.primaryButton}
+                className={'primaryButton'}
                 disabled={saveMutation.isPending || !draft.costGroupId}
               >
                 저장

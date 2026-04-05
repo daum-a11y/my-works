@@ -16,7 +16,7 @@ import { opsDataClient } from '../../lib/dataClient';
 import type { QaStatsProjectRow } from '../../lib/domain';
 import { getCurrentMonth, shiftMonth } from '../resource/resourceShared';
 import { useAuth } from '../auth/AuthContext';
-import styles from './shared.module.css';
+import '../../styles/domain/pages/stats-shared.scss';
 
 interface MonthlyQaRow {
   monthKey: string;
@@ -151,20 +151,20 @@ export function QaStatsPage() {
   }, [filteredProjects, today]);
 
   return (
-    <div className={styles.page}>
-      <header className={styles.hero}>
-        <h1 className={styles.title}>QA 통계</h1>
+    <div className={'statsPageScope page'}>
+      <header className={'hero'}>
+        <h1 className={'title'}>QA 통계</h1>
       </header>
 
       <PageSection title="필터">
         <form
-          className={styles.filterBar}
+          className={'filterBar'}
           onSubmit={(event) => {
             event.preventDefault();
             handleSearch();
           }}
         >
-          <label className={styles.filterField}>
+          <label className={'filterField'}>
             <span>시작월</span>
             <input
               type="month"
@@ -173,7 +173,7 @@ export function QaStatsPage() {
               onChange={(event) => setDraftStartMonth(event.target.value)}
             />
           </label>
-          <label className={styles.filterField}>
+          <label className={'filterField'}>
             <span>종료월</span>
             <input
               type="month"
@@ -182,11 +182,11 @@ export function QaStatsPage() {
               onChange={(event) => setDraftEndMonth(event.target.value)}
             />
           </label>
-          <div className={styles.filterActions}>
-            <button type="submit" className={styles.filterButton}>
+          <div className={'filterActions'}>
+            <button type="submit" className={'filterButton'}>
               검색
             </button>
-            <button type="button" className={styles.filterButtonSecondary} onClick={handleReset}>
+            <button type="button" className={'filterButtonSecondary'} onClick={handleReset}>
               초기화
             </button>
           </div>
@@ -194,10 +194,10 @@ export function QaStatsPage() {
       </PageSection>
 
       <PageSection title="월별 QA 현황">
-        <div className={styles.viewToggle} role="tablist" aria-label="QA 월별 요약 보기">
+        <div className={'viewToggle'} role="tablist" aria-label="QA 월별 요약 보기">
           <button
             type="button"
-            className={summaryView === 'table' ? styles.viewToggleActive : styles.viewToggleButton}
+            className={summaryView === 'table' ? 'viewToggleActive' : 'viewToggleButton'}
             aria-pressed={summaryView === 'table'}
             onClick={() => setSummaryView('table')}
           >
@@ -205,7 +205,7 @@ export function QaStatsPage() {
           </button>
           <button
             type="button"
-            className={summaryView === 'chart' ? styles.viewToggleActive : styles.viewToggleButton}
+            className={summaryView === 'chart' ? 'viewToggleActive' : 'viewToggleButton'}
             aria-pressed={summaryView === 'chart'}
             onClick={() => setSummaryView('chart')}
           >
@@ -213,9 +213,9 @@ export function QaStatsPage() {
           </button>
         </div>
         {summaryView === 'chart' ? (
-          <div className={styles.chartSurface}>
+          <div className={'chartSurface'}>
             {monthlyRows.length ? (
-              <div className={styles.chartFrame} role="img" aria-label="QA 월별 차트">
+              <div className={'chartFrame'} role="img" aria-label="QA 월별 차트">
                 <ResponsiveContainer width="100%" height={320}>
                   <AreaChart data={monthlyRows} margin={{ top: 12, right: 12, left: 0, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" />
@@ -241,13 +241,13 @@ export function QaStatsPage() {
                 </ResponsiveContainer>
               </div>
             ) : (
-              <p className={styles.empty}>QA 데이터가 없습니다.</p>
+              <p className={'empty'}>QA 데이터가 없습니다.</p>
             )}
           </div>
         ) : (
-          <div className={styles.tableWrap}>
-            <table className={styles.table}>
-              <caption className={styles.srOnly}>QA 월별 표</caption>
+          <div className={'tableWrap'}>
+            <table className={'table'}>
+              <caption className={'srOnly'}>QA 월별 표</caption>
               <thead>
                 <tr>
                   <th scope="col">월</th>
@@ -265,7 +265,7 @@ export function QaStatsPage() {
                 ))}
                 {!monthlyRows.length ? (
                   <tr>
-                    <td colSpan={3} className={styles.empty}>
+                    <td colSpan={3} className={'empty'}>
                       월별 데이터가 없습니다.
                     </td>
                   </tr>
@@ -277,9 +277,9 @@ export function QaStatsPage() {
       </PageSection>
 
       <PageSection title="QA 프로젝트 목록">
-        <div className={styles.tableWrap}>
-          <table className={styles.table}>
-            <caption className={styles.srOnly}>필터링된 QA 프로젝트 목록</caption>
+        <div className={'tableWrap'}>
+          <table className={'table'}>
+            <caption className={'srOnly'}>필터링된 QA 프로젝트 목록</caption>
             <thead>
               <tr>
                 <th scope="col">월</th>
@@ -302,7 +302,7 @@ export function QaStatsPage() {
                         href={project.reportUrl}
                         target="_blank"
                         rel="noreferrer"
-                        className={styles.link}
+                        className={'link'}
                       >
                         링크
                       </a>
@@ -314,7 +314,7 @@ export function QaStatsPage() {
               ))}
               {!filteredProjects.length ? (
                 <tr>
-                  <td colSpan={5} className={styles.empty}>
+                  <td colSpan={5} className={'empty'}>
                     조건에 맞는 QA 내역이 없습니다.
                   </td>
                 </tr>

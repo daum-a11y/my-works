@@ -11,7 +11,7 @@ import {
   parseLocalDateInput,
   toLocalDateInputValue,
 } from '../../lib/utils';
-import styles from './ProjectsFeature.module.css';
+import '../../styles/domain/pages/projects-feature.scss';
 
 interface ProjectFilterState {
   startDate: string;
@@ -86,19 +86,19 @@ export function ProjectsFeature() {
   };
 
   return (
-    <section className={styles.shell}>
-      <header className={styles.pageHeader}>
-        <div className={styles.pageHeaderTop}>
-          <h1 className={styles.title}>프로젝트 관리</h1>
-          <Link to="/projects/new" className={styles.headerAction}>
+    <section className="projectsFeatureScope shell">
+      <header className="pageHeader">
+        <div className="pageHeaderTop">
+          <h1 className="title">프로젝트 관리</h1>
+          <Link to="/projects/new" className="headerAction">
             프로젝트 추가
           </Link>
         </div>
       </header>
 
       <PageSection title="필터">
-        <form className={styles.filterBar} onSubmit={handleSearchSubmit}>
-          <label className={styles.filterField}>
+        <form className="filterBar" onSubmit={handleSearchSubmit}>
+          <label className="filterField">
             <span>시작일</span>
             <input
               type="date"
@@ -108,7 +108,7 @@ export function ProjectsFeature() {
               }
             />
           </label>
-          <label className={styles.filterField}>
+          <label className="filterField">
             <span>종료일</span>
             <input
               type="date"
@@ -118,7 +118,7 @@ export function ProjectsFeature() {
               }
             />
           </label>
-          <label className={styles.filterField}>
+          <label className="filterField">
             <span>검색어</span>
             <input
               value={searchInput}
@@ -126,36 +126,36 @@ export function ProjectsFeature() {
               placeholder="검색어 입력"
             />
           </label>
-          <div className={styles.filterActions}>
-            <button type="submit" className={styles.filterButton}>
+          <div className="filterActions">
+            <button type="submit" className="filterButton">
               검색
             </button>
-            <button type="button" className={styles.filterButtonSecondary} onClick={handleReset}>
+            <button type="button" className="filterButtonSecondary" onClick={handleReset}>
               초기화
             </button>
           </div>
         </form>
       </PageSection>
 
-      <section className={styles.resultBar} aria-label="프로젝트 목록 요약">
-        <div className={styles.resultMetrics}>
-          <div className={styles.pager} aria-label="프로젝트 목록 페이지 이동">
+      <section className="resultBar" aria-label="프로젝트 목록 요약">
+        <div className="resultMetrics">
+          <div className="pager" aria-label="프로젝트 목록 페이지 이동">
             <button
               type="button"
-              className={styles.pageButton}
+              className="pageButton"
               onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
               disabled={currentPageSafe === 1}
               aria-label="이전 페이지"
             >
               이전
             </button>
-            <p className={styles.pageStatus}>
+            <p className="pageStatus">
               <strong>{currentPageSafe}</strong>
               <span>/ {numberFormatter.format(totalPages)}</span>
             </p>
             <button
               type="button"
-              className={styles.pageButton}
+              className="pageButton"
               onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
               disabled={currentPageSafe === totalPages || totalProjects === 0}
               aria-label="다음 페이지"
@@ -163,15 +163,13 @@ export function ProjectsFeature() {
               다음
             </button>
           </div>
-          <p className={styles.resultMetric}>
-            <span className={styles.resultLabel}>총 건수</span>
-            <strong className={styles.resultValue}>
-              {numberFormatter.format(totalProjects)}건
-            </strong>
+          <p className="resultMetric">
+            <span className="resultLabel">총 건수</span>
+            <strong className="resultValue">{numberFormatter.format(totalProjects)}건</strong>
           </p>
         </div>
-        <div className={styles.resultControls}>
-          <label className={styles.pageSizeField}>
+        <div className="resultControls">
+          <label className="pageSizeField">
             <span>페이지당</span>
             <select
               value={String(pageSize)}
@@ -191,9 +189,9 @@ export function ProjectsFeature() {
         </div>
       </section>
 
-      <div className={styles.tableWrap}>
-        <table className={styles.table}>
-          <caption className={styles.srOnly}>프로젝트 리스트</caption>
+      <div className="tableWrap">
+        <table className="table">
+          <caption className="srOnly">프로젝트 리스트</caption>
           <thead>
             <tr>
               <th scope="col">타입1</th>
@@ -224,7 +222,7 @@ export function ProjectsFeature() {
                         href={project.reportUrl}
                         target="_blank"
                         rel="noreferrer"
-                        className={styles.tableLink}
+                        className="tableLink"
                       >
                         링크
                       </a>
@@ -232,12 +230,12 @@ export function ProjectsFeature() {
                       '-'
                     )}
                   </td>
-                  <td className={styles.dateCell}>{formatDateLabel(project.startDate)}</td>
-                  <td className={styles.dateCell}>{formatDateLabel(project.endDate)}</td>
+                  <td className="dateCell">{formatDateLabel(project.startDate)}</td>
+                  <td className="dateCell">{formatDateLabel(project.endDate)}</td>
                   <td>{project.reporterDisplay || '-'}</td>
                   <td>{project.reviewerDisplay || '-'}</td>
                   <td>
-                    <Link to={`/projects/${project.id}/edit`} className={styles.actionButton}>
+                    <Link to={`/projects/${project.id}/edit`} className="actionButton">
                       수정
                     </Link>
                   </td>
@@ -246,7 +244,7 @@ export function ProjectsFeature() {
             })}
             {!projects.length ? (
               <tr>
-                <td colSpan={11} className={styles.emptyState}>
+                <td colSpan={11} className="emptyState">
                   검색 결과가 없습니다. 새 프로젝트를 등록하거나 기간을 조정하십시오.
                 </td>
               </tr>

@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Link, useLocation } from 'react-router-dom';
 import { setDocumentTitle } from '../../../app/navigation';
 import { adminDataClient } from '../adminClient';
-import styles from '../AdminCrudPage.module.css';
+import '../../../styles/domain/pages/admin-crud-page.scss';
 
 export function AdminCostGroupsPage() {
   const location = useLocation();
@@ -38,24 +38,24 @@ export function AdminCostGroupsPage() {
     (costGroupsQuery.error instanceof Error && costGroupsQuery.error.message) || '';
 
   return (
-    <section className={styles.page}>
-      <header className={styles.pageHeader}>
-        <div className={styles.pageHeaderTop}>
-          <div className={styles.pageHeading}>
-            <h1 className={styles.title}>청구그룹 관리</h1>
+    <section className="adminCrudPageScope page">
+      <header className="pageHeader">
+        <div className="pageHeaderTop">
+          <div className="pageHeading">
+            <h1 className="title">청구그룹 관리</h1>
           </div>
-          <Link to="/org/cost-group/new" className={styles.headerAction}>
+          <Link to="/org/cost-group/new" className="headerAction">
             청구그룹 추가
           </Link>
         </div>
       </header>
 
-      {statusMessage ? <p className={styles.helperText}>{statusMessage}</p> : null}
-      {errorMessage ? <p className={styles.helperText}>{errorMessage}</p> : null}
+      {statusMessage ? <p className="helperText">{statusMessage}</p> : null}
+      {errorMessage ? <p className="helperText">{errorMessage}</p> : null}
 
-      <div className={styles.tableWrap}>
-        <table className={styles.table}>
-          <caption className={styles.srOnly}>청구그룹 내역</caption>
+      <div className="tableWrap">
+        <table className="table">
+          <caption className="srOnly">청구그룹 내역</caption>
           <thead>
             <tr>
               <th>청구그룹명</th>
@@ -66,15 +66,12 @@ export function AdminCostGroupsPage() {
           <tbody>
             {costGroups.length ? (
               costGroups.map((item) => (
-                <tr key={item.id} className={item.isActive ? '' : styles.inactiveRow}>
-                  <td className={styles.rowKey}>{item.name}</td>
+                <tr key={item.id} className={item.isActive ? '' : 'inactiveRow'}>
+                  <td className="rowKey">{item.name}</td>
                   <td>{item.isActive ? '노출' : '숨김'}</td>
                   <td>
-                    <div className={styles.actions}>
-                      <Link
-                        to={`/org/cost-group/${item.id}/edit`}
-                        className={styles.secondaryButton}
-                      >
+                    <div className="actions">
+                      <Link to={`/org/cost-group/${item.id}/edit`} className="secondaryButton">
                         수정
                       </Link>
                     </div>
@@ -83,7 +80,7 @@ export function AdminCostGroupsPage() {
               ))
             ) : (
               <tr>
-                <td colSpan={3} className={styles.emptyState}>
+                <td colSpan={3} className="emptyState">
                   표시할 청구그룹 내역이 없습니다.
                 </td>
               </tr>

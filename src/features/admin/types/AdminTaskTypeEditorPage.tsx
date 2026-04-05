@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { adminDataClient } from '../adminClient';
 import type { AdminTaskTypeItem, AdminTaskTypePayload } from '../admin-types';
-import styles from '../../projects/ProjectsFeature.module.css';
+import '../../../styles/domain/pages/projects-feature.scss';
 
 function createDraft(taskType?: AdminTaskTypeItem): AdminTaskTypePayload {
   if (!taskType) {
@@ -168,38 +168,35 @@ export function AdminTaskTypeEditorPage() {
 
   if (taskTypesQuery.isLoading && isEditMode) {
     return (
-      <section className={`${styles.shell} ${styles.editorShell}`}>
-        <p className={styles.statusMessage}>불러오는 중...</p>
+      <section className="projectsFeatureScope shell editorShell">
+        <p className={'statusMessage'}>불러오는 중...</p>
       </section>
     );
   }
 
   if (isEditMode && !selectedTaskType && !taskTypesQuery.isLoading) {
     return (
-      <section className={`${styles.shell} ${styles.editorShell}`}>
-        <header className={styles.editorHeader}>
-          <h1 className={styles.title}>업무 타입 수정</h1>
+      <section className="projectsFeatureScope shell editorShell">
+        <header className={'editorHeader'}>
+          <h1 className={'title'}>업무 타입 수정</h1>
         </header>
-        <p className={styles.statusMessage}>업무 타입을 찾을 수 없습니다.</p>
+        <p className={'statusMessage'}>업무 타입을 찾을 수 없습니다.</p>
       </section>
     );
   }
 
   return (
-    <section className={`${styles.shell} ${styles.editorShell}`}>
-      <header className={styles.editorHeader}>
-        <h1 className={styles.title}>{isEditMode ? '업무 타입 수정' : '업무 타입 추가'}</h1>
+    <section className="projectsFeatureScope shell editorShell">
+      <header className={'editorHeader'}>
+        <h1 className={'title'}>{isEditMode ? '업무 타입 수정' : '업무 타입 추가'}</h1>
       </header>
 
-      {errorMessage ? <p className={styles.statusMessage}>{errorMessage}</p> : null}
+      {errorMessage ? <p className={'statusMessage'}>{errorMessage}</p> : null}
 
-      <section
-        className={`${styles.modal} ${styles.editorSurface}`}
-        aria-label="업무 타입 편집 패널"
-      >
-        <form className={`${styles.detailForm} ${styles.editorDetailForm}`} onSubmit={handleSubmit}>
-          <div className={styles.editorFormGrid}>
-            <label className={styles.field}>
+      <section className={`${'modal'} ${'editorSurface'}`} aria-label="업무 타입 편집 패널">
+        <form className={`${'detailForm'} ${'editorDetailForm'}`} onSubmit={handleSubmit}>
+          <div className={'editorFormGrid'}>
+            <label className={'field'}>
               <span>타입1</span>
               <input
                 ref={titleRef}
@@ -210,7 +207,7 @@ export function AdminTaskTypeEditorPage() {
               />
             </label>
 
-            <label className={styles.field}>
+            <label className={'field'}>
               <span>타입2</span>
               <input
                 value={draft.type2}
@@ -220,7 +217,7 @@ export function AdminTaskTypeEditorPage() {
               />
             </label>
 
-            <label className={styles.field}>
+            <label className={'field'}>
               <span>리소스 타입</span>
               <select
                 value={draft.requiresServiceGroup ? '1' : '0'}
@@ -236,7 +233,7 @@ export function AdminTaskTypeEditorPage() {
               </select>
             </label>
 
-            <label className={styles.field}>
+            <label className={'field'}>
               <span>활성여부</span>
               <select
                 value={draft.isActive ? '1' : '0'}
@@ -250,7 +247,7 @@ export function AdminTaskTypeEditorPage() {
             </label>
 
             {isEditMode ? (
-              <label className={styles.field}>
+              <label className={'field'}>
                 <span>비고</span>
                 <input
                   value={draft.displayLabel}
@@ -262,31 +259,27 @@ export function AdminTaskTypeEditorPage() {
             ) : null}
           </div>
 
-          <div className={`${styles.formActions} ${styles.editorFormActions}`}>
-            <div className={styles.editorFormActionsStart}>
+          <div className={`${'formActions'} ${'editorFormActions'}`}>
+            <div className={'editorFormActionsStart'}>
               {isEditMode ? (
                 <>
                   <button
                     type="button"
-                    className={styles.deleteButton}
+                    className={'deleteButton'}
                     onClick={() => void handleDelete()}
                     disabled={deleteMutation.isPending || deleteBlocked}
                   >
                     삭제
                   </button>
-                  {deleteHelpText ? <p className={styles.helpText}>{deleteHelpText}</p> : null}
+                  {deleteHelpText ? <p className={'helpText'}>{deleteHelpText}</p> : null}
                 </>
               ) : null}
             </div>
-            <div className={styles.editorFormActionsEnd}>
-              <Link to="/org/type" className={styles.secondaryButton}>
+            <div className={'editorFormActionsEnd'}>
+              <Link to="/org/type" className={'secondaryButton'}>
                 취소
               </Link>
-              <button
-                type="submit"
-                className={styles.primaryButton}
-                disabled={saveMutation.isPending}
-              >
+              <button type="submit" className={'primaryButton'} disabled={saveMutation.isPending}>
                 저장
               </button>
             </div>

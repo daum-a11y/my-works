@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { setDocumentTitle } from '../../../app/navigation';
-import styles from '../AdminPage.module.css';
+import '../../../styles/domain/pages/admin-page.scss';
 
 export function AdminSummaryPage() {
   useEffect(() => {
@@ -8,12 +8,12 @@ export function AdminSummaryPage() {
   }, []);
 
   return (
-    <section className={styles.page}>
-      <header className={styles.hero}>
+    <section className="adminPageScope page">
+      <header className="hero">
         <h1>업무보고 현황</h1>
       </header>
 
-      <div className={`${styles.panel} ${styles.emptyStatePanel}`}></div>
+      <div className="panel emptyStatePanel"></div>
     </section>
   );
 }

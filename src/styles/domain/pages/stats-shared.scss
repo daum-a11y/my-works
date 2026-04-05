@@ -1,0 +1,471 @@
+.statsPageScope {
+  &.page {
+    display: grid;
+    gap: 20px;
+  }
+
+  .hero {
+    display: grid;
+    gap: 5px;
+    padding: 0 0 14px;
+    border-bottom: 1px solid var(--border-default);
+  }
+
+  .title {
+    margin: 0;
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    font-size: var(--text-page-title-size);
+    font-weight: var(--text-page-title-weight);
+    line-height: var(--text-page-title-line-height);
+    letter-spacing: var(--text-page-title-tracking);
+  }
+
+  .lead {
+    margin: 0;
+    color: var(--text-tertiary);
+    font-size: var(--text-meta-size);
+    line-height: var(--text-meta-line-height);
+  }
+
+  .summaryLine {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: var(--text-meta-size);
+    font-weight: var(--text-meta-weight);
+    line-height: var(--text-meta-line-height);
+    letter-spacing: var(--text-meta-tracking);
+  }
+
+  .scoreboard {
+    display: grid;
+    gap: 14px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .scoreCard {
+    display: grid;
+    gap: 2px;
+    padding: 10px 12px 10px;
+    border: 1px solid var(--theme-stats-border);
+    border-inline-start: 3px solid var(--theme-stats-accent);
+    background: color-mix(in oklab, var(--theme-stats-surface) 50%, var(--surface-panel));
+    box-shadow: var(--elevation-1);
+  }
+
+  .scoreCard span {
+    color: var(--text-muted);
+    font-size: var(--text-meta-size);
+    font-weight: var(--font-weight-bold);
+    letter-spacing: var(--text-table-tracking);
+    line-height: 1.2;
+    text-transform: uppercase;
+  }
+
+  .scoreCard strong {
+    color: var(--text-primary);
+    font-size: 22px;
+    font-weight: var(--font-weight-heavy);
+    line-height: 1.1;
+    letter-spacing: -1px;
+  }
+
+  .chartSurface {
+    display: grid;
+    gap: 11px;
+    padding: 16px;
+    border: 1px solid var(--border-default);
+    background: var(--surface-panel);
+    box-shadow: var(--elevation-1);
+  }
+
+  .filterBar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .filterField {
+    display: grid;
+    gap: 6px;
+    min-width: 160px;
+  }
+
+  .filterField span {
+    color: var(--text-tertiary);
+    font-size: var(--text-meta-size);
+    line-height: var(--text-meta-line-height);
+  }
+
+  .filterField input,
+  .filterField select {
+    min-height: var(--control-height-md);
+    padding: var(--control-padding-y) var(--control-padding-x);
+    border: 1px solid var(--control-border);
+    background: var(--control-bg);
+    color: var(--text-primary);
+    font: inherit;
+  }
+
+  .filterActions {
+    display: flex;
+    align-items: end;
+    gap: 8px;
+  }
+
+  .filterButton {
+    min-height: var(--control-height-md);
+    padding: 0 var(--control-padding-x);
+    border: 1px solid color-mix(in oklab, var(--button-primary-bg) 82%, black 18%);
+    background: var(--button-primary-bg);
+    color: var(--text-inverse);
+    font: inherit;
+    cursor: pointer;
+  }
+
+  .filterButtonSecondary {
+    min-height: var(--control-height-md);
+    padding: 0 var(--control-padding-x);
+    border: 1px solid var(--button-secondary-border);
+    background: var(--button-secondary-bg);
+    color: var(--text-secondary);
+    font: inherit;
+    cursor: pointer;
+  }
+
+  .filterSummary {
+    margin: 12px 0 0;
+    color: var(--text-secondary);
+    font-size: var(--text-meta-size);
+    line-height: var(--text-meta-line-height);
+  }
+
+  .viewToggle {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+
+  .viewToggleButton,
+  .viewToggleActive {
+    min-height: var(--control-height-sm);
+    padding: 0 13px;
+    border: 1px solid var(--border-default);
+    font-size: var(--text-form-size);
+    font-weight: var(--text-form-weight);
+    line-height: var(--text-form-line-height);
+    letter-spacing: var(--text-form-tracking);
+    cursor: pointer;
+  }
+
+  .viewToggleButton {
+    background: var(--surface-panel);
+    color: var(--text-primary);
+  }
+
+  .viewToggleActive {
+    background: color-mix(in oklab, var(--accent-soft) 62%, var(--surface-panel));
+    color: var(--accent-strong);
+    border-color: color-mix(in oklab, var(--accent-strong) 34%, var(--border-default));
+  }
+
+  .chartFrame {
+    width: 100%;
+    height: 320px;
+  }
+
+  .chart {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(78px, 1fr));
+    gap: var(--space-2);
+    align-items: end;
+  }
+
+  .chartColumn {
+    display: grid;
+    gap: 4px;
+    align-content: end;
+    min-height: 180px;
+  }
+
+  .chartTrack {
+    display: flex;
+    align-items: flex-end;
+    min-height: 128px;
+    border-top: 1px solid var(--border-default);
+  }
+
+  .chartBar {
+    width: 100%;
+    min-height: 14px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 6px;
+
+    background: color-mix(in oklab, var(--theme-stats-surface) 72%, var(--surface-active));
+    color: var(--theme-stats-accent);
+  }
+
+  .chartValue {
+    font-size: var(--text-meta-size);
+    font-weight: var(--text-meta-weight);
+    line-height: var(--text-meta-line-height);
+  }
+
+  .chartLabel {
+    color: var(--text-primary);
+    font-size: var(--text-meta-size);
+    font-weight: var(--text-meta-weight);
+    line-height: var(--text-meta-line-height);
+    text-align: center;
+    text-transform: none;
+  }
+
+  .chartNote {
+    color: var(--text-tertiary);
+    font-size: var(--text-meta-size);
+    line-height: var(--text-meta-line-height);
+    text-align: center;
+  }
+
+  .tableWrap {
+    overflow: auto;
+    border: 1px solid var(--border-default);
+    background: var(--surface-panel);
+  }
+
+  .inlineSelect,
+  .inlineTextarea {
+    width: 100%;
+    border: 1px solid var(--control-border);
+    background: var(--control-bg);
+    color: var(--text-primary);
+    font: inherit;
+  }
+
+  .inlineSelect {
+    min-height: var(--control-height-md);
+    padding: 0 var(--control-padding-x);
+  }
+
+  .inlineTextarea {
+    min-height: 88px;
+    padding: var(--control-padding-y) var(--control-padding-x);
+    resize: vertical;
+  }
+
+  .inlineActions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .inlineActionPrimary,
+  .inlineActionSecondary {
+    min-height: var(--control-height-sm);
+    padding: 0 12px;
+    border: 1px solid var(--border-default);
+    border-radius: 0;
+    font-size: var(--text-form-size);
+    font-weight: 600;
+    line-height: var(--text-form-line-height);
+    letter-spacing: var(--text-form-tracking);
+    cursor: pointer;
+    transition:
+      background-color 140ms ease,
+      border-color 140ms ease,
+      color 140ms ease;
+  }
+
+  .inlineActionPrimary {
+    background: color-mix(in oklab, var(--accent-soft) 62%, var(--surface-panel));
+    border-color: color-mix(in oklab, var(--accent-strong) 34%, var(--border-default));
+    color: var(--accent-strong);
+  }
+
+  .inlineActionSecondary {
+    background: var(--surface-panel);
+    color: var(--text-secondary);
+  }
+
+  .inlineActionPrimary:hover {
+    background: color-mix(in oklab, var(--accent-soft) 74%, var(--surface-panel));
+    border-color: color-mix(in oklab, var(--accent-strong) 46%, var(--border-default));
+  }
+
+  .inlineActionSecondary:hover {
+    background: color-mix(in oklab, var(--surface-active) 78%, var(--surface-panel));
+    border-color: color-mix(in oklab, var(--border-default) 72%, var(--text-secondary));
+    color: var(--text-secondary);
+  }
+
+  .noteCell {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .noteToggle {
+    min-height: 28px;
+    padding: 0 9px;
+    border: 1px solid color-mix(in oklab, var(--border-default) 86%, var(--surface-panel));
+    border-radius: 999px;
+    min-width: 0;
+    background: color-mix(in oklab, var(--surface-panel) 72%, var(--surface-active));
+    color: var(--text-secondary);
+    white-space: nowrap;
+    font-weight: var(--text-form-weight);
+  }
+
+  .noteToggle:hover {
+    background: color-mix(in oklab, var(--accent-soft) 32%, var(--surface-panel));
+    border-color: color-mix(in oklab, var(--theme-stats-accent) 24%, var(--border-default));
+    color: var(--text-primary);
+  }
+
+  .noteToggleActive {
+    background: color-mix(in oklab, var(--accent-soft) 56%, var(--surface-panel));
+    border-color: color-mix(in oklab, var(--theme-stats-accent) 34%, var(--border-default));
+    color: var(--theme-stats-accent);
+    font-weight: var(--font-weight-heavy);
+  }
+
+  .notePopover {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    z-index: 20;
+    width: min(320px, 46vw);
+    padding: 12px 14px;
+    border: 1px solid color-mix(in oklab, var(--accent-strong) 18%, var(--border-default));
+    border-radius: 10px;
+    background: color-mix(in oklab, var(--surface-panel) 92%, white 8%);
+    box-shadow: var(--elevation-2);
+    color: var(--text-secondary);
+    white-space: pre-wrap;
+    line-height: 1.5;
+  }
+
+  .inlineActionPrimary:focus-visible,
+  .inlineActionSecondary:focus-visible,
+  .noteToggle:focus-visible {
+    outline: 2px solid color-mix(in oklab, var(--theme-stats-accent) 34%, transparent);
+    outline-offset: 2px;
+  }
+
+  .detailGrid {
+    display: grid;
+    gap: 16px;
+  }
+
+  .detailPanel {
+    display: grid;
+    gap: 11px;
+    padding: 16px;
+    border: 1px solid var(--border-default);
+    background: var(--surface-panel);
+    box-shadow: var(--elevation-1);
+  }
+
+  .detailTitle {
+    margin: 0;
+    color: var(--text-primary);
+    font-size: var(--text-section-title-size);
+    font-weight: var(--text-section-title-weight);
+    line-height: var(--text-section-title-line-height);
+    letter-spacing: var(--text-section-title-tracking);
+  }
+
+  .detailMeta {
+    margin: 0;
+    color: var(--text-tertiary);
+    font-size: var(--text-meta-size);
+    line-height: var(--text-meta-line-height);
+  }
+
+  .table {
+    width: 100%;
+    min-width: 896px;
+    border-collapse: collapse;
+  }
+
+  .table th,
+  .table td {
+    padding: 11px 10px;
+    border-bottom: 1px solid var(--border-subtle);
+    text-align: left;
+    vertical-align: top;
+    overflow-wrap: anywhere;
+  }
+
+  .table th {
+    color: var(--text-muted);
+    font-size: var(--text-table-size);
+    font-weight: var(--text-table-weight);
+    line-height: var(--text-table-line-height);
+    letter-spacing: var(--text-table-tracking);
+    text-transform: uppercase;
+    background: color-mix(in oklab, var(--theme-stats-surface) 28%, var(--surface-canvas-strong));
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  }
+
+  .table td strong {
+    display: block;
+    color: var(--text-primary);
+    font-size: var(--text-form-size);
+    font-weight: var(--text-form-weight);
+    line-height: var(--text-form-line-height);
+  }
+
+  .table td span {
+    color: var(--text-tertiary);
+    font-size: var(--text-meta-size);
+    line-height: var(--text-meta-line-height);
+  }
+
+  .stackCell {
+    display: grid;
+    gap: 4px;
+  }
+
+  .link {
+    color: var(--accent-strong);
+    font-size: var(--text-form-size);
+    font-weight: var(--text-form-weight);
+    line-height: var(--text-form-line-height);
+  }
+
+  .empty {
+    padding: 16px;
+    color: var(--text-tertiary);
+    font-size: var(--text-meta-size);
+    line-height: var(--text-meta-line-height);
+  }
+
+  .srOnly {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  @media (max-width: 720px) {
+    .scoreboard {
+      grid-template-columns: 1fr;
+    }
+
+    .chart {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+}

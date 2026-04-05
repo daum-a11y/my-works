@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../../components/ui/Button';
 import { useAuth } from './AuthContext';
-import styles from './LoginPage.module.css';
+import '../../styles/domain/pages/login-page.scss';
 
 export function PendingApprovalPage() {
   const navigate = useNavigate();
@@ -13,10 +13,10 @@ export function PendingApprovalPage() {
   }, []);
 
   return (
-    <main className={styles.page}>
-      <section className={styles.panel} aria-labelledby="pending-title">
-        <header className={styles.introBlock}>
-          <h1 id="pending-title" className={styles.logoHeading}>
+    <main className="loginPageScope page">
+      <section className="panel" aria-labelledby="pending-title">
+        <header className="introBlock">
+          <h1 id="pending-title" className="logoHeading">
             승인 대기 중입니다
           </h1>
           <p>
@@ -26,7 +26,7 @@ export function PendingApprovalPage() {
           </p>
         </header>
 
-        <dl className={styles.notice} data-state="info">
+        <dl className="notice" data-state="info">
           <div>
             <dt>계정</dt>
             <dd>{session?.member.accountId ?? '-'}</dd>
@@ -37,7 +37,7 @@ export function PendingApprovalPage() {
           </div>
         </dl>
 
-        <div className={styles.submitRow}>
+        <div className="submitRow">
           <Button
             type="button"
             tone="secondary"

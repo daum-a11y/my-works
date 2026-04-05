@@ -11,7 +11,7 @@ import {
   formatReportDate,
   formatReportTaskUsedtime,
 } from '../reports/reportDomain';
-import styles from './SearchPage.module.css';
+import '../../styles/domain/pages/search-page.scss';
 
 interface SearchFilters {
   startDate: string;
@@ -205,16 +205,16 @@ export function SearchPage() {
   };
 
   return (
-    <section className={styles.shell}>
-      <header className={styles.pageHeader}>
-        <div className={styles.pageHeaderTop}>
-          <h1 className={styles.title}>내 업무내역</h1>
+    <section className="searchPageScope shell">
+      <header className="pageHeader">
+        <div className="pageHeaderTop">
+          <h1 className="title">내 업무내역</h1>
         </div>
       </header>
 
       <PageSection title="필터">
-        <form className={styles.filterBar} onSubmit={handleSearchSubmit}>
-          <label className={styles.filterField}>
+        <form className="filterBar" onSubmit={handleSearchSubmit}>
+          <label className="filterField">
             <span>시작일</span>
             <input
               type="date"
@@ -224,7 +224,7 @@ export function SearchPage() {
               }
             />
           </label>
-          <label className={styles.filterField}>
+          <label className="filterField">
             <span>종료일</span>
             <input
               type="date"
@@ -234,7 +234,7 @@ export function SearchPage() {
               }
             />
           </label>
-          <label className={styles.filterField}>
+          <label className="filterField">
             <span>검색어</span>
             <input
               value={searchInput}
@@ -242,17 +242,17 @@ export function SearchPage() {
               placeholder="프로젝트, 페이지, 내용, 비고 검색"
             />
           </label>
-          <div className={styles.filterActions}>
-            <button type="submit" className={styles.filterButton}>
+          <div className="filterActions">
+            <button type="submit" className="filterButton">
               검색
             </button>
-            <button type="button" className={styles.filterButtonSecondary} onClick={handleReset}>
+            <button type="button" className="filterButtonSecondary" onClick={handleReset}>
               초기화
             </button>
-            <span className={styles.filterDivider} aria-hidden="true" />
+            <span className="filterDivider" aria-hidden="true" />
             <button
               type="button"
-              className={styles.filterButtonSecondary}
+              className="filterButtonSecondary"
               onClick={handleDownload}
               disabled={!totalReports}
             >
@@ -262,25 +262,25 @@ export function SearchPage() {
         </form>
       </PageSection>
 
-      <section className={styles.resultBar} aria-label="업무내역 목록 요약">
-        <div className={styles.resultMetrics}>
-          <div className={styles.pager} aria-label="업무내역 목록 페이지 이동">
+      <section className="resultBar" aria-label="업무내역 목록 요약">
+        <div className="resultMetrics">
+          <div className="pager" aria-label="업무내역 목록 페이지 이동">
             <button
               type="button"
-              className={styles.pageButton}
+              className="pageButton"
               onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
               disabled={currentPageSafe === 1}
               aria-label="이전 페이지"
             >
               이전
             </button>
-            <p className={styles.pageStatus}>
+            <p className="pageStatus">
               <strong>{currentPageSafe}</strong>
               <span>/ {numberFormatter.format(totalPages)}</span>
             </p>
             <button
               type="button"
-              className={styles.pageButton}
+              className="pageButton"
               onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
               disabled={currentPageSafe === totalPages || totalReports === 0}
               aria-label="다음 페이지"
@@ -288,17 +288,17 @@ export function SearchPage() {
               다음
             </button>
           </div>
-          <p className={styles.resultMetric}>
-            <span className={styles.resultLabel}>총 건수</span>
-            <strong className={styles.resultValue}>{numberFormatter.format(totalReports)}건</strong>
+          <p className="resultMetric">
+            <span className="resultLabel">총 건수</span>
+            <strong className="resultValue">{numberFormatter.format(totalReports)}건</strong>
           </p>
-          <p className={styles.resultMetric}>
-            <span className={styles.resultLabel}>현재 페이지 작업시간</span>
-            <strong className={styles.resultValue}>{formatReportTaskUsedtime(totalMinutes)}</strong>
+          <p className="resultMetric">
+            <span className="resultLabel">현재 페이지 작업시간</span>
+            <strong className="resultValue">{formatReportTaskUsedtime(totalMinutes)}</strong>
           </p>
         </div>
-        <div className={styles.resultControls}>
-          <label className={styles.pageSizeField}>
+        <div className="resultControls">
+          <label className="pageSizeField">
             <span>페이지당</span>
             <select
               value={String(pageSize)}
@@ -318,16 +318,16 @@ export function SearchPage() {
         </div>
       </section>
 
-      <section className={styles.panel}>
-        <div className={styles.panelHead}>
+      <section className="panel">
+        <div className="panelHead">
           <div>
-            <h2 className={styles.panelTitle}>업무 리스트</h2>
+            <h2 className="panelTitle">업무 리스트</h2>
           </div>
         </div>
 
-        <div className={styles.tableWrap}>
-          <table className={styles.table}>
-            <caption className={styles.srOnly}>업무 리스트 테이블</caption>
+        <div className="tableWrap">
+          <table className="table">
+            <caption className="srOnly">업무 리스트 테이블</caption>
             <thead>
               <tr>
                 <th scope="col">일자</th>
@@ -389,7 +389,7 @@ export function SearchPage() {
               ))}
               {!sortedReports.length ? (
                 <tr>
-                  <td colSpan={13} className={styles.emptyState}>
+                  <td colSpan={13} className="emptyState">
                     검색 결과가 없습니다.
                   </td>
                 </tr>

@@ -6,7 +6,7 @@ import { opsDataClient } from '../../lib/dataClient';
 import { type Member, type PageStatus, type Project, type ProjectPage } from '../../lib/domain';
 import { buildProjectTypeOptions } from '../../lib/taskTypeRules';
 import { getToday } from '../../lib/utils';
-import styles from './ProjectsFeature.module.css';
+import '../../styles/domain/pages/projects-feature.scss';
 
 interface ProjectFormState {
   id?: string;
@@ -510,36 +510,30 @@ export function ProjectEditorPage() {
 
   if (isEditMode && !query.isLoading && !selectedProject) {
     return (
-      <section className={`${styles.shell} ${styles.editorShell}`}>
-        <header className={styles.editorHeader}>
-          <h1 className={styles.title}>프로젝트 수정</h1>
-          <Link to="/projects" className={styles.secondaryButton}>
+      <section className="projectsFeatureScope shell editorShell">
+        <header className={'editorHeader'}>
+          <h1 className={'title'}>프로젝트 수정</h1>
+          <Link to="/projects" className={'secondaryButton'}>
             목록으로
           </Link>
         </header>
-        <p className={styles.statusMessage}>프로젝트를 찾을 수 없습니다.</p>
+        <p className={'statusMessage'}>프로젝트를 찾을 수 없습니다.</p>
       </section>
     );
   }
 
   return (
-    <section className={`${styles.shell} ${styles.editorShell}`}>
-      <header className={styles.editorHeader}>
-        <h1 className={styles.title}>{isEditMode ? '프로젝트 수정' : '프로젝트 추가'}</h1>
+    <section className="projectsFeatureScope shell editorShell">
+      <header className={'editorHeader'}>
+        <h1 className={'title'}>{isEditMode ? '프로젝트 수정' : '프로젝트 추가'}</h1>
       </header>
 
-      {statusMessage ? <p className={styles.statusMessage}>{statusMessage}</p> : null}
+      {statusMessage ? <p className={'statusMessage'}>{statusMessage}</p> : null}
 
-      <section
-        className={`${styles.modal} ${styles.editorSurface}`}
-        aria-label="프로젝트 편집 패널"
-      >
-        <form
-          className={`${styles.detailForm} ${styles.editorDetailForm}`}
-          onSubmit={handleProjectSave}
-        >
-          <div className={styles.editorFormGrid}>
-            <label className={styles.field}>
+      <section className={`${'modal'} ${'editorSurface'}`} aria-label="프로젝트 편집 패널">
+        <form className={`${'detailForm'} ${'editorDetailForm'}`} onSubmit={handleProjectSave}>
+          <div className={'editorFormGrid'}>
+            <label className={'field'}>
               <span>프로젝트 종류</span>
               <select
                 value={projectDraft.projectType1}
@@ -556,7 +550,7 @@ export function ProjectEditorPage() {
               </select>
             </label>
 
-            <label className={styles.field}>
+            <label className={'field'}>
               <span>플랫폼</span>
               <select
                 value={projectDraft.platformId}
@@ -577,7 +571,7 @@ export function ProjectEditorPage() {
               </select>
             </label>
 
-            <label className={styles.field}>
+            <label className={'field'}>
               <span>청구그룹</span>
               <select
                 value={selectedCostGroupId}
@@ -594,7 +588,7 @@ export function ProjectEditorPage() {
               </select>
             </label>
 
-            <label className={styles.field}>
+            <label className={'field'}>
               <span>서비스그룹</span>
               <select
                 value={selectedServiceParts.serviceGroup}
@@ -610,7 +604,7 @@ export function ProjectEditorPage() {
               </select>
             </label>
 
-            <label className={styles.field}>
+            <label className={'field'}>
               <span>서비스명</span>
               <select
                 value={selectedServiceParts.serviceName}
@@ -626,7 +620,7 @@ export function ProjectEditorPage() {
               </select>
             </label>
 
-            <label className={`${styles.field} ${styles.editorFieldWide}`}>
+            <label className={`${'field'} ${'editorFieldWide'}`}>
               <span>프로젝트명</span>
               <input
                 ref={titleRef}
@@ -637,7 +631,7 @@ export function ProjectEditorPage() {
               />
             </label>
 
-            <label className={`${styles.field} ${styles.editorFieldWide}`}>
+            <label className={`${'field'} ${'editorFieldWide'}`}>
               <span>보고서URL</span>
               <input
                 value={projectDraft.reportUrl}
@@ -647,7 +641,7 @@ export function ProjectEditorPage() {
               />
             </label>
 
-            <label className={styles.field}>
+            <label className={'field'}>
               <span>QA시작일</span>
               <input
                 type="date"
@@ -661,7 +655,7 @@ export function ProjectEditorPage() {
               />
             </label>
 
-            <label className={styles.field}>
+            <label className={'field'}>
               <span>QA종료일</span>
               <input
                 type="date"
@@ -675,7 +669,7 @@ export function ProjectEditorPage() {
               />
             </label>
 
-            <label className={styles.field}>
+            <label className={'field'}>
               <span>리포터</span>
               <select
                 value={projectDraft.reporterMemberId}
@@ -695,7 +689,7 @@ export function ProjectEditorPage() {
               </select>
             </label>
 
-            <label className={styles.field}>
+            <label className={'field'}>
               <span>리뷰어</span>
               <select
                 value={projectDraft.reviewerMemberId}
@@ -716,27 +710,27 @@ export function ProjectEditorPage() {
             </label>
           </div>
 
-          <div className={`${styles.formActions} ${styles.editorFormActions}`}>
-            <div className={styles.editorFormActionsStart}>
+          <div className={`${'formActions'} ${'editorFormActions'}`}>
+            <div className={'editorFormActionsStart'}>
               {isEditMode &&
               selectedProject &&
               canDeleteProject(selectedProject, member?.id ?? null, member?.role) ? (
                 <button
                   type="button"
-                  className={styles.deleteButton}
+                  className={'deleteButton'}
                   onClick={() => void handleProjectDelete()}
                 >
                   삭제
                 </button>
               ) : null}
             </div>
-            <div className={styles.editorFormActionsEnd}>
-              <Link to="/projects" className={styles.secondaryButton}>
+            <div className={'editorFormActionsEnd'}>
+              <Link to="/projects" className={'secondaryButton'}>
                 취소
               </Link>
               <button
                 type="submit"
-                className={styles.primaryButton}
+                className={'primaryButton'}
                 disabled={saveProjectMutation.isPending}
               >
                 저장
@@ -747,13 +741,13 @@ export function ProjectEditorPage() {
       </section>
 
       {isEditMode && selectedProject ? (
-        <section className={styles.modal} aria-label="페이지 목록 패널">
-          <section className={styles.pageSection}>
-            <div className={styles.sectionHeader}>
-              <h2 className={styles.sectionTitle}>페이지 목록</h2>
+        <section className={'modal'} aria-label="페이지 목록 패널">
+          <section className={'pageSection'}>
+            <div className={'sectionHeader'}>
+              <h2 className={'sectionTitle'}>페이지 목록</h2>
               <button
                 type="button"
-                className={styles.secondaryButton}
+                className={'secondaryButton'}
                 onClick={() => {
                   setPageAddOpen((current) => !current);
                   setNewPageDraft(
@@ -766,18 +760,18 @@ export function ProjectEditorPage() {
             </div>
 
             {pageAddOpen && newPageDraft ? (
-              <form className={styles.pageFormPanel} onSubmit={handlePageAdd}>
-                <div className={styles.pageFormGrid}>
-                  <label className={styles.field}>
-                    <span className={styles.srOnly}>페이지명</span>
+              <form className={'pageFormPanel'} onSubmit={handlePageAdd}>
+                <div className={'pageFormGrid'}>
+                  <label className={'field'}>
+                    <span className={'srOnly'}>페이지명</span>
                     <input
                       value={newPageDraft.title}
                       placeholder="페이지명"
                       onChange={(event) => handleNewPageDraftChange({ title: event.target.value })}
                     />
                   </label>
-                  <label className={styles.field}>
-                    <span className={styles.srOnly}>페이지URL</span>
+                  <label className={'field'}>
+                    <span className={'srOnly'}>페이지URL</span>
                     <input
                       value={newPageDraft.url}
                       placeholder="페이지URL"
@@ -785,10 +779,10 @@ export function ProjectEditorPage() {
                     />
                   </label>
                 </div>
-                <div className={`${styles.formActions} ${styles.pageTableActions}`}>
+                <div className={`${'formActions'} ${'pageTableActions'}`}>
                   <button
                     type="submit"
-                    className={styles.primaryButton}
+                    className={'primaryButton'}
                     disabled={savePageMutation.isPending}
                   >
                     추가
@@ -798,9 +792,9 @@ export function ProjectEditorPage() {
             ) : null}
 
             {selectedProjectPages.length ? (
-              <div className={styles.pageTableWrap}>
-                <table className={styles.pageTable}>
-                  <caption className={styles.srOnly}>페이지 리스트</caption>
+              <div className={'pageTableWrap'}>
+                <table className={'pageTable'}>
+                  <caption className={'srOnly'}>페이지 리스트</caption>
                   <thead>
                     <tr>
                       <th scope="col">페이지명</th>
@@ -815,7 +809,7 @@ export function ProjectEditorPage() {
                       return (
                         <tr key={page.id}>
                           <td>
-                            <label className={styles.srOnly} htmlFor={`page-title-${page.id}`}>
+                            <label className={'srOnly'} htmlFor={`page-title-${page.id}`}>
                               페이지명
                             </label>
                             <input
@@ -828,7 +822,7 @@ export function ProjectEditorPage() {
                             />
                           </td>
                           <td>
-                            <label className={styles.srOnly} htmlFor={`page-url-${page.id}`}>
+                            <label className={'srOnly'} htmlFor={`page-url-${page.id}`}>
                               페이지URL
                             </label>
                             <input
@@ -841,10 +835,10 @@ export function ProjectEditorPage() {
                             />
                           </td>
                           <td>
-                            <div className={styles.pageTableActions}>
+                            <div className={'pageTableActions'}>
                               <button
                                 type="button"
-                                className={styles.secondaryButton}
+                                className={'secondaryButton'}
                                 onClick={() => void handlePageSave(page.id)}
                               >
                                 수정
@@ -852,7 +846,7 @@ export function ProjectEditorPage() {
                               {canDeletePage(page, member?.id ?? null, member?.role) ? (
                                 <button
                                   type="button"
-                                  className={styles.deleteButton}
+                                  className={'deleteButton'}
                                   onClick={() => void handlePageDelete(page)}
                                 >
                                   삭제
@@ -867,7 +861,7 @@ export function ProjectEditorPage() {
                 </table>
               </div>
             ) : (
-              <div className={styles.emptyState}>등록된 페이지가 없습니다.</div>
+              <div className={'emptyState'}>등록된 페이지가 없습니다.</div>
             )}
           </section>
         </section>
