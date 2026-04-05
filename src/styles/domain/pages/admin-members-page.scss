@@ -226,6 +226,7 @@
     overflow: auto;
     border: 1px solid var(--border-default);
     background: var(--surface-panel);
+    box-shadow: var(--elevation-1);
   }
 
   .admin-members-page__table {

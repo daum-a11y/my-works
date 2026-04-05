@@ -53,48 +53,43 @@ export function AdminPlatformsPage() {
       {statusMessage ? <p className="admin-crud-page__helper-text">{statusMessage}</p> : null}
       {errorMessage ? <p className="admin-crud-page__helper-text">{errorMessage}</p> : null}
 
-      <div className="admin-crud-page__panel">
-        <div className="admin-crud-page__table-wrap">
-          <table className="admin-crud-page__table">
-            <caption className="admin-crud-page__sr-only">플랫폼 내역</caption>
-            <thead>
-              <tr>
-                <th>플랫폼명</th>
-                <th>노출여부</th>
-                <th>관리</th>
-              </tr>
-            </thead>
-            <tbody>
-              {platforms.length ? (
-                platforms.map((item) => (
-                  <tr
-                    key={item.id}
-                    className={item.isVisible ? '' : 'admin-crud-page__inactive-row'}
-                  >
-                    <td className="admin-crud-page__row-key">{item.name}</td>
-                    <td>{item.isVisible ? '노출' : '미노출'}</td>
-                    <td>
-                      <div className="admin-crud-page__actions">
-                        <Link
-                          to={`/org/platform/${item.id}/edit`}
-                          className="admin-crud-page__button admin-crud-page__button--secondary"
-                        >
-                          수정
-                        </Link>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={3} className="admin-crud-page__empty-state">
-                    표시할 플랫폼 내역이 없습니다.
+      <div className="admin-crud-page__table-wrap">
+        <table className="admin-crud-page__table">
+          <caption className="admin-crud-page__sr-only">플랫폼 내역</caption>
+          <thead>
+            <tr>
+              <th>플랫폼명</th>
+              <th>노출여부</th>
+              <th>관리</th>
+            </tr>
+          </thead>
+          <tbody>
+            {platforms.length ? (
+              platforms.map((item) => (
+                <tr key={item.id} className={item.isVisible ? '' : 'admin-crud-page__inactive-row'}>
+                  <td className="admin-crud-page__row-key">{item.name}</td>
+                  <td>{item.isVisible ? '노출' : '미노출'}</td>
+                  <td>
+                    <div className="admin-crud-page__actions">
+                      <Link
+                        to={`/org/platform/${item.id}/edit`}
+                        className="admin-crud-page__button admin-crud-page__button--secondary"
+                      >
+                        수정
+                      </Link>
+                    </div>
                   </td>
                 </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={3} className="admin-crud-page__empty-state">
+                  표시할 플랫폼 내역이 없습니다.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
       </div>
     </section>
   );

@@ -103,6 +103,7 @@ export function DashboardPage() {
                 currentMonth={monthState.currentMonth}
                 futureMonth={monthState.future}
                 todayDay={monthState.today}
+                padded={false}
                 panel={false}
                 getDateLink={(date) => ({ to: '/reports', state: { reportDate: date } })}
               />

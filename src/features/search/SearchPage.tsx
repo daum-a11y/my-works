@@ -327,12 +327,6 @@ export function SearchPage() {
       </section>
 
       <section className="search-page__panel">
-        <div className="search-page__panel-head">
-          <div>
-            <h2 className="search-page__panel-title">업무 리스트</h2>
-          </div>
-        </div>
-
         <div className="search-page__table-wrap">
           <table className="search-page__table">
             <caption className="search-page__sr-only">업무 리스트 테이블</caption>
