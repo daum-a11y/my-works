@@ -2,8 +2,10 @@
   .app-shell__layout {
     display: grid;
     grid-template-columns: var(--shell-rail-width) minmax(0, 1fr);
-    min-height: 100vh;
+    grid-template-rows: var(--shell-header-height) minmax(0, 1fr);
+    height: 100vh;
     min-width: 1220px;
+    overflow: hidden;
     background:
       linear-gradient(
         90deg,
@@ -20,12 +22,11 @@
   }
 
   .app-shell__sidebar {
-    position: sticky;
-    top: 0;
-    align-self: start;
-    display: grid;
-    grid-template-rows: var(--shell-header-height) minmax(0, 1fr);
-    height: 100vh;
+    grid-column: 1;
+    grid-row: 2;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
     min-width: 0;
     overflow: hidden;
     background: linear-gradient(
@@ -39,11 +40,8 @@
 
   .app-shell__brand {
     display: flex;
-    grid-row: 1;
     align-items: center;
-    height: var(--shell-header-height);
-    padding: 0 16px 0 17px;
-    border-bottom: 1px solid var(--border-default);
+    border-inline-end: 1px solid var(--border-default);
     background: color-mix(in oklab, var(--surface-sidebar) 92%, white);
   }
 
@@ -51,7 +49,7 @@
     display: flex;
     align-items: center;
     min-width: 0;
-    padding: 2px 0;
+    padding: 2px 0 2px 17px;
   }
 
   .app-shell__brand-logo {
@@ -66,9 +64,11 @@
   }
 
   .app-shell__nav {
-    grid-row: 2;
+    flex: 1 1 auto;
+    min-width: 0;
     min-height: 0;
     overflow-y: auto;
+    overscroll-behavior: contain;
     padding: 14px 11px 18px;
   }
 
@@ -148,10 +148,12 @@
   }
 
   .app-shell__content {
+    grid-column: 2;
+    grid-row: 2;
     position: relative;
-    display: grid;
-    grid-template-rows: auto 1fr;
     min-width: 0;
+    min-height: 0;
+    overflow: auto;
   }
 
   .app-shell__global-loading-overlay {
@@ -162,16 +164,15 @@
   }
 
   .app-shell__header {
+    grid-column: 1 / -1;
+    grid-row: 1;
     position: sticky;
     top: 0;
     z-index: 5;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
+    display: grid;
+    grid-template-columns: var(--shell-rail-width) minmax(0, 1fr);
     min-width: 0;
     min-height: var(--shell-header-height);
-    padding: 0 var(--page-inline);
     overflow: visible;
     background: linear-gradient(
       180deg,
@@ -180,6 +181,15 @@
     );
     border-bottom: 1px solid var(--border-default);
     box-shadow: 0 1px 0 color-mix(in oklab, var(--surface-panel) 72%, transparent);
+  }
+
+  .app-shell__header-body {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    min-width: 0;
+    padding: 0 var(--page-inline);
   }
 
   .app-shell__header-title {
@@ -438,6 +448,8 @@
 
   .app-shell__main {
     min-width: 0;
+    min-height: 100%;
+    box-sizing: border-box;
     padding: var(--page-block) var(--page-inline) calc(var(--page-block) * 1.65);
   }
 }

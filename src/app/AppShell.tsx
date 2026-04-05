@@ -87,7 +87,7 @@ export function AppShell() {
         본문으로 바로가기
       </a>
       <div className="app-shell__layout">
-        <aside className="app-shell__sidebar">
+        <header className="app-shell__header">
           <div className="app-shell__brand">
             <NavLink to="/dashboard" className="app-shell__brand-link" aria-label="MY WORKS 홈">
               <img
@@ -99,60 +99,7 @@ export function AppShell() {
               />
             </NavLink>
           </div>
-
-          <nav aria-label="주요 메뉴" className="app-shell__nav">
-            <ul className="app-shell__nav-list">
-              {navigation.map((item) => (
-                <li key={item.label} className="app-shell__nav-item">
-                  {'to' in item && item.to ? (
-                    <NavLink
-                      to={item.to}
-                      className={({ isActive }) =>
-                        clsx('app-shell__nav-link', isActive && 'app-shell__nav-link--active')
-                      }
-                    >
-                      {item.icon && <item.icon size={16} strokeWidth={2} />}
-                      <span>{item.label}</span>
-                    </NavLink>
-                  ) : (
-                    <div className="app-shell__nav-group">
-                      <div className="app-shell__nav-group-header">
-                        {item.icon && <item.icon size={16} strokeWidth={2} />}
-                        <span className="app-shell__section-label">{item.label}</span>
-                      </div>
-                      <ul className="app-shell__sub-nav-list">
-                        {'children' in item &&
-                          item.children?.map((child) => (
-                            <li key={child.to}>
-                              <NavLink
-                                to={child.to}
-                                className={({ isActive }) =>
-                                  clsx(
-                                    'app-shell__nav-link',
-                                    isActive && 'app-shell__nav-link--active',
-                                  )
-                                }
-                              >
-                                {child.label}
-                              </NavLink>
-                            </li>
-                          ))}
-                      </ul>
-                    </div>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </nav>
-        </aside>
-
-        <div className="app-shell__content">
-          {resourceFetchCount > 0 ? (
-            <div className="app-shell__global-loading-overlay">
-              <GlobalLoadingSpinner overlay />
-            </div>
-          ) : null}
-          <header className="app-shell__header">
+          <div className="app-shell__header-body">
             <div className="app-shell__header-title">
               <nav className="app-shell__breadcrumbs" aria-label="브래드크럼">
                 <ol>
@@ -249,8 +196,62 @@ export function AppShell() {
                 </p>
               ) : null}
             </div>
-          </header>
+          </div>
+        </header>
 
+        <aside className="app-shell__sidebar">
+          <nav aria-label="주요 메뉴" className="app-shell__nav">
+            <ul className="app-shell__nav-list">
+              {navigation.map((item) => (
+                <li key={item.label} className="app-shell__nav-item">
+                  {'to' in item && item.to ? (
+                    <NavLink
+                      to={item.to}
+                      className={({ isActive }) =>
+                        clsx('app-shell__nav-link', isActive && 'app-shell__nav-link--active')
+                      }
+                    >
+                      {item.icon && <item.icon size={16} strokeWidth={2} />}
+                      <span>{item.label}</span>
+                    </NavLink>
+                  ) : (
+                    <div className="app-shell__nav-group">
+                      <div className="app-shell__nav-group-header">
+                        {item.icon && <item.icon size={16} strokeWidth={2} />}
+                        <span className="app-shell__section-label">{item.label}</span>
+                      </div>
+                      <ul className="app-shell__sub-nav-list">
+                        {'children' in item &&
+                          item.children?.map((child) => (
+                            <li key={child.to}>
+                              <NavLink
+                                to={child.to}
+                                className={({ isActive }) =>
+                                  clsx(
+                                    'app-shell__nav-link',
+                                    isActive && 'app-shell__nav-link--active',
+                                  )
+                                }
+                              >
+                                {child.label}
+                              </NavLink>
+                            </li>
+                          ))}
+                      </ul>
+                    </div>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </aside>
+
+        <div className="app-shell__content">
+          {resourceFetchCount > 0 ? (
+            <div className="app-shell__global-loading-overlay">
+              <GlobalLoadingSpinner overlay />
+            </div>
+          ) : null}
           <main id="main-content" className="app-shell__main">
             <Outlet />
           </main>
