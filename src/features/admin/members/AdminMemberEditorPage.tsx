@@ -4,7 +4,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { adminDataClient } from '../adminClient';
 import type { MemberAdminPayload } from '../admin-types';
 import { createMemberDraft, normalizeMemberDraft } from './memberAdminForm';
-import '../../../styles/domain/pages/admin-member-editor-page.scss';
+import styles from '../../projects/ProjectsFeature.module.css';
 
 export function AdminMemberEditorPage() {
   const navigate = useNavigate();
@@ -12,6 +12,7 @@ export function AdminMemberEditorPage() {
   const { memberId } = useParams<{ memberId: string }>();
   const isEditMode = Boolean(memberId);
   const [draft, setDraft] = useState<MemberAdminPayload>(() => createMemberDraft());
+  const [localErrorMessage, setLocalErrorMessage] = useState('');
 
   const membersQuery = useQuery({
     queryKey: ['admin', 'members'],
@@ -28,7 +29,8 @@ export function AdminMemberEditorPage() {
   const activeLabel = draft.userActive ? '활성' : '비활성';
   const memberStatusLabel = draft.memberStatus === 'pending' ? '승인대기' : '활성';
   const hasAuthAccount = Boolean(selectedMember?.authUserId);
-  const authActionLabel = hasAuthAccount ? '비밀번호 재설정 메일' : '초대 메일 재발송';
+  const isEmailLocked = Boolean(isInactiveMember || selectedMember?.authUserId);
+  const authActionLabel = hasAuthAccount ? '비밀번호 재설정' : '초대 메일 발송';
 
   useEffect(() => {
     if (!isEditMode) {
@@ -44,6 +46,10 @@ export function AdminMemberEditorPage() {
   const saveMutation = useMutation({
     mutationFn: async (payload: MemberAdminPayload) => {
       const normalizedDraft = normalizeMemberDraft(payload);
+
+      if (isEditMode && selectedMember?.authUserId) {
+        normalizedDraft.email = selectedMember.email;
+      }
 
       if (!isEditMode) {
         await adminDataClient.createMemberAdmin(normalizedDraft);
@@ -72,17 +78,28 @@ export function AdminMemberEditorPage() {
       }
 
       if (selectedMember.authUserId) {
+        if (!selectedMember.authEmail) {
+          throw new Error('Auth 이메일이 없어 비밀번호 재설정 메일을 보낼 수 없습니다.');
+        }
+
         await adminDataClient.resetMemberPasswordAdmin({
-          email: selectedMember.email,
+          email: selectedMember.authEmail,
         });
         return;
       }
 
-      await adminDataClient.inviteMemberAdmin({
-        email: selectedMember.email,
+      await adminDataClient.createMemberAdmin({
+        id: selectedMember.id,
+        authUserId: selectedMember.authUserId,
         accountId: selectedMember.accountId,
         name: selectedMember.name,
+        email: selectedMember.email,
+        note: selectedMember.note,
         role: selectedMember.role,
+        userActive: selectedMember.userActive,
+        memberStatus: selectedMember.memberStatus,
+        reportRequired: selectedMember.reportRequired,
+        isActive: selectedMember.isActive,
       });
     },
     onSuccess: async () => {
@@ -92,7 +109,7 @@ export function AdminMemberEditorPage() {
         state: {
           statusMessage: hasAuthAccount
             ? '비밀번호 재설정 메일을 보냈습니다.'
-            : '초대 메일을 다시 보냈습니다.',
+            : '초대 메일을 보냈습니다.',
         },
       });
     },
@@ -113,7 +130,7 @@ export function AdminMemberEditorPage() {
         state: {
           statusMessage:
             result === 'deleted'
-              ? '사용자를 삭제했습니다.'
+              ? '사용자와 인증 계정을 삭제했습니다.'
               : '업무 데이터가 있어 사용자를 비활성 보관 처리했습니다.',
         },
       });
@@ -150,6 +167,7 @@ export function AdminMemberEditorPage() {
   });
 
   const errorMessage =
+    localErrorMessage ||
     (membersQuery.error instanceof Error && membersQuery.error.message) ||
     (saveMutation.error instanceof Error && saveMutation.error.message) ||
     (inviteMutation.error instanceof Error && inviteMutation.error.message) ||
@@ -159,6 +177,7 @@ export function AdminMemberEditorPage() {
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setLocalErrorMessage('');
     await saveMutation.mutateAsync(draft);
   };
 
@@ -169,7 +188,7 @@ export function AdminMemberEditorPage() {
 
     if (
       !window.confirm(
-        `${selectedMember.name} 사용자를 삭제하시겠습니까?\n업무 데이터가 있으면 비활성 보관 처리됩니다.`,
+        `${selectedMember.name} 사용자를 삭제하시겠습니까?\n업무 데이터가 없으면 사용자와 인증 계정을 함께 삭제하고, 업무 데이터가 있으면 비활성 보관 처리합니다.`,
       )
     ) {
       return;
@@ -187,13 +206,20 @@ export function AdminMemberEditorPage() {
       !window.confirm(
         hasAuthAccount
           ? `${selectedMember.name}에게 비밀번호 재설정 메일을 보내시겠습니까?`
-          : `${selectedMember.name}에게 초대 메일을 다시 보내시겠습니까?`,
+          : `${selectedMember.name}에게 초대 메일을 보내시겠습니까?`,
       )
     ) {
       return;
     }
 
-    await inviteMutation.mutateAsync();
+    setLocalErrorMessage('');
+    try {
+      await inviteMutation.mutateAsync();
+    } catch (error) {
+      setLocalErrorMessage(
+        error instanceof Error ? error.message : '인증 메일 발송에 실패했습니다.',
+      );
+    }
   };
 
   const handleRestore = async () => {
@@ -205,46 +231,47 @@ export function AdminMemberEditorPage() {
       return;
     }
 
+    setLocalErrorMessage('');
     await restoreMutation.mutateAsync();
   };
 
   if (membersQuery.isLoading && isEditMode) {
     return (
-      <section className={`${'shell'} ${'editorShell'}`}>
-        <p className={'statusMessage'}>불러오는 중...</p>
+      <section className={`${styles.shell} ${styles.editorShell}`}>
+        <p className={styles.statusMessage}>불러오는 중...</p>
       </section>
     );
   }
 
   if (isEditMode && !selectedMember && !membersQuery.isLoading) {
     return (
-      <section className={`${'shell'} ${'editorShell'}`}>
-        <header className={'editorHeader'}>
-          <h1 className={'title'}>사용자 수정</h1>
+      <section className={`${styles.shell} ${styles.editorShell}`}>
+        <header className={styles.editorHeader}>
+          <h1 className={styles.title}>사용자 수정</h1>
         </header>
-        <p className={'statusMessage'}>사용자 정보를 찾을 수 없습니다.</p>
+        <p className={styles.statusMessage}>사용자 정보를 찾을 수 없습니다.</p>
       </section>
     );
   }
 
   return (
-    <section className={`${'shell'} ${'editorShell'}`}>
-      <header className={'editorHeader'}>
-        <h1 className={'title'}>{isEditMode ? '사용자 수정' : '사용자 추가'}</h1>
+    <section className={`${styles.shell} ${styles.editorShell}`}>
+      <header className={styles.editorHeader}>
+        <h1 className={styles.title}>{isEditMode ? '사용자 수정' : '사용자 추가'}</h1>
       </header>
 
-      {errorMessage ? <p className={'statusMessage'}>{errorMessage}</p> : null}
+      {errorMessage ? <p className={styles.statusMessage}>{errorMessage}</p> : null}
 
-      <section className={`${'modal'} ${'editorSurface'}`} aria-label="사용자 편집 패널">
-        <form className={`${'detailForm'} ${'editorDetailForm'}`} onSubmit={handleSubmit}>
-          <section className={'editorSection'} aria-labelledby="member-basic-section">
-            <div className={'sectionHeader'}>
-              <h2 id="member-basic-section" className={'sectionTitle'}>
+      <section className={`${styles.modal} ${styles.editorSurface}`} aria-label="사용자 편집 패널">
+        <form className={`${styles.detailForm} ${styles.editorDetailForm}`} onSubmit={handleSubmit}>
+          <section className={styles.editorSection} aria-labelledby="member-basic-section">
+            <div className={styles.sectionHeader}>
+              <h2 id="member-basic-section" className={styles.sectionTitle}>
                 기본 정보
               </h2>
             </div>
-            <div className={'editorFormGrid'}>
-              <label className={'field'}>
+            <div className={styles.editorFormGrid}>
+              <label className={styles.field}>
                 <span>ID</span>
                 <input
                   autoFocus
@@ -256,7 +283,7 @@ export function AdminMemberEditorPage() {
                 />
               </label>
 
-              <label className={'field'}>
+              <label className={styles.field}>
                 <span>이름</span>
                 <input
                   value={draft.name}
@@ -267,19 +294,19 @@ export function AdminMemberEditorPage() {
                 />
               </label>
 
-              <label className={'field'}>
+              <label className={styles.field}>
                 <span>이메일</span>
                 <input
                   type="email"
                   value={draft.email}
-                  readOnly={Boolean(isInactiveMember)}
+                  readOnly={isEmailLocked}
                   onChange={(event) =>
                     setDraft((current) => ({ ...current, email: event.target.value }))
                   }
                 />
               </label>
 
-              <label className={'field'}>
+              <label className={styles.field}>
                 <span>권한</span>
                 {isInactiveMember ? (
                   <input value={roleLabel} readOnly />
@@ -302,23 +329,23 @@ export function AdminMemberEditorPage() {
           </section>
 
           {isEditMode ? (
-            <section className={'editorSection'} aria-labelledby="member-status-section">
-              <div className={'sectionHeader'}>
-                <h2 id="member-status-section" className={'sectionTitle'}>
+            <section className={styles.editorSection} aria-labelledby="member-status-section">
+              <div className={styles.sectionHeader}>
+                <h2 id="member-status-section" className={styles.sectionTitle}>
                   상태 정보
                 </h2>
               </div>
-              <div className={'editorFormGrid'}>
-                <label className={'field'}>
+              <div className={styles.editorFormGrid}>
+                <label className={styles.field}>
                   <span>Auth ID</span>
                   <input value={draft.authUserId ?? '-'} readOnly />
                 </label>
-                <label className={'field'}>
+                <label className={styles.field}>
                   <span>활성 여부</span>
                   <input value={activeLabel} readOnly />
                 </label>
 
-                <label className={'field'}>
+                <label className={styles.field}>
                   <span>승인 상태</span>
                   {isInactiveMember ? (
                     <input value={memberStatusLabel} readOnly />
@@ -338,7 +365,7 @@ export function AdminMemberEditorPage() {
                   )}
                 </label>
 
-                <label className={'field'}>
+                <label className={styles.field}>
                   <span>업무보고 접근</span>
                   {isInactiveMember ? (
                     <input value={draft.reportRequired ? '허용' : '차단'} readOnly />
@@ -362,14 +389,14 @@ export function AdminMemberEditorPage() {
           ) : null}
 
           {isEditMode ? (
-            <section className={'editorSection'} aria-labelledby="member-note-section">
-              <div className={'sectionHeader'}>
-                <h2 id="member-note-section" className={'sectionTitle'}>
+            <section className={styles.editorSection} aria-labelledby="member-note-section">
+              <div className={styles.sectionHeader}>
+                <h2 id="member-note-section" className={styles.sectionTitle}>
                   기타
                 </h2>
               </div>
-              <div className={'editorFormGrid'}>
-                <label className={'field'}>
+              <div className={styles.editorFormGrid}>
+                <label className={styles.field}>
                   <span>비고</span>
                   <textarea
                     value={draft.note}
@@ -383,14 +410,14 @@ export function AdminMemberEditorPage() {
             </section>
           ) : null}
 
-          <div className={`${'formActions'} ${'editorFormActions'}`}>
-            <div className={'editorFormActionsStart'}>
+          <div className={`${styles.formActions} ${styles.editorFormActions}`}>
+            <div className={styles.editorFormActionsStart}>
               {isEditMode ? (
                 <>
                   {!isInactiveMember ? (
                     <button
                       type="button"
-                      className={'secondaryButton'}
+                      className={styles.secondaryButton}
                       onClick={() => void handleInvite()}
                       disabled={inviteMutation.isPending}
                     >
@@ -400,7 +427,7 @@ export function AdminMemberEditorPage() {
                   {isInactiveMember ? (
                     <button
                       type="button"
-                      className={'primaryButton'}
+                      className={styles.primaryButton}
                       onClick={() => void handleRestore()}
                       disabled={restoreMutation.isPending}
                     >
@@ -409,7 +436,7 @@ export function AdminMemberEditorPage() {
                   ) : (
                     <button
                       type="button"
-                      className={'deleteButton'}
+                      className={styles.deleteButton}
                       onClick={() => void handleDelete()}
                       disabled={deleteMutation.isPending}
                     >
@@ -419,13 +446,13 @@ export function AdminMemberEditorPage() {
                 </>
               ) : null}
             </div>
-            <div className={'editorFormActionsEnd'}>
-              <Link to="/admin/members" className={'secondaryButton'}>
+            <div className={styles.editorFormActionsEnd}>
+              <Link to="/admin/members" className={styles.secondaryButton}>
                 취소
               </Link>
               <button
                 type="submit"
-                className={'primaryButton'}
+                className={styles.primaryButton}
                 disabled={saveMutation.isPending || Boolean(isInactiveMember)}
               >
                 저장

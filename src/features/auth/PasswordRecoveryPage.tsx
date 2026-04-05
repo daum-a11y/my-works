@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '../../components/ui/Button';
 import { InputField } from '../../components/ui/Field';
 import { useAuth } from './AuthContext';
-import '../../styles/domain/pages/password-recovery-page.scss';
+import styles from './PasswordRecoveryPage.module.css';
 
 const recoverySchema = z
   .object({
@@ -43,31 +43,31 @@ export function PasswordRecoveryPage() {
 
   if (!isRecoverySession) {
     return (
-      <main className={'page'}>
-        <section className={'panel'} aria-labelledby="recovery-invalid-title">
-          <div className={'introBlock'}>
-            <h1 className={'logoHeading'}>
+      <main className={styles.page}>
+        <section className={styles.panel} aria-labelledby="recovery-invalid-title">
+          <div className={styles.introBlock}>
+            <h1 className={styles.logoHeading}>
               <img
-                className={'logo'}
+                className={styles.logo}
                 src="/img/my-works-logo-200x60.png"
                 alt="My Works"
                 width="100"
                 height="30"
               />
             </h1>
-            <p id="recovery-invalid-title" className={'caption'}>
+            <p id="recovery-invalid-title" className={styles.caption}>
               비밀번호 재설정
             </p>
           </div>
-          <div className={'formBlock'}>
-            <div className={'hero'}>
-              <h1 className={'title'}>유효하지 않은 재설정 링크</h1>
-              <p className={'description'}>
+          <div className={styles.formBlock}>
+            <div className={styles.hero}>
+              <h1 className={styles.title}>유효하지 않은 재설정 링크</h1>
+              <p className={styles.description}>
                 비밀번호 재설정 메일에서 다시 진입해 주세요. 필요하면 로그인 화면에서 메일을 다시
                 요청하실 수 있습니다.
               </p>
             </div>
-            <div className={'actions'}>
+            <div className={styles.actions}>
               <Button type="button" onPress={() => navigate('/login', { replace: true })}>
                 로그인으로 이동
               </Button>
@@ -79,30 +79,30 @@ export function PasswordRecoveryPage() {
   }
 
   return (
-    <main className={'page'}>
-      <section className={'panel'} aria-labelledby="recovery-title">
-        <div className={'introBlock'}>
-          <h1 className={'logoHeading'}>
+    <main className={styles.page}>
+      <section className={styles.panel} aria-labelledby="recovery-title">
+        <div className={styles.introBlock}>
+          <h1 className={styles.logoHeading}>
             <img
-              className={'logo'}
+              className={styles.logo}
               src="/img/my-works-logo-200x60.png"
               alt="My Works"
               width="100"
               height="30"
             />
           </h1>
-          <p id="recovery-title" className={'caption'}>
+          <p id="recovery-title" className={styles.caption}>
             비밀번호 재설정
           </p>
         </div>
-        <div className={'formBlock'}>
-          <div className={'hero'}>
-            <p className={'description'}>
+        <div className={styles.formBlock}>
+          <div className={styles.hero}>
+            <p className={styles.description}>
               새 비밀번호를 입력하면 현재 계정의 비밀번호가 즉시 변경됩니다.
             </p>
           </div>
           <form
-            className={'form'}
+            className={styles.form}
             onSubmit={handleSubmit(async (values) => {
               try {
                 setErrorMessage('');
@@ -138,16 +138,16 @@ export function PasswordRecoveryPage() {
               {...register('confirmPassword')}
             />
             {noticeMessage ? (
-              <p className={'message'} data-state="success" role="status">
+              <p className={styles.message} data-state="success" role="status">
                 {noticeMessage}
               </p>
             ) : null}
             {errorMessage ? (
-              <p className={'message'} data-state="danger" role="alert">
+              <p className={styles.message} data-state="danger" role="alert">
                 {errorMessage}
               </p>
             ) : null}
-            <div className={'actions'}>
+            <div className={styles.actions}>
               <Button type="submit" isDisabled={isSubmitting}>
                 비밀번호 변경
               </Button>

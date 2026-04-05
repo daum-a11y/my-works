@@ -239,6 +239,61 @@ export interface ResourceMonthReportRow {
   serviceName: string;
 }
 
+export interface ResourceMonthReportTypeItem {
+  type2: string;
+  minutes: number;
+  requiresServiceGroup: boolean;
+}
+
+export interface ResourceMonthReportTypeRow {
+  type1: string;
+  totalMinutes: number;
+  requiresServiceGroup: boolean;
+  items: ResourceMonthReportTypeItem[];
+}
+
+export interface ResourceMonthReportServiceNameSummary {
+  name: string;
+  minutes: number;
+}
+
+export interface ResourceMonthReportServiceSummaryRow {
+  costGroup: string;
+  group: string;
+  totalMinutes: number;
+  names: ResourceMonthReportServiceNameSummary[];
+}
+
+export interface ResourceMonthReportServiceDetailItem {
+  type1: string;
+  minutes: number;
+}
+
+export interface ResourceMonthReportServiceDetailName {
+  name: string;
+  items: ResourceMonthReportServiceDetailItem[];
+}
+
+export interface ResourceMonthReportServiceDetailRow {
+  costGroup: string;
+  group: string;
+  totalMinutes: number;
+  names: ResourceMonthReportServiceDetailName[];
+}
+
+export interface ResourceMonthReportMemberTotal {
+  id: string;
+  accountId: string;
+  totalMinutes: number;
+}
+
+export interface ResourceMonthReport {
+  typeRows: ResourceMonthReportTypeRow[];
+  serviceSummaryRows: ResourceMonthReportServiceSummaryRow[];
+  serviceDetailRows: ResourceMonthReportServiceDetailRow[];
+  memberTotals: ResourceMonthReportMemberTotal[];
+}
+
 export interface PagedResult<T> {
   items: T[];
   totalCount: number;

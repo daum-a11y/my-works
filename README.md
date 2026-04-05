@@ -70,6 +70,7 @@ Supabase Auth 설정에서도 아래 Redirect URL을 허용해야 합니다.
 
 ```bash
 supabase functions deploy invite-member
+supabase functions deploy delete-member
 ```
 
 초대 기능은 위 한 줄로 끝나지 않습니다. 아래가 모두 되어야 실제로 동작합니다.
@@ -97,6 +98,7 @@ supabase secrets set \
 
 ```bash
 supabase functions deploy invite-member
+supabase functions deploy delete-member
 ```
 
 5. 관리자 계정 확인

@@ -352,7 +352,8 @@ declare
   v_email text := nullif(lower(trim(coalesce(p_email, ''))), '');
   v_auth_user_id uuid;
 begin
-  if not public.current_user_is_admin() then
+  if current_setting('request.jwt.claim.role', true) <> 'service_role'
+    and not public.current_user_is_admin() then
     raise exception 'admin only';
   end if;
 
@@ -804,7 +805,6 @@ as $$
   join month_bounds mb on true
   where public.current_member_id() is not null
     and p_month is not null
-    and m.user_active = true
     and (
       (public.current_user_is_admin() and (p_member_id is null or t.member_id = p_member_id))
       or (
@@ -838,7 +838,6 @@ as $$
     m.name
   from public.members m
   where public.current_member_id() is not null
-    and m.user_active = true
     and (
       (public.current_user_is_admin() and (p_member_id is null or m.id = p_member_id))
       or (
@@ -870,9 +869,7 @@ as $$
     t.task_type1,
     sum(t.task_usedtime) as task_usedtime
   from public.tasks t
-  join public.members m on m.id = t.member_id
   where public.current_member_id() is not null
-    and m.user_active = true
     and (
       (public.current_user_is_admin() and (p_member_id is null or t.member_id = p_member_id))
       or (
@@ -896,11 +893,9 @@ stable
 security definer
 set search_path = public
 as $$
-  select distinct to_char(t.task_date, 'YYYY') as year
+  select distinct extract(year from t.task_date)::text as year
   from public.tasks t
-  join public.members m on m.id = t.member_id
   where public.current_member_id() is not null
-    and m.user_active = true
     and (
       (public.current_user_is_admin() and (p_member_id is null or t.member_id = p_member_id))
       or (
@@ -927,16 +922,20 @@ stable
 security definer
 set search_path = public
 as $$
+  with year_bounds as (
+    select
+      to_date(p_year || '-01-01', 'YYYY-MM-DD') as year_start,
+      (to_date(p_year || '-01-01', 'YYYY-MM-DD') + interval '1 year')::date as year_end
+  )
   select
     to_char(t.task_date, 'YYYY') as year,
     to_char(t.task_date, 'MM') as month,
     t.task_type1,
     sum(t.task_usedtime) as task_usedtime
   from public.tasks t
-  join public.members m on m.id = t.member_id
+  join year_bounds yb on true
   where public.current_member_id() is not null
     and p_year is not null
-    and m.user_active = true
     and (
       (public.current_user_is_admin() and (p_member_id is null or t.member_id = p_member_id))
       or (
@@ -945,7 +944,8 @@ as $$
         and (p_member_id is null or p_member_id = public.current_member_id())
       )
     )
-    and to_char(t.task_date, 'YYYY') = p_year
+    and t.task_date >= yb.year_start
+    and t.task_date < yb.year_end
   group by to_char(t.task_date, 'YYYY'), to_char(t.task_date, 'MM'), t.task_type1
   order by month desc, task_type1 asc
 $$;
@@ -969,7 +969,7 @@ as $$
   select
     to_char(t.task_date, 'YYYY') as year,
     to_char(t.task_date, 'MM') as month,
-    cg.name as cost_group_name,
+    coalesce(cg.name, '미분류') as cost_group_name,
     case
       when coalesce(sg.name, '') = '' or sg.name = '미분류' then '미분류'
       when position(' / ' in sg.name) > 0 then split_part(sg.name, ' / ', 1)
@@ -982,15 +982,13 @@ as $$
     end as service_name,
     sum(t.task_usedtime) as task_usedtime
   from public.tasks t
-  join public.members m on m.id = t.member_id
-  join public.cost_groups cg on cg.id = t.cost_group_id
+  left join public.cost_groups cg on cg.id = t.cost_group_id
   left join public.projects p on p.id = t.project_id
   left join public.service_groups sg on sg.id = p.service_group_id
   left join public.task_types tt
     on tt.type1 = t.task_type1
    and tt.type2 = t.task_type2
   where public.current_member_id() is not null
-    and m.user_active = true
     and (
       (public.current_user_is_admin() and (p_member_id is null or t.member_id = p_member_id))
       or (
@@ -1003,7 +1001,7 @@ as $$
   group by
     to_char(t.task_date, 'YYYY'),
     to_char(t.task_date, 'MM'),
-    cg.name,
+    coalesce(cg.name, '미분류'),
     case
       when coalesce(sg.name, '') = '' or sg.name = '미분류' then '미분류'
       when position(' / ' in sg.name) > 0 then split_part(sg.name, ' / ', 1)
@@ -1028,15 +1026,13 @@ stable
 security definer
 set search_path = public
 as $$
-  select distinct to_char(t.task_date, 'YYYY') as year
+  select distinct extract(year from t.task_date)::text as year
   from public.tasks t
-  join public.members m on m.id = t.member_id
   left join public.projects p on p.id = t.project_id
   left join public.task_types tt
     on tt.type1 = t.task_type1
    and tt.type2 = t.task_type2
   where public.current_member_id() is not null
-    and m.user_active = true
     and (
       (public.current_user_is_admin() and (p_member_id is null or t.member_id = p_member_id))
       or (
@@ -1066,6 +1062,11 @@ stable
 security definer
 set search_path = public
 as $$
+  with year_bounds as (
+    select
+      to_date(p_year || '-01-01', 'YYYY-MM-DD') as year_start,
+      (to_date(p_year || '-01-01', 'YYYY-MM-DD') + interval '1 year')::date as year_end
+  )
   select
     to_char(t.task_date, 'YYYY') as year,
     to_char(t.task_date, 'MM') as month,
@@ -1082,16 +1083,15 @@ as $$
     end as service_name,
     sum(t.task_usedtime) as task_usedtime
   from public.tasks t
-  join public.members m on m.id = t.member_id
+  join year_bounds yb on true
+  left join public.cost_groups cg on cg.id = t.cost_group_id
   left join public.projects p on p.id = t.project_id
   left join public.service_groups sg on sg.id = p.service_group_id
-  left join public.cost_groups cg on cg.id = sg.cost_group_id
   left join public.task_types tt
     on tt.type1 = t.task_type1
    and tt.type2 = t.task_type2
   where public.current_member_id() is not null
     and p_year is not null
-    and m.user_active = true
     and (
       (public.current_user_is_admin() and (p_member_id is null or t.member_id = p_member_id))
       or (
@@ -1100,7 +1100,8 @@ as $$
         and (p_member_id is null or p_member_id = public.current_member_id())
       )
     )
-    and to_char(t.task_date, 'YYYY') = p_year
+    and t.task_date >= yb.year_start
+    and t.task_date < yb.year_end
     and coalesce(tt.requires_service_group, t.project_id is not null)
   group by
     to_char(t.task_date, 'YYYY'),
@@ -1125,19 +1126,7 @@ create or replace function public.get_resource_month_report(
   p_member_id uuid default null,
   p_month text default null
 )
-returns table (
-  member_id uuid,
-  account_id text,
-  task_date date,
-  cost_group_id uuid,
-  task_type1 text,
-  task_type2 text,
-  task_usedtime numeric,
-  is_service_task boolean,
-  cost_group_name text,
-  service_group_name text,
-  service_name text
-)
+returns jsonb
 language sql
 stable
 security definer
@@ -1147,50 +1136,233 @@ as $$
     select
       to_date(p_month || '-01', 'YYYY-MM-DD') as month_start,
       (to_date(p_month || '-01', 'YYYY-MM-DD') + interval '1 month')::date as month_end
+  ),
+  base_rows as (
+    select
+      t.member_id,
+      m.account_id,
+      coalesce(t.task_type1, '미분류') as task_type1,
+      coalesce(t.task_type2, '미분류') as task_type2,
+      t.task_usedtime,
+      coalesce(tt.requires_service_group, t.project_id is not null) as is_service_task,
+      coalesce(cg.name, '미분류') as cost_group_name,
+      case
+        when coalesce(sg.name, '') = '' or sg.name = '미분류' then '미분류'
+        when position(' / ' in sg.name) > 0 then split_part(sg.name, ' / ', 1)
+        else sg.name
+      end as service_group_name,
+      case
+        when coalesce(sg.name, '') = '' or sg.name = '미분류' then '미분류'
+        when position(' / ' in sg.name) > 0 then coalesce(nullif(split_part(sg.name, ' / ', 2), ''), '미분류')
+        else sg.name
+      end as service_name
+    from public.tasks t
+    join public.members m on m.id = t.member_id
+    join month_bounds mb on true
+    join public.cost_groups cg on cg.id = t.cost_group_id
+    left join public.projects p on p.id = t.project_id
+    left join public.service_groups sg on sg.id = p.service_group_id
+    left join public.task_types tt
+      on tt.type1 = t.task_type1
+     and tt.type2 = t.task_type2
+    where public.current_member_id() is not null
+      and p_month is not null
+      and (
+        (public.current_user_is_admin() and (p_member_id is null or t.member_id = p_member_id))
+        or (
+          not public.current_user_is_admin()
+          and t.member_id = public.current_member_id()
+          and (p_member_id is null or p_member_id = public.current_member_id())
+        )
+      )
+      and t.task_date >= mb.month_start
+      and t.task_date < mb.month_end
   )
   select
-    t.member_id,
-    m.account_id,
-    t.task_date,
-    t.cost_group_id,
-    t.task_type1,
-    t.task_type2,
-    t.task_usedtime,
-    coalesce(tt.requires_service_group, t.project_id is not null) as is_service_task,
-    cg.name as cost_group_name,
-    case
-      when coalesce(sg.name, '') = '' or sg.name = '미분류' then '미분류'
-      when position(' / ' in sg.name) > 0 then split_part(sg.name, ' / ', 1)
-      else sg.name
-    end as service_group_name,
-    case
-      when coalesce(sg.name, '') = '' or sg.name = '미분류' then '미분류'
-      when position(' / ' in sg.name) > 0 then coalesce(nullif(split_part(sg.name, ' / ', 2), ''), '미분류')
-      else sg.name
-    end as service_name
-  from public.tasks t
-  join public.members m on m.id = t.member_id
-  join month_bounds mb on true
-  join public.cost_groups cg on cg.id = t.cost_group_id
-  left join public.projects p on p.id = t.project_id
-  left join public.service_groups sg on sg.id = p.service_group_id
-  left join public.task_types tt
-    on tt.type1 = t.task_type1
-   and tt.type2 = t.task_type2
-  where public.current_member_id() is not null
-    and p_month is not null
-    and m.user_active = true
-    and (
-      (public.current_user_is_admin() and (p_member_id is null or t.member_id = p_member_id))
-      or (
-        not public.current_user_is_admin()
-        and t.member_id = public.current_member_id()
-        and (p_member_id is null or p_member_id = public.current_member_id())
+    jsonb_build_object(
+      'type_rows',
+      coalesce(
+        (
+          select jsonb_agg(
+            jsonb_build_object(
+              'type1', type_group.type1,
+              'totalMinutes', type_group.total_minutes,
+              'requiresServiceGroup', type_group.requires_service_group,
+              'items', type_group.items
+            )
+            order by type_group.requires_service_group desc, type_group.type1 asc
+          )
+          from (
+            select
+              br.task_type1 as type1,
+              sum(br.task_usedtime) as total_minutes,
+              bool_or(br.is_service_task) as requires_service_group,
+              coalesce(
+                (
+                  select jsonb_agg(
+                    jsonb_build_object(
+                      'type2', type_item.type2,
+                      'minutes', type_item.minutes,
+                      'requiresServiceGroup', type_item.requires_service_group
+                    )
+                    order by type_item.requires_service_group desc, type_item.type2 asc
+                  )
+                  from (
+                    select
+                      br2.task_type2 as type2,
+                      sum(br2.task_usedtime) as minutes,
+                      bool_or(br2.is_service_task) as requires_service_group
+                    from base_rows br2
+                    where br2.task_type1 = br.task_type1
+                    group by br2.task_type2
+                  ) type_item
+                ),
+                '[]'::jsonb
+              ) as items
+            from base_rows br
+            group by br.task_type1
+          ) type_group
+        ),
+        '[]'::jsonb
+      ),
+      'service_summary_rows',
+      coalesce(
+        (
+          select jsonb_agg(
+            jsonb_build_object(
+              'costGroup', summary_group.cost_group,
+              'group', summary_group.service_group,
+              'totalMinutes', summary_group.total_minutes,
+              'names', summary_group.names
+            )
+            order by summary_group.cost_group asc, summary_group.service_group asc
+          )
+          from (
+            select
+              br.cost_group_name as cost_group,
+              br.service_group_name as service_group,
+              sum(br.task_usedtime) as total_minutes,
+              coalesce(
+                (
+                  select jsonb_agg(
+                    jsonb_build_object(
+                      'name', summary_name.service_name,
+                      'minutes', summary_name.minutes
+                    )
+                    order by summary_name.service_name asc
+                  )
+                  from (
+                    select
+                      br2.service_name,
+                      sum(br2.task_usedtime) as minutes
+                    from base_rows br2
+                    where br2.is_service_task
+                      and br2.cost_group_name = br.cost_group_name
+                      and br2.service_group_name = br.service_group_name
+                    group by br2.service_name
+                  ) summary_name
+                ),
+                '[]'::jsonb
+              ) as names
+            from base_rows br
+            where br.is_service_task
+            group by br.cost_group_name, br.service_group_name
+          ) summary_group
+        ),
+        '[]'::jsonb
+      ),
+      'service_detail_rows',
+      coalesce(
+        (
+          select jsonb_agg(
+            jsonb_build_object(
+              'costGroup', detail_group.cost_group,
+              'group', detail_group.service_group,
+              'totalMinutes', detail_group.total_minutes,
+              'names', detail_group.names
+            )
+            order by detail_group.cost_group asc, detail_group.service_group asc
+          )
+          from (
+            select
+              br.cost_group_name as cost_group,
+              br.service_group_name as service_group,
+              sum(br.task_usedtime) as total_minutes,
+              coalesce(
+                (
+                  select jsonb_agg(
+                    jsonb_build_object(
+                      'name', detail_name.service_name,
+                      'items', detail_name.items
+                    )
+                    order by detail_name.service_name asc
+                  )
+                  from (
+                    select
+                      br2.service_name,
+                      coalesce(
+                        (
+                          select jsonb_agg(
+                            jsonb_build_object(
+                              'type1', detail_type.task_type1,
+                              'minutes', detail_type.minutes
+                            )
+                            order by detail_type.task_type1 asc
+                          )
+                          from (
+                            select
+                              br3.task_type1,
+                              sum(br3.task_usedtime) as minutes
+                            from base_rows br3
+                            where br3.is_service_task
+                              and br3.cost_group_name = br.cost_group_name
+                              and br3.service_group_name = br.service_group_name
+                              and br3.service_name = br2.service_name
+                            group by br3.task_type1
+                          ) detail_type
+                        ),
+                        '[]'::jsonb
+                      ) as items
+                    from base_rows br2
+                    where br2.is_service_task
+                      and br2.cost_group_name = br.cost_group_name
+                      and br2.service_group_name = br.service_group_name
+                    group by br2.service_name
+                  ) detail_name
+                ),
+                '[]'::jsonb
+              ) as names
+            from base_rows br
+            where br.is_service_task
+            group by br.cost_group_name, br.service_group_name
+          ) detail_group
+        ),
+        '[]'::jsonb
+      ),
+      'member_totals',
+      coalesce(
+        (
+          select jsonb_agg(
+            jsonb_build_object(
+              'id', member_total.member_id,
+              'accountId', member_total.account_id,
+              'totalMinutes', member_total.total_minutes
+            )
+            order by member_total.account_id asc
+          )
+          from (
+            select
+              br.member_id,
+              br.account_id,
+              sum(br.task_usedtime) as total_minutes
+            from base_rows br
+            group by br.member_id, br.account_id
+            having sum(br.task_usedtime) > 0
+          ) member_total
+        ),
+        '[]'::jsonb
       )
     )
-    and t.task_date >= mb.month_start
-    and t.task_date < mb.month_end
-  order by t.task_date asc, m.account_id asc, t.id asc
 $$;
 
 create or replace function public.get_stats()

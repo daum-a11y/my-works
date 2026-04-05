@@ -102,7 +102,7 @@ describe('AdminMemberEditorPage', () => {
     });
   });
 
-  it('shows invite resend for members without auth account', async () => {
+  it('sends an invite for a member without an auth account', async () => {
     const user = userEvent.setup();
     listMembersAdmin.mockResolvedValue([
       {
@@ -128,16 +128,22 @@ describe('AdminMemberEditorPage', () => {
     renderEditor('/admin/members/member-1/edit');
 
     await screen.findByDisplayValue('rhea.l');
-    await user.click(screen.getByRole('button', { name: '초대 메일 재발송' }));
+    await user.click(screen.getByRole('button', { name: '초대 메일 발송' }));
 
     await waitFor(() => {
-      expect(inviteMemberAdmin).toHaveBeenCalledWith({
-        email: 'rhea.l@linkagelab.co.kr',
-        accountId: 'rhea.l',
-        name: '이유진',
-        role: 'user',
-      });
+      expect(createMemberAdmin).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: 'member-1',
+          email: 'rhea.l@linkagelab.co.kr',
+          accountId: 'rhea.l',
+          name: '이유진',
+          role: 'user',
+          memberStatus: 'active',
+          reportRequired: true,
+        }),
+      );
       expect(resetMemberPasswordAdmin).not.toHaveBeenCalled();
+      expect(inviteMemberAdmin).not.toHaveBeenCalled();
     });
   });
 
@@ -167,13 +173,90 @@ describe('AdminMemberEditorPage', () => {
     renderEditor('/admin/members/member-1/edit');
 
     await screen.findByDisplayValue('rhea.l');
-    await user.click(screen.getByRole('button', { name: '비밀번호 재설정 메일' }));
+    await user.click(screen.getByRole('button', { name: '비밀번호 재설정' }));
 
     await waitFor(() => {
       expect(resetMemberPasswordAdmin).toHaveBeenCalledWith({
         email: 'rhea.l@linkagelab.co.kr',
       });
       expect(inviteMemberAdmin).not.toHaveBeenCalled();
+    });
+  });
+
+  it('locks email edits for members with auth account and preserves the original email on save', async () => {
+    const user = userEvent.setup();
+    listMembersAdmin.mockResolvedValue([
+      {
+        id: 'member-1',
+        authUserId: 'auth-1',
+        accountId: 'rhea.l',
+        name: '이유진',
+        email: 'rhea.l@linkagelab.co.kr',
+        note: '',
+        role: 'user',
+        userActive: true,
+        memberStatus: 'active',
+        reportRequired: true,
+        isActive: true,
+        authEmail: 'rhea.l@linkagelab.co.kr',
+        queueReasons: [],
+        joinedAt: '2026-03-01T00:00:00.000Z',
+        lastLoginAt: '',
+        updatedAt: '2026-03-27T00:00:00.000Z',
+      },
+    ]);
+
+    renderEditor('/admin/members/member-1/edit');
+
+    const emailInput = (await screen.findByDisplayValue(
+      'rhea.l@linkagelab.co.kr',
+    )) as HTMLInputElement;
+    expect(emailInput).toHaveAttribute('readonly');
+
+    await user.click(screen.getByRole('button', { name: '저장' }));
+
+    await waitFor(() => {
+      expect(saveMemberAdmin).toHaveBeenCalledWith(
+        expect.objectContaining({
+          email: 'rhea.l@linkagelab.co.kr',
+        }),
+      );
+    });
+  });
+
+  it('blocks password reset when auth email is missing', async () => {
+    const user = userEvent.setup();
+    listMembersAdmin.mockResolvedValue([
+      {
+        id: 'member-1',
+        authUserId: 'auth-1',
+        accountId: 'rhea.l',
+        name: '이유진',
+        email: 'changed@linkagelab.co.kr',
+        note: '',
+        role: 'user',
+        userActive: true,
+        memberStatus: 'active',
+        reportRequired: true,
+        isActive: true,
+        authEmail: '',
+        queueReasons: [],
+        joinedAt: '2026-03-01T00:00:00.000Z',
+        lastLoginAt: '',
+        updatedAt: '2026-03-27T00:00:00.000Z',
+      },
+    ]);
+
+    renderEditor('/admin/members/member-1/edit');
+
+    await screen.findByDisplayValue('rhea.l');
+    await user.click(screen.getByRole('button', { name: '비밀번호 재설정' }));
+
+    await waitFor(() => {
+      expect(
+        screen.getByText('Auth 이메일이 없어 비밀번호 재설정 메일을 보낼 수 없습니다.'),
+      ).toBeInTheDocument();
+      expect(resetMemberPasswordAdmin).not.toHaveBeenCalled();
     });
   });
 });

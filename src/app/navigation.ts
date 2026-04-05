@@ -54,6 +54,9 @@ export const baseNavigation = [
       { to: '/org/group', label: '서비스그룹 관리' },
     ],
   },
+] as const satisfies readonly NavigationItem[];
+
+export const adminNavigation = [
   {
     label: '리소스',
     icon: Database,
@@ -63,9 +66,6 @@ export const baseNavigation = [
       { to: '/resource/month', label: '월간 리포트' },
     ],
   },
-] as const satisfies readonly NavigationItem[];
-
-export const adminNavigation = [
   {
     label: '관리자',
     icon: Shield,

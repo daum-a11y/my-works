@@ -11,7 +11,11 @@ import { getSupabaseClient } from '../../lib/supabase';
 import { isSupabaseConfigured } from '../../lib/env';
 import { opsDataClient } from '../../lib/dataClient';
 import { type Member } from '../../lib/domain';
-import { getPasswordRecoveryRedirectUrl, isPasswordRecoveryUrl } from './authUrls';
+import {
+  getPasswordRecoveryRedirectUrl,
+  isPasswordRecoveryPath,
+  isPasswordRecoveryUrl,
+} from './authUrls';
 
 type AuthStatus = 'loading' | 'guest' | 'authenticated';
 type AuthFlow = 'default' | 'recovery';
@@ -54,23 +58,25 @@ export function AuthProvider({ children }: PropsWithChildren) {
         const {
           data: { session: activeSession },
         } = await supabase.auth.getSession();
+        const isRecoveryLink = isPasswordRecoveryUrl();
+        const isRecoveryRoute = isPasswordRecoveryPath();
 
         if (!mounted) {
           return;
         }
 
-        if (!activeSession?.user) {
+        if (isRecoveryLink || (isRecoveryRoute && activeSession?.user)) {
           startTransition(() => {
-            setAuthFlow('default');
+            setAuthFlow('recovery');
             setStatus('guest');
             setSession(null);
           });
           return;
         }
 
-        if (isPasswordRecoveryUrl()) {
+        if (!activeSession?.user) {
           startTransition(() => {
-            setAuthFlow('recovery');
+            setAuthFlow('default');
             setStatus('guest');
             setSession(null);
           });
@@ -120,7 +126,10 @@ export function AuthProvider({ children }: PropsWithChildren) {
           return;
         }
 
-        if (event === 'PASSWORD_RECOVERY') {
+        if (
+          event === 'PASSWORD_RECOVERY' ||
+          (isPasswordRecoveryPath() && nextSession?.user && event !== 'SIGNED_OUT')
+        ) {
           startTransition(() => {
             setAuthFlow('recovery');
             setSession(null);

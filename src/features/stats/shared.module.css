@@ -427,10 +427,6 @@
   line-height: var(--text-meta-line-height);
 }
 
-.table tbody tr:hover {
-  background: color-mix(in oklab, var(--theme-stats-surface) 36%, var(--surface-panel));
-}
-
 .stackCell {
   display: grid;
   gap: 4px;

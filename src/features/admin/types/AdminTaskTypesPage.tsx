@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Link, useLocation } from 'react-router-dom';
 import { setDocumentTitle } from '../../../app/navigation';
 import { adminDataClient } from '../adminClient';
-import '../../../styles/domain/pages/admin-crud-page.scss';
+import styles from '../AdminCrudPage.module.css';
 import type { AdminTaskTypeItem } from '../admin-types';
 
 function groupTaskTypes(taskTypes: AdminTaskTypeItem[]) {
@@ -74,24 +74,24 @@ export function AdminTaskTypesPage() {
     (taskTypesQuery.error instanceof Error && taskTypesQuery.error.message) || '';
 
   return (
-    <section className={'page'}>
-      <header className={'pageHeader'}>
-        <div className={'pageHeaderTop'}>
-          <div className={'pageHeading'}>
-            <h1 className={'title'}>업무 타입 관리</h1>
+    <section className={styles.page}>
+      <header className={styles.pageHeader}>
+        <div className={styles.pageHeaderTop}>
+          <div className={styles.pageHeading}>
+            <h1 className={styles.title}>업무 타입 관리</h1>
           </div>
-          <Link to="/org/type/new" className={'headerAction'}>
+          <Link to="/org/type/new" className={styles.headerAction}>
             업무 타입 추가
           </Link>
         </div>
       </header>
 
-      {statusMessage ? <p className={'helperText'}>{statusMessage}</p> : null}
-      {errorMessage ? <p className={'helperText'}>{errorMessage}</p> : null}
+      {statusMessage ? <p className={styles.helperText}>{statusMessage}</p> : null}
+      {errorMessage ? <p className={styles.helperText}>{errorMessage}</p> : null}
 
-      <div className={'tableWrap'}>
-        <table className={'table'}>
-          <caption className={'srOnly'}>업무타입 내역</caption>
+      <div className={styles.tableWrap}>
+        <table className={styles.table}>
+          <caption className={styles.srOnly}>업무타입 내역</caption>
           <thead>
             <tr>
               <th>타입1</th>
@@ -106,9 +106,12 @@ export function AdminTaskTypesPage() {
             {groupedTaskTypes.length ? (
               groupedTaskTypes.map((group) =>
                 group.rows.map((item, rowIndex) => (
-                  <tr key={item.id} className={activeTypeMap.get(item.id) ? '' : 'inactiveRow'}>
+                  <tr
+                    key={item.id}
+                    className={activeTypeMap.get(item.id) ? '' : styles.inactiveRow}
+                  >
                     {rowIndex === 0 ? (
-                      <td rowSpan={group.rows.length} scope="row" className={'rowKey'}>
+                      <td rowSpan={group.rows.length} scope="row" className={styles.rowKey}>
                         {group.type1}
                       </td>
                     ) : null}
@@ -117,8 +120,8 @@ export function AdminTaskTypesPage() {
                     <td>{activeTypeMap.get(item.id) ? '활성' : '비활성'}</td>
                     <td>{item.displayLabel || '-'}</td>
                     <td>
-                      <div className={'actions'}>
-                        <Link to={`/org/type/${item.id}/edit`} className={'secondaryButton'}>
+                      <div className={styles.actions}>
+                        <Link to={`/org/type/${item.id}/edit`} className={styles.secondaryButton}>
                           수정
                         </Link>
                       </div>
@@ -128,7 +131,7 @@ export function AdminTaskTypesPage() {
               )
             ) : (
               <tr>
-                <td className={'emptyState'} colSpan={6}>
+                <td className={styles.emptyState} colSpan={6}>
                   표시할 업무타입 내역이 없습니다.
                 </td>
               </tr>

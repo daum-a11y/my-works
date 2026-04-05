@@ -1,7 +1,7 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
-import '../../styles/domain/pages/password-settings-page.scss';
+import styles from './PasswordSettingsPage.module.css';
 
 type PasswordDraft = {
   next: string;
@@ -158,24 +158,24 @@ export function UserProfilePage() {
   };
 
   return (
-    <section className={'page'} aria-labelledby="profile-title">
-      <header className={'hero'}>
-        <h1 id="profile-title" className={'pageTitle'}>
+    <section className={styles.page} aria-labelledby="profile-title">
+      <header className={styles.hero}>
+        <h1 id="profile-title" className={styles.pageTitle}>
           프로필
         </h1>
       </header>
 
-      <div className={'workspace'}>
-        <section className={'panel'} aria-labelledby="profile-summary-title">
-          <div className={'panelHeader'}>
-            <h2 id="profile-summary-title" className={'panelTitle'}>
+      <div className={styles.workspace}>
+        <section className={styles.panel} aria-labelledby="profile-summary-title">
+          <div className={styles.panelHeader}>
+            <h2 id="profile-summary-title" className={styles.panelTitle}>
               계정
             </h2>
             {!editing ? (
               <button
                 ref={editButtonRef}
                 type="button"
-                className={'primaryButton'}
+                className={styles.primaryButton}
                 onClick={handleEdit}
               >
                 비밀번호 변경
@@ -183,20 +183,20 @@ export function UserProfilePage() {
             ) : null}
           </div>
 
-          <dl className={'profileList'}>
-            <div className={'profileRow'}>
+          <dl className={styles.profileList}>
+            <div className={styles.profileRow}>
               <dt>ID</dt>
               <dd>{member?.accountId ?? '-'}</dd>
             </div>
-            <div className={'profileRow'}>
+            <div className={styles.profileRow}>
               <dt>이름</dt>
               <dd>{member?.name ?? '-'}</dd>
             </div>
-            <div className={'profileRow'}>
+            <div className={styles.profileRow}>
               <dt>이메일</dt>
               <dd>{member?.email ?? '-'}</dd>
             </div>
-            <div className={'profileRow'}>
+            <div className={styles.profileRow}>
               <dt>권한</dt>
               <dd>{getRoleLabel(member?.role)}</dd>
             </div>
@@ -206,35 +206,35 @@ export function UserProfilePage() {
 
       {editing ? (
         <div
-          className={'modalScrim'}
+          className={styles.modalScrim}
           onClick={step === 'form' && !isSubmitting ? handleCancel : undefined}
         >
           <section
-            className={'modal'}
+            className={styles.modal}
             role="dialog"
             aria-modal="true"
             aria-labelledby="password-change-title"
             onClick={(event) => event.stopPropagation()}
           >
-            <div className={'panelHeader'}>
-              <h2 id="password-change-title" className={'panelTitle'}>
+            <div className={styles.panelHeader}>
+              <h2 id="password-change-title" className={styles.panelTitle}>
                 비밀번호 변경
               </h2>
             </div>
 
             {step === 'form' ? (
               <form
-                className={'form'}
+                className={styles.form}
                 onSubmit={(event) => {
                   event.preventDefault();
                   void handleChange();
                 }}
               >
-                <label className={'field'}>
-                  <span className={'label'}>새 비밀번호</span>
+                <label className={styles.field}>
+                  <span className={styles.label}>새 비밀번호</span>
                   <input
                     ref={nextInputRef}
-                    className={'input'}
+                    className={styles.input}
                     type="password"
                     autoComplete="new-password"
                     aria-label="새 비밀번호"
@@ -248,17 +248,17 @@ export function UserProfilePage() {
                   />
                   <span
                     id={nextHintId}
-                    className={'fieldMessage'}
+                    className={styles.fieldMessage}
                     data-state={errors.next ? 'danger' : 'empty'}
                   >
                     {errors.next || ' '}
                   </span>
                 </label>
 
-                <label className={'field'}>
-                  <span className={'label'}>새 비밀번호 확인</span>
+                <label className={styles.field}>
+                  <span className={styles.label}>새 비밀번호 확인</span>
                   <input
-                    className={'input'}
+                    className={styles.input}
                     type="password"
                     autoComplete="new-password"
                     aria-label="새 비밀번호 확인"
@@ -272,24 +272,24 @@ export function UserProfilePage() {
                   />
                   <span
                     id={confirmHintId}
-                    className={'fieldMessage'}
+                    className={styles.fieldMessage}
                     data-state={errors.confirm ? 'danger' : 'empty'}
                   >
                     {errors.confirm || ' '}
                   </span>
                 </label>
 
-                <div className={'formFooter'}>
-                  <div className={'message'} aria-live="polite">
+                <div className={styles.formFooter}>
+                  <div className={styles.message} aria-live="polite">
                     {submitError ? <p data-state="danger">{submitError}</p> : null}
                   </div>
-                  <div className={'actions'}>
-                    <button type="submit" className={'primaryButton'} disabled={!canSubmit}>
+                  <div className={styles.actions}>
+                    <button type="submit" className={styles.primaryButton} disabled={!canSubmit}>
                       변경
                     </button>
                     <button
                       type="button"
-                      className={'secondaryButton'}
+                      className={styles.secondaryButton}
                       onClick={handleCancel}
                       disabled={isSubmitting}
                     >
@@ -299,16 +299,16 @@ export function UserProfilePage() {
                 </div>
               </form>
             ) : step === 'confirm' ? (
-              <div className={'confirmState'}>
-                <div className={'stateBlock'} data-state="confirm">
-                  <p className={'confirmMessage'}>
+              <div className={styles.confirmState}>
+                <div className={styles.stateBlock} data-state="confirm">
+                  <p className={styles.confirmMessage}>
                     비밀번호를 정말 변경하시겠습니까? 되돌릴 수 없습니다.
                   </p>
                 </div>
-                <div className={'actions'}>
+                <div className={styles.actions}>
                   <button
                     type="button"
-                    className={'primaryButton'}
+                    className={styles.primaryButton}
                     onClick={() => void handleConfirmChange()}
                     disabled={isSubmitting}
                   >
@@ -316,7 +316,7 @@ export function UserProfilePage() {
                   </button>
                   <button
                     type="button"
-                    className={'secondaryButton'}
+                    className={styles.secondaryButton}
                     onClick={() => setStep('form')}
                     disabled={isSubmitting}
                   >
@@ -325,14 +325,14 @@ export function UserProfilePage() {
                 </div>
               </div>
             ) : (
-              <div className={'doneState'}>
-                <div className={'stateBlock'} data-state="done">
-                  <p className={'doneMessage'}>비밀번호가 변경되었습니다.</p>
+              <div className={styles.doneState}>
+                <div className={styles.stateBlock} data-state="done">
+                  <p className={styles.doneMessage}>비밀번호가 변경되었습니다.</p>
                 </div>
-                <div className={'actions'}>
+                <div className={styles.actions}>
                   <button
                     type="button"
-                    className={'primaryButton'}
+                    className={styles.primaryButton}
                     onClick={() => void handleMoveToLogin()}
                   >
                     로그인

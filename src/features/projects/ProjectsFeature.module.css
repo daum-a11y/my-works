@@ -370,10 +370,6 @@
   z-index: 1;
 }
 
-.table tbody tr:hover {
-  background: color-mix(in oklab, var(--accent-soft) 24%, var(--surface-panel));
-}
-
 .rowSelected {
   background: color-mix(in oklab, var(--theme-project-surface) 42%, var(--surface-panel));
 }

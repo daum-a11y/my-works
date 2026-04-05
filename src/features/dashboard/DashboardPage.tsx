@@ -6,7 +6,7 @@ import { MonthlyReportCalendar } from '../../components/common/MonthlyReportCale
 import { opsDataClient } from '../../lib/dataClient';
 import { useAuth } from '../auth/AuthContext';
 import { buildCalendarWeeks, getCurrentMonth, shiftMonth } from '../resource/resourceShared';
-import '../../styles/domain/pages/dashboard-page.scss';
+import styles from './DashboardPage.module.css';
 
 export function DashboardPage() {
   const { session } = useAuth();
@@ -61,31 +61,31 @@ export function DashboardPage() {
   }, [member, selectedMonth, shouldShowWorklogCalendar, tasksQuery.data]);
 
   return (
-    <div className={'page'}>
-      <section className={'pageIntro'}>
+    <div className={styles.page}>
+      <section className={styles.pageIntro}>
         <h1>대시보드</h1>
       </section>
       {shouldShowWorklogCalendar ? (
-        <section className={'topGrid'}>
-          <section className={'calendarSection'}>
+        <section className={styles.topGrid}>
+          <section className={styles.calendarSection}>
             {monthState && (
-              <div className={'sectionHead'}>
-                <div className={'calendarHeading'}>
-                  <div className={'calendarNav'} aria-label="업무일지 월 이동">
+              <div className={styles.sectionHead}>
+                <div className={styles.calendarHeading}>
+                  <div className={styles.calendarNav} aria-label="업무일지 월 이동">
                     <button
                       type="button"
-                      className={'calendarNavButton'}
+                      className={styles.calendarNavButton}
                       onClick={() => setSelectedMonth((current) => shiftMonth(current, -1))}
                     >
                       <ChevronLeft size={16} strokeWidth={2.4} aria-hidden="true" />
                       <span className="srOnly">이전달 보기</span>
                     </button>
-                    <h2 className={'calendarTitle'}>
+                    <h2 className={styles.calendarTitle}>
                       {monthState.year}년 {monthState.month}월
                     </h2>
                     <button
                       type="button"
-                      className={'calendarNavButton'}
+                      className={styles.calendarNavButton}
                       onClick={() => setSelectedMonth((current) => shiftMonth(current, 1))}
                     >
                       <ChevronRight size={16} strokeWidth={2.4} aria-hidden="true" />
@@ -107,18 +107,18 @@ export function DashboardPage() {
                 getDateLink={(date) => ({ to: '/reports', state: { reportDate: date } })}
               />
             ) : (
-              <div className={'empty'}>유저정보가 없습니다.</div>
+              <div className={styles.empty}>유저정보가 없습니다.</div>
             )}
           </section>
         </section>
       ) : null}
 
-      <section className={'tableSection'}>
-        <div className={'sectionHead'}>
+      <section className={styles.tableSection}>
+        <div className={styles.sectionHead}>
           <h2>진행중인 프로젝트 목록</h2>
         </div>
-        <div className={'tableWrap'}>
-          <table className={'table'}>
+        <div className={styles.tableWrap}>
+          <table className={styles.table}>
             <caption className="srOnly">진행중인 프로젝트 목록</caption>
             <thead>
               <tr>
@@ -143,7 +143,7 @@ export function DashboardPage() {
               ))}
               {!inProgressProjects.length ? (
                 <tr>
-                  <td colSpan={6} className={'empty'}>
+                  <td colSpan={6} className={styles.empty}>
                     진행중인 프로젝트가 없습니다.
                   </td>
                 </tr>

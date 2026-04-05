@@ -4,7 +4,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { setDocumentTitle } from '../../../app/navigation';
 import { adminDataClient } from '../adminClient';
 import type { AdminServiceGroupItem } from '../admin-types';
-import '../../../styles/domain/pages/admin-crud-page.scss';
+import styles from '../AdminCrudPage.module.css';
 
 function groupServiceGroups(items: readonly AdminServiceGroupItem[]) {
   const grouped = new Map<string, Map<string, AdminServiceGroupItem[]>>();
@@ -69,24 +69,24 @@ export function AdminServiceGroupsPage() {
     (serviceGroupsQuery.error instanceof Error && serviceGroupsQuery.error.message) || '';
 
   return (
-    <section className={'page'}>
-      <header className={'pageHeader'}>
-        <div className={'pageHeaderTop'}>
-          <div className={'pageHeading'}>
-            <h1 className={'title'}>서비스그룹 관리</h1>
+    <section className={styles.page}>
+      <header className={styles.pageHeader}>
+        <div className={styles.pageHeaderTop}>
+          <div className={styles.pageHeading}>
+            <h1 className={styles.title}>서비스그룹 관리</h1>
           </div>
-          <Link to="/org/group/new" className={'headerAction'}>
+          <Link to="/org/group/new" className={styles.headerAction}>
             서비스그룹 추가
           </Link>
         </div>
       </header>
 
-      {statusMessage ? <p className={'helperText'}>{statusMessage}</p> : null}
-      {errorMessage ? <p className={'helperText'}>{errorMessage}</p> : null}
+      {statusMessage ? <p className={styles.helperText}>{statusMessage}</p> : null}
+      {errorMessage ? <p className={styles.helperText}>{errorMessage}</p> : null}
 
-      <div className={'tableWrap'}>
-        <table className={'table'}>
-          <caption className={'srOnly'}>서비스그룹 내역</caption>
+      <div className={styles.tableWrap}>
+        <table className={styles.table}>
+          <caption className={styles.srOnly}>서비스그룹 내역</caption>
           <thead>
             <tr>
               <th>청구그룹</th>
@@ -101,22 +101,25 @@ export function AdminServiceGroupsPage() {
               groupedServiceGroups.map((costGroup) =>
                 costGroup.groups.map((group) =>
                   group.rows.map((item, rowIndex) => (
-                    <tr key={item.id} className={item.svcActive ? '' : 'inactiveRow'}>
+                    <tr key={item.id} className={item.svcActive ? '' : styles.inactiveRow}>
                       {group === costGroup.groups[0] && rowIndex === 0 ? (
-                        <td rowSpan={costGroup.rowSpan} className={'rowKey'}>
+                        <td rowSpan={costGroup.rowSpan} className={styles.rowKey}>
                           {costGroup.costGroupName}
                         </td>
                       ) : null}
                       {rowIndex === 0 ? (
-                        <td rowSpan={group.rows.length} scope="row" className={'rowKey'}>
+                        <td rowSpan={group.rows.length} scope="row" className={styles.rowKey}>
                           {group.svcGroup}
                         </td>
                       ) : null}
                       <td>{item.svcName || '-'}</td>
                       <td>{item.svcActive ? '노출' : '숨김'}</td>
                       <td>
-                        <div className={'actions'}>
-                          <Link to={`/org/group/${item.id}/edit`} className={'secondaryButton'}>
+                        <div className={styles.actions}>
+                          <Link
+                            to={`/org/group/${item.id}/edit`}
+                            className={styles.secondaryButton}
+                          >
                             수정
                           </Link>
                         </div>
@@ -127,7 +130,7 @@ export function AdminServiceGroupsPage() {
               )
             ) : (
               <tr>
-                <td colSpan={5} className={'emptyState'}>
+                <td colSpan={5} className={styles.emptyState}>
                   표시할 서비스그룹 내역이 없습니다.
                 </td>
               </tr>

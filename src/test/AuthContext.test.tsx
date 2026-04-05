@@ -1,5 +1,5 @@
-import { act, render, screen, waitFor } from '@testing-library/react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { act, cleanup, render, screen, waitFor } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AuthProvider, useAuth } from '../features/auth/AuthContext';
 
 const mockGetSession = vi.hoisted(() => vi.fn());
@@ -55,7 +55,12 @@ function AuthProbe() {
 }
 
 describe('AuthContext', () => {
+  afterEach(() => {
+    cleanup();
+  });
+
   beforeEach(() => {
+    window.history.replaceState({}, '', '/');
     mockGetSession.mockReset();
     mockOnAuthStateChange.mockReset();
     mockSignOut.mockReset();
@@ -111,6 +116,77 @@ describe('AuthContext', () => {
     });
   });
 
+  it('keeps recovery flow when entering from a recovery link before a session is available', async () => {
+    window.history.replaceState({}, '', '/auth/recovery#type=recovery');
+
+    render(
+      <AuthProvider>
+        <AuthProbe />
+      </AuthProvider>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('guest:recovery:true')).toBeInTheDocument();
+    });
+  });
+
+  it('keeps recovery flow when a recovery session already exists on the recovery route', async () => {
+    window.history.replaceState({}, '', '/auth/recovery');
+    mockGetSession.mockResolvedValue({
+      data: {
+        session: {
+          user: {
+            id: 'auth-user-1',
+            email: 'crew@example.com',
+          },
+        },
+      },
+    });
+    mockTouchMemberLastLogin.mockResolvedValue({
+      id: 'member-1',
+      authUserId: 'auth-user-1',
+      accountId: 'crew',
+      name: '크루',
+      email: 'crew@example.com',
+      role: 'user',
+      isActive: true,
+      status: 'active',
+    });
+
+    render(
+      <AuthProvider>
+        <AuthProbe />
+      </AuthProvider>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('guest:recovery:true')).toBeInTheDocument();
+    });
+    expect(mockTouchMemberLastLogin).not.toHaveBeenCalled();
+  });
+
+  it('returns to default guest flow when signing out from a recovery session', async () => {
+    window.history.replaceState({}, '', '/auth/recovery#type=recovery');
+
+    render(
+      <AuthProvider>
+        <AuthProbe />
+      </AuthProvider>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('guest:recovery:true')).toBeInTheDocument();
+    });
+
+    await act(async () => {
+      await authStateChangeCallback?.('SIGNED_OUT', null);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('guest:default:false')).toBeInTheDocument();
+    });
+  });
+
   it('signs out when the linked member is inactive', async () => {
     mockGetSession.mockResolvedValue({
       data: {
@@ -138,5 +214,33 @@ describe('AuthContext', () => {
       expect(mockSignOut).toHaveBeenCalled();
       expect(screen.getByText('guest:default:false')).toBeInTheDocument();
     });
+  });
+
+  it('keeps recovery flow when auth state changes with a recovery session on the recovery route', async () => {
+    window.history.replaceState({}, '', '/auth/recovery');
+
+    render(
+      <AuthProvider>
+        <AuthProbe />
+      </AuthProvider>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('guest:default:false')).toBeInTheDocument();
+    });
+
+    await act(async () => {
+      await authStateChangeCallback?.('SIGNED_IN', {
+        user: {
+          id: 'auth-user-1',
+          email: 'crew@example.com',
+        },
+      });
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('guest:recovery:true')).toBeInTheDocument();
+    });
+    expect(mockTouchMemberLastLogin).not.toHaveBeenCalled();
   });
 });

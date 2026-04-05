@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { formatDateLabel, formatDateTimeLabel } from '../../../lib/utils';
 import type { MemberAdminItem, MemberAdminPayload } from '../admin-types';
-import '../../../styles/domain/pages/admin-members-page.scss';
+import styles from './AdminMembersPage.module.css';
 
 type AdminMemberRowProps = {
   member: MemberAdminItem;
@@ -41,7 +41,7 @@ function formatMemberDateTime(value: string) {
 
 export function AdminMemberRow({ member }: AdminMemberRowProps) {
   return (
-    <tr className={member.userActive ? undefined : 'inactiveRow'}>
+    <tr className={member.userActive ? undefined : styles.inactiveRow}>
       <td>{member.accountId}</td>
       <td>{member.name}</td>
       <td>{member.email || '-'}</td>
@@ -52,8 +52,8 @@ export function AdminMemberRow({ member }: AdminMemberRowProps) {
       <td>{formatMemberDate(member.joinedAt)}</td>
       <td>{formatMemberDateTime(member.lastLoginAt)}</td>
       <td>
-        <div className={'buttonRow'}>
-          <Link to={`/admin/members/${member.id}/edit`} className={'secondaryButton'}>
+        <div className={styles.buttonRow}>
+          <Link to={`/admin/members/${member.id}/edit`} className={styles.secondaryButton}>
             수정
           </Link>
         </div>

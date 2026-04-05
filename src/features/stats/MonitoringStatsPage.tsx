@@ -17,7 +17,7 @@ import { opsDataClient } from '../../lib/dataClient';
 import { pageStatusOptions, type MonitoringStatsRow, type PageStatus } from '../../lib/domain';
 import { getCurrentMonth, shiftMonth } from '../resource/resourceShared';
 import { useAuth } from '../auth/AuthContext';
-import '../../styles/domain/pages/stats-shared.scss';
+import styles from './shared.module.css';
 
 interface MonthlyMonitoringRow {
   monthKey: string;
@@ -230,20 +230,20 @@ export function MonitoringStatsPage() {
   }, [filteredRows]);
 
   return (
-    <div className={'page'}>
-      <header className={'hero'}>
-        <h1 className={'title'}>모니터링 통계</h1>
+    <div className={styles.page}>
+      <header className={styles.hero}>
+        <h1 className={styles.title}>모니터링 통계</h1>
       </header>
 
       <PageSection title="필터">
         <form
-          className={'filterBar'}
+          className={styles.filterBar}
           onSubmit={(event) => {
             event.preventDefault();
             handleSearch();
           }}
         >
-          <label className={'filterField'}>
+          <label className={styles.filterField}>
             <span>시작월</span>
             <input
               type="month"
@@ -252,7 +252,7 @@ export function MonitoringStatsPage() {
               onChange={(event) => setDraftStartMonth(event.target.value)}
             />
           </label>
-          <label className={'filterField'}>
+          <label className={styles.filterField}>
             <span>종료월</span>
             <input
               type="month"
@@ -261,11 +261,11 @@ export function MonitoringStatsPage() {
               onChange={(event) => setDraftEndMonth(event.target.value)}
             />
           </label>
-          <div className={'filterActions'}>
-            <button type="submit" className={'filterButton'}>
+          <div className={styles.filterActions}>
+            <button type="submit" className={styles.filterButton}>
               검색
             </button>
-            <button type="button" className={'filterButtonSecondary'} onClick={handleReset}>
+            <button type="button" className={styles.filterButtonSecondary} onClick={handleReset}>
               초기화
             </button>
           </div>
@@ -273,10 +273,10 @@ export function MonitoringStatsPage() {
       </PageSection>
 
       <PageSection title="월별 모니터링 현황">
-        <div className={'viewToggle'} role="tablist" aria-label="모니터링 월별 요약 보기">
+        <div className={styles.viewToggle} role="tablist" aria-label="모니터링 월별 요약 보기">
           <button
             type="button"
-            className={summaryView === 'table' ? 'viewToggleActive' : 'viewToggleButton'}
+            className={summaryView === 'table' ? styles.viewToggleActive : styles.viewToggleButton}
             aria-pressed={summaryView === 'table'}
             onClick={() => setSummaryView('table')}
           >
@@ -284,7 +284,7 @@ export function MonitoringStatsPage() {
           </button>
           <button
             type="button"
-            className={summaryView === 'chart' ? 'viewToggleActive' : 'viewToggleButton'}
+            className={summaryView === 'chart' ? styles.viewToggleActive : styles.viewToggleButton}
             aria-pressed={summaryView === 'chart'}
             onClick={() => setSummaryView('chart')}
           >
@@ -292,9 +292,9 @@ export function MonitoringStatsPage() {
           </button>
         </div>
         {summaryView === 'chart' ? (
-          <div className={'chartSurface'}>
+          <div className={styles.chartSurface}>
             {monthlyRows.length ? (
-              <div className={'chartFrame'} role="img" aria-label="모니터링 월별 차트">
+              <div className={styles.chartFrame} role="img" aria-label="모니터링 월별 차트">
                 <ResponsiveContainer width="100%" height={320}>
                   <AreaChart data={monthlyRows} margin={{ top: 12, right: 12, left: 0, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" />
@@ -339,13 +339,13 @@ export function MonitoringStatsPage() {
                 </ResponsiveContainer>
               </div>
             ) : (
-              <p className={'empty'}>모니터링 데이터가 없습니다.</p>
+              <p className={styles.empty}>모니터링 데이터가 없습니다.</p>
             )}
           </div>
         ) : (
-          <div className={'tableWrap'}>
-            <table className={'table'}>
-              <caption className={'srOnly'}>모니터링 월별 표</caption>
+          <div className={styles.tableWrap}>
+            <table className={styles.table}>
+              <caption className={styles.srOnly}>모니터링 월별 표</caption>
               <thead>
                 <tr>
                   <th scope="col">월</th>
@@ -367,7 +367,7 @@ export function MonitoringStatsPage() {
                 ))}
                 {!monthlyRows.length ? (
                   <tr>
-                    <td colSpan={5} className={'empty'}>
+                    <td colSpan={5} className={styles.empty}>
                       월별 데이터가 없습니다.
                     </td>
                   </tr>
@@ -379,9 +379,9 @@ export function MonitoringStatsPage() {
       </PageSection>
 
       <PageSection title="모니터링 페이지 목록">
-        <div className={'tableWrap'}>
-          <table className={'table'}>
-            <caption className={'srOnly'}>필터링된 모니터링 페이지 목록</caption>
+        <div className={styles.tableWrap}>
+          <table className={styles.table}>
+            <caption className={styles.srOnly}>필터링된 모니터링 페이지 목록</caption>
             <thead>
               <tr>
                 <th scope="col">월</th>
@@ -409,7 +409,7 @@ export function MonitoringStatsPage() {
                     {editingPageId === row.pageId ? (
                       <select
                         aria-label={`${row.title} 상태`}
-                        className={'inlineSelect'}
+                        className={styles.inlineSelect}
                         value={draftStatus}
                         onChange={(event) => setDraftStatus(event.target.value as PageStatus)}
                       >
@@ -429,14 +429,14 @@ export function MonitoringStatsPage() {
                     {editingPageId === row.pageId ? (
                       <textarea
                         aria-label={`${row.title} 비고`}
-                        className={'inlineTextarea'}
+                        className={styles.inlineTextarea}
                         value={draftNote}
                         onChange={(event) => setDraftNote(event.target.value)}
                         rows={3}
                       />
                     ) : row.note ? (
                       <div
-                        className={'noteCell'}
+                        className={styles.noteCell}
                         onMouseEnter={() => setHoveredNotePageId(row.pageId)}
                         onMouseLeave={() =>
                           setHoveredNotePageId((current) =>
@@ -458,7 +458,7 @@ export function MonitoringStatsPage() {
                       >
                         <button
                           type="button"
-                          className={`${'noteToggle'} ${isNoteOpen(row.pageId) ? 'noteToggleActive' : ''}`.trim()}
+                          className={`${styles.noteToggle} ${isNoteOpen(row.pageId) ? styles.noteToggleActive : ''}`.trim()}
                           aria-expanded={isNoteOpen(row.pageId)}
                           aria-label={`${row.title} 내용 보기`}
                           onClick={() => {
@@ -471,7 +471,7 @@ export function MonitoringStatsPage() {
                           내용 보기
                         </button>
                         {isNoteOpen(row.pageId) ? (
-                          <div className={'notePopover'} role="tooltip">
+                          <div className={styles.notePopover} role="tooltip">
                             {row.note}
                           </div>
                         ) : null}
@@ -482,7 +482,12 @@ export function MonitoringStatsPage() {
                   </td>
                   <td>
                     {row.reportUrl ? (
-                      <a href={row.reportUrl} target="_blank" rel="noreferrer" className={'link'}>
+                      <a
+                        href={row.reportUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className={styles.link}
+                      >
                         링크
                       </a>
                     ) : (
@@ -491,10 +496,10 @@ export function MonitoringStatsPage() {
                   </td>
                   <td>
                     {editingPageId === row.pageId ? (
-                      <div className={'inlineActions'}>
+                      <div className={styles.inlineActions}>
                         <button
                           type="button"
-                          className={'inlineActionPrimary'}
+                          className={styles.inlineActionPrimary}
                           onClick={() => savePageMutation.mutate(row)}
                           disabled={savePageMutation.isPending}
                         >
@@ -502,7 +507,7 @@ export function MonitoringStatsPage() {
                         </button>
                         <button
                           type="button"
-                          className={'inlineActionSecondary'}
+                          className={styles.inlineActionSecondary}
                           onClick={cancelEdit}
                           disabled={savePageMutation.isPending}
                         >
@@ -512,7 +517,7 @@ export function MonitoringStatsPage() {
                     ) : (
                       <button
                         type="button"
-                        className={'inlineActionPrimary'}
+                        className={styles.inlineActionPrimary}
                         onClick={() => startEdit(row)}
                       >
                         수정
@@ -523,7 +528,7 @@ export function MonitoringStatsPage() {
               ))}
               {!filteredRows.length ? (
                 <tr>
-                  <td colSpan={10} className={'empty'}>
+                  <td colSpan={10} className={styles.empty}>
                     조건에 맞는 모니터링 내역이 없습니다.
                   </td>
                 </tr>

@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { adminDataClient } from '../adminClient';
 import type { AdminCostGroupItem, AdminCostGroupPayload } from '../admin-types';
-import '../../../styles/domain/pages/projects-feature.scss';
+import styles from '../../projects/ProjectsFeature.module.css';
 
 function createDraft(item?: AdminCostGroupItem): AdminCostGroupPayload {
   if (!item) {
@@ -123,35 +123,38 @@ export function AdminCostGroupEditorPage() {
 
   if (costGroupsQuery.isLoading && isEditMode) {
     return (
-      <section className={`${'shell'} ${'editorShell'}`}>
-        <p className={'statusMessage'}>불러오는 중...</p>
+      <section className={`${styles.shell} ${styles.editorShell}`}>
+        <p className={styles.statusMessage}>불러오는 중...</p>
       </section>
     );
   }
 
   if (isEditMode && !selectedCostGroup && !costGroupsQuery.isLoading) {
     return (
-      <section className={`${'shell'} ${'editorShell'}`}>
-        <header className={'editorHeader'}>
-          <h1 className={'title'}>청구그룹 수정</h1>
+      <section className={`${styles.shell} ${styles.editorShell}`}>
+        <header className={styles.editorHeader}>
+          <h1 className={styles.title}>청구그룹 수정</h1>
         </header>
-        <p className={'statusMessage'}>청구그룹을 찾을 수 없습니다.</p>
+        <p className={styles.statusMessage}>청구그룹을 찾을 수 없습니다.</p>
       </section>
     );
   }
 
   return (
-    <section className={`${'shell'} ${'editorShell'}`}>
-      <header className={'editorHeader'}>
-        <h1 className={'title'}>{isEditMode ? '청구그룹 수정' : '청구그룹 추가'}</h1>
+    <section className={`${styles.shell} ${styles.editorShell}`}>
+      <header className={styles.editorHeader}>
+        <h1 className={styles.title}>{isEditMode ? '청구그룹 수정' : '청구그룹 추가'}</h1>
       </header>
 
-      {errorMessage ? <p className={'statusMessage'}>{errorMessage}</p> : null}
+      {errorMessage ? <p className={styles.statusMessage}>{errorMessage}</p> : null}
 
-      <section className={`${'modal'} ${'editorSurface'}`} aria-label="청구그룹 편집 패널">
-        <form className={`${'detailForm'} ${'editorDetailForm'}`} onSubmit={handleSubmit}>
-          <div className={'editorFormGrid'}>
-            <label className={'field'}>
+      <section
+        className={`${styles.modal} ${styles.editorSurface}`}
+        aria-label="청구그룹 편집 패널"
+      >
+        <form className={`${styles.detailForm} ${styles.editorDetailForm}`} onSubmit={handleSubmit}>
+          <div className={styles.editorFormGrid}>
+            <label className={styles.field}>
               <span>청구그룹명</span>
               <input
                 ref={titleRef}
@@ -162,7 +165,7 @@ export function AdminCostGroupEditorPage() {
               />
             </label>
 
-            <label className={'field'}>
+            <label className={styles.field}>
               <span>노출여부</span>
               <select
                 value={draft.isActive ? '1' : '0'}
@@ -176,12 +179,12 @@ export function AdminCostGroupEditorPage() {
             </label>
           </div>
 
-          <div className={`${'formActions'} ${'editorFormActions'}`}>
-            <div className={'editorFormActionsStart'}>
+          <div className={`${styles.formActions} ${styles.editorFormActions}`}>
+            <div className={styles.editorFormActionsStart}>
               {isEditMode ? (
                 <button
                   type="button"
-                  className={'deleteButton'}
+                  className={styles.deleteButton}
                   onClick={() => void handleDelete()}
                   disabled={deleteMutation.isPending}
                 >
@@ -189,11 +192,15 @@ export function AdminCostGroupEditorPage() {
                 </button>
               ) : null}
             </div>
-            <div className={'editorFormActionsEnd'}>
-              <Link to="/org/cost-group" className={'secondaryButton'}>
+            <div className={styles.editorFormActionsEnd}>
+              <Link to="/org/cost-group" className={styles.secondaryButton}>
                 취소
               </Link>
-              <button type="submit" className={'primaryButton'} disabled={saveMutation.isPending}>
+              <button
+                type="submit"
+                className={styles.primaryButton}
+                disabled={saveMutation.isPending}
+              >
                 저장
               </button>
             </div>

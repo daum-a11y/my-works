@@ -21,6 +21,11 @@ import {
   type TaskActivity,
   type Task,
   type ResourceMonthReportRow,
+  type ResourceMonthReport,
+  type ResourceMonthReportMemberTotal,
+  type ResourceMonthReportServiceDetailRow,
+  type ResourceMonthReportServiceSummaryRow,
+  type ResourceMonthReportTypeRow,
   type ReportProjectOptionRow,
   type ResourceSummaryMemberRow,
   type ResourceServiceSummaryRow,
@@ -69,14 +74,16 @@ export interface OpsDataClient {
   getDashboardTaskCalendar(member: Member, month: string): Promise<DashboardTaskCalendarDay[]>;
   getResourceSummary(member: Member, month: string): Promise<ResourceSummaryDayRow[]>;
   getResourceSummaryMembers(member: Member): Promise<ResourceSummaryMemberRow[]>;
+  getResourceTypeSummary(member: Member): Promise<ResourceTypeSummaryRow[]>;
   getResourceTypeSummaryYears(member: Member): Promise<string[]>;
   getResourceTypeSummaryByYear(member: Member, year: string): Promise<ResourceTypeSummaryRow[]>;
+  getResourceServiceSummary(member: Member): Promise<ResourceServiceSummaryRow[]>;
   getResourceServiceSummaryYears(member: Member): Promise<string[]>;
   getResourceServiceSummaryByYear(
     member: Member,
     year: string,
   ): Promise<ResourceServiceSummaryRow[]>;
-  getResourceMonthReport(member: Member, month: string): Promise<ResourceMonthReportRow[]>;
+  getResourceMonthReport(member: Member, month: string): Promise<ResourceMonthReport>;
   getTaskActivities(): Promise<TaskActivity[]>;
   saveTask(member: Member, input: SaveTaskInput): Promise<Task>;
   deleteTask(member: Member, taskId: string): Promise<void>;
@@ -398,6 +405,13 @@ function createSupabaseClient(): OpsDataClient {
       if (error) throw error;
       return ((data ?? []) as Record<string, unknown>[]).map(mapResourceSummaryMemberRowRecord);
     },
+    async getResourceTypeSummary(member) {
+      const { data, error } = await supabase.rpc('get_resource_type_summary', {
+        p_member_id: member.role === 'admin' ? null : member.id,
+      });
+      if (error) throw error;
+      return ((data ?? []) as Record<string, unknown>[]).map(mapResourceTypeSummaryRowRecord);
+    },
     async getResourceTypeSummaryYears(member) {
       const { data, error } = await supabase.rpc('get_resource_type_summary_years', {
         p_member_id: member.role === 'admin' ? null : member.id,
@@ -420,6 +434,13 @@ function createSupabaseClient(): OpsDataClient {
       if (error) throw error;
       return ((data ?? []) as Record<string, unknown>[]).map((record) => String(record.year ?? ''));
     },
+    async getResourceServiceSummary(member) {
+      const { data, error } = await supabase.rpc('get_resource_service_summary', {
+        p_member_id: member.role === 'admin' ? null : member.id,
+      });
+      if (error) throw error;
+      return ((data ?? []) as Record<string, unknown>[]).map(mapResourceServiceSummaryRowRecord);
+    },
     async getResourceServiceSummaryByYear(member, year) {
       const { data, error } = await supabase.rpc('get_resource_service_summary_by_year', {
         p_member_id: member.role === 'admin' ? null : member.id,
@@ -434,7 +455,7 @@ function createSupabaseClient(): OpsDataClient {
         p_month: month,
       });
       if (error) throw error;
-      return ((data ?? []) as Record<string, unknown>[]).map(mapResourceMonthReportRowRecord);
+      return mapResourceMonthReportData(data);
     },
     async getTaskActivities() {
       const { data, error } = await supabase.rpc('get_task_activities');
@@ -779,6 +800,281 @@ function mapResourceMonthReportRowRecord(record: Record<string, unknown>): Resou
     serviceGroupName: String(record.service_group_name ?? ''),
     serviceName: String(record.service_name ?? ''),
   };
+}
+
+function mapResourceMonthReportData(data: unknown): ResourceMonthReport {
+  if (Array.isArray(data)) {
+    return aggregateResourceMonthReport(
+      data.map((record) => mapResourceMonthReportRowRecord(record as Record<string, unknown>)),
+    );
+  }
+
+  if (data && typeof data === 'object') {
+    return mapResourceMonthReportRecord(data as Record<string, unknown>);
+  }
+
+  return {
+    typeRows: [],
+    serviceSummaryRows: [],
+    serviceDetailRows: [],
+    memberTotals: [],
+  };
+}
+
+function aggregateResourceMonthReport(rows: ResourceMonthReportRow[]): ResourceMonthReport {
+  const typeGrouped = new Map<
+    string,
+    Map<string, { minutes: number; requiresServiceGroup: boolean }>
+  >();
+  const serviceSummaryGrouped = new Map<string, Map<string, Map<string, number>>>();
+  const serviceDetailGrouped = new Map<string, Map<string, Map<string, Map<string, number>>>>();
+  const memberTotals = new Map<string, ResourceMonthReportMemberTotal>();
+
+  for (const row of rows) {
+    const type1 = row.taskType1 || '미분류';
+    const type2 = row.taskType2 || '미분류';
+    const minutes = Math.round(row.taskUsedtime);
+    const requiresServiceGroup = row.isServiceTask;
+
+    const typeItems =
+      typeGrouped.get(type1) ??
+      new Map<string, { minutes: number; requiresServiceGroup: boolean }>();
+    const currentType = typeItems.get(type2) ?? { minutes: 0, requiresServiceGroup };
+    currentType.minutes += minutes;
+    currentType.requiresServiceGroup = currentType.requiresServiceGroup || requiresServiceGroup;
+    typeItems.set(type2, currentType);
+    typeGrouped.set(type1, typeItems);
+
+    const currentMember = memberTotals.get(row.memberId) ?? {
+      id: row.memberId,
+      accountId: row.accountId,
+      totalMinutes: 0,
+    };
+    currentMember.totalMinutes += minutes;
+    memberTotals.set(row.memberId, currentMember);
+
+    if (!requiresServiceGroup) {
+      continue;
+    }
+
+    const costGroupName = row.costGroupName || '미분류';
+    const serviceGroupName = row.serviceGroupName || '미분류';
+    const serviceName = row.serviceName || '미분류';
+
+    const summaryServiceGroups =
+      serviceSummaryGrouped.get(costGroupName) ?? new Map<string, Map<string, number>>();
+    const summaryNames = summaryServiceGroups.get(serviceGroupName) ?? new Map<string, number>();
+    summaryNames.set(serviceName, (summaryNames.get(serviceName) ?? 0) + minutes);
+    summaryServiceGroups.set(serviceGroupName, summaryNames);
+    serviceSummaryGrouped.set(costGroupName, summaryServiceGroups);
+
+    const detailServiceGroups =
+      serviceDetailGrouped.get(costGroupName) ??
+      new Map<string, Map<string, Map<string, number>>>();
+    const detailNames =
+      detailServiceGroups.get(serviceGroupName) ?? new Map<string, Map<string, number>>();
+    const detailTypes = detailNames.get(serviceName) ?? new Map<string, number>();
+    detailTypes.set(type1, (detailTypes.get(type1) ?? 0) + minutes);
+    detailNames.set(serviceName, detailTypes);
+    detailServiceGroups.set(serviceGroupName, detailNames);
+    serviceDetailGrouped.set(costGroupName, detailServiceGroups);
+  }
+
+  const typeRows: ResourceMonthReportTypeRow[] = Array.from(typeGrouped.entries())
+    .map(([type1, items]) => {
+      const mappedItems = Array.from(items.entries())
+        .map(([type2, item]) => ({
+          type2,
+          minutes: item.minutes,
+          requiresServiceGroup: item.requiresServiceGroup,
+        }))
+        .sort(
+          (left, right) =>
+            Number(right.requiresServiceGroup) - Number(left.requiresServiceGroup) ||
+            left.type2.localeCompare(right.type2),
+        );
+
+      return {
+        type1,
+        totalMinutes: mappedItems.reduce((sum, item) => sum + item.minutes, 0),
+        requiresServiceGroup: mappedItems.some((item) => item.requiresServiceGroup),
+        items: mappedItems,
+      };
+    })
+    .sort(
+      (left, right) =>
+        Number(right.requiresServiceGroup) - Number(left.requiresServiceGroup) ||
+        left.type1.localeCompare(right.type1),
+    );
+
+  const serviceSummaryRows: ResourceMonthReportServiceSummaryRow[] = Array.from(
+    serviceSummaryGrouped.entries(),
+  )
+    .flatMap(([costGroup, serviceGroups]) =>
+      Array.from(serviceGroups.entries()).map(([group, names]) => ({
+        costGroup,
+        group,
+        totalMinutes: Array.from(names.values()).reduce((sum, value) => sum + value, 0),
+        names: Array.from(names.entries())
+          .map(([name, minutes]) => ({ name, minutes }))
+          .sort((left, right) => left.name.localeCompare(right.name)),
+      })),
+    )
+    .sort(
+      (left, right) =>
+        left.costGroup.localeCompare(right.costGroup) || left.group.localeCompare(right.group),
+    );
+
+  const serviceDetailRows: ResourceMonthReportServiceDetailRow[] = Array.from(
+    serviceDetailGrouped.entries(),
+  )
+    .flatMap(([costGroup, serviceGroups]) =>
+      Array.from(serviceGroups.entries()).map(([group, names]) => ({
+        costGroup,
+        group,
+        totalMinutes: Array.from(names.values())
+          .flatMap((items) => Array.from(items.values()))
+          .reduce((sum, value) => sum + value, 0),
+        names: Array.from(names.entries())
+          .map(([name, items]) => ({
+            name,
+            items: Array.from(items.entries())
+              .map(([type1, minutes]) => ({ type1, minutes }))
+              .sort((left, right) => left.type1.localeCompare(right.type1)),
+          }))
+          .sort((left, right) => left.name.localeCompare(right.name)),
+      })),
+    )
+    .sort(
+      (left, right) =>
+        left.costGroup.localeCompare(right.costGroup) || left.group.localeCompare(right.group),
+    );
+
+  return {
+    typeRows,
+    serviceSummaryRows,
+    serviceDetailRows,
+    memberTotals: Array.from(memberTotals.values()).filter((item) => item.totalMinutes > 0),
+  };
+}
+
+function mapResourceMonthReportRecord(record: Record<string, unknown>): ResourceMonthReport {
+  return {
+    typeRows: mapResourceMonthReportTypeRows(record.type_rows),
+    serviceSummaryRows: mapResourceMonthReportServiceSummaryRows(record.service_summary_rows),
+    serviceDetailRows: mapResourceMonthReportServiceDetailRows(record.service_detail_rows),
+    memberTotals: mapResourceMonthReportMemberTotals(record.member_totals),
+  };
+}
+
+function mapResourceMonthReportTypeRows(value: unknown): ResourceMonthReportTypeRow[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.map((entry) => {
+    const record = requireRecord(entry, '월간 타입 집계 형식이 올바르지 않습니다.');
+    return {
+      type1: String(record.type1 ?? ''),
+      totalMinutes: Number(record.totalMinutes ?? record.total_minutes ?? 0),
+      requiresServiceGroup: Boolean(
+        record.requiresServiceGroup ?? record.requires_service_group ?? false,
+      ),
+      items: Array.isArray(record.items)
+        ? record.items.map((item) => {
+            const itemRecord = requireRecord(item, '월간 타입 상세 형식이 올바르지 않습니다.');
+            return {
+              type2: String(itemRecord.type2 ?? ''),
+              minutes: Number(itemRecord.minutes ?? 0),
+              requiresServiceGroup: Boolean(
+                itemRecord.requiresServiceGroup ?? itemRecord.requires_service_group ?? false,
+              ),
+            };
+          })
+        : [],
+    };
+  });
+}
+
+function mapResourceMonthReportServiceSummaryRows(
+  value: unknown,
+): ResourceMonthReportServiceSummaryRow[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.map((entry) => {
+    const record = requireRecord(entry, '월간 서비스 요약 형식이 올바르지 않습니다.');
+    return {
+      costGroup: String(record.costGroup ?? record.cost_group ?? ''),
+      group: String(record.group ?? ''),
+      totalMinutes: Number(record.totalMinutes ?? record.total_minutes ?? 0),
+      names: Array.isArray(record.names)
+        ? record.names.map((name) => {
+            const nameRecord = requireRecord(name, '월간 서비스 이름 형식이 올바르지 않습니다.');
+            return {
+              name: String(nameRecord.name ?? ''),
+              minutes: Number(nameRecord.minutes ?? 0),
+            };
+          })
+        : [],
+    };
+  });
+}
+
+function mapResourceMonthReportServiceDetailRows(
+  value: unknown,
+): ResourceMonthReportServiceDetailRow[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.map((entry) => {
+    const record = requireRecord(entry, '월간 서비스 상세 형식이 올바르지 않습니다.');
+    return {
+      costGroup: String(record.costGroup ?? record.cost_group ?? ''),
+      group: String(record.group ?? ''),
+      totalMinutes: Number(record.totalMinutes ?? record.total_minutes ?? 0),
+      names: Array.isArray(record.names)
+        ? record.names.map((name) => {
+            const nameRecord = requireRecord(
+              name,
+              '월간 서비스 상세 이름 형식이 올바르지 않습니다.',
+            );
+            return {
+              name: String(nameRecord.name ?? ''),
+              items: Array.isArray(nameRecord.items)
+                ? nameRecord.items.map((item) => {
+                    const itemRecord = requireRecord(
+                      item,
+                      '월간 서비스 타입 형식이 올바르지 않습니다.',
+                    );
+                    return {
+                      type1: String(itemRecord.type1 ?? ''),
+                      minutes: Number(itemRecord.minutes ?? 0),
+                    };
+                  })
+                : [],
+            };
+          })
+        : [],
+    };
+  });
+}
+
+function mapResourceMonthReportMemberTotals(value: unknown): ResourceMonthReportMemberTotal[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.map((entry) => {
+    const record = requireRecord(entry, '월간 멤버 합계 형식이 올바르지 않습니다.');
+    return {
+      id: String(record.id ?? ''),
+      accountId: String(record.accountId ?? record.account_id ?? ''),
+      totalMinutes: Number(record.totalMinutes ?? record.total_minutes ?? 0),
+    };
+  });
 }
 
 function mapTaskTypeRecord(record: Record<string, unknown>): TaskType {

@@ -8,8 +8,8 @@ import { opsDataClient } from '../../lib/dataClient';
 import { getToday } from '../../lib/utils';
 import { buildCalendarWeeks, buildMonthDays, getCurrentMonth } from './resourceShared';
 import { useAuth } from '../auth/AuthContext';
-import '../../styles/domain/pages/projects-feature.scss';
-import '../../styles/domain/pages/resource-summary-page.scss';
+import projectStyles from '../projects/ProjectsFeature.module.css';
+import styles from './ResourceSummaryPage.module.css';
 const numberFormatter = new Intl.NumberFormat('ko-KR');
 
 function formatMemberLabel(accountId: string, name: string) {
@@ -192,16 +192,16 @@ export function ResourceSummaryPage() {
   };
 
   return (
-    <section className={'shell'}>
-      <header className={'pageHeader'}>
-        <div className={'pageHeaderTop'}>
-          <h1 className={'title'}>업무보고 현황</h1>
+    <section className={projectStyles.shell}>
+      <header className={projectStyles.pageHeader}>
+        <div className={projectStyles.pageHeaderTop}>
+          <h1 className={projectStyles.title}>업무보고 현황</h1>
         </div>
       </header>
 
       <PageSection title="필터">
-        <form className={'filterBar'} onSubmit={handleSearchSubmit}>
-          <label className={'filterField'}>
+        <form className={projectStyles.filterBar} onSubmit={handleSearchSubmit}>
+          <label className={projectStyles.filterField}>
             <span>기간</span>
             <input
               type="month"
@@ -209,7 +209,7 @@ export function ResourceSummaryPage() {
               onChange={(event) => setMonthDraft(event.target.value)}
             />
           </label>
-          <label className={clsx('filterField', 'checkboxField')}>
+          <label className={clsx(projectStyles.filterField, styles.checkboxField)}>
             <span>미작성자만 보기</span>
             <input
               type="checkbox"
@@ -217,18 +217,18 @@ export function ResourceSummaryPage() {
               onChange={(event) => setMissingOnlyDraft(event.target.checked)}
             />
           </label>
-          <div className={'filterActions'}>
-            <button type="submit" className={'filterButton'}>
+          <div className={projectStyles.filterActions}>
+            <button type="submit" className={projectStyles.filterButton}>
               검색
             </button>
           </div>
         </form>
       </PageSection>
 
-      <section className={'contentSection'}>
-        <div className={'tableWrap'}>
-          <table className={'table'}>
-            <caption className={'srOnly'}>월별 사용자 업무보고 현황</caption>
+      <section className={styles.contentSection}>
+        <div className={projectStyles.tableWrap}>
+          <table className={projectStyles.table}>
+            <caption className={styles.srOnly}>월별 사용자 업무보고 현황</caption>
             <thead>
               <tr>
                 <th>이름</th>
@@ -244,14 +244,14 @@ export function ResourceSummaryPage() {
                     <tr key={row.id}>
                       <td>{row.label}</td>
                       <td>
-                        <span className={`minuteValue${tone}`}>
+                        <span className={styles[`minuteValue${tone}`]}>
                           {formatSignedMinutes(row.diffMinutes)}
                         </span>
                       </td>
                       <td>
                         <button
                           type="button"
-                          className={'tableLink'}
+                          className={projectStyles.tableLink}
                           onClick={() => {
                             setDetailMemberId(row.id);
                             setDetailOpen(true);
@@ -265,7 +265,7 @@ export function ResourceSummaryPage() {
                 })
               ) : (
                 <tr>
-                  <td colSpan={3} className={'emptyState'}>
+                  <td colSpan={3} className={projectStyles.emptyState}>
                     검색 결과가 없습니다.
                   </td>
                 </tr>
@@ -276,22 +276,22 @@ export function ResourceSummaryPage() {
       </section>
 
       {detailOpen && detailMember && monthState ? (
-        <div className={'modalScrim'} onClick={() => setDetailOpen(false)}>
+        <div className={styles.modalScrim} onClick={() => setDetailOpen(false)}>
           <section
-            className={'modal'}
+            className={projectStyles.modal}
             aria-label="월간 작성 현황"
             onClick={(event) => event.stopPropagation()}
           >
-            <div className={'modalHeader'}>
-              <div className={'detailHeaderText'}>
-                <h2 className={'detailTitle'}>
+            <div className={projectStyles.modalHeader}>
+              <div className={styles.detailHeaderText}>
+                <h2 className={projectStyles.detailTitle}>
                   {formatMemberLabel(detailMember.accountId, detailMember.name)}
                 </h2>
-                <p className={'detailPeriod'}>{monthState.label}</p>
+                <p className={styles.detailPeriod}>{monthState.label}</p>
               </div>
               <button
                 type="button"
-                className={'iconButton'}
+                className={projectStyles.iconButton}
                 onClick={() => setDetailOpen(false)}
                 aria-label="상세 닫기"
               >
@@ -299,7 +299,7 @@ export function ResourceSummaryPage() {
               </button>
             </div>
 
-            <div className={'detailBody'}>
+            <div className={styles.detailBody}>
               <MonthlyReportCalendar
                 weeks={monthState.weeks}
                 summary={monthState.summary}
@@ -307,7 +307,7 @@ export function ResourceSummaryPage() {
                 futureMonth={monthState.futureMonth}
                 todayDay={monthState.todayDay}
                 padded={false}
-                className={'calendar'}
+                className={styles.calendar}
               />
             </div>
           </section>

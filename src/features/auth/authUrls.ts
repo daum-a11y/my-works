@@ -19,6 +19,14 @@ export function getPasswordRecoveryRedirectUrl() {
   return `${baseUrl}${PASSWORD_RECOVERY_PATH}`;
 }
 
+export function isPasswordRecoveryPath() {
+  if (typeof window === 'undefined') {
+    return false;
+  }
+
+  return window.location.pathname === PASSWORD_RECOVERY_PATH;
+}
+
 export function isPasswordRecoveryUrl() {
   if (typeof window === 'undefined') {
     return false;
@@ -26,10 +34,18 @@ export function isPasswordRecoveryUrl() {
 
   const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
   const queryParams = new URLSearchParams(window.location.search);
+  const hasRecoveryToken =
+    Boolean(hashParams.get('access_token')) ||
+    Boolean(hashParams.get('token_hash')) ||
+    Boolean(queryParams.get('access_token')) ||
+    Boolean(queryParams.get('token_hash'));
 
   return (
-    window.location.pathname === PASSWORD_RECOVERY_PATH ||
-    hashParams.get('type') === 'recovery' ||
-    queryParams.get('type') === 'recovery'
+    (isPasswordRecoveryPath() ||
+      hashParams.get('type') === 'recovery' ||
+      queryParams.get('type') === 'recovery') &&
+    (hashParams.get('type') === 'recovery' ||
+      queryParams.get('type') === 'recovery' ||
+      hasRecoveryToken)
   );
 }

@@ -1,6 +1,6 @@
 import clsx from 'clsx';
 import { Link } from 'react-router-dom';
-import '../../styles/domain/components/MonthlyReportCalendar.scss';
+import styles from './MonthlyReportCalendar.module.css';
 
 const weekdayLabels = ['일', '월', '화', '수', '목', '금', '토'];
 
@@ -53,9 +53,9 @@ export function MonthlyReportCalendar({
   className,
 }: MonthlyReportCalendarProps) {
   return (
-    <div className={clsx(panel && 'wrap', padded && 'padded', className)}>
-      <table className={'table'}>
-        {caption ? <caption className={'caption'}>{caption}</caption> : null}
+    <div className={clsx(panel && styles.wrap, padded && styles.padded, className)}>
+      <table className={styles.table}>
+        {caption ? <caption className={styles.caption}>{caption}</caption> : null}
         <thead>
           <tr>
             {weekdayLabels.map((label) => (
@@ -68,7 +68,7 @@ export function MonthlyReportCalendar({
             <tr key={`week-${weekIndex}`}>
               {week.map((cell, weekdayIndex) => {
                 if (!cell) {
-                  return <td key={`blank-${weekIndex}-${weekdayIndex}`} className={'blank'} />;
+                  return <td key={`blank-${weekIndex}-${weekdayIndex}`} className={styles.blank} />;
                 }
 
                 const minutes = summary.get(cell.day) ?? 0;
@@ -78,37 +78,41 @@ export function MonthlyReportCalendar({
                   ((currentMonth && todayDay >= cell.day) || (!futureMonth && !currentMonth));
                 const linkTarget = getDateLink?.(cell.date) ?? null;
                 const isToday = currentMonth && todayDay === cell.day;
-                const dateLabel = <span className={'date'}>{cell.day}일</span>;
+                const dateLabel = <span className={styles.date}>{cell.day}일</span>;
 
                 return (
                   <td
                     key={cell.date}
-                    className={clsx('cell', isWeekend && 'weekendCell', isToday && 'today')}
+                    className={clsx(
+                      styles.cell,
+                      isWeekend && styles.weekendCell,
+                      isToday && styles.today,
+                    )}
                   >
-                    <div className={'cellInner'}>
+                    <div className={styles.cellInner}>
                       {linkTarget ? (
-                        <Link to={linkTarget.to} state={linkTarget.state} className={'link'}>
+                        <Link to={linkTarget.to} state={linkTarget.state} className={styles.link}>
                           {dateLabel}
                         </Link>
                       ) : (
                         dateLabel
                       )}
-                      {isToday ? <span className={'todayMark'}>오늘</span> : null}
+                      {isToday ? <span className={styles.todayMark}>오늘</span> : null}
                     </div>
                     {isWeekend ? (
                       minutes > 0 ? (
-                        <span className={`${'badge'} ${'badgeWeekend'}`}>
+                        <span className={`${styles.badge} ${styles.badgeWeekend}`}>
                           {minutes.toLocaleString('ko-KR')}분
                         </span>
                       ) : null
                     ) : minutes > 0 ? (
                       <span
-                        className={`${'badge'} ${minutes >= 480 ? 'badgeSuccess' : 'badgeWarning'}`}
+                        className={`${styles.badge} ${minutes >= 480 ? styles.badgeSuccess : styles.badgeWarning}`}
                       >
                         {formatDiffMinutes(minutes - 480)}
                       </span>
                     ) : showBusinessState ? (
-                      <span className={`${'badge'} ${'badgeDanger'}`}>-480분</span>
+                      <span className={`${styles.badge} ${styles.badgeDanger}`}>-480분</span>
                     ) : null}
                   </td>
                 );

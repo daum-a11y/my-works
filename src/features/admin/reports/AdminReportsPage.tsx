@@ -18,7 +18,7 @@ import type {
   AdminTaskTypeItem,
   MemberAdminItem,
 } from '../admin-types';
-import '../../../styles/domain/pages/admin-reports-page.scss';
+import styles from './AdminReportsPage.module.css';
 
 type SortKey =
   | 'id'
@@ -208,12 +208,14 @@ function SortButton({
   return (
     <button
       type="button"
-      className={active ? 'sortButtonActive' : 'sortButton'}
+      className={active ? styles.sortButtonActive : styles.sortButton}
       onClick={() => onChange({ key: sortKey, direction: nextDirection })}
       aria-label={`${label} 정렬`}
     >
       <span>{label}</span>
-      <span className={'sortArrow'}>{active && sortState.direction === 'asc' ? '▲' : '▼'}</span>
+      <span className={styles.sortArrow}>
+        {active && sortState.direction === 'asc' ? '▲' : '▼'}
+      </span>
     </button>
   );
 }
@@ -469,16 +471,16 @@ export function AdminReportsPage() {
   };
 
   return (
-    <section className={'shell'}>
-      <header className={'pageHeader'}>
-        <div className={'pageHeaderTop'}>
-          <div className={'pageTitleGroup'}>
-            <h1 className={'title'}>업무보고 조회</h1>
+    <section className={styles.shell}>
+      <header className={styles.pageHeader}>
+        <div className={styles.pageHeaderTop}>
+          <div className={styles.pageTitleGroup}>
+            <h1 className={styles.title}>업무보고 조회</h1>
           </div>
-          <div className={'headerActions'}>
+          <div className={styles.headerActions}>
             <button
               type="button"
-              className={'headerAction'}
+              className={styles.headerAction}
               onClick={() =>
                 navigate('/org/search/new', {
                   state: {
@@ -494,9 +496,9 @@ export function AdminReportsPage() {
       </header>
 
       <PageSection title="필터">
-        <form className={'filterForm'} onSubmit={handleSearchSubmit}>
-          <div className={'dateRow'}>
-            <label className={'filterField'}>
+        <form className={styles.filterForm} onSubmit={handleSearchSubmit}>
+          <div className={styles.dateRow}>
+            <label className={styles.filterField}>
               <span>시작일</span>
               <input
                 id="admin-reports-start-date"
@@ -505,7 +507,7 @@ export function AdminReportsPage() {
                 onChange={(event) => handleFilterField('startDate', event.target.value)}
               />
             </label>
-            <label className={'filterField'}>
+            <label className={styles.filterField}>
               <span>종료일</span>
               <input
                 id="admin-reports-end-date"
@@ -516,8 +518,8 @@ export function AdminReportsPage() {
             </label>
           </div>
 
-          <div className={'metaRow'}>
-            <label className={'filterField'}>
+          <div className={styles.metaRow}>
+            <label className={styles.filterField}>
               <span>타입1</span>
               <select
                 id="admin-reports-task-type-1"
@@ -532,7 +534,7 @@ export function AdminReportsPage() {
                 ))}
               </select>
             </label>
-            <label className={'filterField'}>
+            <label className={styles.filterField}>
               <span>타입2</span>
               <select
                 id="admin-reports-task-type-2"
@@ -548,7 +550,7 @@ export function AdminReportsPage() {
                 ))}
               </select>
             </label>
-            <label className={'filterField'}>
+            <label className={styles.filterField}>
               <span>청구그룹</span>
               <select
                 id="admin-reports-cost-group"
@@ -563,7 +565,7 @@ export function AdminReportsPage() {
                 ))}
               </select>
             </label>
-            <label className={'filterField'}>
+            <label className={styles.filterField}>
               <span>프로젝트</span>
               <select
                 id="admin-reports-service-name"
@@ -581,61 +583,63 @@ export function AdminReportsPage() {
             </label>
           </div>
 
-          <div className={'searchRow'}>
-            <div className={'filterField'}>
+          <div className={styles.searchRow}>
+            <div className={styles.filterField}>
               <span>사용자</span>
-              <div className={'memberSelect'}>
+              <div className={styles.memberSelect}>
                 <button
                   type="button"
-                  className={'memberAccordionTrigger'}
+                  className={styles.memberAccordionTrigger}
                   onClick={() => setMemberFilterOpen((current) => !current)}
                   aria-expanded={memberFilterOpen}
                   aria-controls="admin-reports-member-panel"
                 >
-                  <span className={'memberAccordionValue'}>
+                  <span className={styles.memberAccordionValue}>
                     {memberFilterIds.length === members.length && members.length > 0
                       ? '전체'
                       : memberFilterIds.length === 0
                         ? '전체'
                         : `${memberFilterIds.length}명 선택`}
                   </span>
-                  <span className={'memberAccordionArrow'} aria-hidden="true">
+                  <span className={styles.memberAccordionArrow} aria-hidden="true">
                     {memberFilterOpen ? '▲' : '▼'}
                   </span>
                 </button>
                 <div
                   id="admin-reports-member-panel"
-                  className={memberFilterOpen ? 'memberAccordionBodyOpen' : 'memberAccordionBody'}
+                  className={
+                    memberFilterOpen ? styles.memberAccordionBodyOpen : styles.memberAccordionBody
+                  }
                 >
-                  <div className={'memberAccordionInner'}>
-                    <div className={'memberPanelToolbar'}>
+                  <div className={styles.memberAccordionInner}>
+                    <div className={styles.memberPanelToolbar}>
                       <input
-                        className={'memberSearchInput'}
+                        className={styles.memberSearchInput}
                         value={memberSearchInput}
                         onChange={(event) => setMemberSearchInput(event.target.value)}
                         placeholder="ID, 이름, 이메일 검색"
                         aria-label="사용자 검색"
                       />
                     </div>
-                    <div className={'memberQuickActions'}>
+                    <div className={styles.memberQuickActions}>
                       <button
                         type="button"
-                        className={'memberQuickAction'}
+                        className={styles.memberQuickAction}
                         onClick={() => setMemberFilterIds(members.map((member) => member.id))}
                       >
                         전체 선택
                       </button>
                       <button
                         type="button"
-                        className={'memberQuickAction'}
+                        className={styles.memberQuickAction}
                         onClick={() => setMemberFilterIds([])}
                       >
                         전체 해제
                       </button>
                     </div>
-                    <div className={'memberCheckboxes'}>
+                    <div className={styles.memberCheckboxes}>
                       {visibleMembers.length === 0 ? (
-                        <p className={'memberEmptyState'}>검색 결과가 없습니다.</p>
+                        <p className={styles.memberEmptyState}>검색 결과가 없습니다.</p>
                       ) : (
                         visibleMembers.map((member: MemberAdminItem) => {
                           const checked = memberFilterIds.includes(member.id);
@@ -643,7 +647,10 @@ export function AdminReportsPage() {
                           return (
                             <label
                               key={member.id}
-                              className={['memberCheckbox', checked ? 'memberCheckboxSelected' : '']
+                              className={[
+                                styles.memberCheckbox,
+                                checked ? styles.memberCheckboxSelected : '',
+                              ]
                                 .filter(Boolean)
                                 .join(' ')}
                             >
@@ -658,8 +665,8 @@ export function AdminReportsPage() {
                                   );
                                 }}
                               />
-                              <span className={'memberAccount'}>{member.accountId}</span>
-                              <span className={'memberName'}>{member.name}</span>
+                              <span className={styles.memberAccount}>{member.accountId}</span>
+                              <span className={styles.memberName}>{member.name}</span>
                             </label>
                           );
                         })
@@ -669,7 +676,7 @@ export function AdminReportsPage() {
                 </div>
               </div>
             </div>
-            <label className={'filterField'}>
+            <label className={styles.filterField}>
               <span>검색어</span>
               <input
                 value={filters.keyword}
@@ -679,22 +686,22 @@ export function AdminReportsPage() {
             </label>
           </div>
 
-          <div className={'filterActionsRow'}>
-            <div className={'filterActions'}>
+          <div className={styles.filterActionsRow}>
+            <div className={styles.filterActions}>
               <button
                 type="submit"
-                className={'filterButton'}
+                className={styles.filterButton}
                 disabled={loading || searchQuery.isFetching}
               >
                 검색
               </button>
-              <button type="button" className={'filterButtonSecondary'} onClick={handleReset}>
+              <button type="button" className={styles.filterButtonSecondary} onClick={handleReset}>
                 초기화
               </button>
-              <span className={'filterDivider'} aria-hidden="true" />
+              <span className={styles.filterDivider} aria-hidden="true" />
               <button
                 type="button"
-                className={'filterButtonSecondary'}
+                className={styles.filterButtonSecondary}
                 onClick={handleExport}
                 disabled={totalTasks === 0}
               >
@@ -706,28 +713,28 @@ export function AdminReportsPage() {
       </PageSection>
 
       {(queryError || mutationError) && (
-        <p className={'statusMessage'}>{queryError || mutationError}</p>
+        <p className={styles.statusMessage}>{queryError || mutationError}</p>
       )}
 
-      <section className={'resultBar'} aria-label="업무보고 조회 결과 요약">
-        <div className={'resultMetrics'}>
-          <div className={'pager'} aria-label="업무보고 목록 페이지 이동">
+      <section className={styles.resultBar} aria-label="업무보고 조회 결과 요약">
+        <div className={styles.resultMetrics}>
+          <div className={styles.pager} aria-label="업무보고 목록 페이지 이동">
             <button
               type="button"
-              className={'pageButton'}
+              className={styles.pageButton}
               onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
               disabled={currentPageSafe === 1}
               aria-label="이전 페이지"
             >
               이전
             </button>
-            <p className={'pageStatus'}>
+            <p className={styles.pageStatus}>
               <strong>{currentPageSafe}</strong>
               <span>/ {numberFormatter.format(totalPages)}</span>
             </p>
             <button
               type="button"
-              className={'pageButton'}
+              className={styles.pageButton}
               onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
               disabled={currentPageSafe === totalPages || totalTasks === 0}
               aria-label="다음 페이지"
@@ -735,17 +742,17 @@ export function AdminReportsPage() {
               다음
             </button>
           </div>
-          <p className={'resultMetric'}>
-            <span className={'resultLabel'}>총 건수</span>
-            <strong className={'resultValue'}>{numberFormatter.format(totalTasks)}건</strong>
+          <p className={styles.resultMetric}>
+            <span className={styles.resultLabel}>총 건수</span>
+            <strong className={styles.resultValue}>{numberFormatter.format(totalTasks)}건</strong>
           </p>
-          <p className={'resultMetric'}>
-            <span className={'resultLabel'}>현재 페이지 시간</span>
-            <strong className={'resultValue'}>{formatSummaryMinutes(totalMinutes)}</strong>
+          <p className={styles.resultMetric}>
+            <span className={styles.resultLabel}>현재 페이지 시간</span>
+            <strong className={styles.resultValue}>{formatSummaryMinutes(totalMinutes)}</strong>
           </p>
         </div>
-        <div className={'resultControls'}>
-          <label className={'pageSizeField'}>
+        <div className={styles.resultControls}>
+          <label className={styles.pageSizeField}>
             <span>페이지당</span>
             <select
               value={String(pageSize)}
@@ -765,9 +772,9 @@ export function AdminReportsPage() {
         </div>
       </section>
 
-      <div className={'panel'}>
-        <div className={'tableWrap'}>
-          <table className={'table'}>
+      <div className={styles.panel}>
+        <div className={styles.tableWrap}>
+          <table className={styles.table}>
             <thead>
               <tr>
                 <th>
@@ -874,7 +881,7 @@ export function AdminReportsPage() {
             <tbody>
               {sortedTasks.length === 0 ? (
                 <tr>
-                  <td colSpan={15} className={'emptyState'}>
+                  <td colSpan={15} className={styles.emptyState}>
                     검색 결과가 없습니다.
                   </td>
                 </tr>
@@ -888,7 +895,7 @@ export function AdminReportsPage() {
                       <td>{task.taskDate}</td>
                       <td>
                         <strong>{member?.accountId ?? task.memberId}</strong>
-                        <div className={'muted'}>{member?.name ?? task.memberName}</div>
+                        <div className={styles.muted}>{member?.name ?? task.memberName}</div>
                       </td>
                       <td>{task.costGroupName || '-'}</td>
                       <td>{task.taskType1}</td>
@@ -904,7 +911,7 @@ export function AdminReportsPage() {
                             href={task.pageUrl}
                             target="_blank"
                             rel="noreferrer"
-                            className={'tableLink'}
+                            className={styles.tableLink}
                           >
                             링크
                           </a>
@@ -915,17 +922,17 @@ export function AdminReportsPage() {
                       <td>{formatTimeCell(task.taskUsedtime)}</td>
                       <td>{task.note || '-'}</td>
                       <td>
-                        <div className={'actionStack'}>
+                        <div className={styles.actionStack}>
                           <button
                             type="button"
-                            className={'actionButton'}
+                            className={styles.actionButton}
                             onClick={() => navigate(`/org/search/${task.id}/edit`)}
                           >
                             수정
                           </button>
                           <button
                             type="button"
-                            className={'deleteButton'}
+                            className={styles.deleteButton}
                             onClick={() => void deleteTask(task.id)}
                             disabled={deleteMutation.isPending}
                           >

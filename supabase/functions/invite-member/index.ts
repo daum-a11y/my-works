@@ -9,7 +9,11 @@ type InvitePayload = {
   email?: string;
   accountId?: string;
   name?: string;
+  note?: string;
   role?: 'user' | 'admin';
+  userActive?: boolean;
+  memberStatus?: 'pending' | 'active';
+  reportRequired?: boolean;
   redirectTo?: string;
 };
 
@@ -42,29 +46,27 @@ Deno.serve(async (request) => {
     return json({ error: 'Function is not configured.' }, { status: 500 });
   }
 
-  const callerClient = createClient(supabaseUrl, supabaseAnonKey, {
-    global: {
-      headers: {
-        Authorization: authorization,
-      },
-    },
-  });
-
-  const {
-    data: { user },
-    error: userError,
-  } = await callerClient.auth.getUser();
-
-  if (userError || !user) {
-    return json({ error: '인증된 관리자만 초대할 수 있습니다.' }, { status: 401 });
-  }
-
   const adminClient = createClient(supabaseUrl, supabaseServiceRoleKey, {
     auth: {
       autoRefreshToken: false,
       persistSession: false,
     },
   });
+
+  const accessToken = authorization.replace(/^Bearer\s+/i, '').trim();
+
+  if (!accessToken) {
+    return json({ error: '인증된 관리자만 초대할 수 있습니다.' }, { status: 401 });
+  }
+
+  const {
+    data: { user },
+    error: userError,
+  } = await adminClient.auth.getUser(accessToken);
+
+  if (userError || !user) {
+    return json({ error: '인증된 관리자만 초대할 수 있습니다.' }, { status: 401 });
+  }
 
   const normalizedUserEmail = String(user.email ?? '')
     .trim()
@@ -129,11 +131,79 @@ Deno.serve(async (request) => {
     .toLowerCase();
   const accountId = String(payload.accountId ?? '').trim();
   const name = String(payload.name ?? '').trim();
+  const note = String(payload.note ?? '').trim();
   const role = payload.role === 'admin' ? 'admin' : 'user';
+  const userActive = payload.userActive !== false;
+  const memberStatus = payload.memberStatus === 'active' ? 'active' : 'pending';
+  const reportRequired = payload.reportRequired !== false;
   const redirectTo = String(payload.redirectTo ?? '').trim();
 
   if (!email) {
     return json({ error: '초대할 이메일이 필요합니다.' }, { status: 400 });
+  }
+
+  if (!accountId) {
+    return json({ error: 'ID가 필요합니다.' }, { status: 400 });
+  }
+
+  if (!name) {
+    return json({ error: '이름이 필요합니다.' }, { status: 400 });
+  }
+
+  const { data: authUserId, error: authLookupError } = await adminClient.rpc(
+    'admin_find_auth_user_by_email',
+    {
+      p_email: email,
+    },
+  );
+
+  if (authLookupError) {
+    return json({ error: authLookupError.message }, { status: 500 });
+  }
+
+  if (authUserId) {
+    return json({ error: '이미 auth에 등록된 이메일입니다.' }, { status: 409 });
+  }
+
+  const { data: existingMember, error: memberLookupError } = await adminClient
+    .from('members')
+    .select('id')
+    .ilike('email', email)
+    .maybeSingle();
+
+  if (memberLookupError) {
+    return json({ error: memberLookupError.message }, { status: 500 });
+  }
+
+  const record = {
+    account_id: accountId,
+    name,
+    email,
+    note,
+    user_level: role === 'admin' ? 1 : 0,
+    user_active: userActive,
+    member_status: memberStatus,
+    report_required: reportRequired,
+  };
+
+  if (existingMember?.id) {
+    const { error: updateError } = await adminClient
+      .from('members')
+      .update(record)
+      .eq('id', existingMember.id);
+
+    if (updateError) {
+      return json({ error: updateError.message }, { status: 500 });
+    }
+  } else {
+    const { error: insertError } = await adminClient.from('members').insert({
+      ...record,
+      auth_user_id: null,
+    });
+
+    if (insertError) {
+      return json({ error: insertError.message }, { status: 500 });
+    }
   }
 
   const { error: inviteError } = await adminClient.auth.admin.inviteUserByEmail(email, {
@@ -149,5 +219,9 @@ Deno.serve(async (request) => {
     return json({ error: inviteError.message }, { status: 400 });
   }
 
-  return json({ ok: true });
+  return json({
+    ok: true,
+    action: existingMember?.id ? 'updated' : 'created',
+    memberId: existingMember?.id ?? null,
+  });
 });

@@ -1,6 +1,6 @@
 import type { ComponentPropsWithoutRef, ReactNode } from 'react';
 import clsx from 'clsx';
-import '../../styles/domain/components/PageSection.scss';
+import styles from './PageSection.module.css';
 
 interface PageSectionProps extends ComponentPropsWithoutRef<'section'> {
   title: string;
@@ -17,14 +17,14 @@ export function PageSection({
   ...props
 }: PageSectionProps) {
   return (
-    <section className={clsx('section', variant, className)} {...props}>
-      <header className={'header'}>
-        <div className={'heading'}>
+    <section className={clsx(styles.section, styles[variant], className)} {...props}>
+      <header className={styles.header}>
+        <div className={styles.heading}>
           <h2>{title}</h2>
         </div>
-        {actions ? <div className={'actions'}>{actions}</div> : null}
+        {actions ? <div className={styles.actions}>{actions}</div> : null}
       </header>
-      <div className={'content'}>{children}</div>
+      <div className={styles.content}>{children}</div>
     </section>
   );
 }

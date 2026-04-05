@@ -1,4 +1,5 @@
 import { getSupabaseClient } from '../../lib/supabase';
+import { env } from '../../lib/env';
 import { normalizePageStatus } from '../../lib/domain';
 import { readBooleanFlag } from '../../lib/utils';
 import { getPasswordRecoveryRedirectUrl } from '../auth/authUrls';
@@ -319,6 +320,80 @@ function dedupeAdminTasksById(items: AdminTaskSearchItem[]) {
   });
 }
 
+function isObjectRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
+
+async function getEdgeFunctionAuthHeaders(
+  supabase: NonNullable<ReturnType<typeof getSupabaseClient>>,
+) {
+  const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+
+  if (sessionError) {
+    throw sessionError;
+  }
+
+  let accessToken = sessionData.session?.access_token ?? null;
+
+  if (!accessToken) {
+    const { data: refreshed, error: refreshError } = await supabase.auth.refreshSession();
+
+    if (refreshError) {
+      throw refreshError;
+    }
+
+    accessToken = refreshed.session?.access_token ?? null;
+  }
+
+  if (!accessToken) {
+    throw new Error('로그인이 만료되었습니다. 다시 로그인해 주세요.');
+  }
+
+  return {
+    apikey: env.supabaseAnonKey,
+    Authorization: `Bearer ${accessToken}`,
+    'Content-Type': 'application/json',
+  };
+}
+
+async function invokeAdminEdgeFunction<TResponse>(
+  supabase: NonNullable<ReturnType<typeof getSupabaseClient>>,
+  functionName: string,
+  body: Record<string, unknown>,
+  fallbackMessage: string,
+): Promise<TResponse> {
+  const headers = await getEdgeFunctionAuthHeaders(supabase);
+  const response = await fetch(`${env.supabaseUrl}/functions/v1/${functionName}`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(body),
+  });
+
+  if (!response.ok) {
+    let message = fallbackMessage;
+
+    try {
+      const payload = await response.json();
+      if (isObjectRecord(payload) && typeof payload.error === 'string' && payload.error.trim()) {
+        message = payload.error.trim();
+      }
+    } catch {
+      try {
+        const text = (await response.text()).trim();
+        if (text) {
+          message = text;
+        }
+      } catch {
+        // Ignore parse failures and keep fallback message.
+      }
+    }
+
+    throw new Error(message);
+  }
+
+  return (await response.json()) as TResponse;
+}
+
 async function fetchAdminTasks(
   supabase: NonNullable<ReturnType<typeof getSupabaseClient>>,
   filters: AdminTaskSearchFilters,
@@ -443,10 +518,10 @@ function createUnconfiguredAdminClient(): AdminDataClient {
     async listMembersAdmin() {
       return [] as MemberAdminItem[];
     },
-    async saveMemberAdmin() {
+    async createMemberAdmin() {
       throw configurationError;
     },
-    async createMemberAdmin() {
+    async saveMemberAdmin() {
       throw configurationError;
     },
     async inviteMemberAdmin() {
@@ -713,8 +788,13 @@ function createSupabaseAdminClient(): AdminDataClient {
         throw new Error('이름을 입력해 주세요.');
       }
 
-      const { data, error } = await supabase.functions.invoke('create-member', {
-        body: {
+      const data = await invokeAdminEdgeFunction<{
+        action?: string;
+        memberId?: string | null;
+      }>(
+        supabase,
+        'invite-member',
+        {
           email,
           accountId,
           name,
@@ -725,11 +805,8 @@ function createSupabaseAdminClient(): AdminDataClient {
           reportRequired: payload.reportRequired ?? true,
           redirectTo: getPasswordRecoveryRedirectUrl(),
         },
-      });
-
-      if (error) {
-        throw error;
-      }
+        '사용자 추가에 실패했습니다.',
+      );
 
       return {
         action: data?.action === 'updated' ? 'updated' : 'created',
@@ -743,19 +820,18 @@ function createSupabaseAdminClient(): AdminDataClient {
         throw new Error('초대 메일을 보낼 이메일을 입력해 주세요.');
       }
 
-      const { error } = await supabase.functions.invoke('invite-member', {
-        body: {
+      await invokeAdminEdgeFunction(
+        supabase,
+        'invite-member',
+        {
           email,
           accountId: payload.accountId.trim(),
           name: payload.name.trim(),
           role: payload.role,
           redirectTo: getPasswordRecoveryRedirectUrl(),
         },
-      });
-
-      if (error) {
-        throw error;
-      }
+        '초대 메일 발송에 실패했습니다.',
+      );
     },
 
     async resetMemberPasswordAdmin(payload: MemberPasswordResetPayload) {
@@ -774,25 +850,22 @@ function createSupabaseAdminClient(): AdminDataClient {
     },
 
     async deleteMemberAdmin(memberId: string) {
-      const { data, error: countError } = await supabase.rpc('admin_get_member_task_count', {
-        p_member_id: memberId,
-      });
-      if (countError) throw countError;
-      const rows = Array.isArray(data) ? data : [];
-      const count = Number(rows[0]?.task_count ?? 0);
+      const data = await invokeAdminEdgeFunction<{
+        result?: 'deleted' | 'deactivated';
+      }>(
+        supabase,
+        'delete-member',
+        {
+          memberId,
+        },
+        '사용자 삭제에 실패했습니다.',
+      );
 
-      if (count > 0) {
-        const { error } = await supabase
-          .from('members')
-          .update({ user_active: false })
-          .eq('id', memberId);
-        if (error) throw error;
-        return 'deactivated';
+      if (data?.result !== 'deleted' && data?.result !== 'deactivated') {
+        throw new Error('사용자 삭제 결과를 확인할 수 없습니다.');
       }
 
-      const { error } = await supabase.from('members').delete().eq('id', memberId);
-      if (error) throw error;
-      return 'deleted';
+      return data.result;
     },
 
     async saveTaskTypeAdmin(payload: AdminTaskTypePayload) {
