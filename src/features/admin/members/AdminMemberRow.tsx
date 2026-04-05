@@ -20,7 +20,7 @@ function getMemberStatusLabel(status: MemberAdminItem['memberStatus']) {
 }
 
 function getReportRequiredLabel(reportRequired: boolean) {
-  return reportRequired ? '대상' : '비대상';
+  return reportRequired ? '허용' : '차단';
 }
 
 function formatMemberDate(value: string) {

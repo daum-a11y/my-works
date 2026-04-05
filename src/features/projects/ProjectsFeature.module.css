@@ -531,9 +531,13 @@
 
 .editorDetailForm {
   display: grid;
-  gap: var(--space-form-gap);
+  gap: var(--space-5);
   padding: 20px 24px;
   width: 100%;
+}
+
+.editorSection {
+  display: grid;
 }
 
 .editorFormGrid {
@@ -549,6 +553,14 @@
   column-gap: 16px;
   row-gap: 6px;
   align-items: center;
+}
+
+.editorFormGrid .field:has(textarea) {
+  align-items: start;
+}
+
+.editorFormGrid .field:has(textarea) > span {
+  padding-top: 10px;
 }
 
 .editorFormGrid .field > span {

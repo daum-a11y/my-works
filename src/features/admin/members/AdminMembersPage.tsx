@@ -166,8 +166,8 @@ export function AdminMembersPage() {
                 <th>이메일</th>
                 <th>권한</th>
                 <th>활성여부</th>
-                <th>접근상태</th>
-                <th>업무보고대상</th>
+                <th>승인상태</th>
+                <th>업무보고접근</th>
                 <th>등록일</th>
                 <th>최종로그인</th>
                 <th>관리</th>

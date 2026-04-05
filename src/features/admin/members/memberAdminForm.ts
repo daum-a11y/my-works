@@ -9,7 +9,7 @@ export function createMemberDraft(member?: MemberAdminItem): MemberAdminPayload 
       note: '',
       role: 'user',
       userActive: true,
-      memberStatus: 'active',
+      memberStatus: 'pending',
       reportRequired: true,
       isActive: true,
       authUserId: null,
@@ -38,7 +38,7 @@ export function normalizeMemberDraft(draft: MemberAdminPayload): MemberAdminPayl
     ...draft,
     email: draft.email.trim() || draft.accountId.trim(),
     userActive: active,
-    memberStatus: draft.memberStatus ?? 'active',
+    memberStatus: draft.memberStatus ?? 'pending',
     reportRequired: draft.reportRequired ?? true,
     isActive: active,
   };

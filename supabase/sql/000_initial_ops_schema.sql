@@ -342,6 +342,35 @@ begin
 end;
 $$;
 
+create or replace function public.admin_find_auth_user_by_email(p_email text)
+returns uuid
+language plpgsql
+security definer
+set search_path = public, auth
+as $$
+declare
+  v_email text := nullif(lower(trim(coalesce(p_email, ''))), '');
+  v_auth_user_id uuid;
+begin
+  if not public.current_user_is_admin() then
+    raise exception 'admin only';
+  end if;
+
+  if v_email is null then
+    return null;
+  end if;
+
+  select u.id
+  into v_auth_user_id
+  from auth.users u
+  where lower(coalesce(u.email, '')) = v_email
+  order by u.created_at desc
+  limit 1;
+
+  return v_auth_user_id;
+end;
+$$;
+
 create or replace function public.bind_auth_session_member(
   p_auth_user_id uuid,
   p_email text default null
@@ -2380,6 +2409,7 @@ grant execute on function public.current_member_id() to authenticated;
 grant execute on function public.current_user_is_active_member() to authenticated;
 grant execute on function public.current_user_is_admin() to authenticated;
 grant execute on function public.next_member_account_id(text) to authenticated;
+grant execute on function public.admin_find_auth_user_by_email(text) to authenticated;
 grant execute on function public.bind_auth_session_member(uuid, text) to authenticated;
 grant execute on function public.touch_member_last_login(uuid, text) to authenticated;
 grant execute on function public.save_task(uuid, date, uuid, uuid, uuid, text, text, numeric, text, text) to authenticated;

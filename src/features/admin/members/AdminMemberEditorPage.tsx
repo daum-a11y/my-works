@@ -44,12 +44,8 @@ export function AdminMemberEditorPage() {
       const normalizedDraft = normalizeMemberDraft(payload);
 
       if (!isEditMode) {
-        await adminDataClient.inviteMemberAdmin({
-          email: normalizedDraft.email,
-          accountId: normalizedDraft.accountId,
-          name: normalizedDraft.name,
-          role: normalizedDraft.role,
-        });
+        await adminDataClient.createMemberAdmin(normalizedDraft);
+        return;
       }
 
       await adminDataClient.saveMemberAdmin(normalizedDraft);
@@ -222,127 +218,151 @@ export function AdminMemberEditorPage() {
 
       <section className={`${styles.modal} ${styles.editorSurface}`} aria-label="사용자 편집 패널">
         <form className={`${styles.detailForm} ${styles.editorDetailForm}`} onSubmit={handleSubmit}>
-          <div className={styles.editorFormGrid}>
-            <label className={styles.field}>
-              <span>ID</span>
-              <input
-                autoFocus
-                value={draft.accountId}
-                readOnly={Boolean(isInactiveMember)}
-                onChange={(event) =>
-                  setDraft((current) => ({ ...current, accountId: event.target.value }))
-                }
-              />
-            </label>
-
-            <label className={styles.field}>
-              <span>이름</span>
-              <input
-                value={draft.name}
-                readOnly={Boolean(isInactiveMember)}
-                onChange={(event) =>
-                  setDraft((current) => ({ ...current, name: event.target.value }))
-                }
-              />
-            </label>
-
-            <label className={styles.field}>
-              <span>이메일</span>
-              <input
-                type="email"
-                value={draft.email}
-                readOnly={Boolean(isInactiveMember)}
-                onChange={(event) =>
-                  setDraft((current) => ({ ...current, email: event.target.value }))
-                }
-              />
-            </label>
-
-            <label className={styles.field}>
-              <span>권한</span>
-              {isInactiveMember ? (
-                <input value={roleLabel} readOnly />
-              ) : (
-                <select
-                  value={draft.role}
-                  onChange={(event) =>
-                    setDraft((current) => ({
-                      ...current,
-                      role: event.target.value as MemberAdminPayload['role'],
-                    }))
-                  }
-                >
-                  <option value="user">팀원</option>
-                  <option value="admin">관리자</option>
-                </select>
-              )}
-            </label>
-
-            {isEditMode ? (
+          <section className={styles.editorSection} aria-labelledby="member-basic-section">
+            <div className={styles.sectionHeader}>
+              <h2 id="member-basic-section" className={styles.sectionTitle}>
+                기본 정보
+              </h2>
+            </div>
+            <div className={styles.editorFormGrid}>
               <label className={styles.field}>
-                <span>Supabase ID</span>
-                <input value={draft.authUserId ?? '-'} readOnly />
+                <span>ID</span>
+                <input
+                  autoFocus
+                  value={draft.accountId}
+                  readOnly={Boolean(isInactiveMember)}
+                  onChange={(event) =>
+                    setDraft((current) => ({ ...current, accountId: event.target.value }))
+                  }
+                />
               </label>
-            ) : null}
 
-            {isEditMode ? (
               <label className={styles.field}>
-                <span>활성 여부</span>
-                <input value={activeLabel} readOnly />
+                <span>이름</span>
+                <input
+                  value={draft.name}
+                  readOnly={Boolean(isInactiveMember)}
+                  onChange={(event) =>
+                    setDraft((current) => ({ ...current, name: event.target.value }))
+                  }
+                />
               </label>
-            ) : null}
 
-            <label className={styles.field}>
-              <span>접근 상태</span>
-              {isInactiveMember ? (
-                <input value={memberStatusLabel} readOnly />
-              ) : (
-                <select
-                  value={draft.memberStatus}
+              <label className={styles.field}>
+                <span>이메일</span>
+                <input
+                  type="email"
+                  value={draft.email}
+                  readOnly={Boolean(isInactiveMember)}
                   onChange={(event) =>
-                    setDraft((current) => ({
-                      ...current,
-                      memberStatus: event.target.value as MemberAdminPayload['memberStatus'],
-                    }))
+                    setDraft((current) => ({ ...current, email: event.target.value }))
                   }
-                >
-                  <option value="active">활성</option>
-                  <option value="pending">승인대기</option>
-                </select>
-              )}
-            </label>
+                />
+              </label>
 
-            <label className={styles.field}>
-              <span>업무보고 대상여부</span>
-              {isInactiveMember ? (
-                <input value={draft.reportRequired ? '대상' : '비대상'} readOnly />
-              ) : (
-                <select
-                  value={draft.reportRequired ? '1' : '0'}
-                  onChange={(event) =>
-                    setDraft((current) => ({
-                      ...current,
-                      reportRequired: event.target.value === '1',
-                    }))
-                  }
-                >
-                  <option value="1">대상</option>
-                  <option value="0">비대상</option>
-                </select>
-              )}
-            </label>
+              <label className={styles.field}>
+                <span>권한</span>
+                {isInactiveMember ? (
+                  <input value={roleLabel} readOnly />
+                ) : (
+                  <select
+                    value={draft.role}
+                    onChange={(event) =>
+                      setDraft((current) => ({
+                        ...current,
+                        role: event.target.value as MemberAdminPayload['role'],
+                      }))
+                    }
+                  >
+                    <option value="user">팀원</option>
+                    <option value="admin">관리자</option>
+                  </select>
+                )}
+              </label>
+            </div>
+          </section>
 
-            <label className={styles.field}>
-              <span>비고</span>
-              <textarea
-                value={draft.note}
-                readOnly={Boolean(isInactiveMember)}
-                onChange={(event) =>
-                  setDraft((current) => ({ ...current, note: event.target.value }))
-                }
-              />
-            </label>
-          </div>
+          {isEditMode ? (
+            <section className={styles.editorSection} aria-labelledby="member-status-section">
+              <div className={styles.sectionHeader}>
+                <h2 id="member-status-section" className={styles.sectionTitle}>
+                  상태 정보
+                </h2>
+              </div>
+              <div className={styles.editorFormGrid}>
+                <label className={styles.field}>
+                  <span>Auth ID</span>
+                  <input value={draft.authUserId ?? '-'} readOnly />
+                </label>
+                <label className={styles.field}>
+                  <span>활성 여부</span>
+                  <input value={activeLabel} readOnly />
+                </label>
+
+                <label className={styles.field}>
+                  <span>승인 상태</span>
+                  {isInactiveMember ? (
+                    <input value={memberStatusLabel} readOnly />
+                  ) : (
+                    <select
+                      value={draft.memberStatus}
+                      onChange={(event) =>
+                        setDraft((current) => ({
+                          ...current,
+                          memberStatus: event.target.value as MemberAdminPayload['memberStatus'],
+                        }))
+                      }
+                    >
+                      <option value="active">활성</option>
+                      <option value="pending">승인대기</option>
+                    </select>
+                  )}
+                </label>
+
+                <label className={styles.field}>
+                  <span>업무보고 접근</span>
+                  {isInactiveMember ? (
+                    <input value={draft.reportRequired ? '허용' : '차단'} readOnly />
+                  ) : (
+                    <select
+                      value={draft.reportRequired ? '1' : '0'}
+                      onChange={(event) =>
+                        setDraft((current) => ({
+                          ...current,
+                          reportRequired: event.target.value === '1',
+                        }))
+                      }
+                    >
+                      <option value="1">허용</option>
+                      <option value="0">차단</option>
+                    </select>
+                  )}
+                </label>
+              </div>
+            </section>
+          ) : null}
+
+          {isEditMode ? (
+            <section className={styles.editorSection} aria-labelledby="member-note-section">
+              <div className={styles.sectionHeader}>
+                <h2 id="member-note-section" className={styles.sectionTitle}>
+                  기타
+                </h2>
+              </div>
+              <div className={styles.editorFormGrid}>
+                <label className={styles.field}>
+                  <span>비고</span>
+                  <textarea
+                    value={draft.note}
+                    readOnly={Boolean(isInactiveMember)}
+                    onChange={(event) =>
+                      setDraft((current) => ({ ...current, note: event.target.value }))
+                    }
+                  />
+                </label>
+              </div>
+            </section>
+          ) : null}
 
           <div className={`${styles.formActions} ${styles.editorFormActions}`}>
             <div className={styles.editorFormActionsStart}>

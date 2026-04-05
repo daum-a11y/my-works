@@ -81,10 +81,11 @@ describe('AdminMembersPage', () => {
     expect(screen.getByRole('columnheader', { name: '이메일' })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: '권한' })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: '활성여부' })).toBeInTheDocument();
-    expect(screen.getByRole('columnheader', { name: '업무보고대상' })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: '승인상태' })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: '업무보고접근' })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: '등록일' })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: '최종로그인' })).toBeInTheDocument();
-    expect(screen.getByText('대상')).toBeInTheDocument();
+    expect(screen.getByText('허용')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: '사용자 추가' })).toHaveAttribute(
       'href',
       '/admin/members/new',

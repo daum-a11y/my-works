@@ -22,6 +22,7 @@ import type {
   MemberAdminItem,
   MemberInvitePayload,
   MemberAdminPayload,
+  MemberCreateResult,
 } from './admin-types';
 
 interface AdminDataClient {
@@ -49,6 +50,7 @@ interface AdminDataClient {
   deleteTaskAdmin(taskId: string): Promise<void>;
   listMembersAdmin(): Promise<MemberAdminItem[]>;
   saveMemberAdmin(payload: MemberAdminPayload): Promise<MemberAdminItem>;
+  createMemberAdmin(payload: MemberAdminPayload): Promise<MemberCreateResult>;
   inviteMemberAdmin(payload: MemberInvitePayload): Promise<void>;
   deleteMemberAdmin(memberId: string): Promise<'deleted' | 'deactivated'>;
   saveTaskTypeAdmin(payload: AdminTaskTypePayload): Promise<AdminTaskTypeItem>;
@@ -684,6 +686,47 @@ function createSupabaseAdminClient(): AdminDataClient {
         .single();
       if (error) throw error;
       return mapMember(data as Record<string, unknown>);
+    },
+
+    async createMemberAdmin(payload: MemberAdminPayload) {
+      const email = payload.email.trim().toLowerCase();
+      const accountId = payload.accountId.trim();
+      const name = payload.name.trim();
+
+      if (!email) {
+        throw new Error('초대할 이메일을 입력해 주세요.');
+      }
+
+      if (!accountId) {
+        throw new Error('ID를 입력해 주세요.');
+      }
+
+      if (!name) {
+        throw new Error('이름을 입력해 주세요.');
+      }
+
+      const { data, error } = await supabase.functions.invoke('create-member', {
+        body: {
+          email,
+          accountId,
+          name,
+          note: payload.note,
+          role: payload.role,
+          userActive: payload.userActive ?? payload.isActive ?? true,
+          memberStatus: payload.memberStatus,
+          reportRequired: payload.reportRequired ?? true,
+          redirectTo: getPasswordRecoveryRedirectUrl(),
+        },
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      return {
+        action: data?.action === 'updated' ? 'updated' : 'created',
+        memberId: String(data?.memberId ?? ''),
+      };
     },
 
     async inviteMemberAdmin(payload: MemberInvitePayload) {

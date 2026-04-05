@@ -197,6 +197,11 @@ export interface MemberInvitePayload {
   role: 'user' | 'admin';
 }
 
+export interface MemberCreateResult {
+  action: 'updated' | 'created';
+  memberId: string;
+}
+
 import { toLocalDateInputValue } from '../../lib/utils';
 
 function formatDate(date: Date) {
