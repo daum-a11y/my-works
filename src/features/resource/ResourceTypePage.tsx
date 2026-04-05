@@ -94,7 +94,7 @@ export function ResourceTypePage() {
   const activeRow = rows[0] ?? null;
 
   return (
-    <section className="projectsFeatureScope shell">
+    <section className="resourcePageScope projectsFeatureScope shell">
       <header className="pageHeader">
         <div className="pageHeaderTop">
           <h1 className="title">업무유형 집계</h1>

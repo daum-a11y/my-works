@@ -69,6 +69,14 @@
     flex: 0 0 auto;
   }
 
+  .filterField span {
+    color: var(--text-tertiary);
+    font-size: var(--text-meta-size);
+    font-weight: var(--text-meta-weight);
+    line-height: var(--text-meta-line-height);
+    letter-spacing: var(--text-meta-tracking);
+  }
+
   .formGrid,
   .pageFormGrid {
     grid-template-columns: repeat(4, minmax(0, 1fr));

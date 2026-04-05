@@ -15,7 +15,7 @@
     background: var(--surface-panel);
   }
 
-  .header {
+  .pageSectionHeader {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
@@ -24,12 +24,12 @@
     border-bottom: 1px solid var(--border-default);
   }
 
-  .heading {
+  .pageSectionHeading {
     display: grid;
     gap: 3px;
   }
 
-  .heading h2 {
+  .pageSectionHeading h2 {
     margin: 0;
     color: var(--text-primary);
     font-family: var(--font-body);
@@ -40,7 +40,7 @@
     text-transform: uppercase;
   }
 
-  .heading p {
+  .pageSectionHeading p {
     margin: 0;
     max-width: 56ch;
     color: var(--text-secondary);
@@ -48,13 +48,13 @@
     line-height: var(--text-meta-line-height);
   }
 
-  .actions {
+  .pageSectionActions {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
   }
 
-  .content {
+  .pageSectionContent {
     min-width: 0;
   }
 }

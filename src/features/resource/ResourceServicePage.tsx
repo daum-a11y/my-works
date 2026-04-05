@@ -123,7 +123,7 @@ export function ResourceServicePage() {
   const activeRow = rows[0] ?? null;
 
   return (
-    <section className="projectsFeatureScope shell">
+    <section className="resourcePageScope projectsFeatureScope shell">
       <header className="pageHeader">
         <div className="pageHeaderTop">
           <h1 className="title">서비스그룹 집계</h1>

@@ -18,13 +18,13 @@ export function PageSection({
 }: PageSectionProps) {
   return (
     <section className={clsx('pageSectionScope', 'section', variant, className)} {...props}>
-      <header className="header">
-        <div className="heading">
+      <header className="pageSectionHeader">
+        <div className="pageSectionHeading">
           <h2>{title}</h2>
         </div>
-        {actions ? <div className="actions">{actions}</div> : null}
+        {actions ? <div className="pageSectionActions">{actions}</div> : null}
       </header>
-      <div className="content">{children}</div>
+      <div className="pageSectionContent">{children}</div>
     </section>
   );
 }

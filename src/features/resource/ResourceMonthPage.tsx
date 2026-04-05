@@ -244,7 +244,7 @@ export function ResourceMonthPage() {
   const memberUnderCount = memberStatusRows.filter((member) => member.diffMinutes < 0).length;
 
   return (
-    <section className="dashboardPageScope projectsFeatureScope shell">
+    <section className="resourcePageScope dashboardPageScope projectsFeatureScope shell">
       <header className="pageHeader">
         <div className="pageHeaderTop">
           <h1 className="title">월간 리포트</h1>
