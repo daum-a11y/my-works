@@ -237,41 +237,50 @@ export function AdminMemberEditorPage() {
 
   if (membersQuery.isLoading && isEditMode) {
     return (
-      <section className="projectsFeatureScope shell editorShell">
-        <p className={'statusMessage'}>불러오는 중...</p>
+      <section className="projects-feature projects-feature__shell projects-feature__editor-shell">
+        <p className={'projects-feature__status-message'}>불러오는 중...</p>
       </section>
     );
   }
 
   if (isEditMode && !selectedMember && !membersQuery.isLoading) {
     return (
-      <section className="projectsFeatureScope shell editorShell">
-        <header className={'editorHeader'}>
-          <h1 className={'title'}>사용자 수정</h1>
+      <section className="projects-feature projects-feature__shell projects-feature__editor-shell">
+        <header className={'projects-feature__editor-header'}>
+          <h1 className={'projects-feature__title'}>사용자 수정</h1>
         </header>
-        <p className={'statusMessage'}>사용자 정보를 찾을 수 없습니다.</p>
+        <p className={'projects-feature__status-message'}>사용자 정보를 찾을 수 없습니다.</p>
       </section>
     );
   }
 
   return (
-    <section className="projectsFeatureScope shell editorShell">
-      <header className={'editorHeader'}>
-        <h1 className={'title'}>{isEditMode ? '사용자 수정' : '사용자 추가'}</h1>
+    <section className="projects-feature projects-feature__shell projects-feature__editor-shell">
+      <header className={'projects-feature__editor-header'}>
+        <h1 className={'projects-feature__title'}>{isEditMode ? '사용자 수정' : '사용자 추가'}</h1>
       </header>
 
-      {errorMessage ? <p className={'statusMessage'}>{errorMessage}</p> : null}
+      {errorMessage ? <p className={'projects-feature__status-message'}>{errorMessage}</p> : null}
 
-      <section className={`${'modal'} ${'editorSurface'}`} aria-label="사용자 편집 패널">
-        <form className={`${'detailForm'} ${'editorDetailForm'}`} onSubmit={handleSubmit}>
-          <section className={'editorSection'} aria-labelledby="member-basic-section">
-            <div className={'sectionHeader'}>
-              <h2 id="member-basic-section" className={'sectionTitle'}>
+      <section
+        className="projects-feature__modal projects-feature__editor-surface"
+        aria-label="사용자 편집 패널"
+      >
+        <form
+          className="projects-feature__detail-form projects-feature__editor-detail-form"
+          onSubmit={handleSubmit}
+        >
+          <section
+            className={'projects-feature__editor-section'}
+            aria-labelledby="member-basic-section"
+          >
+            <div className={'projects-feature__section-header'}>
+              <h2 id="member-basic-section" className={'projects-feature__section-title'}>
                 기본 정보
               </h2>
             </div>
-            <div className={'editorFormGrid'}>
-              <label className={'field'}>
+            <div className={'projects-feature__editor-form-grid'}>
+              <label className={'projects-feature__field'}>
                 <span>ID</span>
                 <input
                   autoFocus
@@ -283,7 +292,7 @@ export function AdminMemberEditorPage() {
                 />
               </label>
 
-              <label className={'field'}>
+              <label className={'projects-feature__field'}>
                 <span>이름</span>
                 <input
                   value={draft.name}
@@ -294,7 +303,7 @@ export function AdminMemberEditorPage() {
                 />
               </label>
 
-              <label className={'field'}>
+              <label className={'projects-feature__field'}>
                 <span>이메일</span>
                 <input
                   type="email"
@@ -306,7 +315,7 @@ export function AdminMemberEditorPage() {
                 />
               </label>
 
-              <label className={'field'}>
+              <label className={'projects-feature__field'}>
                 <span>권한</span>
                 {isInactiveMember ? (
                   <input value={roleLabel} readOnly />
@@ -329,23 +338,26 @@ export function AdminMemberEditorPage() {
           </section>
 
           {isEditMode ? (
-            <section className={'editorSection'} aria-labelledby="member-status-section">
-              <div className={'sectionHeader'}>
-                <h2 id="member-status-section" className={'sectionTitle'}>
+            <section
+              className={'projects-feature__editor-section'}
+              aria-labelledby="member-status-section"
+            >
+              <div className={'projects-feature__section-header'}>
+                <h2 id="member-status-section" className={'projects-feature__section-title'}>
                   상태 정보
                 </h2>
               </div>
-              <div className={'editorFormGrid'}>
-                <label className={'field'}>
+              <div className={'projects-feature__editor-form-grid'}>
+                <label className={'projects-feature__field'}>
                   <span>Auth ID</span>
                   <input value={draft.authUserId ?? '-'} readOnly />
                 </label>
-                <label className={'field'}>
+                <label className={'projects-feature__field'}>
                   <span>활성 여부</span>
                   <input value={activeLabel} readOnly />
                 </label>
 
-                <label className={'field'}>
+                <label className={'projects-feature__field'}>
                   <span>승인 상태</span>
                   {isInactiveMember ? (
                     <input value={memberStatusLabel} readOnly />
@@ -365,7 +377,7 @@ export function AdminMemberEditorPage() {
                   )}
                 </label>
 
-                <label className={'field'}>
+                <label className={'projects-feature__field'}>
                   <span>업무보고 접근</span>
                   {isInactiveMember ? (
                     <input value={draft.reportRequired ? '허용' : '차단'} readOnly />
@@ -389,14 +401,17 @@ export function AdminMemberEditorPage() {
           ) : null}
 
           {isEditMode ? (
-            <section className={'editorSection'} aria-labelledby="member-note-section">
-              <div className={'sectionHeader'}>
-                <h2 id="member-note-section" className={'sectionTitle'}>
+            <section
+              className={'projects-feature__editor-section'}
+              aria-labelledby="member-note-section"
+            >
+              <div className={'projects-feature__section-header'}>
+                <h2 id="member-note-section" className={'projects-feature__section-title'}>
                   기타
                 </h2>
               </div>
-              <div className={'editorFormGrid'}>
-                <label className={'field'}>
+              <div className={'projects-feature__editor-form-grid'}>
+                <label className={'projects-feature__field'}>
                   <span>비고</span>
                   <textarea
                     value={draft.note}
@@ -410,14 +425,18 @@ export function AdminMemberEditorPage() {
             </section>
           ) : null}
 
-          <div className={`${'formActions'} ${'editorFormActions'}`}>
-            <div className={'editorFormActionsStart'}>
+          <div className="projects-feature__form-actions projects-feature__editor-form-actions">
+            <div
+              className={
+                'projects-feature__editor-form-actions projects-feature__editor-form-actions--start'
+              }
+            >
               {isEditMode ? (
                 <>
                   {!isInactiveMember ? (
                     <button
                       type="button"
-                      className={'secondaryButton'}
+                      className={'projects-feature__button projects-feature__button--secondary'}
                       onClick={() => void handleInvite()}
                       disabled={inviteMutation.isPending}
                     >
@@ -427,7 +446,7 @@ export function AdminMemberEditorPage() {
                   {isInactiveMember ? (
                     <button
                       type="button"
-                      className={'primaryButton'}
+                      className={'projects-feature__button projects-feature__button--primary'}
                       onClick={() => void handleRestore()}
                       disabled={restoreMutation.isPending}
                     >
@@ -436,7 +455,7 @@ export function AdminMemberEditorPage() {
                   ) : (
                     <button
                       type="button"
-                      className={'deleteButton'}
+                      className={'projects-feature__delete-button'}
                       onClick={() => void handleDelete()}
                       disabled={deleteMutation.isPending}
                     >
@@ -446,13 +465,20 @@ export function AdminMemberEditorPage() {
                 </>
               ) : null}
             </div>
-            <div className={'editorFormActionsEnd'}>
-              <Link to="/admin/members" className={'secondaryButton'}>
+            <div
+              className={
+                'projects-feature__editor-form-actions projects-feature__editor-form-actions--end'
+              }
+            >
+              <Link
+                to="/admin/members"
+                className={'projects-feature__button projects-feature__button--secondary'}
+              >
                 취소
               </Link>
               <button
                 type="submit"
-                className={'primaryButton'}
+                className={'projects-feature__button projects-feature__button--primary'}
                 disabled={saveMutation.isPending || Boolean(isInactiveMember)}
               >
                 저장

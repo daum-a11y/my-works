@@ -58,26 +58,26 @@ export function LoginPage() {
   const isBusy = isSubmitting;
 
   return (
-    <main className="loginPageScope page">
-      <section className="panel" aria-labelledby="login-title">
-        <div className="introBlock">
-          <h1 className="logoHeading">
+    <main className="login-page">
+      <section className="login-page__panel" aria-labelledby="login-title">
+        <div className="login-page__hero">
+          <h1 className="login-page__logo-heading">
             <img
-              className="logo"
+              className="login-page__logo"
               src="/img/my-works-logo-200x60.png"
               alt="My Works"
               width="100"
               height="30"
             />
           </h1>
-          <p id="login-title" className="caption">
+          <p id="login-title" className="login-page__caption">
             로그인
           </p>
         </div>
 
-        <div className="formBlock">
+        <div className="login-page__form">
           <form
-            className="form"
+            className="login-page__form-shell"
             onSubmit={handleSubmit(async (values) => {
               try {
                 setErrorMessage('');
@@ -105,26 +105,30 @@ export function LoginPage() {
               {...register('password')}
             />
             {noticeMessage ? (
-              <div className="notice" data-state="success" role="status">
-                <strong className="noticeTitle">비밀번호 변경 완료</strong>
+              <div
+                className="login-page__feedback login-page__feedback--success"
+                data-state="success"
+                role="status"
+              >
+                <strong className="login-page__feedback-title">비밀번호 변경 완료</strong>
                 <p>{noticeMessage}</p>
               </div>
             ) : null}
             {errorMessage ? (
-              <div className="error" role="alert">
-                <strong className="noticeTitle">로그인 확인 필요</strong>
+              <div className="login-page__feedback login-page__feedback--danger" role="alert">
+                <strong className="login-page__feedback-title">로그인 확인 필요</strong>
                 <p>{errorMessage}</p>
               </div>
             ) : null}
-            <div className="submitRow">
+            <div className="login-page__actions">
               <Button type="submit" isDisabled={!isSupabaseConfigured || isBusy}>
                 로그인
               </Button>
             </div>
-            <div className="recoveryPanel">
+            <div className="login-page__recovery">
               <button
                 type="button"
-                className="recoveryButton"
+                className="login-page__recovery-button"
                 disabled={!isSupabaseConfigured || isBusy}
                 onClick={() => {
                   navigate('/forgot-password');
@@ -137,7 +141,7 @@ export function LoginPage() {
         </div>
       </section>
       {!isSupabaseConfigured ? (
-        <div className="notice configNotice" data-state="info">
+        <div className="login-page__feedback login-page__feedback--info" data-state="info">
           <strong>환경 설정 필요</strong>
           <p>`VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`가 설정되어야 로그인할 수 있습니다.</p>
         </div>

@@ -208,12 +208,19 @@ function SortButton({
   return (
     <button
       type="button"
-      className={active ? 'sortButtonActive' : 'sortButton'}
+      className={[
+        'admin-reports-page__sort-button',
+        active ? 'admin-reports-page__sort-button--active' : '',
+      ]
+        .filter(Boolean)
+        .join(' ')}
       onClick={() => onChange({ key: sortKey, direction: nextDirection })}
       aria-label={`${label} 정렬`}
     >
       <span>{label}</span>
-      <span className={'sortArrow'}>{active && sortState.direction === 'asc' ? '▲' : '▼'}</span>
+      <span className={'admin-reports-page__sort-arrow'}>
+        {active && sortState.direction === 'asc' ? '▲' : '▼'}
+      </span>
     </button>
   );
 }
@@ -469,16 +476,16 @@ export function AdminReportsPage() {
   };
 
   return (
-    <section className={'adminReportsPageScope shell'}>
-      <header className={'pageHeader'}>
-        <div className={'pageHeaderTop'}>
-          <div className={'pageTitleGroup'}>
-            <h1 className={'title'}>업무보고 조회</h1>
+    <section className={'admin-reports-page admin-reports-page--shell'}>
+      <header className={'admin-reports-page__page-header'}>
+        <div className={'admin-reports-page__page-header-top'}>
+          <div className={'admin-reports-page__page-title-group'}>
+            <h1 className={'admin-reports-page__title'}>업무보고 조회</h1>
           </div>
-          <div className={'headerActions'}>
+          <div className={'admin-reports-page__header-actions'}>
             <button
               type="button"
-              className={'headerAction'}
+              className={'admin-reports-page__header-action'}
               onClick={() =>
                 navigate('/org/search/new', {
                   state: {
@@ -494,9 +501,9 @@ export function AdminReportsPage() {
       </header>
 
       <PageSection title="필터">
-        <form className={'filterForm'} onSubmit={handleSearchSubmit}>
-          <div className={'dateRow'}>
-            <label className={'filterField'}>
+        <form className={'admin-reports-page__filter-form'} onSubmit={handleSearchSubmit}>
+          <div className={'admin-reports-page__date-row'}>
+            <label className={'admin-reports-page__filter-field'}>
               <span>시작일</span>
               <input
                 id="admin-reports-start-date"
@@ -505,7 +512,7 @@ export function AdminReportsPage() {
                 onChange={(event) => handleFilterField('startDate', event.target.value)}
               />
             </label>
-            <label className={'filterField'}>
+            <label className={'admin-reports-page__filter-field'}>
               <span>종료일</span>
               <input
                 id="admin-reports-end-date"
@@ -516,8 +523,8 @@ export function AdminReportsPage() {
             </label>
           </div>
 
-          <div className={'metaRow'}>
-            <label className={'filterField'}>
+          <div className={'admin-reports-page__meta-row'}>
+            <label className={'admin-reports-page__filter-field'}>
               <span>타입1</span>
               <select
                 id="admin-reports-task-type-1"
@@ -532,7 +539,7 @@ export function AdminReportsPage() {
                 ))}
               </select>
             </label>
-            <label className={'filterField'}>
+            <label className={'admin-reports-page__filter-field'}>
               <span>타입2</span>
               <select
                 id="admin-reports-task-type-2"
@@ -548,7 +555,7 @@ export function AdminReportsPage() {
                 ))}
               </select>
             </label>
-            <label className={'filterField'}>
+            <label className={'admin-reports-page__filter-field'}>
               <span>청구그룹</span>
               <select
                 id="admin-reports-cost-group"
@@ -563,7 +570,7 @@ export function AdminReportsPage() {
                 ))}
               </select>
             </label>
-            <label className={'filterField'}>
+            <label className={'admin-reports-page__filter-field'}>
               <span>프로젝트</span>
               <select
                 id="admin-reports-service-name"
@@ -581,61 +588,68 @@ export function AdminReportsPage() {
             </label>
           </div>
 
-          <div className={'searchRow'}>
-            <div className={'filterField'}>
+          <div className={'admin-reports-page__search-row'}>
+            <div className={'admin-reports-page__filter-field'}>
               <span>사용자</span>
-              <div className={'memberSelect'}>
+              <div className={'admin-reports-page__member-select'}>
                 <button
                   type="button"
-                  className={'memberAccordionTrigger'}
+                  className={'admin-reports-page__member-accordion-trigger'}
                   onClick={() => setMemberFilterOpen((current) => !current)}
                   aria-expanded={memberFilterOpen}
                   aria-controls="admin-reports-member-panel"
                 >
-                  <span className={'memberAccordionValue'}>
+                  <span className={'admin-reports-page__member-accordion-value'}>
                     {memberFilterIds.length === members.length && members.length > 0
                       ? '전체'
                       : memberFilterIds.length === 0
                         ? '전체'
                         : `${memberFilterIds.length}명 선택`}
                   </span>
-                  <span className={'memberAccordionArrow'} aria-hidden="true">
+                  <span className={'admin-reports-page__member-accordion-arrow'} aria-hidden="true">
                     {memberFilterOpen ? '▲' : '▼'}
                   </span>
                 </button>
                 <div
                   id="admin-reports-member-panel"
-                  className={memberFilterOpen ? 'memberAccordionBodyOpen' : 'memberAccordionBody'}
+                  className={[
+                    'admin-reports-page__member-accordion-body',
+                    memberFilterOpen ? 'admin-reports-page__member-accordion-body--open' : '',
+                  ]
+                    .filter(Boolean)
+                    .join(' ')}
                 >
-                  <div className={'memberAccordionInner'}>
-                    <div className={'memberPanelToolbar'}>
+                  <div className={'admin-reports-page__member-accordion-inner'}>
+                    <div className={'admin-reports-page__member-panel-toolbar'}>
                       <input
-                        className={'memberSearchInput'}
+                        className={'admin-reports-page__member-search-input'}
                         value={memberSearchInput}
                         onChange={(event) => setMemberSearchInput(event.target.value)}
                         placeholder="ID, 이름, 이메일 검색"
                         aria-label="사용자 검색"
                       />
                     </div>
-                    <div className={'memberQuickActions'}>
+                    <div className={'admin-reports-page__member-quick-actions'}>
                       <button
                         type="button"
-                        className={'memberQuickAction'}
+                        className={'admin-reports-page__member-quick-action'}
                         onClick={() => setMemberFilterIds(members.map((member) => member.id))}
                       >
                         전체 선택
                       </button>
                       <button
                         type="button"
-                        className={'memberQuickAction'}
+                        className={'admin-reports-page__member-quick-action'}
                         onClick={() => setMemberFilterIds([])}
                       >
                         전체 해제
                       </button>
                     </div>
-                    <div className={'memberCheckboxes'}>
+                    <div className={'admin-reports-page__member-checkboxes'}>
                       {visibleMembers.length === 0 ? (
-                        <p className={'memberEmptyState'}>검색 결과가 없습니다.</p>
+                        <p className={'admin-reports-page__member-empty-state'}>
+                          검색 결과가 없습니다.
+                        </p>
                       ) : (
                         visibleMembers.map((member: MemberAdminItem) => {
                           const checked = memberFilterIds.includes(member.id);
@@ -643,7 +657,10 @@ export function AdminReportsPage() {
                           return (
                             <label
                               key={member.id}
-                              className={['memberCheckbox', checked ? 'memberCheckboxSelected' : '']
+                              className={[
+                                'admin-reports-page__member-checkbox',
+                                checked ? 'admin-reports-page__member-checkbox--selected' : '',
+                              ]
                                 .filter(Boolean)
                                 .join(' ')}
                             >
@@ -658,8 +675,12 @@ export function AdminReportsPage() {
                                   );
                                 }}
                               />
-                              <span className={'memberAccount'}>{member.accountId}</span>
-                              <span className={'memberName'}>{member.name}</span>
+                              <span className={'admin-reports-page__member-account'}>
+                                {member.accountId}
+                              </span>
+                              <span className={'admin-reports-page__member-name'}>
+                                {member.name}
+                              </span>
                             </label>
                           );
                         })
@@ -669,7 +690,7 @@ export function AdminReportsPage() {
                 </div>
               </div>
             </div>
-            <label className={'filterField'}>
+            <label className={'admin-reports-page__filter-field'}>
               <span>검색어</span>
               <input
                 value={filters.keyword}
@@ -679,22 +700,30 @@ export function AdminReportsPage() {
             </label>
           </div>
 
-          <div className={'filterActionsRow'}>
-            <div className={'filterActions'}>
+          <div className={'admin-reports-page__filter-actions-row'}>
+            <div className={'admin-reports-page__filter-actions'}>
               <button
                 type="submit"
-                className={'filterButton'}
+                className={'admin-reports-page__button admin-reports-page__button--filter'}
                 disabled={loading || searchQuery.isFetching}
               >
                 검색
               </button>
-              <button type="button" className={'filterButtonSecondary'} onClick={handleReset}>
-                초기화
-              </button>
-              <span className={'filterDivider'} aria-hidden="true" />
               <button
                 type="button"
-                className={'filterButtonSecondary'}
+                className={
+                  'admin-reports-page__button admin-reports-page__button--filter-secondary'
+                }
+                onClick={handleReset}
+              >
+                초기화
+              </button>
+              <span className={'admin-reports-page__filter-divider'} aria-hidden="true" />
+              <button
+                type="button"
+                className={
+                  'admin-reports-page__button admin-reports-page__button--filter-secondary'
+                }
                 onClick={handleExport}
                 disabled={totalTasks === 0}
               >
@@ -706,28 +735,28 @@ export function AdminReportsPage() {
       </PageSection>
 
       {(queryError || mutationError) && (
-        <p className={'statusMessage'}>{queryError || mutationError}</p>
+        <p className={'admin-reports-page__status-message'}>{queryError || mutationError}</p>
       )}
 
-      <section className={'resultBar'} aria-label="업무보고 조회 결과 요약">
-        <div className={'resultMetrics'}>
-          <div className={'pager'} aria-label="업무보고 목록 페이지 이동">
+      <section className={'admin-reports-page__result-bar'} aria-label="업무보고 조회 결과 요약">
+        <div className={'admin-reports-page__result-metrics'}>
+          <div className={'admin-reports-page__pager'} aria-label="업무보고 목록 페이지 이동">
             <button
               type="button"
-              className={'pageButton'}
+              className={'admin-reports-page__button admin-reports-page__button--page'}
               onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
               disabled={currentPageSafe === 1}
               aria-label="이전 페이지"
             >
               이전
             </button>
-            <p className={'pageStatus'}>
+            <p className={'admin-reports-page__page-status'}>
               <strong>{currentPageSafe}</strong>
               <span>/ {numberFormatter.format(totalPages)}</span>
             </p>
             <button
               type="button"
-              className={'pageButton'}
+              className={'admin-reports-page__button admin-reports-page__button--page'}
               onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
               disabled={currentPageSafe === totalPages || totalTasks === 0}
               aria-label="다음 페이지"
@@ -735,17 +764,21 @@ export function AdminReportsPage() {
               다음
             </button>
           </div>
-          <p className={'resultMetric'}>
-            <span className={'resultLabel'}>총 건수</span>
-            <strong className={'resultValue'}>{numberFormatter.format(totalTasks)}건</strong>
+          <p className={'admin-reports-page__result-metric'}>
+            <span className={'admin-reports-page__result-label'}>총 건수</span>
+            <strong className={'admin-reports-page__result-value'}>
+              {numberFormatter.format(totalTasks)}건
+            </strong>
           </p>
-          <p className={'resultMetric'}>
-            <span className={'resultLabel'}>현재 페이지 시간</span>
-            <strong className={'resultValue'}>{formatSummaryMinutes(totalMinutes)}</strong>
+          <p className={'admin-reports-page__result-metric'}>
+            <span className={'admin-reports-page__result-label'}>현재 페이지 시간</span>
+            <strong className={'admin-reports-page__result-value'}>
+              {formatSummaryMinutes(totalMinutes)}
+            </strong>
           </p>
         </div>
-        <div className={'resultControls'}>
-          <label className={'pageSizeField'}>
+        <div className={'admin-reports-page__result-controls'}>
+          <label className={'admin-reports-page__page-size-field'}>
             <span>페이지당</span>
             <select
               value={String(pageSize)}
@@ -765,9 +798,9 @@ export function AdminReportsPage() {
         </div>
       </section>
 
-      <div className={'panel'}>
-        <div className={'tableWrap'}>
-          <table className={'table'}>
+      <div className={'admin-reports-page__panel'}>
+        <div className={'admin-reports-page__table-wrap'}>
+          <table className={'admin-reports-page__table'}>
             <thead>
               <tr>
                 <th>
@@ -874,7 +907,7 @@ export function AdminReportsPage() {
             <tbody>
               {sortedTasks.length === 0 ? (
                 <tr>
-                  <td colSpan={15} className={'emptyState'}>
+                  <td colSpan={15} className={'admin-reports-page__empty-state'}>
                     검색 결과가 없습니다.
                   </td>
                 </tr>
@@ -888,7 +921,9 @@ export function AdminReportsPage() {
                       <td>{task.taskDate}</td>
                       <td>
                         <strong>{member?.accountId ?? task.memberId}</strong>
-                        <div className={'muted'}>{member?.name ?? task.memberName}</div>
+                        <div className={'admin-reports-page__muted'}>
+                          {member?.name ?? task.memberName}
+                        </div>
                       </td>
                       <td>{task.costGroupName || '-'}</td>
                       <td>{task.taskType1}</td>
@@ -904,7 +939,7 @@ export function AdminReportsPage() {
                             href={task.pageUrl}
                             target="_blank"
                             rel="noreferrer"
-                            className={'tableLink'}
+                            className={'admin-reports-page__table-link'}
                           >
                             링크
                           </a>
@@ -915,17 +950,21 @@ export function AdminReportsPage() {
                       <td>{formatTimeCell(task.taskUsedtime)}</td>
                       <td>{task.note || '-'}</td>
                       <td>
-                        <div className={'actionStack'}>
+                        <div className={'admin-reports-page__action-stack'}>
                           <button
                             type="button"
-                            className={'actionButton'}
+                            className={
+                              'admin-reports-page__button admin-reports-page__button--action'
+                            }
                             onClick={() => navigate(`/org/search/${task.id}/edit`)}
                           >
                             수정
                           </button>
                           <button
                             type="button"
-                            className={'deleteButton'}
+                            className={
+                              'admin-reports-page__button admin-reports-page__button--delete'
+                            }
                             onClick={() => void deleteTask(task.id)}
                             disabled={deleteMutation.isPending}
                           >

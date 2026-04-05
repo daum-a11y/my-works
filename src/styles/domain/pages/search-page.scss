@@ -1,5 +1,5 @@
-.searchPageScope {
-  &.shell {
+.search-page {
+  &--shell {
     display: grid;
     gap: var(--space-5);
     min-width: 0;
@@ -7,7 +7,7 @@
     color: var(--text-secondary);
   }
 
-  .pageHeader {
+  .search-page__page-header {
     display: grid;
     gap: var(--space-1);
     min-width: 0;
@@ -15,7 +15,7 @@
     border-bottom: 1px solid var(--border-default);
   }
 
-  .pageHeaderTop {
+  .search-page__page-header-top {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -23,7 +23,7 @@
     flex-wrap: nowrap;
   }
 
-  .title {
+  .search-page__title {
     margin: 0;
     color: var(--text-primary);
     font-family: var(--font-body);
@@ -33,7 +33,7 @@
     letter-spacing: var(--text-page-title-tracking);
   }
 
-  .panel {
+  .search-page__panel {
     padding: 16px;
     min-width: 0;
     border: 1px solid var(--border-default);
@@ -41,7 +41,7 @@
     box-shadow: var(--elevation-1);
   }
 
-  .panelHead {
+  .search-page__panel-head {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
@@ -52,7 +52,7 @@
     border-bottom: 1px solid var(--border-default);
   }
 
-  .panelTitle {
+  .search-page__panel-title {
     margin: 0;
     color: var(--text-primary);
     font-size: var(--text-section-title-size);
@@ -61,30 +61,30 @@
     letter-spacing: var(--text-section-title-tracking);
   }
 
-  .filterActions,
-  .resultMetrics,
-  .resultControls,
-  .pager {
+  .search-page__filter-actions,
+  .search-page__result-metrics,
+  .search-page__result-controls,
+  .search-page__pager {
     display: flex;
     align-items: center;
     gap: var(--space-2);
   }
 
-  .filterBar {
+  .search-page__filter-bar {
     display: flex;
     flex-wrap: nowrap;
     gap: var(--space-3);
     align-items: end;
   }
 
-  .filterField {
+  .search-page__filter-field {
     display: grid;
     gap: 6px;
     min-width: 0;
     flex: 0 0 auto;
   }
 
-  .filterField span {
+  .search-page__filter-field span {
     color: var(--text-tertiary);
     font-size: var(--text-meta-size);
     font-weight: var(--text-meta-weight);
@@ -92,8 +92,8 @@
     letter-spacing: var(--text-meta-tracking);
   }
 
-  .filterField input,
-  .filterField select {
+  .search-page__filter-field input,
+  .search-page__filter-field select {
     min-height: var(--control-height-md);
     padding: var(--control-padding-y) var(--control-padding-x);
     border: 1px solid var(--control-border);
@@ -106,14 +106,14 @@
     letter-spacing: var(--text-form-tracking);
   }
 
-  .filterField input::placeholder {
+  .search-page__filter-field input::placeholder {
     color: var(--control-placeholder);
     font-weight: var(--text-placeholder-weight);
   }
 
-  .filterButton,
-  .filterButtonSecondary,
-  .secondaryButton {
+  .search-page__filter-button,
+  .search-page__filter-button--secondary,
+  .search-page__button--secondary {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -128,53 +128,53 @@
     cursor: pointer;
   }
 
-  .filterButton {
+  .search-page__filter-button {
     border-color: color-mix(in oklab, var(--button-primary-bg) 82%, black 18%);
     background: var(--button-primary-bg);
     color: var(--text-inverse);
   }
 
-  .filterButtonSecondary,
-  .secondaryButton {
+  .search-page__filter-button--secondary,
+  .search-page__button--secondary {
     background: var(--button-secondary-bg);
     color: var(--text-secondary);
   }
 
-  .filterButtonSecondary:hover,
-  .secondaryButton:hover,
-  .pageButton:hover:not(:disabled) {
+  .search-page__filter-button--secondary:hover,
+  .search-page__button--secondary:hover,
+  .search-page__page-button:hover:not(:disabled) {
     border-color: var(--border-strong);
     background: var(--button-secondary-hover);
   }
 
-  .filterButtonSecondary:disabled,
-  .secondaryButton:disabled,
-  .pageButton:disabled {
+  .search-page__filter-button--secondary:disabled,
+  .search-page__button--secondary:disabled,
+  .search-page__page-button:disabled {
     color: var(--text-muted);
     background: var(--surface-disabled);
     cursor: default;
   }
 
-  .filterActions {
+  .search-page__filter-actions {
     flex: 0 0 auto;
   }
 
-  .filterDivider {
+  .search-page__filter-divider {
     width: 1px;
     align-self: stretch;
     background: var(--border-default);
   }
 
-  .filterField :is(input, select):focus-visible,
-  .filterButton:focus-visible,
-  .filterButtonSecondary:focus-visible,
-  .secondaryButton:focus-visible,
-  .pageButton:focus-visible {
+  .search-page__filter-field :is(input, select):focus-visible,
+  .search-page__filter-button:focus-visible,
+  .search-page__filter-button--secondary:focus-visible,
+  .search-page__button--secondary:focus-visible,
+  .search-page__page-button:focus-visible {
     outline: 2px solid var(--focus-ring-color);
     outline-offset: 1px;
   }
 
-  .resultBar {
+  .search-page__result-bar {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -185,13 +185,13 @@
     background: var(--surface-panel);
   }
 
-  .resultMetrics {
+  .search-page__result-metrics {
     gap: var(--space-3);
     flex: 1 1 auto;
     min-width: 0;
   }
 
-  .resultMetric {
+  .search-page__result-metric {
     display: inline-flex;
     align-items: center;
     gap: var(--space-1);
@@ -199,7 +199,7 @@
     white-space: nowrap;
   }
 
-  .resultLabel {
+  .search-page__result-label {
     color: var(--text-tertiary);
     font-size: var(--text-meta-size);
     font-weight: var(--text-meta-weight);
@@ -207,8 +207,8 @@
     letter-spacing: var(--text-meta-tracking);
   }
 
-  .resultValue,
-  .pageStatus strong {
+  .search-page__result-value,
+  .search-page__page-status strong {
     color: var(--text-primary);
     font-size: var(--text-form-size);
     font-weight: var(--font-weight-heavy);
@@ -216,7 +216,7 @@
     letter-spacing: var(--text-form-tracking);
   }
 
-  .pageSizeField {
+  .search-page__page-size-field {
     display: flex;
     align-items: center;
     gap: var(--space-2);
@@ -227,7 +227,7 @@
     white-space: nowrap;
   }
 
-  .pageSizeField select {
+  .search-page__page-size-field select {
     min-height: 32px;
     padding: 0 var(--control-padding-x);
     border: 1px solid var(--border-default);
@@ -237,12 +237,12 @@
     font-size: var(--text-body-size);
   }
 
-  .pager {
+  .search-page__pager {
     padding-left: 0;
     border-left: 0;
   }
 
-  .pageButton {
+  .search-page__page-button {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -258,7 +258,7 @@
     cursor: pointer;
   }
 
-  .pageStatus {
+  .search-page__page-status {
     display: inline-flex;
     align-items: baseline;
     gap: var(--space-1);
@@ -267,7 +267,7 @@
     font-size: var(--text-meta-size);
   }
 
-  .tableWrap {
+  .search-page__table-wrap {
     max-width: 100%;
     min-width: 0;
     overflow: auto;
@@ -275,14 +275,14 @@
     background: var(--surface-panel);
   }
 
-  .table {
+  .search-page__table {
     width: 100%;
     min-width: 1120px;
     border-collapse: collapse;
   }
 
-  .table th,
-  .table td {
+  .search-page__table th,
+  .search-page__table td {
     padding: var(--space-3) var(--space-2);
     border-bottom: 1px solid var(--border-subtle);
     vertical-align: top;
@@ -290,7 +290,7 @@
     overflow-wrap: anywhere;
   }
 
-  .table th {
+  .search-page__table th {
     position: sticky;
     top: 0;
     z-index: 1;
@@ -303,7 +303,7 @@
     background: var(--surface-canvas-strong);
   }
 
-  .table td strong {
+  .search-page__table td strong {
     display: block;
     color: var(--text-primary);
     font-size: var(--text-body-size);
@@ -311,14 +311,18 @@
     line-height: var(--text-body-line-height);
   }
 
-  .emptyState {
+  .search-page__table-number {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .search-page__empty-state {
     padding: var(--space-5) var(--space-4);
     text-align: center;
     color: var(--text-tertiary);
     font-size: var(--text-body-size);
   }
 
-  .srOnly {
+  .search-page__sr-only {
     position: absolute;
     width: 1px;
     height: 1px;
@@ -331,43 +335,43 @@
   }
 
   @media (max-width: 1080px) {
-    .filterBar,
-    .resultBar,
-    .resultMetrics {
+    .search-page__filter-bar,
+    .search-page__result-bar,
+    .search-page__result-metrics {
       flex-wrap: wrap;
     }
 
-    .filterField {
+    .search-page__filter-field {
       flex: 1 1 180px;
     }
 
-    .filterActions {
+    .search-page__filter-actions {
       flex-wrap: wrap;
     }
 
-    .resultControls {
+    .search-page__result-controls {
       justify-content: flex-end;
     }
   }
 
   @media (max-width: 720px) {
-    .pageHeaderTop,
-    .panelHead {
+    .search-page__page-header-top,
+    .search-page__panel-head {
       flex-wrap: wrap;
     }
 
-    .pager,
-    .resultMetric,
-    .pageSizeField {
+    .search-page__pager,
+    .search-page__result-metric,
+    .search-page__page-size-field {
       width: 100%;
     }
 
-    .pageSizeField {
+    .search-page__page-size-field {
       justify-content: space-between;
       margin-left: 0;
     }
 
-    .filterDivider {
+    .search-page__filter-divider {
       display: none;
     }
   }

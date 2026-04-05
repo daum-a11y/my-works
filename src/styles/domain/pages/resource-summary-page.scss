@@ -1,11 +1,18 @@
-.resourceSummaryPageScope {
-  .contentSection {
+.resource-summary-page {
+  &--shell {
+    display: grid;
+    gap: var(--space-5);
+    align-content: start;
+    color: var(--text-secondary);
+  }
+
+  .resource-summary-page__content-section {
     display: grid;
     gap: var(--space-4);
     min-width: 0;
   }
 
-  .checkboxField {
+  .resource-summary-page__checkbox-field {
     display: flex;
     align-items: center;
     gap: var(--space-2);
@@ -14,11 +21,11 @@
     padding-bottom: 0;
   }
 
-  .checkboxField span {
+  .resource-summary-page__checkbox-field span {
     order: 2;
   }
 
-  .checkboxField input {
+  .resource-summary-page__checkbox-field input {
     order: 1;
     flex: 0 0 auto;
     width: 16px;
@@ -26,11 +33,11 @@
     margin: 0;
   }
 
-  .checkboxField input[type='month'] {
+  .resource-summary-page__checkbox-field input[type='month'] {
     min-width: 0;
   }
 
-  .srOnly {
+  .resource-summary-page__sr-only {
     position: absolute;
     width: 1px;
     height: 1px;
@@ -42,22 +49,26 @@
     border: 0;
   }
 
-  .minuteValuenegative {
+  .resource-summary-page__minute-value {
+    font-weight: var(--font-weight-semibold);
+  }
+
+  .resource-summary-page__minute-value--negative {
     color: var(--state-danger-text);
     font-weight: var(--font-weight-semibold);
   }
 
-  .minuteValuepositive {
+  .resource-summary-page__minute-value--positive {
     color: var(--accent-strong);
     font-weight: var(--font-weight-semibold);
   }
 
-  .minuteValueneutral {
+  .resource-summary-page__minute-value--neutral {
     color: var(--text-primary);
     font-weight: var(--font-weight-semibold);
   }
 
-  .modalScrim {
+  .resource-summary-page__modal-scrim {
     position: fixed;
     inset: 0;
     display: flex;
@@ -68,25 +79,25 @@
     z-index: 100;
   }
 
-  .detailBody {
+  .resource-summary-page__detail-body {
     padding: var(--space-4);
     overflow: auto;
     max-height: calc(100vh - 180px);
   }
 
-  .detailHeaderText {
+  .resource-summary-page__detail-header-text {
     display: grid;
     gap: 4px;
   }
 
-  .detailPeriod {
+  .resource-summary-page__detail-period {
     margin: 0;
     color: var(--text-tertiary);
     font-size: var(--text-meta-size);
     line-height: var(--text-meta-line-height);
   }
 
-  .calendar {
+  .resource-summary-page__calendar {
     min-width: 880px;
   }
 }

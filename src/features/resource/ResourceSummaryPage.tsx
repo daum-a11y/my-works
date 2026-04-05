@@ -192,16 +192,16 @@ export function ResourceSummaryPage() {
   };
 
   return (
-    <section className="resourceSummaryPageScope projectsFeatureScope shell">
-      <header className="pageHeader">
-        <div className="pageHeaderTop">
-          <h1 className="title">업무보고 현황</h1>
+    <section className="projects-feature projects-feature--shell resource-summary-page resource-summary-page--shell">
+      <header className="projects-feature__page-header">
+        <div className="projects-feature__page-header-top">
+          <h1 className="projects-feature__title">업무보고 현황</h1>
         </div>
       </header>
 
       <PageSection title="필터">
-        <form className="filterBar" onSubmit={handleSearchSubmit}>
-          <label className="filterField">
+        <form className="projects-feature__filter-bar" onSubmit={handleSearchSubmit}>
+          <label className="projects-feature__filter-field">
             <span>기간</span>
             <input
               type="month"
@@ -209,7 +209,12 @@ export function ResourceSummaryPage() {
               onChange={(event) => setMonthDraft(event.target.value)}
             />
           </label>
-          <label className={clsx('filterField', 'checkboxField')}>
+          <label
+            className={clsx(
+              'projects-feature__filter-field',
+              'resource-summary-page__checkbox-field',
+            )}
+          >
             <span>미작성자만 보기</span>
             <input
               type="checkbox"
@@ -217,18 +222,18 @@ export function ResourceSummaryPage() {
               onChange={(event) => setMissingOnlyDraft(event.target.checked)}
             />
           </label>
-          <div className="filterActions">
-            <button type="submit" className="filterButton">
+          <div className="projects-feature__filter-actions">
+            <button type="submit" className="projects-feature__filter-button">
               검색
             </button>
           </div>
         </form>
       </PageSection>
 
-      <section className="contentSection">
-        <div className="tableWrap">
-          <table className="table">
-            <caption className="srOnly">월별 사용자 업무보고 현황</caption>
+      <section className="resource-summary-page__content-section">
+        <div className="projects-feature__table-wrap">
+          <table className="projects-feature__table">
+            <caption className="projects-feature__sr-only">월별 사용자 업무보고 현황</caption>
             <thead>
               <tr>
                 <th>이름</th>
@@ -244,14 +249,19 @@ export function ResourceSummaryPage() {
                     <tr key={row.id}>
                       <td>{row.label}</td>
                       <td>
-                        <span className={`minuteValue${tone}`}>
+                        <span
+                          className={[
+                            'resource-summary-page__minute-value',
+                            `resource-summary-page__minute-value--${tone}`,
+                          ].join(' ')}
+                        >
                           {formatSignedMinutes(row.diffMinutes)}
                         </span>
                       </td>
                       <td>
                         <button
                           type="button"
-                          className="tableLink"
+                          className="projects-feature__table-link"
                           onClick={() => {
                             setDetailMemberId(row.id);
                             setDetailOpen(true);
@@ -265,7 +275,7 @@ export function ResourceSummaryPage() {
                 })
               ) : (
                 <tr>
-                  <td colSpan={3} className="emptyState">
+                  <td colSpan={3} className="projects-feature__empty-state">
                     검색 결과가 없습니다.
                   </td>
                 </tr>
@@ -276,22 +286,22 @@ export function ResourceSummaryPage() {
       </section>
 
       {detailOpen && detailMember && monthState ? (
-        <div className="modalScrim" onClick={() => setDetailOpen(false)}>
+        <div className="resource-summary-page__modal-scrim" onClick={() => setDetailOpen(false)}>
           <section
-            className="modal"
+            className="projects-feature__modal"
             aria-label="월간 작성 현황"
             onClick={(event) => event.stopPropagation()}
           >
-            <div className="modalHeader">
-              <div className="detailHeaderText">
-                <h2 className="detailTitle">
+            <div className="projects-feature__modal-header">
+              <div className="resource-summary-page__detail-header-text">
+                <h2 className="projects-feature__detail-title">
                   {formatMemberLabel(detailMember.accountId, detailMember.name)}
                 </h2>
-                <p className="detailPeriod">{monthState.label}</p>
+                <p className="resource-summary-page__detail-period">{monthState.label}</p>
               </div>
               <button
                 type="button"
-                className="iconButton"
+                className="projects-feature__icon-button"
                 onClick={() => setDetailOpen(false)}
                 aria-label="상세 닫기"
               >
@@ -299,7 +309,7 @@ export function ResourceSummaryPage() {
               </button>
             </div>
 
-            <div className="detailBody">
+            <div className="resource-summary-page__detail-body">
               <MonthlyReportCalendar
                 weeks={monthState.weeks}
                 summary={monthState.summary}
@@ -307,7 +317,7 @@ export function ResourceSummaryPage() {
                 futureMonth={monthState.futureMonth}
                 todayDay={monthState.todayDay}
                 padded={false}
-                className="calendar"
+                className="resource-summary-page__calendar"
               />
             </div>
           </section>

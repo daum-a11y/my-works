@@ -8,7 +8,7 @@ interface ButtonProps extends AriaButtonProps {
 
 export function Button({ children, className, tone = 'primary', ...props }: ButtonProps) {
   return (
-    <AriaButton {...props} className={clsx('uiButtonScope', 'button', tone, className)}>
+    <AriaButton {...props} className={clsx('ui-button', `ui-button--${tone}`, className)}>
       {children}
     </AriaButton>
   );

@@ -106,7 +106,7 @@ function DistributionTooltip({
   }
 
   return (
-    <div className="chartTooltip">
+    <div className="resource-page__chart-tooltip">
       <strong>{item.label}</strong>
       <span>{item.mm} MM</span>
     </div>
@@ -234,57 +234,57 @@ export function ResourceMonthPage() {
       diffMinutes,
       className:
         diffMinutes < 0
-          ? 'memberBadgeDanger'
+          ? 'resource-page__member-badge--danger'
           : diffMinutes > 0
-            ? 'memberBadgeWarning'
-            : 'memberBadgeSuccess',
+            ? 'resource-page__member-badge--warning'
+            : 'resource-page__member-badge--success',
     };
   });
   const memberOverCount = memberStatusRows.filter((member) => member.diffMinutes > 0).length;
   const memberUnderCount = memberStatusRows.filter((member) => member.diffMinutes < 0).length;
 
   return (
-    <section className="resourcePageScope dashboardPageScope projectsFeatureScope shell">
-      <header className="pageHeader">
-        <div className="pageHeaderTop">
-          <h1 className="title">월간 리포트</h1>
+    <section className="dashboard-page dashboard-page--page projects-feature projects-feature--shell resource-page resource-page--page">
+      <header className="projects-feature__page-header">
+        <div className="projects-feature__page-header-top">
+          <h1 className="projects-feature__title">월간 리포트</h1>
         </div>
       </header>
 
       {query.isPending ? (
-        <div className="empty">데이터를 불러오는 중입니다.</div>
+        <div className="dashboard-page__empty">데이터를 불러오는 중입니다.</div>
       ) : (
         <>
-          <section className="monthContext">
-            <div className="sectionHead">
-              <div className="calendarHeading">
-                <div className="calendarNav" aria-label="월간 리포트 월 이동">
+          <section className="resource-page__month-context">
+            <div className="dashboard-page__section-head">
+              <div className="dashboard-page__calendar-heading">
+                <div className="dashboard-page__calendar-nav" aria-label="월간 리포트 월 이동">
                   <Link
-                    className="calendarNavButton"
+                    className="dashboard-page__calendar-nav-button"
                     to={`/resource/month/${beforeMonth}`}
                     aria-label="이전달 보기"
                   >
                     <ChevronLeft size={16} strokeWidth={2.4} aria-hidden="true" />
-                    <span className="srOnly">이전달 보기</span>
+                    <span className="projects-feature__sr-only">이전달 보기</span>
                   </Link>
-                  <h2 className="calendarTitle">
+                  <h2 className="dashboard-page__calendar-title">
                     {year}년 {month}월
                   </h2>
                   <Link
-                    className="calendarNavButton"
+                    className="dashboard-page__calendar-nav-button"
                     to={`/resource/month/${afterMonth}`}
                     aria-label="다음달 보기"
                   >
                     <ChevronRight size={16} strokeWidth={2.4} aria-hidden="true" />
-                    <span className="srOnly">다음달 보기</span>
+                    <span className="projects-feature__sr-only">다음달 보기</span>
                   </Link>
                 </div>
               </div>
             </div>
 
-            <div className="summaryFacts">
+            <div className="resource-page__summary-facts">
               {summaryItems.map((item) => (
-                <div key={item.label} className="summaryFact">
+                <div key={item.label} className="resource-page__summary-fact">
                   <span>{item.label}</span>
                   <strong>{item.value}</strong>
                 </div>
@@ -292,8 +292,12 @@ export function ResourceMonthPage() {
             </div>
 
             {distributionItems.length ? (
-              <div className="chartSurface">
-                <div className="chartFrame" role="img" aria-label="월간 리소스 배분 현황">
+              <div className="resource-page__chart-surface">
+                <div
+                  className="resource-page__chart-frame"
+                  role="img"
+                  aria-label="월간 리소스 배분 현황"
+                >
                   <ResponsiveContainer width="100%" height={52}>
                     <BarChart
                       data={distributionChartData}
@@ -327,26 +331,33 @@ export function ResourceMonthPage() {
             ) : null}
 
             {memberStatusRows.length ? (
-              <details className="memberAccordion">
-                <summary className="memberAccordionSummary">
+              <details className="resource-page__member-accordion">
+                <summary className="resource-page__member-accordion-summary">
                   <span>
                     <strong>총 {memberStatusRows.length}명</strong> | 초과 {memberOverCount}명 미달{' '}
                     {memberUnderCount}명
                   </span>
-                  <span className="memberAccordionHint">
-                    <span className="srOnly">
-                      <span className="memberAccordionHintClosed">펼치기</span>
-                      <span className="memberAccordionHintOpen">접기</span>
+                  <span className="resource-page__member-accordion-hint">
+                    <span className="projects-feature__sr-only">
+                      <span className="resource-page__member-accordion-hint resource-page__member-accordion-hint--closed">
+                        펼치기
+                      </span>
+                      <span className="resource-page__member-accordion-hint resource-page__member-accordion-hint--open">
+                        접기
+                      </span>
                     </span>
-                    <span aria-hidden="true" className="memberAccordionChevron">
+                    <span aria-hidden="true" className="resource-page__member-accordion-chevron">
                       ▾
                     </span>
                   </span>
                 </summary>
-                <div className="memberAccordionBody">
-                  <div className="badgeRow">
+                <div className="resource-page__member-accordion-body">
+                  <div className="resource-page__badge-row">
                     {memberStatusRows.map((member) => (
-                      <span key={member.id} className={clsx('memberBadge', member.className)}>
+                      <span
+                        key={member.id}
+                        className={clsx('resource-page__member-badge', member.className)}
+                      >
                         {member.accountId}
                         {member.diffMinutes > 0
                           ? ` +${member.diffMinutes}분`
@@ -362,11 +373,20 @@ export function ResourceMonthPage() {
           </section>
 
           {hasTableData ? (
-            <section className="tableTabsSection">
-              <div className="tableTabs" role="tablist" aria-label="월간 리포트 표 보기">
+            <section className="resource-page__table-tabs-section">
+              <div
+                className="resource-page__table-tabs"
+                role="tablist"
+                aria-label="월간 리포트 표 보기"
+              >
                 <button
                   type="button"
-                  className={activeTableTab === 'report' ? 'tableTabActive' : 'tableTab'}
+                  className={[
+                    'resource-page__table-tab',
+                    activeTableTab === 'report' ? 'resource-page__table-tab--active' : '',
+                  ]
+                    .filter(Boolean)
+                    .join(' ')}
                   aria-pressed={activeTableTab === 'report'}
                   onClick={() => setActiveTableTab('report')}
                 >
@@ -374,7 +394,12 @@ export function ResourceMonthPage() {
                 </button>
                 <button
                   type="button"
-                  className={activeTableTab === 'service' ? 'tableTabActive' : 'tableTab'}
+                  className={[
+                    'resource-page__table-tab',
+                    activeTableTab === 'service' ? 'resource-page__table-tab--active' : '',
+                  ]
+                    .filter(Boolean)
+                    .join(' ')}
                   aria-pressed={activeTableTab === 'service'}
                   onClick={() => setActiveTableTab('service')}
                 >
@@ -382,7 +407,12 @@ export function ResourceMonthPage() {
                 </button>
                 <button
                   type="button"
-                  className={activeTableTab === 'type' ? 'tableTabActive' : 'tableTab'}
+                  className={[
+                    'resource-page__table-tab',
+                    activeTableTab === 'type' ? 'resource-page__table-tab--active' : '',
+                  ]
+                    .filter(Boolean)
+                    .join(' ')}
                   aria-pressed={activeTableTab === 'type'}
                   onClick={() => setActiveTableTab('type')}
                 >
@@ -391,19 +421,19 @@ export function ResourceMonthPage() {
               </div>
 
               {activeTableTab === 'type' ? (
-                <section className="tableTabPanel">
-                  <div className="tableTabActions">
+                <section className="resource-page__table-tab-panel">
+                  <div className="resource-page__table-tab-actions">
                     <button
                       type="button"
-                      className="headerAction"
+                      className="projects-feature__header-action"
                       onClick={() => setWorkFold((current) => !current)}
                       disabled={!typeRows.length}
                     >
                       {workFold ? '상세' : '요약'}
                     </button>
                   </div>
-                  <div className="tableWrap">
-                    <table className={clsx('table', 'table')}>
+                  <div className="dashboard-page__table-wrap">
+                    <table className={clsx('dashboard-page__table', 'dashboard-page__table')}>
                       <thead>
                         <tr>
                           <th>타입1</th>
@@ -414,15 +444,30 @@ export function ResourceMonthPage() {
                         </tr>
                       </thead>
                       <tfoot>
-                        <tr className="sumRow">
+                        <tr className="resource-page__sum-row">
                           <td colSpan={2}>합계</td>
-                          <td className={clsx('numberCell', 'sumCell')}>
+                          <td
+                            className={clsx(
+                              'resource-page__number-cell',
+                              'resource-page__sum-cell',
+                            )}
+                          >
                             {formatIntegerValue(totalMinutes)}
                           </td>
-                          <td className={clsx('numberCell', 'sumCell')}>
+                          <td
+                            className={clsx(
+                              'resource-page__number-cell',
+                              'resource-page__sum-cell',
+                            )}
+                          >
                             {formatDecimalValue(Number(formatMd(totalMinutes)))}
                           </td>
-                          <td className={clsx('numberCell', 'sumCell')}>
+                          <td
+                            className={clsx(
+                              'resource-page__number-cell',
+                              'resource-page__sum-cell',
+                            )}
+                          >
                             {formatMm(totalMinutes, workingDays)}
                           </td>
                         </tr>
@@ -430,16 +475,37 @@ export function ResourceMonthPage() {
                       <tbody>
                         {typeRows.map((row) => (
                           <Fragment key={row.type1}>
-                            <tr className={!row.requiresServiceGroup ? 'lightGrayRow' : undefined}>
+                            <tr
+                              className={
+                                !row.requiresServiceGroup
+                                  ? 'resource-page__light-gray-row'
+                                  : undefined
+                              }
+                            >
                               <td rowSpan={workFold ? 1 : row.items.length + 1}>{row.type1}</td>
-                              <td className="tableSummaryCell">합계</td>
-                              <td className={clsx('numberCell', 'tableSummaryCell')}>
+                              <td className="resource-page__table-summary-cell">합계</td>
+                              <td
+                                className={clsx(
+                                  'resource-page__number-cell',
+                                  'resource-page__table-summary-cell',
+                                )}
+                              >
                                 {formatIntegerValue(row.totalMinutes)}
                               </td>
-                              <td className={clsx('numberCell', 'tableSummaryCell')}>
+                              <td
+                                className={clsx(
+                                  'resource-page__number-cell',
+                                  'resource-page__table-summary-cell',
+                                )}
+                              >
                                 {formatDecimalValue(Number(formatMd(row.totalMinutes)))}
                               </td>
-                              <td className={clsx('numberCell', 'tableSummaryCell')}>
+                              <td
+                                className={clsx(
+                                  'resource-page__number-cell',
+                                  'resource-page__table-summary-cell',
+                                )}
+                              >
                                 {formatMm(row.totalMinutes, workingDays)}
                               </td>
                             </tr>
@@ -448,17 +514,19 @@ export function ResourceMonthPage() {
                                   <tr
                                     key={`${row.type1}-${item.type2}`}
                                     className={
-                                      item.requiresServiceGroup ? undefined : 'lightGrayRow'
+                                      item.requiresServiceGroup
+                                        ? undefined
+                                        : 'resource-page__light-gray-row'
                                     }
                                   >
                                     <td>{item.type2}</td>
-                                    <td className="numberCell">
+                                    <td className="resource-page__number-cell">
                                       {formatIntegerValue(item.minutes)}
                                     </td>
-                                    <td className="numberCell">
+                                    <td className="resource-page__number-cell">
                                       {formatDecimalValue(Number(formatMd(item.minutes)))}
                                     </td>
-                                    <td className="numberCell">
+                                    <td className="resource-page__number-cell">
                                       {formatMm(item.minutes, workingDays)}
                                     </td>
                                   </tr>
@@ -468,7 +536,7 @@ export function ResourceMonthPage() {
                         ))}
                         {!typeRows.length ? (
                           <tr>
-                            <td colSpan={5} className="emptyState">
+                            <td colSpan={5} className="projects-feature__empty-state">
                               데이터 없음
                             </td>
                           </tr>
@@ -480,19 +548,19 @@ export function ResourceMonthPage() {
               ) : null}
 
               {activeTableTab === 'service' ? (
-                <section className="tableTabPanel">
-                  <div className="tableTabActions">
+                <section className="resource-page__table-tab-panel">
+                  <div className="resource-page__table-tab-actions">
                     <button
                       type="button"
-                      className="headerAction"
+                      className="projects-feature__header-action"
                       onClick={() => setSvcFold((current) => !current)}
                       disabled={!serviceDetailRows.length}
                     >
                       {svcFold ? '상세' : '요약'}
                     </button>
                   </div>
-                  <div className="tableWrap">
-                    <table className={clsx('table', 'table')}>
+                  <div className="dashboard-page__table-wrap">
+                    <table className={clsx('dashboard-page__table', 'dashboard-page__table')}>
                       <thead>
                         <tr>
                           <th>청구그룹</th>
@@ -505,13 +573,17 @@ export function ResourceMonthPage() {
                         </tr>
                       </thead>
                       <tfoot>
-                        <tr className="sumRow">
+                        <tr className="resource-page__sum-row">
                           <td colSpan={4}>합계</td>
-                          <td className="numberCell">{formatIntegerValue(projectMinutes)}</td>
-                          <td className="numberCell">
+                          <td className="resource-page__number-cell">
+                            {formatIntegerValue(projectMinutes)}
+                          </td>
+                          <td className="resource-page__number-cell">
                             {formatDecimalValue(Number(formatMd(projectMinutes)))}
                           </td>
-                          <td className="numberCell">{formatMm(projectMinutes, workingDays)}</td>
+                          <td className="resource-page__number-cell">
+                            {formatMm(projectMinutes, workingDays)}
+                          </td>
                         </tr>
                       </tfoot>
                       <tbody>
@@ -526,16 +598,31 @@ export function ResourceMonthPage() {
                               <tr>
                                 <td rowSpan={svcFold ? 1 : detailLength + 1}>{group.costGroup}</td>
                                 <td rowSpan={svcFold ? 1 : detailLength + 1}>{group.group}</td>
-                                <td colSpan={2} className="tableSummaryCell">
+                                <td colSpan={2} className="resource-page__table-summary-cell">
                                   합계
                                 </td>
-                                <td className={clsx('numberCell', 'tableSummaryCell')}>
+                                <td
+                                  className={clsx(
+                                    'resource-page__number-cell',
+                                    'resource-page__table-summary-cell',
+                                  )}
+                                >
                                   {formatIntegerValue(group.totalMinutes)}
                                 </td>
-                                <td className={clsx('numberCell', 'tableSummaryCell')}>
+                                <td
+                                  className={clsx(
+                                    'resource-page__number-cell',
+                                    'resource-page__table-summary-cell',
+                                  )}
+                                >
                                   {formatDecimalValue(Number(formatMd(group.totalMinutes)))}
                                 </td>
-                                <td className={clsx('numberCell', 'tableSummaryCell')}>
+                                <td
+                                  className={clsx(
+                                    'resource-page__number-cell',
+                                    'resource-page__table-summary-cell',
+                                  )}
+                                >
                                   {formatMm(group.totalMinutes, workingDays)}
                                 </td>
                               </tr>
@@ -547,13 +634,13 @@ export function ResourceMonthPage() {
                                           <td rowSpan={name.items.length}>{name.name}</td>
                                         ) : null}
                                         <td>{item.type1}</td>
-                                        <td className="numberCell">
+                                        <td className="resource-page__number-cell">
                                           {formatIntegerValue(item.minutes)}
                                         </td>
-                                        <td className="numberCell">
+                                        <td className="resource-page__number-cell">
                                           {formatDecimalValue(Number(formatMd(item.minutes)))}
                                         </td>
-                                        <td className="numberCell">
+                                        <td className="resource-page__number-cell">
                                           {formatMm(item.minutes, workingDays)}
                                         </td>
                                       </tr>
@@ -570,9 +657,15 @@ export function ResourceMonthPage() {
               ) : null}
 
               {activeTableTab === 'report' ? (
-                <section className="tableTabPanel">
-                  <div className="tableWrap">
-                    <table className={clsx('table', 'table', 'reportTable')}>
+                <section className="resource-page__table-tab-panel">
+                  <div className="dashboard-page__table-wrap">
+                    <table
+                      className={clsx(
+                        'dashboard-page__table',
+                        'dashboard-page__table',
+                        'resource-page__report-table',
+                      )}
+                    >
                       <thead>
                         <tr>
                           <th>청구그룹</th>
@@ -582,9 +675,9 @@ export function ResourceMonthPage() {
                         </tr>
                       </thead>
                       <tfoot>
-                        <tr className="sumRow">
+                        <tr className="resource-page__sum-row">
                           <td colSpan={3}>합계</td>
-                          <td className="numberCell">
+                          <td className="resource-page__number-cell">
                             {formatMm(adjustedTotalMinutes, workingDays)}
                           </td>
                         </tr>
@@ -595,13 +688,13 @@ export function ResourceMonthPage() {
                             <tr>
                               <td rowSpan={group.names.length + 1}>{group.costGroup}</td>
                               <td rowSpan={group.names.length + 1}>{group.group}</td>
-                              <td className="tableSummaryCell">합계</td>
+                              <td className="resource-page__table-summary-cell">합계</td>
                               <td>{formatMm(group.totalMinutes, workingDays)}</td>
                             </tr>
                             {group.names.map((name) => (
                               <tr key={`${group.group}-${name.name}`}>
                                 <td>{name.name}</td>
-                                <td className="numberCell">
+                                <td className="resource-page__number-cell">
                                   {formatMm(name.minutes, workingDays)}
                                 </td>
                               </tr>
@@ -611,7 +704,7 @@ export function ResourceMonthPage() {
                         {unpaidRows.map((row) => (
                           <tr key={row.type1}>
                             <td colSpan={3}>{row.type1}</td>
-                            <td className="numberCell">
+                            <td className="resource-page__number-cell">
                               {formatMm(row.totalMinutes, workingDays)}
                             </td>
                           </tr>
@@ -623,9 +716,9 @@ export function ResourceMonthPage() {
               ) : null}
             </section>
           ) : (
-            <section className="tableTabsSection">
-              <div className="tableWrap">
-                <div className="emptyState">데이터가 없습니다.</div>
+            <section className="resource-page__table-tabs-section">
+              <div className="dashboard-page__table-wrap">
+                <div className="projects-feature__empty-state">데이터가 없습니다.</div>
               </div>
             </section>
           )}

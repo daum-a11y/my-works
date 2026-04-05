@@ -74,67 +74,79 @@ export function AdminTaskTypesPage() {
     (taskTypesQuery.error instanceof Error && taskTypesQuery.error.message) || '';
 
   return (
-    <section className="adminCrudPageScope page">
-      <header className="pageHeader">
-        <div className="pageHeaderTop">
-          <div className="pageHeading">
-            <h1 className="title">업무 타입 관리</h1>
+    <section className="admin-crud-page admin-crud-page--page">
+      <header className="admin-crud-page__page-header">
+        <div className="admin-crud-page__page-header-top">
+          <div className="admin-crud-page__page-heading">
+            <h1 className="admin-crud-page__title">업무 타입 관리</h1>
           </div>
-          <Link to="/org/type/new" className="headerAction">
+          <Link to="/org/type/new" className="admin-crud-page__header-action">
             업무 타입 추가
           </Link>
         </div>
       </header>
 
-      {statusMessage ? <p className="helperText">{statusMessage}</p> : null}
-      {errorMessage ? <p className="helperText">{errorMessage}</p> : null}
+      {statusMessage ? <p className="admin-crud-page__helper-text">{statusMessage}</p> : null}
+      {errorMessage ? <p className="admin-crud-page__helper-text">{errorMessage}</p> : null}
 
-      <div className="tableWrap">
-        <table className="table">
-          <caption className="srOnly">업무타입 내역</caption>
-          <thead>
-            <tr>
-              <th>타입1</th>
-              <th>타입2</th>
-              <th>리소스 타입</th>
-              <th>활성여부</th>
-              <th>비고</th>
-              <th>관리</th>
-            </tr>
-          </thead>
-          <tbody>
-            {groupedTaskTypes.length ? (
-              groupedTaskTypes.map((group) =>
-                group.rows.map((item, rowIndex) => (
-                  <tr key={item.id} className={activeTypeMap.get(item.id) ? '' : 'inactiveRow'}>
-                    {rowIndex === 0 ? (
-                      <td rowSpan={group.rows.length} scope="row" className="rowKey">
-                        {group.type1}
-                      </td>
-                    ) : null}
-                    <td>{item.type2}</td>
-                    <td>{item.requiresServiceGroup ? '프로젝트' : '일반'}</td>
-                    <td>{activeTypeMap.get(item.id) ? '활성' : '비활성'}</td>
-                    <td>{item.displayLabel || '-'}</td>
-                    <td>
-                      <div className="actions">
-                        <Link to={`/org/type/${item.id}/edit`} className="secondaryButton">
-                          수정
-                        </Link>
-                      </div>
-                    </td>
-                  </tr>
-                )),
-              )
-            ) : (
+      <div className="admin-crud-page__panel">
+        <div className="admin-crud-page__table-wrap">
+          <table className="admin-crud-page__table">
+            <caption className="admin-crud-page__sr-only">업무타입 내역</caption>
+            <thead>
               <tr>
-                <td className="emptyState" colSpan={6}>
-                  표시할 업무타입 내역이 없습니다.
-                </td>
+                <th>타입1</th>
+                <th>타입2</th>
+                <th>리소스 타입</th>
+                <th>활성여부</th>
+                <th>비고</th>
+                <th>관리</th>
               </tr>
-            )}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {groupedTaskTypes.length ? (
+                groupedTaskTypes.map((group) =>
+                  group.rows.map((item, rowIndex) => (
+                    <tr
+                      key={item.id}
+                      className={activeTypeMap.get(item.id) ? '' : 'admin-crud-page__inactive-row'}
+                    >
+                      {rowIndex === 0 ? (
+                        <td
+                          rowSpan={group.rows.length}
+                          scope="row"
+                          className="admin-crud-page__row-key"
+                        >
+                          {group.type1}
+                        </td>
+                      ) : null}
+                      <td>{item.type2}</td>
+                      <td>{item.requiresServiceGroup ? '프로젝트' : '일반'}</td>
+                      <td>{activeTypeMap.get(item.id) ? '활성' : '비활성'}</td>
+                      <td>{item.displayLabel || '-'}</td>
+                      <td>
+                        <div className="admin-crud-page__actions">
+                          <Link
+                            to={`/org/type/${item.id}/edit`}
+                            className="admin-crud-page__button admin-crud-page__button--secondary"
+                          >
+                            수정
+                          </Link>
+                        </div>
+                      </td>
+                    </tr>
+                  )),
+                )
+              ) : (
+                <tr>
+                  <td className="admin-crud-page__empty-state" colSpan={6}>
+                    표시할 업무타입 내역이 없습니다.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </section>
   );

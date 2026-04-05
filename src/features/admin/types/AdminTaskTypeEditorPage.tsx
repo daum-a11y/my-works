@@ -168,35 +168,43 @@ export function AdminTaskTypeEditorPage() {
 
   if (taskTypesQuery.isLoading && isEditMode) {
     return (
-      <section className="projectsFeatureScope shell editorShell">
-        <p className={'statusMessage'}>불러오는 중...</p>
+      <section className="projects-feature projects-feature__shell projects-feature__editor-shell">
+        <p className={'projects-feature__status-message'}>불러오는 중...</p>
       </section>
     );
   }
 
   if (isEditMode && !selectedTaskType && !taskTypesQuery.isLoading) {
     return (
-      <section className="projectsFeatureScope shell editorShell">
-        <header className={'editorHeader'}>
-          <h1 className={'title'}>업무 타입 수정</h1>
+      <section className="projects-feature projects-feature__shell projects-feature__editor-shell">
+        <header className={'projects-feature__editor-header'}>
+          <h1 className={'projects-feature__title'}>업무 타입 수정</h1>
         </header>
-        <p className={'statusMessage'}>업무 타입을 찾을 수 없습니다.</p>
+        <p className={'projects-feature__status-message'}>업무 타입을 찾을 수 없습니다.</p>
       </section>
     );
   }
 
   return (
-    <section className="projectsFeatureScope shell editorShell">
-      <header className={'editorHeader'}>
-        <h1 className={'title'}>{isEditMode ? '업무 타입 수정' : '업무 타입 추가'}</h1>
+    <section className="projects-feature projects-feature__shell projects-feature__editor-shell">
+      <header className={'projects-feature__editor-header'}>
+        <h1 className={'projects-feature__title'}>
+          {isEditMode ? '업무 타입 수정' : '업무 타입 추가'}
+        </h1>
       </header>
 
-      {errorMessage ? <p className={'statusMessage'}>{errorMessage}</p> : null}
+      {errorMessage ? <p className={'projects-feature__status-message'}>{errorMessage}</p> : null}
 
-      <section className={`${'modal'} ${'editorSurface'}`} aria-label="업무 타입 편집 패널">
-        <form className={`${'detailForm'} ${'editorDetailForm'}`} onSubmit={handleSubmit}>
-          <div className={'editorFormGrid'}>
-            <label className={'field'}>
+      <section
+        className="projects-feature__modal projects-feature__editor-surface"
+        aria-label="업무 타입 편집 패널"
+      >
+        <form
+          className="projects-feature__detail-form projects-feature__editor-detail-form"
+          onSubmit={handleSubmit}
+        >
+          <div className={'projects-feature__editor-form-grid'}>
+            <label className={'projects-feature__field'}>
               <span>타입1</span>
               <input
                 ref={titleRef}
@@ -207,7 +215,7 @@ export function AdminTaskTypeEditorPage() {
               />
             </label>
 
-            <label className={'field'}>
+            <label className={'projects-feature__field'}>
               <span>타입2</span>
               <input
                 value={draft.type2}
@@ -217,7 +225,7 @@ export function AdminTaskTypeEditorPage() {
               />
             </label>
 
-            <label className={'field'}>
+            <label className={'projects-feature__field'}>
               <span>리소스 타입</span>
               <select
                 value={draft.requiresServiceGroup ? '1' : '0'}
@@ -233,7 +241,7 @@ export function AdminTaskTypeEditorPage() {
               </select>
             </label>
 
-            <label className={'field'}>
+            <label className={'projects-feature__field'}>
               <span>활성여부</span>
               <select
                 value={draft.isActive ? '1' : '0'}
@@ -247,7 +255,7 @@ export function AdminTaskTypeEditorPage() {
             </label>
 
             {isEditMode ? (
-              <label className={'field'}>
+              <label className={'projects-feature__field'}>
                 <span>비고</span>
                 <input
                   value={draft.displayLabel}
@@ -259,27 +267,44 @@ export function AdminTaskTypeEditorPage() {
             ) : null}
           </div>
 
-          <div className={`${'formActions'} ${'editorFormActions'}`}>
-            <div className={'editorFormActionsStart'}>
+          <div className="projects-feature__form-actions projects-feature__editor-form-actions">
+            <div
+              className={
+                'projects-feature__editor-form-actions projects-feature__editor-form-actions--start'
+              }
+            >
               {isEditMode ? (
                 <>
                   <button
                     type="button"
-                    className={'deleteButton'}
+                    className={'projects-feature__delete-button'}
                     onClick={() => void handleDelete()}
                     disabled={deleteMutation.isPending || deleteBlocked}
                   >
                     삭제
                   </button>
-                  {deleteHelpText ? <p className={'helpText'}>{deleteHelpText}</p> : null}
+                  {deleteHelpText ? (
+                    <p className={'projects-feature__help-text'}>{deleteHelpText}</p>
+                  ) : null}
                 </>
               ) : null}
             </div>
-            <div className={'editorFormActionsEnd'}>
-              <Link to="/org/type" className={'secondaryButton'}>
+            <div
+              className={
+                'projects-feature__editor-form-actions projects-feature__editor-form-actions--end'
+              }
+            >
+              <Link
+                to="/org/type"
+                className={'projects-feature__button projects-feature__button--secondary'}
+              >
                 취소
               </Link>
-              <button type="submit" className={'primaryButton'} disabled={saveMutation.isPending}>
+              <button
+                type="submit"
+                className={'projects-feature__button projects-feature__button--primary'}
+                disabled={saveMutation.isPending}
+              >
                 저장
               </button>
             </div>

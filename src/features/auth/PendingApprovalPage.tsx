@@ -13,20 +13,20 @@ export function PendingApprovalPage() {
   }, []);
 
   return (
-    <main className="loginPageScope page">
-      <section className="panel" aria-labelledby="pending-title">
-        <header className="introBlock">
-          <h1 id="pending-title" className="logoHeading">
+    <main className="login-page">
+      <section className="login-page__panel" aria-labelledby="pending-title">
+        <header className="login-page__hero">
+          <h1 id="pending-title" className="login-page__hero-title">
             승인 대기 중입니다
           </h1>
-          <p>
+          <p className="login-page__hero-copy">
             계정은 확인되었지만 아직 앱 접근 승인이 완료되지 않았습니다.
             <br />
             관리자 승인 후 다시 접속해 주세요.
           </p>
         </header>
 
-        <dl className="notice" data-state="info">
+        <dl className="login-page__feedback login-page__feedback--info" data-state="info">
           <div>
             <dt>계정</dt>
             <dd>{session?.member.accountId ?? '-'}</dd>
@@ -37,7 +37,7 @@ export function PendingApprovalPage() {
           </div>
         </dl>
 
-        <div className="submitRow">
+        <div className="login-page__actions">
           <Button
             type="button"
             tone="secondary"

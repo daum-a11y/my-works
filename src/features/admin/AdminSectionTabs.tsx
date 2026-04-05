@@ -20,7 +20,7 @@ const TABS: Array<{ key: AdminSectionTabKey; label: string; to: string }> = [
 
 export function AdminSectionTabs({ active }: { active: AdminSectionTabKey }) {
   return (
-    <nav aria-label="관리자 섹션" className="adminPageScope tabList">
+    <nav aria-label="관리자 섹션" className="admin-page__tab-list">
       {TABS.map((tab) => {
         const isActive = tab.key === active;
 
@@ -28,7 +28,9 @@ export function AdminSectionTabs({ active }: { active: AdminSectionTabKey }) {
           <Link
             key={tab.key}
             to={tab.to}
-            className={`tabLink ${isActive ? 'tabLinkActive' : ''}`.trim()}
+            className={['admin-page__tab-link', isActive ? 'admin-page__tab-link--active' : '']
+              .filter(Boolean)
+              .join(' ')}
             aria-current={isActive ? 'page' : undefined}
           >
             {tab.label}

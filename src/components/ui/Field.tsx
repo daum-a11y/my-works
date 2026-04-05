@@ -37,22 +37,22 @@ export function InputField({
   const errorId = errorMessage ? `${inputId}-error` : undefined;
 
   return (
-    <label className={clsx('uiFieldScope', 'field', className)} htmlFor={inputId}>
-      <span className="label">{label}</span>
+    <label className={clsx('ui-field', className)} htmlFor={inputId}>
+      <span className="ui-field__label">{label}</span>
       <input
         id={inputId}
-        className="control"
+        className="ui-field__control"
         aria-invalid={errorMessage ? true : ariaInvalid}
         aria-describedby={buildDescribedBy(ariaDescribedBy, descriptionId, errorId)}
         {...props}
       />
       {description ? (
-        <span id={descriptionId} className="description">
+        <span id={descriptionId} className="ui-field__description">
           {description}
         </span>
       ) : null}
       {errorMessage ? (
-        <span id={errorId} className="error" role="alert">
+        <span id={errorId} className="ui-field__error" role="alert">
           {errorMessage}
         </span>
       ) : null}
@@ -76,22 +76,22 @@ export function TextAreaField({
   const errorId = errorMessage ? `${inputId}-error` : undefined;
 
   return (
-    <label className={clsx('uiFieldScope', 'field', className)} htmlFor={inputId}>
-      <span className="label">{label}</span>
+    <label className={clsx('ui-field', className)} htmlFor={inputId}>
+      <span className="ui-field__label">{label}</span>
       <textarea
         id={inputId}
-        className={clsx('control', 'textarea')}
+        className={clsx('ui-field__control', 'ui-field__control--textarea')}
         aria-invalid={errorMessage ? true : ariaInvalid}
         aria-describedby={buildDescribedBy(ariaDescribedBy, descriptionId, errorId)}
         {...props}
       />
       {description ? (
-        <span id={descriptionId} className="description">
+        <span id={descriptionId} className="ui-field__description">
           {description}
         </span>
       ) : null}
       {errorMessage ? (
-        <span id={errorId} className="error" role="alert">
+        <span id={errorId} className="ui-field__error" role="alert">
           {errorMessage}
         </span>
       ) : null}

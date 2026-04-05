@@ -1,19 +1,19 @@
-.projectsFeatureScope {
-  &.shell {
+.projects-feature {
+  &--shell {
     display: grid;
     gap: var(--space-5);
     align-content: start;
     color: var(--text-secondary);
   }
 
-  .pageHeader {
+  .projects-feature__page-header {
     display: grid;
     gap: var(--space-1);
     padding: 0 0 var(--space-3);
     border-bottom: 1px solid var(--border-default);
   }
 
-  .pageHeaderTop {
+  .projects-feature__page-header-top {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -21,7 +21,7 @@
     flex-wrap: nowrap;
   }
 
-  .editorHeader {
+  .projects-feature__editor-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -29,7 +29,7 @@
     flex-wrap: nowrap;
   }
 
-  .kicker {
+  .projects-feature__kicker {
     margin: 0;
     color: var(--text-tertiary);
     font-size: var(--text-kicker-size);
@@ -38,8 +38,8 @@
     letter-spacing: var(--text-kicker-tracking);
   }
 
-  .title,
-  .detailTitle {
+  .projects-feature__title,
+  .projects-feature__detail-title {
     margin: 0;
     color: var(--text-primary);
     font-family: var(--font-body);
@@ -49,27 +49,27 @@
     letter-spacing: var(--text-page-title-tracking);
   }
 
-  .detailTitle {
+  .projects-feature__detail-title {
     font-size: var(--text-section-title-size);
     line-height: var(--text-section-title-line-height);
     letter-spacing: var(--text-section-title-tracking);
   }
 
-  .filterBar {
+  .projects-feature__filter-bar {
     display: flex;
     flex-wrap: nowrap;
     gap: var(--space-3);
     align-items: end;
   }
 
-  .filterField {
+  .projects-feature__filter-field {
     display: grid;
     gap: 6px;
     min-width: 0;
     flex: 0 0 auto;
   }
 
-  .filterField span {
+  .projects-feature__filter-field span {
     color: var(--text-tertiary);
     font-size: var(--text-meta-size);
     font-weight: var(--text-meta-weight);
@@ -77,15 +77,15 @@
     letter-spacing: var(--text-meta-tracking);
   }
 
-  .formGrid,
-  .pageFormGrid {
+  .projects-feature__form-grid,
+  .projects-feature__page-form-grid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
-  .searchInput,
-  .field input,
-  .field select,
-  .field textarea {
+  .projects-feature__search-input,
+  .projects-feature__field input,
+  .projects-feature__field select,
+  .projects-feature__field textarea {
     width: 100%;
     min-height: var(--control-height-md);
     padding: var(--control-padding-y) var(--control-padding-x);
@@ -99,8 +99,8 @@
     letter-spacing: var(--text-form-tracking);
   }
 
-  .filterField input,
-  .filterField select {
+  .projects-feature__filter-field input,
+  .projects-feature__filter-field select {
     min-height: var(--control-height-md);
     padding: var(--control-padding-y) var(--control-padding-x);
     border: 1px solid var(--control-border);
@@ -113,36 +113,36 @@
     letter-spacing: var(--text-form-tracking);
   }
 
-  .filterField input::placeholder,
-  .field :is(input, textarea)::placeholder {
+  .projects-feature__filter-field input::placeholder,
+  .projects-feature__field :is(input, textarea)::placeholder {
     color: var(--control-placeholder);
     font-weight: var(--text-placeholder-weight);
   }
 
-  .field textarea {
+  .projects-feature__field textarea {
     min-height: 80px;
     resize: vertical;
   }
 
-  .field :is(input, select, textarea):disabled {
+  .projects-feature__field :is(input, select, textarea):disabled {
     background: color-mix(in oklab, var(--control-bg) 42%, var(--surface-muted));
     color: var(--text-secondary);
     font-weight: var(--font-weight-regular);
   }
 
-  .field :is(input, select, textarea):focus-visible,
-  .filterField :is(input, select):focus-visible,
-  .primaryButton:focus-visible,
-  .secondaryButton:focus-visible,
-  .actionButton:focus-visible,
-  .iconButton:focus-visible,
-  .tableLink:focus-visible,
-  .deleteButton:focus-visible {
+  .projects-feature__field :is(input, select, textarea):focus-visible,
+  .projects-feature__filter-field :is(input, select):focus-visible,
+  .projects-feature__button--primary:focus-visible,
+  .projects-feature__button--secondary:focus-visible,
+  .projects-feature__action-button:focus-visible,
+  .projects-feature__icon-button:focus-visible,
+  .projects-feature__table-link:focus-visible,
+  .projects-feature__delete-button:focus-visible {
     outline: 2px solid var(--focus-ring-color);
     outline-offset: 1px;
   }
 
-  .statusMessage {
+  .projects-feature__status-message {
     margin: 0;
     padding: var(--space-3) var(--space-4);
     border: 1px solid var(--theme-project-border);
@@ -154,13 +154,12 @@
     letter-spacing: var(--text-body-tracking);
   }
 
-  .primaryButton,
-  .secondaryButton,
-  .iconButton,
-  .tableLink,
-  .headerAction,
-  .filterButton,
-  .filterButtonSecondary {
+  .projects-feature__button,
+  .projects-feature__icon-button,
+  .projects-feature__table-link,
+  .projects-feature__header-action,
+  .projects-feature__filter-button,
+  .projects-feature__filter-button--secondary {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -172,8 +171,8 @@
     cursor: pointer;
   }
 
-  .primaryButton,
-  .filterButton {
+  .projects-feature__button--primary,
+  .projects-feature__filter-button {
     min-height: var(--control-height-md);
     padding: 0 var(--space-3);
     border-color: color-mix(in oklab, var(--button-primary-bg) 82%, black 18%);
@@ -185,11 +184,11 @@
     letter-spacing: var(--text-form-tracking);
   }
 
-  .secondaryButton,
-  .headerAction,
-  .filterButtonSecondary,
-  .actionButton,
-  .deleteButton {
+  .projects-feature__button--secondary,
+  .projects-feature__header-action,
+  .projects-feature__filter-button--secondary,
+  .projects-feature__action-button,
+  .projects-feature__delete-button {
     min-height: var(--control-height-md);
     padding: 0 var(--space-3);
     font-size: var(--text-form-size);
@@ -198,40 +197,40 @@
     letter-spacing: var(--text-form-tracking);
   }
 
-  .secondaryButton,
-  .headerAction,
-  .filterButtonSecondary {
+  .projects-feature__button--secondary,
+  .projects-feature__header-action,
+  .projects-feature__filter-button--secondary {
     background: var(--button-secondary-bg);
     color: var(--text-secondary);
   }
 
-  .headerAction,
-  .secondaryButton,
-  .primaryButton,
-  .deleteButton {
+  .projects-feature__header-action,
+  .projects-feature__button--secondary,
+  .projects-feature__button--primary,
+  .projects-feature__delete-button {
     flex: 0 0 auto;
     width: auto;
     white-space: nowrap;
   }
 
-  .secondaryButton:hover,
-  .headerAction:hover,
-  .filterButtonSecondary:hover,
-  .actionButton:hover,
-  .iconButton:hover,
-  .tableLink:hover {
+  .projects-feature__button--secondary:hover,
+  .projects-feature__header-action:hover,
+  .projects-feature__filter-button--secondary:hover,
+  .projects-feature__action-button:hover,
+  .projects-feature__icon-button:hover,
+  .projects-feature__table-link:hover {
     border-color: var(--border-strong);
     background: var(--button-secondary-hover);
   }
 
-  .filterActions {
+  .projects-feature__filter-actions {
     display: flex;
     align-items: end;
     gap: var(--space-2);
     flex: 0 0 auto;
   }
 
-  .resultBar {
+  .projects-feature__result-bar {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -241,20 +240,20 @@
     background: var(--surface-panel);
   }
 
-  .resultMetrics,
-  .resultControls,
-  .pager {
+  .projects-feature__result-metrics,
+  .projects-feature__result-controls,
+  .projects-feature__pager {
     display: flex;
     align-items: center;
     gap: var(--space-2);
   }
 
-  .resultMetrics {
+  .projects-feature__result-metrics {
     gap: var(--space-3);
     flex: 1 1 auto;
   }
 
-  .resultMetric {
+  .projects-feature__result-metric {
     display: inline-flex;
     align-items: center;
     gap: var(--space-1);
@@ -262,7 +261,7 @@
     white-space: nowrap;
   }
 
-  .resultLabel {
+  .projects-feature__result-label {
     color: var(--text-tertiary);
     font-size: var(--text-meta-size);
     font-weight: var(--text-meta-weight);
@@ -270,8 +269,8 @@
     letter-spacing: var(--text-meta-tracking);
   }
 
-  .resultValue,
-  .pageStatus strong {
+  .projects-feature__result-value,
+  .projects-feature__page-status strong {
     color: var(--text-primary);
     font-size: var(--text-form-size);
     font-weight: var(--font-weight-heavy);
@@ -279,7 +278,7 @@
     letter-spacing: var(--text-form-tracking);
   }
 
-  .pageSizeField {
+  .projects-feature__page-size-field {
     display: flex;
     align-items: center;
     gap: var(--space-2);
@@ -290,7 +289,7 @@
     white-space: nowrap;
   }
 
-  .pageSizeField select {
+  .projects-feature__page-size-field select {
     min-height: 32px;
     padding: 0 var(--control-padding-x);
     border: 1px solid var(--border-default);
@@ -300,12 +299,12 @@
     font-size: var(--text-body-size);
   }
 
-  .pager {
+  .projects-feature__pager {
     padding-left: 0;
     border-left: 0;
   }
 
-  .pageButton {
+  .projects-feature__page-button {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -321,18 +320,18 @@
     cursor: pointer;
   }
 
-  .pageButton:hover:not(:disabled) {
+  .projects-feature__page-button:hover:not(:disabled) {
     background: var(--button-secondary-hover);
     border-color: var(--border-strong);
   }
 
-  .pageButton:disabled {
+  .projects-feature__page-button:disabled {
     color: var(--text-muted);
     background: var(--surface-disabled);
     cursor: default;
   }
 
-  .pageStatus {
+  .projects-feature__page-status {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -346,19 +345,19 @@
     white-space: nowrap;
   }
 
-  .tableWrap {
+  .projects-feature__table-wrap {
     overflow: auto;
     border: 1px solid var(--border-default);
     background: var(--surface-panel);
   }
 
-  .table {
+  .projects-feature__table {
     width: 100%;
     border-collapse: collapse;
   }
 
-  .table th,
-  .table td {
+  .projects-feature__table th,
+  .projects-feature__table td {
     padding: var(--space-3) var(--space-2);
     border-bottom: 1px solid var(--border-subtle);
     text-align: left;
@@ -368,7 +367,7 @@
     line-height: var(--text-table-line-height);
   }
 
-  .table th {
+  .projects-feature__table th {
     color: var(--text-muted);
     font-weight: var(--text-table-weight);
     letter-spacing: var(--text-table-tracking);
@@ -379,15 +378,15 @@
     z-index: 1;
   }
 
-  .rowSelected {
+  .projects-feature__row-selected {
     background: color-mix(in oklab, var(--theme-project-surface) 42%, var(--surface-panel));
   }
 
-  .dateCell {
+  .projects-feature__date-cell {
     font-variant-numeric: tabular-nums;
   }
 
-  .tableLink {
+  .projects-feature__table-link {
     display: inline-flex;
     align-items: center;
     justify-content: flex-start;
@@ -405,13 +404,13 @@
     text-decoration: none;
   }
 
-  .pageButton:focus-visible,
-  .pageSizeField select:focus-visible {
+  .projects-feature__page-button:focus-visible,
+  .projects-feature__page-size-field select:focus-visible {
     outline: 2px solid var(--focus-ring-color);
     outline-offset: 1px;
   }
 
-  .emptyState {
+  .projects-feature__empty-state {
     padding: var(--space-6) var(--space-4);
     color: var(--text-tertiary);
     font-size: var(--text-body-size);
@@ -421,7 +420,7 @@
     text-align: center;
   }
 
-  .actionButton {
+  .projects-feature__action-button {
     display: inline-flex;
     align-items: center;
     justify-content: flex-start;
@@ -437,7 +436,7 @@
     text-decoration: none;
   }
 
-  .actionStack {
+  .projects-feature__action-stack {
     display: flex;
     flex-wrap: nowrap;
     gap: var(--space-2);
@@ -445,7 +444,7 @@
     align-items: center;
   }
 
-  .deleteButton {
+  .projects-feature__delete-button {
     border: 1px solid var(--state-danger-border);
     background: color-mix(in oklab, var(--state-danger-bg) 72%, var(--surface-panel));
     color: var(--state-danger-text);
@@ -453,16 +452,16 @@
     cursor: pointer;
   }
 
-  .deleteButton:hover {
+  .projects-feature__delete-button:hover {
     background: color-mix(in oklab, var(--state-danger-bg) 86%, var(--surface-panel));
   }
 
-  .deleteButton:disabled {
+  .projects-feature__delete-button:disabled {
     opacity: 0.48;
     cursor: not-allowed;
   }
 
-  .modal {
+  .projects-feature__modal {
     width: 100%;
     border: 1px solid var(--border-default);
     background: var(--surface-panel);
@@ -470,7 +469,7 @@
     box-shadow: var(--elevation-1);
   }
 
-  .modalHeader {
+  .projects-feature__modal-header {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
@@ -479,7 +478,7 @@
     border-bottom: 1px solid var(--border-subtle);
   }
 
-  .iconButton {
+  .projects-feature__icon-button {
     width: 36px;
     height: 36px;
     padding: 0;
@@ -489,23 +488,23 @@
     letter-spacing: var(--text-form-tracking);
   }
 
-  .detailForm,
-  .pageSection {
+  .projects-feature__detail-form,
+  .projects-feature__page-section {
     padding: var(--space-4);
   }
 
-  .formGrid,
-  .pageFormGrid {
+  .projects-feature__form-grid,
+  .projects-feature__page-form-grid {
     display: grid;
     gap: var(--space-3);
   }
 
-  .field {
+  .projects-feature__field {
     display: grid;
     gap: var(--space-field-gap);
   }
 
-  .field span {
+  .projects-feature__field span {
     color: var(--text-primary);
     font-size: var(--text-form-size);
     font-weight: var(--text-form-weight);
@@ -513,46 +512,46 @@
     letter-spacing: var(--text-form-tracking);
   }
 
-  .filterField span {
+  .projects-feature__filter-field span {
     color: var(--text-tertiary);
     font-size: var(--text-meta-size);
     line-height: var(--text-meta-line-height);
   }
 
-  .helpText {
+  .projects-feature__help-text {
     color: var(--text-tertiary);
     font-size: var(--text-meta-size);
     line-height: var(--text-meta-line-height);
   }
 
-  .editorShell {
+  &--editor {
     min-height: auto;
     align-content: start;
   }
 
-  .editorSurface {
+  .projects-feature__editor-surface {
     margin-top: 0;
   }
 
-  .editorDetailForm {
+  .projects-feature__editor-detail-form {
     display: grid;
     gap: var(--space-5);
     padding: 20px 24px;
     width: 100%;
   }
 
-  .editorSection {
+  .projects-feature__editor-section {
     display: grid;
   }
 
-  .editorFormGrid {
+  .projects-feature__editor-form-grid {
     display: grid;
     gap: 12px;
     width: 568px;
     max-width: 568px;
   }
 
-  .editorFormGrid .field {
+  .projects-feature__editor-form-grid .projects-feature__field {
     display: grid;
     grid-template-columns: 132px 420px;
     column-gap: 16px;
@@ -560,40 +559,44 @@
     align-items: center;
   }
 
-  .editorFormGrid .field:has(textarea) {
+  .projects-feature__editor-form-grid .projects-feature__field:has(textarea) {
     align-items: start;
   }
 
-  .editorFormGrid .field:has(textarea) > span {
+  .projects-feature__editor-form-grid .projects-feature__field:has(textarea) > span {
     padding-top: 10px;
   }
 
-  .editorFormGrid .field > span {
+  .projects-feature__editor-form-grid .projects-feature__field > span {
     grid-column: 1;
     font-weight: var(--font-weight-medium);
   }
 
-  .editorFormGrid .field :is(input, select, textarea) {
+  .projects-feature__editor-form-grid .projects-feature__field :is(input, select, textarea) {
     grid-column: 2;
     width: 420px;
     max-width: 420px;
     font-weight: var(--font-weight-regular);
   }
 
-  .editorFormGrid .helpText {
+  .projects-feature__field--wide {
+    grid-column: 1 / -1;
+  }
+
+  .projects-feature__editor-form-grid .projects-feature__help-text {
     grid-column: 2;
     width: 420px;
     max-width: 420px;
   }
 
-  .formActions {
+  .projects-feature__form-actions {
     display: flex;
     gap: var(--space-2);
     justify-content: flex-end;
     margin-top: var(--space-4);
   }
 
-  .editorFormActions {
+  .projects-feature__editor-form-actions {
     margin-top: var(--space-4);
     padding-top: 0;
     border-top: 0;
@@ -602,29 +605,29 @@
     max-width: none;
   }
 
-  .editorFormActionsStart,
-  .editorFormActionsEnd {
+  .projects-feature__editor-form-actions--start,
+  .projects-feature__editor-form-actions--end {
     display: flex;
     align-items: center;
     gap: var(--space-2);
   }
 
-  .editorFormActionsStart {
+  .projects-feature__editor-form-actions--start {
     justify-content: flex-start;
   }
 
-  .editorFormActionsEnd {
+  .projects-feature__editor-form-actions--end {
     margin-left: auto;
     justify-content: flex-end;
   }
 
-  .editorHeader .secondaryButton,
-  .editorFormActions .primaryButton,
-  .editorFormActions .secondaryButton {
+  .projects-feature__editor-header .projects-feature__button--secondary,
+  .projects-feature__editor-form-actions .projects-feature__button--primary,
+  .projects-feature__editor-form-actions .projects-feature__button--secondary {
     font-weight: var(--font-weight-medium);
   }
 
-  .sectionHeader {
+  .projects-feature__section-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -632,7 +635,7 @@
     margin-bottom: var(--space-3);
   }
 
-  .sectionTitle {
+  .projects-feature__section-title {
     margin: 0;
     color: var(--text-primary);
     font-size: var(--text-section-title-size);
@@ -641,41 +644,41 @@
     letter-spacing: var(--text-section-title-tracking);
   }
 
-  .pageFormPanel {
+  .projects-feature__page-form-panel {
     margin-bottom: var(--space-3);
   }
 
-  .pageFormGrid {
+  .projects-feature__page-form-grid {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: var(--space-3);
   }
 
-  .pageFormPanel .formActions {
+  .projects-feature__page-form-panel .projects-feature__form-actions {
     margin-top: 0;
   }
 
-  .pageTableWrap {
+  .projects-feature__page-table-wrap {
     overflow: auto;
     border: 1px solid var(--border-default);
     background: var(--surface-panel);
   }
 
-  .pageTable {
+  .projects-feature__page-table {
     width: 100%;
     border-collapse: collapse;
     table-layout: fixed;
   }
 
-  .pageTable th,
-  .pageTable td {
+  .projects-feature__page-table th,
+  .projects-feature__page-table td {
     padding: var(--space-3) var(--space-2);
     border-bottom: 1px solid var(--border-subtle);
     text-align: left;
     vertical-align: middle;
   }
 
-  .pageTable th {
+  .projects-feature__page-table th {
     color: var(--text-muted);
     font-size: var(--text-table-size);
     font-weight: var(--font-weight-medium);
@@ -685,24 +688,24 @@
     background: var(--surface-canvas-strong);
   }
 
-  .pageTable th:last-child,
-  .pageTable td:last-child {
+  .projects-feature__page-table th:last-child,
+  .projects-feature__page-table td:last-child {
     text-align: left;
     width: 136px;
   }
 
-  .pageTable th:first-child,
-  .pageTable td:first-child {
+  .projects-feature__page-table th:first-child,
+  .projects-feature__page-table td:first-child {
     width: 36%;
   }
 
-  .pageTable th:nth-child(2),
-  .pageTable td:nth-child(2) {
+  .projects-feature__page-table th:nth-child(2),
+  .projects-feature__page-table td:nth-child(2) {
     width: auto;
   }
 
-  .pageTable td :is(input, select, textarea),
-  .pageFormPanel .field :is(input, select, textarea) {
+  .projects-feature__page-table td :is(input, select, textarea),
+  .projects-feature__page-form-panel .projects-feature__field :is(input, select, textarea) {
     min-height: var(--control-height-sm);
     padding: var(--control-padding-y) var(--control-padding-x);
     border: 1px solid var(--control-border);
@@ -717,31 +720,37 @@
     min-width: 0;
   }
 
-  .pageTable td :is(input, select, textarea)::placeholder,
-  .pageFormPanel .field :is(input, select, textarea)::placeholder {
+  .projects-feature__page-table td :is(input, select, textarea)::placeholder,
+  .projects-feature__page-form-panel
+    .projects-feature__field
+    :is(input, select, textarea)::placeholder {
     color: var(--control-placeholder);
   }
 
-  .pageTable td :is(input, select, textarea):focus-visible,
-  .pageFormPanel .field :is(input, select, textarea):focus-visible {
+  .projects-feature__page-table td :is(input, select, textarea):focus-visible,
+  .projects-feature__page-form-panel
+    .projects-feature__field
+    :is(input, select, textarea):focus-visible {
     outline: 2px solid var(--focus-ring-color);
     outline-offset: 1px;
   }
 
-  .pageTableActions {
+  .projects-feature__page-table-actions {
     display: flex;
     justify-content: flex-end;
     gap: var(--space-2);
     white-space: nowrap;
   }
 
-  .pageTableActions .secondaryButton,
-  .pageTableActions .deleteButton,
-  .pageFormPanel .formActions .primaryButton {
+  .projects-feature__page-table-actions .projects-feature__button--secondary,
+  .projects-feature__page-table-actions .projects-feature__delete-button,
+  .projects-feature__page-form-panel
+    .projects-feature__form-actions
+    .projects-feature__button--primary {
     font-weight: var(--font-weight-regular);
   }
 
-  .pageMeta {
+  .projects-feature__page-meta {
     display: flex;
     flex-wrap: nowrap;
     gap: var(--space-3);
@@ -749,7 +758,7 @@
     font-size: var(--text-meta-size);
   }
 
-  .srOnly {
+  .projects-feature__sr-only {
     position: absolute;
     width: 1px;
     height: 1px;

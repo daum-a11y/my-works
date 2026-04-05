@@ -36,30 +36,30 @@ export function ForgotPasswordPage() {
   }, []);
 
   return (
-    <main className="forgotPasswordPageScope page">
-      <section className="panel" aria-labelledby="forgot-password-title">
-        <div className="introBlock">
-          <h1 className="logoHeading">
+    <main className="forgot-password-page">
+      <section className="forgot-password-page__panel" aria-labelledby="forgot-password-title">
+        <div className="forgot-password-page__hero">
+          <h1 className="forgot-password-page__logo-heading">
             <img
-              className="logo"
+              className="forgot-password-page__logo"
               src="/img/my-works-logo-200x60.png"
               alt="My Works"
               width="100"
               height="30"
             />
           </h1>
-          <p id="forgot-password-title" className="caption">
+          <p id="forgot-password-title" className="forgot-password-page__caption">
             비밀번호 찾기
           </p>
         </div>
-        <div className="formBlock">
-          <div className="hero">
-            <p className="description">
+        <div className="forgot-password-page__form">
+          <div className="forgot-password-page__lead">
+            <p className="forgot-password-page__description">
               가입한 이메일 주소를 입력하면 재설정 메일을 보내어 새 비밀번호를 설정합니다.
             </p>
           </div>
           <form
-            className="form"
+            className="forgot-password-page__form-shell"
             onSubmit={handleSubmit(async (values) => {
               try {
                 setErrorMessage('');
@@ -80,24 +80,35 @@ export function ForgotPasswordPage() {
               {...register('email')}
             />
             {noticeMessage ? (
-              <div className="notice" data-state="success" role="status">
-                <strong>메일 발송 완료</strong>
+              <div
+                className="forgot-password-page__feedback forgot-password-page__feedback--success"
+                data-state="success"
+                role="status"
+              >
+                <strong className="forgot-password-page__feedback-title">메일 발송 완료</strong>
                 <p>{noticeMessage}</p>
               </div>
             ) : null}
             {errorMessage ? (
-              <div className="error" role="alert">
-                <strong>입력 확인 필요</strong>
+              <div
+                className="forgot-password-page__feedback forgot-password-page__feedback--danger"
+                role="alert"
+              >
+                <strong className="forgot-password-page__feedback-title">입력 확인 필요</strong>
                 <p>{errorMessage}</p>
               </div>
             ) : null}
-            <div className="actions">
+            <div className="forgot-password-page__actions">
               <Button type="submit" isDisabled={!isSupabaseConfigured || isSubmitting}>
                 재설정 메일 보내기
               </Button>
             </div>
-            <div className="recoveryPanel">
-              <button type="button" className="backLink" onClick={() => navigate('/login')}>
+            <div className="forgot-password-page__recovery">
+              <button
+                type="button"
+                className="forgot-password-page__back-link"
+                onClick={() => navigate('/login')}
+              >
                 로그인으로 돌아가기
               </button>
             </div>

@@ -3,8 +3,8 @@ import '../../styles/domain/pages/resource-page.scss';
 
 export function ResourceLayout() {
   return (
-    <section className="resourcePageScope page">
-      <div className="content">
+    <section className="resource-page resource-page--page">
+      <div className="resource-page__content">
         <Outlet />
       </div>
     </section>

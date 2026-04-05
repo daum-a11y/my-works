@@ -1,19 +1,19 @@
-.adminReportsPageScope {
-  &.shell {
+.admin-reports-page {
+  &--shell {
     display: grid;
     gap: var(--space-5);
     align-content: start;
     color: var(--text-secondary);
   }
 
-  .pageHeader {
+  .admin-reports-page__page-header {
     display: grid;
     gap: var(--space-1);
     padding: 0 0 var(--space-3);
     border-bottom: 1px solid var(--border-default);
   }
 
-  .pageHeaderTop {
+  .admin-reports-page__page-header-top {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -21,12 +21,12 @@
     flex-wrap: nowrap;
   }
 
-  .pageTitleGroup {
+  .admin-reports-page__page-title-group {
     display: grid;
     gap: 3px;
   }
 
-  .kicker {
+  .admin-reports-page__kicker {
     margin: 0;
     color: var(--text-tertiary);
     font-size: var(--text-kicker-size);
@@ -35,7 +35,7 @@
     letter-spacing: var(--text-kicker-tracking);
   }
 
-  .title {
+  .admin-reports-page__title {
     margin: 0;
     color: var(--text-primary);
     font-family: var(--font-body);
@@ -45,31 +45,31 @@
     letter-spacing: var(--text-page-title-tracking);
   }
 
-  .headerActions {
+  .admin-reports-page__header-actions {
     display: flex;
     align-items: center;
     gap: var(--space-2);
   }
 
-  .panel {
+  .admin-reports-page__panel {
     display: grid;
     gap: var(--space-4);
   }
 
-  .tableWrap {
+  .admin-reports-page__table-wrap {
     overflow: auto;
     border: 1px solid var(--border-default);
     background: var(--surface-panel);
   }
 
-  .table {
+  .admin-reports-page__table {
     width: 100%;
     min-width: 1120px;
     border-collapse: collapse;
   }
 
-  .table th,
-  .table td {
+  .admin-reports-page__table th,
+  .admin-reports-page__table td {
     padding: var(--space-3) var(--space-2);
     border-bottom: 1px solid var(--border-subtle);
     vertical-align: top;
@@ -79,7 +79,7 @@
     line-height: var(--text-table-line-height);
   }
 
-  .table th {
+  .admin-reports-page__table th {
     position: sticky;
     top: 0;
     z-index: 1;
@@ -90,7 +90,7 @@
     text-transform: uppercase;
   }
 
-  .emptyState {
+  .admin-reports-page__empty-state {
     padding: var(--space-6) var(--space-4);
     color: var(--text-tertiary);
     text-align: center;
@@ -100,14 +100,14 @@
     letter-spacing: var(--text-body-tracking);
   }
 
-  .muted {
+  .admin-reports-page__muted {
     margin-top: 3px;
     color: var(--text-tertiary);
     font-size: var(--text-meta-size);
   }
 
-  .sortButton,
-  .sortButtonActive {
+  .admin-reports-page__sort-button,
+  .admin-reports-page__sort-button--active {
     display: inline-flex;
     align-items: center;
     gap: 5px;
@@ -119,62 +119,62 @@
     color: inherit;
   }
 
-  .sortButtonActive {
+  .admin-reports-page__sort-button--active {
     color: var(--accent-strong);
   }
 
-  .sortArrow {
+  .admin-reports-page__sort-arrow {
     font-size: 12px;
   }
 
-  .filterForm {
+  .admin-reports-page__filter-form {
     display: grid;
     gap: var(--space-3);
   }
 
-  .dateRow {
+  .admin-reports-page__date-row {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: var(--space-3);
     align-items: end;
   }
 
-  .dateRow > :first-child {
+  .admin-reports-page__date-row > :first-child {
     grid-column: 1;
   }
 
-  .dateRow > :last-child {
+  .admin-reports-page__date-row > :last-child {
     grid-column: 2;
   }
 
-  .metaRow {
+  .admin-reports-page__meta-row {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: var(--space-3);
     align-items: end;
   }
 
-  .searchRow {
+  .admin-reports-page__search-row {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: var(--space-3);
     align-items: end;
   }
 
-  .filterField {
+  .admin-reports-page__filter-field {
     display: grid;
     gap: 6px;
     min-width: 0;
   }
 
-  .filterField span,
-  .memberSummary {
+  .admin-reports-page__filter-field span,
+  .admin-reports-page__member-summary {
     color: var(--text-tertiary);
     font-size: var(--text-meta-size);
     line-height: var(--text-meta-line-height);
   }
 
-  .filterField :is(input, select) {
+  .admin-reports-page__filter-field :is(input, select) {
     width: 100%;
     min-width: 0;
     min-height: var(--control-height-md);
@@ -189,43 +189,45 @@
     letter-spacing: var(--text-form-tracking);
   }
 
-  .filterField :is(input, select):disabled {
+  .admin-reports-page__filter-field :is(input, select):disabled {
     background: color-mix(in oklab, var(--control-bg) 42%, var(--surface-muted));
     color: var(--text-secondary);
     font-weight: var(--font-weight-regular);
   }
 
-  .filterActions,
-  .resultControls,
-  .actionStack,
-  .pager {
+  .admin-reports-page__filter-actions,
+  .admin-reports-page__result-controls,
+  .admin-reports-page__action-stack,
+  .admin-reports-page__pager {
     display: flex;
     align-items: center;
     gap: var(--space-2);
     flex: 0 0 auto;
   }
 
-  .filterActions {
+  .admin-reports-page__filter-actions {
     justify-content: flex-start;
     align-self: start;
   }
 
-  .filterDivider {
+  .admin-reports-page__filter-divider {
     width: 1px;
     align-self: stretch;
     background: var(--border-default);
   }
 
-  .filterActionsRow {
+  .admin-reports-page__filter-actions-row {
     display: flex;
     justify-content: flex-start;
   }
 
-  .headerAction,
-  .filterButton,
-  .filterButtonSecondary,
-  .actionButton,
-  .deleteButton {
+  .admin-reports-page__header-action,
+  .admin-reports-page__button,
+  .admin-reports-page__button--filter,
+  .admin-reports-page__button--filter-secondary,
+  .admin-reports-page__button--action,
+  .admin-reports-page__button--delete,
+  .admin-reports-page__button--page {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -242,39 +244,39 @@
     white-space: nowrap;
   }
 
-  .filterButton {
+  .admin-reports-page__button--filter {
     border-color: color-mix(in oklab, var(--button-primary-bg) 82%, black 18%);
     background: var(--button-primary-bg);
     color: var(--text-inverse);
   }
 
-  .headerAction,
-  .filterButtonSecondary {
+  .admin-reports-page__header-action,
+  .admin-reports-page__button--filter-secondary {
     background: var(--button-secondary-bg);
     color: var(--text-secondary);
   }
 
-  .headerAction:hover,
-  .filterButtonSecondary:hover,
-  .actionButton:hover {
+  .admin-reports-page__header-action:hover,
+  .admin-reports-page__button--filter-secondary:hover,
+  .admin-reports-page__button--action:hover {
     border-color: var(--border-strong);
     background: var(--button-secondary-hover);
   }
 
-  .memberSelect {
+  .admin-reports-page__member-select {
     position: relative;
     min-width: 0;
   }
 
-  .searchRow > :first-child {
+  .admin-reports-page__search-row > :first-child {
     grid-column: span 1;
   }
 
-  .searchRow > :last-child {
+  .admin-reports-page__search-row > :last-child {
     grid-column: span 3;
   }
 
-  .memberAccordionTrigger {
+  .admin-reports-page__member-accordion-trigger {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -300,7 +302,7 @@
     box-shadow: none;
   }
 
-  .memberAccordionValue {
+  .admin-reports-page__member-accordion-value {
     flex: 1 1 auto;
     display: block;
     min-width: 0;
@@ -312,25 +314,25 @@
     letter-spacing: 0;
   }
 
-  .memberAccordionArrow {
+  .admin-reports-page__member-accordion-arrow {
     flex: 0 0 auto;
     color: var(--text-tertiary);
     font-size: 14px;
     line-height: 1;
   }
 
-  .memberAccordionTrigger:hover {
+  .admin-reports-page__member-accordion-trigger:hover {
     border-color: var(--border-strong);
     background: var(--surface-hover);
   }
 
-  .memberAccordionTrigger:focus-visible {
+  .admin-reports-page__member-accordion-trigger:focus-visible {
     outline: 2px solid var(--focus-ring-color);
     outline-offset: 1px;
   }
 
-  .memberAccordionBody,
-  .memberAccordionBodyOpen {
+  .admin-reports-page__member-accordion-body,
+  .admin-reports-page__member-accordion-body--open {
     position: absolute;
     top: calc(100% + 6px);
     left: 0;
@@ -347,31 +349,31 @@
       transform 180ms ease;
   }
 
-  .memberAccordionBody {
+  .admin-reports-page__member-accordion-body {
     max-height: 0;
     opacity: 0;
     transform: translateY(-4px);
     pointer-events: none;
   }
 
-  .memberAccordionBodyOpen {
+  .admin-reports-page__member-accordion-body--open {
     max-height: 420px;
     opacity: 1;
     transform: translateY(0);
     pointer-events: auto;
   }
 
-  .memberAccordionInner {
+  .admin-reports-page__member-accordion-inner {
     display: grid;
     gap: var(--space-1);
     padding: var(--space-3);
   }
 
-  .memberPanelToolbar {
+  .admin-reports-page__member-panel-toolbar {
     display: block;
   }
 
-  .memberSearchInput {
+  .admin-reports-page__member-search-input {
     width: 100%;
     min-height: var(--control-height-md);
     padding: var(--control-padding-y) var(--control-padding-x);
@@ -385,14 +387,14 @@
     letter-spacing: var(--text-form-tracking);
   }
 
-  .memberQuickActions {
+  .admin-reports-page__member-quick-actions {
     display: flex;
     align-items: center;
     gap: var(--space-2);
     flex-wrap: wrap;
   }
 
-  .memberQuickAction {
+  .admin-reports-page__member-quick-action {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -410,12 +412,12 @@
     white-space: nowrap;
   }
 
-  .memberQuickAction:hover {
+  .admin-reports-page__member-quick-action:hover {
     color: color-mix(in oklab, var(--accent-strong) 76%, var(--text-primary));
     text-decoration: underline;
   }
 
-  .memberCheckboxes {
+  .admin-reports-page__member-checkboxes {
     display: grid;
     grid-template-columns: 1fr;
     gap: 0;
@@ -425,7 +427,7 @@
     padding-top: var(--space-3);
   }
 
-  .memberCheckbox {
+  .admin-reports-page__member-checkbox {
     display: grid;
     grid-template-columns: auto minmax(0, 1fr);
     align-items: center;
@@ -437,11 +439,11 @@
     color: var(--text-secondary);
   }
 
-  .memberCheckboxSelected {
+  .admin-reports-page__member-checkbox--selected {
     background: color-mix(in oklab, var(--accent-soft) 14%, var(--surface-panel));
   }
 
-  .memberAccount {
+  .admin-reports-page__member-account {
     min-width: 0;
     color: var(--text-primary);
     font-size: var(--text-body-size);
@@ -449,7 +451,7 @@
     line-height: var(--text-body-line-height);
   }
 
-  .memberName {
+  .admin-reports-page__member-name {
     min-width: 0;
     color: var(--text-tertiary);
     font-size: var(--text-meta-size);
@@ -457,7 +459,7 @@
     display: none;
   }
 
-  .memberEmptyState {
+  .admin-reports-page__member-empty-state {
     margin: 0;
     grid-column: 1 / -1;
     color: var(--text-tertiary);
@@ -465,7 +467,7 @@
     line-height: var(--text-meta-line-height);
   }
 
-  .statusMessage {
+  .admin-reports-page__status-message {
     margin: 0;
     padding: var(--space-3) var(--space-4);
     border: 1px solid color-mix(in oklab, var(--state-danger-border) 62%, var(--border-default));
@@ -477,7 +479,7 @@
     letter-spacing: var(--text-body-tracking);
   }
 
-  .resultBar {
+  .admin-reports-page__result-bar {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -487,42 +489,31 @@
     background: var(--surface-panel);
   }
 
-  .resultMetrics {
+  .admin-reports-page__result-metrics {
     display: flex;
     align-items: center;
     gap: var(--space-3);
     flex: 1 1 auto;
   }
 
-  .pageButton {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+  .admin-reports-page__button--page {
     min-height: var(--control-height-md);
     min-width: 64px;
-    padding: 0 var(--space-3);
-    border: 1px solid var(--border-default);
     background: var(--button-secondary-bg);
     color: var(--text-secondary);
-    font: inherit;
-    font-size: var(--text-form-size);
-    font-weight: var(--text-form-weight);
-    line-height: var(--text-form-line-height);
-    letter-spacing: var(--text-form-tracking);
-    cursor: pointer;
   }
 
-  .pageButton:hover:not(:disabled) {
+  .admin-reports-page__button--page:hover:not(:disabled) {
     border-color: var(--border-strong);
     background: var(--button-secondary-hover);
   }
 
-  .pageButton:disabled {
+  .admin-reports-page__button--page:disabled {
     cursor: not-allowed;
     opacity: 0.45;
   }
 
-  .pageStatus {
+  .admin-reports-page__page-status {
     display: inline-flex;
     align-items: baseline;
     gap: 4px;
@@ -533,27 +524,27 @@
     white-space: nowrap;
   }
 
-  .pageStatus strong {
+  .admin-reports-page__page-status strong {
     color: var(--text-primary);
     font-size: var(--text-form-size);
     font-weight: var(--font-weight-heavy);
     line-height: 1;
   }
 
-  .pageSizeField {
+  .admin-reports-page__page-size-field {
     display: inline-flex;
     align-items: center;
     gap: var(--space-2);
     white-space: nowrap;
   }
 
-  .pageSizeField span {
+  .admin-reports-page__page-size-field span {
     color: var(--text-tertiary);
     font-size: var(--text-meta-size);
     line-height: var(--text-meta-line-height);
   }
 
-  .pageSizeField select {
+  .admin-reports-page__page-size-field select {
     min-height: var(--control-height-md);
     padding: var(--control-padding-y) var(--control-padding-x);
     border: 1px solid var(--control-border);
@@ -566,7 +557,7 @@
     letter-spacing: var(--text-form-tracking);
   }
 
-  .resultMetric {
+  .admin-reports-page__result-metric {
     display: inline-flex;
     align-items: center;
     gap: var(--space-1);
@@ -574,7 +565,7 @@
     white-space: nowrap;
   }
 
-  .resultLabel {
+  .admin-reports-page__result-label {
     color: var(--text-tertiary);
     font-size: var(--text-meta-size);
     font-weight: var(--text-meta-weight);
@@ -582,7 +573,7 @@
     letter-spacing: var(--text-meta-tracking);
   }
 
-  .resultValue {
+  .admin-reports-page__result-value {
     color: var(--text-primary);
     font-size: var(--text-form-size);
     font-weight: var(--font-weight-heavy);
@@ -590,8 +581,8 @@
     letter-spacing: var(--text-form-tracking);
   }
 
-  .tableLink,
-  .actionButton {
+  .admin-reports-page__table-link,
+  .admin-reports-page__button--action {
     min-height: auto;
     padding: 0;
     border: 0;
@@ -600,7 +591,7 @@
     color: var(--accent-strong);
   }
 
-  .tableLink {
+  .admin-reports-page__table-link {
     display: inline-flex;
     align-items: center;
     width: fit-content;
@@ -611,49 +602,52 @@
     text-decoration: none;
   }
 
-  .deleteButton {
+  .admin-reports-page__button--delete {
     background: color-mix(in oklab, var(--state-danger-bg) 72%, var(--surface-panel));
     border-color: var(--state-danger-border);
     color: var(--state-danger-text);
   }
 
-  .deleteButton:hover {
+  .admin-reports-page__button--delete:hover {
     background: color-mix(in oklab, var(--state-danger-bg) 86%, var(--surface-panel));
   }
 
-  .deleteButton:disabled,
-  .filterButton:disabled,
-  .filterButtonSecondary:disabled {
+  .admin-reports-page__button--delete:disabled,
+  .admin-reports-page__button--filter:disabled,
+  .admin-reports-page__button--filter-secondary:disabled,
+  .admin-reports-page__button--page:disabled {
     opacity: 0.48;
     cursor: not-allowed;
   }
 
-  .filterField :is(input, select):focus-visible,
-  .memberSearchInput:focus-visible,
-  .filterButton:focus-visible,
-  .filterButtonSecondary:focus-visible,
-  .headerAction:focus-visible,
-  .actionButton:focus-visible,
-  .deleteButton:focus-visible,
-  .tableLink:focus-visible,
-  .sortButton:focus-visible,
-  .sortButtonActive:focus-visible,
-  .memberAccordionTrigger:focus-visible,
-  .memberCheckbox input:focus-visible {
+  .admin-reports-page__filter-field :is(input, select):focus-visible,
+  .admin-reports-page__member-search-input:focus-visible,
+  .admin-reports-page__button--filter:focus-visible,
+  .admin-reports-page__button--filter-secondary:focus-visible,
+  .admin-reports-page__header-action:focus-visible,
+  .admin-reports-page__button--action:focus-visible,
+  .admin-reports-page__button--delete:focus-visible,
+  .admin-reports-page__button--page:focus-visible,
+  .admin-reports-page__table-link:focus-visible,
+  .admin-reports-page__sort-button:focus-visible,
+  .admin-reports-page__sort-button--active:focus-visible,
+  .admin-reports-page__member-accordion-trigger:focus-visible,
+  .admin-reports-page__member-checkbox input:focus-visible {
     outline: 2px solid var(--focus-ring-color);
     outline-offset: 1px;
   }
 
-  .headerAction,
-  .filterButton,
-  .filterButtonSecondary,
-  .actionButton,
-  .deleteButton,
-  .sortButton,
-  .sortButtonActive,
-  .memberAccordionTrigger,
-  .memberCheckbox,
-  .memberQuickAction {
+  .admin-reports-page__header-action,
+  .admin-reports-page__button--filter,
+  .admin-reports-page__button--filter-secondary,
+  .admin-reports-page__button--action,
+  .admin-reports-page__button--delete,
+  .admin-reports-page__button--page,
+  .admin-reports-page__sort-button,
+  .admin-reports-page__sort-button--active,
+  .admin-reports-page__member-accordion-trigger,
+  .admin-reports-page__member-checkbox,
+  .admin-reports-page__member-quick-action {
     -webkit-tap-highlight-color: transparent;
   }
 }

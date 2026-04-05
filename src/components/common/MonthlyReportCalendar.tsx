@@ -54,10 +54,15 @@ export function MonthlyReportCalendar({
 }: MonthlyReportCalendarProps) {
   return (
     <div
-      className={clsx('monthlyReportCalendarScope', panel && 'wrap', padded && 'padded', className)}
+      className={clsx(
+        'monthly-report-calendar',
+        panel && 'monthly-report-calendar--panel',
+        padded && 'monthly-report-calendar--padded',
+        className,
+      )}
     >
-      <table className="table">
-        {caption ? <caption className="caption">{caption}</caption> : null}
+      <table className="monthly-report-calendar__table">
+        {caption ? <caption className="monthly-report-calendar__caption">{caption}</caption> : null}
         <thead>
           <tr>
             {weekdayLabels.map((label) => (
@@ -70,7 +75,12 @@ export function MonthlyReportCalendar({
             <tr key={`week-${weekIndex}`}>
               {week.map((cell, weekdayIndex) => {
                 if (!cell) {
-                  return <td key={`blank-${weekIndex}-${weekdayIndex}`} className="blank" />;
+                  return (
+                    <td
+                      key={`blank-${weekIndex}-${weekdayIndex}`}
+                      className="monthly-report-calendar__blank"
+                    />
+                  );
                 }
 
                 const minutes = summary.get(cell.day) ?? 0;
@@ -80,37 +90,56 @@ export function MonthlyReportCalendar({
                   ((currentMonth && todayDay >= cell.day) || (!futureMonth && !currentMonth));
                 const linkTarget = getDateLink?.(cell.date) ?? null;
                 const isToday = currentMonth && todayDay === cell.day;
-                const dateLabel = <span className="date">{cell.day}일</span>;
+                const dateLabel = (
+                  <span className="monthly-report-calendar__date">{cell.day}일</span>
+                );
 
                 return (
                   <td
                     key={cell.date}
-                    className={clsx('cell', isWeekend && 'weekendCell', isToday && 'today')}
+                    className={clsx(
+                      'monthly-report-calendar__cell',
+                      isWeekend && 'monthly-report-calendar__cell--weekend',
+                      isToday && 'monthly-report-calendar__cell--today',
+                    )}
                   >
-                    <div className="cellInner">
+                    <div className="monthly-report-calendar__cell-inner">
                       {linkTarget ? (
-                        <Link to={linkTarget.to} state={linkTarget.state} className="link">
+                        <Link
+                          to={linkTarget.to}
+                          state={linkTarget.state}
+                          className="monthly-report-calendar__link"
+                        >
                           {dateLabel}
                         </Link>
                       ) : (
                         dateLabel
                       )}
-                      {isToday ? <span className="todayMark">오늘</span> : null}
+                      {isToday ? (
+                        <span className="monthly-report-calendar__today-mark">오늘</span>
+                      ) : null}
                     </div>
                     {isWeekend ? (
                       minutes > 0 ? (
-                        <span className="badge badgeWeekend">
+                        <span className="monthly-report-calendar__badge monthly-report-calendar__badge--weekend">
                           {minutes.toLocaleString('ko-KR')}분
                         </span>
                       ) : null
                     ) : minutes > 0 ? (
                       <span
-                        className={clsx('badge', minutes >= 480 ? 'badgeSuccess' : 'badgeWarning')}
+                        className={clsx(
+                          'monthly-report-calendar__badge',
+                          minutes >= 480
+                            ? 'monthly-report-calendar__badge--success'
+                            : 'monthly-report-calendar__badge--warning',
+                        )}
                       >
                         {formatDiffMinutes(minutes - 480)}
                       </span>
                     ) : showBusinessState ? (
-                      <span className="badge badgeDanger">-480분</span>
+                      <span className="monthly-report-calendar__badge monthly-report-calendar__badge--danger">
+                        -480분
+                      </span>
                     ) : null}
                   </td>
                 );

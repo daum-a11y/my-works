@@ -76,7 +76,9 @@ export function QaStatsPage() {
   const [draftEndMonth, setDraftEndMonth] = useState(defaultEndMonth);
   const [startMonth, setStartMonth] = useState(defaultStartMonth);
   const [endMonth, setEndMonth] = useState(defaultEndMonth);
-  const [summaryView, setSummaryView] = useState<'chart' | 'table'>('chart');
+  const [summaryView, setSummaryView] = useState<'stats-page__chart' | 'stats-page__table'>(
+    'stats-page__chart',
+  );
 
   useEffect(() => {
     setDocumentTitle('QA 통계');
@@ -151,20 +153,20 @@ export function QaStatsPage() {
   }, [filteredProjects, today]);
 
   return (
-    <div className={'statsPageScope page'}>
-      <header className={'hero'}>
-        <h1 className={'title'}>QA 통계</h1>
+    <div className={'stats-page stats-page--page'}>
+      <header className={'stats-page__hero'}>
+        <h1 className={'stats-page__title'}>QA 통계</h1>
       </header>
 
       <PageSection title="필터">
         <form
-          className={'filterBar'}
+          className={'stats-page__filter-bar'}
           onSubmit={(event) => {
             event.preventDefault();
             handleSearch();
           }}
         >
-          <label className={'filterField'}>
+          <label className={'stats-page__filter-field'}>
             <span>시작월</span>
             <input
               type="month"
@@ -173,7 +175,7 @@ export function QaStatsPage() {
               onChange={(event) => setDraftStartMonth(event.target.value)}
             />
           </label>
-          <label className={'filterField'}>
+          <label className={'stats-page__filter-field'}>
             <span>종료월</span>
             <input
               type="month"
@@ -182,11 +184,15 @@ export function QaStatsPage() {
               onChange={(event) => setDraftEndMonth(event.target.value)}
             />
           </label>
-          <div className={'filterActions'}>
-            <button type="submit" className={'filterButton'}>
+          <div className={'stats-page__filter-actions'}>
+            <button type="submit" className={'stats-page__filter-button'}>
               검색
             </button>
-            <button type="button" className={'filterButtonSecondary'} onClick={handleReset}>
+            <button
+              type="button"
+              className={'stats-page__filter-button stats-page__filter-button--secondary'}
+              onClick={handleReset}
+            >
               초기화
             </button>
           </div>
@@ -194,28 +200,36 @@ export function QaStatsPage() {
       </PageSection>
 
       <PageSection title="월별 QA 현황">
-        <div className={'viewToggle'} role="tablist" aria-label="QA 월별 요약 보기">
+        <div className={'stats-page__view-toggle'} role="tablist" aria-label="QA 월별 요약 보기">
           <button
             type="button"
-            className={summaryView === 'table' ? 'viewToggleActive' : 'viewToggleButton'}
-            aria-pressed={summaryView === 'table'}
-            onClick={() => setSummaryView('table')}
+            className={
+              summaryView === 'stats-page__table'
+                ? 'stats-page__view-toggle-button stats-page__view-toggle-button--active'
+                : 'stats-page__view-toggle-button'
+            }
+            aria-pressed={summaryView === 'stats-page__table'}
+            onClick={() => setSummaryView('stats-page__table')}
           >
             표
           </button>
           <button
             type="button"
-            className={summaryView === 'chart' ? 'viewToggleActive' : 'viewToggleButton'}
-            aria-pressed={summaryView === 'chart'}
-            onClick={() => setSummaryView('chart')}
+            className={
+              summaryView === 'stats-page__chart'
+                ? 'stats-page__view-toggle-button stats-page__view-toggle-button--active'
+                : 'stats-page__view-toggle-button'
+            }
+            aria-pressed={summaryView === 'stats-page__chart'}
+            onClick={() => setSummaryView('stats-page__chart')}
           >
             그래프
           </button>
         </div>
-        {summaryView === 'chart' ? (
-          <div className={'chartSurface'}>
+        {summaryView === 'stats-page__chart' ? (
+          <div className={'stats-page__chart-surface'}>
             {monthlyRows.length ? (
-              <div className={'chartFrame'} role="img" aria-label="QA 월별 차트">
+              <div className={'stats-page__chart-frame'} role="img" aria-label="QA 월별 차트">
                 <ResponsiveContainer width="100%" height={320}>
                   <AreaChart data={monthlyRows} margin={{ top: 12, right: 12, left: 0, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" />
@@ -241,13 +255,13 @@ export function QaStatsPage() {
                 </ResponsiveContainer>
               </div>
             ) : (
-              <p className={'empty'}>QA 데이터가 없습니다.</p>
+              <p className={'stats-page__empty'}>QA 데이터가 없습니다.</p>
             )}
           </div>
         ) : (
-          <div className={'tableWrap'}>
-            <table className={'table'}>
-              <caption className={'srOnly'}>QA 월별 표</caption>
+          <div className={'stats-page__table-wrap'}>
+            <table className={'stats-page__table'}>
+              <caption className={'stats-page__sr-only'}>QA 월별 표</caption>
               <thead>
                 <tr>
                   <th scope="col">월</th>
@@ -259,13 +273,13 @@ export function QaStatsPage() {
                 {monthlyRows.map((row) => (
                   <tr key={row.monthKey}>
                     <td>{row.label}</td>
-                    <td className="tabularNums">{row.count}</td>
-                    <td className="tabularNums">{row.completed}</td>
+                    <td className="stats-page__table-number">{row.count}</td>
+                    <td className="stats-page__table-number">{row.completed}</td>
                   </tr>
                 ))}
                 {!monthlyRows.length ? (
                   <tr>
-                    <td colSpan={3} className={'empty'}>
+                    <td colSpan={3} className={'stats-page__empty'}>
                       월별 데이터가 없습니다.
                     </td>
                   </tr>
@@ -277,9 +291,9 @@ export function QaStatsPage() {
       </PageSection>
 
       <PageSection title="QA 프로젝트 목록">
-        <div className={'tableWrap'}>
-          <table className={'table'}>
-            <caption className={'srOnly'}>필터링된 QA 프로젝트 목록</caption>
+        <div className={'stats-page__table-wrap'}>
+          <table className={'stats-page__table'}>
+            <caption className={'stats-page__sr-only'}>필터링된 QA 프로젝트 목록</caption>
             <thead>
               <tr>
                 <th scope="col">월</th>
@@ -302,7 +316,7 @@ export function QaStatsPage() {
                         href={project.reportUrl}
                         target="_blank"
                         rel="noreferrer"
-                        className={'link'}
+                        className={'stats-page__link'}
                       >
                         링크
                       </a>
@@ -314,7 +328,7 @@ export function QaStatsPage() {
               ))}
               {!filteredProjects.length ? (
                 <tr>
-                  <td colSpan={5} className={'empty'}>
+                  <td colSpan={5} className={'stats-page__empty'}>
                     조건에 맞는 QA 내역이 없습니다.
                   </td>
                 </tr>

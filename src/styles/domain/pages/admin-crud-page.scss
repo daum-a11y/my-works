@@ -1,18 +1,18 @@
-.adminCrudPageScope {
-  &.page {
+.admin-crud-page {
+  &--page {
     display: grid;
     gap: var(--space-5);
     align-content: start;
   }
 
-  .pageHeader {
+  .admin-crud-page__page-header {
     display: grid;
     gap: var(--space-1);
     padding: 0 0 var(--space-3);
     border-bottom: 1px solid var(--border-default);
   }
 
-  .pageHeaderTop {
+  .admin-crud-page__page-header-top {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -20,12 +20,12 @@
     flex-wrap: nowrap;
   }
 
-  .pageHeading {
+  .admin-crud-page__page-heading {
     display: grid;
     gap: 4px;
   }
 
-  .title {
+  .admin-crud-page__title {
     margin: 0;
     color: var(--text-primary);
     font-family: var(--font-body);
@@ -35,10 +35,11 @@
     letter-spacing: var(--text-page-title-tracking);
   }
 
-  .headerAction,
-  .primaryButton,
-  .secondaryButton,
-  .dangerButton {
+  .admin-crud-page__header-action,
+  .admin-crud-page__button,
+  .admin-crud-page__button--primary,
+  .admin-crud-page__button--secondary,
+  .admin-crud-page__button--danger {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -54,45 +55,45 @@
     cursor: pointer;
   }
 
-  .headerAction,
-  .secondaryButton {
+  .admin-crud-page__header-action,
+  .admin-crud-page__button--secondary {
     background: var(--button-secondary-bg);
     color: var(--text-secondary);
   }
 
-  .primaryButton {
+  .admin-crud-page__button--primary {
     border-color: color-mix(in oklab, var(--button-primary-bg) 82%, black 18%);
     background: var(--button-primary-bg);
     color: var(--text-inverse);
   }
 
-  .dangerButton {
+  .admin-crud-page__button--danger {
     border-color: var(--state-danger-border);
     background: color-mix(in oklab, var(--state-danger-bg) 72%, var(--surface-panel));
     color: var(--state-danger-text);
   }
 
-  .headerAction:hover,
-  .secondaryButton:hover {
+  .admin-crud-page__header-action:hover,
+  .admin-crud-page__button--secondary:hover {
     border-color: var(--border-strong);
     background: var(--button-secondary-hover);
   }
 
-  .dangerButton:hover {
+  .admin-crud-page__button--danger:hover {
     background: color-mix(in oklab, var(--state-danger-bg) 86%, var(--surface-panel));
   }
 
-  .headerAction:focus-visible,
-  .primaryButton:focus-visible,
-  .secondaryButton:focus-visible,
-  .dangerButton:focus-visible,
-  .fieldInput:focus-visible,
-  .fieldSelect:focus-visible {
+  .admin-crud-page__header-action:focus-visible,
+  .admin-crud-page__button--primary:focus-visible,
+  .admin-crud-page__button--secondary:focus-visible,
+  .admin-crud-page__button--danger:focus-visible,
+  .admin-crud-page__field-input:focus-visible,
+  .admin-crud-page__field-select:focus-visible {
     outline: 2px solid var(--focus-ring-color);
     outline-offset: 1px;
   }
 
-  .helperText {
+  .admin-crud-page__helper-text {
     margin: 0;
     padding: var(--space-3) var(--space-4);
     border: 1px solid var(--state-danger-border);
@@ -104,7 +105,7 @@
     letter-spacing: var(--text-body-tracking);
   }
 
-  .resultBar {
+  .admin-crud-page__result-bar {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -114,14 +115,14 @@
     background: var(--surface-panel);
   }
 
-  .resultMetrics {
+  .admin-crud-page__result-metrics {
     display: flex;
     align-items: center;
     gap: var(--space-3);
     flex-wrap: wrap;
   }
 
-  .resultMetric {
+  .admin-crud-page__result-metric {
     display: inline-flex;
     align-items: center;
     gap: var(--space-1);
@@ -129,7 +130,7 @@
     white-space: nowrap;
   }
 
-  .resultLabel {
+  .admin-crud-page__result-label {
     color: var(--text-tertiary);
     font-size: var(--text-meta-size);
     font-weight: var(--text-meta-weight);
@@ -137,7 +138,7 @@
     letter-spacing: var(--text-meta-tracking);
   }
 
-  .resultValue {
+  .admin-crud-page__result-value {
     color: var(--text-primary);
     font-size: var(--text-form-size);
     font-weight: var(--font-weight-heavy);
@@ -145,7 +146,7 @@
     letter-spacing: var(--text-form-tracking);
   }
 
-  .panel {
+  .admin-crud-page__panel {
     display: grid;
     gap: var(--space-4);
     padding: var(--space-4);
@@ -154,7 +155,7 @@
     box-shadow: var(--elevation-1);
   }
 
-  .panelHeader {
+  .admin-crud-page__panel-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -163,12 +164,12 @@
     border-bottom: 1px solid var(--border-default);
   }
 
-  .panelHeading {
+  .admin-crud-page__panel-heading {
     display: grid;
     gap: 4px;
   }
 
-  .panelTitle {
+  .admin-crud-page__panel-title {
     margin: 0;
     color: var(--text-primary);
     font-size: var(--text-section-title-size);
@@ -177,7 +178,7 @@
     letter-spacing: var(--text-section-title-tracking);
   }
 
-  .panelMeta {
+  .admin-crud-page__panel-meta {
     margin: 0;
     color: var(--text-tertiary);
     font-size: var(--text-meta-size);
@@ -186,19 +187,19 @@
     letter-spacing: var(--text-meta-tracking);
   }
 
-  .tableWrap {
+  .admin-crud-page__table-wrap {
     overflow: auto;
     border: 1px solid var(--border-default);
     background: var(--surface-panel);
   }
 
-  .table {
+  .admin-crud-page__table {
     width: 100%;
     border-collapse: collapse;
   }
 
-  .table th,
-  .table td {
+  .admin-crud-page__table th,
+  .admin-crud-page__table td {
     padding: 14px 16px;
     border-bottom: 1px solid var(--border-subtle);
     text-align: left;
@@ -206,7 +207,7 @@
     overflow-wrap: anywhere;
   }
 
-  .table th {
+  .admin-crud-page__table th {
     position: sticky;
     top: 0;
     z-index: 1;
@@ -218,15 +219,15 @@
     letter-spacing: var(--text-table-tracking);
   }
 
-  .editingRow td {
+  .admin-crud-page__editing-row td {
     background: color-mix(in oklab, var(--theme-admin-surface) 44%, var(--surface-active));
   }
 
-  .inactiveRow td {
+  .admin-crud-page__inactive-row td {
     background: color-mix(in oklab, var(--surface-panel) 62%, var(--raw-slate-200));
   }
 
-  .emptyState {
+  .admin-crud-page__empty-state {
     padding: 32px 16px;
     text-align: center !important;
     color: var(--text-tertiary);
@@ -236,14 +237,14 @@
     letter-spacing: var(--text-body-tracking);
   }
 
-  .actions {
+  .admin-crud-page__actions {
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-2);
   }
 
-  .fieldInput,
-  .fieldSelect {
+  .admin-crud-page__field-input,
+  .admin-crud-page__field-select {
     width: 100%;
     min-width: 0;
     min-height: var(--control-height-md);
@@ -258,22 +259,22 @@
     letter-spacing: var(--text-form-tracking);
   }
 
-  .fieldInput::placeholder {
+  .admin-crud-page__field-input::placeholder {
     color: var(--control-placeholder);
     font-weight: var(--text-placeholder-weight);
   }
 
-  .stackField {
+  .admin-crud-page__stack-field {
     display: grid;
     gap: var(--space-2);
   }
 
-  .rowKey {
+  .admin-crud-page__row-key {
     color: var(--text-primary);
     font-weight: var(--font-weight-semibold);
   }
 
-  .srOnly {
+  .admin-crud-page__sr-only {
     position: absolute;
     width: 1px;
     height: 1px;

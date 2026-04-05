@@ -205,16 +205,16 @@ export function SearchPage() {
   };
 
   return (
-    <section className="searchPageScope shell">
-      <header className="pageHeader">
-        <div className="pageHeaderTop">
-          <h1 className="title">내 업무내역</h1>
+    <section className="search-page search-page--shell">
+      <header className="search-page__page-header">
+        <div className="search-page__page-header-top">
+          <h1 className="search-page__title">내 업무내역</h1>
         </div>
       </header>
 
       <PageSection title="필터">
-        <form className="filterBar" onSubmit={handleSearchSubmit}>
-          <label className="filterField">
+        <form className="search-page__filter-bar" onSubmit={handleSearchSubmit}>
+          <label className="search-page__filter-field">
             <span>시작일</span>
             <input
               type="date"
@@ -224,7 +224,7 @@ export function SearchPage() {
               }
             />
           </label>
-          <label className="filterField">
+          <label className="search-page__filter-field">
             <span>종료일</span>
             <input
               type="date"
@@ -234,7 +234,7 @@ export function SearchPage() {
               }
             />
           </label>
-          <label className="filterField">
+          <label className="search-page__filter-field">
             <span>검색어</span>
             <input
               value={searchInput}
@@ -242,17 +242,21 @@ export function SearchPage() {
               placeholder="프로젝트, 페이지, 내용, 비고 검색"
             />
           </label>
-          <div className="filterActions">
-            <button type="submit" className="filterButton">
+          <div className="search-page__filter-actions">
+            <button type="submit" className="search-page__filter-button">
               검색
             </button>
-            <button type="button" className="filterButtonSecondary" onClick={handleReset}>
-              초기화
-            </button>
-            <span className="filterDivider" aria-hidden="true" />
             <button
               type="button"
-              className="filterButtonSecondary"
+              className="search-page__filter-button search-page__filter-button--secondary"
+              onClick={handleReset}
+            >
+              초기화
+            </button>
+            <span className="search-page__filter-divider" aria-hidden="true" />
+            <button
+              type="button"
+              className="search-page__filter-button search-page__filter-button--secondary"
               onClick={handleDownload}
               disabled={!totalReports}
             >
@@ -262,25 +266,25 @@ export function SearchPage() {
         </form>
       </PageSection>
 
-      <section className="resultBar" aria-label="업무내역 목록 요약">
-        <div className="resultMetrics">
-          <div className="pager" aria-label="업무내역 목록 페이지 이동">
+      <section className="search-page__result-bar" aria-label="업무내역 목록 요약">
+        <div className="search-page__result-metrics">
+          <div className="search-page__pager" aria-label="업무내역 목록 페이지 이동">
             <button
               type="button"
-              className="pageButton"
+              className="search-page__page-button"
               onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
               disabled={currentPageSafe === 1}
               aria-label="이전 페이지"
             >
               이전
             </button>
-            <p className="pageStatus">
+            <p className="search-page__page-status">
               <strong>{currentPageSafe}</strong>
               <span>/ {numberFormatter.format(totalPages)}</span>
             </p>
             <button
               type="button"
-              className="pageButton"
+              className="search-page__page-button"
               onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
               disabled={currentPageSafe === totalPages || totalReports === 0}
               aria-label="다음 페이지"
@@ -288,17 +292,21 @@ export function SearchPage() {
               다음
             </button>
           </div>
-          <p className="resultMetric">
-            <span className="resultLabel">총 건수</span>
-            <strong className="resultValue">{numberFormatter.format(totalReports)}건</strong>
+          <p className="search-page__result-metric">
+            <span className="search-page__result-label">총 건수</span>
+            <strong className="search-page__result-value">
+              {numberFormatter.format(totalReports)}건
+            </strong>
           </p>
-          <p className="resultMetric">
-            <span className="resultLabel">현재 페이지 작업시간</span>
-            <strong className="resultValue">{formatReportTaskUsedtime(totalMinutes)}</strong>
+          <p className="search-page__result-metric">
+            <span className="search-page__result-label">현재 페이지 작업시간</span>
+            <strong className="search-page__result-value">
+              {formatReportTaskUsedtime(totalMinutes)}
+            </strong>
           </p>
         </div>
-        <div className="resultControls">
-          <label className="pageSizeField">
+        <div className="search-page__result-controls">
+          <label className="search-page__page-size-field">
             <span>페이지당</span>
             <select
               value={String(pageSize)}
@@ -318,16 +326,16 @@ export function SearchPage() {
         </div>
       </section>
 
-      <section className="panel">
-        <div className="panelHead">
+      <section className="search-page__panel">
+        <div className="search-page__panel-head">
           <div>
-            <h2 className="panelTitle">업무 리스트</h2>
+            <h2 className="search-page__panel-title">업무 리스트</h2>
           </div>
         </div>
 
-        <div className="tableWrap">
-          <table className="table">
-            <caption className="srOnly">업무 리스트 테이블</caption>
+        <div className="search-page__table-wrap">
+          <table className="search-page__table">
+            <caption className="search-page__sr-only">업무 리스트 테이블</caption>
             <thead>
               <tr>
                 <th scope="col">일자</th>
@@ -348,7 +356,7 @@ export function SearchPage() {
             <tbody>
               {sortedReports.map((report) => (
                 <tr key={report.id}>
-                  <td className="tabularNums">{formatReportDate(report.taskDate)}</td>
+                  <td className="search-page__table-number">{formatReportDate(report.taskDate)}</td>
                   <td>
                     <strong>{report.costGroupName || '-'}</strong>
                   </td>
@@ -383,13 +391,15 @@ export function SearchPage() {
                       '-'
                     )}
                   </td>
-                  <td className="tabularNums">{formatReportTaskUsedtime(report.taskUsedtime)}</td>
+                  <td className="search-page__table-number">
+                    {formatReportTaskUsedtime(report.taskUsedtime)}
+                  </td>
                   <td>{report.note || '-'}</td>
                 </tr>
               ))}
               {!sortedReports.length ? (
                 <tr>
-                  <td colSpan={13} className="emptyState">
+                  <td colSpan={13} className="search-page__empty-state">
                     검색 결과가 없습니다.
                   </td>
                 </tr>

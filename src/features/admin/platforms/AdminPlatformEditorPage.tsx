@@ -104,33 +104,39 @@ export function AdminPlatformEditorPage() {
 
   if (platformsQuery.isLoading && isEditMode) {
     return (
-      <section className="projectsFeatureScope shell editorShell">
-        <p className={'statusMessage'}>불러오는 중...</p>
+      <section className="projects-feature projects-feature__shell projects-feature__editor-shell">
+        <p className={'projects-feature__status-message'}>불러오는 중...</p>
       </section>
     );
   }
 
   if (isEditMode && !selectedPlatform && !platformsQuery.isLoading) {
     return (
-      <section className="projectsFeatureScope shell editorShell">
-        <header className={'editorHeader'}>
-          <h1 className={'title'}>플랫폼 수정</h1>
+      <section className="projects-feature projects-feature__shell projects-feature__editor-shell">
+        <header className={'projects-feature__editor-header'}>
+          <h1 className={'projects-feature__title'}>플랫폼 수정</h1>
         </header>
-        <p className={'statusMessage'}>플랫폼을 찾을 수 없습니다.</p>
+        <p className={'projects-feature__status-message'}>플랫폼을 찾을 수 없습니다.</p>
       </section>
     );
   }
 
   return (
-    <section className="projectsFeatureScope shell editorShell">
-      <header className={'editorHeader'}>
-        <h1 className={'title'}>{isEditMode ? '플랫폼 수정' : '플랫폼 추가'}</h1>
+    <section className="projects-feature projects-feature__shell projects-feature__editor-shell">
+      <header className={'projects-feature__editor-header'}>
+        <h1 className={'projects-feature__title'}>{isEditMode ? '플랫폼 수정' : '플랫폼 추가'}</h1>
       </header>
-      {errorMessage ? <p className={'statusMessage'}>{errorMessage}</p> : null}
-      <section className={`${'modal'} ${'editorSurface'}`} aria-label="플랫폼 편집 패널">
-        <form className={`${'detailForm'} ${'editorDetailForm'}`} onSubmit={handleSubmit}>
-          <div className={'editorFormGrid'}>
-            <label className={'field'}>
+      {errorMessage ? <p className={'projects-feature__status-message'}>{errorMessage}</p> : null}
+      <section
+        className="projects-feature__modal projects-feature__editor-surface"
+        aria-label="플랫폼 편집 패널"
+      >
+        <form
+          className="projects-feature__detail-form projects-feature__editor-detail-form"
+          onSubmit={handleSubmit}
+        >
+          <div className={'projects-feature__editor-form-grid'}>
+            <label className={'projects-feature__field'}>
               <span>플랫폼명</span>
               <input
                 ref={titleRef}
@@ -140,7 +146,7 @@ export function AdminPlatformEditorPage() {
                 }
               />
             </label>
-            <label className={'field'}>
+            <label className={'projects-feature__field'}>
               <span>노출여부</span>
               <select
                 value={draft.isVisible ? '1' : '0'}
@@ -153,12 +159,16 @@ export function AdminPlatformEditorPage() {
               </select>
             </label>
           </div>
-          <div className={`${'formActions'} ${'editorFormActions'}`}>
-            <div className={'editorFormActionsStart'}>
+          <div className="projects-feature__form-actions projects-feature__editor-form-actions">
+            <div
+              className={
+                'projects-feature__editor-form-actions projects-feature__editor-form-actions--start'
+              }
+            >
               {isEditMode ? (
                 <button
                   type="button"
-                  className={'deleteButton'}
+                  className={'projects-feature__delete-button'}
                   onClick={() => void handleDelete()}
                   disabled={deleteMutation.isPending}
                 >
@@ -166,11 +176,22 @@ export function AdminPlatformEditorPage() {
                 </button>
               ) : null}
             </div>
-            <div className={'editorFormActionsEnd'}>
-              <Link to="/org/platform" className={'secondaryButton'}>
+            <div
+              className={
+                'projects-feature__editor-form-actions projects-feature__editor-form-actions--end'
+              }
+            >
+              <Link
+                to="/org/platform"
+                className={'projects-feature__button projects-feature__button--secondary'}
+              >
                 취소
               </Link>
-              <button type="submit" className={'primaryButton'} disabled={saveMutation.isPending}>
+              <button
+                type="submit"
+                className={'projects-feature__button projects-feature__button--primary'}
+                disabled={saveMutation.isPending}
+              >
                 저장
               </button>
             </div>

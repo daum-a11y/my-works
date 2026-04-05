@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useIsFetching } from '@tanstack/react-query';
+import clsx from 'clsx';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { ChevronRight, ChevronDown, House, LogOut, UserRound } from 'lucide-react';
 import { useAuth } from '../features/auth/AuthContext';
@@ -81,16 +82,16 @@ export function AppShell() {
   const userInitials = (session?.member?.accountId || session?.member?.name || '').slice(0, 2);
 
   return (
-    <div className="appShellScope">
-      <a href="#main-content" className="skipLink">
+    <div className="app-shell">
+      <a href="#main-content" className="skip-link">
         본문으로 바로가기
       </a>
-      <div className="layout">
-        <aside className="sidebar">
-          <div className="brand">
-            <NavLink to="/dashboard" className="brandLink" aria-label="MY WORKS 홈">
+      <div className="app-shell__layout">
+        <aside className="app-shell__sidebar">
+          <div className="app-shell__brand">
+            <NavLink to="/dashboard" className="app-shell__brand-link" aria-label="MY WORKS 홈">
               <img
-                className="brandLogo"
+                className="app-shell__brand-logo"
                 src="/img/my-works-logo-200x60.png"
                 alt="MY WORKS"
                 width="100"
@@ -99,31 +100,38 @@ export function AppShell() {
             </NavLink>
           </div>
 
-          <nav aria-label="주요 메뉴" className="nav">
-            <ul className="navList">
+          <nav aria-label="주요 메뉴" className="app-shell__nav">
+            <ul className="app-shell__nav-list">
               {navigation.map((item) => (
-                <li key={item.label} className="navItem">
+                <li key={item.label} className="app-shell__nav-item">
                   {'to' in item && item.to ? (
                     <NavLink
                       to={item.to}
-                      className={({ isActive }) => (isActive ? 'activeLink' : 'link')}
+                      className={({ isActive }) =>
+                        clsx('app-shell__nav-link', isActive && 'app-shell__nav-link--active')
+                      }
                     >
                       {item.icon && <item.icon size={16} strokeWidth={2} />}
                       <span>{item.label}</span>
                     </NavLink>
                   ) : (
-                    <div className="navGroup">
-                      <div className="navGroupHeader">
+                    <div className="app-shell__nav-group">
+                      <div className="app-shell__nav-group-header">
                         {item.icon && <item.icon size={16} strokeWidth={2} />}
-                        <span className="sectionLabel">{item.label}</span>
+                        <span className="app-shell__section-label">{item.label}</span>
                       </div>
-                      <ul className="subNavList">
+                      <ul className="app-shell__sub-nav-list">
                         {'children' in item &&
                           item.children?.map((child) => (
                             <li key={child.to}>
                               <NavLink
                                 to={child.to}
-                                className={({ isActive }) => (isActive ? 'activeLink' : 'link')}
+                                className={({ isActive }) =>
+                                  clsx(
+                                    'app-shell__nav-link',
+                                    isActive && 'app-shell__nav-link--active',
+                                  )
+                                }
                               >
                                 {child.label}
                               </NavLink>
@@ -138,24 +146,30 @@ export function AppShell() {
           </nav>
         </aside>
 
-        <div className="content">
+        <div className="app-shell__content">
           {resourceFetchCount > 0 ? (
-            <div className="globalLoadingOverlay">
+            <div className="app-shell__global-loading-overlay">
               <GlobalLoadingSpinner overlay />
             </div>
           ) : null}
-          <header className="header">
-            <div className="headerTitle">
-              <nav className="breadcrumbs" aria-label="브래드크럼">
+          <header className="app-shell__header">
+            <div className="app-shell__header-title">
+              <nav className="app-shell__breadcrumbs" aria-label="브래드크럼">
                 <ol>
                   {breadcrumbs.map((crumb, i) => (
                     <li key={crumb.label}>
-                      {i > 0 && <ChevronRight size={14} className="breadcrumbSeparator" />}
-                      <span className={i === breadcrumbs.length - 1 ? 'lastCrumb' : ''}>
+                      {i > 0 && (
+                        <ChevronRight size={14} className="app-shell__breadcrumb-separator" />
+                      )}
+                      <span className={i === breadcrumbs.length - 1 ? 'app-shell__last-crumb' : ''}>
                         {i === 0 ? (
-                          <Link to="/dashboard" className="breadcrumbHome" aria-label="홈으로 가기">
+                          <Link
+                            to="/dashboard"
+                            className="app-shell__breadcrumb-home"
+                            aria-label="홈으로 가기"
+                          >
                             <House size={14} strokeWidth={2.2} aria-hidden="true" />
-                            <span className="srOnly">홈</span>
+                            <span className="sr-only">홈</span>
                           </Link>
                         ) : (
                           crumb.label
@@ -166,36 +180,39 @@ export function AppShell() {
                 </ol>
               </nav>
             </div>
-            <div className="headerMeta">
-              <div className="userMenu" ref={userMenuRef}>
+            <div className="app-shell__header-meta">
+              <div className="app-shell__user-menu" ref={userMenuRef}>
                 <button
                   type="button"
-                  className="userMenuTrigger"
+                  className="app-shell__user-menu-trigger"
                   aria-haspopup="menu"
                   aria-expanded={isUserMenuOpen}
                   aria-label={`${session?.member.name ?? '사용자'} 메뉴`}
                   onClick={() => setIsUserMenuOpen((open) => !open)}
                 >
-                  <div className="profileIcon" aria-hidden="true">
+                  <div className="app-shell__profile-icon" aria-hidden="true">
                     {userInitials}
                   </div>
-                  <div className="profileInfo">
+                  <div className="app-shell__profile-info">
                     <strong>{session?.member.accountId}</strong>
                   </div>
                   <ChevronDown
                     size={15}
                     strokeWidth={2.2}
-                    className={isUserMenuOpen ? 'userMenuChevronOpen' : 'userMenuChevron'}
+                    className={clsx(
+                      'app-shell__user-menu-chevron',
+                      isUserMenuOpen && 'app-shell__user-menu-chevron--open',
+                    )}
                     aria-hidden="true"
                   />
                 </button>
                 {isUserMenuOpen ? (
-                  <div className="userMenuPanel" role="menu" aria-label="사용자 메뉴">
-                    <div className="userMenuIdentity">
-                      <div className="userMenuIdentityAvatar" aria-hidden="true">
+                  <div className="app-shell__user-menu-panel" role="menu" aria-label="사용자 메뉴">
+                    <div className="app-shell__user-menu-identity">
+                      <div className="app-shell__user-menu-identity-avatar" aria-hidden="true">
                         {userInitials}
                       </div>
-                      <div className="userMenuIdentityText">
+                      <div className="app-shell__user-menu-identity-text">
                         <strong>{session?.member.accountId}</strong>
                         <span>{session?.member.name}</span>
                       </div>
@@ -204,7 +221,10 @@ export function AppShell() {
                       to="/profile"
                       role="menuitem"
                       className={({ isActive }) =>
-                        isActive ? 'userMenuItemActive' : 'userMenuItem'
+                        clsx(
+                          'app-shell__user-menu-item',
+                          isActive && 'app-shell__user-menu-item--active',
+                        )
                       }
                     >
                       <UserRound size={15} strokeWidth={2} aria-hidden="true" />
@@ -213,7 +233,7 @@ export function AppShell() {
                     <button
                       type="button"
                       role="menuitem"
-                      className="userMenuItem userMenuItemDanger"
+                      className="app-shell__user-menu-item app-shell__user-menu-item--danger"
                       onClick={() => void handleLogout()}
                       disabled={isLoggingOut}
                     >
@@ -224,14 +244,14 @@ export function AppShell() {
                 ) : null}
               </div>
               {logoutError ? (
-                <p className="headerStatus" role="alert" aria-live="polite">
+                <p className="app-shell__header-status" role="alert" aria-live="polite">
                   {logoutError}
                 </p>
               ) : null}
             </div>
           </header>
 
-          <main id="main-content" className="main">
+          <main id="main-content" className="app-shell__main">
             <Outlet />
           </main>
         </div>

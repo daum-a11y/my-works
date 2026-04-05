@@ -123,13 +123,13 @@ export function ResourceServicePage() {
   const activeRow = rows[0] ?? null;
 
   return (
-    <section className="resourcePageScope projectsFeatureScope shell">
-      <header className="pageHeader">
-        <div className="pageHeaderTop">
-          <h1 className="title">서비스그룹 집계</h1>
+    <section className="projects-feature projects-feature--shell resource-page resource-page--page">
+      <header className="projects-feature__page-header">
+        <div className="projects-feature__page-header-top">
+          <h1 className="projects-feature__title">서비스그룹 집계</h1>
           <button
             type="button"
-            className="headerAction"
+            className="projects-feature__header-action"
             onClick={() => setFold((current) => !current)}
             aria-pressed={fold}
             disabled={!rows.length}
@@ -140,9 +140,13 @@ export function ResourceServicePage() {
       </header>
 
       {years.length ? (
-        <section className="tableTabsSection">
-          <div className="tableTabsScroller">
-            <div className="tableTabs" role="tablist" aria-label="서비스그룹 집계 연도">
+        <section className="resource-page__table-tabs-section">
+          <div className="resource-page__table-tabs-scroller">
+            <div
+              className="resource-page__table-tabs"
+              role="tablist"
+              aria-label="서비스그룹 집계 연도"
+            >
               {years.map((year) => {
                 const selected = year === activeYear;
 
@@ -155,7 +159,12 @@ export function ResourceServicePage() {
                     aria-selected={selected}
                     aria-controls={`resource-service-panel-${year}`}
                     tabIndex={selected ? 0 : -1}
-                    className={selected ? 'tableTabActive' : 'tableTab'}
+                    className={[
+                      'resource-page__table-tab',
+                      selected ? 'resource-page__table-tab--active' : '',
+                    ]
+                      .filter(Boolean)
+                      .join(' ')}
                     onClick={() => setActiveYear(year)}
                   >
                     {year}년
@@ -170,11 +179,11 @@ export function ResourceServicePage() {
               id={`resource-service-panel-${activeRow.year}`}
               role="tabpanel"
               aria-labelledby={`resource-service-tab-${activeRow.year}`}
-              className="tableTabPanel"
+              className="resource-page__table-tab-panel"
             >
-              <div className="tableWrap">
-                <table className="table">
-                  <caption className="srOnly">
+              <div className="projects-feature__table-wrap">
+                <table className="projects-feature__table">
+                  <caption className="projects-feature__sr-only">
                     {activeRow.year}년 월 기준 서비스그룹 집계 표
                   </caption>
                   <thead>
@@ -195,9 +204,11 @@ export function ResourceServicePage() {
           ) : null}
         </section>
       ) : (
-        <div className="tableWrap">
-          <table className="table">
-            <caption className="srOnly">연도와 월 기준 서비스그룹 집계 표</caption>
+        <div className="projects-feature__table-wrap">
+          <table className="projects-feature__table">
+            <caption className="projects-feature__sr-only">
+              연도와 월 기준 서비스그룹 집계 표
+            </caption>
             <thead>
               <tr>
                 <th scope="col">월</th>
@@ -209,7 +220,7 @@ export function ResourceServicePage() {
             </thead>
             <tbody>
               <tr>
-                <td colSpan={5} className="emptyState">
+                <td colSpan={5} className="projects-feature__empty-state">
                   표시할 서비스그룹 집계가 없습니다.
                 </td>
               </tr>
@@ -260,13 +271,16 @@ function ServiceYearRows({
                 <td>{formatMm(group.totalMinutes, month.workingDays)}</td>
               </tr>
             ))}
-            <tr key={`${row.year}-${month.month}-sum`} className="summaryStrongRow">
+            <tr
+              key={`${row.year}-${month.month}-sum`}
+              className="resource-page__summary-strong-row"
+            >
               <td colSpan={3}>{month.month}월 합계</td>
               <td>{formatMm(month.totalMinutes, month.workingDays)}</td>
             </tr>
           </Fragment>
         ))}
-        <tr className="summaryStrongRow">
+        <tr className="resource-page__summary-strong-row">
           <td colSpan={4}>{row.year}년 합계</td>
           <td>{formatMm(row.yearTotalMinutes, 21.73)}</td>
         </tr>
@@ -279,7 +293,7 @@ function ServiceYearRows({
       {row.months.map((month) => (
         <ServiceMonthDetailRows key={`${row.year}-${month.month}`} month={month} />
       ))}
-      <tr className="summaryStrongRow">
+      <tr className="resource-page__summary-strong-row">
         <td colSpan={4}>{row.year}년 합계</td>
         <td>{formatMm(row.yearTotalMinutes, 21.73)}</td>
       </tr>
@@ -326,7 +340,7 @@ function ServiceMonthDetailRows({
           </tr>
         )),
       )}
-      <tr className="summaryStrongRow">
+      <tr className="resource-page__summary-strong-row">
         <td colSpan={3}>{month.month}월 합계</td>
         <td>{formatMm(month.totalMinutes, month.workingDays)}</td>
       </tr>

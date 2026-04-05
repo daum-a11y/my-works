@@ -1,17 +1,17 @@
-.statsPageScope {
-  &.page {
+.stats-page {
+  &--page {
     display: grid;
     gap: 20px;
   }
 
-  .hero {
+  .stats-page__hero {
     display: grid;
     gap: 5px;
     padding: 0 0 14px;
     border-bottom: 1px solid var(--border-default);
   }
 
-  .title {
+  .stats-page__title {
     margin: 0;
     color: var(--text-primary);
     font-family: var(--font-body);
@@ -21,14 +21,14 @@
     letter-spacing: var(--text-page-title-tracking);
   }
 
-  .lead {
+  .stats-page__lead {
     margin: 0;
     color: var(--text-tertiary);
     font-size: var(--text-meta-size);
     line-height: var(--text-meta-line-height);
   }
 
-  .summaryLine {
+  .stats-page__summary-line {
     margin: 0;
     color: var(--text-secondary);
     font-size: var(--text-meta-size);
@@ -37,13 +37,13 @@
     letter-spacing: var(--text-meta-tracking);
   }
 
-  .scoreboard {
+  .stats-page__scoreboard {
     display: grid;
     gap: 14px;
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  .scoreCard {
+  .stats-page__score-card {
     display: grid;
     gap: 2px;
     padding: 10px 12px 10px;
@@ -53,7 +53,7 @@
     box-shadow: var(--elevation-1);
   }
 
-  .scoreCard span {
+  .stats-page__score-card span {
     color: var(--text-muted);
     font-size: var(--text-meta-size);
     font-weight: var(--font-weight-bold);
@@ -62,7 +62,7 @@
     text-transform: uppercase;
   }
 
-  .scoreCard strong {
+  .stats-page__score-card strong {
     color: var(--text-primary);
     font-size: 22px;
     font-weight: var(--font-weight-heavy);
@@ -70,7 +70,7 @@
     letter-spacing: -1px;
   }
 
-  .chartSurface {
+  .stats-page__chart-surface {
     display: grid;
     gap: 11px;
     padding: 16px;
@@ -79,26 +79,26 @@
     box-shadow: var(--elevation-1);
   }
 
-  .filterBar {
+  .stats-page__filter-bar {
     display: flex;
     flex-wrap: wrap;
     gap: 12px;
   }
 
-  .filterField {
+  .stats-page__filter-field {
     display: grid;
     gap: 6px;
     min-width: 160px;
   }
 
-  .filterField span {
+  .stats-page__filter-field span {
     color: var(--text-tertiary);
     font-size: var(--text-meta-size);
     line-height: var(--text-meta-line-height);
   }
 
-  .filterField input,
-  .filterField select {
+  .stats-page__filter-field input,
+  .stats-page__filter-field select {
     min-height: var(--control-height-md);
     padding: var(--control-padding-y) var(--control-padding-x);
     border: 1px solid var(--control-border);
@@ -107,13 +107,13 @@
     font: inherit;
   }
 
-  .filterActions {
+  .stats-page__filter-actions {
     display: flex;
     align-items: end;
     gap: 8px;
   }
 
-  .filterButton {
+  .stats-page__filter-button {
     min-height: var(--control-height-md);
     padding: 0 var(--control-padding-x);
     border: 1px solid color-mix(in oklab, var(--button-primary-bg) 82%, black 18%);
@@ -123,7 +123,7 @@
     cursor: pointer;
   }
 
-  .filterButtonSecondary {
+  .stats-page__filter-button--secondary {
     min-height: var(--control-height-md);
     padding: 0 var(--control-padding-x);
     border: 1px solid var(--button-secondary-border);
@@ -133,22 +133,22 @@
     cursor: pointer;
   }
 
-  .filterSummary {
+  .stats-page__filter-summary {
     margin: 12px 0 0;
     color: var(--text-secondary);
     font-size: var(--text-meta-size);
     line-height: var(--text-meta-line-height);
   }
 
-  .viewToggle {
+  .stats-page__view-toggle {
     display: flex;
     gap: 8px;
     margin-bottom: 12px;
     flex-wrap: wrap;
   }
 
-  .viewToggleButton,
-  .viewToggleActive {
+  .stats-page__view-toggle-button,
+  .stats-page__view-toggle-button--active {
     min-height: var(--control-height-sm);
     padding: 0 13px;
     border: 1px solid var(--border-default);
@@ -159,44 +159,44 @@
     cursor: pointer;
   }
 
-  .viewToggleButton {
+  .stats-page__view-toggle-button {
     background: var(--surface-panel);
     color: var(--text-primary);
   }
 
-  .viewToggleActive {
+  .stats-page__view-toggle-button--active {
     background: color-mix(in oklab, var(--accent-soft) 62%, var(--surface-panel));
     color: var(--accent-strong);
     border-color: color-mix(in oklab, var(--accent-strong) 34%, var(--border-default));
   }
 
-  .chartFrame {
+  .stats-page__chart-frame {
     width: 100%;
     height: 320px;
   }
 
-  .chart {
+  .stats-page__chart {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(78px, 1fr));
     gap: var(--space-2);
     align-items: end;
   }
 
-  .chartColumn {
+  .stats-page__chart-column {
     display: grid;
     gap: 4px;
     align-content: end;
     min-height: 180px;
   }
 
-  .chartTrack {
+  .stats-page__chart-track {
     display: flex;
     align-items: flex-end;
     min-height: 128px;
     border-top: 1px solid var(--border-default);
   }
 
-  .chartBar {
+  .stats-page__chart-bar {
     width: 100%;
     min-height: 14px;
     display: flex;
@@ -208,13 +208,13 @@
     color: var(--theme-stats-accent);
   }
 
-  .chartValue {
+  .stats-page__chart-value {
     font-size: var(--text-meta-size);
     font-weight: var(--text-meta-weight);
     line-height: var(--text-meta-line-height);
   }
 
-  .chartLabel {
+  .stats-page__chart-label {
     color: var(--text-primary);
     font-size: var(--text-meta-size);
     font-weight: var(--text-meta-weight);
@@ -223,21 +223,21 @@
     text-transform: none;
   }
 
-  .chartNote {
+  .stats-page__chart-note {
     color: var(--text-tertiary);
     font-size: var(--text-meta-size);
     line-height: var(--text-meta-line-height);
     text-align: center;
   }
 
-  .tableWrap {
+  .stats-page__table-wrap {
     overflow: auto;
     border: 1px solid var(--border-default);
     background: var(--surface-panel);
   }
 
-  .inlineSelect,
-  .inlineTextarea {
+  .stats-page__inline-select,
+  .stats-page__inline-textarea {
     width: 100%;
     border: 1px solid var(--control-border);
     background: var(--control-bg);
@@ -245,26 +245,26 @@
     font: inherit;
   }
 
-  .inlineSelect {
+  .stats-page__inline-select {
     min-height: var(--control-height-md);
     padding: 0 var(--control-padding-x);
   }
 
-  .inlineTextarea {
+  .stats-page__inline-textarea {
     min-height: 88px;
     padding: var(--control-padding-y) var(--control-padding-x);
     resize: vertical;
   }
 
-  .inlineActions {
+  .stats-page__inline-actions {
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
     align-items: center;
   }
 
-  .inlineActionPrimary,
-  .inlineActionSecondary {
+  .stats-page__inline-action--primary,
+  .stats-page__inline-action--secondary {
     min-height: var(--control-height-sm);
     padding: 0 12px;
     border: 1px solid var(--border-default);
@@ -280,35 +280,35 @@
       color 140ms ease;
   }
 
-  .inlineActionPrimary {
+  .stats-page__inline-action--primary {
     background: color-mix(in oklab, var(--accent-soft) 62%, var(--surface-panel));
     border-color: color-mix(in oklab, var(--accent-strong) 34%, var(--border-default));
     color: var(--accent-strong);
   }
 
-  .inlineActionSecondary {
+  .stats-page__inline-action--secondary {
     background: var(--surface-panel);
     color: var(--text-secondary);
   }
 
-  .inlineActionPrimary:hover {
+  .stats-page__inline-action--primary:hover {
     background: color-mix(in oklab, var(--accent-soft) 74%, var(--surface-panel));
     border-color: color-mix(in oklab, var(--accent-strong) 46%, var(--border-default));
   }
 
-  .inlineActionSecondary:hover {
+  .stats-page__inline-action--secondary:hover {
     background: color-mix(in oklab, var(--surface-active) 78%, var(--surface-panel));
     border-color: color-mix(in oklab, var(--border-default) 72%, var(--text-secondary));
     color: var(--text-secondary);
   }
 
-  .noteCell {
+  .stats-page__note-cell {
     position: relative;
     display: inline-flex;
     align-items: center;
   }
 
-  .noteToggle {
+  .stats-page__note-toggle {
     min-height: 28px;
     padding: 0 9px;
     border: 1px solid color-mix(in oklab, var(--border-default) 86%, var(--surface-panel));
@@ -320,20 +320,20 @@
     font-weight: var(--text-form-weight);
   }
 
-  .noteToggle:hover {
+  .stats-page__note-toggle:hover {
     background: color-mix(in oklab, var(--accent-soft) 32%, var(--surface-panel));
     border-color: color-mix(in oklab, var(--theme-stats-accent) 24%, var(--border-default));
     color: var(--text-primary);
   }
 
-  .noteToggleActive {
+  .stats-page__note-toggle--active {
     background: color-mix(in oklab, var(--accent-soft) 56%, var(--surface-panel));
     border-color: color-mix(in oklab, var(--theme-stats-accent) 34%, var(--border-default));
     color: var(--theme-stats-accent);
     font-weight: var(--font-weight-heavy);
   }
 
-  .notePopover {
+  .stats-page__note-popover {
     position: absolute;
     top: calc(100% + 8px);
     left: 0;
@@ -349,19 +349,19 @@
     line-height: 1.5;
   }
 
-  .inlineActionPrimary:focus-visible,
-  .inlineActionSecondary:focus-visible,
-  .noteToggle:focus-visible {
+  .stats-page__inline-action--primary:focus-visible,
+  .stats-page__inline-action--secondary:focus-visible,
+  .stats-page__note-toggle:focus-visible {
     outline: 2px solid color-mix(in oklab, var(--theme-stats-accent) 34%, transparent);
     outline-offset: 2px;
   }
 
-  .detailGrid {
+  .stats-page__detail-grid {
     display: grid;
     gap: 16px;
   }
 
-  .detailPanel {
+  .stats-page__detail-panel {
     display: grid;
     gap: 11px;
     padding: 16px;
@@ -370,7 +370,7 @@
     box-shadow: var(--elevation-1);
   }
 
-  .detailTitle {
+  .stats-page__detail-title {
     margin: 0;
     color: var(--text-primary);
     font-size: var(--text-section-title-size);
@@ -379,21 +379,21 @@
     letter-spacing: var(--text-section-title-tracking);
   }
 
-  .detailMeta {
+  .stats-page__detail-meta {
     margin: 0;
     color: var(--text-tertiary);
     font-size: var(--text-meta-size);
     line-height: var(--text-meta-line-height);
   }
 
-  .table {
+  .stats-page__table {
     width: 100%;
     min-width: 896px;
     border-collapse: collapse;
   }
 
-  .table th,
-  .table td {
+  .stats-page__table th,
+  .stats-page__table td {
     padding: 11px 10px;
     border-bottom: 1px solid var(--border-subtle);
     text-align: left;
@@ -401,7 +401,7 @@
     overflow-wrap: anywhere;
   }
 
-  .table th {
+  .stats-page__table th {
     color: var(--text-muted);
     font-size: var(--text-table-size);
     font-weight: var(--text-table-weight);
@@ -414,7 +414,7 @@
     z-index: 1;
   }
 
-  .table td strong {
+  .stats-page__table td strong {
     display: block;
     color: var(--text-primary);
     font-size: var(--text-form-size);
@@ -422,32 +422,72 @@
     line-height: var(--text-form-line-height);
   }
 
-  .table td span {
+  .stats-page__table td span {
     color: var(--text-tertiary);
     font-size: var(--text-meta-size);
     line-height: var(--text-meta-line-height);
   }
 
-  .stackCell {
+  .stats-page__table-number {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .stats-page__status-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 25px;
+    padding: 3px 8px;
+    border: 1px solid transparent;
+    border-radius: 0;
+    font-size: var(--text-badge-size);
+    font-weight: var(--text-badge-weight);
+    line-height: var(--text-badge-line-height);
+    letter-spacing: var(--text-badge-tracking);
+    white-space: nowrap;
+    background: var(--surface-active);
+    border-color: var(--border-default);
+    color: var(--text-secondary);
+  }
+
+  .stats-page__status-badge[data-status='전체 수정'] {
+    background: var(--state-success-bg);
+    border-color: var(--state-success-border);
+    color: var(--state-success-text);
+  }
+
+  .stats-page__status-badge[data-status='일부 수정'] {
+    background: var(--state-warning-bg);
+    border-color: var(--state-warning-border);
+    color: var(--state-warning-text);
+  }
+
+  .stats-page__status-badge[data-status='미수정'] {
+    background: var(--state-danger-bg);
+    border-color: var(--state-danger-border);
+    color: var(--state-danger-text);
+  }
+
+  .stats-page__stack-cell {
     display: grid;
     gap: 4px;
   }
 
-  .link {
+  .stats-page__link {
     color: var(--accent-strong);
     font-size: var(--text-form-size);
     font-weight: var(--text-form-weight);
     line-height: var(--text-form-line-height);
   }
 
-  .empty {
+  .stats-page__empty {
     padding: 16px;
     color: var(--text-tertiary);
     font-size: var(--text-meta-size);
     line-height: var(--text-meta-line-height);
   }
 
-  .srOnly {
+  .stats-page__sr-only {
     position: absolute;
     width: 1px;
     height: 1px;
@@ -460,11 +500,11 @@
   }
 
   @media (max-width: 720px) {
-    .scoreboard {
+    .stats-page__scoreboard {
       grid-template-columns: 1fr;
     }
 
-    .chart {
+    .stats-page__chart {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }

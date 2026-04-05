@@ -1,23 +1,23 @@
-.reportsPageScope {
-  &.page {
+.reports-page {
+  &--page {
     display: grid;
     gap: 20px;
     align-content: start;
   }
 
-  .hero {
+  .reports-page__hero {
     display: grid;
     gap: 5px;
     padding: 0 0 14px;
     border-bottom: 1px solid var(--border-default);
   }
 
-  .heroMain {
+  .reports-page__hero-main {
     display: grid;
     gap: var(--space-2);
   }
 
-  .kicker {
+  .reports-page__kicker {
     margin: 0;
     color: var(--text-tertiary);
     font-size: var(--text-kicker-size);
@@ -27,7 +27,7 @@
     text-transform: none;
   }
 
-  .title {
+  .reports-page__title {
     margin: 0;
     color: var(--text-primary);
     font-family: var(--font-body);
@@ -37,33 +37,33 @@
     letter-spacing: var(--text-page-title-tracking);
   }
 
-  .stack {
+  .reports-page__stack {
     display: grid;
     gap: 20px;
   }
 
-  .dateNavigator {
+  .reports-page__date-navigator {
     display: grid;
     gap: 10px;
     padding: 0 0 12px;
     border-bottom: 1px solid var(--border-default);
   }
 
-  .gridLayout {
+  .reports-page__grid-layout {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     gap: 16px;
     align-items: start;
   }
 
-  .panel {
+  .reports-page__panel {
     padding: 16px;
     background: var(--surface-panel);
     border: 1px solid var(--border-default);
     box-shadow: var(--elevation-1);
   }
 
-  .panelHead {
+  .reports-page__panel-head {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
@@ -73,7 +73,7 @@
     border-bottom: 1px solid var(--border-default);
   }
 
-  .panelEyebrow {
+  .reports-page__panel-eyebrow {
     display: block;
     margin-bottom: 2px;
     color: var(--text-tertiary);
@@ -84,7 +84,7 @@
     text-transform: none;
   }
 
-  .panelTitle {
+  .reports-page__panel-title {
     margin: 0;
     color: var(--text-primary);
     font-size: var(--text-section-title-size);
@@ -93,7 +93,7 @@
     letter-spacing: var(--text-section-title-tracking);
   }
 
-  .dateText {
+  .reports-page__date-text {
     margin: 4px 0 0;
     color: var(--text-primary);
     font-size: var(--text-body-size);
@@ -101,7 +101,7 @@
     line-height: var(--text-body-line-height);
   }
 
-  .statusMessage {
+  .reports-page__status-message {
     margin: 0;
     padding: 10px 12px;
     border: 1px solid color-mix(in oklab, #d33 45%, var(--border-default));
@@ -111,7 +111,7 @@
     line-height: var(--text-body-line-height);
   }
 
-  .panelMeta {
+  .reports-page__panel-meta {
     margin: 0;
     color: var(--text-tertiary);
     font-size: var(--text-meta-size);
@@ -119,22 +119,22 @@
     line-height: var(--text-meta-line-height);
   }
 
-  .buttonRow,
-  .actionRow,
-  .dateActions {
+  .reports-page__button-row,
+  .reports-page__action-row,
+  .reports-page__date-actions {
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-2);
     align-items: center;
   }
 
-  .tabRow {
+  .reports-page__tab-row {
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-2);
   }
 
-  .tabButton {
+  .reports-page__tab-button {
     min-height: var(--control-height-sm);
     padding: 0 13px;
     border: 1px solid var(--border-default);
@@ -145,14 +145,13 @@
     cursor: pointer;
   }
 
-  .tabButtonActive {
+  .reports-page__tab-button--active {
     background: color-mix(in oklab, var(--accent-soft) 62%, var(--surface-panel));
     color: var(--accent-strong);
     border-color: color-mix(in oklab, var(--accent-strong) 34%, var(--border-default));
   }
 
-  .primaryButton,
-  .secondaryButton {
+  .reports-page__button {
     min-height: var(--control-height-md);
     padding: 0 var(--space-3);
     font-size: var(--text-form-size);
@@ -162,23 +161,23 @@
     letter-spacing: var(--text-form-tracking);
   }
 
-  .primaryButton {
+  .reports-page__button--primary {
     background: var(--accent-strong);
     color: var(--text-inverse);
     border: 1px solid color-mix(in oklab, var(--accent-strong) 82%, black 18%);
   }
 
-  .secondaryButton {
+  .reports-page__button--secondary {
     background: var(--surface-panel);
     color: var(--text-primary);
     border: 1px solid var(--border-default);
   }
 
-  .secondaryButton:hover {
+  .reports-page__button--secondary:hover {
     background: var(--button-secondary-hover);
   }
 
-  .chipButton {
+  .reports-page__chip-button {
     min-height: var(--control-height-sm);
     border: 1px solid var(--border-default);
     padding: 0 var(--space-2);
@@ -189,12 +188,12 @@
     line-height: var(--text-meta-line-height);
   }
 
-  .form {
+  .reports-page__form {
     display: grid;
     gap: var(--space-form-gap);
   }
 
-  .section {
+  .reports-page__section {
     margin: 0;
     padding: 0;
     border: 0;
@@ -202,7 +201,7 @@
     gap: var(--space-3);
   }
 
-  .sectionTitle {
+  .reports-page__section-title {
     padding: 0;
     color: var(--text-primary);
     font-size: var(--text-kicker-size);
@@ -212,19 +211,19 @@
     text-transform: uppercase;
   }
 
-  .formGrid {
+  .reports-page__form-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(192px, 1fr));
     gap: var(--space-3);
   }
 
-  .filterGrid {
+  .reports-page__filter-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(192px, 1fr));
     gap: var(--space-3);
   }
 
-  .field {
+  .reports-page__field {
     display: grid;
     gap: var(--space-field-gap);
     color: var(--text-secondary);
@@ -232,7 +231,7 @@
     line-height: var(--text-body-line-height);
   }
 
-  .field > span {
+  .reports-page__field > span {
     color: var(--text-primary);
     font-size: var(--text-form-size);
     font-weight: var(--text-form-weight);
@@ -240,12 +239,12 @@
     letter-spacing: var(--text-form-tracking);
   }
 
-  .searchButtonField {
+  .reports-page__search-button-field {
     display: grid;
     align-content: end;
   }
 
-  .field :is(input, select, textarea) {
+  .reports-page__field :is(input, select, textarea) {
     width: 100%;
     min-height: var(--control-height-md);
     padding: var(--control-padding-y) var(--control-padding-x);
@@ -255,62 +254,62 @@
     font: inherit;
   }
 
-  .field :is(input, select, textarea)::placeholder {
+  .reports-page__field :is(input, select, textarea)::placeholder {
     color: var(--control-placeholder);
   }
 
-  .field :is(input, select, textarea):focus-visible,
-  .primaryButton:focus-visible,
-  .secondaryButton:focus-visible,
-  .chipButton:focus-visible,
-  .rowButton:focus-visible {
+  .reports-page__field :is(input, select, textarea):focus-visible,
+  .reports-page__button--primary:focus-visible,
+  .reports-page__button--secondary:focus-visible,
+  .reports-page__chip-button:focus-visible,
+  .reports-page__row-button:focus-visible {
   }
 
-  .field textarea {
+  .reports-page__field textarea {
     resize: vertical;
     min-height: 120px;
   }
 
-  .fieldHint {
+  .reports-page__field-hint {
     margin: 0;
     color: var(--text-tertiary);
     font-size: var(--text-meta-size);
     line-height: var(--text-meta-line-height);
   }
 
-  .dateRow {
+  .reports-page__date-row {
     display: grid;
     gap: var(--space-2);
   }
 
-  .tableWrap {
+  .reports-page__table-wrap {
     overflow: auto;
     border: 1px solid var(--border-default);
     background: var(--surface-panel);
   }
 
-  .tableFooter {
+  .reports-page__table-footer {
     display: flex;
     align-items: center;
     gap: var(--space-3);
     padding: 10px 0 0;
   }
 
-  .tableFooterText {
+  .reports-page__table-footer-text {
     margin: 0;
     color: var(--text-primary);
     font-size: var(--text-body-size);
     line-height: var(--text-body-line-height);
   }
 
-  .table {
+  .reports-page__table {
     width: 100%;
     border-collapse: collapse;
     min-width: 608px;
   }
 
-  .table th,
-  .table td {
+  .reports-page__table th,
+  .reports-page__table td {
     padding: var(--space-3) var(--space-2);
     border-bottom: 1px solid var(--border-subtle);
     vertical-align: top;
@@ -318,7 +317,7 @@
     overflow-wrap: anywhere;
   }
 
-  .table th {
+  .reports-page__table th {
     position: sticky;
     top: 0;
     z-index: 1;
@@ -331,30 +330,30 @@
     background: var(--surface-canvas-strong);
   }
 
-  .table tbody tr[data-active] {
+  .reports-page__table tbody tr[data-active] {
     background: color-mix(in oklab, var(--accent-soft) 36%, var(--surface-panel));
   }
 
-  .table td strong,
-  .table td span {
+  .reports-page__table td strong,
+  .reports-page__table td span {
     display: block;
   }
 
-  .table td strong {
+  .reports-page__table td strong {
     color: var(--text-primary);
     font-size: var(--text-body-size);
     font-weight: var(--text-body-weight);
     line-height: var(--text-body-line-height);
   }
 
-  .table td span {
+  .reports-page__table td span {
     color: var(--text-tertiary);
     margin-top: var(--space-2);
     font-size: var(--text-meta-size);
     line-height: var(--text-meta-line-height);
   }
 
-  .rowButton {
+  .reports-page__row-button {
     padding: 0;
     border: 0;
     background: transparent;
@@ -368,14 +367,14 @@
     text-align: left;
   }
 
-  .summaryGrid {
+  .reports-page__summary-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px;
     margin-bottom: 14px;
   }
 
-  .summaryCard {
+  .reports-page__summary-card {
     display: grid;
     gap: 3px;
     padding: 13px;
@@ -383,60 +382,60 @@
     background: color-mix(in oklab, var(--surface-canvas) 72%, var(--surface-panel));
   }
 
-  .summaryCard span {
+  .reports-page__summary-card span {
     color: var(--text-muted);
     font-size: var(--text-meta-size);
   }
 
-  .summaryCard strong {
+  .reports-page__summary-card strong {
     color: var(--text-primary);
     font-size: var(--text-section-title-size);
     line-height: var(--text-section-title-line-height);
   }
 
-  .summaryMessage {
+  .reports-page__summary-message {
     margin: 0 0 14px;
     color: var(--text-primary);
     line-height: var(--text-body-line-height);
   }
 
-  .summaryList {
+  .reports-page__summary-list {
     display: grid;
     gap: 10px;
   }
 
-  .summaryItem {
+  .reports-page__summary-item {
     display: grid;
     gap: 4px;
     padding: 11px 0;
     border-top: 1px solid var(--border-subtle);
   }
 
-  .summaryItem strong,
-  .summaryItem span {
+  .reports-page__summary-item strong,
+  .reports-page__summary-item span {
     display: block;
   }
 
-  .summaryItem span {
+  .reports-page__summary-item span {
     color: var(--text-tertiary);
     font-size: var(--text-meta-size);
   }
 
-  .summaryText {
+  .reports-page__summary-text {
     margin: 0;
     color: var(--text-primary);
     font-size: var(--text-meta-size);
     line-height: var(--text-body-line-height);
   }
 
-  .emptyNote {
+  .reports-page__empty-note {
     margin: 0;
     color: var(--text-tertiary);
     font-size: var(--text-meta-size);
     line-height: var(--text-body-line-height);
   }
 
-  .emptyState {
+  .reports-page__empty-state {
     padding: var(--space-6) var(--space-4);
     text-align: center;
     color: var(--text-tertiary);
@@ -446,7 +445,7 @@
     letter-spacing: var(--text-body-tracking);
   }
 
-  .srOnly {
+  .reports-page__sr-only {
     position: absolute;
     width: 1px;
     height: 1px;
@@ -459,39 +458,39 @@
   }
 
   @media (max-width: 960px) {
-    .hero {
+    .reports-page__hero {
       flex-direction: column;
     }
 
-    .gridLayout {
+    .reports-page__grid-layout {
       grid-template-columns: 1fr;
     }
 
-    .tabList {
+    .reports-page__tab-list {
       width: 100%;
     }
 
-    .tabButton {
+    .reports-page__tab-button {
       flex: 1 1 160px;
     }
 
-    .panelHead {
+    .reports-page__panel-head {
       flex-direction: column;
     }
   }
 
   @media (max-width: 720px) {
-    .buttonRow,
-    .actionRow,
-    .dateActions {
+    .reports-page__button-row,
+    .reports-page__action-row,
+    .reports-page__date-actions {
       width: 100%;
     }
 
-    .summaryGrid {
+    .reports-page__summary-grid {
       grid-template-columns: 1fr;
     }
 
-    .chipButton {
+    .reports-page__chip-button {
       flex: 1 1 calc(50% - 10px);
     }
   }

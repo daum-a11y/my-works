@@ -1,21 +1,21 @@
-.monthlyReportCalendarScope {
-  &.wrap {
+.monthly-report-calendar {
+  &--panel {
     background: var(--surface-panel);
     border: 1px solid var(--border-default);
     box-shadow: var(--elevation-1);
   }
 
-  &.padded {
+  &--padded {
     padding: 12px;
   }
 
-  .table {
+  .monthly-report-calendar__table {
     width: 100%;
     border-collapse: collapse;
     table-layout: fixed;
   }
 
-  .caption {
+  .monthly-report-calendar__caption {
     position: absolute;
     width: 1px;
     height: 1px;
@@ -27,7 +27,7 @@
     border: 0;
   }
 
-  .table th {
+  .monthly-report-calendar__table th {
     padding: 8px 7px;
     background: var(--surface-canvas-strong);
     border: 1px solid var(--border-default);
@@ -39,12 +39,12 @@
     text-transform: uppercase;
   }
 
-  .blank {
+  .monthly-report-calendar__blank {
     background: color-mix(in oklab, var(--surface-canvas) 84%, var(--surface-panel));
     border: 1px solid var(--border-default);
   }
 
-  .cell {
+  .monthly-report-calendar__cell {
     min-height: 64px;
     padding: 8px 8px 10px;
     background: var(--surface-panel);
@@ -52,37 +52,37 @@
     vertical-align: top;
   }
 
-  .table tbody tr:first-child .blank,
-  .table tbody tr:first-child .cell {
+  .monthly-report-calendar__table tbody tr:first-child .monthly-report-calendar__blank,
+  .monthly-report-calendar__table tbody tr:first-child .monthly-report-calendar__cell {
     border-top: 0;
   }
 
-  .weekendCell {
+  .monthly-report-calendar__cell--weekend {
     background: color-mix(in oklab, var(--surface-panel) 74%, var(--surface-canvas));
   }
 
-  .today {
+  .monthly-report-calendar__cell--today {
     background: color-mix(in oklab, var(--accent-soft) 12%, var(--surface-panel));
   }
 
-  .cellInner {
+  .monthly-report-calendar__cell-inner {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 6px;
   }
 
-  .link {
+  .monthly-report-calendar__link {
     display: inline-flex;
     color: inherit;
     text-decoration: none;
   }
 
-  .link:hover .date {
+  .monthly-report-calendar__link:hover .monthly-report-calendar__date {
     color: var(--accent-strong);
   }
 
-  .date {
+  .monthly-report-calendar__date {
     color: var(--text-primary);
     font-size: var(--text-body-size);
     font-weight: 700;
@@ -90,7 +90,7 @@
     font-variant-numeric: tabular-nums;
   }
 
-  .todayMark {
+  .monthly-report-calendar__today-mark {
     display: inline-flex;
     align-items: center;
     min-height: 18px;
@@ -102,7 +102,7 @@
     line-height: 1;
   }
 
-  .badge {
+  .monthly-report-calendar__badge {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -117,25 +117,25 @@
     white-space: nowrap;
   }
 
-  .badgeSuccess {
+  .monthly-report-calendar__badge--success {
     background: var(--state-success-bg);
     border-color: var(--state-success-border);
     color: var(--state-success-text);
   }
 
-  .badgeWarning {
+  .monthly-report-calendar__badge--warning {
     background: var(--state-warning-bg);
     border-color: var(--state-warning-border);
     color: var(--state-warning-text);
   }
 
-  .badgeDanger {
+  .monthly-report-calendar__badge--danger {
     background: var(--state-danger-bg);
     border-color: var(--state-danger-border);
     color: var(--state-danger-text);
   }
 
-  .badgeWeekend {
+  .monthly-report-calendar__badge--weekend {
     background: var(--state-info-bg);
     border-color: var(--state-info-border);
     color: var(--state-info-text);

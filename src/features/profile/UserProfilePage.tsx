@@ -158,24 +158,27 @@ export function UserProfilePage() {
   };
 
   return (
-    <section className="passwordSettingsPageScope page" aria-labelledby="profile-title">
-      <header className="hero">
-        <h1 id="profile-title" className="pageTitle">
+    <section
+      className="password-settings-page password-settings-page--page"
+      aria-labelledby="profile-title"
+    >
+      <header className="password-settings-page__hero">
+        <h1 id="profile-title" className="password-settings-page__page-title">
           프로필
         </h1>
       </header>
 
-      <div className="workspace">
-        <section className="panel" aria-labelledby="profile-summary-title">
-          <div className="panelHeader">
-            <h2 id="profile-summary-title" className="panelTitle">
+      <div className="password-settings-page__workspace">
+        <section className="password-settings-page__panel" aria-labelledby="profile-summary-title">
+          <div className="password-settings-page__panel-header">
+            <h2 id="profile-summary-title" className="password-settings-page__panel-title">
               계정
             </h2>
             {!editing ? (
               <button
                 ref={editButtonRef}
                 type="button"
-                className="primaryButton"
+                className="password-settings-page__button password-settings-page__button--primary"
                 onClick={handleEdit}
               >
                 비밀번호 변경
@@ -183,20 +186,20 @@ export function UserProfilePage() {
             ) : null}
           </div>
 
-          <dl className="profileList">
-            <div className="profileRow">
+          <dl className="password-settings-page__profile-list">
+            <div className="password-settings-page__profile-row">
               <dt>ID</dt>
               <dd>{member?.accountId ?? '-'}</dd>
             </div>
-            <div className="profileRow">
+            <div className="password-settings-page__profile-row">
               <dt>이름</dt>
               <dd>{member?.name ?? '-'}</dd>
             </div>
-            <div className="profileRow">
+            <div className="password-settings-page__profile-row">
               <dt>이메일</dt>
               <dd>{member?.email ?? '-'}</dd>
             </div>
-            <div className="profileRow">
+            <div className="password-settings-page__profile-row">
               <dt>권한</dt>
               <dd>{getRoleLabel(member?.role)}</dd>
             </div>
@@ -206,35 +209,35 @@ export function UserProfilePage() {
 
       {editing ? (
         <div
-          className="modalScrim"
+          className="password-settings-page__modal-scrim"
           onClick={step === 'form' && !isSubmitting ? handleCancel : undefined}
         >
           <section
-            className="modal"
+            className="password-settings-page__modal"
             role="dialog"
             aria-modal="true"
             aria-labelledby="password-change-title"
             onClick={(event) => event.stopPropagation()}
           >
-            <div className="panelHeader">
-              <h2 id="password-change-title" className="panelTitle">
+            <div className="password-settings-page__panel-header">
+              <h2 id="password-change-title" className="password-settings-page__panel-title">
                 비밀번호 변경
               </h2>
             </div>
 
             {step === 'form' ? (
               <form
-                className="form"
+                className="password-settings-page__form"
                 onSubmit={(event) => {
                   event.preventDefault();
                   void handleChange();
                 }}
               >
-                <label className="field">
-                  <span className="label">새 비밀번호</span>
+                <label className="password-settings-page__field">
+                  <span className="password-settings-page__label">새 비밀번호</span>
                   <input
                     ref={nextInputRef}
-                    className="input"
+                    className="password-settings-page__input"
                     type="password"
                     autoComplete="new-password"
                     aria-label="새 비밀번호"
@@ -248,17 +251,17 @@ export function UserProfilePage() {
                   />
                   <span
                     id={nextHintId}
-                    className="fieldMessage"
+                    className="password-settings-page__field-message"
                     data-state={errors.next ? 'danger' : 'empty'}
                   >
                     {errors.next || ' '}
                   </span>
                 </label>
 
-                <label className="field">
-                  <span className="label">새 비밀번호 확인</span>
+                <label className="password-settings-page__field">
+                  <span className="password-settings-page__label">새 비밀번호 확인</span>
                   <input
-                    className="input"
+                    className="password-settings-page__input"
                     type="password"
                     autoComplete="new-password"
                     aria-label="새 비밀번호 확인"
@@ -272,24 +275,28 @@ export function UserProfilePage() {
                   />
                   <span
                     id={confirmHintId}
-                    className="fieldMessage"
+                    className="password-settings-page__field-message"
                     data-state={errors.confirm ? 'danger' : 'empty'}
                   >
                     {errors.confirm || ' '}
                   </span>
                 </label>
 
-                <div className="formFooter">
-                  <div className="message" aria-live="polite">
+                <div className="password-settings-page__form-footer">
+                  <div className="password-settings-page__message" aria-live="polite">
                     {submitError ? <p data-state="danger">{submitError}</p> : null}
                   </div>
-                  <div className="actions">
-                    <button type="submit" className="primaryButton" disabled={!canSubmit}>
+                  <div className="password-settings-page__actions">
+                    <button
+                      type="submit"
+                      className="password-settings-page__button password-settings-page__button--primary"
+                      disabled={!canSubmit}
+                    >
                       변경
                     </button>
                     <button
                       type="button"
-                      className="secondaryButton"
+                      className="password-settings-page__button password-settings-page__button--secondary"
                       onClick={handleCancel}
                       disabled={isSubmitting}
                     >
@@ -299,16 +306,16 @@ export function UserProfilePage() {
                 </div>
               </form>
             ) : step === 'confirm' ? (
-              <div className="confirmState">
-                <div className="stateBlock" data-state="confirm">
-                  <p className="confirmMessage">
+              <div className="password-settings-page__state-group password-settings-page__state-group--confirm">
+                <div className="password-settings-page__state-block" data-state="confirm">
+                  <p className="password-settings-page__message-heading">
                     비밀번호를 정말 변경하시겠습니까? 되돌릴 수 없습니다.
                   </p>
                 </div>
-                <div className="actions">
+                <div className="password-settings-page__actions">
                   <button
                     type="button"
-                    className="primaryButton"
+                    className="password-settings-page__button password-settings-page__button--primary"
                     onClick={() => void handleConfirmChange()}
                     disabled={isSubmitting}
                   >
@@ -316,7 +323,7 @@ export function UserProfilePage() {
                   </button>
                   <button
                     type="button"
-                    className="secondaryButton"
+                    className="password-settings-page__button password-settings-page__button--secondary"
                     onClick={() => setStep('form')}
                     disabled={isSubmitting}
                   >
@@ -325,14 +332,16 @@ export function UserProfilePage() {
                 </div>
               </div>
             ) : (
-              <div className="doneState">
-                <div className="stateBlock" data-state="done">
-                  <p className="doneMessage">비밀번호가 변경되었습니다.</p>
+              <div className="password-settings-page__state-group password-settings-page__state-group--done">
+                <div className="password-settings-page__state-block" data-state="done">
+                  <p className="password-settings-page__message-heading">
+                    비밀번호가 변경되었습니다.
+                  </p>
                 </div>
-                <div className="actions">
+                <div className="password-settings-page__actions">
                   <button
                     type="button"
-                    className="primaryButton"
+                    className="password-settings-page__button password-settings-page__button--primary"
                     onClick={() => void handleMoveToLogin()}
                   >
                     로그인

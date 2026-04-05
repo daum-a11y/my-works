@@ -8,12 +8,12 @@ export function AdminSummaryPage() {
   }, []);
 
   return (
-    <section className="adminPageScope page">
-      <header className="hero">
+    <section className="admin-page admin-page--page">
+      <header className="admin-page__hero">
         <h1>업무보고 현황</h1>
       </header>
 
-      <div className="panel emptyStatePanel"></div>
+      <div className="admin-page__panel admin-page__empty-state-panel"></div>
     </section>
   );
 }

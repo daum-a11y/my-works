@@ -1,5 +1,5 @@
-.adminPageScope {
-  &.page {
+.admin-page {
+  &--page {
     --admin-layout-main-column: minmax(0, 2.15fr);
     --admin-layout-aside-column: minmax(272px, 0.95fr);
     --admin-filters-min-width: 160px;
@@ -14,14 +14,14 @@
     gap: 20px;
   }
 
-  .hero {
+  .admin-page__hero {
     display: grid;
     gap: 5px;
     padding: 0 0 14px;
     border-bottom: 1px solid var(--border-default);
   }
 
-  .hero h1 {
+  .admin-page__hero h1 {
     margin: 0;
     color: var(--text-primary);
     font-family: var(--font-body);
@@ -31,9 +31,9 @@
     letter-spacing: var(--text-page-title-tracking);
   }
 
-  .hero p,
-  .muted,
-  .helperText {
+  .admin-page__hero p,
+  .admin-page__muted,
+  .admin-page__helper-text {
     margin: 0;
     color: var(--text-tertiary);
     font-size: var(--text-body-size);
@@ -42,19 +42,19 @@
     letter-spacing: var(--text-body-tracking);
   }
 
-  .layout {
+  .admin-page__layout {
     display: grid;
     gap: 16px;
     grid-template-columns: var(--admin-layout-main-column) var(--admin-layout-aside-column);
     align-items: start;
   }
 
-  .stack {
+  .admin-page__stack {
     display: grid;
     gap: 16px;
   }
 
-  .panel {
+  .admin-page__panel {
     display: grid;
     gap: var(--space-3);
     padding: 16px;
@@ -63,7 +63,7 @@
     box-shadow: var(--elevation-1);
   }
 
-  .emptyStatePanel {
+  .admin-page__empty-state-panel {
     min-height: 256px;
     place-items: center;
     align-content: center;
@@ -71,7 +71,7 @@
     text-align: center;
   }
 
-  .emptyStatePanel strong {
+  .admin-page__empty-state-panel strong {
     color: var(--text-primary);
     font-size: var(--text-section-title-size);
     font-weight: var(--text-section-title-weight);
@@ -79,16 +79,16 @@
     letter-spacing: var(--text-section-title-tracking);
   }
 
-  .emptyStatePanel p {
+  .admin-page__empty-state-panel p {
     max-width: 42ch;
   }
 
-  .panel h3,
-  .panel h4 {
+  .admin-page__panel h3,
+  .admin-page__panel h4 {
     margin: 0;
   }
 
-  .toolbar {
+  .admin-page__toolbar {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
@@ -98,15 +98,15 @@
     border-bottom: 1px solid var(--border-default);
   }
 
-  .actions {
+  .admin-page__actions {
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-2);
     align-items: center;
   }
 
-  .actions button,
-  .toolbar button {
+  .admin-page__actions button,
+  .admin-page__toolbar button {
     min-height: var(--control-height-sm);
     padding: 0 var(--control-padding-x);
     border: 1px solid var(--button-secondary-border);
@@ -118,35 +118,35 @@
     line-height: var(--text-form-line-height);
   }
 
-  .actions button:hover,
-  .toolbar button:hover {
+  .admin-page__actions button:hover,
+  .admin-page__toolbar button:hover {
     background: var(--button-secondary-hover);
   }
 
-  .actions button:focus-visible,
-  .toolbar button:focus-visible,
-  .field input:focus-visible,
-  .field select:focus-visible,
-  .field textarea:focus-visible,
-  .rowButton:focus-visible,
-  .tabLink:focus-visible,
-  .validationItemButton:focus-visible {
+  .admin-page__actions button:focus-visible,
+  .admin-page__toolbar button:focus-visible,
+  .admin-page__field input:focus-visible,
+  .admin-page__field select:focus-visible,
+  .admin-page__field textarea:focus-visible,
+  .admin-page__row-button:focus-visible,
+  .admin-page__tab-link:focus-visible,
+  .admin-page__validation-item-button:focus-visible {
   }
 
-  .filtersGrid,
-  .formGrid {
+  .admin-page__filters-grid,
+  .admin-page__form-grid {
     display: grid;
     gap: var(--space-3);
     grid-template-columns: repeat(auto-fit, minmax(var(--admin-filters-min-width), 1fr));
     align-items: start;
   }
 
-  .field {
+  .admin-page__field {
     display: grid;
     gap: var(--space-field-gap);
   }
 
-  .field label {
+  .admin-page__field label {
     color: var(--text-primary);
     font-size: var(--text-form-size);
     font-weight: var(--text-form-weight);
@@ -154,9 +154,9 @@
     letter-spacing: var(--text-form-tracking);
   }
 
-  .field input,
-  .field select,
-  .field textarea {
+  .admin-page__field input,
+  .admin-page__field select,
+  .admin-page__field textarea {
     width: 100%;
     min-height: var(--control-height-md);
     padding: var(--control-padding-y) var(--control-padding-x);
@@ -171,38 +171,38 @@
     letter-spacing: var(--text-body-tracking);
   }
 
-  .field textarea {
+  .admin-page__field textarea {
     min-height: var(--admin-textarea-min-height);
     resize: vertical;
   }
 
-  .field.checkbox {
+  .admin-page__field.admin-page__checkbox {
     display: flex;
     align-items: center;
     gap: var(--space-2);
   }
 
-  .field.checkbox input {
+  .admin-page__field.admin-page__checkbox input {
     width: auto;
   }
 
-  .fullWidth {
+  .admin-page__full-width {
     grid-column: 1 / -1;
   }
 
-  .tableWrap {
+  .admin-page__table-wrap {
     overflow: auto;
     border: 1px solid var(--border-default);
     background: var(--surface-panel);
   }
 
-  .table {
+  .admin-page__table {
     width: 100%;
     border-collapse: collapse;
   }
 
-  .table th,
-  .table td {
+  .admin-page__table th,
+  .admin-page__table td {
     padding: var(--space-3);
     border-bottom: 1px solid var(--border-subtle);
     text-align: left;
@@ -210,7 +210,7 @@
     overflow-wrap: anywhere;
   }
 
-  .table th {
+  .admin-page__table th {
     background: color-mix(in oklab, var(--theme-admin-surface) 34%, var(--surface-canvas-strong));
     font-size: var(--text-table-size);
     text-transform: uppercase;
@@ -223,7 +223,7 @@
     z-index: 1;
   }
 
-  .rowButton {
+  .admin-page__row-button {
     width: 100%;
     border: 0;
     background: transparent;
@@ -233,22 +233,22 @@
     cursor: pointer;
   }
 
-  .rowButton strong {
+  .admin-page__row-button strong {
     display: block;
     margin-bottom: calc(var(--space-2) / 2);
   }
 
-  .selectedRow {
+  .admin-page__selected-row {
     background: color-mix(in oklab, var(--theme-admin-surface) 44%, var(--surface-active));
   }
 
-  .summaryGrid {
+  .admin-page__summary-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(var(--admin-summary-min-width), 1fr));
     gap: var(--space-3);
   }
 
-  .summaryCard {
+  .admin-page__summary-card {
     display: grid;
     gap: var(--space-2);
     padding: 12px 16px;
@@ -257,22 +257,22 @@
     background: color-mix(in oklab, var(--theme-admin-surface) 56%, var(--surface-panel));
   }
 
-  .summaryCard strong {
+  .admin-page__summary-card strong {
     font-size: var(--text-section-title-size);
     font-weight: var(--text-section-title-weight);
     line-height: var(--text-section-title-line-height);
     letter-spacing: var(--text-section-title-tracking);
   }
 
-  .badges,
-  .queueList {
+  .admin-page__badges,
+  .admin-page__queue-list {
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-2);
   }
 
-  .badge,
-  .queueItem {
+  .admin-page__badge,
+  .admin-page__queue-item {
     display: inline-flex;
     align-items: center;
     gap: calc(var(--space-2) / 2);
@@ -285,22 +285,22 @@
     line-height: var(--text-meta-line-height);
   }
 
-  .warningBadge {
+  .admin-page__badge--warning {
     background: var(--state-warning-bg);
     color: var(--state-warning-text);
   }
 
-  .dangerBadge {
+  .admin-page__badge--danger {
     background: var(--state-danger-bg);
     color: var(--state-danger-text);
   }
 
-  .metaList {
+  .admin-page__meta-list {
     display: grid;
     gap: var(--space-2);
   }
 
-  .metaList div {
+  .admin-page__meta-list div {
     display: flex;
     justify-content: space-between;
     gap: var(--space-3);
@@ -308,7 +308,7 @@
     line-height: var(--text-body-line-height);
   }
 
-  .emptyState {
+  .admin-page__empty-state {
     padding: var(--space-6) var(--space-4);
     text-align: center;
     color: var(--text-tertiary);
@@ -319,15 +319,15 @@
   }
 
   @media (max-width: 1100px) {
-    .layout {
+    .admin-page__layout {
       grid-template-columns: minmax(0, 1fr);
     }
-    .tabList {
+    .admin-page__tab-list {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
 
-  .tabList {
+  .admin-page__tab-list {
     display: flex;
     flex-wrap: wrap;
     gap: 16px;
@@ -335,7 +335,7 @@
     border-bottom: 1px solid var(--border-default);
   }
 
-  .tabLink {
+  .admin-page__tab-link {
     display: inline-flex;
     align-items: center;
     justify-content: flex-start;
@@ -351,12 +351,12 @@
     line-height: var(--text-form-line-height);
   }
 
-  .tabLinkActive {
+  .admin-page__tab-link--active {
     border-bottom-color: var(--theme-admin-accent);
     color: var(--text-primary);
   }
 
-  .layout > aside.panel {
+  .admin-page__layout > aside.admin-page__panel {
     position: sticky;
     top: calc(56px + var(--page-block));
     padding: var(--space-4);
@@ -364,7 +364,7 @@
     background: var(--surface-panel);
   }
 
-  .sectionHeader {
+  .admin-page__section-header {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
@@ -372,40 +372,40 @@
     align-items: center;
   }
 
-  .sectionActions {
+  .admin-page__section-actions {
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-2);
     align-items: center;
   }
 
-  .compactGrid {
+  .admin-page__compact-grid {
     display: grid;
     gap: var(--space-3);
     grid-template-columns: repeat(auto-fit, minmax(var(--admin-compact-min-width), 1fr));
   }
 
-  .compactField {
+  .admin-page__compact-field {
     display: grid;
     gap: var(--space-field-gap);
   }
 
-  .compactFieldWide {
+  .admin-page__compact-field-wide {
     grid-column: 1 / -1;
   }
 
-  .validationLayout {
+  .admin-page__validation-layout {
     display: grid;
     gap: var(--space-4);
     grid-template-columns: var(--admin-validation-left-column) var(--admin-validation-right-column);
   }
 
-  .validationList {
+  .admin-page__validation-list {
     max-height: var(--admin-validation-max-height);
     overflow: auto;
   }
 
-  .validationItemButton {
+  .admin-page__validation-item-button {
     width: 100%;
     border: 0;
     background: transparent;
@@ -415,11 +415,11 @@
     cursor: pointer;
   }
 
-  .validationItemActive {
+  .admin-page__validation-item-active {
     background: color-mix(in oklab, var(--theme-admin-surface) 44%, var(--surface-active));
   }
 
-  .pill {
+  .admin-page__pill {
     display: inline-flex;
     align-items: center;
     gap: calc(var(--space-2) / 2);
@@ -432,47 +432,47 @@
     line-height: var(--text-meta-line-height);
   }
 
-  .positivePill {
+  .admin-page__pill--positive {
     background: var(--state-success-bg);
     color: var(--state-success-text);
   }
 
-  .warningPill {
+  .admin-page__warning-pill {
     background: var(--state-warning-bg);
     color: var(--state-warning-text);
   }
 
-  .dangerPill {
+  .admin-page__pill--danger {
     background: var(--state-danger-bg);
     color: var(--state-danger-text);
   }
 
-  .inlineRowCell {
+  .admin-page__inline-row-cell {
     min-width: var(--admin-inline-cell-min-width);
   }
 
-  .inlineRowActions {
+  .admin-page__inline-row-actions {
     white-space: nowrap;
   }
 
-  .smallText {
+  .admin-page__small-text {
     font-size: var(--text-meta-size);
     line-height: var(--text-meta-line-height);
   }
 
   @media (max-width: 1100px) {
-    .validationLayout {
+    .admin-page__validation-layout {
       grid-template-columns: minmax(0, 1fr);
     }
   }
 
   @media (max-width: 720px) {
-    .actions button,
-    .toolbar button {
+    .admin-page__actions button,
+    .admin-page__toolbar button {
       flex: 1 1 calc(var(--space-6) * 6);
     }
 
-    .tabList {
+    .admin-page__tab-list {
       grid-template-columns: 1fr;
     }
   }

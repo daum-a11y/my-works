@@ -86,19 +86,19 @@ export function ProjectsFeature() {
   };
 
   return (
-    <section className="projectsFeatureScope shell">
-      <header className="pageHeader">
-        <div className="pageHeaderTop">
-          <h1 className="title">프로젝트 관리</h1>
-          <Link to="/projects/new" className="headerAction">
+    <section className="projects-feature projects-feature--shell">
+      <header className="projects-feature__page-header">
+        <div className="projects-feature__page-header-top">
+          <h1 className="projects-feature__title">프로젝트 관리</h1>
+          <Link to="/projects/new" className="projects-feature__header-action">
             프로젝트 추가
           </Link>
         </div>
       </header>
 
       <PageSection title="필터">
-        <form className="filterBar" onSubmit={handleSearchSubmit}>
-          <label className="filterField">
+        <form className="projects-feature__filter-bar" onSubmit={handleSearchSubmit}>
+          <label className="projects-feature__filter-field">
             <span>시작일</span>
             <input
               type="date"
@@ -108,7 +108,7 @@ export function ProjectsFeature() {
               }
             />
           </label>
-          <label className="filterField">
+          <label className="projects-feature__filter-field">
             <span>종료일</span>
             <input
               type="date"
@@ -118,7 +118,7 @@ export function ProjectsFeature() {
               }
             />
           </label>
-          <label className="filterField">
+          <label className="projects-feature__filter-field">
             <span>검색어</span>
             <input
               value={searchInput}
@@ -126,36 +126,40 @@ export function ProjectsFeature() {
               placeholder="검색어 입력"
             />
           </label>
-          <div className="filterActions">
-            <button type="submit" className="filterButton">
+          <div className="projects-feature__filter-actions">
+            <button type="submit" className="projects-feature__filter-button">
               검색
             </button>
-            <button type="button" className="filterButtonSecondary" onClick={handleReset}>
+            <button
+              type="button"
+              className="projects-feature__filter-button projects-feature__filter-button--secondary"
+              onClick={handleReset}
+            >
               초기화
             </button>
           </div>
         </form>
       </PageSection>
 
-      <section className="resultBar" aria-label="프로젝트 목록 요약">
-        <div className="resultMetrics">
-          <div className="pager" aria-label="프로젝트 목록 페이지 이동">
+      <section className="projects-feature__result-bar" aria-label="프로젝트 목록 요약">
+        <div className="projects-feature__result-metrics">
+          <div className="projects-feature__pager" aria-label="프로젝트 목록 페이지 이동">
             <button
               type="button"
-              className="pageButton"
+              className="projects-feature__page-button"
               onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
               disabled={currentPageSafe === 1}
               aria-label="이전 페이지"
             >
               이전
             </button>
-            <p className="pageStatus">
+            <p className="projects-feature__page-status">
               <strong>{currentPageSafe}</strong>
               <span>/ {numberFormatter.format(totalPages)}</span>
             </p>
             <button
               type="button"
-              className="pageButton"
+              className="projects-feature__page-button"
               onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
               disabled={currentPageSafe === totalPages || totalProjects === 0}
               aria-label="다음 페이지"
@@ -163,13 +167,15 @@ export function ProjectsFeature() {
               다음
             </button>
           </div>
-          <p className="resultMetric">
-            <span className="resultLabel">총 건수</span>
-            <strong className="resultValue">{numberFormatter.format(totalProjects)}건</strong>
+          <p className="projects-feature__result-metric">
+            <span className="projects-feature__result-label">총 건수</span>
+            <strong className="projects-feature__result-value">
+              {numberFormatter.format(totalProjects)}건
+            </strong>
           </p>
         </div>
-        <div className="resultControls">
-          <label className="pageSizeField">
+        <div className="projects-feature__result-controls">
+          <label className="projects-feature__page-size-field">
             <span>페이지당</span>
             <select
               value={String(pageSize)}
@@ -189,9 +195,9 @@ export function ProjectsFeature() {
         </div>
       </section>
 
-      <div className="tableWrap">
-        <table className="table">
-          <caption className="srOnly">프로젝트 리스트</caption>
+      <div className="projects-feature__table-wrap">
+        <table className="projects-feature__table">
+          <caption className="projects-feature__sr-only">프로젝트 리스트</caption>
           <thead>
             <tr>
               <th scope="col">타입1</th>
@@ -222,7 +228,7 @@ export function ProjectsFeature() {
                         href={project.reportUrl}
                         target="_blank"
                         rel="noreferrer"
-                        className="tableLink"
+                        className="projects-feature__table-link"
                       >
                         링크
                       </a>
@@ -230,12 +236,19 @@ export function ProjectsFeature() {
                       '-'
                     )}
                   </td>
-                  <td className="dateCell">{formatDateLabel(project.startDate)}</td>
-                  <td className="dateCell">{formatDateLabel(project.endDate)}</td>
+                  <td className="projects-feature__date-cell">
+                    {formatDateLabel(project.startDate)}
+                  </td>
+                  <td className="projects-feature__date-cell">
+                    {formatDateLabel(project.endDate)}
+                  </td>
                   <td>{project.reporterDisplay || '-'}</td>
                   <td>{project.reviewerDisplay || '-'}</td>
                   <td>
-                    <Link to={`/projects/${project.id}/edit`} className="actionButton">
+                    <Link
+                      to={`/projects/${project.id}/edit`}
+                      className="projects-feature__action-button"
+                    >
                       수정
                     </Link>
                   </td>
@@ -244,7 +257,7 @@ export function ProjectsFeature() {
             })}
             {!projects.length ? (
               <tr>
-                <td colSpan={11} className="emptyState">
+                <td colSpan={11} className="projects-feature__empty-state">
                   검색 결과가 없습니다. 새 프로젝트를 등록하거나 기간을 조정하십시오.
                 </td>
               </tr>

@@ -41,7 +41,7 @@ function formatMemberDateTime(value: string) {
 
 export function AdminMemberRow({ member }: AdminMemberRowProps) {
   return (
-    <tr className={member.userActive ? undefined : 'inactiveRow'}>
+    <tr className={member.userActive ? undefined : 'admin-members-page__inactive-row'}>
       <td>{member.accountId}</td>
       <td>{member.name}</td>
       <td>{member.email || '-'}</td>
@@ -52,8 +52,11 @@ export function AdminMemberRow({ member }: AdminMemberRowProps) {
       <td>{formatMemberDate(member.joinedAt)}</td>
       <td>{formatMemberDateTime(member.lastLoginAt)}</td>
       <td>
-        <div className={'buttonRow'}>
-          <Link to={`/admin/members/${member.id}/edit`} className={'secondaryButton'}>
+        <div className={'admin-members-page__button-row'}>
+          <Link
+            to={`/admin/members/${member.id}/edit`}
+            className={'admin-members-page__button admin-members-page__button--secondary'}
+          >
             수정
           </Link>
         </div>
