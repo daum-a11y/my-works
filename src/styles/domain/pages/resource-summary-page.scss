@@ -25,7 +25,7 @@
   margin: 0;
 }
 
-.checkboxField :global(input[type='month']) {
+.checkboxField input[type='month'] {
   min-width: 0;
 }
 

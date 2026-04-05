@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import styles from './AdminPage.module.css';
+import '../../styles/domain/pages/admin-page.scss';
 
 export type AdminSectionTabKey =
   | 'summary'
@@ -20,7 +20,7 @@ const TABS: Array<{ key: AdminSectionTabKey; label: string; to: string }> = [
 
 export function AdminSectionTabs({ active }: { active: AdminSectionTabKey }) {
   return (
-    <nav aria-label="관리자 섹션" className={styles.tabList}>
+    <nav aria-label="관리자 섹션" className={'tabList'}>
       {TABS.map((tab) => {
         const isActive = tab.key === active;
 
@@ -28,7 +28,7 @@ export function AdminSectionTabs({ active }: { active: AdminSectionTabKey }) {
           <Link
             key={tab.key}
             to={tab.to}
-            className={`${styles.tabLink} ${isActive ? styles.tabLinkActive : ''}`.trim()}
+            className={`${'tabLink'} ${isActive ? 'tabLinkActive' : ''}`.trim()}
             aria-current={isActive ? 'page' : undefined}
           >
             {tab.label}

@@ -1,6 +1,6 @@
 import { useId, type InputHTMLAttributes, type TextareaHTMLAttributes } from 'react';
 import clsx from 'clsx';
-import styles from './Field.module.css';
+import '../../styles/domain/components/Field.scss';
 
 interface FieldBaseProps {
   label: string;
@@ -37,22 +37,22 @@ export function InputField({
   const errorId = errorMessage ? `${inputId}-error` : undefined;
 
   return (
-    <label className={clsx(styles.field, className)} htmlFor={inputId}>
-      <span className={styles.label}>{label}</span>
+    <label className={clsx('field', className)} htmlFor={inputId}>
+      <span className={'label'}>{label}</span>
       <input
         id={inputId}
-        className={styles.control}
+        className={'control'}
         aria-invalid={errorMessage ? true : ariaInvalid}
         aria-describedby={buildDescribedBy(ariaDescribedBy, descriptionId, errorId)}
         {...props}
       />
       {description ? (
-        <span id={descriptionId} className={styles.description}>
+        <span id={descriptionId} className={'description'}>
           {description}
         </span>
       ) : null}
       {errorMessage ? (
-        <span id={errorId} className={styles.error} role="alert">
+        <span id={errorId} className={'error'} role="alert">
           {errorMessage}
         </span>
       ) : null}
@@ -76,22 +76,22 @@ export function TextAreaField({
   const errorId = errorMessage ? `${inputId}-error` : undefined;
 
   return (
-    <label className={clsx(styles.field, className)} htmlFor={inputId}>
-      <span className={styles.label}>{label}</span>
+    <label className={clsx('field', className)} htmlFor={inputId}>
+      <span className={'label'}>{label}</span>
       <textarea
         id={inputId}
-        className={clsx(styles.control, styles.textarea)}
+        className={clsx('control', 'textarea')}
         aria-invalid={errorMessage ? true : ariaInvalid}
         aria-describedby={buildDescribedBy(ariaDescribedBy, descriptionId, errorId)}
         {...props}
       />
       {description ? (
-        <span id={descriptionId} className={styles.description}>
+        <span id={descriptionId} className={'description'}>
           {description}
         </span>
       ) : null}
       {errorMessage ? (
-        <span id={errorId} className={styles.error} role="alert">
+        <span id={errorId} className={'error'} role="alert">
           {errorMessage}
         </span>
       ) : null}

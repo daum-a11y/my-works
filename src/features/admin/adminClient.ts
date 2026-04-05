@@ -446,6 +446,9 @@ function createUnconfiguredAdminClient(): AdminDataClient {
     async saveMemberAdmin() {
       throw configurationError;
     },
+    async createMemberAdmin() {
+      throw configurationError;
+    },
     async inviteMemberAdmin() {
       throw configurationError;
     },

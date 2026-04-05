@@ -3,8 +3,8 @@ import { useQuery } from '@tanstack/react-query';
 import { setDocumentTitle } from '../../app/navigation';
 import { opsDataClient } from '../../lib/dataClient';
 import { countWorkingDays, formatMm } from './resourceShared';
-import projectStyles from '../projects/ProjectsFeature.module.css';
-import styles from './ResourcePage.module.css';
+import '../../styles/domain/pages/projects-feature.scss';
+import '../../styles/domain/pages/resource-page.scss';
 import { useAuth } from '../auth/AuthContext';
 
 export function ResourceTypePage() {
@@ -94,13 +94,13 @@ export function ResourceTypePage() {
   const activeRow = rows[0] ?? null;
 
   return (
-    <section className={projectStyles.shell}>
-      <header className={projectStyles.pageHeader}>
-        <div className={projectStyles.pageHeaderTop}>
-          <h1 className={projectStyles.title}>업무유형 집계</h1>
+    <section className={'shell'}>
+      <header className={'pageHeader'}>
+        <div className={'pageHeaderTop'}>
+          <h1 className={'title'}>업무유형 집계</h1>
           <button
             type="button"
-            className={projectStyles.headerAction}
+            className={'headerAction'}
             onClick={() => setFold((current) => !current)}
             aria-pressed={fold}
             disabled={!rows.length}
@@ -111,9 +111,9 @@ export function ResourceTypePage() {
       </header>
 
       {years.length ? (
-        <section className={styles.tableTabsSection}>
-          <div className={styles.tableTabsScroller}>
-            <div className={styles.tableTabs} role="tablist" aria-label="업무유형 집계 연도">
+        <section className={'tableTabsSection'}>
+          <div className={'tableTabsScroller'}>
+            <div className={'tableTabs'} role="tablist" aria-label="업무유형 집계 연도">
               {years.map((year) => {
                 const selected = year === activeYear;
 
@@ -126,7 +126,7 @@ export function ResourceTypePage() {
                     aria-selected={selected}
                     aria-controls={`resource-type-panel-${year}`}
                     tabIndex={selected ? 0 : -1}
-                    className={selected ? styles.tableTabActive : styles.tableTab}
+                    className={selected ? 'tableTabActive' : 'tableTab'}
                     onClick={() => setActiveYear(year)}
                   >
                     {year}년
@@ -141,11 +141,11 @@ export function ResourceTypePage() {
               id={`resource-type-panel-${activeRow.year}`}
               role="tabpanel"
               aria-labelledby={`resource-type-tab-${activeRow.year}`}
-              className={styles.tableTabPanel}
+              className={'tableTabPanel'}
             >
-              <div className={projectStyles.tableWrap}>
-                <table className={projectStyles.table}>
-                  <caption className={styles.srOnly}>
+              <div className={'tableWrap'}>
+                <table className={'table'}>
+                  <caption className={'srOnly'}>
                     {activeRow.year}년 월 기준 업무유형 집계 표
                   </caption>
                   <thead>
@@ -164,9 +164,9 @@ export function ResourceTypePage() {
           ) : null}
         </section>
       ) : (
-        <div className={projectStyles.tableWrap}>
-          <table className={projectStyles.table}>
-            <caption className={styles.srOnly}>연도와 월 기준 업무유형 집계 표</caption>
+        <div className={'tableWrap'}>
+          <table className={'table'}>
+            <caption className={'srOnly'}>연도와 월 기준 업무유형 집계 표</caption>
             <thead>
               <tr>
                 <th scope="col">월</th>
@@ -176,7 +176,7 @@ export function ResourceTypePage() {
             </thead>
             <tbody>
               <tr>
-                <td colSpan={3} className={projectStyles.emptyState}>
+                <td colSpan={3} className={'emptyState'}>
                   표시할 타입별 집계가 없습니다.
                 </td>
               </tr>
@@ -210,13 +210,13 @@ function TypeYearRows({
     return (
       <>
         {row.months.map((month) => (
-          <tr key={`${row.year}-${month.month}-sum`} className={styles.summaryStrongRow}>
+          <tr key={`${row.year}-${month.month}-sum`} className={'summaryStrongRow'}>
             <td>{month.month}월</td>
             <td>전체</td>
             <td>{formatMm(month.totalMinutes, month.workingDays)}</td>
           </tr>
         ))}
-        <tr className={styles.summaryStrongRow}>
+        <tr className={'summaryStrongRow'}>
           <td>{row.year}년 합계</td>
           <td>전체</td>
           <td>{formatMm(row.yearTotalMinutes, 21.73)}</td>
@@ -230,7 +230,7 @@ function TypeYearRows({
       {row.months.map((month) => (
         <MonthDetailRows key={`${row.year}-${month.month}`} month={month} />
       ))}
-      <tr className={styles.summaryStrongRow}>
+      <tr className={'summaryStrongRow'}>
         <td colSpan={2}>{row.year}년 합계</td>
         <td>{formatMm(row.yearTotalMinutes, 21.73)}</td>
       </tr>
@@ -257,7 +257,7 @@ function MonthDetailRows({
           <td>{formatMm(item.minutes, month.workingDays)}</td>
         </tr>
       ))}
-      <tr className={styles.summaryStrongRow}>
+      <tr className={'summaryStrongRow'}>
         <td colSpan={2}>{month.month}월 합계</td>
         <td>{formatMm(month.totalMinutes, month.workingDays)}</td>
       </tr>

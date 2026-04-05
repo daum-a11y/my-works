@@ -13,7 +13,7 @@ import {
   type ReportViewModel,
 } from './reportDomain';
 import { useReportsSlice } from './useReportsSlice';
-import styles from './ReportsPage.module.css';
+import '../../styles/domain/pages/reports-page.scss';
 
 function normalizeDateForInput(value: string) {
   const trimmed = value.trim();
@@ -82,9 +82,9 @@ function renderReportTable(
 
   return (
     <>
-      <div className={styles.tableWrap}>
-        <table className={styles.table}>
-          <caption className={styles.srOnly}>업무 보고 목록</caption>
+      <div className={'tableWrap'}>
+        <table className={'table'}>
+          <caption className={'srOnly'}>업무 보고 목록</caption>
           <thead>
             <tr>
               <th scope="col">일자</th>
@@ -192,7 +192,7 @@ function renderReportTable(
                   </td>
                   <td>
                     {isSelected && selectedReport && canEdit ? (
-                      <button type="button" className={styles.rowButton} onClick={onSaveEdit}>
+                      <button type="button" className={'rowButton'} onClick={onSaveEdit}>
                         저장
                       </button>
                     ) : (
@@ -200,7 +200,7 @@ function renderReportTable(
                         {canEdit ? (
                           <button
                             type="button"
-                            className={styles.rowButton}
+                            className={'rowButton'}
                             onClick={() => onSelect(report.id)}
                           >
                             수정
@@ -209,7 +209,7 @@ function renderReportTable(
                         {canEdit ? (
                           <button
                             type="button"
-                            className={styles.rowButton}
+                            className={'rowButton'}
                             onClick={() => onDelete(report.id)}
                           >
                             삭제
@@ -223,7 +223,7 @@ function renderReportTable(
             })}
             {!rows.length && (
               <tr>
-                <td colSpan={13} className={styles.emptyState}>
+                <td colSpan={13} className={'emptyState'}>
                   {emptyMessage}
                 </td>
               </tr>
@@ -232,14 +232,14 @@ function renderReportTable(
         </table>
       </div>
       {missingMinutes > 0 ? (
-        <div className={styles.tableFooter}>
-          <p className={styles.tableFooterText}>
+        <div className={'tableFooter'}>
+          <p className={'tableFooterText'}>
             부족한 시간 <strong>{missingMinutes}분</strong>
           </p>
           {canEdit && canAddOverhead ? (
             <button
               type="button"
-              className={styles.secondaryButton}
+              className={'secondaryButton'}
               onClick={() => onOverhead(summaryDate, missingMinutes)}
             >
               오버헤드 등록
@@ -498,20 +498,20 @@ export function ReportsPage() {
   const isListDateValid = /^\d{4}-\d{2}-\d{2}$/.test(currentListDateValue);
 
   return (
-    <section className={styles.page}>
-      <header className={styles.hero}>
-        <div className={styles.heroMain}>
-          <h1 className={styles.title}>업무보고</h1>
+    <section className={'page'}>
+      <header className={'hero'}>
+        <div className={'heroMain'}>
+          <h1 className={'title'}>업무보고</h1>
         </div>
       </header>
-      {statusMessage ? <p className={styles.statusMessage}>{statusMessage}</p> : null}
+      {statusMessage ? <p className={'statusMessage'}>{statusMessage}</p> : null}
 
-      <section className={styles.dateNavigator}>
-        <p className={styles.dateText}>{currentListDateText}</p>
-        <div className={styles.dateActions}>
+      <section className={'dateNavigator'}>
+        <p className={'dateText'}>{currentListDateText}</p>
+        <div className={'dateActions'}>
           <button
             type="button"
-            className={styles.secondaryButton}
+            className={'secondaryButton'}
             onClick={() => shiftSelectedDate(-1)}
             aria-label="이전일 조회"
           >
@@ -519,7 +519,7 @@ export function ReportsPage() {
           </button>
           <button
             type="button"
-            className={styles.secondaryButton}
+            className={'secondaryButton'}
             onClick={() => shiftSelectedDate(0)}
             aria-label="오늘 조회"
           >
@@ -527,7 +527,7 @@ export function ReportsPage() {
           </button>
           <button
             type="button"
-            className={styles.secondaryButton}
+            className={'secondaryButton'}
             onClick={() => shiftSelectedDate(1)}
             aria-label="다음일 조회"
           >
@@ -536,34 +536,30 @@ export function ReportsPage() {
         </div>
       </section>
 
-      <div className={styles.gridLayout}>
+      <div className={'gridLayout'}>
         {canEditReports ? (
-          <section className={styles.panel}>
-            <div className={styles.tabRow}>
+          <section className={'panel'}>
+            <div className={'tabRow'}>
               <button
                 type="button"
-                className={`${styles.tabButton} ${
-                  activeTab === 'report' ? styles.tabButtonActive : ''
-                }`}
+                className={`${'tabButton'} ${activeTab === 'report' ? 'tabButtonActive' : ''}`}
                 onClick={() => setActiveTab('report')}
               >
                 기본 입력
               </button>
               <button
                 type="button"
-                className={`${styles.tabButton} ${
-                  activeTab === 'period' ? styles.tabButtonActive : ''
-                }`}
+                className={`${'tabButton'} ${activeTab === 'period' ? 'tabButtonActive' : ''}`}
                 onClick={() => setActiveTab('period')}
               >
                 TYPE 입력
               </button>
             </div>
 
-            <form className={styles.form} onSubmit={onSubmit}>
+            <form className={'form'} onSubmit={onSubmit}>
               {activeTab === 'report' ? (
-                <div className={styles.formGrid}>
-                  <label className={styles.field}>
+                <div className={'formGrid'}>
+                  <label className={'field'}>
                     <span>청구그룹</span>
                     <select
                       value={draft.costGroupId}
@@ -580,7 +576,7 @@ export function ReportsPage() {
                     </select>
                   </label>
 
-                  <label className={styles.field}>
+                  <label className={'field'}>
                     <span>프로젝트검색</span>
                     <input
                       value={projectQuery}
@@ -590,18 +586,14 @@ export function ReportsPage() {
                     />
                   </label>
 
-                  <div className={styles.searchButtonField}>
-                    <span className={styles.srOnly}>프로젝트 검색</span>
-                    <button
-                      type="button"
-                      className={styles.secondaryButton}
-                      onClick={applyProjectQuery}
-                    >
+                  <div className={'searchButtonField'}>
+                    <span className={'srOnly'}>프로젝트 검색</span>
+                    <button type="button" className={'secondaryButton'} onClick={applyProjectQuery}>
                       검색
                     </button>
                   </div>
 
-                  <label className={styles.field}>
+                  <label className={'field'}>
                     <span>프로젝트</span>
                     <select
                       value={draft.projectId}
@@ -619,14 +611,14 @@ export function ReportsPage() {
                 </div>
               ) : null}
 
-              <div className={styles.formGrid}>
+              <div className={'formGrid'}>
                 {projectTypeSelected ? (
-                  <label className={styles.field}>
+                  <label className={'field'}>
                     <span>타입1</span>
                     <input value={type1Value} readOnly />
                   </label>
                 ) : (
-                  <label className={styles.field}>
+                  <label className={'field'}>
                     <span>타입1</span>
                     <select
                       value={draft.type1}
@@ -642,7 +634,7 @@ export function ReportsPage() {
                   </label>
                 )}
 
-                <label className={styles.field}>
+                <label className={'field'}>
                   <span>타입2</span>
                   <select
                     value={draft.type2}
@@ -658,7 +650,7 @@ export function ReportsPage() {
                 </label>
 
                 {showPlatformSelect ? (
-                  <label className={styles.field}>
+                  <label className={'field'}>
                     <span>플랫폼</span>
                     <select
                       value={draft.platform}
@@ -680,15 +672,15 @@ export function ReportsPage() {
 
                 {showReadonlyService ? (
                   <>
-                    <label className={styles.field}>
+                    <label className={'field'}>
                       <span>청구그룹</span>
                       <input value={draft.costGroupName} readOnly />
                     </label>
-                    <label className={styles.field}>
+                    <label className={'field'}>
                       <span>서비스 그룹</span>
                       <input value={draft.serviceGroupName} readOnly />
                     </label>
-                    <label className={styles.field}>
+                    <label className={'field'}>
                       <span>서비스 명</span>
                       <input value={draft.serviceName} readOnly />
                     </label>
@@ -696,7 +688,7 @@ export function ReportsPage() {
                 ) : null}
 
                 {showProjectSelect && !isProjectLinkedTab ? (
-                  <label className={styles.field}>
+                  <label className={'field'}>
                     <span>프로젝트</span>
                     <select
                       value={draft.projectId}
@@ -718,7 +710,7 @@ export function ReportsPage() {
                 ) : null}
 
                 {showPageSelect ? (
-                  <label className={styles.field}>
+                  <label className={'field'}>
                     <span>{isProjectLinkedTab ? '페이지명' : '프로젝트 페이지'}</span>
                     <select
                       value={draft.pageId}
@@ -737,7 +729,7 @@ export function ReportsPage() {
                 ) : null}
 
                 {showManualPageName ? (
-                  <label className={styles.field}>
+                  <label className={'field'}>
                     <span>{manualPageLabel}</span>
                     {isVacationType ? (
                       <select
@@ -760,7 +752,7 @@ export function ReportsPage() {
                 ) : null}
 
                 {showPageUrl ? (
-                  <label className={styles.field}>
+                  <label className={'field'}>
                     <span>{showPageSelect ? '페이지 URL' : 'URL'}</span>
                     <input
                       value={draft.pageUrl}
@@ -770,7 +762,7 @@ export function ReportsPage() {
                   </label>
                 ) : null}
 
-                <label className={styles.field}>
+                <label className={'field'}>
                   <span>총시간</span>
                   <input
                     type="number"
@@ -783,7 +775,7 @@ export function ReportsPage() {
                 </label>
               </div>
 
-              <label className={styles.field}>
+              <label className={'field'}>
                 <span>비고</span>
                 <textarea
                   value={draft.note}
@@ -792,10 +784,10 @@ export function ReportsPage() {
                 />
               </label>
 
-              <div className={styles.actionRow}>
+              <div className={'actionRow'}>
                 <button
                   type="submit"
-                  className={styles.primaryButton}
+                  className={'primaryButton'}
                   disabled={isSaving || !isListDateValid}
                 >
                   업무저장
@@ -806,7 +798,7 @@ export function ReportsPage() {
         ) : null}
       </div>
 
-      <section className={canEditReports ? styles.panel : undefined}>
+      <section className={canEditReports ? 'panel' : undefined}>
         {renderReportTable(dailyReports, {
           canEdit: canEditReports,
           selectedReportId,

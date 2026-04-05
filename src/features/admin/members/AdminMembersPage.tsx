@@ -5,7 +5,7 @@ import { PageSection } from '../../../components/common/PageSection';
 import { adminDataClient } from '../adminClient';
 import type { MemberAdminItem } from '../admin-types';
 import { AdminMemberRow } from './AdminMemberRow';
-import styles from './AdminMembersPage.module.css';
+import '../../../styles/domain/pages/admin-members-page.scss';
 
 type MemberFilterState = {
   status: 'all' | 'active' | 'inactive';
@@ -86,22 +86,22 @@ export function AdminMembersPage() {
   };
 
   return (
-    <section className={styles.page}>
-      <header className={styles.pageHeader}>
-        <div className={styles.pageHeaderTop}>
-          <h1 className={styles.title}>사용자 관리</h1>
-          <Link to="/admin/members/new" className={styles.headerAction}>
+    <section className={'page'}>
+      <header className={'pageHeader'}>
+        <div className={'pageHeaderTop'}>
+          <h1 className={'title'}>사용자 관리</h1>
+          <Link to="/admin/members/new" className={'headerAction'}>
             사용자 추가
           </Link>
         </div>
       </header>
 
-      {statusMessage ? <p className={styles.statusText}>{statusMessage}</p> : null}
-      {errorMessage ? <p className={styles.helperText}>{errorMessage}</p> : null}
+      {statusMessage ? <p className={'statusText'}>{statusMessage}</p> : null}
+      {errorMessage ? <p className={'helperText'}>{errorMessage}</p> : null}
 
       <PageSection title="필터">
-        <form className={styles.filterBar} onSubmit={handleSearchSubmit}>
-          <label className={styles.filterField}>
+        <form className={'filterBar'} onSubmit={handleSearchSubmit}>
+          <label className={'filterField'}>
             <span>활성 여부</span>
             <select
               value={filterDraft.status}
@@ -117,7 +117,7 @@ export function AdminMembersPage() {
               <option value="inactive">비활성</option>
             </select>
           </label>
-          <label className={styles.filterField}>
+          <label className={'filterField'}>
             <span>검색어</span>
             <input
               value={filterDraft.keyword}
@@ -127,37 +127,37 @@ export function AdminMembersPage() {
               placeholder="이름, ID, 메일 검색"
             />
           </label>
-          <div className={styles.filterActions}>
-            <button type="submit" className={styles.filterButton}>
+          <div className={'filterActions'}>
+            <button type="submit" className={'filterButton'}>
               검색
             </button>
-            <button type="button" className={styles.filterButtonSecondary} onClick={handleReset}>
+            <button type="button" className={'filterButtonSecondary'} onClick={handleReset}>
               초기화
             </button>
           </div>
         </form>
       </PageSection>
 
-      <section className={styles.resultBar} aria-label="사용자 목록 상태">
-        <p className={styles.resultMetric}>
-          <span className={styles.resultLabel}>조회 결과</span>
-          <strong className={styles.resultValue}>{filteredMembers.length}</strong>
+      <section className={'resultBar'} aria-label="사용자 목록 상태">
+        <p className={'resultMetric'}>
+          <span className={'resultLabel'}>조회 결과</span>
+          <strong className={'resultValue'}>{filteredMembers.length}</strong>
         </p>
-        <div className={styles.resultMetrics}>
-          <p className={styles.resultMetric}>
-            <span className={styles.resultLabel}>전체 사용자</span>
-            <strong className={styles.resultValue}>{members.length}</strong>
+        <div className={'resultMetrics'}>
+          <p className={'resultMetric'}>
+            <span className={'resultLabel'}>전체 사용자</span>
+            <strong className={'resultValue'}>{members.length}</strong>
           </p>
-          <p className={styles.resultMetric}>
-            <span className={styles.resultLabel}>활성 사용자</span>
-            <strong className={styles.resultValue}>{activeMemberCount}</strong>
+          <p className={'resultMetric'}>
+            <span className={'resultLabel'}>활성 사용자</span>
+            <strong className={'resultValue'}>{activeMemberCount}</strong>
           </p>
         </div>
       </section>
 
-      <div className={styles.panel}>
-        <div className={styles.tableWrap}>
-          <table className={styles.table}>
+      <div className={'panel'}>
+        <div className={'tableWrap'}>
+          <table className={'table'}>
             <caption className="srOnly">사용자 내역</caption>
             <thead>
               <tr>
@@ -176,13 +176,13 @@ export function AdminMembersPage() {
             <tbody>
               {membersQuery.isLoading ? (
                 <tr>
-                  <td colSpan={10} className={styles.emptyCell}>
+                  <td colSpan={10} className={'emptyCell'}>
                     불러오는 중...
                   </td>
                 </tr>
               ) : filteredMembers.length === 0 ? (
                 <tr>
-                  <td colSpan={10} className={styles.emptyCell}>
+                  <td colSpan={10} className={'emptyCell'}>
                     조회된 사용자가 없습니다.
                   </td>
                 </tr>

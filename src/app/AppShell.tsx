@@ -5,7 +5,7 @@ import { ChevronRight, ChevronDown, House, LogOut, UserRound } from 'lucide-reac
 import { useAuth } from '../features/auth/AuthContext';
 import { GlobalLoadingSpinner } from './GlobalLoadingSpinner';
 import { adminNavigation, baseNavigation, getBreadcrumbs, setDocumentTitle } from './navigation';
-import styles from './AppShell.module.css';
+import '../styles/domain/pages/app-shell.scss';
 
 export function AppShell() {
   const location = useLocation();
@@ -85,12 +85,12 @@ export function AppShell() {
       <a href="#main-content" className="skipLink">
         본문으로 바로가기
       </a>
-      <div className={styles.layout}>
-        <aside className={styles.sidebar}>
-          <div className={styles.brand}>
-            <NavLink to="/dashboard" className={styles.brandLink} aria-label="MY WORKS 홈">
+      <div className={'layout'}>
+        <aside className={'sidebar'}>
+          <div className={'brand'}>
+            <NavLink to="/dashboard" className={'brandLink'} aria-label="MY WORKS 홈">
               <img
-                className={styles.brandLogo}
+                className={'brandLogo'}
                 src="/img/my-works-logo-200x60.png"
                 alt="MY WORKS"
                 width="100"
@@ -99,33 +99,31 @@ export function AppShell() {
             </NavLink>
           </div>
 
-          <nav aria-label="주요 메뉴" className={styles.nav}>
-            <ul className={styles.navList}>
+          <nav aria-label="주요 메뉴" className={'nav'}>
+            <ul className={'navList'}>
               {navigation.map((item) => (
-                <li key={item.label} className={styles.navItem}>
+                <li key={item.label} className={'navItem'}>
                   {'to' in item && item.to ? (
                     <NavLink
                       to={item.to}
-                      className={({ isActive }) => (isActive ? styles.activeLink : styles.link)}
+                      className={({ isActive }) => (isActive ? 'activeLink' : 'link')}
                     >
                       {item.icon && <item.icon size={16} strokeWidth={2} />}
                       <span>{item.label}</span>
                     </NavLink>
                   ) : (
-                    <div className={styles.navGroup}>
-                      <div className={styles.navGroupHeader}>
+                    <div className={'navGroup'}>
+                      <div className={'navGroupHeader'}>
                         {item.icon && <item.icon size={16} strokeWidth={2} />}
-                        <span className={styles.sectionLabel}>{item.label}</span>
+                        <span className={'sectionLabel'}>{item.label}</span>
                       </div>
-                      <ul className={styles.subNavList}>
+                      <ul className={'subNavList'}>
                         {'children' in item &&
                           item.children?.map((child) => (
                             <li key={child.to}>
                               <NavLink
                                 to={child.to}
-                                className={({ isActive }) =>
-                                  isActive ? styles.activeLink : styles.link
-                                }
+                                className={({ isActive }) => (isActive ? 'activeLink' : 'link')}
                               >
                                 {child.label}
                               </NavLink>
@@ -140,24 +138,24 @@ export function AppShell() {
           </nav>
         </aside>
 
-        <div className={styles.content}>
+        <div className={'content'}>
           {resourceFetchCount > 0 ? (
-            <div className={styles.globalLoadingOverlay}>
+            <div className={'globalLoadingOverlay'}>
               <GlobalLoadingSpinner overlay />
             </div>
           ) : null}
-          <header className={styles.header}>
-            <div className={styles.headerTitle}>
-              <nav className={styles.breadcrumbs} aria-label="브래드크럼">
+          <header className={'header'}>
+            <div className={'headerTitle'}>
+              <nav className={'breadcrumbs'} aria-label="브래드크럼">
                 <ol>
                   {breadcrumbs.map((crumb, i) => (
                     <li key={crumb.label}>
-                      {i > 0 && <ChevronRight size={14} className={styles.breadcrumbSeparator} />}
-                      <span className={i === breadcrumbs.length - 1 ? styles.lastCrumb : ''}>
+                      {i > 0 && <ChevronRight size={14} className={'breadcrumbSeparator'} />}
+                      <span className={i === breadcrumbs.length - 1 ? 'lastCrumb' : ''}>
                         {i === 0 ? (
                           <Link
                             to="/dashboard"
-                            className={styles.breadcrumbHome}
+                            className={'breadcrumbHome'}
                             aria-label="홈으로 가기"
                           >
                             <House size={14} strokeWidth={2.2} aria-hidden="true" />
@@ -172,36 +170,36 @@ export function AppShell() {
                 </ol>
               </nav>
             </div>
-            <div className={styles.headerMeta}>
-              <div className={styles.userMenu} ref={userMenuRef}>
+            <div className={'headerMeta'}>
+              <div className={'userMenu'} ref={userMenuRef}>
                 <button
                   type="button"
-                  className={styles.userMenuTrigger}
+                  className={'userMenuTrigger'}
                   aria-haspopup="menu"
                   aria-expanded={isUserMenuOpen}
                   aria-label={`${session?.member.name ?? '사용자'} 메뉴`}
                   onClick={() => setIsUserMenuOpen((open) => !open)}
                 >
-                  <div className={styles.profileIcon} aria-hidden="true">
+                  <div className={'profileIcon'} aria-hidden="true">
                     {userInitials}
                   </div>
-                  <div className={styles.profileInfo}>
+                  <div className={'profileInfo'}>
                     <strong>{session?.member.accountId}</strong>
                   </div>
                   <ChevronDown
                     size={15}
                     strokeWidth={2.2}
-                    className={isUserMenuOpen ? styles.userMenuChevronOpen : styles.userMenuChevron}
+                    className={isUserMenuOpen ? 'userMenuChevronOpen' : 'userMenuChevron'}
                     aria-hidden="true"
                   />
                 </button>
                 {isUserMenuOpen ? (
-                  <div className={styles.userMenuPanel} role="menu" aria-label="사용자 메뉴">
-                    <div className={styles.userMenuIdentity}>
-                      <div className={styles.userMenuIdentityAvatar} aria-hidden="true">
+                  <div className={'userMenuPanel'} role="menu" aria-label="사용자 메뉴">
+                    <div className={'userMenuIdentity'}>
+                      <div className={'userMenuIdentityAvatar'} aria-hidden="true">
                         {userInitials}
                       </div>
-                      <div className={styles.userMenuIdentityText}>
+                      <div className={'userMenuIdentityText'}>
                         <strong>{session?.member.accountId}</strong>
                         <span>{session?.member.name}</span>
                       </div>
@@ -210,7 +208,7 @@ export function AppShell() {
                       to="/profile"
                       role="menuitem"
                       className={({ isActive }) =>
-                        isActive ? styles.userMenuItemActive : styles.userMenuItem
+                        isActive ? 'userMenuItemActive' : 'userMenuItem'
                       }
                     >
                       <UserRound size={15} strokeWidth={2} aria-hidden="true" />
@@ -219,7 +217,7 @@ export function AppShell() {
                     <button
                       type="button"
                       role="menuitem"
-                      className={`${styles.userMenuItem} ${styles.userMenuItemDanger}`}
+                      className={`${'userMenuItem'} ${'userMenuItemDanger'}`}
                       onClick={() => void handleLogout()}
                       disabled={isLoggingOut}
                     >
@@ -230,14 +228,14 @@ export function AppShell() {
                 ) : null}
               </div>
               {logoutError ? (
-                <p className={styles.headerStatus} role="alert" aria-live="polite">
+                <p className={'headerStatus'} role="alert" aria-live="polite">
                   {logoutError}
                 </p>
               ) : null}
             </div>
           </header>
 
-          <main id="main-content" className={styles.main}>
+          <main id="main-content" className={'main'}>
             <Outlet />
           </main>
         </div>

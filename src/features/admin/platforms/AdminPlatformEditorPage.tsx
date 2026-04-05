@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { adminDataClient } from '../adminClient';
 import type { AdminPlatformItem, AdminPlatformPayload } from '../admin-types';
-import styles from '../../projects/ProjectsFeature.module.css';
+import '../../../styles/domain/pages/projects-feature.scss';
 
 function createDraft(item?: AdminPlatformItem): AdminPlatformPayload {
   if (!item) {
@@ -104,33 +104,33 @@ export function AdminPlatformEditorPage() {
 
   if (platformsQuery.isLoading && isEditMode) {
     return (
-      <section className={`${styles.shell} ${styles.editorShell}`}>
-        <p className={styles.statusMessage}>불러오는 중...</p>
+      <section className={`${'shell'} ${'editorShell'}`}>
+        <p className={'statusMessage'}>불러오는 중...</p>
       </section>
     );
   }
 
   if (isEditMode && !selectedPlatform && !platformsQuery.isLoading) {
     return (
-      <section className={`${styles.shell} ${styles.editorShell}`}>
-        <header className={styles.editorHeader}>
-          <h1 className={styles.title}>플랫폼 수정</h1>
+      <section className={`${'shell'} ${'editorShell'}`}>
+        <header className={'editorHeader'}>
+          <h1 className={'title'}>플랫폼 수정</h1>
         </header>
-        <p className={styles.statusMessage}>플랫폼을 찾을 수 없습니다.</p>
+        <p className={'statusMessage'}>플랫폼을 찾을 수 없습니다.</p>
       </section>
     );
   }
 
   return (
-    <section className={`${styles.shell} ${styles.editorShell}`}>
-      <header className={styles.editorHeader}>
-        <h1 className={styles.title}>{isEditMode ? '플랫폼 수정' : '플랫폼 추가'}</h1>
+    <section className={`${'shell'} ${'editorShell'}`}>
+      <header className={'editorHeader'}>
+        <h1 className={'title'}>{isEditMode ? '플랫폼 수정' : '플랫폼 추가'}</h1>
       </header>
-      {errorMessage ? <p className={styles.statusMessage}>{errorMessage}</p> : null}
-      <section className={`${styles.modal} ${styles.editorSurface}`} aria-label="플랫폼 편집 패널">
-        <form className={`${styles.detailForm} ${styles.editorDetailForm}`} onSubmit={handleSubmit}>
-          <div className={styles.editorFormGrid}>
-            <label className={styles.field}>
+      {errorMessage ? <p className={'statusMessage'}>{errorMessage}</p> : null}
+      <section className={`${'modal'} ${'editorSurface'}`} aria-label="플랫폼 편집 패널">
+        <form className={`${'detailForm'} ${'editorDetailForm'}`} onSubmit={handleSubmit}>
+          <div className={'editorFormGrid'}>
+            <label className={'field'}>
               <span>플랫폼명</span>
               <input
                 ref={titleRef}
@@ -140,7 +140,7 @@ export function AdminPlatformEditorPage() {
                 }
               />
             </label>
-            <label className={styles.field}>
+            <label className={'field'}>
               <span>노출여부</span>
               <select
                 value={draft.isVisible ? '1' : '0'}
@@ -153,12 +153,12 @@ export function AdminPlatformEditorPage() {
               </select>
             </label>
           </div>
-          <div className={`${styles.formActions} ${styles.editorFormActions}`}>
-            <div className={styles.editorFormActionsStart}>
+          <div className={`${'formActions'} ${'editorFormActions'}`}>
+            <div className={'editorFormActionsStart'}>
               {isEditMode ? (
                 <button
                   type="button"
-                  className={styles.deleteButton}
+                  className={'deleteButton'}
                   onClick={() => void handleDelete()}
                   disabled={deleteMutation.isPending}
                 >
@@ -166,15 +166,11 @@ export function AdminPlatformEditorPage() {
                 </button>
               ) : null}
             </div>
-            <div className={styles.editorFormActionsEnd}>
-              <Link to="/org/platform" className={styles.secondaryButton}>
+            <div className={'editorFormActionsEnd'}>
+              <Link to="/org/platform" className={'secondaryButton'}>
                 취소
               </Link>
-              <button
-                type="submit"
-                className={styles.primaryButton}
-                disabled={saveMutation.isPending}
-              >
+              <button type="submit" className={'primaryButton'} disabled={saveMutation.isPending}>
                 저장
               </button>
             </div>
