@@ -12,3 +12,8 @@ test-results
 output/playwright*
 .playwright-cli
 /db_a11yop_*.sql
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
