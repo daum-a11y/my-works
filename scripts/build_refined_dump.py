@@ -403,7 +403,6 @@ def build_dump():
         requires_service_group = bool_flag(row["type_include_svc"], False)
         task = {
             "id": stable_uuid("task-type", row["type_num"]),
-            "source_type_num": int(row["type_num"]),
             "type1": type1,
             "type2": type2,
             "display_label": blank_to_none(row["type_etc"]) or f"{type1} / {type2}",
@@ -435,7 +434,6 @@ def build_dump():
             )
         task = {
             "id": stable_uuid("task-type-task", f"{type1}|{type2}"),
-            "source_type_num": None,
             "type1": type1,
             "type2": type2,
             "display_label": f"{type1} / {type2}",

@@ -25,12 +25,6 @@ Supabase 화면에서 보이는 항목은 아래처럼 역할이 다릅니다.
 - 둘 다 `public.members`를 읽는 `select` view다
 - 운영 데이터 수정은 `public.members`만 보면 된다
 
-### 이관용 보조 테이블
-
-- `legacy_xref.members`
-  - 레거시 사용자와 신규 `members.id`를 연결해 두는 이관용 매핑 테이블
-  - 런타임 사용자 테이블이 아니다
-
 ## 2. 현재 운영 기준에서 무엇을 보면 되는가
 
 운영자가 실제로 보면 되는 대상은 아래뿐이다.
@@ -44,7 +38,6 @@ Supabase 화면에서 보이는 항목은 아래처럼 역할이 다릅니다.
 즉:
 - 사용자 추가/수정/권한 변경 기준: `public.members`
 - 일반 앱 조회 최적화용: `members_public_view`, `active_members_public_view`
-- 이관 검증용: `legacy_xref.members`
 
 ## 3. 신규 가입자 동작
 
@@ -61,7 +54,6 @@ Supabase 화면에서 보이는 항목은 아래처럼 역할이 다릅니다.
 - `/Users/gio.a/Documents/workspace/next/my-works/supabase/migrations/000_initial_ops_schema.sql`
 
 포함 내용:
-- `public.next_member_legacy_user_id(text)`
 - 확장된 `public.bind_auth_session_member(uuid, text)`
 - `auth.users` insert 후 자동 연결 트리거 `public.handle_auth_user_created()`
 - 기존 운영 DB 보정용 `supabase/sql/005_harden_auth_rls.sql`
@@ -128,7 +120,6 @@ select
   au.id as auth_user_id,
   au.email,
   m.id as member_id,
-  m.legacy_user_id,
   m.user_level,
   m.user_active
 from auth.users au

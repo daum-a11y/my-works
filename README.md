@@ -31,13 +31,6 @@ pnpm dev
 
 현재 초기 migration에 공개 view/RPC/RLS 보정이 포함돼 있습니다. 이 단계가 빠지면 회원 조회, 페이지 조회, 세션-멤버 바인딩, 관리자 내보내기에서 런타임 오류가 날 수 있습니다.
 
-로컬 덤프 정제는 아래 스크립트와 산출물을 사용합니다.
-
-- `scripts/build_refined_dump.py`
-- `output/refined_dump.sql`
-- `output/refined_dump_tasks.sql`
-- 가이드: `docs/transition/data-migration-guide.md`
-
 ## 환경변수
 
 루트의 `.env.example`를 참고합니다.

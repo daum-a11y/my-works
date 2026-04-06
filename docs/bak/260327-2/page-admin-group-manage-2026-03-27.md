@@ -35,7 +35,7 @@
 
 - `name`을 `서비스그룹 / 서비스명`으로 분리 표시
 - 원본형 표와 인라인 편집 흐름 복원
-- `legacy_svc_num`, `svcGroup`, `svcName`, `svcType`, `svcActive` 매핑 추가
+- 구형 식별자 의존 없이 `svcGroup`, `svcName`, `svcType`, `svcActive` 기준으로 정리
 - `서비스그룹` 기준 rowspan 묶음 복원
 - 수정행을 `서비스그룹 select + 서비스명 input` 구조로 정리
 
