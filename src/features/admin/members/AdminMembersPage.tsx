@@ -7,6 +7,10 @@ import type { MemberAdminItem } from '../admin-types';
 import { AdminMemberRow } from './AdminMemberRow';
 import '../../../styles/domain/pages/admin-members-page.scss';
 
+const PAGE_SIZE_OPTIONS = [25, 50, 100] as const;
+const DEFAULT_PAGE_SIZE = 50;
+const numberFormatter = new Intl.NumberFormat('ko-KR');
+
 type MemberFilterState = {
   status: 'all' | 'active' | 'inactive';
   keyword: string;
@@ -48,6 +52,8 @@ export function AdminMembersPage() {
   const [statusMessage, setStatusMessage] = useState('');
   const [filterDraft, setFilterDraft] = useState<MemberFilterState>(createInitialFilters);
   const [appliedFilters, setAppliedFilters] = useState<MemberFilterState>(createInitialFilters);
+  const [pageSize, setPageSize] = useState<number>(DEFAULT_PAGE_SIZE);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const membersQuery = useQuery({
     queryKey: ['admin', 'members'],
@@ -67,22 +73,37 @@ export function AdminMembersPage() {
     () => members.filter((member) => matchesMemberFilters(member, appliedFilters)),
     [appliedFilters, members],
   );
+  const totalMembers = filteredMembers.length;
+  const totalPages = Math.max(1, Math.ceil(totalMembers / pageSize));
+  const currentPageSafe = Math.min(currentPage, totalPages);
+  const pagedMembers = useMemo(() => {
+    const from = (currentPageSafe - 1) * pageSize;
+    return filteredMembers.slice(from, from + pageSize);
+  }, [currentPageSafe, filteredMembers, pageSize]);
   const activeMemberCount = useMemo(
     () => members.filter((member) => member.userActive).length,
     [members],
   );
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
 
   const errorMessage = (membersQuery.error instanceof Error && membersQuery.error.message) || '';
 
   const handleSearchSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setAppliedFilters(filterDraft);
+    setCurrentPage(1);
   };
 
   const handleReset = () => {
     const initialFilters = createInitialFilters();
     setFilterDraft(initialFilters);
     setAppliedFilters(initialFilters);
+    setCurrentPage(1);
   };
 
   return (
@@ -145,19 +166,68 @@ export function AdminMembersPage() {
       </PageSection>
 
       <section className={'admin-members-page__result-bar'} aria-label="사용자 목록 상태">
-        <p className={'admin-members-page__result-metric'}>
-          <span className={'admin-members-page__result-label'}>조회 결과</span>
-          <strong className={'admin-members-page__result-value'}>{filteredMembers.length}</strong>
-        </p>
         <div className={'admin-members-page__result-metrics'}>
+          <div className={'admin-members-page__pager'} aria-label="사용자 목록 페이지 이동">
+            <button
+              type="button"
+              className={'admin-members-page__page-button'}
+              onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+              disabled={currentPageSafe === 1}
+              aria-label="이전 페이지"
+            >
+              이전
+            </button>
+            <p className={'admin-members-page__page-status'}>
+              <strong>{currentPageSafe}</strong>
+              <span>/ {numberFormatter.format(totalPages)}</span>
+            </p>
+            <button
+              type="button"
+              className={'admin-members-page__page-button'}
+              onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+              disabled={currentPageSafe === totalPages || totalMembers === 0}
+              aria-label="다음 페이지"
+            >
+              다음
+            </button>
+          </div>
+          <p className={'admin-members-page__result-metric'}>
+            <span className={'admin-members-page__result-label'}>조회 결과</span>
+            <strong className={'admin-members-page__result-value'}>
+              {numberFormatter.format(totalMembers)}명
+            </strong>
+          </p>
           <p className={'admin-members-page__result-metric'}>
             <span className={'admin-members-page__result-label'}>전체 사용자</span>
-            <strong className={'admin-members-page__result-value'}>{members.length}</strong>
+            <strong className={'admin-members-page__result-value'}>
+              {numberFormatter.format(members.length)}명
+            </strong>
           </p>
           <p className={'admin-members-page__result-metric'}>
             <span className={'admin-members-page__result-label'}>활성 사용자</span>
-            <strong className={'admin-members-page__result-value'}>{activeMemberCount}</strong>
+            <strong className={'admin-members-page__result-value'}>
+              {numberFormatter.format(activeMemberCount)}명
+            </strong>
           </p>
+        </div>
+        <div className={'admin-members-page__result-controls'}>
+          <label className={'admin-members-page__page-size-field'}>
+            <span>페이지당</span>
+            <select
+              value={String(pageSize)}
+              onChange={(event) => {
+                setPageSize(Number(event.target.value));
+                setCurrentPage(1);
+              }}
+              aria-label="페이지당 행 수"
+            >
+              {PAGE_SIZE_OPTIONS.map((option) => (
+                <option key={option} value={option}>
+                  {option}행
+                </option>
+              ))}
+            </select>
+          </label>
         </div>
       </section>
 
@@ -185,14 +255,14 @@ export function AdminMembersPage() {
                   불러오는 중...
                 </td>
               </tr>
-            ) : filteredMembers.length === 0 ? (
+            ) : pagedMembers.length === 0 ? (
               <tr>
                 <td colSpan={10} className={'admin-members-page__empty-cell'}>
                   조회된 사용자가 없습니다.
                 </td>
               </tr>
             ) : (
-              filteredMembers.map((member) => <AdminMemberRow key={member.id} member={member} />)
+              pagedMembers.map((member) => <AdminMemberRow key={member.id} member={member} />)
             )}
           </tbody>
         </table>

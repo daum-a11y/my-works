@@ -92,14 +92,11 @@ export function UserProfilePage() {
     !isSubmitting;
 
   useEffect(() => {
-    if (editing) {
-      if (step === 'form') {
-        nextInputRef.current?.focus();
-      }
+    if (!editing || step !== 'form') {
       return;
     }
 
-    editButtonRef.current?.focus();
+    nextInputRef.current?.focus();
   }, [editing, step]);
 
   useEffect(() => {

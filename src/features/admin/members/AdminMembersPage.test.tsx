@@ -74,7 +74,9 @@ describe('AdminMembersPage', () => {
     await screen.findAllByRole('link', { name: '수정' });
     expect(screen.getByRole('heading', { name: '필터' })).toBeInTheDocument();
     expect(screen.getByText('활성 사용자')).toBeInTheDocument();
-    expect(screen.getByLabelText('사용자 목록 상태')).toHaveTextContent('활성 사용자1');
+    expect(screen.getByLabelText('사용자 목록 상태')).toHaveTextContent('활성 사용자1명');
+    expect(screen.getByLabelText('사용자 목록 페이지 이동')).toHaveTextContent('1/ 1');
+    expect(screen.getByLabelText('페이지당 행 수')).toHaveValue('50');
 
     expect(screen.getByRole('columnheader', { name: 'ID' })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: '이름' })).toBeInTheDocument();
@@ -160,5 +162,52 @@ describe('AdminMembersPage', () => {
 
     expect(screen.getByText('바로')).toBeInTheDocument();
     expect(screen.queryByText('제니')).not.toBeInTheDocument();
+  });
+
+  it('paginates member rows with the same controls as the projects page', async () => {
+    listMembersAdmin.mockResolvedValue(
+      Array.from({ length: 60 }, (_, index) => ({
+        id: `member-${index + 1}`,
+        authUserId: `auth-${index + 1}`,
+        accountId: `user.${index + 1}`,
+        name: `사용자${index + 1}`,
+        email: `user${index + 1}@example.com`,
+        note: '',
+        role: 'user',
+        userActive: true,
+        memberStatus: 'active',
+        reportRequired: true,
+        isActive: true,
+        authEmail: `user${index + 1}@example.com`,
+        queueReasons: [],
+        joinedAt: '2026-03-01T00:00:00.000Z',
+        lastLoginAt: '2026-03-28T00:00:00.000Z',
+        updatedAt: '2026-03-27T00:00:00.000Z',
+      })),
+    );
+
+    const queryClient = new QueryClient({
+      defaultOptions: {
+        queries: { retry: false },
+      },
+    });
+    const user = userEvent.setup();
+
+    render(
+      <MemoryRouter>
+        <QueryClientProvider client={queryClient}>
+          <AdminMembersPage />
+        </QueryClientProvider>
+      </MemoryRouter>,
+    );
+
+    await screen.findByText('사용자1');
+    expect(screen.queryByText('사용자51')).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: '다음 페이지' }));
+
+    expect(await screen.findByText('사용자51')).toBeInTheDocument();
+    expect(screen.queryByText('사용자1')).not.toBeInTheDocument();
+    expect(screen.getByLabelText('사용자 목록 페이지 이동')).toHaveTextContent('2/ 2');
   });
 });

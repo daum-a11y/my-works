@@ -340,7 +340,7 @@ export function AdminReportsPage() {
   const totalTasks = searchQuery.data?.totalCount ?? 0;
   const totalPages = Math.max(1, Math.ceil(totalTasks / pageSize));
   const currentPageSafe = Math.min(currentPage, totalPages);
-  const pageStartIndex = totalTasks ? (currentPageSafe - 1) * pageSize : 0;
+  // const pageStartIndex = totalTasks ? (currentPageSafe - 1) * pageSize : 0;
 
   useEffect(() => {
     if (currentPage > totalPages) {
@@ -771,7 +771,7 @@ export function AdminReportsPage() {
             </strong>
           </p>
           <p className={'admin-reports-page__result-metric'}>
-            <span className={'admin-reports-page__result-label'}>현재 페이지 시간</span>
+            <span className={'admin-reports-page__result-label'}>총 시간</span>
             <strong className={'admin-reports-page__result-value'}>
               {formatSummaryMinutes(totalMinutes)}
             </strong>
@@ -803,14 +803,6 @@ export function AdminReportsPage() {
           <table className={'admin-reports-page__table'}>
             <thead>
               <tr>
-                <th>
-                  <SortButton
-                    label="#"
-                    sortKey="id"
-                    sortState={sortState}
-                    onChange={setSortState}
-                  />
-                </th>
                 <th>
                   <SortButton
                     label="일자"
@@ -907,17 +899,16 @@ export function AdminReportsPage() {
             <tbody>
               {sortedTasks.length === 0 ? (
                 <tr>
-                  <td colSpan={15} className={'admin-reports-page__empty-state'}>
+                  <td colSpan={14} className={'admin-reports-page__empty-state'}>
                     검색 결과가 없습니다.
                   </td>
                 </tr>
               ) : (
-                sortedTasks.map((task, index) => {
+                sortedTasks.map((task) => {
                   const member = membersById.get(task.memberId);
 
                   return (
                     <tr key={task.id}>
-                      <td>{pageStartIndex + index + 1}</td>
                       <td>{task.taskDate}</td>
                       <td>
                         <strong>{member?.accountId ?? task.memberId}</strong>

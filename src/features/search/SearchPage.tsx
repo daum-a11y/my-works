@@ -299,7 +299,7 @@ export function SearchPage() {
             </strong>
           </p>
           <p className="search-page__result-metric">
-            <span className="search-page__result-label">현재 페이지 작업시간</span>
+            <span className="search-page__result-label">총 시간</span>
             <strong className="search-page__result-value">
               {formatReportTaskUsedtime(totalMinutes)}
             </strong>
