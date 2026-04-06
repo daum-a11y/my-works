@@ -11,7 +11,7 @@ export function NotFoundPage() {
   const destination = isAuthenticated ? '/dashboard' : '/login';
   const actionLabel = isAuthenticated ? '대시보드 복귀' : '로그인 화면으로 이동';
   const secondaryLabel = isAuthenticated ? '업무보고로 바로 이동' : '이전 화면으로 돌아가기';
-  const secondaryDestination = isAuthenticated ? '/reports' : null;
+  const secondaryDestination = isAuthenticated ? '/person/report' : null;
 
   useEffect(() => {
     document.title = 'My Works | 페이지를 찾을 수 없음';

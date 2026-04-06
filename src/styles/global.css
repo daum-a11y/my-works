@@ -66,6 +66,13 @@ select {
   font-weight: var(--text-input-weight);
 }
 
+select:not([multiple]):not([size]) {
+  box-sizing: border-box;
+  height: var(--control-height-md);
+  padding: 0 var(--control-padding-x) !important;
+  line-height: 1;
+}
+
 input[readonly],
 textarea[readonly] {
   background: var(--control-disabled-bg);
