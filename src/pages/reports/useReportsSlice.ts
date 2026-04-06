@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { useAuth } from '../auth/AuthContext';
+import { useAuth } from '../../auth/AuthContext';
 import { dataClient } from '../../api/client';
 import type { CostGroup, Platform, ProjectPage, TaskType } from '../../types/domain';
 import {

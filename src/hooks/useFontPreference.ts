@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { FontPreferenceContext } from './FontPreferenceState';
+import { FontPreferenceContext } from '../preferences/FontPreferenceState';
 
 export function useFontPreference() {
   const context = useContext(FontPreferenceContext);

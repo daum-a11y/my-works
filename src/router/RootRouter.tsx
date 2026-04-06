@@ -3,7 +3,7 @@ import { AdminCostGroupsPage } from '../pages/admin/cost-groups/AdminCostGroupsP
 import { AdminPlatformEditorPage } from '../pages/admin/platforms/AdminPlatformEditorPage';
 import { AdminPlatformsPage } from '../pages/admin/platforms/AdminPlatformsPage';
 import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router-dom';
-import { AuthProvider, useAuth } from '../pages/auth/AuthContext';
+import { AuthProvider, useAuth } from '../auth/AuthContext';
 import { ForgotPasswordPage } from '../pages/auth/ForgotPasswordPage';
 import { LoginPage } from '../pages/auth/LoginPage';
 import { PasswordRecoveryPage } from '../pages/auth/PasswordRecoveryPage';

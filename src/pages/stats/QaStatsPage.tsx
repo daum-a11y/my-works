@@ -15,7 +15,7 @@ import { setDocumentTitle } from '../../router/navigation';
 import { dataClient } from '../../api/client';
 import type { QaStatsProjectRow } from '../../types/domain';
 import { getCurrentMonth, shiftMonth } from '../resource/resourceUtils';
-import { useAuth } from '../auth/AuthContext';
+import { useAuth } from '../../auth/AuthContext';
 import '../../styles/domain/pages/stats-shared.scss';
 
 interface MonthlyQaRow {

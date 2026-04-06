@@ -1,7 +1,7 @@
 import { type FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { useAuth } from '../auth/AuthContext';
+import { useAuth } from '../../auth/AuthContext';
 import { dataClient } from '../../api/client';
 import { type Member, type PageStatus, type Project, type ProjectPage } from '../../types/domain';
 import { buildProjectTypeOptions } from '../../utils/taskType';

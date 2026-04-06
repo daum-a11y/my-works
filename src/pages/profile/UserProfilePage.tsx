@@ -2,9 +2,9 @@ import { useEffect, useId, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { type FontPreference } from '../../preferences/FontPreferenceState';
 import { type ThemePreference } from '../../preferences/ThemePreferenceState';
-import { useFontPreference } from '../../preferences/useFontPreference';
-import { useThemePreference } from '../../preferences/useThemePreference';
-import { useAuth } from '../auth/AuthContext';
+import { useFontPreference } from '../../hooks/useFontPreference';
+import { useThemePreference } from '../../hooks/useThemePreference';
+import { useAuth } from '../../auth/AuthContext';
 import '../../styles/domain/pages/password-settings-page.scss';
 
 type PasswordDraft = {

@@ -5,7 +5,7 @@ import { RootRouter } from '../router/RootRouter';
 
 const mockUseAuth = vi.hoisted(() => vi.fn());
 
-vi.mock('../pages/auth/AuthContext', () => ({
+vi.mock('../auth/AuthContext', () => ({
   AuthProvider: ({ children }: { children: ReactNode }) => <>{children}</>,
   useAuth: mockUseAuth,
 }));

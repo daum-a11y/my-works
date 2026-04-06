@@ -1,4 +1,4 @@
-import { env } from '../../config/env';
+import { env } from '../config/env';
 
 export const PASSWORD_RECOVERY_PATH = '/auth/recovery';
 

@@ -27,7 +27,7 @@ const mockDataClient = vi.hoisted(() => ({
   getStats: vi.fn(),
 }));
 
-vi.mock('../pages/auth/AuthContext', () => ({
+vi.mock('../auth/AuthContext', () => ({
   useAuth: mockUseAuth,
 }));
 

@@ -7,7 +7,7 @@ import { Button } from '../../components/base/Button';
 import { InputField } from '../../components/base/Field';
 import { BrandLogo } from '../../components/layout/BrandLogo';
 import { isSupabaseConfigured } from '../../config/env';
-import { useAuth } from './AuthContext';
+import { useAuth } from '../../auth/AuthContext';
 import '../../styles/domain/pages/forgot-password-page.scss';
 
 const forgotPasswordSchema = z.object({

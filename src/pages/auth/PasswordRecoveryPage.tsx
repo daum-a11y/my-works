@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { BrandLogo } from '../../components/layout/BrandLogo';
 import { Button } from '../../components/base/Button';
 import { InputField } from '../../components/base/Field';
-import { useAuth } from './AuthContext';
+import { useAuth } from '../../auth/AuthContext';
 import '../../styles/domain/pages/password-recovery-page.scss';
 
 const recoverySchema = z

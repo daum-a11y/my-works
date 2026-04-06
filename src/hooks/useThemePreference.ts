@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { ThemePreferenceContext } from './ThemePreferenceState';
+import { ThemePreferenceContext } from '../preferences/ThemePreferenceState';
 
 export function useThemePreference() {
   const context = useContext(ThemePreferenceContext);

@@ -5,7 +5,7 @@ import { dataClient } from '../../api/client';
 import { countWorkingDays, formatMm } from './resourceUtils';
 import '../../styles/domain/pages/projects-feature.scss';
 import '../../styles/domain/pages/resource-page.scss';
-import { useAuth } from '../auth/AuthContext';
+import { useAuth } from '../../auth/AuthContext';
 
 export function ResourceTypePage() {
   const { session } = useAuth();

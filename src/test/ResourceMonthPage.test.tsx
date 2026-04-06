@@ -10,7 +10,7 @@ const mockDataClient = vi.hoisted(() => ({
   getResourceMonthReport: vi.fn(),
 }));
 
-vi.mock('../pages/auth/AuthContext', () => ({
+vi.mock('../auth/AuthContext', () => ({
   useAuth: mockUseAuth,
 }));
 

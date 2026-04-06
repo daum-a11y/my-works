@@ -2,7 +2,7 @@ import { getSupabaseClient } from './supabase';
 import { env } from '../config/env';
 import { normalizePageStatus } from '../types/domain';
 import { readBooleanFlag } from '../utils';
-import { getPasswordRecoveryRedirectUrl } from '../pages/auth/authUrls';
+import { getPasswordRecoveryRedirectUrl } from '../auth/authUrls';
 import type {
   AdminCostGroupItem,
   AdminCostGroupPayload,

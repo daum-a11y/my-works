@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
-import { useAuth } from './AuthContext';
+import { useAuth } from '../../auth/AuthContext';
 import { isSupabaseConfigured } from '../../config/env';
 import { BrandLogo } from '../../components/layout/BrandLogo';
 import { Button } from '../../components/base/Button';

@@ -9,7 +9,7 @@ import { UserProfilePage } from '../pages/profile/UserProfilePage';
 
 const mockUseAuth = vi.hoisted(() => vi.fn());
 
-vi.mock('../pages/auth/AuthContext', () => ({
+vi.mock('../auth/AuthContext', () => ({
   useAuth: mockUseAuth,
 }));
 

@@ -14,7 +14,7 @@ const member = {
 
 const getQaStatsProjects = vi.fn();
 
-vi.mock('../pages/auth/AuthContext', () => ({
+vi.mock('../auth/AuthContext', () => ({
   useAuth: () => ({ session: { member } }),
 }));
 

@@ -7,7 +7,7 @@ import { PendingApprovalPage } from '../pages/auth/PendingApprovalPage';
 const mockUseAuth = vi.hoisted(() => vi.fn());
 const mockLogout = vi.hoisted(() => vi.fn());
 
-vi.mock('../pages/auth/AuthContext', () => ({
+vi.mock('../auth/AuthContext', () => ({
   useAuth: mockUseAuth,
 }));
 

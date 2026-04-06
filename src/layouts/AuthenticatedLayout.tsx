@@ -4,7 +4,7 @@ import clsx from 'clsx';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { ChevronRight, ChevronDown, House, LogOut, UserRound } from 'lucide-react';
 import { BrandLogo } from '../components/layout/BrandLogo';
-import { useAuth } from '../pages/auth/AuthContext';
+import { useAuth } from '../auth/AuthContext';
 import {
   adminNavigation,
   baseNavigation,

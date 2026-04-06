@@ -7,7 +7,7 @@ import { ForgotPasswordPage } from '../pages/auth/ForgotPasswordPage';
 
 const mockUseAuth = vi.hoisted(() => vi.fn());
 
-vi.mock('../pages/auth/AuthContext', () => ({
+vi.mock('../auth/AuthContext', () => ({
   useAuth: mockUseAuth,
 }));
 

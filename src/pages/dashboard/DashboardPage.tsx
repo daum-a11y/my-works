@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { setDocumentTitle } from '../../router/navigation';
 import { MonthlyReportCalendar } from '../../components/shared/MonthlyReportCalendar';
 import { dataClient } from '../../api/client';
-import { useAuth } from '../auth/AuthContext';
+import { useAuth } from '../../auth/AuthContext';
 import { buildCalendarWeeks, getCurrentMonth, shiftMonth } from '../resource/resourceUtils';
 import '../../styles/domain/pages/dashboard-page.scss';
 

@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../../components/base/Button';
-import { useAuth } from './AuthContext';
+import { useAuth } from '../../auth/AuthContext';
 import '../../styles/domain/pages/login-page.scss';
 
 export function PendingApprovalPage() {

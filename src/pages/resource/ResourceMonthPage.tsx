@@ -17,7 +17,7 @@ import {
 import '../../styles/domain/pages/dashboard-page.scss';
 import '../../styles/domain/pages/projects-feature.scss';
 import '../../styles/domain/pages/resource-page.scss';
-import { useAuth } from '../auth/AuthContext';
+import { useAuth } from '../../auth/AuthContext';
 
 interface DistributionItem {
   key: 'holiday' | 'project' | 'normal' | 'buffer';

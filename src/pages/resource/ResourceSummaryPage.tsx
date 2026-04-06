@@ -7,7 +7,7 @@ import { PageSection } from '../../components/shared/PageSection';
 import { dataClient } from '../../api/client';
 import { getToday } from '../../utils';
 import { buildCalendarWeeks, buildMonthDays, getCurrentMonth } from './resourceUtils';
-import { useAuth } from '../auth/AuthContext';
+import { useAuth } from '../../auth/AuthContext';
 import '../../styles/domain/pages/projects-feature.scss';
 import '../../styles/domain/pages/resource-summary-page.scss';
 const numberFormatter = new Intl.NumberFormat('ko-KR');

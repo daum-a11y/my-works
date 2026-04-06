@@ -8,7 +8,7 @@ import { ThemePreferenceProvider } from '../preferences/ThemePreferenceContext';
 
 const mockUseAuth = vi.hoisted(() => vi.fn());
 
-vi.mock('../pages/auth/AuthContext', () => ({
+vi.mock('../auth/AuthContext', () => ({
   useAuth: mockUseAuth,
 }));
 

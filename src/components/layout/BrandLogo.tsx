@@ -1,4 +1,4 @@
-import { useThemePreference } from '../../preferences/useThemePreference';
+import { useThemePreference } from '../../hooks/useThemePreference';
 
 interface BrandLogoProps {
   alt?: string;

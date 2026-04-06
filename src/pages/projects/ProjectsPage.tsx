@@ -2,7 +2,7 @@ import { type FormEvent, useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { setDocumentTitle } from '../../router/navigation';
-import { useAuth } from '../auth/AuthContext';
+import { useAuth } from '../../auth/AuthContext';
 import { PageSection } from '../../components/shared/PageSection';
 import { dataClient } from '../../api/client';
 import { formatDateLabel, getToday, parseLocalDateInput, toLocalDateInputValue } from '../../utils';

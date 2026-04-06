@@ -7,10 +7,10 @@ import {
   useState,
   type PropsWithChildren,
 } from 'react';
-import { getSupabaseClient } from '../../api/supabase';
-import { isSupabaseConfigured } from '../../config/env';
-import { dataClient } from '../../api/client';
-import { type Member } from '../../types/domain';
+import { getSupabaseClient } from '../api/supabase';
+import { isSupabaseConfigured } from '../config/env';
+import { dataClient } from '../api/client';
+import { type Member } from '../types/domain';
 import {
   getPasswordRecoveryRedirectUrl,
   isPasswordRecoveryPath,
