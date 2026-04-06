@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useLocation } from 'react-router-dom';
 import { setDocumentTitle } from '../../../app/navigation';
+import { AdminOrderDialog } from '../AdminOrderDialog';
 import { adminDataClient } from '../adminClient';
 import '../../../styles/domain/pages/admin-crud-page.scss';
 import type { AdminTaskTypeItem } from '../admin-types';
@@ -32,7 +33,9 @@ function groupTaskTypes(taskTypes: AdminTaskTypeItem[]) {
 
 export function AdminTaskTypesPage() {
   const location = useLocation();
+  const queryClient = useQueryClient();
   const [statusMessage, setStatusMessage] = useState('');
+  const [orderDialogOpen, setOrderDialogOpen] = useState(false);
 
   const taskTypesQuery = useQuery({
     queryKey: ['admin', 'task-types'],
@@ -70,8 +73,19 @@ export function AdminTaskTypesPage() {
     }
   }, [location.state]);
 
+  const reorderMutation = useMutation({
+    mutationFn: async (ids: string[]) => adminDataClient.reorderTaskTypes({ ids }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['admin', 'task-types'] });
+      setOrderDialogOpen(false);
+      setStatusMessage('업무 타입 순서를 저장했습니다.');
+    },
+  });
+
   const errorMessage =
-    (taskTypesQuery.error instanceof Error && taskTypesQuery.error.message) || '';
+    (taskTypesQuery.error instanceof Error && taskTypesQuery.error.message) ||
+    (reorderMutation.error instanceof Error && reorderMutation.error.message) ||
+    '';
 
   return (
     <section className="admin-crud-page admin-crud-page--page">
@@ -80,9 +94,19 @@ export function AdminTaskTypesPage() {
           <div className="admin-crud-page__page-heading">
             <h1 className="admin-crud-page__title">업무 타입 관리</h1>
           </div>
-          <Link to="/admin/type/new" className="admin-crud-page__header-action">
-            업무 타입 추가
-          </Link>
+          <div className="admin-crud-page__page-header-actions">
+            <button
+              type="button"
+              className="admin-crud-page__header-action"
+              onClick={() => setOrderDialogOpen(true)}
+              disabled={!taskTypes.length}
+            >
+              순서변경
+            </button>
+            <Link to="/admin/type/new" className="admin-crud-page__header-action">
+              업무 타입 추가
+            </Link>
+          </div>
         </div>
       </header>
 
@@ -146,6 +170,23 @@ export function AdminTaskTypesPage() {
           </tbody>
         </table>
       </div>
+
+      <AdminOrderDialog
+        title="업무 타입 순서변경"
+        description="업무 타입 목록과 선택 UI에서 사용할 순서를 재정렬합니다."
+        items={taskTypes.map((item) => ({
+          id: item.id,
+          title: `${item.type1} / ${item.type2}`,
+          description: item.displayLabel || undefined,
+          badge: item.requiresServiceGroup ? '프로젝트' : '일반',
+          inactive: !item.isActive,
+        }))}
+        isOpen={orderDialogOpen}
+        isSaving={reorderMutation.isPending}
+        errorMessage={reorderMutation.error instanceof Error ? reorderMutation.error.message : ''}
+        onClose={() => setOrderDialogOpen(false)}
+        onSave={(ids) => reorderMutation.mutateAsync(ids)}
+      />
     </section>
   );
 }

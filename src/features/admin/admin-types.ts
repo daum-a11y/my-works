@@ -106,6 +106,10 @@ export interface AdminPlatformPayload {
   isVisible: boolean;
 }
 
+export interface AdminReorderPayload {
+  ids: string[];
+}
+
 export interface AdminServiceGroupItem {
   id: string;
   name: string;

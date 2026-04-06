@@ -2473,6 +2473,190 @@ begin
 end;
 $$;
 
+create or replace function public.admin_reorder_task_types(
+  p_task_type_ids uuid[]
+)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_expected_count integer := coalesce(array_length(p_task_type_ids, 1), 0);
+  v_updated_count integer := 0;
+begin
+  if not public.current_user_is_admin() then
+    raise exception 'admin only';
+  end if;
+
+  if v_expected_count = 0 then
+    raise exception 'task_type_ids required';
+  end if;
+
+  if (
+    select count(distinct item_id)
+    from unnest(p_task_type_ids) as item_id
+  ) <> v_expected_count then
+    raise exception 'task_type_ids must be unique';
+  end if;
+
+  with ordered as (
+    select item_id, ordinality::integer as display_order
+    from unnest(p_task_type_ids) with ordinality as items(item_id, ordinality)
+  )
+  update public.task_types task_type
+  set
+    display_order = ordered.display_order,
+    updated_at = timezone('utc', now())
+  from ordered
+  where task_type.id = ordered.item_id;
+
+  get diagnostics v_updated_count = row_count;
+
+  if v_updated_count <> v_expected_count then
+    raise exception 'task_types not found';
+  end if;
+end;
+$$;
+
+create or replace function public.admin_reorder_platforms(
+  p_platform_ids uuid[]
+)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_expected_count integer := coalesce(array_length(p_platform_ids, 1), 0);
+  v_updated_count integer := 0;
+begin
+  if not public.current_user_is_admin() then
+    raise exception 'admin only';
+  end if;
+
+  if v_expected_count = 0 then
+    raise exception 'platform_ids required';
+  end if;
+
+  if (
+    select count(distinct item_id)
+    from unnest(p_platform_ids) as item_id
+  ) <> v_expected_count then
+    raise exception 'platform_ids must be unique';
+  end if;
+
+  with ordered as (
+    select item_id, ordinality::integer as display_order
+    from unnest(p_platform_ids) with ordinality as items(item_id, ordinality)
+  )
+  update public.platforms platform
+  set
+    display_order = ordered.display_order,
+    updated_at = timezone('utc', now())
+  from ordered
+  where platform.id = ordered.item_id;
+
+  get diagnostics v_updated_count = row_count;
+
+  if v_updated_count <> v_expected_count then
+    raise exception 'platforms not found';
+  end if;
+end;
+$$;
+
+create or replace function public.admin_reorder_cost_groups(
+  p_cost_group_ids uuid[]
+)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_expected_count integer := coalesce(array_length(p_cost_group_ids, 1), 0);
+  v_updated_count integer := 0;
+begin
+  if not public.current_user_is_admin() then
+    raise exception 'admin only';
+  end if;
+
+  if v_expected_count = 0 then
+    raise exception 'cost_group_ids required';
+  end if;
+
+  if (
+    select count(distinct item_id)
+    from unnest(p_cost_group_ids) as item_id
+  ) <> v_expected_count then
+    raise exception 'cost_group_ids must be unique';
+  end if;
+
+  with ordered as (
+    select item_id, ordinality::integer as display_order
+    from unnest(p_cost_group_ids) with ordinality as items(item_id, ordinality)
+  )
+  update public.cost_groups cost_group
+  set
+    display_order = ordered.display_order,
+    updated_at = timezone('utc', now())
+  from ordered
+  where cost_group.id = ordered.item_id;
+
+  get diagnostics v_updated_count = row_count;
+
+  if v_updated_count <> v_expected_count then
+    raise exception 'cost_groups not found';
+  end if;
+end;
+$$;
+
+create or replace function public.admin_reorder_service_groups(
+  p_service_group_ids uuid[]
+)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_expected_count integer := coalesce(array_length(p_service_group_ids, 1), 0);
+  v_updated_count integer := 0;
+begin
+  if not public.current_user_is_admin() then
+    raise exception 'admin only';
+  end if;
+
+  if v_expected_count = 0 then
+    raise exception 'service_group_ids required';
+  end if;
+
+  if (
+    select count(distinct item_id)
+    from unnest(p_service_group_ids) as item_id
+  ) <> v_expected_count then
+    raise exception 'service_group_ids must be unique';
+  end if;
+
+  with ordered as (
+    select item_id, ordinality::integer as display_order
+    from unnest(p_service_group_ids) with ordinality as items(item_id, ordinality)
+  )
+  update public.service_groups service_group
+  set
+    display_order = ordered.display_order,
+    updated_at = timezone('utc', now())
+  from ordered
+  where service_group.id = ordered.item_id;
+
+  get diagnostics v_updated_count = row_count;
+
+  if v_updated_count <> v_expected_count then
+    raise exception 'service_groups not found';
+  end if;
+end;
+$$;
+
 drop function if exists public.admin_search_tasks(uuid, date, date, uuid, uuid, text, text, uuid, text);
 
 create or replace function public.admin_search_tasks(
@@ -2610,6 +2794,10 @@ grant execute on function public.admin_save_task(uuid, uuid, date, uuid, uuid, u
 grant execute on function public.admin_delete_task(uuid) to authenticated;
 grant execute on function public.admin_get_task_type_usage_summary(uuid, text, text) to authenticated;
 grant execute on function public.admin_replace_task_type_usage(text, text, text, text) to authenticated;
+grant execute on function public.admin_reorder_task_types(uuid[]) to authenticated;
+grant execute on function public.admin_reorder_platforms(uuid[]) to authenticated;
+grant execute on function public.admin_reorder_cost_groups(uuid[]) to authenticated;
+grant execute on function public.admin_reorder_service_groups(uuid[]) to authenticated;
 grant execute on function public.admin_get_member_task_count(uuid) to authenticated;
 grant execute on function public.search_projects_page(date, date, text) to authenticated;
 grant execute on function public.search_report_projects(uuid, text, text, text) to authenticated;

@@ -1,13 +1,16 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useLocation } from 'react-router-dom';
 import { setDocumentTitle } from '../../../app/navigation';
+import { AdminOrderDialog } from '../AdminOrderDialog';
 import { adminDataClient } from '../adminClient';
 import '../../../styles/domain/pages/admin-crud-page.scss';
 
 export function AdminCostGroupsPage() {
   const location = useLocation();
+  const queryClient = useQueryClient();
   const [statusMessage, setStatusMessage] = useState('');
+  const [orderDialogOpen, setOrderDialogOpen] = useState(false);
 
   const costGroupsQuery = useQuery({
     queryKey: ['admin', 'cost-groups'],
@@ -23,6 +26,16 @@ export function AdminCostGroupsPage() {
     [costGroupsQuery.data],
   );
 
+  const reorderMutation = useMutation({
+    mutationFn: async (ids: string[]) => adminDataClient.reorderCostGroups({ ids }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['admin', 'cost-groups'] });
+      await queryClient.invalidateQueries({ queryKey: ['admin', 'service-groups'] });
+      setOrderDialogOpen(false);
+      setStatusMessage('청구그룹 순서를 저장했습니다.');
+    },
+  });
+
   useEffect(() => {
     setDocumentTitle('청구그룹 관리');
   }, []);
@@ -35,7 +48,9 @@ export function AdminCostGroupsPage() {
   }, [location.state]);
 
   const errorMessage =
-    (costGroupsQuery.error instanceof Error && costGroupsQuery.error.message) || '';
+    (costGroupsQuery.error instanceof Error && costGroupsQuery.error.message) ||
+    (reorderMutation.error instanceof Error && reorderMutation.error.message) ||
+    '';
 
   return (
     <section className="admin-crud-page admin-crud-page--page">
@@ -44,9 +59,19 @@ export function AdminCostGroupsPage() {
           <div className="admin-crud-page__page-heading">
             <h1 className="admin-crud-page__title">청구그룹 관리</h1>
           </div>
-          <Link to="/admin/cost-group/new" className="admin-crud-page__header-action">
-            청구그룹 추가
-          </Link>
+          <div className="admin-crud-page__page-header-actions">
+            <button
+              type="button"
+              className="admin-crud-page__header-action"
+              onClick={() => setOrderDialogOpen(true)}
+              disabled={!costGroups.length}
+            >
+              순서변경
+            </button>
+            <Link to="/admin/cost-group/new" className="admin-crud-page__header-action">
+              청구그룹 추가
+            </Link>
+          </div>
         </div>
       </header>
 
@@ -91,6 +116,22 @@ export function AdminCostGroupsPage() {
           </tbody>
         </table>
       </div>
+
+      <AdminOrderDialog
+        title="청구그룹 순서변경"
+        description="업무 화면과 관리 화면에서 사용할 청구그룹 표시 순서를 조정합니다."
+        items={costGroups.map((item) => ({
+          id: item.id,
+          title: item.name,
+          badge: item.isActive ? '노출' : '숨김',
+          inactive: !item.isActive,
+        }))}
+        isOpen={orderDialogOpen}
+        isSaving={reorderMutation.isPending}
+        errorMessage={reorderMutation.error instanceof Error ? reorderMutation.error.message : ''}
+        onClose={() => setOrderDialogOpen(false)}
+        onSave={(ids) => reorderMutation.mutateAsync(ids)}
+      />
     </section>
   );
 }

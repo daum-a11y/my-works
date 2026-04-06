@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useLocation } from 'react-router-dom';
 import { setDocumentTitle } from '../../../app/navigation';
+import { AdminOrderDialog } from '../AdminOrderDialog';
 import { adminDataClient } from '../adminClient';
 import type { AdminServiceGroupItem } from '../admin-types';
 import '../../../styles/domain/pages/admin-crud-page.scss';
@@ -35,7 +36,9 @@ function groupServiceGroups(items: readonly AdminServiceGroupItem[]) {
 
 export function AdminServiceGroupsPage() {
   const location = useLocation();
+  const queryClient = useQueryClient();
   const [statusMessage, setStatusMessage] = useState('');
+  const [orderDialogOpen, setOrderDialogOpen] = useState(false);
 
   const serviceGroupsQuery = useQuery({
     queryKey: ['admin', 'service-groups'],
@@ -54,6 +57,16 @@ export function AdminServiceGroupsPage() {
   );
   const groupedServiceGroups = useMemo(() => groupServiceGroups(serviceGroups), [serviceGroups]);
 
+  const reorderMutation = useMutation({
+    mutationFn: async (ids: string[]) => adminDataClient.reorderServiceGroups({ ids }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['admin', 'service-groups'] });
+      await queryClient.invalidateQueries({ queryKey: ['admin', 'cost-groups'] });
+      setOrderDialogOpen(false);
+      setStatusMessage('서비스그룹 순서를 저장했습니다.');
+    },
+  });
+
   useEffect(() => {
     setDocumentTitle('서비스그룹 관리');
   }, []);
@@ -66,7 +79,9 @@ export function AdminServiceGroupsPage() {
   }, [location.state]);
 
   const errorMessage =
-    (serviceGroupsQuery.error instanceof Error && serviceGroupsQuery.error.message) || '';
+    (serviceGroupsQuery.error instanceof Error && serviceGroupsQuery.error.message) ||
+    (reorderMutation.error instanceof Error && reorderMutation.error.message) ||
+    '';
 
   return (
     <section className="admin-crud-page admin-crud-page--page">
@@ -75,9 +90,19 @@ export function AdminServiceGroupsPage() {
           <div className="admin-crud-page__page-heading">
             <h1 className="admin-crud-page__title">서비스그룹 관리</h1>
           </div>
-          <Link to="/admin/group/new" className="admin-crud-page__header-action">
-            서비스그룹 추가
-          </Link>
+          <div className="admin-crud-page__page-header-actions">
+            <button
+              type="button"
+              className="admin-crud-page__header-action"
+              onClick={() => setOrderDialogOpen(true)}
+              disabled={!serviceGroups.length}
+            >
+              순서변경
+            </button>
+            <Link to="/admin/group/new" className="admin-crud-page__header-action">
+              서비스그룹 추가
+            </Link>
+          </div>
         </div>
       </header>
 
@@ -145,6 +170,23 @@ export function AdminServiceGroupsPage() {
           </tbody>
         </table>
       </div>
+
+      <AdminOrderDialog
+        title="서비스그룹 순서변경"
+        description="서비스그룹과 서비스명 목록의 노출 순서를 저장합니다."
+        items={serviceGroups.map((item) => ({
+          id: item.id,
+          title: item.name,
+          description: item.costGroupName ? `청구그룹: ${item.costGroupName}` : undefined,
+          badge: item.svcActive ? '노출' : '숨김',
+          inactive: !item.svcActive,
+        }))}
+        isOpen={orderDialogOpen}
+        isSaving={reorderMutation.isPending}
+        errorMessage={reorderMutation.error instanceof Error ? reorderMutation.error.message : ''}
+        onClose={() => setOrderDialogOpen(false)}
+        onSave={(ids) => reorderMutation.mutateAsync(ids)}
+      />
     </section>
   );
 }

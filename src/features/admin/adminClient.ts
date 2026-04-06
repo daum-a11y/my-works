@@ -9,6 +9,7 @@ import type {
   AdminPageOption,
   AdminPlatformItem,
   AdminPlatformPayload,
+  AdminReorderPayload,
   AdminProjectOption,
   AdminServiceGroupItem,
   AdminServiceGroupPayload,
@@ -69,10 +70,14 @@ interface AdminDataClient {
     nextType1: string,
     nextType2: string,
   ): Promise<void>;
+  reorderTaskTypes(payload: AdminReorderPayload): Promise<void>;
   saveServiceGroupAdmin(payload: AdminServiceGroupPayload): Promise<AdminServiceGroupItem>;
+  reorderServiceGroups(payload: AdminReorderPayload): Promise<void>;
   saveCostGroupAdmin(payload: AdminCostGroupPayload): Promise<AdminCostGroupItem>;
+  reorderCostGroups(payload: AdminReorderPayload): Promise<void>;
   deleteCostGroupAdmin(costGroupId: string): Promise<void>;
   savePlatformAdmin(payload: AdminPlatformPayload): Promise<AdminPlatformItem>;
+  reorderPlatforms(payload: AdminReorderPayload): Promise<void>;
   deletePlatformAdmin(platformId: string): Promise<void>;
   getServiceGroupUsageSummary(serviceGroupId: string): Promise<AdminServiceGroupUsageSummary>;
   deleteServiceGroupAdmin(serviceGroupId: string): Promise<void>;
@@ -545,16 +550,28 @@ function createUnconfiguredAdminClient(): AdminDataClient {
     async replaceTaskTypeUsage() {
       throw configurationError;
     },
+    async reorderTaskTypes() {
+      throw configurationError;
+    },
     async saveServiceGroupAdmin() {
       throw configurationError;
     },
+    async reorderServiceGroups() {
+      throw configurationError;
+    },
     async saveCostGroupAdmin() {
+      throw configurationError;
+    },
+    async reorderCostGroups() {
       throw configurationError;
     },
     async deleteCostGroupAdmin() {
       throw configurationError;
     },
     async savePlatformAdmin() {
+      throw configurationError;
+    },
+    async reorderPlatforms() {
       throw configurationError;
     },
     async deletePlatformAdmin() {
@@ -922,6 +939,13 @@ function createSupabaseAdminClient(): AdminDataClient {
       if (error) throw error;
     },
 
+    async reorderTaskTypes(payload: AdminReorderPayload) {
+      const { error } = await supabase.rpc('admin_reorder_task_types', {
+        p_task_type_ids: payload.ids,
+      });
+      if (error) throw error;
+    },
+
     async saveServiceGroupAdmin(payload: AdminServiceGroupPayload) {
       const name = composeServiceName(payload.svcGroup, payload.svcName) || payload.name;
       const { data, error } = await supabase
@@ -942,6 +966,13 @@ function createSupabaseAdminClient(): AdminDataClient {
       return mapServiceGroup(data as Record<string, unknown>);
     },
 
+    async reorderServiceGroups(payload: AdminReorderPayload) {
+      const { error } = await supabase.rpc('admin_reorder_service_groups', {
+        p_service_group_ids: payload.ids,
+      });
+      if (error) throw error;
+    },
+
     async saveCostGroupAdmin(payload: AdminCostGroupPayload) {
       const { data, error } = await supabase
         .from('cost_groups')
@@ -960,6 +991,13 @@ function createSupabaseAdminClient(): AdminDataClient {
       return mapCostGroup(data as Record<string, unknown>);
     },
 
+    async reorderCostGroups(payload: AdminReorderPayload) {
+      const { error } = await supabase.rpc('admin_reorder_cost_groups', {
+        p_cost_group_ids: payload.ids,
+      });
+      if (error) throw error;
+    },
+
     async savePlatformAdmin(payload: AdminPlatformPayload) {
       const { data, error } = await supabase
         .from('platforms')
@@ -976,6 +1014,13 @@ function createSupabaseAdminClient(): AdminDataClient {
         .single();
       if (error) throw error;
       return mapPlatform(data as Record<string, unknown>);
+    },
+
+    async reorderPlatforms(payload: AdminReorderPayload) {
+      const { error } = await supabase.rpc('admin_reorder_platforms', {
+        p_platform_ids: payload.ids,
+      });
+      if (error) throw error;
     },
 
     async deleteCostGroupAdmin(costGroupId: string) {
