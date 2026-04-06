@@ -1,77 +1,77 @@
 import type { ReactNode } from 'react';
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { AppRouter } from '../app/AppRouter';
+import { RootRouter } from '../router/RootRouter';
 
 const mockUseAuth = vi.hoisted(() => vi.fn());
 
-vi.mock('../features/auth/AuthContext', () => ({
+vi.mock('../pages/auth/AuthContext', () => ({
   AuthProvider: ({ children }: { children: ReactNode }) => <>{children}</>,
   useAuth: mockUseAuth,
 }));
 
-vi.mock('../features/auth/LoginPage', () => ({
+vi.mock('../pages/auth/LoginPage', () => ({
   LoginPage: () => <div>login-page</div>,
 }));
 
-vi.mock('../features/auth/ForgotPasswordPage', () => ({
+vi.mock('../pages/auth/ForgotPasswordPage', () => ({
   ForgotPasswordPage: () => <div>forgot-password-page</div>,
 }));
 
-vi.mock('../features/auth/PasswordRecoveryPage', () => ({
+vi.mock('../pages/auth/PasswordRecoveryPage', () => ({
   PasswordRecoveryPage: () => <div>password-recovery-page</div>,
 }));
 
-vi.mock('../features/dashboard', () => ({
+vi.mock('../pages/dashboard', () => ({
   DashboardPage: () => <div>dashboard-page</div>,
 }));
 
-vi.mock('../features/health', () => ({
+vi.mock('../pages/health', () => ({
   HealthCheckPage: () => <div>health-check-page</div>,
 }));
 
-vi.mock('../features/admin/groups/AdminServiceGroupsPage', () => ({
+vi.mock('../pages/admin/groups/AdminServiceGroupsPage', () => ({
   AdminServiceGroupsPage: () => <div>admin-groups-page</div>,
 }));
 
-vi.mock('../features/admin/groups/AdminServiceGroupEditorPage', () => ({
+vi.mock('../pages/admin/groups/AdminServiceGroupEditorPage', () => ({
   AdminServiceGroupEditorPage: () => <div>admin-group-editor-page</div>,
 }));
 
-vi.mock('../features/admin/members/AdminMembersPage', () => ({
+vi.mock('../pages/admin/members/AdminMembersPage', () => ({
   AdminMembersPage: () => <div>admin-members-page</div>,
 }));
 
-vi.mock('../features/admin/reports/AdminReportEditorPage', () => ({
+vi.mock('../pages/admin/reports/AdminReportEditorPage', () => ({
   AdminReportEditorPage: () => <div>admin-report-editor-page</div>,
 }));
 
-vi.mock('../features/admin/reports/AdminReportsPage', () => ({
+vi.mock('../pages/admin/reports/AdminReportsPage', () => ({
   AdminReportsPage: () => <div>admin-reports-page</div>,
 }));
 
-vi.mock('../features/admin/types/AdminTaskTypesPage', () => ({
+vi.mock('../pages/admin/types/AdminTaskTypesPage', () => ({
   AdminTaskTypesPage: () => <div>admin-task-types-page</div>,
 }));
 
-vi.mock('../features/admin/types/AdminTaskTypeEditorPage', () => ({
+vi.mock('../pages/admin/types/AdminTaskTypeEditorPage', () => ({
   AdminTaskTypeEditorPage: () => <div>admin-task-type-editor-page</div>,
 }));
 
-vi.mock('../features/notFound', () => ({
+vi.mock('../pages/notFound', () => ({
   NotFoundPage: () => <div>not-found-page</div>,
 }));
 
-vi.mock('../features/projects', () => ({
-  ProjectsFeature: () => <div>projects-page</div>,
+vi.mock('../pages/projects', () => ({
+  ProjectsPage: () => <div>projects-page</div>,
   ProjectEditorPage: () => <div>project-editor-page</div>,
 }));
 
-vi.mock('../features/reports', () => ({
+vi.mock('../pages/reports', () => ({
   ReportsPage: () => <div>reports-page</div>,
 }));
 
-vi.mock('../features/resource', () => ({
+vi.mock('../pages/resource', () => ({
   ResourceLayout: () => <div>resource-layout</div>,
   ResourceMonthPage: () => <div>resource-month-page</div>,
   ResourceServicePage: () => <div>resource-service-page</div>,
@@ -79,24 +79,24 @@ vi.mock('../features/resource', () => ({
   ResourceTypePage: () => <div>resource-type-page</div>,
 }));
 
-vi.mock('../features/search', () => ({
+vi.mock('../pages/search', () => ({
   SearchPage: () => <div>search-page</div>,
 }));
 
-vi.mock('../features/stats', () => ({
+vi.mock('../pages/stats', () => ({
   MonitoringStatsPage: () => <div>monitoring-stats-page</div>,
   QaStatsPage: () => <div>qa-stats-page</div>,
 }));
 
-vi.mock('../features/profile', () => ({
+vi.mock('../pages/profile', () => ({
   UserProfilePage: () => <div>profile-page</div>,
 }));
 
-vi.mock('../app/AppShell', () => ({
-  AppShell: () => <div>app-shell</div>,
+vi.mock('../layouts/AuthenticatedLayout', () => ({
+  AuthenticatedLayout: () => <div>authenticated-layout</div>,
 }));
 
-describe('AppRouter', () => {
+describe('RootRouter', () => {
   afterEach(() => {
     cleanup();
   });
@@ -115,7 +115,7 @@ describe('AppRouter', () => {
   it('allows the recovery route without authentication', async () => {
     window.history.replaceState({}, '', '/auth/recovery');
 
-    render(<AppRouter />);
+    render(<RootRouter />);
 
     await waitFor(() => {
       expect(screen.getByText('password-recovery-page')).toBeInTheDocument();
@@ -125,7 +125,7 @@ describe('AppRouter', () => {
   it('allows the forgot password route without authentication', async () => {
     window.history.replaceState({}, '', '/forgot-password');
 
-    render(<AppRouter />);
+    render(<RootRouter />);
 
     await waitFor(() => {
       expect(screen.getByText('forgot-password-page')).toBeInTheDocument();
@@ -135,7 +135,7 @@ describe('AppRouter', () => {
   it('allows the health check route without authentication', async () => {
     window.history.replaceState({}, '', '/healthz');
 
-    render(<AppRouter />);
+    render(<RootRouter />);
 
     await waitFor(() => {
       expect(screen.getByText('health-check-page')).toBeInTheDocument();
@@ -145,7 +145,7 @@ describe('AppRouter', () => {
   it('redirects protected routes to login for guests', async () => {
     window.history.replaceState({}, '', '/dashboard');
 
-    render(<AppRouter />);
+    render(<RootRouter />);
 
     await waitFor(() => {
       expect(screen.getByText('login-page')).toBeInTheDocument();
@@ -155,7 +155,7 @@ describe('AppRouter', () => {
   it('renders the standalone not found page for unknown guest routes', async () => {
     window.history.replaceState({}, '', '/missing-route');
 
-    render(<AppRouter />);
+    render(<RootRouter />);
 
     await waitFor(() => {
       expect(screen.getByText('not-found-page')).toBeInTheDocument();
@@ -179,7 +179,7 @@ describe('AppRouter', () => {
       },
     });
 
-    render(<AppRouter />);
+    render(<RootRouter />);
 
     await waitFor(() => {
       expect(screen.getByText('not-found-page')).toBeInTheDocument();

@@ -1,10 +1,10 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { HealthCheckPage } from '../features/health';
+import { HealthCheckPage } from '../pages/health';
 
 const mockRpc = vi.hoisted(() => vi.fn());
 
-vi.mock('../lib/supabase', () => ({
+vi.mock('../api/supabase', () => ({
   getSupabaseClient: () => ({
     rpc: mockRpc,
   }),

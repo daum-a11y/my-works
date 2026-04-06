@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { readBooleanFlag } from '../lib/utils';
+import { readBooleanFlag } from '../utils';
 
 describe('readBooleanFlag', () => {
   it('treats false-like strings and numbers as false', () => {

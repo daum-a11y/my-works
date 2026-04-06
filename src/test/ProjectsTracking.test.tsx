@@ -3,11 +3,11 @@ import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { ProjectEditorPage, ProjectsFeature } from '../features/projects';
-import { toLocalDateInputValue } from '../lib/utils';
+import { ProjectEditorPage, ProjectsPage } from '../pages/projects';
+import { toLocalDateInputValue } from '../utils';
 
 const mockUseAuth = vi.hoisted(() => vi.fn());
-const mockOpsDataClient = vi.hoisted(() => ({
+const mockDataClient = vi.hoisted(() => ({
   mode: 'supabase' as const,
   getMembers: vi.fn(),
   getMemberByEmail: vi.fn(),
@@ -36,12 +36,12 @@ const mockOpsDataClient = vi.hoisted(() => ({
   getStats: vi.fn(),
 }));
 
-vi.mock('../features/auth/AuthContext', () => ({
+vi.mock('../pages/auth/AuthContext', () => ({
   useAuth: mockUseAuth,
 }));
 
-vi.mock('../lib/dataClient', () => ({
-  opsDataClient: mockOpsDataClient,
+vi.mock('../api/client', () => ({
+  dataClient: mockDataClient,
 }));
 
 function renderProjectsList() {
@@ -51,7 +51,7 @@ function renderProjectsList() {
     <MemoryRouter initialEntries={['/projects']}>
       <QueryClientProvider client={queryClient}>
         <Routes>
-          <Route path="/projects" element={<ProjectsFeature />} />
+          <Route path="/projects" element={<ProjectsPage />} />
         </Routes>
       </QueryClientProvider>
     </MemoryRouter>,
@@ -77,31 +77,31 @@ function renderProjectEditor(initialEntry: string) {
 describe('Projects routes', () => {
   beforeEach(() => {
     mockUseAuth.mockReset();
-    mockOpsDataClient.getMembers.mockReset();
-    mockOpsDataClient.getMemberByEmail.mockReset();
-    mockOpsDataClient.getMemberByAuthId.mockReset();
-    mockOpsDataClient.bindAuthSessionMember.mockReset();
-    mockOpsDataClient.getTaskTypes.mockReset();
-    mockOpsDataClient.getPlatforms.mockReset();
-    mockOpsDataClient.getServiceGroups.mockReset();
-    mockOpsDataClient.getProjects.mockReset();
-    mockOpsDataClient.searchProjectsPage.mockReset();
-    mockOpsDataClient.getProject.mockReset();
-    mockOpsDataClient.saveProject.mockReset();
-    mockOpsDataClient.deleteProject.mockReset();
-    mockOpsDataClient.getProjectPages.mockReset();
-    mockOpsDataClient.getProjectPagesByProjectId.mockReset();
-    mockOpsDataClient.getProjectPagesByProjectIds.mockReset();
-    mockOpsDataClient.getAllProjectPages.mockReset();
-    mockOpsDataClient.saveProjectPage.mockReset();
-    mockOpsDataClient.deleteProjectPage.mockReset();
-    mockOpsDataClient.getTasks.mockReset();
-    mockOpsDataClient.getAllTasks.mockReset();
-    mockOpsDataClient.saveTask.mockReset();
-    mockOpsDataClient.deleteTask.mockReset();
-    mockOpsDataClient.searchTasks.mockReset();
-    mockOpsDataClient.getDashboard.mockReset();
-    mockOpsDataClient.getStats.mockReset();
+    mockDataClient.getMembers.mockReset();
+    mockDataClient.getMemberByEmail.mockReset();
+    mockDataClient.getMemberByAuthId.mockReset();
+    mockDataClient.bindAuthSessionMember.mockReset();
+    mockDataClient.getTaskTypes.mockReset();
+    mockDataClient.getPlatforms.mockReset();
+    mockDataClient.getServiceGroups.mockReset();
+    mockDataClient.getProjects.mockReset();
+    mockDataClient.searchProjectsPage.mockReset();
+    mockDataClient.getProject.mockReset();
+    mockDataClient.saveProject.mockReset();
+    mockDataClient.deleteProject.mockReset();
+    mockDataClient.getProjectPages.mockReset();
+    mockDataClient.getProjectPagesByProjectId.mockReset();
+    mockDataClient.getProjectPagesByProjectIds.mockReset();
+    mockDataClient.getAllProjectPages.mockReset();
+    mockDataClient.saveProjectPage.mockReset();
+    mockDataClient.deleteProjectPage.mockReset();
+    mockDataClient.getTasks.mockReset();
+    mockDataClient.getAllTasks.mockReset();
+    mockDataClient.saveTask.mockReset();
+    mockDataClient.deleteTask.mockReset();
+    mockDataClient.searchTasks.mockReset();
+    mockDataClient.getDashboard.mockReset();
+    mockDataClient.getStats.mockReset();
     vi.spyOn(window, 'confirm').mockReturnValue(true);
     mockUseAuth.mockReturnValue({
       status: 'authenticated',
@@ -117,7 +117,7 @@ describe('Projects routes', () => {
       },
     });
 
-    mockOpsDataClient.getMembers.mockResolvedValue([
+    mockDataClient.getMembers.mockResolvedValue([
       {
         id: 'member-1',
         accountId: 'legacy-1',
@@ -135,7 +135,7 @@ describe('Projects routes', () => {
         isActive: true,
       },
     ]);
-    mockOpsDataClient.getServiceGroups.mockResolvedValue([
+    mockDataClient.getServiceGroups.mockResolvedValue([
       {
         id: 'svc-1',
         name: '접근성',
@@ -145,7 +145,7 @@ describe('Projects routes', () => {
         isActive: true,
       },
     ]);
-    mockOpsDataClient.getPlatforms.mockResolvedValue([
+    mockDataClient.getPlatforms.mockResolvedValue([
       {
         id: 'platform-1',
         name: 'iOS-App',
@@ -153,7 +153,7 @@ describe('Projects routes', () => {
         isVisible: true,
       },
     ]);
-    mockOpsDataClient.getTaskTypes.mockResolvedValue([
+    mockDataClient.getTaskTypes.mockResolvedValue([
       {
         id: 'type-qa',
         type1: 'QA',
@@ -180,43 +180,41 @@ describe('Projects routes', () => {
       isActive: true,
     } as const;
 
-    mockOpsDataClient.getProjects.mockResolvedValue([baseProject]);
-    mockOpsDataClient.getProject.mockResolvedValue(baseProject);
-    mockOpsDataClient.searchProjectsPage.mockImplementation(
-      async (filters, query, page, pageSize) => {
-        const items = [
-          {
-            ...baseProject,
-            serviceGroupName: '접근성',
-            reporterDisplay: 'legacy-1(운영 사용자)',
-            reviewerDisplay: 'legacy-2(리뷰어)',
-            pageCount: 1,
-          },
-        ].filter((project) => {
-          if (filters.startDate && project.endDate < filters.startDate) {
-            return false;
-          }
-          if (filters.endDate && project.startDate > filters.endDate) {
-            return false;
-          }
-          if (!query.trim()) {
-            return true;
-          }
+    mockDataClient.getProjects.mockResolvedValue([baseProject]);
+    mockDataClient.getProject.mockResolvedValue(baseProject);
+    mockDataClient.searchProjectsPage.mockImplementation(async (filters, query, page, pageSize) => {
+      const items = [
+        {
+          ...baseProject,
+          serviceGroupName: '접근성',
+          reporterDisplay: 'legacy-1(운영 사용자)',
+          reviewerDisplay: 'legacy-2(리뷰어)',
+          pageCount: 1,
+        },
+      ].filter((project) => {
+        if (filters.startDate && project.endDate < filters.startDate) {
+          return false;
+        }
+        if (filters.endDate && project.startDate > filters.endDate) {
+          return false;
+        }
+        if (!query.trim()) {
+          return true;
+        }
 
-          return [project.name, 'legacy-1', '운영 사용자', 'legacy-2', '리뷰어']
-            .join(' ')
-            .includes(query.trim());
-        });
+        return [project.name, 'legacy-1', '운영 사용자', 'legacy-2', '리뷰어']
+          .join(' ')
+          .includes(query.trim());
+      });
 
-        return {
-          items: items.slice((page - 1) * pageSize, page * pageSize),
-          totalCount: items.length,
-          page,
-          pageSize,
-        };
-      },
-    );
-    mockOpsDataClient.getProjectPages.mockResolvedValue([
+      return {
+        items: items.slice((page - 1) * pageSize, page * pageSize),
+        totalCount: items.length,
+        page,
+        pageSize,
+      };
+    });
+    mockDataClient.getProjectPages.mockResolvedValue([
       {
         id: 'page-1',
         projectId: 'project-1',
@@ -230,7 +228,7 @@ describe('Projects routes', () => {
         updatedAt: '2026-03-24T09:00:00.000Z',
       },
     ]);
-    mockOpsDataClient.getProjectPagesByProjectId.mockResolvedValue([
+    mockDataClient.getProjectPagesByProjectId.mockResolvedValue([
       {
         id: 'page-1',
         projectId: 'project-1',
@@ -244,7 +242,7 @@ describe('Projects routes', () => {
         updatedAt: '2026-03-24T09:00:00.000Z',
       },
     ]);
-    mockOpsDataClient.getProjectPagesByProjectIds.mockResolvedValue([
+    mockDataClient.getProjectPagesByProjectIds.mockResolvedValue([
       {
         id: 'page-1',
         projectId: 'project-1',
@@ -258,7 +256,7 @@ describe('Projects routes', () => {
         updatedAt: '2026-03-24T09:00:00.000Z',
       },
     ]);
-    mockOpsDataClient.saveProject.mockResolvedValue({
+    mockDataClient.saveProject.mockResolvedValue({
       id: 'project-1',
       createdByMemberId: null,
       projectType1: 'QA',
@@ -273,7 +271,7 @@ describe('Projects routes', () => {
       endDate: '2026-03-31',
       isActive: true,
     });
-    mockOpsDataClient.saveProjectPage.mockResolvedValue({
+    mockDataClient.saveProjectPage.mockResolvedValue({
       id: 'page-2',
       projectId: 'project-1',
       title: '신규 페이지',
@@ -400,13 +398,13 @@ describe('Projects routes', () => {
       endDate: '2026-03-31',
       isActive: true,
     }));
-    mockOpsDataClient.searchProjectsPage.mockImplementation(async (_, __, page, pageSize) => ({
+    mockDataClient.searchProjectsPage.mockImplementation(async (_, __, page, pageSize) => ({
       items: pagedProjects.slice((page - 1) * pageSize, page * pageSize),
       totalCount: pagedProjects.length,
       page,
       pageSize,
     }));
-    mockOpsDataClient.getProjectPagesByProjectIds.mockResolvedValue(
+    mockDataClient.getProjectPagesByProjectIds.mockResolvedValue(
       Array.from({ length: 51 }, (_, index) => ({
         id: `page-${index + 1}`,
         projectId: `project-${index + 1}`,
@@ -452,7 +450,7 @@ describe('Projects routes', () => {
     await user.click(screen.getByRole('button', { name: '저장' }));
 
     await waitFor(() => {
-      expect(mockOpsDataClient.saveProject).toHaveBeenCalledWith(
+      expect(mockDataClient.saveProject).toHaveBeenCalledWith(
         expect.objectContaining({
           id: 'project-1',
           projectType1: 'QA',
@@ -469,7 +467,7 @@ describe('Projects routes', () => {
     await user.click(screen.getByRole('button', { name: '추가' }));
 
     await waitFor(() => {
-      expect(mockOpsDataClient.saveProjectPage).toHaveBeenCalledWith(
+      expect(mockDataClient.saveProjectPage).toHaveBeenCalledWith(
         expect.objectContaining({
           projectId: 'project-1',
           title: '신규 페이지',
@@ -492,13 +490,13 @@ describe('Projects routes', () => {
     await user.click(screen.getAllByRole('button', { name: '삭제' })[1]);
 
     await waitFor(() => {
-      expect(mockOpsDataClient.deleteProjectPage).toHaveBeenCalledWith('page-1');
+      expect(mockDataClient.deleteProjectPage).toHaveBeenCalledWith('page-1');
     });
 
     await user.click(screen.getAllByRole('button', { name: '삭제' })[0]);
 
     await waitFor(() => {
-      expect(mockOpsDataClient.deleteProject).toHaveBeenCalledWith('project-1');
+      expect(mockDataClient.deleteProject).toHaveBeenCalledWith('project-1');
     });
   });
 });

@@ -2,12 +2,12 @@ import { cleanup, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { PendingApprovalPage } from '../features/auth/PendingApprovalPage';
+import { PendingApprovalPage } from '../pages/auth/PendingApprovalPage';
 
 const mockUseAuth = vi.hoisted(() => vi.fn());
 const mockLogout = vi.hoisted(() => vi.fn());
 
-vi.mock('../features/auth/AuthContext', () => ({
+vi.mock('../pages/auth/AuthContext', () => ({
   useAuth: mockUseAuth,
 }));
 

@@ -2,11 +2,11 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { SearchPage } from '../features/search/SearchPage';
-import { parseLocalDateInput, toLocalDateInputValue } from '../lib/utils';
+import { SearchPage } from '../pages/search/SearchPage';
+import { parseLocalDateInput, toLocalDateInputValue } from '../utils';
 
 const mockUseAuth = vi.hoisted(() => vi.fn());
-const mockOpsDataClient = vi.hoisted(() => ({
+const mockDataClient = vi.hoisted(() => ({
   mode: 'supabase' as const,
   getMembers: vi.fn(),
   getMemberByEmail: vi.fn(),
@@ -27,12 +27,12 @@ const mockOpsDataClient = vi.hoisted(() => ({
   getStats: vi.fn(),
 }));
 
-vi.mock('../features/auth/AuthContext', () => ({
+vi.mock('../pages/auth/AuthContext', () => ({
   useAuth: mockUseAuth,
 }));
 
-vi.mock('../lib/dataClient', () => ({
-  opsDataClient: mockOpsDataClient,
+vi.mock('../api/client', () => ({
+  dataClient: mockDataClient,
 }));
 
 describe('SearchPage', () => {
@@ -55,7 +55,7 @@ describe('SearchPage', () => {
       },
     });
 
-    mockOpsDataClient.getProjects.mockResolvedValue([
+    mockDataClient.getProjects.mockResolvedValue([
       {
         id: 'project-1',
         createdByMemberId: null,
@@ -70,7 +70,7 @@ describe('SearchPage', () => {
         isActive: true,
       },
     ]);
-    mockOpsDataClient.getProjectPages.mockResolvedValue([
+    mockDataClient.getProjectPages.mockResolvedValue([
       {
         id: 'page-1',
         projectId: 'project-1',
@@ -84,8 +84,8 @@ describe('SearchPage', () => {
         updatedAt: '2026-03-24T09:00:00.000Z',
       },
     ]);
-    mockOpsDataClient.getServiceGroups.mockResolvedValue([]);
-    mockOpsDataClient.searchTasksPage.mockResolvedValue({
+    mockDataClient.getServiceGroups.mockResolvedValue([]);
+    mockDataClient.searchTasksPage.mockResolvedValue({
       items: [
         {
           id: 'task-1',
@@ -124,7 +124,7 @@ describe('SearchPage', () => {
       expect(screen.getByRole('button', { name: '검색' })).toBeInTheDocument();
     });
 
-    expect(mockOpsDataClient.searchTasksPage).toHaveBeenCalledWith(
+    expect(mockDataClient.searchTasksPage).toHaveBeenCalledWith(
       expect.objectContaining({ id: 'member-1' }),
       expect.objectContaining({ startDate: monthStart, endDate: monthEnd, query: '' }),
       1,
@@ -135,7 +135,7 @@ describe('SearchPage', () => {
     await user.click(screen.getByRole('button', { name: '검색' }));
 
     await waitFor(() => {
-      expect(mockOpsDataClient.searchTasksPage).toHaveBeenLastCalledWith(
+      expect(mockDataClient.searchTasksPage).toHaveBeenLastCalledWith(
         expect.objectContaining({ id: 'member-1' }),
         expect.objectContaining({ startDate: monthStart, endDate: monthEnd, query: '로그인' }),
         1,

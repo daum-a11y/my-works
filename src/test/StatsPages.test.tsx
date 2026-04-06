@@ -1,11 +1,11 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { MonitoringStatsPage, QaStatsPage } from '../features/stats';
-import { getCurrentMonth, shiftMonth } from '../features/resource/resourceShared';
+import { MonitoringStatsPage, QaStatsPage } from '../pages/stats';
+import { getCurrentMonth, shiftMonth } from '../pages/resource/resourceUtils';
 
 const mockUseAuth = vi.hoisted(() => vi.fn());
-const mockOpsDataClient = vi.hoisted(() => ({
+const mockDataClient = vi.hoisted(() => ({
   mode: 'supabase' as const,
   getMembers: vi.fn(),
   getMemberByEmail: vi.fn(),
@@ -28,12 +28,12 @@ const mockOpsDataClient = vi.hoisted(() => ({
   getStats: vi.fn(),
 }));
 
-vi.mock('../features/auth/AuthContext', () => ({
+vi.mock('../pages/auth/AuthContext', () => ({
   useAuth: mockUseAuth,
 }));
 
-vi.mock('../lib/dataClient', () => ({
-  opsDataClient: mockOpsDataClient,
+vi.mock('../api/client', () => ({
+  dataClient: mockDataClient,
 }));
 
 describe('Stats pages', () => {
@@ -59,7 +59,7 @@ describe('Stats pages', () => {
       },
     });
 
-    mockOpsDataClient.getMonitoringStatsRows.mockResolvedValue([
+    mockDataClient.getMonitoringStatsRows.mockResolvedValue([
       {
         pageId: 'page-1',
         projectId: 'project-1',
@@ -112,7 +112,7 @@ describe('Stats pages', () => {
         assigneeDisplay: 'legacy-1(운영 사용자)',
       },
     ]);
-    mockOpsDataClient.getQaStatsProjects.mockResolvedValue([
+    mockDataClient.getQaStatsProjects.mockResolvedValue([
       {
         id: 'project-1',
         type1: 'QA',
@@ -147,7 +147,7 @@ describe('Stats pages', () => {
         isActive: true,
       },
     ]);
-    mockOpsDataClient.saveProjectPage.mockImplementation(async (input) => ({
+    mockDataClient.saveProjectPage.mockImplementation(async (input) => ({
       id: input.id ?? 'page-1',
       projectId: input.projectId,
       title: input.title,
@@ -253,7 +253,7 @@ describe('Stats pages', () => {
     fireEvent.click(screen.getByRole('button', { name: '저장' }));
 
     await waitFor(() => {
-      expect(mockOpsDataClient.saveProjectPage).toHaveBeenCalledWith(
+      expect(mockDataClient.saveProjectPage).toHaveBeenCalledWith(
         expect.objectContaining({
           id: 'page-1',
           trackStatus: '일부 수정',

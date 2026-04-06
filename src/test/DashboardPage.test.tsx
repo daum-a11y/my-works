@@ -2,11 +2,11 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { DashboardPage } from '../features/dashboard';
-import { getCurrentMonth, shiftMonth } from '../features/resource/resourceShared';
+import { DashboardPage } from '../pages/dashboard';
+import { getCurrentMonth, shiftMonth } from '../pages/resource/resourceUtils';
 
 const mockUseAuth = vi.hoisted(() => vi.fn());
-const mockOpsDataClient = vi.hoisted(() => ({
+const mockDataClient = vi.hoisted(() => ({
   mode: 'supabase' as const,
   getMembers: vi.fn(),
   getMemberByAccountId: vi.fn(),
@@ -29,12 +29,12 @@ const mockOpsDataClient = vi.hoisted(() => ({
   getStats: vi.fn(),
 }));
 
-vi.mock('../features/auth/AuthContext', () => ({
+vi.mock('../pages/auth/AuthContext', () => ({
   useAuth: mockUseAuth,
 }));
 
-vi.mock('../lib/dataClient', () => ({
-  opsDataClient: mockOpsDataClient,
+vi.mock('../api/client', () => ({
+  dataClient: mockDataClient,
 }));
 
 afterEach(() => {
@@ -58,9 +58,9 @@ describe('DashboardPage', () => {
       },
     });
 
-    mockOpsDataClient.getDashboard.mockReset();
-    mockOpsDataClient.getTasks.mockReset();
-    mockOpsDataClient.getDashboard.mockResolvedValue({
+    mockDataClient.getDashboard.mockReset();
+    mockDataClient.getTasks.mockReset();
+    mockDataClient.getDashboard.mockResolvedValue({
       inProgressProjects: [
         {
           projectId: 'project-1',
@@ -73,7 +73,7 @@ describe('DashboardPage', () => {
         },
       ],
     });
-    mockOpsDataClient.getTasks.mockResolvedValue([]);
+    mockDataClient.getTasks.mockResolvedValue([]);
   });
 
   it('renders the in-progress project list', async () => {

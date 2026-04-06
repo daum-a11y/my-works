@@ -1,9 +1,9 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { AppRouter } from './app/AppRouter';
-import { FontPreferenceProvider } from './app/FontPreferenceContext';
-import { ThemePreferenceProvider } from './app/ThemePreferenceContext';
+import { FontPreferenceProvider } from './preferences/FontPreferenceContext';
+import { ThemePreferenceProvider } from './preferences/ThemePreferenceContext';
+import { RootRouter } from './router/RootRouter';
 import './styles/reset.css';
 import './styles/tokens.css';
 import './styles/global.css';
@@ -28,7 +28,7 @@ createRoot(container).render(
     <ThemePreferenceProvider>
       <FontPreferenceProvider>
         <QueryClientProvider client={queryClient}>
-          <AppRouter />
+          <RootRouter />
         </QueryClientProvider>
       </FontPreferenceProvider>
     </ThemePreferenceProvider>

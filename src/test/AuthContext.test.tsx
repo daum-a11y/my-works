@@ -1,6 +1,6 @@
 import { act, cleanup, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { AuthProvider, useAuth } from '../features/auth/AuthContext';
+import { AuthProvider, useAuth } from '../pages/auth/AuthContext';
 
 const mockGetSession = vi.hoisted(() => vi.fn());
 const mockOnAuthStateChange = vi.hoisted(() => vi.fn());
@@ -22,7 +22,7 @@ const mockSupabaseClient = vi.hoisted(() => ({
 }));
 let authStateChangeCallback: ((event: string, session: unknown) => void) | null = null;
 
-vi.mock('../lib/env', () => ({
+vi.mock('../config/env', () => ({
   isSupabaseConfigured: true,
   env: {
     supabaseUrl: 'https://example.supabase.co',
@@ -31,12 +31,12 @@ vi.mock('../lib/env', () => ({
   },
 }));
 
-vi.mock('../lib/supabase', () => ({
+vi.mock('../api/supabase', () => ({
   getSupabaseClient: () => mockSupabaseClient,
 }));
 
-vi.mock('../lib/dataClient', () => ({
-  opsDataClient: {
+vi.mock('../api/client', () => ({
+  dataClient: {
     getMemberByAuthId: mockGetMemberByAuthId,
     bindAuthSessionMember: mockBindAuthSessionMember,
     touchMemberLastLogin: mockTouchMemberLastLogin,

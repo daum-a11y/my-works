@@ -1,12 +1,12 @@
 import { cleanup, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { ReportsPage } from '../features/reports';
-import { getToday } from '../lib/utils';
+import { ReportsPage } from '../pages/reports';
+import { getToday } from '../utils';
 
 const mockUseReportsSlice = vi.fn();
 
-vi.mock('../features/reports/useReportsSlice', () => ({
+vi.mock('../pages/reports/useReportsSlice', () => ({
   useReportsSlice: () => mockUseReportsSlice(),
 }));
 

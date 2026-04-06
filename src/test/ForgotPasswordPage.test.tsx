@@ -2,16 +2,16 @@ import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { ThemePreferenceProvider } from '../app/ThemePreferenceContext';
-import { ForgotPasswordPage } from '../features/auth/ForgotPasswordPage';
+import { ThemePreferenceProvider } from '../preferences/ThemePreferenceContext';
+import { ForgotPasswordPage } from '../pages/auth/ForgotPasswordPage';
 
 const mockUseAuth = vi.hoisted(() => vi.fn());
 
-vi.mock('../features/auth/AuthContext', () => ({
+vi.mock('../pages/auth/AuthContext', () => ({
   useAuth: mockUseAuth,
 }));
 
-vi.mock('../lib/env', () => ({
+vi.mock('../config/env', () => ({
   isSupabaseConfigured: true,
 }));
 

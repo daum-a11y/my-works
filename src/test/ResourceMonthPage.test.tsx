@@ -2,25 +2,25 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { ResourceMonthPage } from '../features/resource/ResourceMonthPage';
+import { ResourceMonthPage } from '../pages/resource/ResourceMonthPage';
 
 const mockUseAuth = vi.hoisted(() => vi.fn());
-const mockOpsDataClient = vi.hoisted(() => ({
+const mockDataClient = vi.hoisted(() => ({
   mode: 'supabase' as const,
   getResourceMonthReport: vi.fn(),
 }));
 
-vi.mock('../features/auth/AuthContext', () => ({
+vi.mock('../pages/auth/AuthContext', () => ({
   useAuth: mockUseAuth,
 }));
 
-vi.mock('../lib/dataClient', async () => {
-  const actual = await vi.importActual<typeof import('../lib/dataClient')>('../lib/dataClient');
+vi.mock('../api/client', async () => {
+  const actual = await vi.importActual<typeof import('../api/client')>('../api/client');
   return {
     ...actual,
-    opsDataClient: {
-      ...actual.opsDataClient,
-      ...mockOpsDataClient,
+    dataClient: {
+      ...actual.dataClient,
+      ...mockDataClient,
     },
   };
 });
@@ -75,7 +75,7 @@ describe('ResourceMonthPage', () => {
   });
 
   it('renders the aggregated month report payload', async () => {
-    mockOpsDataClient.getResourceMonthReport.mockResolvedValue({
+    mockDataClient.getResourceMonthReport.mockResolvedValue({
       typeRows: [
         {
           type1: '운영',
@@ -136,41 +136,39 @@ describe('ResourceMonthPage', () => {
       memberTotals: [];
     }>();
 
-    mockOpsDataClient.getResourceMonthReport.mockImplementation(
-      (_member: unknown, month: string) => {
-        if (month === '2026-03') {
-          return Promise.resolve({
-            typeRows: [
-              {
-                type1: '운영',
-                totalMinutes: 120,
-                requiresServiceGroup: true,
-                items: [{ type2: '점검', minutes: 120, requiresServiceGroup: true }],
-              },
-            ],
-            serviceSummaryRows: [
-              {
-                costGroup: '커머스',
-                group: '선물하기',
-                totalMinutes: 120,
-                names: [{ name: '카카오 선물하기', minutes: 120 }],
-              },
-            ],
-            serviceDetailRows: [
-              {
-                costGroup: '커머스',
-                group: '선물하기',
-                totalMinutes: 120,
-                names: [{ name: '카카오 선물하기', items: [{ type1: '운영', minutes: 120 }] }],
-              },
-            ],
-            memberTotals: [{ id: 'member-1', accountId: 'legacy-1', totalMinutes: 120 }],
-          });
-        }
+    mockDataClient.getResourceMonthReport.mockImplementation((_member: unknown, month: string) => {
+      if (month === '2026-03') {
+        return Promise.resolve({
+          typeRows: [
+            {
+              type1: '운영',
+              totalMinutes: 120,
+              requiresServiceGroup: true,
+              items: [{ type2: '점검', minutes: 120, requiresServiceGroup: true }],
+            },
+          ],
+          serviceSummaryRows: [
+            {
+              costGroup: '커머스',
+              group: '선물하기',
+              totalMinutes: 120,
+              names: [{ name: '카카오 선물하기', minutes: 120 }],
+            },
+          ],
+          serviceDetailRows: [
+            {
+              costGroup: '커머스',
+              group: '선물하기',
+              totalMinutes: 120,
+              names: [{ name: '카카오 선물하기', items: [{ type1: '운영', minutes: 120 }] }],
+            },
+          ],
+          memberTotals: [{ id: 'member-1', accountId: 'legacy-1', totalMinutes: 120 }],
+        });
+      }
 
-        return deferred.promise;
-      },
-    );
+      return deferred.promise;
+    });
 
     renderPage();
 

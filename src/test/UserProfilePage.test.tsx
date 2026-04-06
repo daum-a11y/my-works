@@ -2,18 +2,18 @@ import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { FontPreferenceProvider } from '../app/FontPreferenceContext';
-import { ThemePreferenceProvider } from '../app/ThemePreferenceContext';
-import { LoginPage } from '../features/auth/LoginPage';
-import { UserProfilePage } from '../features/profile/UserProfilePage';
+import { FontPreferenceProvider } from '../preferences/FontPreferenceContext';
+import { ThemePreferenceProvider } from '../preferences/ThemePreferenceContext';
+import { LoginPage } from '../pages/auth/LoginPage';
+import { UserProfilePage } from '../pages/profile/UserProfilePage';
 
 const mockUseAuth = vi.hoisted(() => vi.fn());
 
-vi.mock('../features/auth/AuthContext', () => ({
+vi.mock('../pages/auth/AuthContext', () => ({
   useAuth: mockUseAuth,
 }));
 
-vi.mock('../lib/env', () => ({
+vi.mock('../config/env', () => ({
   isSupabaseConfigured: true,
 }));
 

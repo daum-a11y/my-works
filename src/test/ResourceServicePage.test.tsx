@@ -1,10 +1,10 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { ResourceServicePage } from '../features/resource/ResourceServicePage';
+import { ResourceServicePage } from '../pages/resource/ResourceServicePage';
 
 const mockUseAuth = vi.hoisted(() => vi.fn());
-const mockOpsDataClient = vi.hoisted(() => ({
+const mockDataClient = vi.hoisted(() => ({
   mode: 'supabase' as const,
   getMembers: vi.fn(),
   getMemberByAccountId: vi.fn(),
@@ -30,12 +30,12 @@ const mockOpsDataClient = vi.hoisted(() => ({
   getStats: vi.fn(),
 }));
 
-vi.mock('../features/auth/AuthContext', () => ({
+vi.mock('../pages/auth/AuthContext', () => ({
   useAuth: mockUseAuth,
 }));
 
-vi.mock('../lib/dataClient', () => ({
-  opsDataClient: mockOpsDataClient,
+vi.mock('../api/client', () => ({
+  dataClient: mockDataClient,
 }));
 
 describe('ResourceServicePage', () => {
@@ -58,8 +58,8 @@ describe('ResourceServicePage', () => {
       },
     });
 
-    mockOpsDataClient.getResourceServiceSummaryYears.mockResolvedValue(['2024', '2023']);
-    mockOpsDataClient.getResourceServiceSummaryByYear.mockImplementation(
+    mockDataClient.getResourceServiceSummaryYears.mockResolvedValue(['2024', '2023']);
+    mockDataClient.getResourceServiceSummaryByYear.mockImplementation(
       async (_member: unknown, year: string) => {
         if (year === '2024') {
           return [
