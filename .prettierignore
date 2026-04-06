@@ -5,4 +5,4 @@ package-lock.json
 pnpm-lock.yaml
 docs
 README.md
-db_a11yop_2507071945.sql
+*.sql

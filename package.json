@@ -7,8 +7,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
-    "lint": "eslint . --format ./scripts/eslint-formatter.cjs",
-    "lint:fix": "eslint . --fix --format ./scripts/eslint-formatter.cjs",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "format": "prettier \"**/*.{js,cjs,mjs,ts,tsx,json,css,scss,html}\" --write",
     "format:check": "prettier \"**/*.{js,cjs,mjs,ts,tsx,json,css,scss,html}\" --check",
     "prepare": "husky",
