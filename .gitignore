@@ -15,3 +15,8 @@ output/playwright*
 .tmp
 output/**/*.sql
 output/**/*.md
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example

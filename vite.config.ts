@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import { cloudflare } from '@cloudflare/vite-plugin';
 
 function manualChunks(id: string) {
   if (!id.includes('node_modules')) {
@@ -35,7 +36,7 @@ function manualChunks(id: string) {
 }
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), cloudflare()],
   build: {
     rollupOptions: {
       output: {
