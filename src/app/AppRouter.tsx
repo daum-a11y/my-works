@@ -142,22 +142,25 @@ export function AppRouter() {
               <Route path="/admin/members" element={<AdminMembersPage />} />
               <Route path="/admin/members/new" element={<AdminMemberEditorPage />} />
               <Route path="/admin/members/:memberId/edit" element={<AdminMemberEditorPage />} />
-              <Route path="/org/type" element={<AdminTaskTypesPage />} />
-              <Route path="/org/type/new" element={<AdminTaskTypeEditorPage />} />
-              <Route path="/org/type/:taskTypeId/edit" element={<AdminTaskTypeEditorPage />} />
-              <Route path="/org/platform" element={<AdminPlatformsPage />} />
-              <Route path="/org/platform/new" element={<AdminPlatformEditorPage />} />
-              <Route path="/org/platform/:platformId/edit" element={<AdminPlatformEditorPage />} />
-              <Route path="/org/cost-group" element={<AdminCostGroupsPage />} />
-              <Route path="/org/cost-group/new" element={<AdminCostGroupEditorPage />} />
+              <Route path="/admin/type" element={<AdminTaskTypesPage />} />
+              <Route path="/admin/type/new" element={<AdminTaskTypeEditorPage />} />
+              <Route path="/admin/type/:taskTypeId/edit" element={<AdminTaskTypeEditorPage />} />
+              <Route path="/admin/platform" element={<AdminPlatformsPage />} />
+              <Route path="/admin/platform/new" element={<AdminPlatformEditorPage />} />
               <Route
-                path="/org/cost-group/:costGroupId/edit"
+                path="/admin/platform/:platformId/edit"
+                element={<AdminPlatformEditorPage />}
+              />
+              <Route path="/admin/cost-group" element={<AdminCostGroupsPage />} />
+              <Route path="/admin/cost-group/new" element={<AdminCostGroupEditorPage />} />
+              <Route
+                path="/admin/cost-group/:costGroupId/edit"
                 element={<AdminCostGroupEditorPage />}
               />
-              <Route path="/org/group" element={<AdminServiceGroupsPage />} />
-              <Route path="/org/group/new" element={<AdminServiceGroupEditorPage />} />
+              <Route path="/admin/group" element={<AdminServiceGroupsPage />} />
+              <Route path="/admin/group/new" element={<AdminServiceGroupEditorPage />} />
               <Route
-                path="/org/group/:serviceGroupId/edit"
+                path="/admin/group/:serviceGroupId/edit"
                 element={<AdminServiceGroupEditorPage />}
               />
             </Route>

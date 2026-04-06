@@ -75,7 +75,7 @@ export function AdminServiceGroupsPage() {
           <div className="admin-crud-page__page-heading">
             <h1 className="admin-crud-page__title">서비스그룹 관리</h1>
           </div>
-          <Link to="/org/group/new" className="admin-crud-page__header-action">
+          <Link to="/admin/group/new" className="admin-crud-page__header-action">
             서비스그룹 추가
           </Link>
         </div>
@@ -124,7 +124,7 @@ export function AdminServiceGroupsPage() {
                       <td>
                         <div className="admin-crud-page__actions">
                           <Link
-                            to={`/org/group/${item.id}/edit`}
+                            to={`/admin/group/${item.id}/edit`}
                             className="admin-crud-page__button admin-crud-page__button--secondary"
                           >
                             수정

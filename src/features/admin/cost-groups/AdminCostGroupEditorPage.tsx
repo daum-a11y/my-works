@@ -71,7 +71,7 @@ export function AdminCostGroupEditorPage() {
       }),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['admin', 'cost-groups'] });
-      navigate('/org/cost-group', {
+      navigate('/admin/cost-group', {
         replace: true,
         state: {
           statusMessage: isEditMode ? '청구그룹을 저장했습니다.' : '청구그룹을 추가했습니다.',
@@ -91,7 +91,7 @@ export function AdminCostGroupEditorPage() {
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['admin', 'cost-groups'] });
       await queryClient.invalidateQueries({ queryKey: ['admin', 'service-groups'] });
-      navigate('/org/cost-group', {
+      navigate('/admin/cost-group', {
         replace: true,
         state: { statusMessage: '청구그룹을 삭제했습니다.' },
       });
@@ -207,7 +207,7 @@ export function AdminCostGroupEditorPage() {
               }
             >
               <Link
-                to="/org/cost-group"
+                to="/admin/cost-group"
                 className={'projects-feature__button projects-feature__button--secondary'}
               >
                 취소

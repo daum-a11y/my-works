@@ -115,7 +115,7 @@ export function AdminServiceGroupEditorPage() {
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['admin', 'service-groups'] });
-      navigate('/org/group', {
+      navigate('/admin/group', {
         replace: true,
         state: {
           statusMessage: isEditMode ? '서비스그룹을 저장했습니다.' : '서비스그룹을 추가했습니다.',
@@ -134,7 +134,7 @@ export function AdminServiceGroupEditorPage() {
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['admin', 'service-groups'] });
-      navigate('/org/group', {
+      navigate('/admin/group', {
         replace: true,
         state: { statusMessage: '서비스그룹을 삭제했습니다.' },
       });
@@ -292,7 +292,7 @@ export function AdminServiceGroupEditorPage() {
               }
             >
               <Link
-                to="/org/group"
+                to="/admin/group"
                 className={'projects-feature__button projects-feature__button--secondary'}
               >
                 취소

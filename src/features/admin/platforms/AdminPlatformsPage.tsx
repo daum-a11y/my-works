@@ -44,7 +44,7 @@ export function AdminPlatformsPage() {
           <div className="admin-crud-page__page-heading">
             <h1 className="admin-crud-page__title">플랫폼 관리</h1>
           </div>
-          <Link to="/org/platform/new" className="admin-crud-page__header-action">
+          <Link to="/admin/platform/new" className="admin-crud-page__header-action">
             플랫폼 추가
           </Link>
         </div>
@@ -72,7 +72,7 @@ export function AdminPlatformsPage() {
                   <td>
                     <div className="admin-crud-page__actions">
                       <Link
-                        to={`/org/platform/${item.id}/edit`}
+                        to={`/admin/platform/${item.id}/edit`}
                         className="admin-crud-page__button admin-crud-page__button--secondary"
                       >
                         수정

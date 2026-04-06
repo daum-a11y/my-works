@@ -113,7 +113,7 @@ export function AdminTaskTypeEditorPage() {
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['admin', 'task-types'] });
-      navigate('/org/type', {
+      navigate('/admin/type', {
         replace: true,
         state: {
           statusMessage: isEditMode ? '업무 타입을 저장했습니다.' : '업무 타입을 추가했습니다.',
@@ -132,7 +132,7 @@ export function AdminTaskTypeEditorPage() {
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['admin', 'task-types'] });
-      navigate('/org/type', {
+      navigate('/admin/type', {
         replace: true,
         state: { statusMessage: '업무 타입을 삭제했습니다.' },
       });
@@ -295,7 +295,7 @@ export function AdminTaskTypeEditorPage() {
               }
             >
               <Link
-                to="/org/type"
+                to="/admin/type"
                 className={'projects-feature__button projects-feature__button--secondary'}
               >
                 취소

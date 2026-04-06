@@ -44,7 +44,7 @@ export function AdminCostGroupsPage() {
           <div className="admin-crud-page__page-heading">
             <h1 className="admin-crud-page__title">청구그룹 관리</h1>
           </div>
-          <Link to="/org/cost-group/new" className="admin-crud-page__header-action">
+          <Link to="/admin/cost-group/new" className="admin-crud-page__header-action">
             청구그룹 추가
           </Link>
         </div>
@@ -72,7 +72,7 @@ export function AdminCostGroupsPage() {
                   <td>
                     <div className="admin-crud-page__actions">
                       <Link
-                        to={`/org/cost-group/${item.id}/edit`}
+                        to={`/admin/cost-group/${item.id}/edit`}
                         className="admin-crud-page__button admin-crud-page__button--secondary"
                       >
                         수정

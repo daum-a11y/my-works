@@ -64,7 +64,7 @@ export function AdminPlatformEditorPage() {
       adminDataClient.savePlatformAdmin({ ...payload, name: payload.name.trim() }),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['admin', 'platforms'] });
-      navigate('/org/platform', {
+      navigate('/admin/platform', {
         replace: true,
         state: { statusMessage: isEditMode ? '플랫폼을 저장했습니다.' : '플랫폼을 추가했습니다.' },
       });
@@ -78,7 +78,7 @@ export function AdminPlatformEditorPage() {
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['admin', 'platforms'] });
-      navigate('/org/platform', {
+      navigate('/admin/platform', {
         replace: true,
         state: { statusMessage: '플랫폼을 삭제했습니다.' },
       });
@@ -182,7 +182,7 @@ export function AdminPlatformEditorPage() {
               }
             >
               <Link
-                to="/org/platform"
+                to="/admin/platform"
                 className={'projects-feature__button projects-feature__button--secondary'}
               >
                 취소

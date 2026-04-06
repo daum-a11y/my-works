@@ -48,10 +48,6 @@ export const baseNavigation = [
     children: [
       { to: '/org/summary', label: '업무보고 현황' },
       { to: '/org/search', label: '업무보고 조회' },
-      { to: '/org/type', label: '업무 타입 관리' },
-      { to: '/org/platform', label: '플랫폼 관리' },
-      { to: '/org/cost-group', label: '청구그룹 관리' },
-      { to: '/org/group', label: '서비스그룹 관리' },
     ],
   },
 ] as const satisfies readonly NavigationItem[];
@@ -69,7 +65,13 @@ export const adminNavigation = [
   {
     label: '관리자',
     icon: Shield,
-    children: [{ to: '/admin/members', label: '사용자 관리' }],
+    children: [
+      { to: '/admin/cost-group', label: '청구그룹 관리' },
+      { to: '/admin/group', label: '서비스그룹 관리' },
+      { to: '/admin/type', label: '업무 타입 관리' },
+      { to: '/admin/platform', label: '플랫폼 관리' },
+      { to: '/admin/members', label: '사용자 관리' },
+    ],
   },
 ] as const satisfies readonly NavigationItem[];
 

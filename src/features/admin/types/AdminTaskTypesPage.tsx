@@ -80,7 +80,7 @@ export function AdminTaskTypesPage() {
           <div className="admin-crud-page__page-heading">
             <h1 className="admin-crud-page__title">업무 타입 관리</h1>
           </div>
-          <Link to="/org/type/new" className="admin-crud-page__header-action">
+          <Link to="/admin/type/new" className="admin-crud-page__header-action">
             업무 타입 추가
           </Link>
         </div>
@@ -126,7 +126,7 @@ export function AdminTaskTypesPage() {
                     <td>
                       <div className="admin-crud-page__actions">
                         <Link
-                          to={`/org/type/${item.id}/edit`}
+                          to={`/admin/type/${item.id}/edit`}
                           className="admin-crud-page__button admin-crud-page__button--secondary"
                         >
                           수정
