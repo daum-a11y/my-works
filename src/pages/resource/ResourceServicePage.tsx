@@ -183,7 +183,7 @@ export function ResourceServicePage() {
             >
               <div className="projects-feature__table-wrap">
                 <table className="projects-feature__table">
-                  <caption className="projects-feature__sr-only">
+                  <caption className="sr-only">
                     {activeRow.year}년 월 기준 서비스그룹 집계 표
                   </caption>
                   <thead>
@@ -206,9 +206,7 @@ export function ResourceServicePage() {
       ) : (
         <div className="projects-feature__table-wrap">
           <table className="projects-feature__table">
-            <caption className="projects-feature__sr-only">
-              연도와 월 기준 서비스그룹 집계 표
-            </caption>
+            <caption className="sr-only">연도와 월 기준 서비스그룹 집계 표</caption>
             <thead>
               <tr>
                 <th scope="col">월</th>

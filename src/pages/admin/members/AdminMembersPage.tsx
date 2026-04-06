@@ -233,7 +233,7 @@ export function AdminMembersPage() {
 
       <div className={'admin-members-page__table-wrap'}>
         <table className={'admin-members-page__table'}>
-          <caption className="admin-members-page__sr-only">사용자 내역</caption>
+          <caption className="sr-only">사용자 내역</caption>
           <thead>
             <tr>
               <th>ID</th>

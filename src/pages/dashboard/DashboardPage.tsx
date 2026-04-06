@@ -66,61 +66,59 @@ export function DashboardPage() {
         <h1 className="dashboard-page__intro-title">대시보드</h1>
       </section>
       {shouldShowWorklogCalendar ? (
-        <section className="dashboard-page__top-grid">
-          <section className="dashboard-page__calendar-section">
-            {monthState && (
-              <div className="dashboard-page__section-head">
-                <div className="dashboard-page__calendar-heading">
-                  <div className="dashboard-page__calendar-nav" aria-label="업무일지 월 이동">
-                    <button
-                      type="button"
-                      className="dashboard-page__calendar-nav-button"
-                      onClick={() => setSelectedMonth((current) => shiftMonth(current, -1))}
-                    >
-                      <ChevronLeft size={16} strokeWidth={2.4} aria-hidden="true" />
-                      <span className="dashboard-page__sr-only">이전달 보기</span>
-                    </button>
-                    <h2 className="dashboard-page__calendar-title">
-                      {monthState.year}년 {monthState.month}월
-                    </h2>
-                    <button
-                      type="button"
-                      className="dashboard-page__calendar-nav-button"
-                      onClick={() => setSelectedMonth((current) => shiftMonth(current, 1))}
-                    >
-                      <ChevronRight size={16} strokeWidth={2.4} aria-hidden="true" />
-                      <span className="dashboard-page__sr-only">다음달 보기</span>
-                    </button>
-                  </div>
+        <section className="dashboard-page__section">
+          {monthState && (
+            <div className="dashboard-page__section-head">
+              <div className="dashboard-page__calendar-heading">
+                <div className="dashboard-page__calendar-nav" aria-label="업무일지 월 이동">
+                  <button
+                    type="button"
+                    className="dashboard-page__calendar-nav-button"
+                    onClick={() => setSelectedMonth((current) => shiftMonth(current, -1))}
+                  >
+                    <ChevronLeft size={16} strokeWidth={2.4} aria-hidden="true" />
+                    <span className="sr-only">이전달 보기</span>
+                  </button>
+                  <h2 className="dashboard-page__calendar-title">
+                    {monthState.year}년 {monthState.month}월
+                  </h2>
+                  <button
+                    type="button"
+                    className="dashboard-page__calendar-nav-button"
+                    onClick={() => setSelectedMonth((current) => shiftMonth(current, 1))}
+                  >
+                    <ChevronRight size={16} strokeWidth={2.4} aria-hidden="true" />
+                    <span className="sr-only">다음달 보기</span>
+                  </button>
                 </div>
               </div>
-            )}
-            {monthState ? (
-              <MonthlyReportCalendar
-                caption="업무일지 작성 현황"
-                weeks={monthState.weeks}
-                summary={monthState.summary}
-                currentMonth={monthState.currentMonth}
-                futureMonth={monthState.future}
-                todayDay={monthState.today}
-                padded={false}
-                panel={false}
-                getDateLink={(date) => ({ to: '/reports', state: { reportDate: date } })}
-              />
-            ) : (
-              <div className="dashboard-page__empty">유저정보가 없습니다.</div>
-            )}
-          </section>
+            </div>
+          )}
+          {monthState ? (
+            <MonthlyReportCalendar
+              caption="업무일지 작성 현황"
+              weeks={monthState.weeks}
+              summary={monthState.summary}
+              currentMonth={monthState.currentMonth}
+              futureMonth={monthState.future}
+              todayDay={monthState.today}
+              padded={false}
+              panel={false}
+              getDateLink={(date) => ({ to: '/reports', state: { reportDate: date } })}
+            />
+          ) : (
+            <div className="dashboard-page__empty">유저정보가 없습니다.</div>
+          )}
         </section>
       ) : null}
 
-      <section className="dashboard-page__table-section">
+      <section className="dashboard-page__section">
         <div className="dashboard-page__section-head">
           <h2 className="dashboard-page__section-title">진행중인 프로젝트 목록</h2>
         </div>
         <div className="dashboard-page__table-wrap">
           <table className="dashboard-page__table">
-            <caption className="dashboard-page__sr-only">진행중인 프로젝트 목록</caption>
+            <caption className="sr-only">진행중인 프로젝트 목록</caption>
             <thead>
               <tr>
                 <th scope="col">타입1</th>

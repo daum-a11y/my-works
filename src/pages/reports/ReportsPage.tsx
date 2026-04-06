@@ -84,7 +84,7 @@ function renderReportTable(
     <>
       <div className="reports-page__table-wrap">
         <table className="reports-page__table">
-          <caption className="reports-page__sr-only">업무 보고 목록</caption>
+          <caption className="sr-only">업무 보고 목록</caption>
           <thead>
             <tr>
               <th scope="col">일자</th>
@@ -601,7 +601,7 @@ export function ReportsPage() {
                   </label>
 
                   <div className="reports-page__search-button-field">
-                    <span className="reports-page__sr-only">프로젝트 검색</span>
+                    <span className="sr-only">프로젝트 검색</span>
                     <button
                       type="button"
                       className="reports-page__button reports-page__button--secondary"

@@ -265,7 +265,7 @@ export function ResourceMonthPage() {
                     aria-label="이전달 보기"
                   >
                     <ChevronLeft size={16} strokeWidth={2.4} aria-hidden="true" />
-                    <span className="projects-feature__sr-only">이전달 보기</span>
+                    <span className="sr-only">이전달 보기</span>
                   </Link>
                   <h2 className="dashboard-page__calendar-title">
                     {year}년 {month}월
@@ -276,7 +276,7 @@ export function ResourceMonthPage() {
                     aria-label="다음달 보기"
                   >
                     <ChevronRight size={16} strokeWidth={2.4} aria-hidden="true" />
-                    <span className="projects-feature__sr-only">다음달 보기</span>
+                    <span className="sr-only">다음달 보기</span>
                   </Link>
                 </div>
               </div>
@@ -338,7 +338,7 @@ export function ResourceMonthPage() {
                     {memberUnderCount}명
                   </span>
                   <span className="resource-page__member-accordion-hint">
-                    <span className="projects-feature__sr-only">
+                    <span className="sr-only">
                       <span className="resource-page__member-accordion-hint resource-page__member-accordion-hint--closed">
                         펼치기
                       </span>

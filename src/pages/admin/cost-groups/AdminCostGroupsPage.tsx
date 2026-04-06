@@ -80,7 +80,7 @@ export function AdminCostGroupsPage() {
 
       <div className="admin-crud-page__table-wrap">
         <table className="admin-crud-page__table">
-          <caption className="admin-crud-page__sr-only">청구그룹 내역</caption>
+          <caption className="sr-only">청구그룹 내역</caption>
           <thead>
             <tr>
               <th>청구그룹명</th>

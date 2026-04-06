@@ -115,7 +115,7 @@ export function AdminTaskTypesPage() {
 
       <div className="admin-crud-page__table-wrap">
         <table className="admin-crud-page__table">
-          <caption className="admin-crud-page__sr-only">업무타입 내역</caption>
+          <caption className="sr-only">업무타입 내역</caption>
           <thead>
             <tr>
               <th>타입1</th>

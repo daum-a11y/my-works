@@ -261,7 +261,7 @@ export function QaStatsPage() {
         ) : (
           <div className={'stats-page__table-wrap'}>
             <table className={'stats-page__table'}>
-              <caption className={'stats-page__sr-only'}>QA 월별 표</caption>
+              <caption className={'sr-only'}>QA 월별 표</caption>
               <thead>
                 <tr>
                   <th scope="col">월</th>
@@ -293,7 +293,7 @@ export function QaStatsPage() {
       <PageSection title="QA 프로젝트 목록">
         <div className={'stats-page__table-wrap'}>
           <table className={'stats-page__table'}>
-            <caption className={'stats-page__sr-only'}>필터링된 QA 프로젝트 목록</caption>
+            <caption className={'sr-only'}>필터링된 QA 프로젝트 목록</caption>
             <thead>
               <tr>
                 <th scope="col">월</th>

@@ -693,7 +693,7 @@ export function AdminReportEditorPage() {
                 </label>
 
                 <div className={'reports-page__search-button-field'}>
-                  <span className={'reports-page__sr-only'}>프로젝트 검색</span>
+                  <span className={'sr-only'}>프로젝트 검색</span>
                   <button
                     type="button"
                     className={'reports-page__button reports-page__button--secondary'}

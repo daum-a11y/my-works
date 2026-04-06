@@ -15,18 +15,6 @@
     table-layout: fixed;
   }
 
-  .monthly-report-calendar__caption {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
-  }
-
   .monthly-report-calendar__table th {
     padding: 8px 7px;
     background: var(--surface-canvas-strong);

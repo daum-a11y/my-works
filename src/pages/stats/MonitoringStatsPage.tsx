@@ -363,7 +363,7 @@ export function MonitoringStatsPage() {
         ) : (
           <div className={'stats-page__table-wrap'}>
             <table className={'stats-page__table'}>
-              <caption className={'stats-page__sr-only'}>모니터링 월별 표</caption>
+              <caption className={'sr-only'}>모니터링 월별 표</caption>
               <thead>
                 <tr>
                   <th scope="col">월</th>
@@ -399,7 +399,7 @@ export function MonitoringStatsPage() {
       <PageSection title="모니터링 페이지 목록">
         <div className={'stats-page__table-wrap'}>
           <table className={'stats-page__table'}>
-            <caption className={'stats-page__sr-only'}>필터링된 모니터링 페이지 목록</caption>
+            <caption className={'sr-only'}>필터링된 모니터링 페이지 목록</caption>
             <thead>
               <tr>
                 <th scope="col">월</th>

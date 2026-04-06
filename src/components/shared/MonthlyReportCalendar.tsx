@@ -62,7 +62,7 @@ export function MonthlyReportCalendar({
       )}
     >
       <table className="monthly-report-calendar__table">
-        {caption ? <caption className="monthly-report-calendar__caption">{caption}</caption> : null}
+        {caption ? <caption className="sr-only">{caption}</caption> : null}
         <thead>
           <tr>
             {weekdayLabels.map((label) => (

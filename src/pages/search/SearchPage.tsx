@@ -329,7 +329,7 @@ export function SearchPage() {
       <section className="search-page__panel">
         <div className="search-page__table-wrap">
           <table className="search-page__table">
-            <caption className="search-page__sr-only">업무 리스트 테이블</caption>
+            <caption className="sr-only">업무 리스트 테이블</caption>
             <thead>
               <tr>
                 <th scope="col">일자</th>

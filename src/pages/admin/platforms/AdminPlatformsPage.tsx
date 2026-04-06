@@ -79,7 +79,7 @@ export function AdminPlatformsPage() {
 
       <div className="admin-crud-page__table-wrap">
         <table className="admin-crud-page__table">
-          <caption className="admin-crud-page__sr-only">플랫폼 내역</caption>
+          <caption className="sr-only">플랫폼 내역</caption>
           <thead>
             <tr>
               <th>플랫폼명</th>

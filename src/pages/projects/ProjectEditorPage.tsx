@@ -785,7 +785,7 @@ export function ProjectEditorPage() {
               <form className={'projects-feature__page-form-panel'} onSubmit={handlePageAdd}>
                 <div className={'projects-feature__page-form-grid'}>
                   <label className={'projects-feature__field'}>
-                    <span className={'projects-feature__sr-only'}>페이지명</span>
+                    <span className={'sr-only'}>페이지명</span>
                     <input
                       value={newPageDraft.title}
                       placeholder="페이지명"
@@ -793,7 +793,7 @@ export function ProjectEditorPage() {
                     />
                   </label>
                   <label className={'projects-feature__field'}>
-                    <span className={'projects-feature__sr-only'}>페이지URL</span>
+                    <span className={'sr-only'}>페이지URL</span>
                     <input
                       value={newPageDraft.url}
                       placeholder="페이지URL"
@@ -816,7 +816,7 @@ export function ProjectEditorPage() {
             {selectedProjectPages.length ? (
               <div className={'projects-feature__page-table-wrap'}>
                 <table className={'projects-feature__page-table'}>
-                  <caption className={'projects-feature__sr-only'}>페이지 리스트</caption>
+                  <caption className={'sr-only'}>페이지 리스트</caption>
                   <thead>
                     <tr>
                       <th scope="col">페이지명</th>
@@ -831,10 +831,7 @@ export function ProjectEditorPage() {
                       return (
                         <tr key={page.id}>
                           <td>
-                            <label
-                              className={'projects-feature__sr-only'}
-                              htmlFor={`page-title-${page.id}`}
-                            >
+                            <label className={'sr-only'} htmlFor={`page-title-${page.id}`}>
                               페이지명
                             </label>
                             <input
@@ -847,10 +844,7 @@ export function ProjectEditorPage() {
                             />
                           </td>
                           <td>
-                            <label
-                              className={'projects-feature__sr-only'}
-                              htmlFor={`page-url-${page.id}`}
-                            >
+                            <label className={'sr-only'} htmlFor={`page-url-${page.id}`}>
                               페이지URL
                             </label>
                             <input

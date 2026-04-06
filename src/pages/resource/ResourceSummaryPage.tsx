@@ -233,7 +233,7 @@ export function ResourceSummaryPage() {
       <section className="resource-summary-page__content-section">
         <div className="projects-feature__table-wrap">
           <table className="projects-feature__table">
-            <caption className="projects-feature__sr-only">월별 사용자 업무보고 현황</caption>
+            <caption className="sr-only">월별 사용자 업무보고 현황</caption>
             <thead>
               <tr>
                 <th>이름</th>

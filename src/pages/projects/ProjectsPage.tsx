@@ -192,7 +192,7 @@ export function ProjectsPage() {
 
       <div className="projects-feature__table-wrap">
         <table className="projects-feature__table">
-          <caption className="projects-feature__sr-only">프로젝트 리스트</caption>
+          <caption className="sr-only">프로젝트 리스트</caption>
           <thead>
             <tr>
               <th scope="col">타입1</th>
