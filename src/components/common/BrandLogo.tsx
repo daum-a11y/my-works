@@ -9,13 +9,19 @@ interface BrandLogoProps {
 
 export function BrandLogo({
   alt = 'My Works',
-  className,
+  className = '',
   width = 100,
   height = 30,
 }: BrandLogoProps) {
   const { resolvedTheme } = useThemePreference();
-  const src =
-    resolvedTheme === 'dark' ? '/img/my-works-logo-light.svg' : '/img/my-works-logo-dark.svg';
+  const src = '/img/my-works-logo-200x60.png';
 
-  return <img className={className} src={src} alt={alt} width={width} height={height} />;
+  const style =
+    resolvedTheme === 'dark'
+      ? { filter: 'invert(1)', mixBlendMode: 'screen' as const }
+      : { mixBlendMode: 'multiply' as const };
+
+  return (
+    <img className={className} src={src} alt={alt} width={width} height={height} style={style} />
+  );
 }
