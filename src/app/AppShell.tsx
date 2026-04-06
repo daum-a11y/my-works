@@ -3,6 +3,7 @@ import { useIsFetching } from '@tanstack/react-query';
 import clsx from 'clsx';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { ChevronRight, ChevronDown, House, LogOut, UserRound } from 'lucide-react';
+import { BrandLogo } from '../components/common/BrandLogo';
 import { useAuth } from '../features/auth/AuthContext';
 import { GlobalLoadingSpinner } from './GlobalLoadingSpinner';
 import { adminNavigation, baseNavigation, getBreadcrumbs, setDocumentTitle } from './navigation';
@@ -90,13 +91,7 @@ export function AppShell() {
         <header className="app-shell__header">
           <div className="app-shell__brand">
             <NavLink to="/dashboard" className="app-shell__brand-link" aria-label="MY WORKS 홈">
-              <img
-                className="app-shell__brand-logo"
-                src="/img/my-works-logo-200x60.png"
-                alt="MY WORKS"
-                width="100"
-                height="30"
-              />
+              <BrandLogo className="app-shell__brand-logo" alt="MY WORKS" width={100} height={30} />
             </NavLink>
           </div>
           <div className="app-shell__header-body">

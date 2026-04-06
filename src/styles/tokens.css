@@ -1,9 +1,16 @@
 :root {
   color-scheme: light;
-  --font-display:
-    'KoddiUD OnGothic', 'SUIT Variable', 'Spoqa Han Sans Neo', 'Noto Sans KR', sans-serif;
-  --font-body:
-    'KoddiUD OnGothic', 'SUIT Variable', 'Spoqa Han Sans Neo', 'Noto Sans KR', sans-serif;
+  --font-family-pretendard:
+    'Pretendard Variable', 'KoddiUD OnGothic', 'SUIT Variable', 'Spoqa Han Sans Neo',
+    'Noto Sans KR', sans-serif;
+  --font-family-ongothic:
+    'KoddiUD OnGothic', 'Pretendard Variable', 'SUIT Variable', 'Spoqa Han Sans Neo',
+    'Noto Sans KR', sans-serif;
+  --font-family-system:
+    system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR',
+    sans-serif;
+  --font-display: var(--font-family-pretendard);
+  --font-body: var(--font-family-pretendard);
   --font-mono: 'JetBrains Mono', 'SF Mono', 'Menlo', monospace;
 
   /* Industrial neutrals with a cool slate bias */
@@ -206,4 +213,83 @@
   --line-height-body: 1.4;
   --line-height-tight: 1;
   --letter-spacing-title-strong: -1px;
+}
+
+:root[data-font-preference='pretendard'] {
+  --font-display: var(--font-family-pretendard);
+  --font-body: var(--font-family-pretendard);
+}
+
+:root[data-font-preference='ongothic'] {
+  --font-display: var(--font-family-ongothic);
+  --font-body: var(--font-family-ongothic);
+}
+
+:root[data-font-preference='system'] {
+  --font-display: var(--font-family-system);
+  --font-body: var(--font-family-system);
+}
+
+:root[data-theme-resolved='light'] {
+  color-scheme: light;
+}
+
+:root[data-theme-resolved='dark'] {
+  color-scheme: dark;
+
+  --raw-paper-0: oklch(0.2 0.015 255);
+  --raw-paper-1: oklch(0.225 0.016 255);
+  --raw-paper-2: oklch(0.255 0.017 255);
+  --raw-paper-3: oklch(0.29 0.018 255);
+
+  --raw-slate-950: oklch(0.97 0.004 250);
+  --raw-slate-900: oklch(0.92 0.006 250);
+  --raw-slate-800: oklch(0.84 0.009 252);
+  --raw-slate-700: oklch(0.74 0.012 254);
+  --raw-slate-500: oklch(0.6 0.014 256);
+  --raw-slate-400: oklch(0.49 0.016 258);
+  --raw-slate-300: oklch(0.38 0.017 259);
+  --raw-slate-200: oklch(0.31 0.017 260);
+
+  --raw-indigo-700: oklch(0.67 0.12 273);
+  --raw-indigo-600: oklch(0.73 0.11 272);
+  --raw-indigo-500: oklch(0.79 0.09 271);
+  --raw-indigo-100: oklch(0.33 0.05 272);
+  --raw-green-600: oklch(0.73 0.1 156);
+  --raw-green-100: oklch(0.3 0.04 156);
+  --raw-amber-600: oklch(0.78 0.11 84);
+  --raw-amber-100: oklch(0.32 0.04 84);
+  --raw-red-600: oklch(0.72 0.12 28);
+  --raw-red-100: oklch(0.31 0.05 28);
+
+  --surface-sidebar: color-mix(in oklab, var(--raw-paper-2) 88%, black);
+  --surface-header: color-mix(in oklab, var(--raw-paper-1) 90%, black);
+  --surface-panel: color-mix(in oklab, var(--raw-paper-1) 92%, black);
+  --surface-panel-strong: color-mix(in oklab, var(--raw-paper-2) 96%, black);
+  --surface-field: color-mix(in oklab, var(--raw-paper-2) 88%, black);
+  --surface-hover: color-mix(in oklab, var(--raw-paper-3) 72%, var(--raw-indigo-100));
+  --surface-active: color-mix(in oklab, var(--raw-paper-3) 56%, var(--raw-indigo-100));
+  --surface-disabled: color-mix(in oklab, var(--raw-paper-1) 84%, black);
+
+  --text-inverse: oklch(0.15 0.01 250);
+
+  --border-subtle: color-mix(in oklab, var(--raw-slate-300) 70%, var(--raw-paper-1));
+  --border-default: color-mix(in oklab, var(--raw-slate-400) 74%, var(--raw-paper-1));
+  --border-strong: var(--raw-slate-700);
+
+  --elevation-1: 0 1px 1px rgba(0, 0, 0, 0.32), 0 10px 24px rgba(0, 0, 0, 0.18);
+  --elevation-2: 0 8px 20px rgba(0, 0, 0, 0.34), 0 24px 48px rgba(0, 0, 0, 0.22);
+
+  --focus-ring-shadow:
+    0 0 0 1px var(--surface-panel),
+    0 0 0 3px color-mix(in oklab, var(--focus-ring-color) 72%, black);
+
+  --button-secondary-bg: color-mix(in oklab, var(--surface-panel) 90%, black);
+  --button-secondary-hover: color-mix(in oklab, var(--surface-hover) 88%, black);
+  --button-danger-bg: color-mix(in oklab, var(--raw-red-600) 84%, black 16%);
+
+  --theme-resource-surface: color-mix(in oklab, var(--surface-canvas) 78%, var(--raw-amber-100));
+  --theme-stats-surface: color-mix(in oklab, var(--surface-canvas) 76%, var(--raw-indigo-100));
+  --theme-project-surface: color-mix(in oklab, var(--surface-canvas) 76%, var(--raw-green-100));
+  --theme-admin-surface: color-mix(in oklab, var(--surface-canvas) 82%, var(--raw-slate-200));
 }

@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { AppShell } from '../app/AppShell';
+import { ThemePreferenceProvider } from '../app/ThemePreferenceContext';
 
 const mockUseAuth = vi.hoisted(() => vi.fn());
 
@@ -37,16 +38,18 @@ describe('AppShell', () => {
     });
 
     render(
-      <QueryClientProvider client={queryClient}>
-        <MemoryRouter initialEntries={['/dashboard']}>
-          <Routes>
-            <Route path="/" element={<AppShell />}>
-              <Route path="dashboard" element={<div>dashboard-page</div>} />
-              <Route path="profile" element={<div>profile-page</div>} />
-            </Route>
-          </Routes>
-        </MemoryRouter>
-      </QueryClientProvider>,
+      <ThemePreferenceProvider>
+        <QueryClientProvider client={queryClient}>
+          <MemoryRouter initialEntries={['/dashboard']}>
+            <Routes>
+              <Route path="/" element={<AppShell />}>
+                <Route path="dashboard" element={<div>dashboard-page</div>} />
+                <Route path="profile" element={<div>profile-page</div>} />
+              </Route>
+            </Routes>
+          </MemoryRouter>
+        </QueryClientProvider>
+      </ThemePreferenceProvider>,
     );
 
     expect(screen.queryByRole('menu', { name: '사용자 메뉴' })).not.toBeInTheDocument();
@@ -83,15 +86,17 @@ describe('AppShell', () => {
     });
 
     render(
-      <QueryClientProvider client={queryClient}>
-        <MemoryRouter initialEntries={['/stats/monitoring']}>
-          <Routes>
-            <Route path="/" element={<AppShell />}>
-              <Route path="stats/monitoring" element={<div>monitoring-stats-page</div>} />
-            </Route>
-          </Routes>
-        </MemoryRouter>
-      </QueryClientProvider>,
+      <ThemePreferenceProvider>
+        <QueryClientProvider client={queryClient}>
+          <MemoryRouter initialEntries={['/stats/monitoring']}>
+            <Routes>
+              <Route path="/" element={<AppShell />}>
+                <Route path="stats/monitoring" element={<div>monitoring-stats-page</div>} />
+              </Route>
+            </Routes>
+          </MemoryRouter>
+        </QueryClientProvider>
+      </ThemePreferenceProvider>,
     );
 
     expect(screen.getAllByText('모니터링 통계').length).toBeGreaterThan(0);
@@ -118,16 +123,18 @@ describe('AppShell', () => {
     });
 
     render(
-      <QueryClientProvider client={queryClient}>
-        <MemoryRouter initialEntries={['/stats/monitoring']}>
-          <Routes>
-            <Route path="/" element={<AppShell />}>
-              <Route path="stats/monitoring" element={<div>monitoring-stats-page</div>} />
-              <Route path="dashboard" element={<div>dashboard-page</div>} />
-            </Route>
-          </Routes>
-        </MemoryRouter>
-      </QueryClientProvider>,
+      <ThemePreferenceProvider>
+        <QueryClientProvider client={queryClient}>
+          <MemoryRouter initialEntries={['/stats/monitoring']}>
+            <Routes>
+              <Route path="/" element={<AppShell />}>
+                <Route path="stats/monitoring" element={<div>monitoring-stats-page</div>} />
+                <Route path="dashboard" element={<div>dashboard-page</div>} />
+              </Route>
+            </Routes>
+          </MemoryRouter>
+        </QueryClientProvider>
+      </ThemePreferenceProvider>,
     );
 
     const breadcrumbNav = screen.getAllByRole('navigation', { name: '브래드크럼' })[0];

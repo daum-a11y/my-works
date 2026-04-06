@@ -2,6 +2,7 @@ import { cleanup, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { ThemePreferenceProvider } from '../app/ThemePreferenceContext';
 import { LoginPage } from '../features/auth/LoginPage';
 
 const mockUseAuth = vi.hoisted(() => vi.fn());
@@ -35,9 +36,11 @@ describe('LoginPage', () => {
 
   it('renders only login and password reset actions', () => {
     render(
-      <MemoryRouter>
-        <LoginPage />
-      </MemoryRouter>,
+      <ThemePreferenceProvider>
+        <MemoryRouter>
+          <LoginPage />
+        </MemoryRouter>
+      </ThemePreferenceProvider>,
     );
 
     expect(screen.getByRole('img', { name: 'My Works' })).toBeInTheDocument();
@@ -63,12 +66,14 @@ describe('LoginPage', () => {
     });
 
     render(
-      <MemoryRouter initialEntries={['/login']}>
-        <Routes>
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/forgot-password" element={<div>forgot-password-page</div>} />
-        </Routes>
-      </MemoryRouter>,
+      <ThemePreferenceProvider>
+        <MemoryRouter initialEntries={['/login']}>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/forgot-password" element={<div>forgot-password-page</div>} />
+          </Routes>
+        </MemoryRouter>
+      </ThemePreferenceProvider>,
     );
 
     await user.click(screen.getByRole('button', { name: '비밀번호 찾기' }));

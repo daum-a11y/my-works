@@ -2,8 +2,9 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AppRouter } from './app/AppRouter';
+import { FontPreferenceProvider } from './app/FontPreferenceContext';
+import { ThemePreferenceProvider } from './app/ThemePreferenceContext';
 import './styles/reset.css';
-import './styles/fonts.css';
 import './styles/tokens.css';
 import './styles/global.css';
 
@@ -24,8 +25,12 @@ const queryClient = new QueryClient({
 
 createRoot(container).render(
   <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <AppRouter />
-    </QueryClientProvider>
+    <ThemePreferenceProvider>
+      <FontPreferenceProvider>
+        <QueryClientProvider client={queryClient}>
+          <AppRouter />
+        </QueryClientProvider>
+      </FontPreferenceProvider>
+    </ThemePreferenceProvider>
   </StrictMode>,
 );

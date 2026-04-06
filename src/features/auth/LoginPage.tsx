@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthContext';
 import { isSupabaseConfigured } from '../../lib/env';
+import { BrandLogo } from '../../components/common/BrandLogo';
 import { Button } from '../../components/ui/Button';
 import { InputField } from '../../components/ui/Field';
 import '../../styles/domain/pages/login-page.scss';
@@ -62,13 +63,7 @@ export function LoginPage() {
       <section className="login-page__panel" aria-labelledby="login-title">
         <div className="login-page__hero">
           <h1 className="login-page__logo-heading">
-            <img
-              className="login-page__logo"
-              src="/img/my-works-logo-200x60.png"
-              alt="My Works"
-              width="100"
-              height="30"
-            />
+            <BrandLogo className="login-page__logo" alt="My Works" width={100} height={30} />
           </h1>
           <p id="login-title" className="login-page__caption">
             로그인

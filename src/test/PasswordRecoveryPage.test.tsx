@@ -2,6 +2,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { ThemePreferenceProvider } from '../app/ThemePreferenceContext';
 import { PasswordRecoveryPage } from '../features/auth/PasswordRecoveryPage';
 import { LoginPage } from '../features/auth/LoginPage';
 
@@ -37,11 +38,13 @@ describe('PasswordRecoveryPage', () => {
     });
 
     render(
-      <MemoryRouter initialEntries={['/auth/recovery']}>
-        <Routes>
-          <Route path="/auth/recovery" element={<PasswordRecoveryPage />} />
-        </Routes>
-      </MemoryRouter>,
+      <ThemePreferenceProvider>
+        <MemoryRouter initialEntries={['/auth/recovery']}>
+          <Routes>
+            <Route path="/auth/recovery" element={<PasswordRecoveryPage />} />
+          </Routes>
+        </MemoryRouter>
+      </ThemePreferenceProvider>,
     );
 
     expect(screen.getByRole('heading', { name: '유효하지 않은 재설정 링크' })).toBeInTheDocument();
@@ -65,12 +68,14 @@ describe('PasswordRecoveryPage', () => {
     });
 
     render(
-      <MemoryRouter initialEntries={['/auth/recovery']}>
-        <Routes>
-          <Route path="/auth/recovery" element={<PasswordRecoveryPage />} />
-          <Route path="/login" element={<LoginPage />} />
-        </Routes>
-      </MemoryRouter>,
+      <ThemePreferenceProvider>
+        <MemoryRouter initialEntries={['/auth/recovery']}>
+          <Routes>
+            <Route path="/auth/recovery" element={<PasswordRecoveryPage />} />
+            <Route path="/login" element={<LoginPage />} />
+          </Routes>
+        </MemoryRouter>
+      </ThemePreferenceProvider>,
     );
 
     await user.type(screen.getByLabelText('새 비밀번호'), 'new-password-123');

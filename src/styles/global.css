@@ -207,12 +207,12 @@ select {
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  background: #ffffff;
+  background: var(--surface-canvas);
 }
 
 .global-loading-spinner--overlay {
   min-height: 100%;
-  background: rgba(255, 255, 255, 0.72);
+  background: color-mix(in oklab, var(--surface-canvas) 72%, transparent);
 }
 
 .global-loading-spinner__indicator {

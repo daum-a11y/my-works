@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../../components/ui/Button';
 import { InputField } from '../../components/ui/Field';
+import { BrandLogo } from '../../components/common/BrandLogo';
 import { isSupabaseConfigured } from '../../lib/env';
 import { useAuth } from './AuthContext';
 import '../../styles/domain/pages/forgot-password-page.scss';
@@ -40,12 +41,11 @@ export function ForgotPasswordPage() {
       <section className="forgot-password-page__panel" aria-labelledby="forgot-password-title">
         <div className="forgot-password-page__hero">
           <h1 className="forgot-password-page__logo-heading">
-            <img
+            <BrandLogo
               className="forgot-password-page__logo"
-              src="/img/my-works-logo-200x60.png"
               alt="My Works"
-              width="100"
-              height="30"
+              width={100}
+              height={30}
             />
           </h1>
           <p id="forgot-password-title" className="forgot-password-page__caption">

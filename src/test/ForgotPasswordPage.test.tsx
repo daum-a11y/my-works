@@ -2,6 +2,7 @@ import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { ThemePreferenceProvider } from '../app/ThemePreferenceContext';
 import { ForgotPasswordPage } from '../features/auth/ForgotPasswordPage';
 
 const mockUseAuth = vi.hoisted(() => vi.fn());
@@ -49,11 +50,13 @@ describe('ForgotPasswordPage', () => {
     });
 
     render(
-      <MemoryRouter initialEntries={['/forgot-password']}>
-        <Routes>
-          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-        </Routes>
-      </MemoryRouter>,
+      <ThemePreferenceProvider>
+        <MemoryRouter initialEntries={['/forgot-password']}>
+          <Routes>
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          </Routes>
+        </MemoryRouter>
+      </ThemePreferenceProvider>,
     );
 
     await user.type(screen.getByRole('textbox', { name: '이메일' }), 'crew@example.com');

@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
+import { BrandLogo } from '../../components/common/BrandLogo';
 import '../../styles/domain/pages/not-found-page.scss';
 
 export function NotFoundPage() {
@@ -22,13 +23,7 @@ export function NotFoundPage() {
       <section className="not-found-page__panel" aria-labelledby="not-found-title">
         <div className="not-found-page__hero">
           <h1 className="not-found-page__logo-heading">
-            <img
-              className="not-found-page__logo"
-              src="/img/my-works-logo-200x60.png"
-              alt="My Works"
-              width="100"
-              height="30"
-            />
+            <BrandLogo className="not-found-page__logo" alt="My Works" width={100} height={30} />
           </h1>
           <p className="not-found-page__caption">404</p>
         </div>

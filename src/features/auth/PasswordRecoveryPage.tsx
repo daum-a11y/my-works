@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { BrandLogo } from '../../components/common/BrandLogo';
 import { Button } from '../../components/ui/Button';
 import { InputField } from '../../components/ui/Field';
 import { useAuth } from './AuthContext';
@@ -47,12 +48,11 @@ export function PasswordRecoveryPage() {
         <section className="password-recovery-page__panel" aria-labelledby="recovery-invalid-title">
           <div className="password-recovery-page__hero">
             <h1 className="password-recovery-page__logo-heading">
-              <img
+              <BrandLogo
                 className="password-recovery-page__logo"
-                src="/img/my-works-logo-200x60.png"
                 alt="My Works"
-                width="100"
-                height="30"
+                width={100}
+                height={30}
               />
             </h1>
             <p id="recovery-invalid-title" className="password-recovery-page__caption">
@@ -83,12 +83,11 @@ export function PasswordRecoveryPage() {
       <section className="password-recovery-page__panel" aria-labelledby="recovery-title">
         <div className="password-recovery-page__hero">
           <h1 className="password-recovery-page__logo-heading">
-            <img
+            <BrandLogo
               className="password-recovery-page__logo"
-              src="/img/my-works-logo-200x60.png"
               alt="My Works"
-              width="100"
-              height="30"
+              width={100}
+              height={30}
             />
           </h1>
           <p id="recovery-title" className="password-recovery-page__caption">

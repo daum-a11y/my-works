@@ -1,5 +1,9 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { type FontPreference } from '../../app/FontPreferenceState';
+import { type ThemePreference } from '../../app/ThemePreferenceState';
+import { useFontPreference } from '../../app/useFontPreference';
+import { useThemePreference } from '../../app/useThemePreference';
 import { useAuth } from '../auth/AuthContext';
 import '../../styles/domain/pages/password-settings-page.scss';
 
@@ -14,6 +18,36 @@ type PasswordErrors = {
 };
 
 type PasswordStep = 'form' | 'confirm' | 'done';
+
+const FONT_OPTIONS: Array<{ value: FontPreference; label: string }> = [
+  {
+    value: 'pretendard',
+    label: 'Pretendard',
+  },
+  {
+    value: 'ongothic',
+    label: 'KoddiUD OnGothic',
+  },
+  {
+    value: 'system',
+    label: '시스템폰트',
+  },
+];
+
+const THEME_OPTIONS: Array<{ value: ThemePreference; label: string }> = [
+  {
+    value: 'system',
+    label: '시스템설정',
+  },
+  {
+    value: 'light',
+    label: '라이트모드',
+  },
+  {
+    value: 'dark',
+    label: '다크모드',
+  },
+];
 
 function getRoleLabel(role?: string) {
   return role === 'admin' ? '관리자' : '구성원';
@@ -37,6 +71,8 @@ function getPasswordErrors(draft: PasswordDraft): PasswordErrors {
 export function UserProfilePage() {
   const navigate = useNavigate();
   const { session, updatePassword, logout } = useAuth();
+  const { fontPreference, setFontPreference } = useFontPreference();
+  const { themePreference, setThemePreference } = useThemePreference();
   const member = session?.member;
   const [editing, setEditing] = useState(false);
   const [step, setStep] = useState<PasswordStep>('form');
@@ -169,7 +205,7 @@ export function UserProfilePage() {
       </header>
 
       <div className="password-settings-page__workspace">
-        <section className="password-settings-page__panel" aria-labelledby="profile-summary-title">
+        <section aria-labelledby="profile-summary-title">
           <div className="password-settings-page__panel-header">
             <h2 id="profile-summary-title" className="password-settings-page__panel-title">
               계정
@@ -204,6 +240,70 @@ export function UserProfilePage() {
               <dd>{getRoleLabel(member?.role)}</dd>
             </div>
           </dl>
+        </section>
+
+        <section aria-labelledby="font-settings-title">
+          <div className="password-settings-page__panel-header">
+            <h2 id="font-settings-title" className="password-settings-page__panel-title">
+              폰트 설정
+            </h2>
+          </div>
+
+          <fieldset className="password-settings-page__font-fieldset">
+            <legend className="sr-only">전역 폰트 선택</legend>
+            <div className="password-settings-page__font-options">
+              {FONT_OPTIONS.map((option) => (
+                <label key={option.value} className="password-settings-page__font-option">
+                  <input
+                    className="password-settings-page__font-radio"
+                    type="radio"
+                    name="fontPreference"
+                    value={option.value}
+                    checked={fontPreference === option.value}
+                    onChange={() => setFontPreference(option.value)}
+                  />
+                  <span className="password-settings-page__font-option-copy">
+                    <span className="password-settings-page__font-option-label">
+                      {option.label}
+                      {option.value === 'pretendard' ? ' (기본값)' : ''}
+                    </span>
+                  </span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+        </section>
+
+        <section aria-labelledby="theme-settings-title">
+          <div className="password-settings-page__panel-header">
+            <h2 id="theme-settings-title" className="password-settings-page__panel-title">
+              테마 설정
+            </h2>
+          </div>
+
+          <fieldset className="password-settings-page__setting-fieldset">
+            <legend className="sr-only">전역 테마 선택</legend>
+            <div className="password-settings-page__setting-options">
+              {THEME_OPTIONS.map((option) => (
+                <label key={option.value} className="password-settings-page__setting-option">
+                  <input
+                    className="password-settings-page__setting-radio"
+                    type="radio"
+                    name="themePreference"
+                    value={option.value}
+                    checked={themePreference === option.value}
+                    onChange={() => setThemePreference(option.value)}
+                  />
+                  <span className="password-settings-page__setting-option-copy">
+                    <span className="password-settings-page__setting-option-label">
+                      {option.label}
+                      {option.value === 'system' ? ' (기본값)' : ''}
+                    </span>
+                  </span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
         </section>
       </div>
 
