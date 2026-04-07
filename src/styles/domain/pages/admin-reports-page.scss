@@ -90,6 +90,12 @@
     text-transform: uppercase;
   }
 
+  .admin-reports-page__table thead th[aria-sort='ascending'],
+  .admin-reports-page__table thead th[aria-sort='descending'] {
+    background: color-mix(in oklab, var(--accent-soft) 22%, var(--surface-canvas-strong));
+    color: var(--text-primary);
+  }
+
   .admin-reports-page__empty-state {
     padding: var(--space-6) var(--space-4);
     color: var(--text-tertiary);
@@ -104,27 +110,6 @@
     margin-top: 3px;
     color: var(--text-tertiary);
     font-size: var(--text-meta-size);
-  }
-
-  .admin-reports-page__sort-button,
-  .admin-reports-page__sort-button--active {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    border: 0;
-    background: transparent;
-    padding: 0;
-    font: inherit;
-    font-weight: var(--text-table-weight);
-    color: inherit;
-  }
-
-  .admin-reports-page__sort-button--active {
-    color: var(--accent-strong);
-  }
-
-  .admin-reports-page__sort-arrow {
-    font-size: 12px;
   }
 
   .admin-reports-page__filter-form {
@@ -629,8 +614,6 @@
   .admin-reports-page__button--delete:focus-visible,
   .admin-reports-page__button--page:focus-visible,
   .admin-reports-page__table-link:focus-visible,
-  .admin-reports-page__sort-button:focus-visible,
-  .admin-reports-page__sort-button--active:focus-visible,
   .admin-reports-page__member-accordion-trigger:focus-visible,
   .admin-reports-page__member-checkbox input:focus-visible {
     outline: 2px solid var(--focus-ring-color);
@@ -643,8 +626,6 @@
   .admin-reports-page__button--action,
   .admin-reports-page__button--delete,
   .admin-reports-page__button--page,
-  .admin-reports-page__sort-button,
-  .admin-reports-page__sort-button--active,
   .admin-reports-page__member-accordion-trigger,
   .admin-reports-page__member-checkbox,
   .admin-reports-page__member-quick-action {

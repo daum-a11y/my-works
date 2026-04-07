@@ -1,7 +1,6 @@
-import { TableEmptyRow } from '../../../components/shared/TableEmptyRow';
+import { SortableTableHeaderButton, TableEmptyRow } from '../../../components/shared';
 import type { AdminTaskSearchItem, MemberAdminItem } from '../types';
 import type { SortState } from './AdminReportsPage.types';
-import { AdminReportsSortButton } from './AdminReportsSortButton';
 import { formatTimeCell } from './AdminReportsPage.utils';
 
 interface AdminReportsResultsTableProps {
@@ -23,103 +22,112 @@ export function AdminReportsResultsTable({
   onEdit,
   onDelete,
 }: AdminReportsResultsTableProps) {
+  const getAriaSort = (key: SortState['key']) => {
+    if (sortState.key !== key) {
+      return 'none';
+    }
+
+    return sortState.direction === 'asc' ? 'ascending' : 'descending';
+  };
+
   return (
     <div className={'admin-reports-page__panel'}>
       <div className={'admin-reports-page__table-wrap'}>
         <table className={'admin-reports-page__table'}>
+          <caption className={'sr-only'}>업무보고 조회 결과 테이블</caption>
           <thead>
             <tr>
-              <th>
-                <AdminReportsSortButton
+              <th scope="col" aria-sort={getAriaSort('taskDate')}>
+                <SortableTableHeaderButton
                   label="일자"
                   sortKey="taskDate"
                   sortState={sortState}
                   onChange={onSortChange}
                 />
               </th>
-              <th>
-                <AdminReportsSortButton
+              <th scope="col" aria-sort={getAriaSort('member')}>
+                <SortableTableHeaderButton
                   label="ID"
                   sortKey="member"
                   sortState={sortState}
                   onChange={onSortChange}
                 />
               </th>
-              <th>
-                <AdminReportsSortButton
+              <th scope="col" aria-sort={getAriaSort('costGroup')}>
+                <SortableTableHeaderButton
                   label="청구그룹"
                   sortKey="costGroup"
                   sortState={sortState}
                   onChange={onSortChange}
                 />
               </th>
-              <th>
-                <AdminReportsSortButton
+              <th scope="col" aria-sort={getAriaSort('taskType1')}>
+                <SortableTableHeaderButton
                   label="type 1"
                   sortKey="taskType1"
                   sortState={sortState}
                   onChange={onSortChange}
                 />
               </th>
-              <th>
-                <AdminReportsSortButton
+              <th scope="col" aria-sort={getAriaSort('taskType2')}>
+                <SortableTableHeaderButton
                   label="type 2"
                   sortKey="taskType2"
                   sortState={sortState}
                   onChange={onSortChange}
                 />
               </th>
-              <th>
-                <AdminReportsSortButton
+              <th scope="col" aria-sort={getAriaSort('platform')}>
+                <SortableTableHeaderButton
                   label="플랫폼"
                   sortKey="platform"
                   sortState={sortState}
                   onChange={onSortChange}
                 />
               </th>
-              <th>
-                <AdminReportsSortButton
+              <th scope="col" aria-sort={getAriaSort('serviceGroup')}>
+                <SortableTableHeaderButton
                   label="서비스그룹"
                   sortKey="serviceGroup"
                   sortState={sortState}
                   onChange={onSortChange}
                 />
               </th>
-              <th>
-                <AdminReportsSortButton
+              <th scope="col" aria-sort={getAriaSort('serviceName')}>
+                <SortableTableHeaderButton
                   label="서비스명"
                   sortKey="serviceName"
                   sortState={sortState}
                   onChange={onSortChange}
                 />
               </th>
-              <th>
-                <AdminReportsSortButton
+              <th scope="col" aria-sort={getAriaSort('projectName')}>
+                <SortableTableHeaderButton
                   label="프로젝트명"
                   sortKey="projectName"
                   sortState={sortState}
                   onChange={onSortChange}
                 />
               </th>
-              <th>
-                <AdminReportsSortButton
+              <th scope="col" aria-sort={getAriaSort('pageTitle')}>
+                <SortableTableHeaderButton
                   label="페이지명"
                   sortKey="pageTitle"
                   sortState={sortState}
                   onChange={onSortChange}
                 />
               </th>
-              <th>링크</th>
-              <th>
-                <AdminReportsSortButton
+              <th scope="col">링크</th>
+              <th scope="col" aria-sort={getAriaSort('taskUsedtime')}>
+                <SortableTableHeaderButton
                   label="시간"
                   sortKey="taskUsedtime"
                   sortState={sortState}
                   onChange={onSortChange}
                 />
               </th>
-              <th>비고</th>
-              <th>관리</th>
+              <th scope="col">비고</th>
+              <th scope="col">관리</th>
             </tr>
           </thead>
           <tbody>

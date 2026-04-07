@@ -6,4 +6,5 @@ export * from './PagePager';
 export * from './PageResultBar';
 export * from './PageSection';
 export * from './PageSizeField';
+export * from './SortableTableHeaderButton';
 export * from './TableEmptyRow';
