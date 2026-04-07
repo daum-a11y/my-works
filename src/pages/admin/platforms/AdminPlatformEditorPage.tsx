@@ -1,7 +1,9 @@
 import { type FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { adminDataClient } from '../../../api/admin';
+import { AdminPlatformEditorActionRow } from './AdminPlatformEditorActionRow';
+import { AdminPlatformEditorForm } from './AdminPlatformEditorForm';
 import type { AdminPlatformItem, AdminPlatformPayload } from '../types';
 import '../../../styles/domain/pages/projects-feature.scss';
 
@@ -135,67 +137,22 @@ export function AdminPlatformEditorPage() {
           className="projects-feature__detail-form projects-feature__editor-detail-form"
           onSubmit={handleSubmit}
         >
-          <div className={'projects-feature__editor-form-grid'}>
-            <label className={'projects-feature__field'}>
-              <span>플랫폼명</span>
-              <input
-                ref={titleRef}
-                value={draft.name}
-                onChange={(event) =>
-                  setDraft((current) => ({ ...current, name: event.target.value }))
-                }
-              />
-            </label>
-            <label className={'projects-feature__field'}>
-              <span>노출여부</span>
-              <select
-                value={draft.isVisible ? '1' : '0'}
-                onChange={(event) =>
-                  setDraft((current) => ({ ...current, isVisible: event.target.value === '1' }))
-                }
-              >
-                <option value="1">노출</option>
-                <option value="0">미노출</option>
-              </select>
-            </label>
-          </div>
-          <div className="projects-feature__form-actions projects-feature__editor-form-actions">
-            <div
-              className={
-                'projects-feature__editor-form-actions projects-feature__editor-form-actions--start'
-              }
-            >
-              {isEditMode ? (
-                <button
-                  type="button"
-                  className={'projects-feature__delete-button'}
-                  onClick={() => void handleDelete()}
-                  disabled={deleteMutation.isPending}
-                >
-                  삭제
-                </button>
-              ) : null}
-            </div>
-            <div
-              className={
-                'projects-feature__editor-form-actions projects-feature__editor-form-actions--end'
-              }
-            >
-              <Link
-                to="/admin/platform"
-                className={'projects-feature__button projects-feature__button--secondary'}
-              >
-                취소
-              </Link>
-              <button
-                type="submit"
-                className={'projects-feature__button projects-feature__button--primary'}
-                disabled={saveMutation.isPending}
-              >
-                저장
-              </button>
-            </div>
-          </div>
+          <AdminPlatformEditorForm
+            draft={draft}
+            titleRef={titleRef}
+            onDraftChange={(patch) =>
+              setDraft((current) => ({
+                ...current,
+                ...patch,
+              }))
+            }
+          />
+          <AdminPlatformEditorActionRow
+            isEditMode={isEditMode}
+            deletePending={deleteMutation.isPending}
+            savePending={saveMutation.isPending}
+            onDelete={() => void handleDelete()}
+          />
         </form>
       </section>
     </section>

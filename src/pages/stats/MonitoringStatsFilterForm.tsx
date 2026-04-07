@@ -1,0 +1,59 @@
+import type { FormEvent } from 'react';
+import { PageFilterBar } from '../../components/shared/PageFilterBar';
+import { PageFilterField } from '../../components/shared/PageFilterField';
+
+interface MonitoringStatsFilterFormProps {
+  draftStartMonth: string;
+  draftEndMonth: string;
+  onSubmit: (event: FormEvent<HTMLFormElement>) => void;
+  onReset: () => void;
+  onDraftStartMonthChange: (value: string) => void;
+  onDraftEndMonthChange: (value: string) => void;
+}
+
+export function MonitoringStatsFilterForm({
+  draftStartMonth,
+  draftEndMonth,
+  onSubmit,
+  onReset,
+  onDraftStartMonthChange,
+  onDraftEndMonthChange,
+}: MonitoringStatsFilterFormProps) {
+  return (
+    <form onSubmit={onSubmit}>
+      <PageFilterBar
+        actions={
+          <div className={'stats-page__filter-actions'}>
+            <button type="submit" className={'stats-page__filter-button'}>
+              검색
+            </button>
+            <button
+              type="button"
+              className={'stats-page__filter-button stats-page__filter-button--secondary'}
+              onClick={onReset}
+            >
+              초기화
+            </button>
+          </div>
+        }
+      >
+        <PageFilterField className={'stats-page__filter-field'} label="시작월">
+          <input
+            type="month"
+            aria-label="모니터링 시작월"
+            value={draftStartMonth}
+            onChange={(event) => onDraftStartMonthChange(event.target.value)}
+          />
+        </PageFilterField>
+        <PageFilterField className={'stats-page__filter-field'} label="종료월">
+          <input
+            type="month"
+            aria-label="모니터링 종료월"
+            value={draftEndMonth}
+            onChange={(event) => onDraftEndMonthChange(event.target.value)}
+          />
+        </PageFilterField>
+      </PageFilterBar>
+    </form>
+  );
+}

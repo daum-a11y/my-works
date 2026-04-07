@@ -6,8 +6,7 @@ import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../auth/AuthContext';
 import { isSupabaseConfigured } from '../../config/env';
 import { BrandLogo } from '../../components/layout/BrandLogo';
-import { Button } from '../../components/base/Button';
-import { InputField } from '../../components/base/Field';
+import { LoginForm } from './LoginForm';
 import '../../styles/domain/pages/login-page.scss';
 
 const loginSchema = z.object({
@@ -69,71 +68,27 @@ export function LoginPage() {
             로그인
           </p>
         </div>
-
-        <div className="login-page__form">
-          <form
-            className="login-page__form-shell"
-            onSubmit={handleSubmit(async (values) => {
-              try {
-                setErrorMessage('');
-                setNoticeMessage('');
-                await login(values.email, values.password);
-              } catch (error) {
-                setErrorMessage(error instanceof Error ? error.message : '로그인에 실패했습니다.');
-              }
-            })}
-          >
-            <InputField
-              label="이메일"
-              type="email"
-              autoComplete="username"
-              errorMessage={errors.email?.message}
-              disabled={!isSupabaseConfigured || isBusy}
-              {...register('email')}
-            />
-            <InputField
-              label="비밀번호"
-              type="password"
-              autoComplete="current-password"
-              errorMessage={errors.password?.message}
-              disabled={!isSupabaseConfigured || isBusy}
-              {...register('password')}
-            />
-            {noticeMessage ? (
-              <div
-                className="login-page__feedback login-page__feedback--success"
-                data-state="success"
-                role="status"
-              >
-                <strong className="login-page__feedback-title">비밀번호 변경 완료</strong>
-                <p>{noticeMessage}</p>
-              </div>
-            ) : null}
-            {errorMessage ? (
-              <div className="login-page__feedback login-page__feedback--danger" role="alert">
-                <strong className="login-page__feedback-title">로그인 확인 필요</strong>
-                <p>{errorMessage}</p>
-              </div>
-            ) : null}
-            <div className="login-page__actions">
-              <Button type="submit" isDisabled={!isSupabaseConfigured || isBusy}>
-                로그인
-              </Button>
-            </div>
-            <div className="login-page__recovery">
-              <button
-                type="button"
-                className="login-page__recovery-button"
-                disabled={!isSupabaseConfigured || isBusy}
-                onClick={() => {
-                  navigate('/forgot-password');
-                }}
-              >
-                비밀번호 찾기
-              </button>
-            </div>
-          </form>
-        </div>
+        <LoginForm
+          errorMessage={errorMessage}
+          noticeMessage={noticeMessage}
+          isBusy={isBusy}
+          isSupabaseConfigured={isSupabaseConfigured}
+          errors={errors}
+          register={register}
+          handleSubmit={handleSubmit}
+          onSubmit={async (values) => {
+            try {
+              setErrorMessage('');
+              setNoticeMessage('');
+              await login(values.email, values.password);
+            } catch (error) {
+              setErrorMessage(error instanceof Error ? error.message : '로그인에 실패했습니다.');
+            }
+          }}
+          onRecovery={() => {
+            navigate('/forgot-password');
+          }}
+        />
       </section>
       {!isSupabaseConfigured ? (
         <div className="login-page__feedback login-page__feedback--info" data-state="info">

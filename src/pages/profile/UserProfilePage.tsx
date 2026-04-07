@@ -1,10 +1,14 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { type FontPreference } from '../../preferences/FontPreferenceState';
-import { type ThemePreference } from '../../preferences/ThemePreferenceState';
 import { useFontPreference } from '../../hooks/useFontPreference';
 import { useThemePreference } from '../../hooks/useThemePreference';
 import { useAuth } from '../../auth/AuthContext';
+import {
+  UserProfileAccountSection,
+  UserProfileFontSection,
+  UserProfileThemeSection,
+} from './UserProfileSections';
+import { UserProfilePasswordModal } from './UserProfilePasswordModal';
 import '../../styles/domain/pages/password-settings-page.scss';
 
 type PasswordDraft = {
@@ -18,36 +22,6 @@ type PasswordErrors = {
 };
 
 type PasswordStep = 'form' | 'confirm' | 'done';
-
-const FONT_OPTIONS: Array<{ value: FontPreference; label: string }> = [
-  {
-    value: 'pretendard',
-    label: 'Pretendard',
-  },
-  {
-    value: 'ongothic',
-    label: 'KoddiUD OnGothic',
-  },
-  {
-    value: 'system',
-    label: '시스템폰트',
-  },
-];
-
-const THEME_OPTIONS: Array<{ value: ThemePreference; label: string }> = [
-  {
-    value: 'system',
-    label: '시스템설정',
-  },
-  {
-    value: 'light',
-    label: '라이트모드',
-  },
-  {
-    value: 'dark',
-    label: '다크모드',
-  },
-];
 
 function getRoleLabel(role?: string) {
   return role === 'admin' ? '관리자' : '구성원';
@@ -202,253 +176,54 @@ export function UserProfilePage() {
       </header>
 
       <div className="password-settings-page__workspace">
-        <section aria-labelledby="profile-summary-title">
-          <div className="password-settings-page__panel-header">
-            <h2 id="profile-summary-title" className="password-settings-page__panel-title">
-              계정
-            </h2>
-            {!editing ? (
-              <button
-                ref={editButtonRef}
-                type="button"
-                className="password-settings-page__button password-settings-page__button--primary"
-                onClick={handleEdit}
-              >
-                비밀번호 변경
-              </button>
-            ) : null}
-          </div>
+        <UserProfileAccountSection
+          accountId={member?.accountId}
+          name={member?.name}
+          email={member?.email}
+          roleLabel={getRoleLabel(member?.role)}
+          editing={editing}
+          editButtonRef={editButtonRef}
+          onEdit={handleEdit}
+        />
 
-          <dl className="password-settings-page__profile-list">
-            <div className="password-settings-page__profile-row">
-              <dt>ID</dt>
-              <dd>{member?.accountId ?? '-'}</dd>
-            </div>
-            <div className="password-settings-page__profile-row">
-              <dt>이름</dt>
-              <dd>{member?.name ?? '-'}</dd>
-            </div>
-            <div className="password-settings-page__profile-row">
-              <dt>이메일</dt>
-              <dd>{member?.email ?? '-'}</dd>
-            </div>
-            <div className="password-settings-page__profile-row">
-              <dt>권한</dt>
-              <dd>{getRoleLabel(member?.role)}</dd>
-            </div>
-          </dl>
-        </section>
+        <UserProfileFontSection
+          fontPreference={fontPreference}
+          onFontPreferenceChange={setFontPreference}
+        />
 
-        <section aria-labelledby="font-settings-title">
-          <div className="password-settings-page__panel-header">
-            <h2 id="font-settings-title" className="password-settings-page__panel-title">
-              폰트 설정
-            </h2>
-          </div>
-
-          <fieldset className="password-settings-page__font-fieldset">
-            <legend className="sr-only">전역 폰트 선택</legend>
-            <div className="password-settings-page__font-options">
-              {FONT_OPTIONS.map((option) => (
-                <label key={option.value} className="password-settings-page__font-option">
-                  <input
-                    className="password-settings-page__font-radio"
-                    type="radio"
-                    name="fontPreference"
-                    value={option.value}
-                    checked={fontPreference === option.value}
-                    onChange={() => setFontPreference(option.value)}
-                  />
-                  <span className="password-settings-page__font-option-copy">
-                    <span className="password-settings-page__font-option-label">
-                      {option.label}
-                      {option.value === 'pretendard' ? ' (기본값)' : ''}
-                    </span>
-                  </span>
-                </label>
-              ))}
-            </div>
-          </fieldset>
-        </section>
-
-        <section aria-labelledby="theme-settings-title">
-          <div className="password-settings-page__panel-header">
-            <h2 id="theme-settings-title" className="password-settings-page__panel-title">
-              테마 설정
-            </h2>
-          </div>
-
-          <fieldset className="password-settings-page__setting-fieldset">
-            <legend className="sr-only">전역 테마 선택</legend>
-            <div className="password-settings-page__setting-options">
-              {THEME_OPTIONS.map((option) => (
-                <label key={option.value} className="password-settings-page__setting-option">
-                  <input
-                    className="password-settings-page__setting-radio"
-                    type="radio"
-                    name="themePreference"
-                    value={option.value}
-                    checked={themePreference === option.value}
-                    onChange={() => setThemePreference(option.value)}
-                  />
-                  <span className="password-settings-page__setting-option-copy">
-                    <span className="password-settings-page__setting-option-label">
-                      {option.label}
-                      {option.value === 'system' ? ' (기본값)' : ''}
-                    </span>
-                  </span>
-                </label>
-              ))}
-            </div>
-          </fieldset>
-        </section>
+        <UserProfileThemeSection
+          themePreference={themePreference}
+          onThemePreferenceChange={setThemePreference}
+        />
       </div>
 
-      {editing ? (
-        <div
-          className="password-settings-page__modal-scrim"
-          onClick={step === 'form' && !isSubmitting ? handleCancel : undefined}
-        >
-          <section
-            className="password-settings-page__modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="password-change-title"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <div className="password-settings-page__panel-header">
-              <h2 id="password-change-title" className="password-settings-page__panel-title">
-                비밀번호 변경
-              </h2>
-            </div>
-
-            {step === 'form' ? (
-              <form
-                className="password-settings-page__form"
-                onSubmit={(event) => {
-                  event.preventDefault();
-                  void handleChange();
-                }}
-              >
-                <label className="password-settings-page__field">
-                  <span className="password-settings-page__label">새 비밀번호</span>
-                  <input
-                    ref={nextInputRef}
-                    className="password-settings-page__input"
-                    type="password"
-                    autoComplete="new-password"
-                    aria-label="새 비밀번호"
-                    aria-invalid={errors.next ? 'true' : 'false'}
-                    aria-describedby={errors.next ? nextHintId : undefined}
-                    value={draft.next}
-                    onChange={(event) => {
-                      setSubmitError('');
-                      setDraft((current) => ({ ...current, next: event.target.value }));
-                    }}
-                  />
-                  <span
-                    id={nextHintId}
-                    className="password-settings-page__field-message"
-                    data-state={errors.next ? 'danger' : 'empty'}
-                  >
-                    {errors.next || ' '}
-                  </span>
-                </label>
-
-                <label className="password-settings-page__field">
-                  <span className="password-settings-page__label">새 비밀번호 확인</span>
-                  <input
-                    className="password-settings-page__input"
-                    type="password"
-                    autoComplete="new-password"
-                    aria-label="새 비밀번호 확인"
-                    aria-invalid={errors.confirm ? 'true' : 'false'}
-                    aria-describedby={errors.confirm ? confirmHintId : undefined}
-                    value={draft.confirm}
-                    onChange={(event) => {
-                      setSubmitError('');
-                      setDraft((current) => ({ ...current, confirm: event.target.value }));
-                    }}
-                  />
-                  <span
-                    id={confirmHintId}
-                    className="password-settings-page__field-message"
-                    data-state={errors.confirm ? 'danger' : 'empty'}
-                  >
-                    {errors.confirm || ' '}
-                  </span>
-                </label>
-
-                <div className="password-settings-page__form-footer">
-                  <div className="password-settings-page__message" aria-live="polite">
-                    {submitError ? <p data-state="danger">{submitError}</p> : null}
-                  </div>
-                  <div className="password-settings-page__actions">
-                    <button
-                      type="submit"
-                      className="password-settings-page__button password-settings-page__button--primary"
-                      disabled={!canSubmit}
-                    >
-                      변경
-                    </button>
-                    <button
-                      type="button"
-                      className="password-settings-page__button password-settings-page__button--secondary"
-                      onClick={handleCancel}
-                      disabled={isSubmitting}
-                    >
-                      취소
-                    </button>
-                  </div>
-                </div>
-              </form>
-            ) : step === 'confirm' ? (
-              <div className="password-settings-page__state-group password-settings-page__state-group--confirm">
-                <div className="password-settings-page__state-block" data-state="confirm">
-                  <p className="password-settings-page__message-heading">
-                    비밀번호를 정말 변경하시겠습니까? 되돌릴 수 없습니다.
-                  </p>
-                </div>
-                <div className="password-settings-page__actions">
-                  <button
-                    type="button"
-                    className="password-settings-page__button password-settings-page__button--primary"
-                    onClick={() => void handleConfirmChange()}
-                    disabled={isSubmitting}
-                  >
-                    변경
-                  </button>
-                  <button
-                    type="button"
-                    className="password-settings-page__button password-settings-page__button--secondary"
-                    onClick={() => setStep('form')}
-                    disabled={isSubmitting}
-                  >
-                    취소
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div className="password-settings-page__state-group password-settings-page__state-group--done">
-                <div className="password-settings-page__state-block" data-state="done">
-                  <p className="password-settings-page__message-heading">
-                    비밀번호가 변경되었습니다.
-                  </p>
-                </div>
-                <div className="password-settings-page__actions">
-                  <button
-                    type="button"
-                    className="password-settings-page__button password-settings-page__button--primary"
-                    onClick={() => void handleMoveToLogin()}
-                  >
-                    로그인
-                  </button>
-                </div>
-              </div>
-            )}
-          </section>
-        </div>
-      ) : null}
+      <UserProfilePasswordModal
+        editing={editing}
+        step={step}
+        draft={draft}
+        errors={errors}
+        submitError={submitError}
+        isSubmitting={isSubmitting}
+        canSubmit={canSubmit}
+        nextInputRef={nextInputRef}
+        nextHintId={nextHintId}
+        confirmHintId={confirmHintId}
+        onDraftChange={(patch) => {
+          setSubmitError('');
+          setDraft((current) => ({ ...current, ...patch }));
+        }}
+        onSubmit={() => {
+          void handleChange();
+        }}
+        onCancel={handleCancel}
+        onConfirm={() => {
+          void handleConfirmChange();
+        }}
+        onBackToForm={() => setStep('form')}
+        onMoveToLogin={() => {
+          void handleMoveToLogin();
+        }}
+      />
     </section>
   );
 }

@@ -1,157 +1,37 @@
 import { useEffect, useMemo, useState, type FormEvent, type KeyboardEvent } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import type {
-  CostGroup,
-  Platform,
-  Project,
-  ProjectPage,
-  ServiceGroup,
-  TaskType,
-} from '../../../types/domain';
+import type { Project } from '../../../types/domain';
 import {
   buildProjectViewModels,
   buildSelectableTaskType1Options,
   buildTaskType2OptionsForValue,
   createEmptyReportDraft,
-  getTodayInputValue,
   parseReportTaskUsedtimeInput,
-  shiftDateInput,
   validateTaskTypeSelection,
   type ReportDraft,
 } from '../../reports/reportUtils';
 import { getTaskTypeUiRule } from '../../../utils/taskType';
 import { adminDataClient } from '../../../api/admin';
-import type { AdminTaskSearchItem, MemberAdminItem } from '../types';
+import {
+  ADMIN_REPORT_EDITOR_CREATE_TITLE,
+  ADMIN_REPORT_EDITOR_DEFAULT_TAB,
+  ADMIN_REPORT_EDITOR_EDIT_TITLE,
+} from './AdminReportEditorPage.constants';
+import type { AdminReportEditorTab } from './AdminReportEditorPage.types';
+import {
+  createDraftFromTask,
+  formatCompactDate,
+  parseCompactDate,
+  toCostGroups,
+  toPages,
+  toPlatforms,
+  toProjects,
+  toServiceGroups,
+  toTaskTypes,
+} from './AdminReportEditorPage.utils';
+import { AdminReportEditorForm } from './AdminReportEditorForm';
 import '../../../styles/domain/pages/reports-page.scss';
-
-function formatCompactDate(value: string, mode: 'short' | 'long') {
-  if (!value) {
-    return '';
-  }
-
-  const digits = value.replaceAll('-', '');
-  if (digits.length !== 8) {
-    return value;
-  }
-
-  return mode === 'short' ? digits.slice(2) : digits;
-}
-
-function parseCompactDate(value: string, mode: 'short' | 'long') {
-  const digits = value.replace(/\D/g, '');
-
-  if (mode === 'short' && digits.length === 6) {
-    return `20${digits.slice(0, 2)}-${digits.slice(2, 4)}-${digits.slice(4, 6)}`;
-  }
-
-  if (mode === 'long' && digits.length === 8) {
-    return `${digits.slice(0, 4)}-${digits.slice(4, 6)}-${digits.slice(6, 8)}`;
-  }
-
-  return value;
-}
-
-function toTaskTypes(items: Awaited<ReturnType<typeof adminDataClient.listTaskTypes>>): TaskType[] {
-  return items.map((item) => ({
-    id: item.id,
-    type1: item.type1,
-    type2: item.type2,
-    label: item.displayLabel,
-    displayOrder: item.displayOrder,
-    requiresServiceGroup: item.requiresServiceGroup,
-    isActive: item.isActive,
-  }));
-}
-
-function toServiceGroups(
-  items: Awaited<ReturnType<typeof adminDataClient.listServiceGroups>>,
-): ServiceGroup[] {
-  return items.map((item) => ({
-    id: item.id,
-    name: item.name,
-    costGroupId: item.costGroupId,
-    costGroupName: item.costGroupName,
-    displayOrder: item.displayOrder,
-    isActive: item.isActive,
-  }));
-}
-
-function toProjects(items: Awaited<ReturnType<typeof adminDataClient.listProjects>>): Project[] {
-  return items.map((item) => ({
-    id: item.id,
-    createdByMemberId: null,
-    projectType1: item.projectType1,
-    name: item.name,
-    platformId: item.platformId,
-    platform: item.platform,
-    serviceGroupId: item.serviceGroupId,
-    reportUrl: item.reportUrl,
-    reporterMemberId: null,
-    reviewerMemberId: null,
-    startDate: '',
-    endDate: '',
-    isActive: item.isActive,
-  }));
-}
-
-function toCostGroups(
-  items: Awaited<ReturnType<typeof adminDataClient.listCostGroups>>,
-): CostGroup[] {
-  return items.map((item) => ({
-    id: item.id,
-    name: item.name,
-    displayOrder: item.displayOrder,
-    isActive: item.isActive,
-  }));
-}
-
-function toPlatforms(items: Awaited<ReturnType<typeof adminDataClient.listPlatforms>>): Platform[] {
-  return items.map((item) => ({
-    id: item.id,
-    name: item.name,
-    displayOrder: item.displayOrder,
-    isVisible: item.isVisible,
-  }));
-}
-
-function toPages(
-  items: Awaited<ReturnType<typeof adminDataClient.listProjectPages>>,
-): ProjectPage[] {
-  return items.map((item) => ({
-    id: item.id,
-    projectId: item.projectId,
-    title: item.title,
-    url: item.url,
-    ownerMemberId: null,
-    monitoringMonth: '',
-    trackStatus: item.trackStatus as ProjectPage['trackStatus'],
-    monitoringInProgress: item.monitoringInProgress,
-    qaInProgress: item.qaInProgress,
-    note: '',
-    updatedAt: '',
-  }));
-}
-
-function createDraftFromTask(task: AdminTaskSearchItem): ReportDraft {
-  return {
-    reportDate: task.taskDate,
-    costGroupId: task.costGroupId,
-    costGroupName: task.costGroupName,
-    projectId: task.projectId ?? '',
-    pageId: task.pageId ?? '',
-    type1: task.taskType1,
-    type2: task.taskType2,
-    platform: task.platform || '',
-    serviceGroupName: task.serviceGroupName || '',
-    serviceName: task.serviceName || '',
-    manualPageName: task.pageTitle || '',
-    pageUrl: task.pageUrl || '',
-    taskUsedtime: String(task.taskUsedtime ?? 0),
-    content: task.content || '',
-    note: task.note || '',
-  };
-}
 
 export function AdminReportEditorPage() {
   const navigate = useNavigate();
@@ -162,7 +42,7 @@ export function AdminReportEditorPage() {
   const isEdit = Boolean(taskId);
   const locationState = (location.state as { memberId?: string } | null) ?? null;
 
-  const [activeTab, setActiveTab] = useState<'report' | 'period'>('report');
+  const [activeTab, setActiveTab] = useState<AdminReportEditorTab>(ADMIN_REPORT_EDITOR_DEFAULT_TAB);
   const [selectedMemberId, setSelectedMemberId] = useState(locationState?.memberId ?? '');
   const [draft, setDraft] = useState<ReportDraft>(() => createEmptyReportDraft());
   const [projectQuery, setProjectQuery] = useState('');
@@ -586,366 +466,71 @@ export function AdminReportEditorPage() {
     <section className={'reports-page reports-page--page'}>
       <header className={'reports-page__hero'}>
         <div className={'reports-page__hero-main'}>
-          <h1 className={'reports-page__title'}>{isEdit ? '업무 임의수정' : '업무 임의 추가'}</h1>
+          <h1 className={'reports-page__title'}>
+            {isEdit ? ADMIN_REPORT_EDITOR_EDIT_TITLE : ADMIN_REPORT_EDITOR_CREATE_TITLE}
+          </h1>
         </div>
       </header>
 
-      <section className={'reports-page__panel'}>
-        <div className={'reports-page__panel-head'}>
-          <div>
-            <h2 className={'reports-page__panel-title'}>업무 입력</h2>
-            <p className={'reports-page__date-text'}>{draft.reportDate || getTodayInputValue()}</p>
-          </div>
-          <div className={'reports-page__tab-row'}>
-            <button
-              type="button"
-              className={[
-                'reports-page__tab-button',
-                activeTab === 'report' ? 'reports-page__tab-button--active' : '',
-              ]
-                .filter(Boolean)
-                .join(' ')}
-              onClick={() => setActiveTab('report')}
-            >
-              기본 입력
-            </button>
-            <button
-              type="button"
-              className={[
-                'reports-page__tab-button',
-                activeTab === 'period' ? 'reports-page__tab-button--active' : '',
-              ]
-                .filter(Boolean)
-                .join(' ')}
-              onClick={() => setActiveTab('period')}
-            >
-              TYPE 입력
-            </button>
-          </div>
-        </div>
-
-        {queryError ? <p className={'reports-page__status-message'}>{queryError}</p> : null}
-        {statusMessage ? <p className={'reports-page__status-message'}>{statusMessage}</p> : null}
-
-        {loading ? (
-          <p className={'reports-page__status-message'}>불러오는 중입니다...</p>
-        ) : isEdit && !taskQuery.data ? (
-          <p className={'reports-page__status-message'}>수정할 업무를 찾을 수 없습니다.</p>
-        ) : (
-          <form className={'reports-page__form'} onSubmit={onSubmit}>
-            <div className={'reports-page__form-grid'}>
-              <label className={'reports-page__field'}>
-                <span>사용자</span>
-                <select
-                  value={selectedMemberId}
-                  onChange={(event) => setSelectedMemberId(event.target.value)}
-                  disabled={isEdit}
-                >
-                  <option value="">{members.length ? '선택하세요' : '사용자가 없습니다.'}</option>
-                  {members.map((member: MemberAdminItem) => (
-                    <option key={member.id} value={member.id}>
-                      {member.accountId} ({member.name})
-                    </option>
-                  ))}
-                </select>
-              </label>
-
-              <label className={'reports-page__field'}>
-                <span>일자</span>
-                <input
-                  type="text"
-                  placeholder="YYMMDD"
-                  value={formatCompactDate(draft.reportDate, 'short')}
-                  onChange={(event) =>
-                    setDraftField('reportDate', parseCompactDate(event.target.value, 'short'))
-                  }
-                />
-              </label>
-            </div>
-
-            {activeTab === 'report' ? (
-              <div className={'reports-page__form-grid'}>
-                <label className={'reports-page__field'}>
-                  <span>청구그룹</span>
-                  <select
-                    value={draft.costGroupId}
-                    onChange={(event) => setDraftField('costGroupId', event.target.value)}
-                  >
-                    <option value="">
-                      {costGroups.length ? '선택하세요' : '청구그룹이 없습니다.'}
-                    </option>
-                    {costGroups.map((group) => (
-                      <option key={group.id} value={group.id}>
-                        {group.name}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-
-                <label className={'reports-page__field'}>
-                  <span>프로젝트검색</span>
-                  <input
-                    value={projectQuery}
-                    onChange={(event) => setProjectQuery(event.target.value)}
-                    onKeyDown={handleProjectSearchKeyDown}
-                    placeholder="검색어입력"
-                  />
-                </label>
-
-                <div className={'reports-page__search-button-field'}>
-                  <span className={'sr-only'}>프로젝트 검색</span>
-                  <button
-                    type="button"
-                    className={'reports-page__button reports-page__button--secondary'}
-                    onClick={() => setAppliedProjectQuery(projectQuery)}
-                  >
-                    검색
-                  </button>
-                </div>
-
-                <label className={'reports-page__field'}>
-                  <span>프로젝트</span>
-                  <select
-                    value={draft.projectId}
-                    onChange={(event) => setDraftField('projectId', event.target.value)}
-                    disabled={!draft.costGroupId}
-                  >
-                    <option value="">{projectSearchPlaceholder}</option>
-                    {filteredProjectOptions.map((project) => (
-                      <option key={project.id} value={project.id}>
-                        {`${project.project.projectType1} - ${project.project.platform} - ${project.project.name}`}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              </div>
-            ) : null}
-
-            <div className={'reports-page__form-grid'}>
-              {projectTypeSelected ? (
-                <label className={'reports-page__field'}>
-                  <span>타입1</span>
-                  <input value={type1Value} readOnly />
-                </label>
-              ) : (
-                <label className={'reports-page__field'}>
-                  <span>타입1</span>
-                  <select
-                    value={draft.type1}
-                    onChange={(event) => setDraftField('type1', event.target.value)}
-                  >
-                    <option value="">{isProjectLinkedTab ? '선택해주세요' : 'type1'}</option>
-                    {(isProjectLinkedTab ? reportTabType1Options : type1Options).map((option) => (
-                      <option key={option} value={option}>
-                        {option}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              )}
-
-              <label className={'reports-page__field'}>
-                <span>타입2</span>
-                <select
-                  value={draft.type2}
-                  onChange={(event) => handleType2Change(event.target.value)}
-                >
-                  {type2Placeholder ? <option value="">{type2Placeholder}</option> : null}
-                  {type2Options.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </select>
-              </label>
-
-              {showPlatformSelect ? (
-                <label className={'reports-page__field'}>
-                  <span>플랫폼</span>
-                  <select
-                    value={draft.platform}
-                    onChange={(event) => setDraftField('platform', event.target.value)}
-                  >
-                    <option value="">선택하세요</option>
-                    {platforms
-                      .filter((platform) => platform.isVisible || platform.name === draft.platform)
-                      .map((platform) => (
-                        <option key={platform.id} value={platform.name}>
-                          {platform.name}
-                        </option>
-                      ))}
-                  </select>
-                </label>
-              ) : null}
-
-              {showReadonlyService ? (
-                <>
-                  <label className={'reports-page__field'}>
-                    <span>청구그룹</span>
-                    <input value={draft.costGroupName} readOnly />
-                  </label>
-                  <label className={'reports-page__field'}>
-                    <span>서비스 그룹</span>
-                    <input value={draft.serviceGroupName} readOnly />
-                  </label>
-                  <label className={'reports-page__field'}>
-                    <span>서비스 명</span>
-                    <input value={draft.serviceName} readOnly />
-                  </label>
-                </>
-              ) : null}
-
-              {showProjectSelect && !isProjectLinkedTab ? (
-                <label className={'reports-page__field'}>
-                  <span>프로젝트</span>
-                  <select
-                    value={draft.projectId}
-                    onChange={(event) => setDraftField('projectId', event.target.value)}
-                    disabled={!draft.costGroupId}
-                  >
-                    <option value="">
-                      {typeFilteredProjects.length ? '선택하세요' : '프로젝트가 존재하지 않습니다.'}
-                    </option>
-                    {typeFilteredProjects.map((project) => (
-                      <option key={project.id} value={project.id}>
-                        {project.project.name}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              ) : null}
-
-              {showPageSelect ? (
-                <label className={'reports-page__field'}>
-                  <span>{isProjectLinkedTab ? '페이지명' : '프로젝트 페이지'}</span>
-                  <select
-                    value={draft.pageId}
-                    onChange={(event) => setDraftField('pageId', event.target.value)}
-                  >
-                    <option value="">
-                      {draftPages.length ? '선택하세요' : '페이지가 존재하지 않습니다.'}
-                    </option>
-                    {draftPages.map((page) => (
-                      <option key={page.id} value={page.id}>
-                        {page.title}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              ) : null}
-
-              {showManualPageName ? (
-                <label className={'reports-page__field'}>
-                  <span>{manualPageLabel}</span>
-                  {isVacationType ? (
-                    <select
-                      value={draft.manualPageName}
-                      onChange={(event) => handleVacationTypeChange(event.target.value)}
-                    >
-                      <option value="">선택하세요</option>
-                      <option value="오전 반차">오전 반차</option>
-                      <option value="오후 반차">오후 반차</option>
-                      <option value="전일 휴가">전일 휴가</option>
-                    </select>
-                  ) : (
-                    <input
-                      value={draft.manualPageName}
-                      onChange={(event) => setDraftField('manualPageName', event.target.value)}
-                      placeholder={manualPageLabel}
-                    />
-                  )}
-                </label>
-              ) : null}
-
-              {showPageUrl ? (
-                <label className={'reports-page__field'}>
-                  <span>{showPageSelect ? '페이지 URL' : 'URL'}</span>
-                  <input
-                    value={draft.pageUrl}
-                    onChange={(event) => setDraftField('pageUrl', event.target.value)}
-                    readOnly={isProjectLinkedTab || usesProjectLookup}
-                  />
-                </label>
-              ) : null}
-
-              <label className={'reports-page__field'}>
-                <span>총시간</span>
-                <input
-                  type="number"
-                  min="0"
-                  step="1"
-                  value={draft.taskUsedtime}
-                  onChange={(event) => setDraftField('taskUsedtime', event.target.value)}
-                  readOnly={isReadonlyWorkHours}
-                />
-              </label>
-            </div>
-
-            <label className={'reports-page__field'}>
-              <span>비고</span>
-              <textarea
-                value={draft.note}
-                onChange={(event) => setDraftField('note', event.target.value)}
-                rows={2}
-              />
-            </label>
-
-            {isEdit && currentMember ? (
-              <p className={'reports-page__status-message'}>
-                사용자: {currentMember.accountId} ({currentMember.name})
-              </p>
-            ) : null}
-
-            <div className={'reports-page__action-row'}>
-              <button
-                type="submit"
-                className={'reports-page__button reports-page__button--primary'}
-                disabled={saveMutation.isPending}
-              >
-                저장
-              </button>
-              <button
-                type="button"
-                className={'reports-page__button reports-page__button--secondary'}
-                onClick={() => navigate('/org/search')}
-              >
-                취소
-              </button>
-              <button
-                type="button"
-                className={'reports-page__button reports-page__button--secondary'}
-                onClick={() =>
-                  setDraftField(
-                    'reportDate',
-                    shiftDateInput(draft.reportDate || getTodayInputValue(), -1),
-                  )
-                }
-              >
-                이전일
-              </button>
-              <button
-                type="button"
-                className={'reports-page__button reports-page__button--secondary'}
-                onClick={() => setDraftField('reportDate', getTodayInputValue())}
-              >
-                오늘
-              </button>
-              <button
-                type="button"
-                className={'reports-page__button reports-page__button--secondary'}
-                onClick={() =>
-                  setDraftField(
-                    'reportDate',
-                    shiftDateInput(draft.reportDate || getTodayInputValue(), 1),
-                  )
-                }
-              >
-                다음일
-              </button>
-            </div>
-          </form>
-        )}
-      </section>
+      <AdminReportEditorForm
+        isEdit={isEdit}
+        activeTab={activeTab}
+        draft={draft}
+        members={members}
+        selectedMemberId={selectedMemberId}
+        loading={loading}
+        queryError={queryError}
+        statusMessage={statusMessage}
+        missingEditTarget={Boolean(isEdit && !taskQuery.data)}
+        currentMember={currentMember}
+        costGroups={costGroups}
+        filteredProjectOptions={filteredProjectOptions}
+        platforms={platforms}
+        draftPages={draftPages}
+        projectQuery={projectQuery}
+        projectSearchPlaceholder={projectSearchPlaceholder}
+        isProjectLinkedTab={isProjectLinkedTab}
+        projectTypeSelected={projectTypeSelected}
+        type1Value={type1Value}
+        reportTabType1Options={reportTabType1Options}
+        type1Options={type1Options}
+        type2Options={type2Options}
+        type2Placeholder={type2Placeholder}
+        showPlatformSelect={showPlatformSelect}
+        showReadonlyService={showReadonlyService}
+        showProjectSelect={showProjectSelect}
+        typeFilteredProjects={typeFilteredProjects}
+        showPageSelect={showPageSelect}
+        showManualPageName={showManualPageName}
+        manualPageLabel={manualPageLabel}
+        isVacationType={isVacationType}
+        showPageUrl={showPageUrl}
+        usesProjectLookup={usesProjectLookup}
+        isReadonlyWorkHours={isReadonlyWorkHours}
+        savePending={saveMutation.isPending}
+        onSubmit={onSubmit}
+        onTabChange={setActiveTab}
+        onMemberChange={setSelectedMemberId}
+        onReportDateChange={(value) => setDraftField('reportDate', value)}
+        onCostGroupChange={(value) => setDraftField('costGroupId', value)}
+        onProjectQueryChange={setProjectQuery}
+        onProjectSearch={() => setAppliedProjectQuery(projectQuery)}
+        onProjectSearchKeyDown={handleProjectSearchKeyDown}
+        onProjectChange={(value) => setDraftField('projectId', value)}
+        onType1Change={(value) => setDraftField('type1', value)}
+        onType2Change={handleType2Change}
+        onPlatformChange={(value) => setDraftField('platform', value)}
+        onPageChange={(value) => setDraftField('pageId', value)}
+        onManualPageNameChange={(value) => setDraftField('manualPageName', value)}
+        onVacationTypeChange={handleVacationTypeChange}
+        onPageUrlChange={(value) => setDraftField('pageUrl', value)}
+        onTaskUsedtimeChange={(value) => setDraftField('taskUsedtime', value)}
+        onNoteChange={(value) => setDraftField('note', value)}
+        onCancel={() => navigate('/org/search')}
+        onDateShift={(nextDate) => setDraftField('reportDate', nextDate)}
+        formatCompactDate={formatCompactDate}
+        parseCompactDate={parseCompactDate}
+      />
     </section>
   );
 }

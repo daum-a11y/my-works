@@ -1,7 +1,9 @@
 import { type FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { adminDataClient } from '../../../api/admin';
+import { AdminCostGroupEditorActionRow } from './AdminCostGroupEditorActionRow';
+import { AdminCostGroupEditorForm } from './AdminCostGroupEditorForm';
 import type { AdminCostGroupItem, AdminCostGroupPayload } from '../types';
 import '../../../styles/domain/pages/projects-feature.scss';
 
@@ -158,69 +160,23 @@ export function AdminCostGroupEditorPage() {
           className="projects-feature__detail-form projects-feature__editor-detail-form"
           onSubmit={handleSubmit}
         >
-          <div className={'projects-feature__editor-form-grid'}>
-            <label className={'projects-feature__field'}>
-              <span>청구그룹명</span>
-              <input
-                ref={titleRef}
-                value={draft.name}
-                onChange={(event) =>
-                  setDraft((current) => ({ ...current, name: event.target.value }))
-                }
-              />
-            </label>
+          <AdminCostGroupEditorForm
+            draft={draft}
+            titleRef={titleRef}
+            onDraftChange={(patch) =>
+              setDraft((current) => ({
+                ...current,
+                ...patch,
+              }))
+            }
+          />
 
-            <label className={'projects-feature__field'}>
-              <span>노출여부</span>
-              <select
-                value={draft.isActive ? '1' : '0'}
-                onChange={(event) =>
-                  setDraft((current) => ({ ...current, isActive: event.target.value === '1' }))
-                }
-              >
-                <option value="1">노출</option>
-                <option value="0">숨김</option>
-              </select>
-            </label>
-          </div>
-
-          <div className="projects-feature__form-actions projects-feature__editor-form-actions">
-            <div
-              className={
-                'projects-feature__editor-form-actions projects-feature__editor-form-actions--start'
-              }
-            >
-              {isEditMode ? (
-                <button
-                  type="button"
-                  className={'projects-feature__delete-button'}
-                  onClick={() => void handleDelete()}
-                  disabled={deleteMutation.isPending}
-                >
-                  삭제
-                </button>
-              ) : null}
-            </div>
-            <div
-              className={
-                'projects-feature__editor-form-actions projects-feature__editor-form-actions--end'
-              }
-            >
-              <Link
-                to="/admin/cost-group"
-                className={'projects-feature__button projects-feature__button--secondary'}
-              >
-                취소
-              </Link>
-              <button
-                type="submit"
-                className={'projects-feature__button projects-feature__button--primary'}
-                disabled={saveMutation.isPending}
-              >
-                저장
-              </button>
-            </div>
-          </div>
+          <AdminCostGroupEditorActionRow
+            isEditMode={isEditMode}
+            deletePending={deleteMutation.isPending}
+            savePending={saveMutation.isPending}
+            onDelete={() => void handleDelete()}
+          />
         </form>
       </section>
     </section>

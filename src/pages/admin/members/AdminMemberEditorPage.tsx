@@ -1,9 +1,28 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { adminDataClient } from '../../../api/admin';
 import type { MemberAdminPayload } from '../types';
+import { AdminMemberEditorActionRow } from './AdminMemberEditorActionRow';
+import { AdminMemberEditorBasicSection } from './AdminMemberEditorBasicSection';
+import {
+  ADMIN_MEMBER_EDITOR_CREATE_TITLE,
+  ADMIN_MEMBER_EDITOR_DEFAULT_INVITE_ERROR,
+  ADMIN_MEMBER_EDITOR_EDIT_TITLE,
+} from './AdminMemberEditorPage.constants';
+import { AdminMemberEditorNoteSection } from './AdminMemberEditorNoteSection';
+import { AdminMemberEditorStatusSection } from './AdminMemberEditorStatusSection';
 import { createMemberDraft, normalizeMemberDraft } from './memberAdminForm';
+import {
+  buildInvitePayload,
+  getAuthActionLabel,
+  getDeleteConfirmMessage,
+  getDeleteSuccessMessage,
+  getInviteConfirmMessage,
+  getInviteSuccessMessage,
+  getRestoreConfirmMessage,
+  getSaveSuccessMessage,
+} from './AdminMemberEditorPage.utils';
 import '../../../styles/domain/pages/projects-feature.scss';
 
 export function AdminMemberEditorPage() {
@@ -30,7 +49,7 @@ export function AdminMemberEditorPage() {
   const memberStatusLabel = draft.memberStatus === 'pending' ? '승인대기' : '활성';
   const hasAuthAccount = Boolean(selectedMember?.authUserId);
   const isEmailLocked = Boolean(isInactiveMember || selectedMember?.authUserId);
-  const authActionLabel = hasAuthAccount ? '비밀번호 재설정' : '초대 메일 발송';
+  const authActionLabel = getAuthActionLabel(hasAuthAccount);
 
   useEffect(() => {
     if (!isEditMode) {
@@ -63,9 +82,7 @@ export function AdminMemberEditorPage() {
       navigate('/admin/members', {
         replace: true,
         state: {
-          statusMessage: isEditMode
-            ? '사용자 정보를 저장했습니다.'
-            : '사용자를 추가하고 초대 메일을 보냈습니다.',
+          statusMessage: getSaveSuccessMessage(isEditMode),
         },
       });
     },
@@ -88,28 +105,14 @@ export function AdminMemberEditorPage() {
         return;
       }
 
-      await adminDataClient.createMemberAdmin({
-        id: selectedMember.id,
-        authUserId: selectedMember.authUserId,
-        accountId: selectedMember.accountId,
-        name: selectedMember.name,
-        email: selectedMember.email,
-        note: selectedMember.note,
-        role: selectedMember.role,
-        userActive: selectedMember.userActive,
-        memberStatus: selectedMember.memberStatus,
-        reportRequired: selectedMember.reportRequired,
-        isActive: selectedMember.isActive,
-      });
+      await adminDataClient.createMemberAdmin(buildInvitePayload(selectedMember));
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['admin', 'members'] });
       navigate('/admin/members', {
         replace: true,
         state: {
-          statusMessage: hasAuthAccount
-            ? '비밀번호 재설정 메일을 보냈습니다.'
-            : '초대 메일을 보냈습니다.',
+          statusMessage: getInviteSuccessMessage(hasAuthAccount),
         },
       });
     },
@@ -128,10 +131,7 @@ export function AdminMemberEditorPage() {
       navigate('/admin/members', {
         replace: true,
         state: {
-          statusMessage:
-            result === 'deleted'
-              ? '사용자와 인증 계정을 삭제했습니다.'
-              : '업무 데이터가 있어 사용자를 비활성 보관 처리했습니다.',
+          statusMessage: getDeleteSuccessMessage(result),
         },
       });
     },
@@ -186,11 +186,7 @@ export function AdminMemberEditorPage() {
       return;
     }
 
-    if (
-      !window.confirm(
-        `${selectedMember.name} 사용자를 삭제하시겠습니까?\n업무 데이터가 없으면 사용자와 인증 계정을 함께 삭제하고, 업무 데이터가 있으면 비활성 보관 처리합니다.`,
-      )
-    ) {
+    if (!window.confirm(getDeleteConfirmMessage(selectedMember.name))) {
       return;
     }
 
@@ -202,13 +198,7 @@ export function AdminMemberEditorPage() {
       return;
     }
 
-    if (
-      !window.confirm(
-        hasAuthAccount
-          ? `${selectedMember.name}에게 비밀번호 재설정 메일을 보내시겠습니까?`
-          : `${selectedMember.name}에게 초대 메일을 보내시겠습니까?`,
-      )
-    ) {
+    if (!window.confirm(getInviteConfirmMessage(selectedMember.name, hasAuthAccount))) {
       return;
     }
 
@@ -217,7 +207,7 @@ export function AdminMemberEditorPage() {
       await inviteMutation.mutateAsync();
     } catch (error) {
       setLocalErrorMessage(
-        error instanceof Error ? error.message : '인증 메일 발송에 실패했습니다.',
+        error instanceof Error ? error.message : ADMIN_MEMBER_EDITOR_DEFAULT_INVITE_ERROR,
       );
     }
   };
@@ -227,7 +217,7 @@ export function AdminMemberEditorPage() {
       return;
     }
 
-    if (!window.confirm(`${selectedMember.name} 사용자를 다시 활성화하시겠습니까?`)) {
+    if (!window.confirm(getRestoreConfirmMessage(selectedMember.name))) {
       return;
     }
 
@@ -247,7 +237,7 @@ export function AdminMemberEditorPage() {
     return (
       <section className="projects-feature projects-feature__shell projects-feature__editor-shell">
         <header className={'projects-feature__editor-header'}>
-          <h1 className={'projects-feature__title'}>사용자 수정</h1>
+          <h1 className={'projects-feature__title'}>{ADMIN_MEMBER_EDITOR_EDIT_TITLE}</h1>
         </header>
         <p className={'projects-feature__status-message'}>사용자 정보를 찾을 수 없습니다.</p>
       </section>
@@ -257,7 +247,9 @@ export function AdminMemberEditorPage() {
   return (
     <section className="projects-feature projects-feature__shell projects-feature__editor-shell">
       <header className={'projects-feature__editor-header'}>
-        <h1 className={'projects-feature__title'}>{isEditMode ? '사용자 수정' : '사용자 추가'}</h1>
+        <h1 className={'projects-feature__title'}>
+          {isEditMode ? ADMIN_MEMBER_EDITOR_EDIT_TITLE : ADMIN_MEMBER_EDITOR_CREATE_TITLE}
+        </h1>
       </header>
 
       {errorMessage ? <p className={'projects-feature__status-message'}>{errorMessage}</p> : null}
@@ -270,221 +262,59 @@ export function AdminMemberEditorPage() {
           className="projects-feature__detail-form projects-feature__editor-detail-form"
           onSubmit={handleSubmit}
         >
-          <section
-            className={'projects-feature__editor-section'}
-            aria-labelledby="member-basic-section"
-          >
-            <div className={'projects-feature__section-header'}>
-              <h2 id="member-basic-section" className={'projects-feature__section-title'}>
-                기본 정보
-              </h2>
-            </div>
-            <div className={'projects-feature__editor-form-grid'}>
-              <label className={'projects-feature__field'}>
-                <span>ID</span>
-                <input
-                  autoFocus
-                  value={draft.accountId}
-                  readOnly={Boolean(isInactiveMember)}
-                  onChange={(event) =>
-                    setDraft((current) => ({ ...current, accountId: event.target.value }))
-                  }
-                />
-              </label>
-
-              <label className={'projects-feature__field'}>
-                <span>이름</span>
-                <input
-                  value={draft.name}
-                  readOnly={Boolean(isInactiveMember)}
-                  onChange={(event) =>
-                    setDraft((current) => ({ ...current, name: event.target.value }))
-                  }
-                />
-              </label>
-
-              <label className={'projects-feature__field'}>
-                <span>이메일</span>
-                <input
-                  type="email"
-                  value={draft.email}
-                  readOnly={isEmailLocked}
-                  onChange={(event) =>
-                    setDraft((current) => ({ ...current, email: event.target.value }))
-                  }
-                />
-              </label>
-
-              <label className={'projects-feature__field'}>
-                <span>권한</span>
-                {isInactiveMember ? (
-                  <input value={roleLabel} readOnly />
-                ) : (
-                  <select
-                    value={draft.role}
-                    onChange={(event) =>
-                      setDraft((current) => ({
-                        ...current,
-                        role: event.target.value as MemberAdminPayload['role'],
-                      }))
-                    }
-                  >
-                    <option value="user">팀원</option>
-                    <option value="admin">관리자</option>
-                  </select>
-                )}
-              </label>
-            </div>
-          </section>
+          <AdminMemberEditorBasicSection
+            draft={draft}
+            isInactiveMember={Boolean(isInactiveMember)}
+            isEmailLocked={isEmailLocked}
+            roleLabel={roleLabel}
+            onDraftChange={(patch) =>
+              setDraft((current) => ({
+                ...current,
+                ...patch,
+              }))
+            }
+          />
 
           {isEditMode ? (
-            <section
-              className={'projects-feature__editor-section'}
-              aria-labelledby="member-status-section"
-            >
-              <div className={'projects-feature__section-header'}>
-                <h2 id="member-status-section" className={'projects-feature__section-title'}>
-                  상태 정보
-                </h2>
-              </div>
-              <div className={'projects-feature__editor-form-grid'}>
-                <label className={'projects-feature__field'}>
-                  <span>Auth ID</span>
-                  <input value={draft.authUserId ?? '-'} readOnly />
-                </label>
-                <label className={'projects-feature__field'}>
-                  <span>활성 여부</span>
-                  <input value={activeLabel} readOnly />
-                </label>
-
-                <label className={'projects-feature__field'}>
-                  <span>승인 상태</span>
-                  {isInactiveMember ? (
-                    <input value={memberStatusLabel} readOnly />
-                  ) : (
-                    <select
-                      value={draft.memberStatus}
-                      onChange={(event) =>
-                        setDraft((current) => ({
-                          ...current,
-                          memberStatus: event.target.value as MemberAdminPayload['memberStatus'],
-                        }))
-                      }
-                    >
-                      <option value="active">활성</option>
-                      <option value="pending">승인대기</option>
-                    </select>
-                  )}
-                </label>
-
-                <label className={'projects-feature__field'}>
-                  <span>업무보고 접근</span>
-                  {isInactiveMember ? (
-                    <input value={draft.reportRequired ? '허용' : '차단'} readOnly />
-                  ) : (
-                    <select
-                      value={draft.reportRequired ? '1' : '0'}
-                      onChange={(event) =>
-                        setDraft((current) => ({
-                          ...current,
-                          reportRequired: event.target.value === '1',
-                        }))
-                      }
-                    >
-                      <option value="1">허용</option>
-                      <option value="0">차단</option>
-                    </select>
-                  )}
-                </label>
-              </div>
-            </section>
+            <AdminMemberEditorStatusSection
+              draft={draft}
+              isInactiveMember={Boolean(isInactiveMember)}
+              activeLabel={activeLabel}
+              memberStatusLabel={memberStatusLabel}
+              onDraftChange={(patch) =>
+                setDraft((current) => ({
+                  ...current,
+                  ...patch,
+                }))
+              }
+            />
           ) : null}
 
           {isEditMode ? (
-            <section
-              className={'projects-feature__editor-section'}
-              aria-labelledby="member-note-section"
-            >
-              <div className={'projects-feature__section-header'}>
-                <h2 id="member-note-section" className={'projects-feature__section-title'}>
-                  기타
-                </h2>
-              </div>
-              <div className={'projects-feature__editor-form-grid'}>
-                <label className={'projects-feature__field'}>
-                  <span>비고</span>
-                  <textarea
-                    value={draft.note}
-                    readOnly={Boolean(isInactiveMember)}
-                    onChange={(event) =>
-                      setDraft((current) => ({ ...current, note: event.target.value }))
-                    }
-                  />
-                </label>
-              </div>
-            </section>
+            <AdminMemberEditorNoteSection
+              draft={draft}
+              isInactiveMember={Boolean(isInactiveMember)}
+              onDraftChange={(patch) =>
+                setDraft((current) => ({
+                  ...current,
+                  ...patch,
+                }))
+              }
+            />
           ) : null}
 
-          <div className="projects-feature__form-actions projects-feature__editor-form-actions">
-            <div
-              className={
-                'projects-feature__editor-form-actions projects-feature__editor-form-actions--start'
-              }
-            >
-              {isEditMode ? (
-                <>
-                  {!isInactiveMember ? (
-                    <button
-                      type="button"
-                      className={'projects-feature__button projects-feature__button--secondary'}
-                      onClick={() => void handleInvite()}
-                      disabled={inviteMutation.isPending}
-                    >
-                      {authActionLabel}
-                    </button>
-                  ) : null}
-                  {isInactiveMember ? (
-                    <button
-                      type="button"
-                      className={'projects-feature__button projects-feature__button--primary'}
-                      onClick={() => void handleRestore()}
-                      disabled={restoreMutation.isPending}
-                    >
-                      복원
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      className={'projects-feature__delete-button'}
-                      onClick={() => void handleDelete()}
-                      disabled={deleteMutation.isPending}
-                    >
-                      삭제
-                    </button>
-                  )}
-                </>
-              ) : null}
-            </div>
-            <div
-              className={
-                'projects-feature__editor-form-actions projects-feature__editor-form-actions--end'
-              }
-            >
-              <Link
-                to="/admin/members"
-                className={'projects-feature__button projects-feature__button--secondary'}
-              >
-                취소
-              </Link>
-              <button
-                type="submit"
-                className={'projects-feature__button projects-feature__button--primary'}
-                disabled={saveMutation.isPending || Boolean(isInactiveMember)}
-              >
-                저장
-              </button>
-            </div>
-          </div>
+          <AdminMemberEditorActionRow
+            isEditMode={isEditMode}
+            isInactiveMember={Boolean(isInactiveMember)}
+            authActionLabel={authActionLabel}
+            invitePending={inviteMutation.isPending}
+            restorePending={restoreMutation.isPending}
+            deletePending={deleteMutation.isPending}
+            savePending={saveMutation.isPending}
+            onInvite={() => void handleInvite()}
+            onRestore={() => void handleRestore()}
+            onDelete={() => void handleDelete()}
+          />
         </form>
       </section>
     </section>

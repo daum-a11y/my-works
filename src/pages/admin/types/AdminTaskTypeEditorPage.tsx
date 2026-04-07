@@ -1,7 +1,9 @@
 import { type FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { adminDataClient } from '../../../api/admin';
+import { AdminTaskTypeEditorActionRow } from './AdminTaskTypeEditorActionRow';
+import { AdminTaskTypeEditorForm } from './AdminTaskTypeEditorForm';
 import type { AdminTaskTypeItem, AdminTaskTypePayload } from '../types';
 import '../../../styles/domain/pages/projects-feature.scss';
 
@@ -203,112 +205,26 @@ export function AdminTaskTypeEditorPage() {
           className="projects-feature__detail-form projects-feature__editor-detail-form"
           onSubmit={handleSubmit}
         >
-          <div className={'projects-feature__editor-form-grid'}>
-            <label className={'projects-feature__field'}>
-              <span>타입1</span>
-              <input
-                ref={titleRef}
-                value={draft.type1}
-                onChange={(event) =>
-                  setDraft((current) => ({ ...current, type1: event.target.value }))
-                }
-              />
-            </label>
+          <AdminTaskTypeEditorForm
+            draft={draft}
+            isEditMode={isEditMode}
+            titleRef={titleRef}
+            onDraftChange={(patch) =>
+              setDraft((current) => ({
+                ...current,
+                ...patch,
+              }))
+            }
+          />
 
-            <label className={'projects-feature__field'}>
-              <span>타입2</span>
-              <input
-                value={draft.type2}
-                onChange={(event) =>
-                  setDraft((current) => ({ ...current, type2: event.target.value }))
-                }
-              />
-            </label>
-
-            <label className={'projects-feature__field'}>
-              <span>리소스 타입</span>
-              <select
-                value={draft.requiresServiceGroup ? '1' : '0'}
-                onChange={(event) =>
-                  setDraft((current) => ({
-                    ...current,
-                    requiresServiceGroup: event.target.value === '1',
-                  }))
-                }
-              >
-                <option value="1">프로젝트</option>
-                <option value="0">일반</option>
-              </select>
-            </label>
-
-            <label className={'projects-feature__field'}>
-              <span>활성여부</span>
-              <select
-                value={draft.isActive ? '1' : '0'}
-                onChange={(event) =>
-                  setDraft((current) => ({ ...current, isActive: event.target.value === '1' }))
-                }
-              >
-                <option value="1">활성</option>
-                <option value="0">비활성</option>
-              </select>
-            </label>
-
-            {isEditMode ? (
-              <label className={'projects-feature__field'}>
-                <span>비고</span>
-                <input
-                  value={draft.displayLabel}
-                  onChange={(event) =>
-                    setDraft((current) => ({ ...current, displayLabel: event.target.value }))
-                  }
-                />
-              </label>
-            ) : null}
-          </div>
-
-          <div className="projects-feature__form-actions projects-feature__editor-form-actions">
-            <div
-              className={
-                'projects-feature__editor-form-actions projects-feature__editor-form-actions--start'
-              }
-            >
-              {isEditMode ? (
-                <>
-                  <button
-                    type="button"
-                    className={'projects-feature__delete-button'}
-                    onClick={() => void handleDelete()}
-                    disabled={deleteMutation.isPending || deleteBlocked}
-                  >
-                    삭제
-                  </button>
-                  {deleteHelpText ? (
-                    <p className={'projects-feature__help-text'}>{deleteHelpText}</p>
-                  ) : null}
-                </>
-              ) : null}
-            </div>
-            <div
-              className={
-                'projects-feature__editor-form-actions projects-feature__editor-form-actions--end'
-              }
-            >
-              <Link
-                to="/admin/type"
-                className={'projects-feature__button projects-feature__button--secondary'}
-              >
-                취소
-              </Link>
-              <button
-                type="submit"
-                className={'projects-feature__button projects-feature__button--primary'}
-                disabled={saveMutation.isPending}
-              >
-                저장
-              </button>
-            </div>
-          </div>
+          <AdminTaskTypeEditorActionRow
+            isEditMode={isEditMode}
+            deletePending={deleteMutation.isPending}
+            deleteBlocked={deleteBlocked}
+            deleteHelpText={deleteHelpText}
+            savePending={saveMutation.isPending}
+            onDelete={() => void handleDelete()}
+          />
         </form>
       </section>
     </section>

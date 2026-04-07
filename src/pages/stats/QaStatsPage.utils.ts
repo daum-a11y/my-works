@@ -1,11 +1,5 @@
 import type { QaStatsProjectRow } from '../../types/domain';
-
-export interface MonthlyQaRow {
-  monthKey: string;
-  label: string;
-  count: number;
-  completed: number;
-}
+export type { MonthlyQaRow } from './QaStatsPage.types';
 
 export function monthKeyFromDate(value: string): string {
   return value.slice(0, 7);

@@ -1,3 +1,5 @@
+import type { ResourceSummaryMinuteTone } from './ResourceSummaryPage.types';
+
 const numberFormatter = new Intl.NumberFormat('ko-KR');
 
 export function formatMemberLabel(accountId: string, name: string) {
@@ -18,7 +20,7 @@ export function formatSignedMinutes(minutes: number) {
   return '0';
 }
 
-export function getMinuteTone(minutes: number) {
+export function getMinuteTone(minutes: number): ResourceSummaryMinuteTone {
   if (minutes > 0) {
     return 'positive';
   }

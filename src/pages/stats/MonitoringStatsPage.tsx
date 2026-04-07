@@ -1,25 +1,23 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import {
-  Area,
-  AreaChart,
-  CartesianGrid,
-  Legend,
-  Line,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from 'recharts';
+import { PageHeader } from '../../components/shared/PageHeader';
 import { PageSection } from '../../components/shared/PageSection';
 import { dataClient } from '../../api/client';
 import { setDocumentTitle } from '../../router/navigation';
-import { pageStatusOptions, type MonitoringStatsRow, type PageStatus } from '../../types/domain';
+import { type MonitoringStatsRow, type PageStatus } from '../../types/domain';
 import { getCurrentMonth, shiftMonth } from '../resource/resourceUtils';
+import {
+  MONITORING_STATS_DEFAULT_DRAFT_STATUS,
+  MONITORING_STATS_DEFAULT_SUMMARY_VIEW,
+  MONITORING_STATS_PAGE_TITLE,
+} from './MonitoringStatsPage.constants';
+import { MonitoringStatsDetailsTable } from './MonitoringStatsDetailsTable';
+import { MonitoringStatsFilterForm } from './MonitoringStatsFilterForm';
+import { MonitoringStatsSummarySection } from './MonitoringStatsSummarySection';
+import type { StatsSummaryView } from './MonitoringStatsPage.types';
 import {
   buildMonthRange,
   formatMonthLabel,
-  formatTrackStatus,
   monthKeyFromMonitoringMonth,
   sortRows,
   type MonthlyMonitoringRow,
@@ -48,17 +46,17 @@ export function MonitoringStatsPage() {
   const [draftEndMonth, setDraftEndMonth] = useState(defaultEndMonth);
   const [startMonth, setStartMonth] = useState(defaultStartMonth);
   const [endMonth, setEndMonth] = useState(defaultEndMonth);
-  const [summaryView, setSummaryView] = useState<'stats-page__chart' | 'stats-page__table'>(
-    'stats-page__chart',
+  const [summaryView, setSummaryView] = useState<StatsSummaryView>(
+    MONITORING_STATS_DEFAULT_SUMMARY_VIEW,
   );
   const [editingPageId, setEditingPageId] = useState<string | null>(null);
-  const [draftStatus, setDraftStatus] = useState<PageStatus>('미수정');
+  const [draftStatus, setDraftStatus] = useState<PageStatus>(MONITORING_STATS_DEFAULT_DRAFT_STATUS);
   const [draftNote, setDraftNote] = useState('');
   const [hoveredNotePageId, setHoveredNotePageId] = useState<string | null>(null);
   const [pinnedNotePageId, setPinnedNotePageId] = useState<string | null>(null);
 
   useEffect(() => {
-    setDocumentTitle('모니터링 통계');
+    setDocumentTitle(MONITORING_STATS_PAGE_TITLE);
   }, []);
 
   const savePageMutation = useMutation({
@@ -89,12 +87,9 @@ export function MonitoringStatsPage() {
 
   const cancelEdit = () => {
     setEditingPageId(null);
-    setDraftStatus('미수정');
+    setDraftStatus(MONITORING_STATS_DEFAULT_DRAFT_STATUS);
     setDraftNote('');
   };
-
-  const isNoteOpen = (pageId: string) =>
-    hoveredNotePageId === pageId || pinnedNotePageId === pageId;
 
   const handleSearch = () => {
     const nextStart =
@@ -191,334 +186,47 @@ export function MonitoringStatsPage() {
 
   return (
     <div className={'stats-page stats-page--page'}>
-      <header className={'stats-page__hero'}>
-        <h1 className={'stats-page__title'}>모니터링 통계</h1>
-      </header>
+      <PageHeader title={MONITORING_STATS_PAGE_TITLE} />
 
       <PageSection title="필터">
-        <form
-          className={'stats-page__filter-bar'}
+        <MonitoringStatsFilterForm
+          draftStartMonth={draftStartMonth}
+          draftEndMonth={draftEndMonth}
           onSubmit={(event) => {
             event.preventDefault();
             handleSearch();
           }}
-        >
-          <label className={'stats-page__filter-field'}>
-            <span>시작월</span>
-            <input
-              type="month"
-              aria-label="모니터링 시작월"
-              value={draftStartMonth}
-              onChange={(event) => setDraftStartMonth(event.target.value)}
-            />
-          </label>
-          <label className={'stats-page__filter-field'}>
-            <span>종료월</span>
-            <input
-              type="month"
-              aria-label="모니터링 종료월"
-              value={draftEndMonth}
-              onChange={(event) => setDraftEndMonth(event.target.value)}
-            />
-          </label>
-          <div className={'stats-page__filter-actions'}>
-            <button type="submit" className={'stats-page__filter-button'}>
-              검색
-            </button>
-            <button
-              type="button"
-              className={'stats-page__filter-button stats-page__filter-button--secondary'}
-              onClick={handleReset}
-            >
-              초기화
-            </button>
-          </div>
-        </form>
+          onReset={handleReset}
+          onDraftStartMonthChange={setDraftStartMonth}
+          onDraftEndMonthChange={setDraftEndMonth}
+        />
       </PageSection>
 
       <PageSection title="월별 모니터링 현황">
-        <div
-          className={'stats-page__view-toggle'}
-          role="tablist"
-          aria-label="모니터링 월별 요약 보기"
-        >
-          <button
-            type="button"
-            className={
-              summaryView === 'stats-page__table'
-                ? 'stats-page__view-toggle-button stats-page__view-toggle-button--active'
-                : 'stats-page__view-toggle-button'
-            }
-            aria-pressed={summaryView === 'stats-page__table'}
-            onClick={() => setSummaryView('stats-page__table')}
-          >
-            표
-          </button>
-          <button
-            type="button"
-            className={
-              summaryView === 'stats-page__chart'
-                ? 'stats-page__view-toggle-button stats-page__view-toggle-button--active'
-                : 'stats-page__view-toggle-button'
-            }
-            aria-pressed={summaryView === 'stats-page__chart'}
-            onClick={() => setSummaryView('stats-page__chart')}
-          >
-            그래프
-          </button>
-        </div>
-        {summaryView === 'stats-page__chart' ? (
-          <div className={'stats-page__chart-surface'}>
-            {monthlyRows.length ? (
-              <div className={'stats-page__chart-frame'} role="img" aria-label="모니터링 월별 차트">
-                <ResponsiveContainer width="100%" height={320}>
-                  <AreaChart data={monthlyRows} margin={{ top: 12, right: 12, left: 0, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="label" tickLine={false} axisLine={false} />
-                    <YAxis allowDecimals={false} tickLine={false} axisLine={false} />
-                    <Tooltip />
-                    <Legend />
-                    <Area
-                      type="monotone"
-                      dataKey="untouched"
-                      name="미수정"
-                      stackId="monitoring-status"
-                      stroke="var(--chart-series-danger-stroke)"
-                      fill="var(--chart-series-danger-fill)"
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="partial"
-                      name="일부 수정"
-                      stackId="monitoring-status"
-                      stroke="var(--chart-series-warning-stroke)"
-                      fill="var(--chart-series-warning-fill)"
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="completed"
-                      name="전체 수정"
-                      stackId="monitoring-status"
-                      stroke="var(--chart-series-success-stroke)"
-                      fill="var(--chart-series-success-fill)"
-                    ></Area>
-                    <Line
-                      type="monotone"
-                      dataKey="count"
-                      name="총 모니터링 수"
-                      stroke="var(--chart-series-primary-stroke)"
-                      strokeWidth={2}
-                      dot={false}
-                      activeDot={false}
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-            ) : (
-              <p className={'stats-page__empty'}>모니터링 데이터가 없습니다.</p>
-            )}
-          </div>
-        ) : (
-          <div className={'stats-page__table-wrap'}>
-            <table className={'stats-page__table'}>
-              <caption className={'sr-only'}>모니터링 월별 표</caption>
-              <thead>
-                <tr>
-                  <th scope="col">월</th>
-                  <th scope="col">미수정</th>
-                  <th scope="col">일부 수정</th>
-                  <th scope="col">전체 수정</th>
-                  <th scope="col">총 모니터링 수</th>
-                </tr>
-              </thead>
-              <tbody>
-                {monthlyRows.map((row) => (
-                  <tr key={row.monthKey}>
-                    <td>{row.label}</td>
-                    <td className="stats-page__table-number">{row.untouched}</td>
-                    <td className="stats-page__table-number">{row.partial}</td>
-                    <td className="stats-page__table-number">{row.completed}</td>
-                    <td className="stats-page__table-number">{row.count}</td>
-                  </tr>
-                ))}
-                {!monthlyRows.length ? (
-                  <tr>
-                    <td colSpan={5} className={'stats-page__empty'}>
-                      월별 데이터가 없습니다.
-                    </td>
-                  </tr>
-                ) : null}
-              </tbody>
-            </table>
-          </div>
-        )}
+        <MonitoringStatsSummarySection
+          summaryView={summaryView}
+          monthlyRows={monthlyRows}
+          onSummaryViewChange={setSummaryView}
+        />
       </PageSection>
 
       <PageSection title="모니터링 페이지 목록">
-        <div className={'stats-page__table-wrap'}>
-          <table className={'stats-page__table'}>
-            <caption className={'sr-only'}>필터링된 모니터링 페이지 목록</caption>
-            <thead>
-              <tr>
-                <th scope="col">월</th>
-                <th scope="col">플랫폼</th>
-                <th scope="col">서비스그룹</th>
-                <th scope="col">프로젝트명</th>
-                <th scope="col">페이지명</th>
-                <th scope="col">담당자</th>
-                <th scope="col">상태</th>
-                <th scope="col">비고</th>
-                <th scope="col">보고서URL</th>
-                <th scope="col">수정</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredRows.map((row) => (
-                <tr key={row.pageId}>
-                  <td>{formatMonthLabel(monthKeyFromMonitoringMonth(row.monitoringMonth))}</td>
-                  <td>{row.platform}</td>
-                  <td>{row.serviceGroupName}</td>
-                  <td>{row.projectName}</td>
-                  <td>{row.title}</td>
-                  <td>{row.assigneeDisplay}</td>
-                  <td>
-                    {editingPageId === row.pageId ? (
-                      <select
-                        aria-label={`${row.title} 상태`}
-                        className={'stats-page__inline-select'}
-                        value={draftStatus}
-                        onChange={(event) => setDraftStatus(event.target.value as PageStatus)}
-                      >
-                        {pageStatusOptions.map((status) => (
-                          <option key={status} value={status}>
-                            {formatTrackStatus(status)}
-                          </option>
-                        ))}
-                      </select>
-                    ) : (
-                      <span className="stats-page__status-badge" data-status={row.trackStatus}>
-                        {formatTrackStatus(row.trackStatus)}
-                      </span>
-                    )}
-                  </td>
-                  <td>
-                    {editingPageId === row.pageId ? (
-                      <textarea
-                        aria-label={`${row.title} 비고`}
-                        className={'stats-page__inline-textarea'}
-                        value={draftNote}
-                        onChange={(event) => setDraftNote(event.target.value)}
-                        rows={3}
-                      />
-                    ) : row.note ? (
-                      <div
-                        className={'stats-page__note-cell'}
-                        onMouseEnter={() => setHoveredNotePageId(row.pageId)}
-                        onMouseLeave={() =>
-                          setHoveredNotePageId((current) =>
-                            current === row.pageId && pinnedNotePageId !== row.pageId
-                              ? null
-                              : current,
-                          )
-                        }
-                        onFocusCapture={() => setHoveredNotePageId(row.pageId)}
-                        onBlurCapture={(event) => {
-                          if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
-                            setHoveredNotePageId((current) =>
-                              current === row.pageId && pinnedNotePageId !== row.pageId
-                                ? null
-                                : current,
-                            );
-                          }
-                        }}
-                      >
-                        <button
-                          type="button"
-                          className={[
-                            'stats-page__note-toggle',
-                            isNoteOpen(row.pageId) ? 'stats-page__note-toggle--active' : '',
-                          ]
-                            .filter(Boolean)
-                            .join(' ')}
-                          aria-expanded={isNoteOpen(row.pageId)}
-                          aria-label={`${row.title} 내용 보기`}
-                          onClick={() => {
-                            setPinnedNotePageId((current) =>
-                              current === row.pageId ? null : row.pageId,
-                            );
-                            setHoveredNotePageId(row.pageId);
-                          }}
-                        >
-                          내용 보기
-                        </button>
-                        {isNoteOpen(row.pageId) ? (
-                          <div className={'stats-page__note-popover'} role="tooltip">
-                            {row.note}
-                          </div>
-                        ) : null}
-                      </div>
-                    ) : (
-                      '-'
-                    )}
-                  </td>
-                  <td>
-                    {row.reportUrl ? (
-                      <a
-                        href={row.reportUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className={'stats-page__link'}
-                      >
-                        링크
-                      </a>
-                    ) : (
-                      '-'
-                    )}
-                  </td>
-                  <td>
-                    {editingPageId === row.pageId ? (
-                      <div className={'stats-page__inline-actions'}>
-                        <button
-                          type="button"
-                          className={'stats-page__inline-action stats-page__inline-action--primary'}
-                          onClick={() => savePageMutation.mutate(row)}
-                          disabled={savePageMutation.isPending}
-                        >
-                          저장
-                        </button>
-                        <button
-                          type="button"
-                          className={
-                            'stats-page__inline-action stats-page__inline-action--secondary'
-                          }
-                          onClick={cancelEdit}
-                          disabled={savePageMutation.isPending}
-                        >
-                          취소
-                        </button>
-                      </div>
-                    ) : (
-                      <button
-                        type="button"
-                        className={'stats-page__inline-action stats-page__inline-action--primary'}
-                        onClick={() => startEdit(row)}
-                      >
-                        수정
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-              {!filteredRows.length ? (
-                <tr>
-                  <td colSpan={10} className={'stats-page__empty'}>
-                    조건에 맞는 모니터링 내역이 없습니다.
-                  </td>
-                </tr>
-              ) : null}
-            </tbody>
-          </table>
-        </div>
+        <MonitoringStatsDetailsTable
+          rows={filteredRows}
+          editingPageId={editingPageId}
+          draftStatus={draftStatus}
+          draftNote={draftNote}
+          hoveredNotePageId={hoveredNotePageId}
+          pinnedNotePageId={pinnedNotePageId}
+          savePending={savePageMutation.isPending}
+          onDraftStatusChange={setDraftStatus}
+          onDraftNoteChange={setDraftNote}
+          onHoveredNotePageIdChange={setHoveredNotePageId}
+          onPinnedNotePageIdChange={setPinnedNotePageId}
+          onStartEdit={startEdit}
+          onSave={(row) => savePageMutation.mutate(row)}
+          onCancel={cancelEdit}
+        />
       </PageSection>
     </div>
   );

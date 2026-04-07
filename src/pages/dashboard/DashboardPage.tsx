@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
-import { MonthlyReportCalendar } from '../../components/shared/MonthlyReportCalendar';
 import { setDocumentTitle } from '../../router/navigation';
 import { dataClient } from '../../api/client';
 import { useAuth } from '../../auth/AuthContext';
 import { buildCalendarWeeks, getCurrentMonth, shiftMonth } from '../resource/resourceUtils';
+import { DashboardCalendarSection } from './DashboardCalendarSection';
+import { DashboardProjectsTable } from './DashboardProjectsTable';
 import '../../styles/domain/pages/dashboard-page.scss';
 
 export function DashboardPage() {
@@ -66,91 +66,13 @@ export function DashboardPage() {
         <h1 className="dashboard-page__intro-title">대시보드</h1>
       </section>
       {shouldShowWorklogCalendar ? (
-        <section className="dashboard-page__section">
-          {monthState && (
-            <div className="dashboard-page__section-head">
-              <div className="dashboard-page__calendar-heading">
-                <div className="dashboard-page__calendar-nav" aria-label="업무일지 월 이동">
-                  <button
-                    type="button"
-                    className="dashboard-page__calendar-nav-button"
-                    onClick={() => setSelectedMonth((current) => shiftMonth(current, -1))}
-                  >
-                    <ChevronLeft size={16} strokeWidth={2.4} aria-hidden="true" />
-                    <span className="sr-only">이전달 보기</span>
-                  </button>
-                  <h2 className="dashboard-page__calendar-title">
-                    {monthState.year}년 {monthState.month}월
-                  </h2>
-                  <button
-                    type="button"
-                    className="dashboard-page__calendar-nav-button"
-                    onClick={() => setSelectedMonth((current) => shiftMonth(current, 1))}
-                  >
-                    <ChevronRight size={16} strokeWidth={2.4} aria-hidden="true" />
-                    <span className="sr-only">다음달 보기</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-          {monthState ? (
-            <MonthlyReportCalendar
-              caption="업무일지 작성 현황"
-              weeks={monthState.weeks}
-              summary={monthState.summary}
-              currentMonth={monthState.currentMonth}
-              futureMonth={monthState.future}
-              todayDay={monthState.today}
-              padded={false}
-              panel={false}
-              getDateLink={(date) => ({ to: '/reports', state: { reportDate: date } })}
-            />
-          ) : (
-            <div className="dashboard-page__empty">유저정보가 없습니다.</div>
-          )}
-        </section>
+        <DashboardCalendarSection
+          monthState={monthState}
+          onShiftMonth={(offset) => setSelectedMonth((current) => shiftMonth(current, offset))}
+        />
       ) : null}
 
-      <section className="dashboard-page__section">
-        <div className="dashboard-page__section-head">
-          <h2 className="dashboard-page__section-title">진행중인 프로젝트 목록</h2>
-        </div>
-        <div className="dashboard-page__table-wrap">
-          <table className="dashboard-page__table">
-            <caption className="sr-only">진행중인 프로젝트 목록</caption>
-            <thead>
-              <tr>
-                <th scope="col">타입1</th>
-                <th scope="col">플랫폼</th>
-                <th scope="col">서비스그룹</th>
-                <th scope="col">프로젝트명</th>
-                <th scope="col">시작일</th>
-                <th scope="col">종료일</th>
-              </tr>
-            </thead>
-            <tbody>
-              {inProgressProjects.map((item) => (
-                <tr key={item.projectId}>
-                  <td>{item.type1}</td>
-                  <td>{item.platform}</td>
-                  <td>{item.serviceGroupName}</td>
-                  <td>{item.projectName}</td>
-                  <td>{item.startDate}</td>
-                  <td>{item.endDate}</td>
-                </tr>
-              ))}
-              {!inProgressProjects.length ? (
-                <tr>
-                  <td colSpan={6} className="dashboard-page__empty">
-                    진행중인 프로젝트가 없습니다.
-                  </td>
-                </tr>
-              ) : null}
-            </tbody>
-          </table>
-        </div>
-      </section>
+      <DashboardProjectsTable projects={inProgressProjects} />
     </div>
   );
 }

@@ -2,7 +2,11 @@ import { type FormEvent, useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { setDocumentTitle } from '../../router/navigation';
 import { useAuth } from '../../auth/AuthContext';
+import { PageHeader } from '../../components/shared/PageHeader';
+import { PagePager } from '../../components/shared/PagePager';
+import { PageResultBar } from '../../components/shared/PageResultBar';
 import { PageSection } from '../../components/shared/PageSection';
+import { PageSizeField } from '../../components/shared/PageSizeField';
 import { dataClient } from '../../api/client';
 import { downloadExcelFile } from '../../utils/excel';
 import {
@@ -16,6 +20,8 @@ import {
   SEARCH_PAGE_TITLE,
 } from './SearchPage.constants';
 import type { SearchFilters } from './SearchPage.types';
+import { SearchFilterForm } from './SearchFilterForm';
+import { SearchResultsTable } from './SearchResultsTable';
 import {
   buildCurrentMonthFilters,
   buildExportFilename,
@@ -154,202 +160,67 @@ export function SearchPage() {
 
   return (
     <section className="search-page search-page--shell">
-      <header className="search-page__page-header">
-        <div className="search-page__page-header-top">
-          <h1 className="search-page__title">내 업무내역</h1>
-        </div>
-      </header>
+      <PageHeader title="내 업무내역" />
 
       <PageSection title="필터">
-        <form className="search-page__filter-bar" onSubmit={handleSearchSubmit}>
-          <label className="search-page__filter-field">
-            <span>시작일</span>
-            <input
-              type="date"
-              value={filterDraft.startDate}
-              onChange={(event) =>
-                setFilterDraft((current) => ({ ...current, startDate: event.target.value }))
-              }
-            />
-          </label>
-          <label className="search-page__filter-field">
-            <span>종료일</span>
-            <input
-              type="date"
-              value={filterDraft.endDate}
-              onChange={(event) =>
-                setFilterDraft((current) => ({ ...current, endDate: event.target.value }))
-              }
-            />
-          </label>
-          <label className="search-page__filter-field">
-            <span>검색어</span>
-            <input
-              value={searchInput}
-              onChange={(event) => setSearchInput(event.target.value)}
-              placeholder="프로젝트, 페이지, 내용, 비고 검색"
-            />
-          </label>
-          <div className="search-page__filter-actions">
-            <button type="submit" className="search-page__filter-button">
-              검색
-            </button>
-            <button
-              type="button"
-              className="search-page__filter-button search-page__filter-button--secondary"
-              onClick={handleReset}
-            >
-              초기화
-            </button>
-            <span className="search-page__filter-divider" aria-hidden="true" />
-            <button
-              type="button"
-              className="search-page__filter-button search-page__filter-button--secondary"
-              onClick={handleDownload}
-              disabled={!totalReports}
-            >
-              다운로드
-            </button>
-          </div>
-        </form>
+        <SearchFilterForm
+          filterDraft={filterDraft}
+          searchInput={searchInput}
+          totalReports={totalReports}
+          onSubmit={handleSearchSubmit}
+          onReset={handleReset}
+          onDownload={() => void handleDownload()}
+          onFilterDraftChange={setFilterDraft}
+          onSearchInputChange={setSearchInput}
+        />
       </PageSection>
 
-      <section className="search-page__result-bar" aria-label="업무내역 목록 요약">
-        <div className="search-page__result-metrics">
-          <div className="search-page__pager" aria-label="업무내역 목록 페이지 이동">
-            <button
-              type="button"
-              className="search-page__page-button"
-              onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
-              disabled={currentPageSafe === 1}
-              aria-label="이전 페이지"
-            >
-              이전
-            </button>
-            <p className="search-page__page-status">
-              <strong>{currentPageSafe}</strong>
-              <span>/ {numberFormatter.format(totalPages)}</span>
+      <PageResultBar
+        className="search-page__result-bar"
+        aria-label="업무내역 목록 요약"
+        metrics={
+          <>
+            <PagePager
+              className="search-page__pager"
+              aria-label="업무내역 목록 페이지 이동"
+              buttonClassName="search-page__page-button"
+              statusClassName="search-page__page-status"
+              currentPage={currentPageSafe}
+              totalPages={totalPages}
+              canGoPrevious={currentPageSafe > 1}
+              canGoNext={currentPageSafe < totalPages && totalReports > 0}
+              onPrevious={() => setCurrentPage((page) => Math.max(1, page - 1))}
+              onNext={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+            />
+            <p className="search-page__result-metric">
+              <span className="search-page__result-label">총 건수</span>
+              <strong className="search-page__result-value">
+                {numberFormatter.format(totalReports)}건
+              </strong>
             </p>
-            <button
-              type="button"
-              className="search-page__page-button"
-              onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
-              disabled={currentPageSafe === totalPages || totalReports === 0}
-              aria-label="다음 페이지"
-            >
-              다음
-            </button>
-          </div>
-          <p className="search-page__result-metric">
-            <span className="search-page__result-label">총 건수</span>
-            <strong className="search-page__result-value">
-              {numberFormatter.format(totalReports)}건
-            </strong>
-          </p>
-          <p className="search-page__result-metric">
-            <span className="search-page__result-label">총 시간</span>
-            <strong className="search-page__result-value">
-              {formatReportTaskUsedtime(totalMinutes)}
-            </strong>
-          </p>
-        </div>
-        <div className="search-page__result-controls">
-          <label className="search-page__page-size-field">
-            <span>페이지당</span>
-            <select
-              value={String(pageSize)}
-              onChange={(event) => {
-                setPageSize(Number(event.target.value));
-                setCurrentPage(1);
-              }}
-              aria-label="페이지당 행 수"
-            >
-              {SEARCH_PAGE_SIZE_OPTIONS.map((option) => (
-                <option key={option} value={option}>
-                  {option}행
-                </option>
-              ))}
-            </select>
-          </label>
-        </div>
-      </section>
+            <p className="search-page__result-metric">
+              <span className="search-page__result-label">총 시간</span>
+              <strong className="search-page__result-value">
+                {formatReportTaskUsedtime(totalMinutes)}
+              </strong>
+            </p>
+          </>
+        }
+        controls={
+          <PageSizeField
+            className="search-page__page-size-field"
+            aria-label="페이지당 행 수"
+            value={pageSize}
+            options={SEARCH_PAGE_SIZE_OPTIONS}
+            onValueChange={(next) => {
+              setPageSize(next);
+              setCurrentPage(1);
+            }}
+          />
+        }
+      />
 
-      <section className="search-page__panel">
-        <div className="search-page__table-wrap">
-          <table className="search-page__table">
-            <caption className="sr-only">업무 리스트 테이블</caption>
-            <thead>
-              <tr>
-                <th scope="col">일자</th>
-                <th scope="col">청구그룹</th>
-                <th scope="col">타입1</th>
-                <th scope="col">타입2</th>
-                <th scope="col">플랫폼</th>
-                <th scope="col">서비스그룹</th>
-                <th scope="col">서비스명</th>
-                <th scope="col">프로젝트명</th>
-                <th scope="col">페이지명</th>
-                <th scope="col">내용</th>
-                <th scope="col">URL</th>
-                <th scope="col">작업시간</th>
-                <th scope="col">비고</th>
-              </tr>
-            </thead>
-            <tbody>
-              {sortedReports.map((report) => (
-                <tr key={report.id}>
-                  <td className="search-page__table-number">{formatReportDate(report.taskDate)}</td>
-                  <td>
-                    <strong>{report.costGroupName || '-'}</strong>
-                  </td>
-                  <td>
-                    <strong>{report.taskType1}</strong>
-                  </td>
-                  <td>
-                    <strong>{report.taskType2}</strong>
-                  </td>
-                  <td>
-                    <strong>{report.platform || '-'}</strong>
-                  </td>
-                  <td>
-                    <strong>{report.serviceGroupName || '-'}</strong>
-                  </td>
-                  <td>
-                    <strong>{report.serviceName || '-'}</strong>
-                  </td>
-                  <td>
-                    <strong>{report.projectDisplayName}</strong>
-                  </td>
-                  <td>
-                    <strong>{report.pageDisplayName || '-'}</strong>
-                  </td>
-                  <td>{report.content || '-'}</td>
-                  <td>
-                    {report.pageUrl ? (
-                      <a href={report.pageUrl} target="_blank" rel="noreferrer">
-                        링크
-                      </a>
-                    ) : (
-                      '-'
-                    )}
-                  </td>
-                  <td className="search-page__table-number">
-                    {formatReportTaskUsedtime(report.taskUsedtime)}
-                  </td>
-                  <td>{report.note || '-'}</td>
-                </tr>
-              ))}
-              {!sortedReports.length ? (
-                <tr>
-                  <td colSpan={13} className="search-page__empty-state">
-                    검색 결과가 없습니다.
-                  </td>
-                </tr>
-              ) : null}
-            </tbody>
-          </table>
-        </div>
-      </section>
+      <SearchResultsTable reports={sortedReports} />
     </section>
   );
 }

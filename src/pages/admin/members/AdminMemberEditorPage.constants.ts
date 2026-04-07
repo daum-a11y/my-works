@@ -1,0 +1,6 @@
+export const ADMIN_MEMBER_EDITOR_EDIT_TITLE = '사용자 수정';
+export const ADMIN_MEMBER_EDITOR_CREATE_TITLE = '사용자 추가';
+export const ADMIN_MEMBER_EDITOR_BASIC_SECTION_TITLE = '기본 정보';
+export const ADMIN_MEMBER_EDITOR_STATUS_SECTION_TITLE = '상태 정보';
+export const ADMIN_MEMBER_EDITOR_NOTE_SECTION_TITLE = '기타';
+export const ADMIN_MEMBER_EDITOR_DEFAULT_INVITE_ERROR = '인증 메일 발송에 실패했습니다.';

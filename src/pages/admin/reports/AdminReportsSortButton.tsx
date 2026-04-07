@@ -1,11 +1,5 @@
-import type { SortDirection, SortKey, SortState } from './AdminReportsPage.types';
-
-interface AdminReportsSortButtonProps {
-  label: string;
-  sortKey: SortKey;
-  sortState: SortState;
-  onChange: (next: SortState) => void;
-}
+import type { SortDirection } from './AdminReportsPage.types';
+import type { AdminReportsSortButtonProps } from './AdminReportsSortButton.types';
 
 export function AdminReportsSortButton({
   label,

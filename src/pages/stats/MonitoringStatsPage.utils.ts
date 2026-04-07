@@ -1,13 +1,5 @@
 import type { MonitoringStatsRow, PageStatus } from '../../types/domain';
-
-export interface MonthlyMonitoringRow {
-  monthKey: string;
-  label: string;
-  count: number;
-  untouched: number;
-  partial: number;
-  completed: number;
-}
+export type { MonthlyMonitoringRow } from './MonitoringStatsPage.types';
 
 export function formatTrackStatus(value: PageStatus) {
   return value;

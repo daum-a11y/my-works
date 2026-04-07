@@ -1,17 +1,15 @@
 import { type FormEvent, useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
+import { PagePager } from '../../../components/shared/PagePager';
+import { PageResultBar } from '../../../components/shared/PageResultBar';
+import { PageSizeField } from '../../../components/shared/PageSizeField';
 import { setDocumentTitle } from '../../../router/navigation';
+import { PageHeader } from '../../../components/shared/PageHeader';
 import { PageSection } from '../../../components/shared/PageSection';
 import { downloadExcelFile } from '../../../utils/excel';
-import { toLocalDateInputValue } from '../../../utils';
 import { adminDataClient } from '../../../api/admin';
-import type {
-  AdminCostGroupItem,
-  AdminProjectOption,
-  AdminTaskSearchFilters,
-  MemberAdminItem,
-} from '../types';
+import type { AdminTaskSearchFilters } from '../types';
 import {
   ADMIN_REPORTS_DEFAULT_PAGE_SIZE,
   ADMIN_REPORTS_DEFAULT_SORT,
@@ -19,11 +17,12 @@ import {
   ADMIN_REPORTS_PAGE_TITLE,
 } from './AdminReportsPage.constants';
 import type { SortState } from './AdminReportsPage.types';
-import { AdminReportsSortButton } from './AdminReportsSortButton';
+import { AdminReportsFilterForm } from './AdminReportsFilterForm';
+import { AdminReportsResultsTable } from './AdminReportsResultsTable';
 import {
   buildExportFilename,
+  createDefaultFilters,
   formatSummaryMinutes,
-  formatTimeCell,
   getTaskType1Options,
   getTaskType2Options,
   isDownloadRangeWithinThreeMonths,
@@ -284,518 +283,114 @@ export function AdminReportsPage() {
 
   return (
     <section className={'admin-reports-page admin-reports-page--shell'}>
-      <header className={'admin-reports-page__page-header'}>
-        <div className={'admin-reports-page__page-header-top'}>
-          <div className={'admin-reports-page__page-title-group'}>
-            <h1 className={'admin-reports-page__title'}>업무보고 조회</h1>
-          </div>
-          <div className={'admin-reports-page__header-actions'}>
-            <button
-              type="button"
-              className={'admin-reports-page__header-action'}
-              onClick={() =>
-                navigate('/org/search/new', {
-                  state: {
-                    memberId: memberFilterIds.length === 1 ? memberFilterIds[0] : '',
-                  },
-                })
-              }
-            >
-              업무보고 추가
-            </button>
-          </div>
-        </div>
-      </header>
+      <PageHeader
+        title="업무보고 조회"
+        actions={
+          <button
+            type="button"
+            className={'admin-reports-page__header-action'}
+            onClick={() =>
+              navigate('/org/search/new', {
+                state: {
+                  memberId: memberFilterIds.length === 1 ? memberFilterIds[0] : '',
+                },
+              })
+            }
+          >
+            업무보고 추가
+          </button>
+        }
+      />
 
       <PageSection title="필터">
-        <form className={'admin-reports-page__filter-form'} onSubmit={handleSearchSubmit}>
-          <div className={'admin-reports-page__date-row'}>
-            <label className={'admin-reports-page__filter-field'}>
-              <span>시작일</span>
-              <input
-                id="admin-reports-start-date"
-                type="date"
-                value={filters.startDate}
-                onChange={(event) => handleFilterField('startDate', event.target.value)}
-              />
-            </label>
-            <label className={'admin-reports-page__filter-field'}>
-              <span>종료일</span>
-              <input
-                id="admin-reports-end-date"
-                type="date"
-                value={filters.endDate}
-                onChange={(event) => handleFilterField('endDate', event.target.value)}
-              />
-            </label>
-          </div>
-
-          <div className={'admin-reports-page__meta-row'}>
-            <label className={'admin-reports-page__filter-field'}>
-              <span>타입1</span>
-              <select
-                id="admin-reports-task-type-1"
-                value={filters.taskType1}
-                onChange={(event) => handleFilterField('taskType1', event.target.value)}
-              >
-                <option value="">전체</option>
-                {taskType1Options.map((type1) => (
-                  <option key={`filter-type1-${type1}`} value={type1}>
-                    {type1}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className={'admin-reports-page__filter-field'}>
-              <span>타입2</span>
-              <select
-                id="admin-reports-task-type-2"
-                value={filters.taskType2}
-                onChange={(event) => handleFilterField('taskType2', event.target.value)}
-                disabled={!filters.taskType1}
-              >
-                <option value="">전체</option>
-                {taskType2Options.map((type2) => (
-                  <option key={`filter-type2-${type2}`} value={type2}>
-                    {type2}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className={'admin-reports-page__filter-field'}>
-              <span>청구그룹</span>
-              <select
-                id="admin-reports-cost-group"
-                value={filters.costGroupId}
-                onChange={(event) => handleFilterField('costGroupId', event.target.value)}
-              >
-                <option value="">전체</option>
-                {costGroups.map((group: AdminCostGroupItem) => (
-                  <option key={group.id} value={group.id}>
-                    {group.name}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className={'admin-reports-page__filter-field'}>
-              <span>프로젝트</span>
-              <select
-                id="admin-reports-service-name"
-                value={filters.projectId}
-                onChange={(event) => handleFilterField('projectId', event.target.value)}
-                disabled={!filters.costGroupId}
-              >
-                <option value="">전체</option>
-                {visibleProjects.map((project: AdminProjectOption) => (
-                  <option key={project.id} value={project.id}>
-                    {project.name}
-                  </option>
-                ))}
-              </select>
-            </label>
-          </div>
-
-          <div className={'admin-reports-page__search-row'}>
-            <div className={'admin-reports-page__filter-field'}>
-              <span>사용자</span>
-              <div className={'admin-reports-page__member-select'}>
-                <button
-                  type="button"
-                  className={'admin-reports-page__member-accordion-trigger'}
-                  onClick={() => setMemberFilterOpen((current) => !current)}
-                  aria-expanded={memberFilterOpen}
-                  aria-controls="admin-reports-member-panel"
-                >
-                  <span className={'admin-reports-page__member-accordion-value'}>
-                    {memberFilterIds.length === members.length && members.length > 0
-                      ? '전체'
-                      : memberFilterIds.length === 0
-                        ? '전체'
-                        : `${memberFilterIds.length}명 선택`}
-                  </span>
-                  <span className={'admin-reports-page__member-accordion-arrow'} aria-hidden="true">
-                    {memberFilterOpen ? '▲' : '▼'}
-                  </span>
-                </button>
-                <div
-                  id="admin-reports-member-panel"
-                  className={[
-                    'admin-reports-page__member-accordion-body',
-                    memberFilterOpen ? 'admin-reports-page__member-accordion-body--open' : '',
-                  ]
-                    .filter(Boolean)
-                    .join(' ')}
-                >
-                  <div className={'admin-reports-page__member-accordion-inner'}>
-                    <div className={'admin-reports-page__member-panel-toolbar'}>
-                      <input
-                        className={'admin-reports-page__member-search-input'}
-                        value={memberSearchInput}
-                        onChange={(event) => setMemberSearchInput(event.target.value)}
-                        placeholder="ID, 이름, 이메일 검색"
-                        aria-label="사용자 검색"
-                      />
-                    </div>
-                    <div className={'admin-reports-page__member-quick-actions'}>
-                      <button
-                        type="button"
-                        className={'admin-reports-page__member-quick-action'}
-                        onClick={() => setMemberFilterIds(members.map((member) => member.id))}
-                      >
-                        전체 선택
-                      </button>
-                      <button
-                        type="button"
-                        className={'admin-reports-page__member-quick-action'}
-                        onClick={() => setMemberFilterIds([])}
-                      >
-                        전체 해제
-                      </button>
-                    </div>
-                    <div className={'admin-reports-page__member-checkboxes'}>
-                      {visibleMembers.length === 0 ? (
-                        <p className={'admin-reports-page__member-empty-state'}>
-                          검색 결과가 없습니다.
-                        </p>
-                      ) : (
-                        visibleMembers.map((member: MemberAdminItem) => {
-                          const checked = memberFilterIds.includes(member.id);
-
-                          return (
-                            <label
-                              key={member.id}
-                              className={[
-                                'admin-reports-page__member-checkbox',
-                                checked ? 'admin-reports-page__member-checkbox--selected' : '',
-                              ]
-                                .filter(Boolean)
-                                .join(' ')}
-                            >
-                              <input
-                                type="checkbox"
-                                checked={checked}
-                                onChange={(event) => {
-                                  setMemberFilterIds((current) =>
-                                    event.target.checked
-                                      ? [...current, member.id]
-                                      : current.filter((id) => id !== member.id),
-                                  );
-                                }}
-                              />
-                              <span className={'admin-reports-page__member-account'}>
-                                {member.accountId}
-                              </span>
-                              <span className={'admin-reports-page__member-name'}>
-                                {member.name}
-                              </span>
-                            </label>
-                          );
-                        })
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <label className={'admin-reports-page__filter-field'}>
-              <span>검색어</span>
-              <input
-                value={filters.keyword}
-                onChange={(event) => handleFilterField('keyword', event.target.value)}
-                placeholder="ID, 이름, 서비스명, 비고 검색"
-              />
-            </label>
-          </div>
-
-          <div className={'admin-reports-page__filter-actions-row'}>
-            <div className={'admin-reports-page__filter-actions'}>
-              <button
-                type="submit"
-                className={'admin-reports-page__button admin-reports-page__button--filter'}
-                disabled={loading || searchQuery.isFetching}
-              >
-                검색
-              </button>
-              <button
-                type="button"
-                className={
-                  'admin-reports-page__button admin-reports-page__button--filter-secondary'
-                }
-                onClick={handleReset}
-              >
-                초기화
-              </button>
-              <span className={'admin-reports-page__filter-divider'} aria-hidden="true" />
-              <button
-                type="button"
-                className={
-                  'admin-reports-page__button admin-reports-page__button--filter-secondary'
-                }
-                onClick={handleExport}
-                disabled={totalTasks === 0}
-              >
-                다운로드
-              </button>
-            </div>
-          </div>
-        </form>
+        <AdminReportsFilterForm
+          filters={filters}
+          taskType1Options={taskType1Options}
+          taskType2Options={taskType2Options}
+          costGroups={costGroups}
+          visibleProjects={visibleProjects}
+          members={members}
+          visibleMembers={visibleMembers}
+          memberFilterIds={memberFilterIds}
+          memberFilterOpen={memberFilterOpen}
+          memberSearchInput={memberSearchInput}
+          loading={loading}
+          searching={searchQuery.isFetching}
+          totalTasks={totalTasks}
+          onSubmit={handleSearchSubmit}
+          onFilterField={handleFilterField}
+          onMemberFilterOpenToggle={() => setMemberFilterOpen((current) => !current)}
+          onMemberSearchInputChange={setMemberSearchInput}
+          onSelectAllMembers={() => setMemberFilterIds(members.map((member) => member.id))}
+          onClearAllMembers={() => setMemberFilterIds([])}
+          onMemberCheckedChange={(memberId, checked) => {
+            setMemberFilterIds((current) =>
+              checked ? [...current, memberId] : current.filter((id) => id !== memberId),
+            );
+          }}
+          onReset={handleReset}
+          onExport={() => void handleExport()}
+        />
       </PageSection>
 
       {(queryError || mutationError) && (
         <p className={'admin-reports-page__status-message'}>{queryError || mutationError}</p>
       )}
 
-      <section className={'admin-reports-page__result-bar'} aria-label="업무보고 조회 결과 요약">
-        <div className={'admin-reports-page__result-metrics'}>
-          <div className={'admin-reports-page__pager'} aria-label="업무보고 목록 페이지 이동">
-            <button
-              type="button"
-              className={'admin-reports-page__button admin-reports-page__button--page'}
-              onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
-              disabled={currentPageSafe === 1}
-              aria-label="이전 페이지"
-            >
-              이전
-            </button>
-            <p className={'admin-reports-page__page-status'}>
-              <strong>{currentPageSafe}</strong>
-              <span>/ {numberFormatter.format(totalPages)}</span>
+      <PageResultBar
+        className={'admin-reports-page__result-bar'}
+        aria-label="업무보고 조회 결과 요약"
+        metrics={
+          <>
+            <PagePager
+              className={'admin-reports-page__pager'}
+              aria-label="업무보고 목록 페이지 이동"
+              buttonClassName={'admin-reports-page__button admin-reports-page__button--page'}
+              statusClassName={'admin-reports-page__page-status'}
+              currentPage={currentPageSafe}
+              totalPages={totalPages}
+              canGoPrevious={currentPageSafe > 1}
+              canGoNext={currentPageSafe < totalPages && totalTasks > 0}
+              onPrevious={() => setCurrentPage((page) => Math.max(1, page - 1))}
+              onNext={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+            />
+            <p className={'admin-reports-page__result-metric'}>
+              <span className={'admin-reports-page__result-label'}>총 건수</span>
+              <strong className={'admin-reports-page__result-value'}>
+                {numberFormatter.format(totalTasks)}건
+              </strong>
             </p>
-            <button
-              type="button"
-              className={'admin-reports-page__button admin-reports-page__button--page'}
-              onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
-              disabled={currentPageSafe === totalPages || totalTasks === 0}
-              aria-label="다음 페이지"
-            >
-              다음
-            </button>
-          </div>
-          <p className={'admin-reports-page__result-metric'}>
-            <span className={'admin-reports-page__result-label'}>총 건수</span>
-            <strong className={'admin-reports-page__result-value'}>
-              {numberFormatter.format(totalTasks)}건
-            </strong>
-          </p>
-          <p className={'admin-reports-page__result-metric'}>
-            <span className={'admin-reports-page__result-label'}>총 시간</span>
-            <strong className={'admin-reports-page__result-value'}>
-              {formatSummaryMinutes(totalMinutes)}
-            </strong>
-          </p>
-        </div>
-        <div className={'admin-reports-page__result-controls'}>
-          <label className={'admin-reports-page__page-size-field'}>
-            <span>페이지당</span>
-            <select
-              value={String(pageSize)}
-              onChange={(event) => {
-                setPageSize(Number(event.target.value));
-                setCurrentPage(1);
-              }}
-              aria-label="페이지당 행 수"
-            >
-              {ADMIN_REPORTS_PAGE_SIZE_OPTIONS.map((option) => (
-                <option key={option} value={option}>
-                  {option}행
-                </option>
-              ))}
-            </select>
-          </label>
-        </div>
-      </section>
+            <p className={'admin-reports-page__result-metric'}>
+              <span className={'admin-reports-page__result-label'}>총 시간</span>
+              <strong className={'admin-reports-page__result-value'}>
+                {formatSummaryMinutes(totalMinutes)}
+              </strong>
+            </p>
+          </>
+        }
+        controls={
+          <PageSizeField
+            className={'admin-reports-page__page-size-field'}
+            aria-label="페이지당 행 수"
+            value={pageSize}
+            options={ADMIN_REPORTS_PAGE_SIZE_OPTIONS}
+            onValueChange={(next) => {
+              setPageSize(next);
+              setCurrentPage(1);
+            }}
+          />
+        }
+      />
 
-      <div className={'admin-reports-page__panel'}>
-        <div className={'admin-reports-page__table-wrap'}>
-          <table className={'admin-reports-page__table'}>
-            <thead>
-              <tr>
-                <th>
-                  <AdminReportsSortButton
-                    label="일자"
-                    sortKey="taskDate"
-                    sortState={sortState}
-                    onChange={setSortState}
-                  />
-                </th>
-                <th>
-                  <AdminReportsSortButton
-                    label="ID"
-                    sortKey="member"
-                    sortState={sortState}
-                    onChange={setSortState}
-                  />
-                </th>
-                <th>
-                  <AdminReportsSortButton
-                    label="청구그룹"
-                    sortKey="costGroup"
-                    sortState={sortState}
-                    onChange={setSortState}
-                  />
-                </th>
-                <th>
-                  <AdminReportsSortButton
-                    label="type 1"
-                    sortKey="taskType1"
-                    sortState={sortState}
-                    onChange={setSortState}
-                  />
-                </th>
-                <th>
-                  <AdminReportsSortButton
-                    label="type 2"
-                    sortKey="taskType2"
-                    sortState={sortState}
-                    onChange={setSortState}
-                  />
-                </th>
-                <th>
-                  <AdminReportsSortButton
-                    label="플랫폼"
-                    sortKey="platform"
-                    sortState={sortState}
-                    onChange={setSortState}
-                  />
-                </th>
-                <th>
-                  <AdminReportsSortButton
-                    label="서비스그룹"
-                    sortKey="serviceGroup"
-                    sortState={sortState}
-                    onChange={setSortState}
-                  />
-                </th>
-                <th>
-                  <AdminReportsSortButton
-                    label="서비스명"
-                    sortKey="serviceName"
-                    sortState={sortState}
-                    onChange={setSortState}
-                  />
-                </th>
-                <th>
-                  <AdminReportsSortButton
-                    label="프로젝트명"
-                    sortKey="projectName"
-                    sortState={sortState}
-                    onChange={setSortState}
-                  />
-                </th>
-                <th>
-                  <AdminReportsSortButton
-                    label="페이지명"
-                    sortKey="pageTitle"
-                    sortState={sortState}
-                    onChange={setSortState}
-                  />
-                </th>
-                <th>링크</th>
-                <th>
-                  <AdminReportsSortButton
-                    label="시간"
-                    sortKey="taskUsedtime"
-                    sortState={sortState}
-                    onChange={setSortState}
-                  />
-                </th>
-                <th>비고</th>
-                <th>관리</th>
-              </tr>
-            </thead>
-            <tbody>
-              {sortedTasks.length === 0 ? (
-                <tr>
-                  <td colSpan={14} className={'admin-reports-page__empty-state'}>
-                    검색 결과가 없습니다.
-                  </td>
-                </tr>
-              ) : (
-                sortedTasks.map((task) => {
-                  const member = membersById.get(task.memberId);
-
-                  return (
-                    <tr key={task.id}>
-                      <td>{task.taskDate}</td>
-                      <td>
-                        <strong>{member?.accountId ?? task.memberId}</strong>
-                        <div className={'admin-reports-page__muted'}>
-                          {member?.name ?? task.memberName}
-                        </div>
-                      </td>
-                      <td>{task.costGroupName || '-'}</td>
-                      <td>{task.taskType1}</td>
-                      <td>{task.taskType2}</td>
-                      <td>{task.platform || '-'}</td>
-                      <td>{task.serviceGroupName || '-'}</td>
-                      <td>{task.serviceName || '-'}</td>
-                      <td>{task.projectName || '-'}</td>
-                      <td>{task.pageTitle || '-'}</td>
-                      <td>
-                        {task.pageUrl ? (
-                          <a
-                            href={task.pageUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                            className={'admin-reports-page__table-link'}
-                          >
-                            링크
-                          </a>
-                        ) : (
-                          '-'
-                        )}
-                      </td>
-                      <td>{formatTimeCell(task.taskUsedtime)}</td>
-                      <td>{task.note || '-'}</td>
-                      <td>
-                        <div className={'admin-reports-page__action-stack'}>
-                          <button
-                            type="button"
-                            className={
-                              'admin-reports-page__button admin-reports-page__button--action'
-                            }
-                            onClick={() => navigate(`/org/search/${task.id}/edit`)}
-                          >
-                            수정
-                          </button>
-                          <button
-                            type="button"
-                            className={
-                              'admin-reports-page__button admin-reports-page__button--delete'
-                            }
-                            onClick={() => void deleteTask(task.id)}
-                            disabled={deleteMutation.isPending}
-                          >
-                            삭제
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <AdminReportsResultsTable
+        tasks={sortedTasks}
+        membersById={membersById}
+        sortState={sortState}
+        deletePending={deleteMutation.isPending}
+        onSortChange={setSortState}
+        onEdit={(taskId) => navigate(`/org/search/${taskId}/edit`)}
+        onDelete={(taskId) => void deleteTask(taskId)}
+      />
     </section>
   );
-}
-
-function createDefaultFilters(): AdminTaskSearchFilters {
-  const today = getTodayInputValue();
-  return {
-    startDate: today,
-    endDate: today,
-    memberId: '',
-    costGroupId: '',
-    projectId: '',
-    pageId: '',
-    taskType1: '',
-    taskType2: '',
-    keyword: '',
-  };
-}
-function getTodayInputValue() {
-  return toLocalDateInputValue(new Date());
 }

@@ -1,7 +1,9 @@
 import { type FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { adminDataClient } from '../../../api/admin';
+import { AdminServiceGroupEditorActionRow } from './AdminServiceGroupEditorActionRow';
+import { AdminServiceGroupEditorForm } from './AdminServiceGroupEditorForm';
 import type { AdminServiceGroupItem, AdminServiceGroupPayload } from '../types';
 import '../../../styles/domain/pages/projects-feature.scss';
 
@@ -206,106 +208,27 @@ export function AdminServiceGroupEditorPage() {
           className="projects-feature__detail-form projects-feature__editor-detail-form"
           onSubmit={handleSubmit}
         >
-          <div className={'projects-feature__editor-form-grid'}>
-            <label className={'projects-feature__field'}>
-              <span>서비스그룹</span>
-              <input
-                ref={titleRef}
-                value={draft.svcGroup}
-                onChange={(event) =>
-                  setDraft((current) => ({ ...current, svcGroup: event.target.value }))
-                }
-              />
-            </label>
+          <AdminServiceGroupEditorForm
+            draft={draft}
+            costGroups={costGroups}
+            titleRef={titleRef}
+            onDraftChange={(patch) =>
+              setDraft((current) => ({
+                ...current,
+                ...patch,
+              }))
+            }
+          />
 
-            <label className={'projects-feature__field'}>
-              <span>서비스명</span>
-              <input
-                value={draft.svcName}
-                onChange={(event) =>
-                  setDraft((current) => ({ ...current, svcName: event.target.value }))
-                }
-              />
-            </label>
-
-            <label className={'projects-feature__field'}>
-              <span>청구그룹</span>
-              <select
-                value={draft.costGroupId}
-                onChange={(event) =>
-                  setDraft((current) => ({ ...current, costGroupId: event.target.value }))
-                }
-              >
-                <option value="">청구그룹 선택</option>
-                {costGroups.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.name}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <label className={'projects-feature__field'}>
-              <span>노출여부</span>
-              <select
-                value={draft.svcActive ? '1' : '0'}
-                onChange={(event) => {
-                  const nextActive = event.target.value === '1';
-                  setDraft((current) => ({
-                    ...current,
-                    svcActive: nextActive,
-                    isActive: nextActive,
-                  }));
-                }}
-              >
-                <option value="1">노출</option>
-                <option value="0">숨김</option>
-              </select>
-            </label>
-          </div>
-
-          <div className="projects-feature__form-actions projects-feature__editor-form-actions">
-            <div
-              className={
-                'projects-feature__editor-form-actions projects-feature__editor-form-actions--start'
-              }
-            >
-              {isEditMode ? (
-                <>
-                  <button
-                    type="button"
-                    className={'projects-feature__delete-button'}
-                    onClick={() => void handleDelete()}
-                    disabled={deleteMutation.isPending || deleteBlocked}
-                  >
-                    삭제
-                  </button>
-                  {deleteHelpText ? (
-                    <p className={'projects-feature__help-text'}>{deleteHelpText}</p>
-                  ) : null}
-                </>
-              ) : null}
-            </div>
-            <div
-              className={
-                'projects-feature__editor-form-actions projects-feature__editor-form-actions--end'
-              }
-            >
-              <Link
-                to="/admin/group"
-                className={'projects-feature__button projects-feature__button--secondary'}
-              >
-                취소
-              </Link>
-              <button
-                type="submit"
-                className={'projects-feature__button projects-feature__button--primary'}
-                disabled={saveMutation.isPending || !draft.costGroupId}
-              >
-                저장
-              </button>
-            </div>
-          </div>
+          <AdminServiceGroupEditorActionRow
+            isEditMode={isEditMode}
+            deletePending={deleteMutation.isPending}
+            deleteBlocked={deleteBlocked}
+            deleteHelpText={deleteHelpText}
+            savePending={saveMutation.isPending}
+            canSave={Boolean(draft.costGroupId)}
+            onDelete={() => void handleDelete()}
+          />
         </form>
       </section>
     </section>

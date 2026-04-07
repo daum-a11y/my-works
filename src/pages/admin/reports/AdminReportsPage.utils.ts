@@ -2,6 +2,7 @@ import {
   buildTaskType1Options as buildTaskType1OptionValues,
   buildTaskType2Options as buildTaskType2OptionValues,
 } from '../../../utils/taskType';
+import { toLocalDateInputValue } from '../../../utils';
 import type { AdminTaskSearchItem, AdminTaskTypeItem, MemberAdminItem } from '../types';
 import type { SortKey, SortState } from './AdminReportsPage.types';
 
@@ -147,4 +148,20 @@ export function getTaskType2Options(
     type1,
     currentValue,
   );
+}
+
+export function createDefaultFilters() {
+  const today = toLocalDateInputValue(new Date());
+
+  return {
+    startDate: today,
+    endDate: today,
+    memberId: '',
+    costGroupId: '',
+    projectId: '',
+    pageId: '',
+    taskType1: '',
+    taskType2: '',
+    keyword: '',
+  };
 }
