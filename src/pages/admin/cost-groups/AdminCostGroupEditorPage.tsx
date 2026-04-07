@@ -4,7 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { adminDataClient } from '../../../api/admin';
 import { AdminCostGroupEditorActionRow } from './AdminCostGroupEditorActionRow';
 import { AdminCostGroupEditorForm } from './AdminCostGroupEditorForm';
-import type { AdminCostGroupItem, AdminCostGroupPayload } from '../types';
+import type { AdminCostGroupItem, AdminCostGroupPayload } from '../admin.types';
 import '../../../styles/domain/pages/projects-feature.scss';
 
 function createDraft(item?: AdminCostGroupItem): AdminCostGroupPayload {

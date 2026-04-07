@@ -3,7 +3,7 @@ import {
   buildTaskType2Options as buildTaskType2OptionValues,
 } from '../../../utils/taskType';
 import { toLocalDateInputValue } from '../../../utils';
-import type { AdminTaskSearchItem, AdminTaskTypeItem, MemberAdminItem } from '../types';
+import type { AdminTaskSearchItem, AdminTaskTypeItem, MemberAdminItem } from '../admin.types';
 import type { SortKey, SortState } from './AdminReportsPage.types';
 
 export function buildExportFilename(startDate: string, endDate: string) {

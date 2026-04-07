@@ -9,7 +9,7 @@ import { AdminReportEditorPanelHeader } from './AdminReportEditorPanelHeader';
 import { AdminReportEditorReportTabFields } from './AdminReportEditorReportTabFields';
 import { AdminReportEditorStatus } from './AdminReportEditorStatus';
 import type { AdminReportEditorTab } from './AdminReportEditorPage.types';
-import type { MemberAdminItem } from '../types';
+import type { MemberAdminItem } from '../admin.types';
 
 interface AdminReportEditorFormProps {
   isEdit: boolean;

@@ -1,5 +1,5 @@
 import type { RefObject } from 'react';
-import type { AdminPlatformPayload } from '../types';
+import type { AdminPlatformPayload } from '../admin.types';
 
 interface AdminPlatformEditorFormProps {
   draft: AdminPlatformPayload;

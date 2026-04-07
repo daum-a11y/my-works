@@ -26,7 +26,7 @@ import type {
   MemberAdminPayload,
   MemberCreateResult,
   MemberPasswordResetPayload,
-} from '../pages/admin/types';
+} from '../pages/admin/admin.types';
 
 interface AdminDataClient {
   listTaskTypes(): Promise<AdminTaskTypeItem[]>;

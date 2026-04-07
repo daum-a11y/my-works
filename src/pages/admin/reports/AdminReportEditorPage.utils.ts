@@ -8,7 +8,7 @@ import type {
 } from '../../../types/domain';
 import { adminDataClient } from '../../../api/admin';
 import type { ReportDraft } from '../../reports/reportUtils';
-import type { AdminTaskSearchItem } from '../types';
+import type { AdminTaskSearchItem } from '../admin.types';
 
 export function formatCompactDate(value: string, mode: 'short' | 'long') {
   if (!value) {

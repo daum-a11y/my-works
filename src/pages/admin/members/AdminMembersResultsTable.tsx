@@ -1,5 +1,5 @@
 import { TableEmptyRow } from '../../../components/shared/TableEmptyRow';
-import type { MemberAdminItem } from '../types';
+import type { MemberAdminItem } from '../admin.types';
 import { AdminMemberRow } from './AdminMemberRow';
 
 interface AdminMembersResultsTableProps {

@@ -209,25 +209,3 @@ export interface MemberCreateResult {
   action: 'updated' | 'created';
   memberId: string;
 }
-
-import { toLocalDateInputValue } from '../../utils';
-
-function formatDate(date: Date) {
-  return toLocalDateInputValue(date);
-}
-
-export function createDefaultAdminTaskSearchFilters(
-  referenceDate = new Date(),
-): AdminTaskSearchFilters {
-  return {
-    startDate: formatDate(new Date(referenceDate.getFullYear(), referenceDate.getMonth(), 1)),
-    endDate: formatDate(referenceDate),
-    memberId: '',
-    costGroupId: '',
-    projectId: '',
-    pageId: '',
-    taskType1: '',
-    taskType2: '',
-    keyword: '',
-  };
-}

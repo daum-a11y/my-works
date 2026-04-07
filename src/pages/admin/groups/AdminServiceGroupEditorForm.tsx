@@ -1,5 +1,5 @@
 import type { RefObject } from 'react';
-import type { AdminServiceGroupPayload } from '../types';
+import type { AdminServiceGroupPayload } from '../admin.types';
 
 interface AdminServiceGroupEditorFormProps {
   draft: AdminServiceGroupPayload;

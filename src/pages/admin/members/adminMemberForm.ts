@@ -1,4 +1,4 @@
-import type { MemberAdminItem, MemberAdminPayload } from '../types';
+import type { MemberAdminItem, MemberAdminPayload } from '../admin.types';
 
 export function createMemberDraft(member?: MemberAdminItem): MemberAdminPayload {
   if (!member) {

@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import type { AdminServiceGroupItem } from '../types';
+import type { AdminServiceGroupItem } from '../admin.types';
 
 interface AdminServiceGroupGroup {
   svcGroup: string;

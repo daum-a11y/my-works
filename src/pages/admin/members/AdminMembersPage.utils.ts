@@ -1,4 +1,4 @@
-import type { MemberAdminItem } from '../types';
+import type { MemberAdminItem } from '../admin.types';
 import type { MemberFilterState } from './AdminMembersPage.types';
 
 function normalizeText(value: string) {

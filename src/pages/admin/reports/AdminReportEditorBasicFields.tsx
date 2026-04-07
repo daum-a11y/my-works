@@ -1,5 +1,5 @@
 import { type ReportDraft } from '../../reports/reportUtils';
-import type { MemberAdminItem } from '../types';
+import type { MemberAdminItem } from '../admin.types';
 
 interface AdminReportEditorBasicFieldsProps {
   isEdit: boolean;

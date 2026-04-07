@@ -1,4 +1,4 @@
-import type { MemberAdminPayload } from '../types';
+import type { MemberAdminPayload } from '../admin.types';
 import { ADMIN_MEMBER_EDITOR_STATUS_SECTION_TITLE } from './AdminMemberEditorPage.constants';
 
 interface AdminMemberEditorStatusSectionProps {

@@ -5,7 +5,7 @@ import type {
   AdminProjectOption,
   AdminTaskSearchFilters,
   MemberAdminItem,
-} from '../types';
+} from '../admin.types';
 
 interface AdminReportsFilterFormProps {
   filters: AdminTaskSearchFilters;

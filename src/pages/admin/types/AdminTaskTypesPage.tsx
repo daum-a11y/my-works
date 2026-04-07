@@ -6,7 +6,7 @@ import { AdminOrderDialog } from '../../../components/admin/AdminOrderDialog';
 import { adminDataClient } from '../../../api/admin';
 import { AdminTaskTypesResultsTable } from './AdminTaskTypesResultsTable';
 import '../../../styles/domain/pages/admin-crud-page.scss';
-import type { AdminTaskTypeItem } from '../types';
+import type { AdminTaskTypeItem } from '../admin.types';
 
 function groupTaskTypes(taskTypes: AdminTaskTypeItem[]) {
   const grouped = new Map<string, AdminTaskTypeItem[]>();

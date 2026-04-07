@@ -4,7 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { adminDataClient } from '../../../api/admin';
 import { AdminServiceGroupEditorActionRow } from './AdminServiceGroupEditorActionRow';
 import { AdminServiceGroupEditorForm } from './AdminServiceGroupEditorForm';
-import type { AdminServiceGroupItem, AdminServiceGroupPayload } from '../types';
+import type { AdminServiceGroupItem, AdminServiceGroupPayload } from '../admin.types';
 import '../../../styles/domain/pages/projects-feature.scss';
 
 function createDraft(item?: AdminServiceGroupItem): AdminServiceGroupPayload {

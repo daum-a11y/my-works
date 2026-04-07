@@ -1,4 +1,4 @@
-import type { MemberAdminItem, MemberAdminPayload } from '../types';
+import type { MemberAdminItem, MemberAdminPayload } from '../admin.types';
 
 export function getAuthActionLabel(hasAuthAccount: boolean) {
   return hasAuthAccount ? '비밀번호 재설정' : '초대 메일 발송';

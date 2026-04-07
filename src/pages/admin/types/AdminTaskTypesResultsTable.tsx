@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import type { AdminTaskTypeItem } from '../types';
+import type { AdminTaskTypeItem } from '../admin.types';
 
 interface AdminTaskTypeGroup {
   type1: string;

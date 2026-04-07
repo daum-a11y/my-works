@@ -1,5 +1,5 @@
 import { SortableTableHeaderButton, TableEmptyRow } from '../../../components/shared';
-import type { AdminTaskSearchItem, MemberAdminItem } from '../types';
+import type { AdminTaskSearchItem, MemberAdminItem } from '../admin.types';
 import type { SortState } from './AdminReportsPage.types';
 import { formatTimeCell } from './AdminReportsPage.utils';
 

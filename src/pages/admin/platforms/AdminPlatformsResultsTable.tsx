@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import type { AdminPlatformItem } from '../types';
+import type { AdminPlatformItem } from '../admin.types';
 
 interface AdminPlatformsResultsTableProps {
   platforms: readonly AdminPlatformItem[];

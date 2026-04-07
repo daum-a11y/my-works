@@ -5,7 +5,7 @@ import { setDocumentTitle } from '../../../router/navigation';
 import { AdminOrderDialog } from '../../../components/admin/AdminOrderDialog';
 import { adminDataClient } from '../../../api/admin';
 import { AdminServiceGroupsResultsTable } from './AdminServiceGroupsResultsTable';
-import type { AdminServiceGroupItem } from '../types';
+import type { AdminServiceGroupItem } from '../admin.types';
 import '../../../styles/domain/pages/admin-crud-page.scss';
 
 function groupServiceGroups(items: readonly AdminServiceGroupItem[]) {

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router-dom';
 import { adminDataClient } from '../../../api/admin';
-import type { MemberAdminPayload } from '../types';
+import type { MemberAdminPayload } from '../admin.types';
 import { AdminMemberEditorActionRow } from './AdminMemberEditorActionRow';
 import { AdminMemberEditorBasicSection } from './AdminMemberEditorBasicSection';
 import {
@@ -12,7 +12,7 @@ import {
 } from './AdminMemberEditorPage.constants';
 import { AdminMemberEditorNoteSection } from './AdminMemberEditorNoteSection';
 import { AdminMemberEditorStatusSection } from './AdminMemberEditorStatusSection';
-import { createMemberDraft, normalizeMemberDraft } from './memberAdminForm';
+import { createMemberDraft, normalizeMemberDraft } from './adminMemberForm';
 import {
   buildInvitePayload,
   getAuthActionLabel,

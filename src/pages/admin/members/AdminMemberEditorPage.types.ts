@@ -1,4 +1,4 @@
-import type { MemberAdminPayload } from '../types';
+import type { MemberAdminPayload } from '../admin.types';
 
 export interface AdminMemberEditorState {
   draft: MemberAdminPayload;

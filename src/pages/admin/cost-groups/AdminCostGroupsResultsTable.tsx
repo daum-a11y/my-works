@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import type { AdminCostGroupItem } from '../types';
+import type { AdminCostGroupItem } from '../admin.types';
 
 interface AdminCostGroupsResultsTableProps {
   costGroups: readonly AdminCostGroupItem[];

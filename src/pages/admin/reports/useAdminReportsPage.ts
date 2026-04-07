@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { adminDataClient } from '../../../api/admin';
 import { setDocumentTitle } from '../../../router/navigation';
 import { downloadExcelFile } from '../../../utils/excel';
-import type { AdminTaskSearchFilters } from '../types';
+import type { AdminTaskSearchFilters } from '../admin.types';
 import {
   ADMIN_REPORTS_DEFAULT_PAGE_SIZE,
   ADMIN_REPORTS_DEFAULT_SORT,

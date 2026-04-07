@@ -1,5 +1,5 @@
 import type { RefObject } from 'react';
-import type { AdminTaskTypePayload } from '../types';
+import type { AdminTaskTypePayload } from '../admin.types';
 
 interface AdminTaskTypeEditorFormProps {
   draft: AdminTaskTypePayload;
