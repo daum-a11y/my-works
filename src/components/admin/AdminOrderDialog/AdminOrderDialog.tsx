@@ -1,23 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-
-export interface AdminOrderDialogItem {
-  id: string;
-  title: string;
-  description?: string;
-  badge?: string;
-  inactive?: boolean;
-}
-
-interface AdminOrderDialogProps {
-  title: string;
-  description: string;
-  items: AdminOrderDialogItem[];
-  isOpen: boolean;
-  isSaving: boolean;
-  errorMessage?: string;
-  onClose: () => void;
-  onSave: (ids: string[]) => Promise<void> | void;
-}
+import { ADMIN_ORDER_DIALOG_DEFAULTS } from './AdminOrderDialog.constants';
+import type { AdminOrderDialogItem, AdminOrderDialogProps } from './AdminOrderDialog.types';
 
 function moveItem<T>(items: readonly T[], fromIndex: number, toIndex: number) {
   if (fromIndex === toIndex || fromIndex < 0 || toIndex < 0) {
@@ -36,7 +19,7 @@ export function AdminOrderDialog({
   items,
   isOpen,
   isSaving,
-  errorMessage = '',
+  errorMessage = ADMIN_ORDER_DIALOG_DEFAULTS.ERROR_MESSAGE,
   onClose,
   onSave,
 }: AdminOrderDialogProps) {
@@ -80,9 +63,11 @@ export function AdminOrderDialog({
     setDraftItems((current) => {
       const currentIndex = current.findIndex((item) => item.id === itemId);
       const nextIndex = currentIndex + direction;
+
       if (currentIndex < 0 || nextIndex < 0 || nextIndex >= current.length) {
         return current;
       }
+
       return moveItem(current, currentIndex, nextIndex);
     });
   };

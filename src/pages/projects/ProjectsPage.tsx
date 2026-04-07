@@ -5,28 +5,15 @@ import { setDocumentTitle } from '../../router/navigation';
 import { useAuth } from '../../auth/AuthContext';
 import { PageSection } from '../../components/shared/PageSection';
 import { dataClient } from '../../api/client';
-import { formatDateLabel, getToday, parseLocalDateInput, toLocalDateInputValue } from '../../utils';
+import { formatDateLabel } from '../../utils';
+import {
+  PROJECTS_DEFAULT_PAGE_SIZE,
+  PROJECTS_PAGE_SIZE_OPTIONS,
+  PROJECTS_PAGE_TITLE,
+} from './ProjectsPage.constants';
+import type { ProjectFilterState } from './ProjectsPage.types';
+import { createInitialProjectFilters } from './ProjectsPage.utils';
 import '../../styles/domain/pages/projects-feature.scss';
-
-interface ProjectFilterState {
-  startDate: string;
-  endDate: string;
-}
-
-function createInitialProjectFilters(): ProjectFilterState {
-  const endDate = getToday();
-  const end = parseLocalDateInput(endDate) ?? new Date();
-  const start = new Date(end);
-  start.setFullYear(start.getFullYear() - 1);
-
-  return {
-    startDate: toLocalDateInputValue(start),
-    endDate,
-  };
-}
-
-const PAGE_SIZE_OPTIONS = [25, 50, 100] as const;
-const DEFAULT_PAGE_SIZE = 50;
 const numberFormatter = new Intl.NumberFormat('ko-KR');
 
 export function ProjectsPage() {
@@ -38,11 +25,11 @@ export function ProjectsPage() {
   );
   const [searchInput, setSearchInput] = useState('');
   const [appliedSearch, setAppliedSearch] = useState('');
-  const [pageSize, setPageSize] = useState<number>(DEFAULT_PAGE_SIZE);
+  const [pageSize, setPageSize] = useState<number>(PROJECTS_DEFAULT_PAGE_SIZE);
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
-    setDocumentTitle('프로젝트 관리');
+    setDocumentTitle(PROJECTS_PAGE_TITLE);
   }, []);
 
   const query = useQuery({
@@ -180,7 +167,7 @@ export function ProjectsPage() {
               }}
               aria-label="페이지당 행 수"
             >
-              {PAGE_SIZE_OPTIONS.map((option) => (
+              {PROJECTS_PAGE_SIZE_OPTIONS.map((option) => (
                 <option key={option} value={option}>
                   {option}행
                 </option>
@@ -263,5 +250,3 @@ export function ProjectsPage() {
     </section>
   );
 }
-
-export default ProjectsPage;

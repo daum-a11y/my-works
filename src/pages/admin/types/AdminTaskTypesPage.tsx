@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useLocation } from 'react-router-dom';
 import { setDocumentTitle } from '../../../router/navigation';
-import { AdminOrderDialog } from '../AdminOrderDialog';
+import { AdminOrderDialog } from '../../../components/admin/AdminOrderDialog';
 import { adminDataClient } from '../../../api/admin';
 import '../../../styles/domain/pages/admin-crud-page.scss';
 import type { AdminTaskTypeItem } from '../types';
@@ -37,6 +37,10 @@ export function AdminTaskTypesPage() {
   const [statusMessage, setStatusMessage] = useState('');
   const [orderDialogOpen, setOrderDialogOpen] = useState(false);
 
+  useEffect(() => {
+    setDocumentTitle('업무 타입 관리');
+  }, []);
+
   const taskTypesQuery = useQuery({
     queryKey: ['admin', 'task-types'],
     queryFn: () => adminDataClient.listTaskTypes(),
@@ -61,10 +65,6 @@ export function AdminTaskTypesPage() {
     }
     return map;
   }, [taskTypes]);
-
-  useEffect(() => {
-    setDocumentTitle('업무 타입 관리');
-  }, []);
 
   useEffect(() => {
     const nextMessage = (location.state as { statusMessage?: string } | null)?.statusMessage;

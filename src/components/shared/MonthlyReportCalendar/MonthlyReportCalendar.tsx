@@ -1,32 +1,11 @@
 import clsx from 'clsx';
 import { Link } from 'react-router-dom';
-import '../../styles/domain/components/MonthlyReportCalendar.scss';
-
-const weekdayLabels = ['일', '월', '화', '수', '목', '금', '토'];
-
-export interface CalendarCell {
-  day: number;
-  date: string;
-  weekday: number;
-}
-
-export interface MonthlyReportCalendarLink {
-  to: string;
-  state?: unknown;
-}
-
-interface MonthlyReportCalendarProps {
-  weeks: Array<Array<CalendarCell | null>>;
-  summary: Map<number, number>;
-  currentMonth: boolean;
-  futureMonth: boolean;
-  todayDay: number;
-  caption?: string;
-  padded?: boolean;
-  panel?: boolean;
-  getDateLink?: (date: string) => MonthlyReportCalendarLink | null;
-  className?: string;
-}
+import '../../../styles/domain/components/MonthlyReportCalendar.scss';
+import {
+  MONTHLY_REPORT_CALENDAR_DEFAULTS,
+  MONTHLY_REPORT_CALENDAR_WEEKDAY_LABELS,
+} from './MonthlyReportCalendar.constants';
+import type { MonthlyReportCalendarProps } from './MonthlyReportCalendar.types';
 
 function formatDiffMinutes(minutes: number) {
   if (minutes > 0) {
@@ -47,8 +26,8 @@ export function MonthlyReportCalendar({
   futureMonth,
   todayDay,
   caption,
-  padded = true,
-  panel = true,
+  padded = MONTHLY_REPORT_CALENDAR_DEFAULTS.PADDED,
+  panel = MONTHLY_REPORT_CALENDAR_DEFAULTS.PANEL,
   getDateLink,
   className,
 }: MonthlyReportCalendarProps) {
@@ -65,7 +44,7 @@ export function MonthlyReportCalendar({
         {caption ? <caption className="sr-only">{caption}</caption> : null}
         <thead>
           <tr>
-            {weekdayLabels.map((label) => (
+            {MONTHLY_REPORT_CALENDAR_WEEKDAY_LABELS.map((label) => (
               <th key={label}>{label}</th>
             ))}
           </tr>

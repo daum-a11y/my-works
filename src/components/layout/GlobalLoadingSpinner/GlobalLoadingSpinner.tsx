@@ -1,4 +1,9 @@
-export function GlobalLoadingSpinner({ overlay = false }: { overlay?: boolean }) {
+import { GLOBAL_LOADING_SPINNER_DEFAULTS } from './GlobalLoadingSpinner.constants';
+import type { GlobalLoadingSpinnerProps } from './GlobalLoadingSpinner.types';
+
+export function GlobalLoadingSpinner({
+  overlay = GLOBAL_LOADING_SPINNER_DEFAULTS.overlay,
+}: GlobalLoadingSpinnerProps) {
   return (
     <div
       className={

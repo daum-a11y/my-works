@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useLocation } from 'react-router-dom';
 import { setDocumentTitle } from '../../../router/navigation';
-import { AdminOrderDialog } from '../AdminOrderDialog';
+import { AdminOrderDialog } from '../../../components/admin/AdminOrderDialog';
 import { adminDataClient } from '../../../api/admin';
 import type { AdminServiceGroupItem } from '../types';
 import '../../../styles/domain/pages/admin-crud-page.scss';
@@ -40,6 +40,10 @@ export function AdminServiceGroupsPage() {
   const [statusMessage, setStatusMessage] = useState('');
   const [orderDialogOpen, setOrderDialogOpen] = useState(false);
 
+  useEffect(() => {
+    setDocumentTitle('서비스그룹 관리');
+  }, []);
+
   const serviceGroupsQuery = useQuery({
     queryKey: ['admin', 'service-groups'],
     queryFn: () => adminDataClient.listServiceGroups(),
@@ -66,10 +70,6 @@ export function AdminServiceGroupsPage() {
       setStatusMessage('서비스그룹 순서를 저장했습니다.');
     },
   });
-
-  useEffect(() => {
-    setDocumentTitle('서비스그룹 관리');
-  }, []);
 
   useEffect(() => {
     const nextMessage = (location.state as { statusMessage?: string } | null)?.statusMessage;

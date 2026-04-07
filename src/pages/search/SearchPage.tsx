@@ -5,77 +5,25 @@ import { useAuth } from '../../auth/AuthContext';
 import { PageSection } from '../../components/shared/PageSection';
 import { dataClient } from '../../api/client';
 import { downloadExcelFile } from '../../utils/excel';
-import { getToday, parseLocalDateInput, toLocalDateInputValue } from '../../utils';
 import {
   DEFAULT_REPORT_FILTERS,
   formatReportDate,
   formatReportTaskUsedtime,
 } from '../reports/reportUtils';
+import {
+  SEARCH_DEFAULT_PAGE_SIZE,
+  SEARCH_PAGE_SIZE_OPTIONS,
+  SEARCH_PAGE_TITLE,
+} from './SearchPage.constants';
+import type { SearchFilters } from './SearchPage.types';
+import {
+  buildCurrentMonthFilters,
+  buildExportFilename,
+  isDownloadRangeWithinThreeMonths,
+  sortSearchRows,
+} from './SearchPage.utils';
 import '../../styles/domain/pages/search-page.scss';
-
-interface SearchFilters {
-  startDate: string;
-  endDate: string;
-}
-
-function buildCurrentMonthFilters(): SearchFilters {
-  const today = parseLocalDateInput(getToday()) ?? new Date();
-  const startDate = new Date(today.getFullYear(), today.getMonth(), 1, 12, 0, 0, 0);
-  const endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0, 12, 0, 0, 0);
-
-  return {
-    startDate: toLocalDateInputValue(startDate),
-    endDate: toLocalDateInputValue(endDate),
-  };
-}
-
-function buildExportFilename(startDate: string, endDate: string) {
-  const compact = (value: string) => value.replaceAll('-', '').slice(2);
-
-  if (startDate && endDate && startDate === endDate) {
-    return `${compact(startDate)}_검색결과.xlsx`;
-  }
-
-  if (startDate && endDate) {
-    return `${compact(startDate)}~${compact(endDate)}_검색결과.xlsx`;
-  }
-
-  if (startDate && !endDate) {
-    return `${compact(startDate)}~${compact(startDate)}_검색결과.xlsx`;
-  }
-
-  if (!startDate && endDate) {
-    return `${compact(endDate)}~${compact(endDate)}_검색결과.xlsx`;
-  }
-
-  return '검색결과.xlsx';
-}
-
-function isDownloadRangeWithinThreeMonths(startDate: string, endDate: string) {
-  const start = new Date(`${startDate}T00:00:00`);
-  const end = new Date(`${endDate}T00:00:00`);
-
-  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
-    return false;
-  }
-
-  const maxEnd = new Date(start);
-  maxEnd.setMonth(maxEnd.getMonth() + 3);
-  return end <= maxEnd;
-}
-
-const PAGE_SIZE_OPTIONS = [25, 50, 100] as const;
-const DEFAULT_PAGE_SIZE = 25;
 const numberFormatter = new Intl.NumberFormat('ko-KR');
-
-function sortSearchRows<T extends { taskDate: string; updatedAt: string; id: string }>(items: T[]) {
-  return [...items].sort(
-    (left, right) =>
-      right.taskDate.localeCompare(left.taskDate) ||
-      right.updatedAt.localeCompare(left.updatedAt) ||
-      right.id.localeCompare(left.id),
-  );
-}
 
 export function SearchPage() {
   const { session } = useAuth();
@@ -85,11 +33,11 @@ export function SearchPage() {
   const [appliedFilters, setAppliedFilters] = useState<SearchFilters>(buildCurrentMonthFilters);
   const [searchInput, setSearchInput] = useState('');
   const [appliedSearch, setAppliedSearch] = useState('');
-  const [pageSize, setPageSize] = useState<number>(DEFAULT_PAGE_SIZE);
+  const [pageSize, setPageSize] = useState<number>(SEARCH_DEFAULT_PAGE_SIZE);
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
-    setDocumentTitle('내 업무내역');
+    setDocumentTitle(SEARCH_PAGE_TITLE);
   }, []);
 
   const tasksQuery = useQuery({
@@ -148,7 +96,7 @@ export function SearchPage() {
     setAppliedFilters(initialFilters);
     setSearchInput('');
     setAppliedSearch('');
-    setPageSize(DEFAULT_PAGE_SIZE);
+    setPageSize(SEARCH_DEFAULT_PAGE_SIZE);
     setCurrentPage(1);
   };
 
@@ -316,7 +264,7 @@ export function SearchPage() {
               }}
               aria-label="페이지당 행 수"
             >
-              {PAGE_SIZE_OPTIONS.map((option) => (
+              {SEARCH_PAGE_SIZE_OPTIONS.map((option) => (
                 <option key={option} value={option}>
                   {option}행
                 </option>

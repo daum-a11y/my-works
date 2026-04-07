@@ -11,52 +11,18 @@ import {
   YAxis,
 } from 'recharts';
 import { PageSection } from '../../components/shared/PageSection';
-import { setDocumentTitle } from '../../router/navigation';
 import { dataClient } from '../../api/client';
-import type { QaStatsProjectRow } from '../../types/domain';
+import { setDocumentTitle } from '../../router/navigation';
 import { getCurrentMonth, shiftMonth } from '../resource/resourceUtils';
+import {
+  buildMonthRange,
+  formatMonthLabel,
+  monthKeyFromDate,
+  sortProjects,
+  type MonthlyQaRow,
+} from './QaStatsPage.utils';
 import { useAuth } from '../../auth/AuthContext';
 import '../../styles/domain/pages/stats-shared.scss';
-
-interface MonthlyQaRow {
-  monthKey: string;
-  label: string;
-  count: number;
-  completed: number;
-}
-
-function monthKeyFromDate(value: string): string {
-  return value.slice(0, 7);
-}
-
-function formatMonthLabel(monthKey: string): string {
-  const [year, month] = monthKey.split('-').map(Number);
-  return `${year}/${String(month).padStart(2, '0')}`;
-}
-
-function buildMonthRange(monthKeys: string[]): string[] {
-  if (!monthKeys.length) {
-    return [];
-  }
-
-  const uniqueKeys = [...new Set(monthKeys)].sort();
-  const [startYear, startMonth] = uniqueKeys[0].split('-').map(Number);
-  const [endYear, endMonth] = uniqueKeys[uniqueKeys.length - 1].split('-').map(Number);
-  const range: string[] = [];
-  let cursor = new Date(startYear, startMonth - 1, 1);
-  const end = new Date(endYear, endMonth - 1, 1);
-
-  while (cursor <= end) {
-    range.push(`${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, '0')}`);
-    cursor = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1);
-  }
-
-  return range;
-}
-
-function sortProjects(left: QaStatsProjectRow, right: QaStatsProjectRow) {
-  return right.endDate.localeCompare(left.endDate) || left.name.localeCompare(right.name);
-}
 
 export function QaStatsPage() {
   const { session } = useAuth();

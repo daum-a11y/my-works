@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useLocation } from 'react-router-dom';
 import { setDocumentTitle } from '../../../router/navigation';
-import { AdminOrderDialog } from '../AdminOrderDialog';
+import { AdminOrderDialog } from '../../../components/admin/AdminOrderDialog';
 import { adminDataClient } from '../../../api/admin';
 import '../../../styles/domain/pages/admin-crud-page.scss';
 
@@ -11,6 +11,10 @@ export function AdminPlatformsPage() {
   const queryClient = useQueryClient();
   const [statusMessage, setStatusMessage] = useState('');
   const [orderDialogOpen, setOrderDialogOpen] = useState(false);
+
+  useEffect(() => {
+    setDocumentTitle('플랫폼 관리');
+  }, []);
 
   const platformsQuery = useQuery({
     queryKey: ['admin', 'platforms'],
@@ -34,10 +38,6 @@ export function AdminPlatformsPage() {
       setStatusMessage('플랫폼 순서를 저장했습니다.');
     },
   });
-
-  useEffect(() => {
-    setDocumentTitle('플랫폼 관리');
-  }, []);
 
   useEffect(() => {
     const nextMessage = (location.state as { statusMessage?: string } | null)?.statusMessage;

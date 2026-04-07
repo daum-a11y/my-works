@@ -1,19 +1,14 @@
-import type { ComponentPropsWithoutRef, ReactNode } from 'react';
 import clsx from 'clsx';
-import '../../styles/domain/components/PageSection.scss';
-
-interface PageSectionProps extends ComponentPropsWithoutRef<'section'> {
-  title: string;
-  actions?: ReactNode;
-  variant?: 'plain' | 'panel';
-}
+import '../../../styles/domain/components/PageSection.scss';
+import { PAGE_SECTION_DEFAULTS } from './PageSection.constants';
+import type { PageSectionProps } from './PageSection.types';
 
 export function PageSection({
   title,
   actions,
   className,
   children,
-  variant = 'plain',
+  variant = PAGE_SECTION_DEFAULTS.variant,
   ...props
 }: PageSectionProps) {
   return (

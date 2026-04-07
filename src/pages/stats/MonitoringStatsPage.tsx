@@ -12,62 +12,20 @@ import {
   YAxis,
 } from 'recharts';
 import { PageSection } from '../../components/shared/PageSection';
-import { setDocumentTitle } from '../../router/navigation';
 import { dataClient } from '../../api/client';
+import { setDocumentTitle } from '../../router/navigation';
 import { pageStatusOptions, type MonitoringStatsRow, type PageStatus } from '../../types/domain';
 import { getCurrentMonth, shiftMonth } from '../resource/resourceUtils';
+import {
+  buildMonthRange,
+  formatMonthLabel,
+  formatTrackStatus,
+  monthKeyFromMonitoringMonth,
+  sortRows,
+  type MonthlyMonitoringRow,
+} from './MonitoringStatsPage.utils';
 import { useAuth } from '../../auth/AuthContext';
 import '../../styles/domain/pages/stats-shared.scss';
-
-interface MonthlyMonitoringRow {
-  monthKey: string;
-  label: string;
-  count: number;
-  untouched: number;
-  partial: number;
-  completed: number;
-}
-
-function formatTrackStatus(value: PageStatus) {
-  return value;
-}
-
-function monthKeyFromMonitoringMonth(value: string): string {
-  const digits = value.replace(/\D/g, '');
-  if (digits.length === 4) {
-    return `20${digits.slice(0, 2)}-${digits.slice(2, 4)}`;
-  }
-  return '';
-}
-
-function formatMonthLabel(monthKey: string): string {
-  const [year, month] = monthKey.split('-').map(Number);
-  return `${year}/${String(month).padStart(2, '0')}`;
-}
-
-function buildMonthRange(monthKeys: string[]): string[] {
-  if (!monthKeys.length) {
-    return [];
-  }
-
-  const uniqueKeys = [...new Set(monthKeys)].sort();
-  const [startYear, startMonth] = uniqueKeys[0].split('-').map(Number);
-  const [endYear, endMonth] = uniqueKeys[uniqueKeys.length - 1].split('-').map(Number);
-  const range: string[] = [];
-  let cursor = new Date(startYear, startMonth - 1, 1);
-  const end = new Date(endYear, endMonth - 1, 1);
-
-  while (cursor <= end) {
-    range.push(`${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, '0')}`);
-    cursor = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1);
-  }
-
-  return range;
-}
-
-function sortRows(left: MonitoringStatsRow, right: MonitoringStatsRow) {
-  return new Date(right.updatedAt).getTime() - new Date(left.updatedAt).getTime();
-}
 
 export function MonitoringStatsPage() {
   const { session } = useAuth();

@@ -3,56 +3,24 @@ import { useQuery } from '@tanstack/react-query';
 import { Link, useLocation } from 'react-router-dom';
 import { PageSection } from '../../../components/shared/PageSection';
 import { adminDataClient } from '../../../api/admin';
-import type { MemberAdminItem } from '../types';
+import { setDocumentTitle } from '../../../router/navigation';
 import { AdminMemberRow } from './AdminMemberRow';
+import {
+  ADMIN_MEMBERS_DEFAULT_PAGE_SIZE,
+  ADMIN_MEMBERS_PAGE_SIZE_OPTIONS,
+  ADMIN_MEMBERS_PAGE_TITLE,
+} from './AdminMembersPage.constants';
+import type { MemberFilterState } from './AdminMembersPage.types';
+import { createInitialFilters, matchesMemberFilters } from './AdminMembersPage.utils';
 import '../../../styles/domain/pages/admin-members-page.scss';
-
-const PAGE_SIZE_OPTIONS = [25, 50, 100] as const;
-const DEFAULT_PAGE_SIZE = 50;
 const numberFormatter = new Intl.NumberFormat('ko-KR');
-
-type MemberFilterState = {
-  status: 'all' | 'active' | 'inactive';
-  keyword: string;
-};
-
-function normalizeText(value: string) {
-  return value.trim().toLowerCase();
-}
-
-function createInitialFilters(): MemberFilterState {
-  return {
-    status: 'all',
-    keyword: '',
-  };
-}
-
-function matchesMemberFilters(member: MemberAdminItem, filters: MemberFilterState) {
-  if (filters.status === 'active' && !member.userActive) {
-    return false;
-  }
-
-  if (filters.status === 'inactive' && member.userActive) {
-    return false;
-  }
-
-  const queryText = normalizeText(filters.keyword);
-
-  if (!queryText) {
-    return true;
-  }
-
-  return normalizeText(
-    [member.name, member.accountId, member.email, member.authEmail].join(' '),
-  ).includes(queryText);
-}
 
 export function AdminMembersPage() {
   const location = useLocation();
   const [statusMessage, setStatusMessage] = useState('');
   const [filterDraft, setFilterDraft] = useState<MemberFilterState>(createInitialFilters);
   const [appliedFilters, setAppliedFilters] = useState<MemberFilterState>(createInitialFilters);
-  const [pageSize, setPageSize] = useState<number>(DEFAULT_PAGE_SIZE);
+  const [pageSize, setPageSize] = useState<number>(ADMIN_MEMBERS_DEFAULT_PAGE_SIZE);
   const [currentPage, setCurrentPage] = useState(1);
 
   const membersQuery = useQuery({
@@ -84,6 +52,10 @@ export function AdminMembersPage() {
     () => members.filter((member) => member.userActive).length,
     [members],
   );
+
+  useEffect(() => {
+    setDocumentTitle(ADMIN_MEMBERS_PAGE_TITLE);
+  }, []);
 
   useEffect(() => {
     if (currentPage > totalPages) {
@@ -221,7 +193,7 @@ export function AdminMembersPage() {
               }}
               aria-label="페이지당 행 수"
             >
-              {PAGE_SIZE_OPTIONS.map((option) => (
+              {ADMIN_MEMBERS_PAGE_SIZE_OPTIONS.map((option) => (
                 <option key={option} value={option}>
                   {option}행
                 </option>

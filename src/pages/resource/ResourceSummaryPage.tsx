@@ -7,40 +7,10 @@ import { PageSection } from '../../components/shared/PageSection';
 import { dataClient } from '../../api/client';
 import { getToday } from '../../utils';
 import { buildCalendarWeeks, buildMonthDays, getCurrentMonth } from './resourceUtils';
+import { formatMemberLabel, formatSignedMinutes, getMinuteTone } from './ResourceSummaryPage.utils';
 import { useAuth } from '../../auth/AuthContext';
 import '../../styles/domain/pages/projects-feature.scss';
 import '../../styles/domain/pages/resource-summary-page.scss';
-const numberFormatter = new Intl.NumberFormat('ko-KR');
-
-function formatMemberLabel(accountId: string, name: string) {
-  return `${accountId}(${name})`;
-}
-
-function formatSignedMinutes(minutes: number) {
-  const absolute = numberFormatter.format(Math.abs(minutes));
-
-  if (minutes > 0) {
-    return `+${absolute}분`;
-  }
-
-  if (minutes < 0) {
-    return `-${absolute}분`;
-  }
-
-  return '0';
-}
-
-function getMinuteTone(minutes: number) {
-  if (minutes > 0) {
-    return 'positive';
-  }
-
-  if (minutes < 0) {
-    return 'negative';
-  }
-
-  return 'neutral';
-}
 
 export function ResourceSummaryPage() {
   const { session } = useAuth();

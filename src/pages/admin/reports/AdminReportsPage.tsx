@@ -4,226 +4,33 @@ import { useNavigate } from 'react-router-dom';
 import { setDocumentTitle } from '../../../router/navigation';
 import { PageSection } from '../../../components/shared/PageSection';
 import { downloadExcelFile } from '../../../utils/excel';
-import {
-  buildTaskType1Options as buildTaskType1OptionValues,
-  buildTaskType2Options as buildTaskType2OptionValues,
-} from '../../../utils/taskType';
 import { toLocalDateInputValue } from '../../../utils';
 import { adminDataClient } from '../../../api/admin';
 import type {
   AdminCostGroupItem,
   AdminProjectOption,
   AdminTaskSearchFilters,
-  AdminTaskSearchItem,
-  AdminTaskTypeItem,
   MemberAdminItem,
 } from '../types';
+import {
+  ADMIN_REPORTS_DEFAULT_PAGE_SIZE,
+  ADMIN_REPORTS_DEFAULT_SORT,
+  ADMIN_REPORTS_PAGE_SIZE_OPTIONS,
+  ADMIN_REPORTS_PAGE_TITLE,
+} from './AdminReportsPage.constants';
+import type { SortState } from './AdminReportsPage.types';
+import { AdminReportsSortButton } from './AdminReportsSortButton';
+import {
+  buildExportFilename,
+  formatSummaryMinutes,
+  formatTimeCell,
+  getTaskType1Options,
+  getTaskType2Options,
+  isDownloadRangeWithinThreeMonths,
+  sortTasks,
+} from './AdminReportsPage.utils';
 import '../../../styles/domain/pages/admin-reports-page.scss';
-
-type SortKey =
-  | 'id'
-  | 'taskDate'
-  | 'member'
-  | 'costGroup'
-  | 'taskType1'
-  | 'taskType2'
-  | 'platform'
-  | 'serviceGroup'
-  | 'serviceName'
-  | 'projectName'
-  | 'pageTitle'
-  | 'taskUsedtime'
-  | 'note';
-
-type SortDirection = 'asc' | 'desc';
-
-interface SortState {
-  key: SortKey;
-  direction: SortDirection;
-}
-
-const PAGE_SIZE_OPTIONS = [25, 50, 100] as const;
-const DEFAULT_PAGE_SIZE = 50;
 const numberFormatter = new Intl.NumberFormat('ko-KR');
-
-const defaultSort: SortState = {
-  key: 'taskDate',
-  direction: 'desc',
-};
-
-function buildExportFilename(startDate: string, endDate: string) {
-  const compact = (value: string) => value.replaceAll('-', '').slice(2);
-
-  if (startDate && endDate && startDate === endDate) {
-    return `${compact(startDate)}_검색결과.xlsx`;
-  }
-
-  if (startDate && endDate) {
-    return `${compact(startDate)}~${compact(endDate)}_검색결과.xlsx`;
-  }
-
-  if (startDate && !endDate) {
-    return `${compact(startDate)}~${compact(startDate)}_검색결과.xlsx`;
-  }
-
-  if (!startDate && endDate) {
-    return `${compact(endDate)}~${compact(endDate)}_검색결과.xlsx`;
-  }
-
-  return '검색결과.xlsx';
-}
-
-function isDownloadRangeWithinThreeMonths(startDate: string, endDate: string) {
-  const start = new Date(`${startDate}T00:00:00`);
-  const end = new Date(`${endDate}T00:00:00`);
-
-  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
-    return false;
-  }
-
-  const maxEnd = new Date(start);
-  maxEnd.setMonth(maxEnd.getMonth() + 3);
-  return end <= maxEnd;
-}
-
-function formatSummaryMinutes(minutes: number) {
-  return `${minutes.toFixed(0).replace(/(\d)(?=(\d{3})+(?:\.\d+)?$)/g, '$1,')}분`;
-}
-
-function formatTimeCell(value: number) {
-  return Number.isFinite(value) ? String(value) : '';
-}
-
-function compareText(left: string, right: string) {
-  return left.localeCompare(right, 'ko');
-}
-
-function getSortValue(
-  task: AdminTaskSearchItem,
-  membersById: Map<string, MemberAdminItem>,
-  key: SortKey,
-) {
-  switch (key) {
-    case 'id':
-      return task.id;
-    case 'member':
-      return membersById.get(task.memberId)?.accountId ?? task.memberId;
-    case 'costGroup':
-      return task.costGroupName;
-    case 'taskType1':
-      return task.taskType1;
-    case 'taskType2':
-      return task.taskType2;
-    case 'platform':
-      return task.platform;
-    case 'serviceGroup':
-      return task.serviceGroupName;
-    case 'serviceName':
-      return task.serviceName;
-    case 'projectName':
-      return task.projectName;
-    case 'pageTitle':
-      return task.pageTitle;
-    case 'taskUsedtime':
-      return task.taskUsedtime;
-    case 'note':
-      return task.note;
-    case 'taskDate':
-    default:
-      return task.taskDate;
-  }
-}
-
-function sortTasks(
-  tasks: readonly AdminTaskSearchItem[],
-  sort: SortState,
-  membersById: Map<string, MemberAdminItem>,
-) {
-  const direction = sort.direction === 'asc' ? 1 : -1;
-
-  return [...tasks].sort((left, right) => {
-    const leftValue = getSortValue(left, membersById, sort.key);
-    const rightValue = getSortValue(right, membersById, sort.key);
-
-    if (typeof leftValue === 'number' && typeof rightValue === 'number') {
-      return (leftValue - rightValue) * direction;
-    }
-
-    return compareText(String(leftValue ?? ''), String(rightValue ?? '')) * direction;
-  });
-}
-
-function getTaskType1Options(taskTypes: readonly AdminTaskTypeItem[], currentValue?: string) {
-  return buildTaskType1OptionValues(
-    taskTypes.map((item) => ({
-      id: item.id,
-      type1: item.type1,
-      type2: item.type2,
-      label: item.displayLabel,
-      displayOrder: item.displayOrder,
-      requiresServiceGroup: item.requiresServiceGroup,
-      isActive: item.isActive,
-    })),
-    { currentValue },
-  );
-}
-
-function getTaskType2Options(
-  taskTypes: readonly AdminTaskTypeItem[],
-  type1?: string,
-  currentValue?: string,
-) {
-  if (!type1) {
-    return currentValue ? [currentValue] : [];
-  }
-  return buildTaskType2OptionValues(
-    taskTypes.map((item) => ({
-      id: item.id,
-      type1: item.type1,
-      type2: item.type2,
-      label: item.displayLabel,
-      displayOrder: item.displayOrder,
-      requiresServiceGroup: item.requiresServiceGroup,
-      isActive: item.isActive,
-    })),
-    type1,
-    currentValue,
-  );
-}
-
-function SortButton({
-  label,
-  sortKey,
-  sortState,
-  onChange,
-}: {
-  label: string;
-  sortKey: SortKey;
-  sortState: SortState;
-  onChange: (next: SortState) => void;
-}) {
-  const active = sortState.key === sortKey;
-  const nextDirection: SortDirection = active && sortState.direction === 'asc' ? 'desc' : 'asc';
-
-  return (
-    <button
-      type="button"
-      className={[
-        'admin-reports-page__sort-button',
-        active ? 'admin-reports-page__sort-button--active' : '',
-      ]
-        .filter(Boolean)
-        .join(' ')}
-      onClick={() => onChange({ key: sortKey, direction: nextDirection })}
-      aria-label={`${label} 정렬`}
-    >
-      <span>{label}</span>
-      <span className={'admin-reports-page__sort-arrow'}>
-        {active && sortState.direction === 'asc' ? '▲' : '▼'}
-      </span>
-    </button>
-  );
-}
 
 export function AdminReportsPage() {
   const navigate = useNavigate();
@@ -234,15 +41,15 @@ export function AdminReportsPage() {
   );
   const [memberFilterIds, setMemberFilterIds] = useState<string[]>([]);
   const [appliedMemberFilterIds, setAppliedMemberFilterIds] = useState<string[]>([]);
-  const [sortState, setSortState] = useState<SortState>(defaultSort);
+  const [sortState, setSortState] = useState<SortState>(ADMIN_REPORTS_DEFAULT_SORT);
   const [localMutationError, setLocalMutationError] = useState('');
   const [memberFilterOpen, setMemberFilterOpen] = useState(false);
   const [memberSearchInput, setMemberSearchInput] = useState('');
-  const [pageSize, setPageSize] = useState<number>(DEFAULT_PAGE_SIZE);
+  const [pageSize, setPageSize] = useState<number>(ADMIN_REPORTS_DEFAULT_PAGE_SIZE);
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
-    setDocumentTitle('업무보고 조회');
+    setDocumentTitle(ADMIN_REPORTS_PAGE_TITLE);
   }, []);
 
   const membersQuery = useQuery({
@@ -470,7 +277,7 @@ export function AdminReportsPage() {
     setAppliedFilters(initialFilters);
     setMemberFilterIds([]);
     setAppliedMemberFilterIds([]);
-    setSortState(defaultSort);
+    setSortState(ADMIN_REPORTS_DEFAULT_SORT);
     setMemberSearchInput('');
     setCurrentPage(1);
   };
@@ -788,7 +595,7 @@ export function AdminReportsPage() {
               }}
               aria-label="페이지당 행 수"
             >
-              {PAGE_SIZE_OPTIONS.map((option) => (
+              {ADMIN_REPORTS_PAGE_SIZE_OPTIONS.map((option) => (
                 <option key={option} value={option}>
                   {option}행
                 </option>
@@ -804,7 +611,7 @@ export function AdminReportsPage() {
             <thead>
               <tr>
                 <th>
-                  <SortButton
+                  <AdminReportsSortButton
                     label="일자"
                     sortKey="taskDate"
                     sortState={sortState}
@@ -812,7 +619,7 @@ export function AdminReportsPage() {
                   />
                 </th>
                 <th>
-                  <SortButton
+                  <AdminReportsSortButton
                     label="ID"
                     sortKey="member"
                     sortState={sortState}
@@ -820,7 +627,7 @@ export function AdminReportsPage() {
                   />
                 </th>
                 <th>
-                  <SortButton
+                  <AdminReportsSortButton
                     label="청구그룹"
                     sortKey="costGroup"
                     sortState={sortState}
@@ -828,7 +635,7 @@ export function AdminReportsPage() {
                   />
                 </th>
                 <th>
-                  <SortButton
+                  <AdminReportsSortButton
                     label="type 1"
                     sortKey="taskType1"
                     sortState={sortState}
@@ -836,7 +643,7 @@ export function AdminReportsPage() {
                   />
                 </th>
                 <th>
-                  <SortButton
+                  <AdminReportsSortButton
                     label="type 2"
                     sortKey="taskType2"
                     sortState={sortState}
@@ -844,7 +651,7 @@ export function AdminReportsPage() {
                   />
                 </th>
                 <th>
-                  <SortButton
+                  <AdminReportsSortButton
                     label="플랫폼"
                     sortKey="platform"
                     sortState={sortState}
@@ -852,7 +659,7 @@ export function AdminReportsPage() {
                   />
                 </th>
                 <th>
-                  <SortButton
+                  <AdminReportsSortButton
                     label="서비스그룹"
                     sortKey="serviceGroup"
                     sortState={sortState}
@@ -860,7 +667,7 @@ export function AdminReportsPage() {
                   />
                 </th>
                 <th>
-                  <SortButton
+                  <AdminReportsSortButton
                     label="서비스명"
                     sortKey="serviceName"
                     sortState={sortState}
@@ -868,7 +675,7 @@ export function AdminReportsPage() {
                   />
                 </th>
                 <th>
-                  <SortButton
+                  <AdminReportsSortButton
                     label="프로젝트명"
                     sortKey="projectName"
                     sortState={sortState}
@@ -876,7 +683,7 @@ export function AdminReportsPage() {
                   />
                 </th>
                 <th>
-                  <SortButton
+                  <AdminReportsSortButton
                     label="페이지명"
                     sortKey="pageTitle"
                     sortState={sortState}
@@ -885,7 +692,7 @@ export function AdminReportsPage() {
                 </th>
                 <th>링크</th>
                 <th>
-                  <SortButton
+                  <AdminReportsSortButton
                     label="시간"
                     sortKey="taskUsedtime"
                     sortState={sortState}

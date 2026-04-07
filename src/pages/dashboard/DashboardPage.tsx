@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
-import { setDocumentTitle } from '../../router/navigation';
 import { MonthlyReportCalendar } from '../../components/shared/MonthlyReportCalendar';
+import { setDocumentTitle } from '../../router/navigation';
 import { dataClient } from '../../api/client';
 import { useAuth } from '../../auth/AuthContext';
 import { buildCalendarWeeks, getCurrentMonth, shiftMonth } from '../resource/resourceUtils';
