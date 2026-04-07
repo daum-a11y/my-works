@@ -11,9 +11,13 @@ export function PageSizeField({
   ...props
 }: PageSizeFieldProps) {
   return (
-    <label className={clsx('page-size-field', className)} {...props}>
+    <label className={clsx('page-size-field', className)}>
       <span>{PAGE_SIZE_FIELD_LABEL}</span>
-      <select value={String(value)} onChange={(event) => onValueChange(Number(event.target.value))}>
+      <select
+        value={String(value)}
+        onChange={(event) => onValueChange(Number(event.target.value))}
+        {...props}
+      >
         {options.map((option) => (
           <option key={option} value={option}>
             {option}행
