@@ -1,7 +1,11 @@
 import clsx from 'clsx';
 import { MonthlyReportCalendar } from '../../components/shared/MonthlyReportCalendar';
 import type { ResourceSummaryRow } from './ResourceSummaryPage.types';
-import { formatMemberLabel, formatSignedMinutes, getMinuteTone } from './ResourceSummaryPage.utils';
+import {
+  formatMemberLabel,
+  formatSignedMinutes,
+  getMinuteTone,
+} from './ResourceSummaryPage.format';
 
 interface ResourceSummaryMonthState {
   currentMonth: boolean;

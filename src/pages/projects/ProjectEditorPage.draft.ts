@@ -1,5 +1,5 @@
 import { getToday } from '../../utils';
-import type { Member, Project, ProjectPage } from '../../types/domain';
+import type { Project, ProjectPage } from '../../types/domain';
 import type { PageFormState, ProjectFormState } from './ProjectEditorPage.types';
 
 export const initialProjectDraft = (): ProjectFormState => ({
@@ -86,60 +86,9 @@ export function toPageInput(draft: PageFormState) {
   };
 }
 
-export function splitServiceGroupName(value: string) {
-  const normalized = value.trim();
-  if (!normalized) {
-    return {
-      serviceGroup: '',
-      serviceName: '',
-    };
-  }
-
-  const separator = normalized.indexOf(' / ');
-  if (separator < 0) {
-    return {
-      serviceGroup: normalized,
-      serviceName: '',
-    };
-  }
-
-  return {
-    serviceGroup: normalized.slice(0, separator),
-    serviceName: normalized.slice(separator + 3),
-  };
-}
-
 export function sortPages(pages: ProjectPage[]) {
   return [...pages].sort(
     (left, right) =>
       right.updatedAt.localeCompare(left.updatedAt) || left.title.localeCompare(right.title, 'ko'),
   );
-}
-
-export function canDeleteProject(
-  project: Project,
-  memberId: string | null,
-  role: Member['role'] | undefined,
-) {
-  if (!memberId) {
-    return false;
-  }
-
-  return (
-    role === 'admin' ||
-    project.createdByMemberId === memberId ||
-    project.reporterMemberId === memberId
-  );
-}
-
-export function canDeletePage(
-  page: ProjectPage,
-  memberId: string | null,
-  role: Member['role'] | undefined,
-) {
-  if (!memberId) {
-    return false;
-  }
-
-  return role === 'admin' || page.ownerMemberId === memberId;
 }

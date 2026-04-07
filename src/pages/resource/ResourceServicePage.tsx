@@ -2,11 +2,10 @@ import { useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { setDocumentTitle } from '../../router/navigation';
 import { PageHeader } from '../../components/shared/PageHeader';
-import { TableEmptyRow } from '../../components/shared/TableEmptyRow';
 import { dataClient } from '../../api/client';
 import { RESOURCE_SERVICE_PAGE_TITLE } from './ResourceServicePage.constants';
-import { buildResourceServiceYearRows } from './ResourceServicePage.utils';
-import { ResourceServiceYearRows } from './ResourceServiceYearRows';
+import { buildResourceServiceYearRows } from './ResourceServicePage.summary';
+import { ResourceServiceTableSection } from './ResourceServiceTableSection';
 import '../../styles/domain/pages/projects-feature.scss';
 import '../../styles/domain/pages/resource-page.scss';
 import { useAuth } from '../../auth/AuthContext';
@@ -65,93 +64,13 @@ export function ResourceServicePage() {
         }
       />
 
-      {years.length ? (
-        <section className="resource-page__table-tabs-section">
-          <div className="resource-page__table-tabs-scroller">
-            <div
-              className="resource-page__table-tabs"
-              role="tablist"
-              aria-label="서비스그룹 집계 연도"
-            >
-              {years.map((year) => {
-                const selected = year === activeYear;
-
-                return (
-                  <button
-                    key={year}
-                    id={`resource-service-tab-${year}`}
-                    type="button"
-                    role="tab"
-                    aria-selected={selected}
-                    aria-controls={`resource-service-panel-${year}`}
-                    tabIndex={selected ? 0 : -1}
-                    className={[
-                      'resource-page__table-tab',
-                      selected ? 'resource-page__table-tab--active' : '',
-                    ]
-                      .filter(Boolean)
-                      .join(' ')}
-                    onClick={() => setActiveYear(year)}
-                  >
-                    {year}년
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {activeRow ? (
-            <div
-              id={`resource-service-panel-${activeRow.year}`}
-              role="tabpanel"
-              aria-labelledby={`resource-service-tab-${activeRow.year}`}
-              className="resource-page__table-tab-panel"
-            >
-              <div className="projects-feature__table-wrap">
-                <table className="projects-feature__table">
-                  <caption className="sr-only">
-                    {activeRow.year}년 월 기준 서비스그룹 집계 표
-                  </caption>
-                  <thead>
-                    <tr>
-                      <th scope="col">월</th>
-                      <th scope="col">청구그룹</th>
-                      <th scope="col">서비스그룹</th>
-                      <th scope="col">서비스명</th>
-                      <th scope="col">MM</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <ResourceServiceYearRows row={activeRow} fold={fold} />
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          ) : null}
-        </section>
-      ) : (
-        <div className="projects-feature__table-wrap">
-          <table className="projects-feature__table">
-            <caption className="sr-only">연도와 월 기준 서비스그룹 집계 표</caption>
-            <thead>
-              <tr>
-                <th scope="col">월</th>
-                <th scope="col">청구그룹</th>
-                <th scope="col">서비스그룹</th>
-                <th scope="col">서비스명</th>
-                <th scope="col">MM</th>
-              </tr>
-            </thead>
-            <tbody>
-              <TableEmptyRow
-                colSpan={5}
-                className="projects-feature__empty-state"
-                message="표시할 서비스그룹 집계가 없습니다."
-              />
-            </tbody>
-          </table>
-        </div>
-      )}
+      <ResourceServiceTableSection
+        years={years}
+        activeYear={activeYear}
+        activeRow={activeRow}
+        fold={fold}
+        onYearChange={setActiveYear}
+      />
     </section>
   );
 }

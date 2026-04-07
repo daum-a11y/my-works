@@ -8,7 +8,7 @@ import { getToday } from '../../utils';
 import { buildCalendarWeeks, buildMonthDays, getCurrentMonth } from './resourceUtils';
 import { RESOURCE_SUMMARY_PAGE_TITLE } from './ResourceSummaryPage.constants';
 import type { ResourceSummaryRow } from './ResourceSummaryPage.types';
-import { formatMemberLabel } from './ResourceSummaryPage.utils';
+import { formatMemberLabel } from './ResourceSummaryPage.format';
 import { ResourceSummaryResults } from './ResourceSummaryResults';
 import { useAuth } from '../../auth/AuthContext';
 import '../../styles/domain/pages/projects-feature.scss';

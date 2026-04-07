@@ -13,18 +13,17 @@ import { ProjectEditorActionRow } from './ProjectEditorActionRow';
 import { ProjectEditorForm } from './ProjectEditorForm';
 import { ProjectEditorPagesSection } from './ProjectEditorPagesSection';
 import type { PageFormState, ProjectFormState } from './ProjectEditorPage.types';
+import { canDeletePage, canDeleteProject } from './ProjectEditorPage.permissions';
 import {
-  canDeletePage,
-  canDeleteProject,
   initialPageDraft,
   initialProjectDraft,
   sortPages,
-  splitServiceGroupName,
   toPageDraft,
   toPageInput,
   toProjectDraft,
   toProjectInput,
-} from './ProjectEditorPage.utils';
+} from './ProjectEditorPage.draft';
+import { splitServiceGroupName } from './ProjectEditorPage.service';
 import '../../styles/domain/pages/projects-feature.scss';
 
 export function ProjectEditorPage() {
