@@ -2,7 +2,7 @@ import clsx from 'clsx';
 import { Link } from 'react-router-dom';
 import { ADMIN_SECTION_TABS } from './AdminSectionTabs.constants';
 import type { AdminSectionTabsProps } from './AdminSectionTabs.types';
-import '../../../styles/domain/pages/admin-page.scss';
+import '../../../styles/pages/AdminPage.scss';
 
 export function AdminSectionTabs({ active }: AdminSectionTabsProps) {
   return (

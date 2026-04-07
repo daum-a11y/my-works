@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../auth/AuthContext';
 import { BrandLogo } from '../../components/layout/BrandLogo';
-import '../../styles/domain/pages/not-found-page.scss';
+import '../../styles/pages/NotFoundPage.scss';
 
 export function NotFoundPage() {
   const { status, session } = useAuth();

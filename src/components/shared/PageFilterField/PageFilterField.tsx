@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import '../../../styles/domain/components/PageFilterField.scss';
+import '../../../styles/components/PageFilterField.scss';
 import type { PageFilterFieldProps } from './PageFilterField.types';
 
 export function PageFilterField({ label, className, children, ...props }: PageFilterFieldProps) {

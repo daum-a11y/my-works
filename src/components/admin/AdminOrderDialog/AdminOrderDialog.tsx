@@ -111,7 +111,9 @@ export function AdminOrderDialog({
         <header className="admin-crud-page__dialog-header">
           <div className="admin-crud-page__dialog-heading">
             <h2 className="admin-crud-page__dialog-title">{title}</h2>
-            <p className="admin-crud-page__dialog-description">{description}</p>
+            {description ? (
+              <p className="admin-crud-page__dialog-description">{description}</p>
+            ) : null}
           </div>
           <button
             type="button"

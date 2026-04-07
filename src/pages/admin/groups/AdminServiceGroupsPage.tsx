@@ -6,7 +6,7 @@ import { AdminOrderDialog } from '../../../components/admin/AdminOrderDialog';
 import { adminDataClient } from '../../../api/admin';
 import { AdminServiceGroupsResultsTable } from './AdminServiceGroupsResultsTable';
 import type { AdminServiceGroupItem } from '../admin.types';
-import '../../../styles/domain/pages/admin-crud-page.scss';
+import '../../../styles/pages/AdminPage.scss';
 
 function groupServiceGroups(items: readonly AdminServiceGroupItem[]) {
   const grouped = new Map<string, Map<string, AdminServiceGroupItem[]>>();
@@ -114,7 +114,6 @@ export function AdminServiceGroupsPage() {
 
       <AdminOrderDialog
         title="서비스그룹 순서변경"
-        description="서비스그룹과 서비스명 목록의 노출 순서를 저장합니다."
         items={serviceGroups.map((item) => ({
           id: item.id,
           title: item.name,

@@ -7,7 +7,7 @@ import { ADMIN_REPORTS_PAGE_SIZE_OPTIONS } from './AdminReportsPage.constants';
 import { AdminReportsFilterForm } from './AdminReportsFilterForm';
 import { AdminReportsResultsTable } from './AdminReportsResultsTable';
 import { useAdminReportsPage } from './useAdminReportsPage';
-import '../../../styles/domain/pages/admin-reports-page.scss';
+import '../../../styles/pages/AdminPage.scss';
 const numberFormatter = new Intl.NumberFormat('ko-KR');
 
 export function AdminReportsPage() {

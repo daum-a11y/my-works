@@ -5,7 +5,7 @@ import { setDocumentTitle } from '../../../router/navigation';
 import { AdminOrderDialog } from '../../../components/admin/AdminOrderDialog';
 import { adminDataClient } from '../../../api/admin';
 import { AdminTaskTypesResultsTable } from './AdminTaskTypesResultsTable';
-import '../../../styles/domain/pages/admin-crud-page.scss';
+import '../../../styles/pages/AdminPage.scss';
 import type { AdminTaskTypeItem } from '../admin.types';
 
 function groupTaskTypes(taskTypes: AdminTaskTypeItem[]) {

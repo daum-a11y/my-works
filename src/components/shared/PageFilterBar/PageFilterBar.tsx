@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import '../../../styles/domain/components/PageFilterBar.scss';
+import '../../../styles/components/PageFilterBar.scss';
 import type { PageFilterBarProps } from './PageFilterBar.types';
 
 export function PageFilterBar({ actions, className, children, ...props }: PageFilterBarProps) {

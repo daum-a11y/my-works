@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useAuth } from '../../auth/AuthContext';
 import { PasswordRecoveryForm } from './PasswordRecoveryForm';
 import { PasswordRecoveryInvalidState } from './PasswordRecoveryInvalidState';
-import '../../styles/domain/pages/password-recovery-page.scss';
+import '../../styles/pages/AuthPage.scss';
 
 const recoverySchema = z
   .object({

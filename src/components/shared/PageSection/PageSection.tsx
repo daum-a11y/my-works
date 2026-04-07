@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import '../../../styles/domain/components/PageSection.scss';
+import '../../../styles/components/PageSection.scss';
 import { PAGE_SECTION_DEFAULTS } from './PageSection.constants';
 import type { PageSectionProps } from './PageSection.types';
 

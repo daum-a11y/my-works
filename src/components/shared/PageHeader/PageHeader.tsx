@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import '../../../styles/domain/components/PageHeader.scss';
+import '../../../styles/components/PageHeader.scss';
 import { PAGE_HEADER_DEFAULTS } from './PageHeader.constants';
 import type { PageHeaderProps } from './PageHeader.types';
 

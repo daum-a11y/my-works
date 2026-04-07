@@ -23,7 +23,7 @@ import {
   type MonthlyMonitoringRow,
 } from './MonitoringStatsPage.utils';
 import { useAuth } from '../../auth/AuthContext';
-import '../../styles/domain/pages/stats-shared.scss';
+import '../../styles/pages/StatsPage.scss';
 
 export function MonitoringStatsPage() {
   const { session } = useAuth();

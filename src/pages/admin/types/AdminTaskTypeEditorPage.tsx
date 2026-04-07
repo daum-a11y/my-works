@@ -5,7 +5,7 @@ import { adminDataClient } from '../../../api/admin';
 import { AdminTaskTypeEditorActionRow } from './AdminTaskTypeEditorActionRow';
 import { AdminTaskTypeEditorForm } from './AdminTaskTypeEditorForm';
 import type { AdminTaskTypeItem, AdminTaskTypePayload } from '../admin.types';
-import '../../../styles/domain/pages/projects-feature.scss';
+import '../../../styles/pages/AdminPage.scss';
 
 function createDraft(taskType?: AdminTaskTypeItem): AdminTaskTypePayload {
   if (!taskType) {

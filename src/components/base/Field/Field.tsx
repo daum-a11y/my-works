@@ -1,6 +1,6 @@
 import { useId } from 'react';
 import clsx from 'clsx';
-import '../../../styles/domain/components/Field.scss';
+import '../../../styles/components/Field.scss';
 import { FIELD_CLASS_NAMES, FIELD_ID_SUFFIX } from './Field.constants';
 import type { InputFieldProps, TextAreaFieldProps } from './Field.types';
 

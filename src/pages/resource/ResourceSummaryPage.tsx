@@ -11,8 +11,8 @@ import type { ResourceSummaryRow } from './ResourceSummaryPage.types';
 import { formatMemberLabel } from './ResourceSummaryPage.format';
 import { ResourceSummaryResults } from './ResourceSummaryResults';
 import { useAuth } from '../../auth/AuthContext';
-import '../../styles/domain/pages/projects-feature.scss';
-import '../../styles/domain/pages/resource-summary-page.scss';
+import '../../styles/pages/ProjectsPage.scss';
+import '../../styles/pages/ResourcePage.scss';
 
 export function ResourceSummaryPage() {
   const { session } = useAuth();

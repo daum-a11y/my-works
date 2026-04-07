@@ -5,7 +5,7 @@ import { setDocumentTitle } from '../../../router/navigation';
 import { AdminOrderDialog } from '../../../components/admin/AdminOrderDialog';
 import { adminDataClient } from '../../../api/admin';
 import { AdminPlatformsResultsTable } from './AdminPlatformsResultsTable';
-import '../../../styles/domain/pages/admin-crud-page.scss';
+import '../../../styles/pages/AdminPage.scss';
 
 export function AdminPlatformsPage() {
   const location = useLocation();
@@ -82,7 +82,6 @@ export function AdminPlatformsPage() {
 
       <AdminOrderDialog
         title="플랫폼 순서변경"
-        description="플랫폼 선택 목록에 노출되는 순서를 드래그앤드롭으로 정렬합니다."
         items={platforms.map((item) => ({
           id: item.id,
           title: item.name,

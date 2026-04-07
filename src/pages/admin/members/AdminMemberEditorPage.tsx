@@ -23,7 +23,7 @@ import {
   getRestoreConfirmMessage,
   getSaveSuccessMessage,
 } from './AdminMemberEditorPage.utils';
-import '../../../styles/domain/pages/projects-feature.scss';
+import '../../../styles/pages/AdminPage.scss';
 
 export function AdminMemberEditorPage() {
   const navigate = useNavigate();

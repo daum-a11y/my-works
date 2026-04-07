@@ -5,7 +5,7 @@ import { adminDataClient } from '../../../api/admin';
 import { AdminCostGroupEditorActionRow } from './AdminCostGroupEditorActionRow';
 import { AdminCostGroupEditorForm } from './AdminCostGroupEditorForm';
 import type { AdminCostGroupItem, AdminCostGroupPayload } from '../admin.types';
-import '../../../styles/domain/pages/projects-feature.scss';
+import '../../../styles/pages/AdminPage.scss';
 
 function createDraft(item?: AdminCostGroupItem): AdminCostGroupPayload {
   if (!item) {

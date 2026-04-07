@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import '../../../styles/domain/components/SortableTableHeaderButton.scss';
+import '../../../styles/components/SortableTableHeaderButton.scss';
 import type {
   SortDirection,
   SortableTableHeaderButtonProps,

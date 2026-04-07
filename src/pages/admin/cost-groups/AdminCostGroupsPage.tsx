@@ -5,7 +5,7 @@ import { setDocumentTitle } from '../../../router/navigation';
 import { AdminOrderDialog } from '../../../components/admin/AdminOrderDialog';
 import { adminDataClient } from '../../../api/admin';
 import { AdminCostGroupsResultsTable } from './AdminCostGroupsResultsTable';
-import '../../../styles/domain/pages/admin-crud-page.scss';
+import '../../../styles/pages/AdminPage.scss';
 
 export function AdminCostGroupsPage() {
   const location = useLocation();

@@ -6,7 +6,7 @@ import { useAuth } from '../../auth/AuthContext';
 import { buildCalendarWeeks, getCurrentMonth, shiftMonth } from '../resource/resourceUtils';
 import { DashboardCalendarSection } from './DashboardCalendarSection';
 import { DashboardProjectsTable } from './DashboardProjectsTable';
-import '../../styles/domain/pages/dashboard-page.scss';
+import '../../styles/pages/DashboardPage.scss';
 
 export function DashboardPage() {
   const { session } = useAuth();

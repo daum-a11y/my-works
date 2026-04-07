@@ -1,6 +1,6 @@
 import { Button as AriaButton } from 'react-aria-components';
 import clsx from 'clsx';
-import '../../../styles/domain/components/Button.scss';
+import '../../../styles/components/Button.scss';
 import { BUTTON_DEFAULTS } from './Button.constants';
 import type { ButtonProps } from './Button.types';
 

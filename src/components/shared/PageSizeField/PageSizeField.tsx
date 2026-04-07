@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import '../../../styles/domain/components/PageSizeField.scss';
+import '../../../styles/components/PageSizeField.scss';
 import { PAGE_SIZE_FIELD_LABEL } from './PageSizeField.constants';
 import type { PageSizeFieldProps } from './PageSizeField.types';
 

@@ -8,7 +8,7 @@ export interface AdminOrderDialogItem {
 
 export interface AdminOrderDialogProps {
   title: string;
-  description: string;
+  description?: string;
   items: AdminOrderDialogItem[];
   isOpen: boolean;
   isSaving: boolean;

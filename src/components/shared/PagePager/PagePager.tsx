@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import '../../../styles/domain/components/PagePager.scss';
+import '../../../styles/components/PagePager.scss';
 import { PAGE_PAGER_LABELS } from './PagePager.constants';
 import type { PagePagerProps } from './PagePager.types';
 

@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import '../../../styles/domain/components/PageResultBar.scss';
+import '../../../styles/components/PageResultBar.scss';
 import type { PageResultBarProps } from './PageResultBar.types';
 
 export function PageResultBar({ metrics, controls, className, ...props }: PageResultBarProps) {

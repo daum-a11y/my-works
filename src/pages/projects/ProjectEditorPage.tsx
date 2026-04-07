@@ -24,7 +24,7 @@ import {
   toProjectInput,
 } from './ProjectEditorPage.draft';
 import { splitServiceGroupName } from './ProjectEditorPage.service';
-import '../../styles/domain/pages/projects-feature.scss';
+import '../../styles/pages/ProjectsPage.scss';
 
 export function ProjectEditorPage() {
   const { session } = useAuth();

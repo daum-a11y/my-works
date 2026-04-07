@@ -7,7 +7,7 @@ import { useAuth } from '../../auth/AuthContext';
 import { isSupabaseConfigured } from '../../config/env';
 import { BrandLogo } from '../../components/layout/BrandLogo';
 import { LoginForm } from './LoginForm';
-import '../../styles/domain/pages/login-page.scss';
+import '../../styles/pages/AuthPage.scss';
 
 const loginSchema = z.object({
   email: z.string().email('이메일 형식으로 입력해 주세요.'),

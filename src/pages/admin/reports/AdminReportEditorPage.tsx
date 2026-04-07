@@ -31,7 +31,7 @@ import {
   toTaskTypes,
 } from './AdminReportEditorPage.utils';
 import { AdminReportEditorForm } from './AdminReportEditorForm';
-import '../../../styles/domain/pages/reports-page.scss';
+import '../../../styles/pages/AdminPage.scss';
 
 export function AdminReportEditorPage() {
   const navigate = useNavigate();

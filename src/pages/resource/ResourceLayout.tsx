@@ -1,5 +1,5 @@
 import { Outlet } from 'react-router-dom';
-import '../../styles/domain/pages/resource-page.scss';
+import '../../styles/pages/ResourcePage.scss';
 
 export function ResourceLayout() {
   return (

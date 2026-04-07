@@ -5,7 +5,7 @@ import { adminDataClient } from '../../../api/admin';
 import { AdminPlatformEditorActionRow } from './AdminPlatformEditorActionRow';
 import { AdminPlatformEditorForm } from './AdminPlatformEditorForm';
 import type { AdminPlatformItem, AdminPlatformPayload } from '../admin.types';
-import '../../../styles/domain/pages/projects-feature.scss';
+import '../../../styles/pages/AdminPage.scss';
 
 function createDraft(item?: AdminPlatformItem): AdminPlatformPayload {
   if (!item) {

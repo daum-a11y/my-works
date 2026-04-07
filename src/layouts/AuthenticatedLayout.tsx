@@ -12,7 +12,7 @@ import {
   setDocumentTitle,
 } from '../router/navigation';
 import { GlobalLoadingSpinner } from '../components/layout/GlobalLoadingSpinner';
-import '../styles/domain/pages/authenticated-layout.scss';
+import '../styles/pages/AuthenticatedLayout.scss';
 
 export function AuthenticatedLayout() {
   const location = useLocation();

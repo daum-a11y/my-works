@@ -9,7 +9,7 @@ import {
   UserProfileThemeSection,
 } from './UserProfileSections';
 import { UserProfilePasswordModal } from './UserProfilePasswordModal';
-import '../../styles/domain/pages/password-settings-page.scss';
+import '../../styles/pages/ProfilePage.scss';
 
 type PasswordDraft = {
   next: string;

@@ -18,7 +18,7 @@ import {
   type MonthlyQaRow,
 } from './QaStatsPage.utils';
 import { useAuth } from '../../auth/AuthContext';
-import '../../styles/domain/pages/stats-shared.scss';
+import '../../styles/pages/StatsPage.scss';
 
 export function QaStatsPage() {
   const { session } = useAuth();
