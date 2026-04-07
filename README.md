@@ -1,118 +1,86 @@
 # My Works
 
-이 저장소는 접근성팀 업무보고 운영툴의 React 이관 앱입니다.
+- 업무 운영 지원 도구
 
-## 앱 구성
+## 기술 스택
 
-- `src`: 앱 소스
-- `public`: 정적 자산
+### 프론트엔드
 
-## 실행
+- React 19
+- TypeScript
+- Vite 8
+- React Router 7
+
+### 데이터 처리
+
+- Supabase
+- TanStack Query
+- React Hook Form
+- Zod
+
+### UI / 시각화
+
+- Sass
+- React Aria Components
+- Lucide React
+- Recharts
+- ExcelJS
+
+### 테스트 / 배포
+
+- Vitest
+- Testing Library
+- Playwright
+- jest-axe
+- Cloudflare Wrangler
+
+## 실행 방법
+
+### 1. 의존성 설치
 
 ```bash
 pnpm install
+```
+
+### 2. 환경 변수 파일 생성
+
+```bash
+cp .env.example .env
+```
+
+### 3. 개발 서버 실행
+
+```bash
 pnpm dev
 ```
 
-## Supabase 반영
+## 환경 변수
 
-앱 코드는 아래 SQL 객체를 전제로 동작합니다.
-
-- `members_public_view`
-- `active_members_public_view`
-- `project_pages_public_view`
-- `bind_auth_session_member(...)`
-- `admin_search_tasks(...)`
-
-따라서 DB에는 아래 SQL이 적용돼 있어야 합니다.
-
-- `supabase/sql/000_initial_ops_schema.sql`
-- 필요 시 `supabase/sql/006_public_health_check.sql`
-
-현재 초기 migration에 공개 view/RPC/RLS 보정이 포함돼 있습니다. 이 단계가 빠지면 회원 조회, 페이지 조회, 세션-멤버 바인딩, 관리자 내보내기에서 런타임 오류가 날 수 있습니다.
-
-## 환경변수
-
-루트의 `.env.example`를 참고합니다.
-
-- `VITE_SUPABASE_URL`
-- `VITE_SUPABASE_ANON_KEY`
-- `VITE_APP_URL`: 비밀번호 재설정 메일이 돌아올 앱 기준 URL. 예: `http://localhost:5173`
-
-로컬 개발에서는 `.env` 파일을 사용하고, Cloudflare 배포에서는 `.env` 파일을 업로드하지 않고 `Create a Worker` 화면 하단의 `Variable name` / `Variable value` 입력칸에 같은 키를 직접 등록합니다.
-
-## 인증 운영 정책
-
-- 공개 회원가입은 지원하지 않습니다. 계정 생성은 관리자 초대 기준입니다.
-- 로그인 화면에서는 비밀번호 찾기만 제공합니다.
-- 비밀번호 재설정 메일은 `${VITE_APP_URL}/auth/recovery`로 복귀하도록 동작합니다.
-- 관리자 초대 메일은 Supabase Edge Function `invite-member`를 통해 발송됩니다.
-
-Supabase Dashboard에서도 공개 가입을 차단해야 합니다.
-
-- Dashboard -> Authentication -> Providers -> Email
-- 일반 이메일 회원가입 옵션은 비활성화합니다.
-- 초대 기반 계정 생성과 비밀번호 재설정만 운영합니다.
-
-Supabase Auth 설정에서도 아래 Redirect URL을 허용해야 합니다.
-
-- 개발 예시: `http://localhost:5173/auth/recovery`
-- 운영 예시는 실제 서비스 도메인의 `/auth/recovery`
-
-관리자 초대 기능을 쓰려면 아래 함수도 배포해야 합니다.
+`.env.example` 파일을 참고하여 .env 파일을 생성합니다.
 
 ```bash
-supabase functions deploy invite-member
-supabase functions deploy delete-member
+VITE_SUPABASE_URL=
+VITE_SUPABASE_ANON_KEY=
+VITE_APP_URL=http://localhost:5173
 ```
 
-초대 기능은 위 한 줄로 끝나지 않습니다. 아래가 모두 되어야 실제로 동작합니다.
+- `VITE_SUPABASE_URL`: Supabase 프로젝트 URL
+- `VITE_SUPABASE_ANON_KEY`: Supabase anon key
+- `VITE_APP_URL`: 인증 메일 및 리디렉션에 사용하는 앱 기준 URL
 
-1. 앱 환경변수 설정
+### 테스트
 
-- `VITE_SUPABASE_URL`
-- `VITE_SUPABASE_ANON_KEY`
-- `VITE_APP_URL`
+- 단위 테스트: `pnpm test`
+- 감시 모드: `pnpm test:watch`
+- E2E 테스트: `pnpm test:e2e`
 
-2. Supabase Auth Redirect URL 등록
+## 배포
 
-- `${VITE_APP_URL}/auth/recovery`
-
-3. Edge Function 시크릿 등록
+프로덕션 빌드 후 Cloudflare에 배포합니다.
 
 ```bash
-supabase secrets set \
-  SUPABASE_URL=https://<project-ref>.supabase.co \
-  SUPABASE_ANON_KEY=<anon-key> \
-  SUPABASE_SERVICE_ROLE_KEY=<service-role-key>
+pnpm build
+pnpm deploy
 ```
 
-4. Edge Function 배포
-
-```bash
-supabase functions deploy invite-member
-supabase functions deploy delete-member
-```
-
-5. 관리자 계정 확인
-
-- 초대 메일을 보내는 사용자는 `public.members.auth_user_id`가 연결되어 있어야 합니다.
-- 초대 메일을 보내는 사용자는 `public.members.user_level = 1` 이어야 합니다.
-- 초대 메일을 보내는 사용자는 `public.members.user_active = true` 이어야 합니다.
-
-6. 완료 기준
-
-- 관리자 화면에서 사용자 추가 후 `저장 및 초대` 클릭
-- 초대 대상자가 메일 수신
-- 메일 링크로 앱 진입
-- 비밀번호 설정 완료
-- 이후 로그인 가능
-
-즉, `invite-member` 함수 배포만으로 끝나는 것이 아니라:
-- 앱 환경변수
-- Auth Redirect URL
-- Function 시크릿
-- Function 배포
-- 관리자 계정 권한 상태
-
-가 모두 맞아야 관리자 초대 메일이 실제로 동작합니다.
+배포 설정은 [wrangler.jsonc](/Users/gio.a/Documents/workspace/next/my-works/wrangler.jsonc)에서 관리합니다.
