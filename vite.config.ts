@@ -35,8 +35,8 @@ function manualChunks(id: string) {
   return undefined;
 }
 
-export default defineConfig({
-  plugins: [react(), cloudflare()],
+export default defineConfig(({ mode }) => ({
+  plugins: mode === 'production' ? [react(), cloudflare()] : [react()],
   build: {
     rollupOptions: {
       output: {
@@ -56,4 +56,4 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: './src/test/setup.ts',
   },
-});
+}));
