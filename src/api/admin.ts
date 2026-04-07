@@ -209,7 +209,7 @@ function splitServiceName(name: string) {
     return { svcGroup: '', svcName: '' };
   }
 
-  const [group, ...rest] = normalized.split(' / ');
+  const [group, ...rest] = normalized.split(' > ');
   if (rest.length === 0) {
     return { svcGroup: normalized, svcName: normalized };
   }

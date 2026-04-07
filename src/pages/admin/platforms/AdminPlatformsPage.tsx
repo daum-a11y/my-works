@@ -89,7 +89,7 @@ export function AdminPlatformsPage() {
           inactive: !item.isVisible,
         }))}
         isOpen={orderDialogOpen}
-        isSaving={reorderMutation.isPending}
+        isPending={reorderMutation.isPending}
         errorMessage={reorderMutation.error instanceof Error ? reorderMutation.error.message : ''}
         onClose={() => setOrderDialogOpen(false)}
         onSave={(ids) => reorderMutation.mutateAsync(ids)}

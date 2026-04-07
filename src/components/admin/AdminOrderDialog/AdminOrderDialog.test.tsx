@@ -14,7 +14,6 @@ describe('AdminOrderDialog', () => {
     const { container } = render(
       <AdminOrderDialog
         title="순서 편집"
-        description="항목 순서를 조정합니다."
         items={baseItems}
         isOpen={false}
         isSaving={false}
@@ -33,7 +32,6 @@ describe('AdminOrderDialog', () => {
     render(
       <AdminOrderDialog
         title="순서 편집"
-        description="항목 순서를 조정합니다."
         items={baseItems}
         isOpen
         isSaving={false}

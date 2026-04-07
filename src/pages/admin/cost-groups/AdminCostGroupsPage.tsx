@@ -83,7 +83,6 @@ export function AdminCostGroupsPage() {
 
       <AdminOrderDialog
         title="청구그룹 순서변경"
-        description="업무 화면과 관리 화면에서 사용할 청구그룹 표시 순서를 조정합니다."
         items={costGroups.map((item) => ({
           id: item.id,
           title: item.name,
@@ -91,7 +90,7 @@ export function AdminCostGroupsPage() {
           inactive: !item.isActive,
         }))}
         isOpen={orderDialogOpen}
-        isSaving={reorderMutation.isPending}
+        isPending={reorderMutation.isPending}
         errorMessage={reorderMutation.error instanceof Error ? reorderMutation.error.message : ''}
         onClose={() => setOrderDialogOpen(false)}
         onSave={(ids) => reorderMutation.mutateAsync(ids)}

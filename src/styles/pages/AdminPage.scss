@@ -3159,13 +3159,12 @@
     padding: 0;
     overflow: auto;
     list-style: none;
-    border: 1px solid var(--border-default);
     background: var(--surface-panel);
   }
 
   .admin-crud-page__sortable-item {
     display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
     gap: var(--space-3);
     padding: 14px 16px;
@@ -3199,7 +3198,6 @@
     width: 44px;
     height: 44px;
     padding: 0;
-    border: 1px solid var(--border-subtle);
     background: color-mix(in oklab, var(--surface-panel) 78%, var(--surface-canvas-strong));
     color: var(--text-secondary);
     cursor: grab;
@@ -3207,7 +3205,6 @@
   }
 
   .admin-crud-page__sortable-handle:hover {
-    border-color: var(--border-strong);
     background: color-mix(in oklab, var(--surface-panel) 64%, var(--surface-canvas-strong));
   }
 
@@ -3290,18 +3287,9 @@
     line-height: var(--text-meta-line-height);
   }
 
-  .admin-crud-page__sortable-meta {
-    justify-self: end;
-    color: var(--text-tertiary);
-    font-size: var(--text-meta-size);
-    line-height: var(--text-meta-line-height);
-    white-space: nowrap;
-  }
-
   .admin-crud-page__dialog-footer {
     justify-content: flex-end;
     padding-top: var(--space-3);
-    border-top: 1px solid var(--border-subtle);
   }
 
   @media (max-width: 840px) {
@@ -3322,11 +3310,6 @@
 
     .admin-crud-page__sortable-item {
       grid-template-columns: auto minmax(0, 1fr);
-    }
-
-    .admin-crud-page__sortable-meta {
-      grid-column: 1 / -1;
-      justify-self: end;
     }
   }
 }

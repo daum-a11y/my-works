@@ -121,7 +121,6 @@ export function AdminTaskTypesPage() {
 
       <AdminOrderDialog
         title="업무 타입 순서변경"
-        description="업무 타입 목록과 선택 UI에서 사용할 순서를 재정렬합니다."
         items={taskTypes.map((item) => ({
           id: item.id,
           title: `${item.type1} / ${item.type2}`,
@@ -130,7 +129,7 @@ export function AdminTaskTypesPage() {
           inactive: !item.isActive,
         }))}
         isOpen={orderDialogOpen}
-        isSaving={reorderMutation.isPending}
+        isPending={reorderMutation.isPending}
         errorMessage={reorderMutation.error instanceof Error ? reorderMutation.error.message : ''}
         onClose={() => setOrderDialogOpen(false)}
         onSave={(ids) => reorderMutation.mutateAsync(ids)}

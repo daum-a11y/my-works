@@ -11,7 +11,7 @@ export interface AdminOrderDialogProps {
   description?: string;
   items: AdminOrderDialogItem[];
   isOpen: boolean;
-  isSaving: boolean;
+  isPending: boolean;
   errorMessage?: string;
   onClose: () => void;
   onSave: (ids: string[]) => Promise<void> | void;

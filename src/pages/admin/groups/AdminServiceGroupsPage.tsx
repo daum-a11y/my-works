@@ -117,12 +117,12 @@ export function AdminServiceGroupsPage() {
         items={serviceGroups.map((item) => ({
           id: item.id,
           title: item.name,
-          description: item.costGroupName ? `청구그룹: ${item.costGroupName}` : undefined,
+          description: item.costGroupName ? `${item.costGroupName}` : undefined,
           badge: item.svcActive ? '노출' : '숨김',
           inactive: !item.svcActive,
         }))}
         isOpen={orderDialogOpen}
-        isSaving={reorderMutation.isPending}
+        isPending={reorderMutation.isPending}
         errorMessage={reorderMutation.error instanceof Error ? reorderMutation.error.message : ''}
         onClose={() => setOrderDialogOpen(false)}
         onSave={(ids) => reorderMutation.mutateAsync(ids)}
