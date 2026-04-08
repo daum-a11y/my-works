@@ -1,5 +1,5 @@
 import { env } from '../../config/env';
-import { getPasswordRecoveryRedirectUrl } from '../../auth/authUrls';
+import { getPasswordRecoveryRedirectUrl } from '../../auth/auth.util';
 import { getSupabaseClient } from '../../api/supabase';
 
 export function getAdminEdgeHeaders() {

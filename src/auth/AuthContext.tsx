@@ -11,12 +11,12 @@ import { getSupabaseClient } from '../api/supabase';
 import { isSupabaseConfigured } from '../config/env';
 import { dataClient } from '../api/client';
 import { type Member } from '../types/domain';
-import { toMember } from './authApiTransform';
+import { toMember } from './auth.helper';
 import {
   getPasswordRecoveryRedirectUrl,
   isPasswordRecoveryPath,
   isPasswordRecoveryUrl,
-} from './authUrls';
+} from './auth.util';
 
 type AuthStatus = 'loading' | 'guest' | 'authenticated';
 type AuthFlow = 'default' | 'recovery';
