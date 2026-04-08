@@ -2,6 +2,11 @@ import { type FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router-dom';
 import { adminDataClient } from '../../../api/admin';
+import {
+  mapAdminCostGroupRecords,
+  mapAdminServiceGroupRecords,
+  mapAdminServiceGroupUsageSummary,
+} from '../../../mappers/adminMappers';
 import { AdminServiceGroupEditorActionRow } from './AdminServiceGroupEditorActionRow';
 import { AdminServiceGroupEditorForm } from './AdminServiceGroupEditorForm';
 import type { AdminServiceGroupItem, AdminServiceGroupPayload } from '../admin.types';
@@ -65,8 +70,14 @@ export function AdminServiceGroupEditorPage() {
     queryFn: () => adminDataClient.listCostGroups(),
   });
 
-  const serviceGroups = useMemo(() => serviceGroupsQuery.data ?? [], [serviceGroupsQuery.data]);
-  const costGroups = useMemo(() => costGroupsQuery.data ?? [], [costGroupsQuery.data]);
+  const serviceGroups = useMemo(
+    () => mapAdminServiceGroupRecords(serviceGroupsQuery.data ?? []),
+    [serviceGroupsQuery.data],
+  );
+  const costGroups = useMemo(
+    () => mapAdminCostGroupRecords(costGroupsQuery.data ?? []),
+    [costGroupsQuery.data],
+  );
   const selectedServiceGroup = useMemo(
     () => serviceGroups.find((item) => item.id === serviceGroupId) ?? null,
     [serviceGroupId, serviceGroups],
@@ -150,7 +161,7 @@ export function AdminServiceGroupEditorPage() {
     (saveMutation.error instanceof Error && saveMutation.error.message) ||
     (deleteMutation.error instanceof Error && deleteMutation.error.message) ||
     '';
-  const projectUsageCount = usageQuery.data?.projectCount ?? 0;
+  const projectUsageCount = mapAdminServiceGroupUsageSummary(usageQuery.data ?? []).projectCount;
   const deleteBlocked = isEditMode && projectUsageCount > 0;
   const deleteHelpText = deleteBlocked ? `사용 중인 프로젝트 ${projectUsageCount}건` : '';
 

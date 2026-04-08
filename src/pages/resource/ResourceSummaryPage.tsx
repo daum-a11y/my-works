@@ -11,6 +11,10 @@ import type { ResourceSummaryRow } from './ResourceSummaryPage.types';
 import { formatMemberLabel } from './ResourceSummaryPage.format';
 import { ResourceSummaryResults } from './ResourceSummaryResults';
 import { useAuth } from '../../auth/AuthContext';
+import {
+  mapResourceSummaryDayRowRecords,
+  mapResourceSummaryMemberRowRecords,
+} from '../../mappers/domainMappers';
 import '../../styles/pages/ProjectsPage.scss';
 import '../../styles/pages/ResourcePage.scss';
 
@@ -43,8 +47,14 @@ export function ResourceSummaryPage() {
     enabled: Boolean(member),
   });
 
-  const activeMembers = useMemo(() => membersQuery.data ?? [], [membersQuery.data]);
-  const summaryRows = useMemo(() => summaryQuery.data ?? [], [summaryQuery.data]);
+  const activeMembers = useMemo(
+    () => mapResourceSummaryMemberRowRecords(membersQuery.data ?? []),
+    [membersQuery.data],
+  );
+  const summaryRows = useMemo(
+    () => mapResourceSummaryDayRowRecords(summaryQuery.data ?? []),
+    [summaryQuery.data],
+  );
 
   const rows = useMemo<ResourceSummaryRow[]>(() => {
     if (!member) {

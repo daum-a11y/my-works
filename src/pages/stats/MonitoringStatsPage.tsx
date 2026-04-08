@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { PageHeader } from '../../components/shared/PageHeader';
 import { PageSection } from '../../components/shared/PageSection';
 import { dataClient } from '../../api/client';
+import { mapMonitoringStatsRowRecords } from '../../mappers/domainMappers';
 import { setDocumentTitle } from '../../router/navigation';
 import { type MonitoringStatsRow, type PageStatus } from '../../types/domain';
 import { getCurrentMonth, shiftMonth } from '../resource/resourceUtils';
@@ -39,7 +40,7 @@ export function MonitoringStatsPage() {
   });
 
   const monitoringRows = useMemo<MonitoringStatsRow[]>(
-    () => monitoringQuery.data ?? [],
+    () => mapMonitoringStatsRowRecords(monitoringQuery.data ?? []),
     [monitoringQuery.data],
   );
   const [draftStartMonth, setDraftStartMonth] = useState(defaultStartMonth);

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useLocation } from 'react-router-dom';
 import { adminDataClient } from '../../../api/admin';
+import { mapMemberAdminRecords } from '../../../mappers/adminMappers';
 import { setDocumentTitle } from '../../../router/navigation';
 import type { MemberFilterState } from './AdminMembersPage.types';
 import { createInitialFilters, matchesMemberFilters } from './AdminMembersPage.utils';
@@ -31,7 +32,10 @@ export function useAdminMembersPage() {
     }
   }, [location.state]);
 
-  const members = useMemo(() => membersQuery.data ?? [], [membersQuery.data]);
+  const members = useMemo(
+    () => mapMemberAdminRecords(membersQuery.data ?? []),
+    [membersQuery.data],
+  );
   const filteredMembers = useMemo(
     () => members.filter((member) => matchesMemberFilters(member, appliedFilters)),
     [appliedFilters, members],

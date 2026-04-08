@@ -16,7 +16,7 @@ describe('AdminOrderDialog', () => {
         title="순서 편집"
         items={baseItems}
         isOpen={false}
-        isSaving={false}
+        isPending={false}
         onClose={vi.fn()}
         onSave={vi.fn()}
       />,
@@ -34,7 +34,7 @@ describe('AdminOrderDialog', () => {
         title="순서 편집"
         items={baseItems}
         isOpen
-        isSaving={false}
+        isPending={false}
         onClose={vi.fn()}
         onSave={handleSave}
       />,

@@ -9,6 +9,7 @@ import { ResourceTypeTableSection } from './ResourceTypeTableSection';
 import '../../styles/pages/ResourcePage.scss';
 import '../../styles/pages/ResourcePage.scss';
 import { useAuth } from '../../auth/AuthContext';
+import { mapResourceTypeSummaryRowRecords } from '../../mappers/domainMappers';
 
 export function ResourceTypePage() {
   const { session } = useAuth();
@@ -25,7 +26,10 @@ export function ResourceTypePage() {
     enabled: Boolean(member && activeYear),
   });
   const years = useMemo(() => yearsQuery.data ?? [], [yearsQuery.data]);
-  const rowsData = useMemo(() => detailQuery.data ?? [], [detailQuery.data]);
+  const rowsData = useMemo(
+    () => mapResourceTypeSummaryRowRecords(detailQuery.data ?? []),
+    [detailQuery.data],
+  );
   const [fold, setFold] = useState(false);
 
   useEffect(() => {

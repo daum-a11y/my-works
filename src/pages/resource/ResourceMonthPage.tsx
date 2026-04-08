@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
 import { setDocumentTitle } from '../../router/navigation';
@@ -20,6 +20,7 @@ import '../../styles/pages/ResourcePage.scss';
 import '../../styles/pages/ProjectsPage.scss';
 import '../../styles/pages/ResourcePage.scss';
 import { useAuth } from '../../auth/AuthContext';
+import { mapResourceMonthReportData } from '../../mappers/domainMappers';
 
 export function ResourceMonthPage() {
   const { type } = useParams();
@@ -40,7 +41,7 @@ export function ResourceMonthPage() {
     setDocumentTitle(RESOURCE_MONTH_PAGE_TITLE);
   }, []);
 
-  const report = query.data;
+  const report = useMemo(() => mapResourceMonthReportData(query.data), [query.data]);
   const typeRows = report?.typeRows ?? [];
   const serviceSummaryRows = report?.serviceSummaryRows ?? [];
   const serviceDetailRows = report?.serviceDetailRows ?? [];

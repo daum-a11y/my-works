@@ -4,6 +4,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { setDocumentTitle } from '../../../router/navigation';
 import { AdminOrderDialog } from '../../../components/admin/AdminOrderDialog';
 import { adminDataClient } from '../../../api/admin';
+import { mapAdminServiceGroupRecords } from '../../../mappers/adminMappers';
 import { AdminServiceGroupsResultsTable } from './AdminServiceGroupsResultsTable';
 import type { AdminServiceGroupItem } from '../admin.types';
 import '../../../styles/pages/AdminPage.scss';
@@ -52,7 +53,7 @@ export function AdminServiceGroupsPage() {
 
   const serviceGroups = useMemo(
     () =>
-      [...(serviceGroupsQuery.data ?? [])].sort(
+      [...mapAdminServiceGroupRecords(serviceGroupsQuery.data ?? [])].sort(
         (left, right) =>
           left.costGroupName.localeCompare(right.costGroupName) ||
           left.displayOrder - right.displayOrder ||

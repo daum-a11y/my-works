@@ -2,6 +2,7 @@ import { type FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router-dom';
 import { adminDataClient } from '../../../api/admin';
+import { mapAdminCostGroupRecords } from '../../../mappers/adminMappers';
 import { AdminCostGroupEditorActionRow } from './AdminCostGroupEditorActionRow';
 import { AdminCostGroupEditorForm } from './AdminCostGroupEditorForm';
 import type { AdminCostGroupItem, AdminCostGroupPayload } from '../admin.types';
@@ -37,7 +38,10 @@ export function AdminCostGroupEditorPage() {
     queryFn: () => adminDataClient.listCostGroups(),
   });
 
-  const costGroups = useMemo(() => costGroupsQuery.data ?? [], [costGroupsQuery.data]);
+  const costGroups = useMemo(
+    () => mapAdminCostGroupRecords(costGroupsQuery.data ?? []),
+    [costGroupsQuery.data],
+  );
   const selectedCostGroup = useMemo(
     () => costGroups.find((item) => item.id === costGroupId) ?? null,
     [costGroupId, costGroups],

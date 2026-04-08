@@ -11,6 +11,7 @@ import { getSupabaseClient } from '../api/supabase';
 import { isSupabaseConfigured } from '../config/env';
 import { dataClient } from '../api/client';
 import { type Member } from '../types/domain';
+import { mapMemberRecord } from '../mappers/domainMappers';
 import {
   getPasswordRecoveryRedirectUrl,
   isPasswordRecoveryPath,
@@ -41,7 +42,8 @@ async function getMemberForSupabaseSession(
   userId: string,
   email?: string | null,
 ): Promise<Member | null> {
-  return dataClient.touchMemberLastLogin(userId, email);
+  const member = await dataClient.touchMemberLastLogin(userId, email);
+  return member ? mapMemberRecord(member) : null;
 }
 
 export function AuthProvider({ children }: PropsWithChildren) {

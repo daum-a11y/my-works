@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, type FormEvent, type KeyboardEvent } from
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import type { Project } from '../../../types/domain';
+import { mapAdminTaskRecord, mapMemberAdminRecords } from '../../../mappers/adminMappers';
 import {
   buildProjectViewModels,
   buildSelectableTaskType1Options,
@@ -103,7 +104,10 @@ export function AdminReportEditorPage() {
     enabled: isEdit,
   });
 
-  const members = useMemo(() => membersQuery.data ?? [], [membersQuery.data]);
+  const members = useMemo(
+    () => mapMemberAdminRecords(membersQuery.data ?? []),
+    [membersQuery.data],
+  );
   const taskTypes = useMemo(() => toTaskTypes(taskTypesQuery.data ?? []), [taskTypesQuery.data]);
   const serviceGroups = useMemo(
     () => toServiceGroups(serviceGroupsQuery.data ?? []),
@@ -159,9 +163,10 @@ export function AdminReportEditorPage() {
       return;
     }
 
-    setSelectedMemberId(taskQuery.data.memberId);
-    setDraft(createDraftFromTask(taskQuery.data));
-    setActiveTab(taskQuery.data.projectId ? 'report' : 'period');
+    const task = mapAdminTaskRecord(taskQuery.data);
+    setSelectedMemberId(task.memberId);
+    setDraft(createDraftFromTask(task));
+    setActiveTab(task.projectId ? 'report' : 'period');
     setProjectQuery('');
     setAppliedProjectQuery('');
     setStatusMessage('');
@@ -418,7 +423,7 @@ export function AdminReportEditorPage() {
         taskType1: taskType.type1,
         taskType2: taskType.type2,
         taskUsedtime,
-        content: taskQuery.data?.content ?? '',
+        content: draft.content.trim(),
         note: draft.note.trim(),
       });
     },

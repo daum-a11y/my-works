@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import type { Member } from '../../types/domain';
 import { dataClient } from '../../api/client';
+import { mapProjectListRows } from '../../mappers/domainMappers';
 import { setDocumentTitle } from '../../router/navigation';
 import { PROJECTS_DEFAULT_PAGE_SIZE, PROJECTS_PAGE_TITLE } from './ProjectsPage.constants';
 import type { ProjectFilterState } from './ProjectsPage.types';
@@ -29,8 +30,12 @@ export function useProjectsPage(member: Member | null) {
       dataClient.searchProjectsPage(appliedFilters, appliedSearch, currentPage, pageSize),
   });
 
-  const projects = useMemo(() => query.data?.items ?? [], [query.data?.items]);
-  const totalProjects = query.data?.totalCount ?? 0;
+  const pagedProjects = useMemo(
+    () => mapProjectListRows(query.data ?? { items: [], totalCount: 0 }),
+    [query.data],
+  );
+  const projects = pagedProjects.items;
+  const totalProjects = pagedProjects.totalCount;
   const totalPages = Math.max(1, Math.ceil(totalProjects / pageSize));
   const currentPageSafe = Math.min(currentPage, totalPages);
 

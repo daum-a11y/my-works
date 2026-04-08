@@ -9,6 +9,7 @@ import { ResourceServiceTableSection } from './ResourceServiceTableSection';
 import '../../styles/pages/ResourcePage.scss';
 import '../../styles/pages/ResourcePage.scss';
 import { useAuth } from '../../auth/AuthContext';
+import { mapResourceServiceSummaryRowRecords } from '../../mappers/domainMappers';
 
 export function ResourceServicePage() {
   const { session } = useAuth();
@@ -25,7 +26,10 @@ export function ResourceServicePage() {
     enabled: Boolean(member && activeYear),
   });
   const years = useMemo(() => yearsQuery.data ?? [], [yearsQuery.data]);
-  const rowsData = useMemo(() => detailQuery.data ?? [], [detailQuery.data]);
+  const rowsData = useMemo(
+    () => mapResourceServiceSummaryRowRecords(detailQuery.data ?? []),
+    [detailQuery.data],
+  );
   const [fold, setFold] = useState(false);
 
   useEffect(() => {

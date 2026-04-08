@@ -2,6 +2,13 @@ import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { adminDataClient } from '../../../api/admin';
+import {
+  mapAdminCostGroupRecords,
+  mapAdminProjectRecords,
+  mapAdminTaskPage,
+  mapAdminTaskTypeRecords,
+  mapMemberAdminRecords,
+} from '../../../mappers/adminMappers';
 import { setDocumentTitle } from '../../../router/navigation';
 import { downloadExcelFile } from '../../../utils/excel';
 import type { AdminTaskSearchFilters } from '../admin.types';
@@ -72,7 +79,7 @@ export function useAdminReportsPage() {
   });
 
   const members = useMemo(() => {
-    const items = membersQuery.data ?? [];
+    const items = mapMemberAdminRecords(membersQuery.data ?? []);
     const seen = new Set<string>();
 
     return items.filter((member) => {
@@ -84,10 +91,22 @@ export function useAdminReportsPage() {
       return true;
     });
   }, [membersQuery.data]);
-  const taskTypes = useMemo(() => taskTypesQuery.data ?? [], [taskTypesQuery.data]);
-  const costGroups = useMemo(() => costGroupsQuery.data ?? [], [costGroupsQuery.data]);
-  const projects = useMemo(() => projectsQuery.data ?? [], [projectsQuery.data]);
-  const tasks = useMemo(() => searchQuery.data?.items ?? [], [searchQuery.data]);
+  const taskTypes = useMemo(
+    () => mapAdminTaskTypeRecords(taskTypesQuery.data ?? []),
+    [taskTypesQuery.data],
+  );
+  const costGroups = useMemo(
+    () => mapAdminCostGroupRecords(costGroupsQuery.data ?? []),
+    [costGroupsQuery.data],
+  );
+  const projects = useMemo(
+    () => mapAdminProjectRecords(projectsQuery.data ?? []),
+    [projectsQuery.data],
+  );
+  const tasks = useMemo(
+    () => mapAdminTaskPage(searchQuery.data ?? { items: [], totalCount: 0 }).items,
+    [searchQuery.data],
+  );
   const membersById = useMemo(
     () => new Map(members.map((member) => [member.id, member] as const)),
     [members],
@@ -128,7 +147,10 @@ export function useAdminReportsPage() {
     () => sortedTasks.reduce((sum, task) => sum + task.taskUsedtime, 0),
     [sortedTasks],
   );
-  const totalTasks = searchQuery.data?.totalCount ?? 0;
+  const totalTasks = useMemo(
+    () => mapAdminTaskPage(searchQuery.data ?? { items: [], totalCount: 0 }).totalCount,
+    [searchQuery.data],
+  );
   const totalPages = Math.max(1, Math.ceil(totalTasks / pageSize));
   const currentPageSafe = Math.min(currentPage, totalPages);
 

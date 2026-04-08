@@ -3,6 +3,10 @@ import { useQuery } from '@tanstack/react-query';
 import { setDocumentTitle } from '../../router/navigation';
 import { dataClient } from '../../api/client';
 import { useAuth } from '../../auth/AuthContext';
+import {
+  mapDashboardSnapshot,
+  mapDashboardTaskCalendarDayRecords,
+} from '../../mappers/domainMappers';
 import { buildCalendarWeeks, getCurrentMonth, shiftMonth } from '../resource/resourceUtils';
 import { DashboardCalendarSection } from './DashboardCalendarSection';
 import { DashboardProjectsTable } from './DashboardProjectsTable';
@@ -30,8 +34,12 @@ export function DashboardPage() {
     enabled: Boolean(member),
   });
 
-  const dashboard = dashboardQuery.data;
+  const dashboard = useMemo(() => mapDashboardSnapshot(dashboardQuery.data), [dashboardQuery.data]);
   const inProgressProjects = dashboard?.inProgressProjects ?? [];
+  const calendarTasks = useMemo(
+    () => mapDashboardTaskCalendarDayRecords(tasksQuery.data ?? []),
+    [tasksQuery.data],
+  );
   const monthState = useMemo(() => {
     if (!member || !shouldShowWorklogCalendar) {
       return null;
@@ -39,7 +47,7 @@ export function DashboardPage() {
 
     const summary = new Map<number, number>();
 
-    for (const task of tasksQuery.data ?? []) {
+    for (const task of calendarTasks) {
       const day = Number(task.taskDate.slice(8, 10));
       summary.set(day, (summary.get(day) ?? 0) + Math.round(task.taskUsedtime));
     }
@@ -58,7 +66,7 @@ export function DashboardPage() {
       month: Number(selectedMonth.slice(5, 7)),
       summary,
     };
-  }, [member, selectedMonth, shouldShowWorklogCalendar, tasksQuery.data]);
+  }, [calendarTasks, member, selectedMonth, shouldShowWorklogCalendar]);
 
   return (
     <div className="dashboard-page">

@@ -2,6 +2,7 @@ import { type FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router-dom';
 import { adminDataClient } from '../../../api/admin';
+import { mapAdminPlatformRecords } from '../../../mappers/adminMappers';
 import { AdminPlatformEditorActionRow } from './AdminPlatformEditorActionRow';
 import { AdminPlatformEditorForm } from './AdminPlatformEditorForm';
 import type { AdminPlatformItem, AdminPlatformPayload } from '../admin.types';
@@ -37,7 +38,10 @@ export function AdminPlatformEditorPage() {
     queryFn: () => adminDataClient.listPlatforms(),
   });
 
-  const platforms = useMemo(() => platformsQuery.data ?? [], [platformsQuery.data]);
+  const platforms = useMemo(
+    () => mapAdminPlatformRecords(platformsQuery.data ?? []),
+    [platformsQuery.data],
+  );
   const selectedPlatform = useMemo(
     () => platforms.find((item) => item.id === platformId) ?? null,
     [platformId, platforms],

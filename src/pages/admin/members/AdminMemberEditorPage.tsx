@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router-dom';
 import { adminDataClient } from '../../../api/admin';
+import { mapMemberAdminRecords } from '../../../mappers/adminMappers';
 import type { MemberAdminPayload } from '../admin.types';
 import { AdminMemberEditorActionRow } from './AdminMemberEditorActionRow';
 import { AdminMemberEditorBasicSection } from './AdminMemberEditorBasicSection';
@@ -39,7 +40,9 @@ export function AdminMemberEditorPage() {
   });
 
   const selectedMember = useMemo(
-    () => membersQuery.data?.find((member) => member.id === memberId) ?? null,
+    () =>
+      mapMemberAdminRecords(membersQuery.data ?? []).find((member) => member.id === memberId) ??
+      null,
     [memberId, membersQuery.data],
   );
   const isInactiveMember = isEditMode && selectedMember?.userActive === false;
