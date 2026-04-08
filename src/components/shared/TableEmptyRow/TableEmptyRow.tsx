@@ -1,5 +1,10 @@
 import clsx from 'clsx';
-import type { TableEmptyRowProps } from './TableEmptyRow.types';
+import type { ComponentPropsWithoutRef, ReactNode } from 'react';
+
+export interface TableEmptyRowProps extends ComponentPropsWithoutRef<'td'> {
+  colSpan: number;
+  message: ReactNode;
+}
 
 export function TableEmptyRow({ colSpan, message, className, ...props }: TableEmptyRowProps) {
   return (

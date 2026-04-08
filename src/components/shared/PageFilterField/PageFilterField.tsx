@@ -1,6 +1,10 @@
 import clsx from 'clsx';
+import type { ComponentPropsWithoutRef, ReactNode } from 'react';
 import '../../../styles/components/PageFilterField.scss';
-import type { PageFilterFieldProps } from './PageFilterField.types';
+
+export interface PageFilterFieldProps extends ComponentPropsWithoutRef<'label'> {
+  label: ReactNode;
+}
 
 export function PageFilterField({ label, className, children, ...props }: PageFilterFieldProps) {
   return (

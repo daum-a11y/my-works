@@ -1,7 +1,28 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ADMIN_ORDER_DIALOG_DEFAULTS } from './AdminOrderDialog.constants';
-import type { AdminOrderDialogItem, AdminOrderDialogProps } from './AdminOrderDialog.types';
 import { GripHorizontal } from 'lucide-react';
+
+export interface AdminOrderDialogItem {
+  id: string;
+  title: string;
+  description?: string;
+  badge?: string;
+  inactive?: boolean;
+}
+
+export interface AdminOrderDialogProps {
+  title: string;
+  description?: string;
+  items: AdminOrderDialogItem[];
+  isOpen: boolean;
+  isPending: boolean;
+  errorMessage?: string;
+  onClose: () => void;
+  onSave: (ids: string[]) => Promise<void> | void;
+}
+
+const ADMIN_ORDER_DIALOG_DEFAULTS = {
+  ERROR_MESSAGE: '',
+} as const;
 
 function moveItem<T>(items: readonly T[], fromIndex: number, toIndex: number) {
   if (fromIndex === toIndex || fromIndex < 0 || toIndex < 0) {

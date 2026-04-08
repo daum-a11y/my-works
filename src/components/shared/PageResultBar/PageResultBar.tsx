@@ -1,6 +1,11 @@
 import clsx from 'clsx';
+import type { ComponentPropsWithoutRef, ReactNode } from 'react';
 import '../../../styles/components/PageResultBar.scss';
-import type { PageResultBarProps } from './PageResultBar.types';
+
+export interface PageResultBarProps extends ComponentPropsWithoutRef<'section'> {
+  metrics: ReactNode;
+  controls?: ReactNode;
+}
 
 export function PageResultBar({ metrics, controls, className, ...props }: PageResultBarProps) {
   return (

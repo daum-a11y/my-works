@@ -1,5 +1,10 @@
-import { GLOBAL_LOADING_SPINNER_DEFAULTS } from './GlobalLoadingSpinner.constants';
-import type { GlobalLoadingSpinnerProps } from './GlobalLoadingSpinner.types';
+export interface GlobalLoadingSpinnerProps {
+  overlay?: boolean;
+}
+
+const GLOBAL_LOADING_SPINNER_DEFAULTS = {
+  overlay: false,
+} as const;
 
 export function GlobalLoadingSpinner({
   overlay = GLOBAL_LOADING_SPINNER_DEFAULTS.overlay,

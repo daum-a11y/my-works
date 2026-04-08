@@ -1,7 +1,22 @@
 import clsx from 'clsx';
+import type { ComponentPropsWithoutRef } from 'react';
 import '../../../styles/components/PagePager.scss';
-import { PAGE_PAGER_LABELS } from './PagePager.constants';
-import type { PagePagerProps } from './PagePager.types';
+
+export interface PagePagerProps extends ComponentPropsWithoutRef<'div'> {
+  currentPage: number;
+  totalPages: number;
+  canGoPrevious: boolean;
+  canGoNext: boolean;
+  onPrevious: () => void;
+  onNext: () => void;
+  buttonClassName?: string;
+  statusClassName?: string;
+}
+
+const PAGE_PAGER_LABELS = {
+  previous: '이전',
+  next: '다음',
+} as const;
 
 const numberFormatter = new Intl.NumberFormat('ko-KR');
 

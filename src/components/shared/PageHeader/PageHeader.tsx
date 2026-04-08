@@ -1,7 +1,20 @@
 import clsx from 'clsx';
+import type { ComponentPropsWithoutRef, ReactNode } from 'react';
 import '../../../styles/components/PageHeader.scss';
-import { PAGE_HEADER_DEFAULTS } from './PageHeader.constants';
-import type { PageHeaderProps } from './PageHeader.types';
+
+export type PageHeaderAlign = 'start' | 'center';
+
+export interface PageHeaderProps extends ComponentPropsWithoutRef<'header'> {
+  title: string;
+  kicker?: string;
+  description?: ReactNode;
+  actions?: ReactNode;
+  align?: PageHeaderAlign;
+}
+
+const PAGE_HEADER_DEFAULTS = {
+  align: 'start',
+} as const;
 
 export function PageHeader({
   title,

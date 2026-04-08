@@ -1,6 +1,18 @@
 import { useThemePreference } from '../../../hooks/useThemePreference';
-import { BRAND_LOGO_DEFAULTS } from './BrandLogo.constants';
-import type { BrandLogoProps } from './BrandLogo.types';
+
+export interface BrandLogoProps {
+  alt?: string;
+  className?: string;
+  width?: number;
+  height?: number;
+}
+
+const BRAND_LOGO_DEFAULTS = {
+  alt: 'My Works',
+  width: 100,
+  height: 30,
+  src: '/img/my-works-logo-200x60.png',
+} as const;
 
 export function BrandLogo({
   alt = BRAND_LOGO_DEFAULTS.alt,

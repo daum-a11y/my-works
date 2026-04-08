@@ -1,7 +1,18 @@
 import clsx from 'clsx';
+import type { ComponentPropsWithoutRef } from 'react';
 import '../../../styles/components/PageSizeField.scss';
-import { PAGE_SIZE_FIELD_LABEL } from './PageSizeField.constants';
-import type { PageSizeFieldProps } from './PageSizeField.types';
+
+export interface PageSizeFieldProps extends Omit<
+  ComponentPropsWithoutRef<'select'>,
+  'value' | 'onChange'
+> {
+  value: number;
+  options: readonly number[];
+  onValueChange: (next: number) => void;
+  className?: string;
+}
+
+export const PAGE_SIZE_FIELD_LABEL = '페이지당';
 
 export function PageSizeField({
   value,
