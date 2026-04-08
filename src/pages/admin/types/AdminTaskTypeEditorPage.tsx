@@ -2,13 +2,10 @@ import { type FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router-dom';
 import { adminDataClient } from '../../../api/admin';
-import {
-  mapAdminTaskTypeRecords,
-  mapAdminTaskTypeUsageSummary,
-} from '../../../mappers/adminMappers';
 import { AdminTaskTypeEditorActionRow } from './AdminTaskTypeEditorActionRow';
 import { AdminTaskTypeEditorForm } from './AdminTaskTypeEditorForm';
 import type { AdminTaskTypeItem, AdminTaskTypePayload } from '../admin.types';
+import { toAdminTaskType } from '../adminApiTransform';
 import '../../../styles/pages/AdminPage.scss';
 
 function createDraft(taskType?: AdminTaskTypeItem): AdminTaskTypePayload {
@@ -64,7 +61,7 @@ export function AdminTaskTypeEditorPage() {
   });
 
   const taskTypes = useMemo(
-    () => mapAdminTaskTypeRecords(taskTypesQuery.data ?? []),
+    () => (taskTypesQuery.data ?? []).map(toAdminTaskType),
     [taskTypesQuery.data],
   );
   const selectedTaskType = useMemo(
@@ -154,7 +151,10 @@ export function AdminTaskTypeEditorPage() {
     (saveMutation.error instanceof Error && saveMutation.error.message) ||
     (deleteMutation.error instanceof Error && deleteMutation.error.message) ||
     '';
-  const taskUsageCount = mapAdminTaskTypeUsageSummary(usageQuery.data ?? []).taskCount;
+  const taskUsageCount = useMemo(() => {
+    const firstRow = usageQuery.data?.[0];
+    return Number(firstRow?.task_count ?? 0);
+  }, [usageQuery.data]);
   const deleteBlocked = isEditMode && taskUsageCount > 0;
   const deleteHelpText = deleteBlocked ? `사용 중인 업무 ${taskUsageCount}건` : '';
 

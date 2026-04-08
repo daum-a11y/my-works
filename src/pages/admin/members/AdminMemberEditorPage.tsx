@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router-dom';
 import { adminDataClient } from '../../../api/admin';
-import { mapMemberAdminRecords } from '../../../mappers/adminMappers';
 import type { MemberAdminPayload } from '../admin.types';
 import { AdminMemberEditorActionRow } from './AdminMemberEditorActionRow';
 import { AdminMemberEditorBasicSection } from './AdminMemberEditorBasicSection';
@@ -24,6 +23,7 @@ import {
   getRestoreConfirmMessage,
   getSaveSuccessMessage,
 } from './AdminMemberEditorPage.utils';
+import { toMemberAdmin } from '../adminApiTransform';
 import '../../../styles/pages/AdminPage.scss';
 
 export function AdminMemberEditorPage() {
@@ -41,8 +41,7 @@ export function AdminMemberEditorPage() {
 
   const selectedMember = useMemo(
     () =>
-      mapMemberAdminRecords(membersQuery.data ?? []).find((member) => member.id === memberId) ??
-      null,
+      (membersQuery.data ?? []).map(toMemberAdmin).find((member) => member.id === memberId) ?? null,
     [memberId, membersQuery.data],
   );
   const isInactiveMember = isEditMode && selectedMember?.userActive === false;

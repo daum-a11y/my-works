@@ -4,16 +4,15 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../../auth/AuthContext';
 import { dataClient } from '../../api/client';
 import {
-  mapCostGroupRecords,
-  mapPlatformRecords,
-  mapProjectPageRecords,
-  mapProjectRecord,
-  mapReportProjectOptionRows,
-  mapServiceGroupRecords,
-  mapTaskRecord,
-  mapTaskRecords,
-  mapTaskTypeRecords,
-} from '../../mappers/domainMappers';
+  toCostGroup,
+  toPlatform,
+  toProject,
+  toProjectPage,
+  toReportProjectOption,
+  toServiceGroup,
+  toTask,
+  toTaskType,
+} from './reportsApiTransform';
 import type { CostGroup, Platform, ProjectPage, TaskType } from '../../types/domain';
 import {
   buildProjectViewModels,
@@ -130,7 +129,7 @@ export function useReportsSlice(): ReportsSlice {
     queryFn: async () => dataClient.getTasksByDate(member!, selectedDate),
     enabled: Boolean(member),
   });
-  const tasks = useMemo(() => mapTaskRecords(tasksQuery.data ?? []), [tasksQuery.data]);
+  const tasks = useMemo(() => (tasksQuery.data ?? []).map(toTask), [tasksQuery.data]);
 
   const reportProjectsQuery = useQuery({
     queryKey: [
@@ -143,10 +142,10 @@ export function useReportsSlice(): ReportsSlice {
     ],
     queryFn: async () =>
       dataClient.searchReportProjects({
-        costGroupId: draft.costGroupId,
-        platform: draft.platform,
-        projectType1: draft.type1,
-        query: appliedProjectQuery,
+        costGroupId: draft.costGroupId || null,
+        platform: draft.platform || null,
+        projectType1: draft.type1 || null,
+        query: appliedProjectQuery || null,
       }),
     enabled: Boolean(member && draft.costGroupId && draft.platform && draft.type1),
   });
@@ -197,24 +196,24 @@ export function useReportsSlice(): ReportsSlice {
     enabled: Boolean(member),
   });
   const reportProjectRows = useMemo(
-    () => mapReportProjectOptionRows(reportProjectsQuery.data ?? []),
+    () => (reportProjectsQuery.data ?? []).map(toReportProjectOption),
     [reportProjectsQuery.data],
   );
   const costGroupOptions = useMemo(
-    () => mapCostGroupRecords(costGroupsQuery.data ?? []),
+    () => (costGroupsQuery.data ?? []).map(toCostGroup),
     [costGroupsQuery.data],
   );
   const platformOptions = useMemo(
-    () => mapPlatformRecords(platformsQuery.data ?? []),
+    () => (platformsQuery.data ?? []).map(toPlatform),
     [platformsQuery.data],
   );
   const serviceGroups = useMemo(
-    () => mapServiceGroupRecords(serviceGroupsQuery.data ?? []),
+    () => (serviceGroupsQuery.data ?? []).map(toServiceGroup),
     [serviceGroupsQuery.data],
   );
-  const pages = useMemo(() => mapProjectPageRecords(pagesQuery.data ?? []), [pagesQuery.data]);
+  const pages = useMemo(() => (pagesQuery.data ?? []).map(toProjectPage), [pagesQuery.data]);
   const taskTypes = useMemo(
-    () => mapTaskTypeRecords(taskTypesQuery.data ?? []),
+    () => (taskTypesQuery.data ?? []).map(toTaskType),
     [taskTypesQuery.data],
   );
 
@@ -227,7 +226,7 @@ export function useReportsSlice(): ReportsSlice {
       return [];
     }
 
-    return buildProjectViewModels([mapProjectRecord(selectedProjectQuery.data)], serviceGroups);
+    return buildProjectViewModels([toProject(selectedProjectQuery.data)], serviceGroups);
   }, [selectedProjectQuery.data, serviceGroups]);
   const projectOptions = useMemo(() => {
     const merged = [...selectedProjectOptions, ...projectOptionsFromSearch];
@@ -354,7 +353,7 @@ export function useReportsSlice(): ReportsSlice {
       if (projectId) {
         const project =
           projectOptionsById.get(projectId)?.project ??
-          (selectedProjectQuery.data ? mapProjectRecord(selectedProjectQuery.data) : null);
+          (selectedProjectQuery.data ? toProject(selectedProjectQuery.data) : null);
         if (!project) {
           throw new Error('선택한 프로젝트 정보를 확인할 수 없습니다.');
         }
@@ -388,7 +387,7 @@ export function useReportsSlice(): ReportsSlice {
 
       setSelectedReportId(null);
       setDraft(createEmptyReportDraft());
-      const mappedTask = mapTaskRecord(task);
+      const mappedTask = toTask(task);
       setSelectedDate(mappedTask.taskDate);
       setProjectQuery('');
       setAppliedProjectQuery('');
@@ -442,7 +441,7 @@ export function useReportsSlice(): ReportsSlice {
         next.pageId = '';
         const project =
           projectOptionsById.get(String(value))?.project ??
-          (selectedProjectQuery.data ? mapProjectRecord(selectedProjectQuery.data) : null);
+          (selectedProjectQuery.data ? toProject(selectedProjectQuery.data) : null);
         if (project) {
           const normalizedServiceName = project.serviceGroupId
             ? (serviceGroupsById.get(project.serviceGroupId)?.name ?? '')

@@ -2,11 +2,11 @@ import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import type { Member } from '../../types/domain';
 import { dataClient } from '../../api/client';
-import { mapProjectListRows } from '../../mappers/domainMappers';
 import { setDocumentTitle } from '../../router/navigation';
 import { PROJECTS_DEFAULT_PAGE_SIZE, PROJECTS_PAGE_TITLE } from './ProjectsPage.constants';
 import type { ProjectFilterState } from './ProjectsPage.types';
 import { createInitialProjectFilters } from './ProjectsPage.utils';
+import { toProjectListRow } from './projectApiTransform';
 
 export function useProjectsPage(member: Member | null) {
   const [filterDraft, setFilterDraft] = useState<ProjectFilterState>(createInitialProjectFilters);
@@ -27,11 +27,22 @@ export function useProjectsPage(member: Member | null) {
     enabled: Boolean(member),
     placeholderData: (previousData) => previousData,
     queryFn: async () =>
-      dataClient.searchProjectsPage(appliedFilters, appliedSearch, currentPage, pageSize),
+      dataClient.searchProjectsPage(
+        {
+          startDate: appliedFilters.startDate || null,
+          endDate: appliedFilters.endDate || null,
+          query: appliedSearch || null,
+        },
+        currentPage,
+        pageSize,
+      ),
   });
 
   const pagedProjects = useMemo(
-    () => mapProjectListRows(query.data ?? { items: [], totalCount: 0 }),
+    () => ({
+      items: (query.data?.items ?? []).map(toProjectListRow),
+      totalCount: query.data?.totalCount ?? 0,
+    }),
     [query.data],
   );
   const projects = pagedProjects.items;

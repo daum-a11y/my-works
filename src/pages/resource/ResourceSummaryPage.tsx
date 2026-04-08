@@ -11,10 +11,7 @@ import type { ResourceSummaryRow } from './ResourceSummaryPage.types';
 import { formatMemberLabel } from './ResourceSummaryPage.format';
 import { ResourceSummaryResults } from './ResourceSummaryResults';
 import { useAuth } from '../../auth/AuthContext';
-import {
-  mapResourceSummaryDayRowRecords,
-  mapResourceSummaryMemberRowRecords,
-} from '../../mappers/domainMappers';
+import { toResourceSummaryDay, toResourceSummaryMember } from './resourceApiTransform';
 import '../../styles/pages/ProjectsPage.scss';
 import '../../styles/pages/ResourcePage.scss';
 
@@ -48,11 +45,11 @@ export function ResourceSummaryPage() {
   });
 
   const activeMembers = useMemo(
-    () => mapResourceSummaryMemberRowRecords(membersQuery.data ?? []),
+    () => (membersQuery.data ?? []).map(toResourceSummaryMember),
     [membersQuery.data],
   );
   const summaryRows = useMemo(
-    () => mapResourceSummaryDayRowRecords(summaryQuery.data ?? []),
+    () => (summaryQuery.data ?? []).map(toResourceSummaryDay),
     [summaryQuery.data],
   );
 

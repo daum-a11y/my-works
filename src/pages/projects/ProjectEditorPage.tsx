@@ -4,14 +4,13 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../auth/AuthContext';
 import { dataClient } from '../../api/client';
 import {
-  mapMemberRecords,
-  mapPlatformRecords,
-  mapProjectPageRecord,
-  mapProjectPageRecords,
-  mapProjectRecord,
-  mapServiceGroupRecords,
-  mapTaskTypeRecords,
-} from '../../mappers/domainMappers';
+  toMember,
+  toPlatform,
+  toProject,
+  toProjectPage,
+  toServiceGroup,
+  toTaskType,
+} from './projectApiTransform';
 import type { ProjectPage } from '../../types/domain';
 import { buildProjectTypeOptions } from '../../utils/taskType';
 import {
@@ -68,21 +67,21 @@ export function ProjectEditorPage() {
 
   const projectRecord = query.data?.project ?? null;
   const selectedProject = useMemo(
-    () => (projectRecord ? mapProjectRecord(projectRecord) : null),
+    () => (projectRecord ? toProject(projectRecord) : null),
     [projectRecord],
   );
-  const pages = useMemo(() => mapProjectPageRecords(query.data?.pages ?? []), [query.data?.pages]);
-  const members = useMemo(() => mapMemberRecords(query.data?.members ?? []), [query.data?.members]);
+  const pages = useMemo(() => (query.data?.pages ?? []).map(toProjectPage), [query.data?.pages]);
+  const members = useMemo(() => (query.data?.members ?? []).map(toMember), [query.data?.members]);
   const serviceGroups = useMemo(
-    () => mapServiceGroupRecords(query.data?.serviceGroups ?? []),
+    () => (query.data?.serviceGroups ?? []).map(toServiceGroup),
     [query.data?.serviceGroups],
   );
   const platforms = useMemo(
-    () => mapPlatformRecords(query.data?.platforms ?? []),
+    () => (query.data?.platforms ?? []).map(toPlatform),
     [query.data?.platforms],
   );
   const taskTypes = useMemo(
-    () => mapTaskTypeRecords(query.data?.taskTypes ?? []),
+    () => (query.data?.taskTypes ?? []).map(toTaskType),
     [query.data?.taskTypes],
   );
   const projectTypeOptions = useMemo(
@@ -236,7 +235,7 @@ export function ProjectEditorPage() {
         return;
       }
 
-      setProjectDraft(toProjectDraft(mapProjectRecord(saved)));
+      setProjectDraft(toProjectDraft(toProject(saved)));
     },
     onError: (error) => {
       setStatusMessage(error instanceof Error ? error.message : '프로젝트를 저장하지 못했습니다.');
@@ -254,7 +253,7 @@ export function ProjectEditorPage() {
     onSuccess: async (saved) => {
       await queryClient.invalidateQueries({ queryKey: ['projects', member?.id] });
       await queryClient.invalidateQueries({ queryKey: ['project-editor', member?.id] });
-      const mappedPage = mapProjectPageRecord(saved);
+      const mappedPage = toProjectPage(saved);
       setPageDrafts((current) => ({ ...current, [mappedPage.id]: toPageDraft(mappedPage) }));
       setStatusMessage('페이지를 저장했습니다.');
       setPageAddOpen(false);

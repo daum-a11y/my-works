@@ -9,7 +9,7 @@ import { ResourceTypeTableSection } from './ResourceTypeTableSection';
 import '../../styles/pages/ResourcePage.scss';
 import '../../styles/pages/ResourcePage.scss';
 import { useAuth } from '../../auth/AuthContext';
-import { mapResourceTypeSummaryRowRecords } from '../../mappers/domainMappers';
+import { toResourceTypeSummaryRow } from './resourceApiTransform';
 
 export function ResourceTypePage() {
   const { session } = useAuth();
@@ -27,7 +27,7 @@ export function ResourceTypePage() {
   });
   const years = useMemo(() => yearsQuery.data ?? [], [yearsQuery.data]);
   const rowsData = useMemo(
-    () => mapResourceTypeSummaryRowRecords(detailQuery.data ?? []),
+    () => (detailQuery.data ?? []).map(toResourceTypeSummaryRow),
     [detailQuery.data],
   );
   const [fold, setFold] = useState(false);

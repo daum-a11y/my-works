@@ -7,15 +7,14 @@ import type {
   TaskType,
 } from '../../../types/domain';
 import { adminDataClient } from '../../../api/admin';
-import type { ApiRecord } from '../../../api/api.types';
 import {
-  mapAdminCostGroupRecords,
-  mapAdminPageRecords,
-  mapAdminPlatformRecords,
-  mapAdminProjectRecords,
-  mapAdminServiceGroupRecords,
-  mapAdminTaskTypeRecords,
-} from '../../../mappers/adminMappers';
+  toAdminCostGroup,
+  toAdminPage,
+  toAdminPlatform,
+  toAdminProject,
+  toAdminServiceGroup,
+  toAdminTaskType,
+} from '../adminApiTransform';
 import type { ReportDraft } from '../../reports/reportUtils';
 import type { AdminTaskSearchItem } from '../admin.types';
 
@@ -49,7 +48,7 @@ export function parseCompactDate(value: string, mode: 'short' | 'long') {
 export function toTaskTypes(
   items: Awaited<ReturnType<typeof adminDataClient.listTaskTypes>>,
 ): TaskType[] {
-  return mapAdminTaskTypeRecords(items as ApiRecord[]).map((item) => ({
+  return items.map(toAdminTaskType).map((item) => ({
     id: item.id,
     type1: item.type1,
     type2: item.type2,
@@ -63,7 +62,7 @@ export function toTaskTypes(
 export function toServiceGroups(
   items: Awaited<ReturnType<typeof adminDataClient.listServiceGroups>>,
 ): ServiceGroup[] {
-  return mapAdminServiceGroupRecords(items as ApiRecord[]).map((item) => ({
+  return items.map(toAdminServiceGroup).map((item) => ({
     id: item.id,
     name: item.name,
     costGroupId: item.costGroupId,
@@ -76,7 +75,7 @@ export function toServiceGroups(
 export function toProjects(
   items: Awaited<ReturnType<typeof adminDataClient.listProjects>>,
 ): Project[] {
-  return mapAdminProjectRecords(items as ApiRecord[]).map((item) => ({
+  return items.map(toAdminProject).map((item) => ({
     id: item.id,
     createdByMemberId: null,
     projectType1: item.projectType1,
@@ -96,7 +95,7 @@ export function toProjects(
 export function toCostGroups(
   items: Awaited<ReturnType<typeof adminDataClient.listCostGroups>>,
 ): CostGroup[] {
-  return mapAdminCostGroupRecords(items as ApiRecord[]).map((item) => ({
+  return items.map(toAdminCostGroup).map((item) => ({
     id: item.id,
     name: item.name,
     displayOrder: item.displayOrder,
@@ -107,7 +106,7 @@ export function toCostGroups(
 export function toPlatforms(
   items: Awaited<ReturnType<typeof adminDataClient.listPlatforms>>,
 ): Platform[] {
-  return mapAdminPlatformRecords(items as ApiRecord[]).map((item) => ({
+  return items.map(toAdminPlatform).map((item) => ({
     id: item.id,
     name: item.name,
     displayOrder: item.displayOrder,
@@ -118,7 +117,7 @@ export function toPlatforms(
 export function toPages(
   items: Awaited<ReturnType<typeof adminDataClient.listProjectPages>>,
 ): ProjectPage[] {
-  return mapAdminPageRecords(items as ApiRecord[]).map((item) => ({
+  return items.map(toAdminPage).map((item) => ({
     id: item.id,
     projectId: item.projectId,
     title: item.title,

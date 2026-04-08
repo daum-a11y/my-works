@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState, type FormEvent, type KeyboardEvent } from
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import type { Project } from '../../../types/domain';
-import { mapAdminTaskRecord, mapMemberAdminRecords } from '../../../mappers/adminMappers';
 import {
   buildProjectViewModels,
   buildSelectableTaskType1Options,
@@ -31,6 +30,7 @@ import {
   toServiceGroups,
   toTaskTypes,
 } from './AdminReportEditorPage.utils';
+import { toAdminTask, toMemberAdmin } from '../adminApiTransform';
 import { AdminReportEditorForm } from './AdminReportEditorForm';
 import '../../../styles/pages/AdminPage.scss';
 
@@ -86,10 +86,10 @@ export function AdminReportEditorPage() {
     ],
     queryFn: () =>
       adminDataClient.searchReportProjectsAdmin({
-        costGroupId: draft.costGroupId,
-        platform: draft.platform,
-        projectType1: draft.type1,
-        query: appliedProjectQuery,
+        costGroupId: draft.costGroupId || null,
+        platform: draft.platform || null,
+        projectType1: draft.type1 || null,
+        query: appliedProjectQuery || null,
       }),
     enabled: Boolean(draft.costGroupId && draft.platform && draft.type1),
   });
@@ -104,10 +104,7 @@ export function AdminReportEditorPage() {
     enabled: isEdit,
   });
 
-  const members = useMemo(
-    () => mapMemberAdminRecords(membersQuery.data ?? []),
-    [membersQuery.data],
-  );
+  const members = useMemo(() => (membersQuery.data ?? []).map(toMemberAdmin), [membersQuery.data]);
   const taskTypes = useMemo(() => toTaskTypes(taskTypesQuery.data ?? []), [taskTypesQuery.data]);
   const serviceGroups = useMemo(
     () => toServiceGroups(serviceGroupsQuery.data ?? []),
@@ -163,7 +160,7 @@ export function AdminReportEditorPage() {
       return;
     }
 
-    const task = mapAdminTaskRecord(taskQuery.data);
+    const task = toAdminTask(taskQuery.data);
     setSelectedMemberId(task.memberId);
     setDraft(createDraftFromTask(task));
     setActiveTab(task.projectId ? 'report' : 'period');
@@ -413,13 +410,31 @@ export function AdminReportEditorPage() {
 
       const taskType = validateTaskTypeSelection(taskTypes, draft.type1, draft.type2);
       const taskUsedtime = parseReportTaskUsedtimeInput(draft.taskUsedtime);
+      let projectId = draft.projectId.trim();
+      const pageId = draft.pageId.trim();
+
+      if (pageId) {
+        const page = pagesById.get(pageId);
+        if (!page) {
+          throw new Error('선택한 페이지 정보를 확인할 수 없습니다.');
+        }
+
+        if (projectId && page.projectId !== projectId) {
+          throw new Error('선택한 프로젝트와 페이지 연결을 확인해 주세요.');
+        }
+
+        if (!projectId) {
+          projectId = page.projectId;
+        }
+      }
+
       await adminDataClient.saveTaskAdmin({
         id: isEdit ? taskId : undefined,
         memberId: selectedMemberId,
         taskDate: draft.reportDate,
         costGroupId: draft.costGroupId,
-        projectId: draft.projectId,
-        pageId: draft.pageId,
+        projectId,
+        pageId,
         taskType1: taskType.type1,
         taskType2: taskType.type2,
         taskUsedtime,

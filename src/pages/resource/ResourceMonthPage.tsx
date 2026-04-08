@@ -20,7 +20,7 @@ import '../../styles/pages/ResourcePage.scss';
 import '../../styles/pages/ProjectsPage.scss';
 import '../../styles/pages/ResourcePage.scss';
 import { useAuth } from '../../auth/AuthContext';
-import { mapResourceMonthReportData } from '../../mappers/domainMappers';
+import { toResourceMonthReport } from './resourceApiTransform';
 
 export function ResourceMonthPage() {
   const { type } = useParams();
@@ -41,7 +41,7 @@ export function ResourceMonthPage() {
     setDocumentTitle(RESOURCE_MONTH_PAGE_TITLE);
   }, []);
 
-  const report = useMemo(() => mapResourceMonthReportData(query.data), [query.data]);
+  const report = useMemo(() => toResourceMonthReport(query.data), [query.data]);
   const typeRows = report?.typeRows ?? [];
   const serviceSummaryRows = report?.serviceSummaryRows ?? [];
   const serviceDetailRows = report?.serviceDetailRows ?? [];

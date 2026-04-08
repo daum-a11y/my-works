@@ -3,12 +3,12 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { adminDataClient } from '../../../api/admin';
 import {
-  mapAdminCostGroupRecords,
-  mapAdminProjectRecords,
-  mapAdminTaskPage,
-  mapAdminTaskTypeRecords,
-  mapMemberAdminRecords,
-} from '../../../mappers/adminMappers';
+  toAdminCostGroup,
+  toAdminProject,
+  toAdminTask,
+  toAdminTaskType,
+  toMemberAdmin,
+} from '../adminApiTransform';
 import { setDocumentTitle } from '../../../router/navigation';
 import { downloadExcelFile } from '../../../utils/excel';
 import type { AdminTaskSearchFilters } from '../admin.types';
@@ -65,21 +65,36 @@ export function useAdminReportsPage() {
     queryFn: () =>
       filters.costGroupId
         ? adminDataClient.searchReportProjectsAdmin({
-            costGroupId: filters.costGroupId,
-            platform: '',
-            projectType1: '',
-            query: '',
+            costGroupId: filters.costGroupId || null,
+            platform: null,
+            projectType1: null,
+            query: null,
           })
         : Promise.resolve([]),
     enabled: Boolean(filters.costGroupId),
   });
   const searchQuery = useQuery({
     queryKey: ['admin', 'task-search', appliedFilters, currentPage, pageSize],
-    queryFn: () => adminDataClient.searchTasksAdmin(appliedFilters, currentPage, pageSize),
+    queryFn: () =>
+      adminDataClient.searchTasksAdmin(
+        {
+          memberId: appliedFilters.memberId || null,
+          startDate: appliedFilters.startDate || null,
+          endDate: appliedFilters.endDate || null,
+          costGroupId: appliedFilters.costGroupId || null,
+          projectId: appliedFilters.projectId || null,
+          pageId: appliedFilters.pageId || null,
+          taskType1: appliedFilters.taskType1 || null,
+          taskType2: appliedFilters.taskType2 || null,
+          keyword: appliedFilters.keyword || null,
+        },
+        currentPage,
+        pageSize,
+      ),
   });
 
   const members = useMemo(() => {
-    const items = mapMemberAdminRecords(membersQuery.data ?? []);
+    const items = (membersQuery.data ?? []).map(toMemberAdmin);
     const seen = new Set<string>();
 
     return items.filter((member) => {
@@ -92,21 +107,27 @@ export function useAdminReportsPage() {
     });
   }, [membersQuery.data]);
   const taskTypes = useMemo(
-    () => mapAdminTaskTypeRecords(taskTypesQuery.data ?? []),
+    () => (taskTypesQuery.data ?? []).map(toAdminTaskType),
     [taskTypesQuery.data],
   );
   const costGroups = useMemo(
-    () => mapAdminCostGroupRecords(costGroupsQuery.data ?? []),
+    () => (costGroupsQuery.data ?? []).map(toAdminCostGroup),
     [costGroupsQuery.data],
   );
   const projects = useMemo(
-    () => mapAdminProjectRecords(projectsQuery.data ?? []),
+    () => (projectsQuery.data ?? []).map(toAdminProject),
     [projectsQuery.data],
   );
-  const tasks = useMemo(
-    () => mapAdminTaskPage(searchQuery.data ?? { items: [], totalCount: 0 }).items,
-    [searchQuery.data],
-  );
+  const tasks = useMemo(() => {
+    const seen = new Set<string>();
+    return (searchQuery.data?.items ?? []).map(toAdminTask).filter((item) => {
+      if (seen.has(item.id)) {
+        return false;
+      }
+      seen.add(item.id);
+      return true;
+    });
+  }, [searchQuery.data]);
   const membersById = useMemo(
     () => new Map(members.map((member) => [member.id, member] as const)),
     [members],
@@ -147,10 +168,7 @@ export function useAdminReportsPage() {
     () => sortedTasks.reduce((sum, task) => sum + task.taskUsedtime, 0),
     [sortedTasks],
   );
-  const totalTasks = useMemo(
-    () => mapAdminTaskPage(searchQuery.data ?? { items: [], totalCount: 0 }).totalCount,
-    [searchQuery.data],
-  );
+  const totalTasks = useMemo(() => searchQuery.data?.totalCount ?? 0, [searchQuery.data]);
   const totalPages = Math.max(1, Math.ceil(totalTasks / pageSize));
   const currentPageSafe = Math.min(currentPage, totalPages);
 

@@ -4,8 +4,8 @@ import { Link, useLocation } from 'react-router-dom';
 import { setDocumentTitle } from '../../../router/navigation';
 import { AdminOrderDialog } from '../../../components/admin/AdminOrderDialog';
 import { adminDataClient } from '../../../api/admin';
-import { mapAdminPlatformRecords } from '../../../mappers/adminMappers';
 import { AdminPlatformsResultsTable } from './AdminPlatformsResultsTable';
+import { toAdminPlatform } from '../adminApiTransform';
 import '../../../styles/pages/AdminPage.scss';
 
 export function AdminPlatformsPage() {
@@ -25,7 +25,7 @@ export function AdminPlatformsPage() {
 
   const platforms = useMemo(
     () =>
-      [...mapAdminPlatformRecords(platformsQuery.data ?? [])].sort(
+      [...(platformsQuery.data ?? []).map(toAdminPlatform)].sort(
         (left, right) =>
           left.displayOrder - right.displayOrder || left.name.localeCompare(right.name),
       ),

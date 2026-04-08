@@ -3,13 +3,10 @@ import { useQuery } from '@tanstack/react-query';
 import { setDocumentTitle } from '../../router/navigation';
 import { dataClient } from '../../api/client';
 import { useAuth } from '../../auth/AuthContext';
-import {
-  mapDashboardSnapshot,
-  mapDashboardTaskCalendarDayRecords,
-} from '../../mappers/domainMappers';
 import { buildCalendarWeeks, getCurrentMonth, shiftMonth } from '../resource/resourceUtils';
 import { DashboardCalendarSection } from './DashboardCalendarSection';
 import { DashboardProjectsTable } from './DashboardProjectsTable';
+import { toDashboardSnapshot, toDashboardTaskCalendarDay } from './dashboardApiTransform';
 import '../../styles/pages/DashboardPage.scss';
 
 export function DashboardPage() {
@@ -34,10 +31,10 @@ export function DashboardPage() {
     enabled: Boolean(member),
   });
 
-  const dashboard = useMemo(() => mapDashboardSnapshot(dashboardQuery.data), [dashboardQuery.data]);
+  const dashboard = useMemo(() => toDashboardSnapshot(dashboardQuery.data), [dashboardQuery.data]);
   const inProgressProjects = dashboard?.inProgressProjects ?? [];
   const calendarTasks = useMemo(
-    () => mapDashboardTaskCalendarDayRecords(tasksQuery.data ?? []),
+    () => (tasksQuery.data ?? []).map(toDashboardTaskCalendarDay),
     [tasksQuery.data],
   );
   const monthState = useMemo(() => {

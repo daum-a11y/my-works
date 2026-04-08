@@ -4,10 +4,10 @@ import { Link, useLocation } from 'react-router-dom';
 import { setDocumentTitle } from '../../../router/navigation';
 import { AdminOrderDialog } from '../../../components/admin/AdminOrderDialog';
 import { adminDataClient } from '../../../api/admin';
-import { mapAdminTaskTypeRecords } from '../../../mappers/adminMappers';
 import { AdminTaskTypesResultsTable } from './AdminTaskTypesResultsTable';
 import '../../../styles/pages/AdminPage.scss';
 import type { AdminTaskTypeItem } from '../admin.types';
+import { toAdminTaskType } from '../adminApiTransform';
 
 function groupTaskTypes(taskTypes: AdminTaskTypeItem[]) {
   const grouped = new Map<string, AdminTaskTypeItem[]>();
@@ -50,7 +50,7 @@ export function AdminTaskTypesPage() {
 
   const taskTypes = useMemo(
     () =>
-      [...mapAdminTaskTypeRecords(taskTypesQuery.data ?? [])].sort(
+      [...(taskTypesQuery.data ?? []).map(toAdminTaskType)].sort(
         (left, right) =>
           left.displayOrder - right.displayOrder ||
           left.type1.localeCompare(right.type1) ||

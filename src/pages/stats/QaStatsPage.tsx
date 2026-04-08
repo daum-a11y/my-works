@@ -3,7 +3,6 @@ import { useQuery } from '@tanstack/react-query';
 import { PageHeader } from '../../components/shared/PageHeader';
 import { PageSection } from '../../components/shared/PageSection';
 import { dataClient } from '../../api/client';
-import { mapQaStatsProjectRowRecords } from '../../mappers/domainMappers';
 import { setDocumentTitle } from '../../router/navigation';
 import { getCurrentMonth, shiftMonth } from '../resource/resourceUtils';
 import { QaStatsFilterForm } from './QaStatsFilterForm';
@@ -19,6 +18,7 @@ import {
   type MonthlyQaRow,
 } from './QaStatsPage.utils';
 import { useAuth } from '../../auth/AuthContext';
+import { toQaStatsProject } from './statsApiTransform';
 import '../../styles/pages/StatsPage.scss';
 
 export function QaStatsPage() {
@@ -35,7 +35,7 @@ export function QaStatsPage() {
   });
 
   const qaProjects = useMemo(
-    () => mapQaStatsProjectRowRecords(projectsQuery.data ?? []),
+    () => (projectsQuery.data ?? []).map(toQaStatsProject),
     [projectsQuery.data],
   );
   const [draftStartMonth, setDraftStartMonth] = useState(defaultStartMonth);

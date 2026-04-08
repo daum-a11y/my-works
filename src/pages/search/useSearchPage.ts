@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../../auth/AuthContext';
 import { dataClient } from '../../api/client';
-import { mapSearchTaskPage, mapSearchTaskRows } from '../../mappers/domainMappers';
 import { setDocumentTitle } from '../../router/navigation';
 import { downloadExcelFile } from '../../utils/excel';
 import {
@@ -18,6 +17,7 @@ import {
   isDownloadRangeWithinThreeMonths,
   sortSearchRows,
 } from './SearchPage.utils';
+import { toSearchTaskRow } from './searchApiTransform';
 
 export function useSearchPage() {
   const { session } = useAuth();
@@ -49,7 +49,7 @@ export function useSearchPage() {
         member!,
         {
           ...DEFAULT_REPORT_FILTERS,
-          query: appliedSearch,
+          query: appliedSearch || null,
           startDate: appliedFilters.startDate,
           endDate: appliedFilters.endDate,
         },
@@ -59,19 +59,22 @@ export function useSearchPage() {
     enabled: Boolean(member),
   });
 
-  const tasks = useMemo(
-    () => mapSearchTaskPage(tasksQuery.data ?? { items: [], totalCount: 0 }).items,
-    [tasksQuery.data],
-  );
+  const tasks = useMemo(() => {
+    const seen = new Set<string>();
+    return (tasksQuery.data?.items ?? []).map(toSearchTaskRow).filter((item) => {
+      if (seen.has(item.id)) {
+        return false;
+      }
+      seen.add(item.id);
+      return true;
+    });
+  }, [tasksQuery.data]);
   const sortedReports = useMemo(() => sortSearchRows(tasks), [tasks]);
   const totalMinutes = useMemo(
     () => sortedReports.reduce((sum, report) => sum + report.taskUsedtime, 0),
     [sortedReports],
   );
-  const totalReports = useMemo(
-    () => mapSearchTaskPage(tasksQuery.data ?? { items: [], totalCount: 0 }).totalCount,
-    [tasksQuery.data],
-  );
+  const totalReports = useMemo(() => tasksQuery.data?.totalCount ?? 0, [tasksQuery.data]);
   const totalPages = Math.max(1, Math.ceil(totalReports / pageSize));
   const currentPageSafe = Math.min(currentPage, totalPages);
 
@@ -120,11 +123,11 @@ export function useSearchPage() {
 
     const downloadTasksRaw = await dataClient.exportTasks(member, {
       ...DEFAULT_REPORT_FILTERS,
-      query: appliedSearch,
+      query: appliedSearch || null,
       startDate: appliedFilters.startDate,
       endDate: appliedFilters.endDate,
     });
-    const downloadTasks = mapSearchTaskRows(downloadTasksRaw);
+    const downloadTasks = downloadTasksRaw.map(toSearchTaskRow);
 
     await downloadExcelFile(
       buildExportFilename(appliedFilters.startDate, appliedFilters.endDate),

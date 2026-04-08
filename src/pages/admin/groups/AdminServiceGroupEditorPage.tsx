@@ -2,14 +2,10 @@ import { type FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router-dom';
 import { adminDataClient } from '../../../api/admin';
-import {
-  mapAdminCostGroupRecords,
-  mapAdminServiceGroupRecords,
-  mapAdminServiceGroupUsageSummary,
-} from '../../../mappers/adminMappers';
 import { AdminServiceGroupEditorActionRow } from './AdminServiceGroupEditorActionRow';
 import { AdminServiceGroupEditorForm } from './AdminServiceGroupEditorForm';
 import type { AdminServiceGroupItem, AdminServiceGroupPayload } from '../admin.types';
+import { toAdminCostGroup, toAdminServiceGroup } from '../adminApiTransform';
 import '../../../styles/pages/AdminPage.scss';
 
 function createDraft(item?: AdminServiceGroupItem): AdminServiceGroupPayload {
@@ -71,11 +67,11 @@ export function AdminServiceGroupEditorPage() {
   });
 
   const serviceGroups = useMemo(
-    () => mapAdminServiceGroupRecords(serviceGroupsQuery.data ?? []),
+    () => (serviceGroupsQuery.data ?? []).map(toAdminServiceGroup),
     [serviceGroupsQuery.data],
   );
   const costGroups = useMemo(
-    () => mapAdminCostGroupRecords(costGroupsQuery.data ?? []),
+    () => (costGroupsQuery.data ?? []).map(toAdminCostGroup),
     [costGroupsQuery.data],
   );
   const selectedServiceGroup = useMemo(
@@ -161,7 +157,10 @@ export function AdminServiceGroupEditorPage() {
     (saveMutation.error instanceof Error && saveMutation.error.message) ||
     (deleteMutation.error instanceof Error && deleteMutation.error.message) ||
     '';
-  const projectUsageCount = mapAdminServiceGroupUsageSummary(usageQuery.data ?? []).projectCount;
+  const projectUsageCount = useMemo(() => {
+    const firstRow = usageQuery.data?.[0];
+    return Number(firstRow?.project_count ?? 0);
+  }, [usageQuery.data]);
   const deleteBlocked = isEditMode && projectUsageCount > 0;
   const deleteHelpText = deleteBlocked ? `사용 중인 프로젝트 ${projectUsageCount}건` : '';
 
