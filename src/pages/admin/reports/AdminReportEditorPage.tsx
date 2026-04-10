@@ -438,6 +438,7 @@ export function AdminReportEditorPage() {
         taskType1: taskType.type1,
         taskType2: taskType.type2,
         taskUsedtime,
+        pageUrl: draft.pageUrl.trim(),
         content: draft.content.trim(),
         note: draft.note.trim(),
       });

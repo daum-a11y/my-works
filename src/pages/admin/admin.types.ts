@@ -50,6 +50,7 @@ export interface AdminTaskSaveInput {
   taskType1: string;
   taskType2: string;
   taskUsedtime: number;
+  pageUrl: string;
   content: string;
   note: string;
 }

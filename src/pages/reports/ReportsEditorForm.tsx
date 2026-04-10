@@ -24,11 +24,8 @@ interface ReportsEditorFormProps {
   showPlatformSelect: boolean;
   showPageSelect: boolean;
   showPageUrl: boolean;
-  showManualPageName: boolean;
   usesProjectLookup: boolean;
-  isVacationType: boolean;
   isReadonlyWorkHours: boolean;
-  manualPageLabel: string;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
   onDraftFieldChange: <K extends keyof ReportDraft>(key: K, value: ReportDraft[K]) => void;
   onCancelEdit: () => void;
@@ -36,7 +33,6 @@ interface ReportsEditorFormProps {
   onProjectSearch: () => void;
   onProjectSearchKeyDown: (event: KeyboardEvent<HTMLInputElement>) => void;
   onType2Change: (value: string) => void;
-  onVacationTypeChange: (value: string) => void;
 }
 
 export function ReportsEditorForm({
@@ -61,11 +57,7 @@ export function ReportsEditorForm({
   showPlatformSelect,
   showPageSelect,
   showPageUrl,
-  showManualPageName,
-  usesProjectLookup,
-  isVacationType,
   isReadonlyWorkHours,
-  manualPageLabel,
   onSubmit,
   onDraftFieldChange,
   onCancelEdit,
@@ -73,7 +65,6 @@ export function ReportsEditorForm({
   onProjectSearch,
   onProjectSearchKeyDown,
   onType2Change,
-  onVacationTypeChange,
 }: ReportsEditorFormProps) {
   return (
     <section className="reports-page__panel">
@@ -92,7 +83,6 @@ export function ReportsEditorForm({
 
       <form className="reports-page__form" onSubmit={onSubmit}>
         <div className="reports-page__step">
-          <span className="reports-page__step-label">1. 분류</span>
           <div className="reports-page__form-grid reports-page__form-grid--compact">
             <label className="reports-page__field">
               <span>청구그룹</span>
@@ -177,7 +167,6 @@ export function ReportsEditorForm({
 
         {showProjectLookupStep ? (
           <div className="reports-page__step">
-            <span className="reports-page__step-label">2. 프로젝트</span>
             <div className="reports-page__project-lookup">
               <label className="reports-page__field">
                 <span>프로젝트 검색</span>
@@ -221,9 +210,6 @@ export function ReportsEditorForm({
 
         {showTaskStep ? (
           <div className="reports-page__step">
-            <span className="reports-page__step-label">
-              {showProjectLookupStep ? '3. 기록' : '2. 기록'}
-            </span>
             <div className="reports-page__form-grid">
               {showPageSelect ? (
                 <label className="reports-page__field">
@@ -244,36 +230,12 @@ export function ReportsEditorForm({
                 </label>
               ) : null}
 
-              {showManualPageName ? (
-                <label className="reports-page__field">
-                  <span>페이지명</span>
-                  {isVacationType ? (
-                    <select
-                      value={draft.manualPageName}
-                      onChange={(event) => onVacationTypeChange(event.target.value)}
-                    >
-                      <option value="">선택하세요</option>
-                      <option value="오전 반차">오전 반차</option>
-                      <option value="오후 반차">오후 반차</option>
-                      <option value="전일 휴가">전일 휴가</option>
-                    </select>
-                  ) : (
-                    <input
-                      value={draft.manualPageName}
-                      onChange={(event) => onDraftFieldChange('manualPageName', event.target.value)}
-                      placeholder={manualPageLabel}
-                    />
-                  )}
-                </label>
-              ) : null}
-
               {showPageUrl ? (
                 <label className="reports-page__field">
                   <span>{showPageSelect ? '페이지 URL' : 'URL'}</span>
                   <input
                     value={draft.pageUrl}
                     onChange={(event) => onDraftFieldChange('pageUrl', event.target.value)}
-                    readOnly={usesProjectLookup}
                   />
                 </label>
               ) : null}

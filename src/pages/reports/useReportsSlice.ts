@@ -318,6 +318,7 @@ export function useReportsSlice(): ReportsSlice {
       taskType1: string;
       taskType2: string;
       taskUsedtime: number;
+      pageUrl: string;
       content: string;
       note: string;
     }) => {
@@ -385,6 +386,7 @@ export function useReportsSlice(): ReportsSlice {
         taskType1: taskType.type1,
         taskType2: taskType.type2,
         taskUsedtime: input.taskUsedtime,
+        pageUrl: input.pageUrl,
         content: input.content,
         note: input.note,
       });
@@ -475,7 +477,7 @@ export function useReportsSlice(): ReportsSlice {
           next.serviceGroupName =
             separator < 0 ? normalizedServiceName : normalizedServiceName.slice(0, separator);
           next.serviceName = separator < 0 ? '' : normalizedServiceName.slice(separator + 3);
-          next.pageUrl = project.reportUrl;
+          next.pageUrl = '';
         } else {
           next.type1 = '';
           next.type2 = '';
@@ -579,6 +581,7 @@ export function useReportsSlice(): ReportsSlice {
         taskType1: taskType.type1,
         taskType2: taskType.type2,
         taskUsedtime,
+        pageUrl: draft.pageUrl.trim(),
         content,
         note: draft.note.trim(),
       });
@@ -630,6 +633,7 @@ export function useReportsSlice(): ReportsSlice {
         taskType1: taskType.type1,
         taskType2: taskType.type2,
         taskUsedtime,
+        pageUrl: '',
         content: '오버헤드',
         note: '',
       });

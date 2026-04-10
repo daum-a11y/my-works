@@ -91,7 +91,6 @@ export function ReportsPage() {
   const typeRule = useMemo(() => getTaskTypeUiRule(type1Value, taskTypes), [taskTypes, type1Value]);
   const usesProjectLookup = typeRule.projectLinked;
   const usesManualPageWithUrl = typeRule.manualPageWithUrl;
-  const usesManualPageOnly = typeRule.manualPageOnly;
   const showTypeStep = Boolean(draft.costGroupId || draft.type1 || draft.type2);
   const showPlatformSelect = !projectTypeSelected && usesProjectLookup;
   const projectLookupReady =
@@ -103,24 +102,10 @@ export function ReportsPage() {
   const showPageSelect = projectTypeSelected && typeRule.projectPageSelectable;
   const showPageUrl =
     usesProjectLookup || usesManualPageWithUrl || (requiresServiceGroup && !showPageSelect);
-  const showManualPageName =
-    (projectTypeSelected && typeRule.projectLinked && !typeRule.projectPageSelectable) ||
-    usesManualPageWithUrl ||
-    usesManualPageOnly ||
-    isVacationType;
   const showTaskStep =
     Boolean(draft.costGroupId && draft.type1 && draft.type2) &&
     (!usesProjectLookup || Boolean(draft.projectId) || !showProjectLookupStep);
   const isReadonlyWorkHours = isVacationType || isFixedDayType;
-  const manualPageLabel = useMemo(() => {
-    if (isVacationType) {
-      return '휴가 종류';
-    }
-    if ((typeRule.projectLinked && !typeRule.projectPageSelectable) || usesManualPageOnly) {
-      return '페이지명';
-    }
-    return '페이지명';
-  }, [isVacationType, typeRule.projectLinked, typeRule.projectPageSelectable, usesManualPageOnly]);
   const projectSearchPlaceholder = useMemo(() => {
     if (!draft.costGroupId) {
       return '청구그룹을 먼저 선택하세요';
@@ -182,19 +167,6 @@ export function ReportsPage() {
       event.preventDefault();
       applyProjectQuery();
     }
-  };
-
-  const handleVacationTypeChange = (value: string) => {
-    setDraftField('manualPageName', value);
-    if (value === '오전 반차' || value === '오후 반차') {
-      setDraftField('taskUsedtime', '240');
-      return;
-    }
-    if (value === '전일 휴가') {
-      setDraftField('taskUsedtime', '480');
-      return;
-    }
-    setDraftField('taskUsedtime', '');
   };
 
   const applySelectedDate = (date: string) => {
@@ -274,11 +246,8 @@ export function ReportsPage() {
             showPlatformSelect={showPlatformSelect}
             showPageSelect={showPageSelect}
             showPageUrl={showPageUrl}
-            showManualPageName={showManualPageName}
             usesProjectLookup={usesProjectLookup}
-            isVacationType={isVacationType}
             isReadonlyWorkHours={isReadonlyWorkHours}
-            manualPageLabel={manualPageLabel}
             onSubmit={onSubmit}
             onDraftFieldChange={setDraftField}
             onCancelEdit={cancelEdit}
@@ -286,7 +255,6 @@ export function ReportsPage() {
             onProjectSearch={applyProjectQuery}
             onProjectSearchKeyDown={handleProjectSearchKeyDown}
             onType2Change={handleType2Change}
-            onVacationTypeChange={handleVacationTypeChange}
           />
         ) : null}
 

@@ -292,6 +292,7 @@ create table if not exists public.tasks (
   project_page_id uuid references public.project_pages(id),
   task_type_id uuid references public.task_types(id),
   task_usedtime numeric(5, 1) not null default 0,
+  url text not null default '',
   content text not null,
   note text not null default '',
   created_at timestamptz not null default timezone('utc', now()),
@@ -300,6 +301,9 @@ create table if not exists public.tasks (
 
 alter table public.tasks
   add column if not exists cost_group_id uuid;
+
+alter table public.tasks
+  add column if not exists url text not null default '';
 
 do $$
 begin
@@ -698,7 +702,7 @@ create trigger on_auth_user_created_bind_member
 after insert on auth.users
 for each row execute function public.handle_auth_user_created();
 
-drop function if exists public.save_task(uuid, date, uuid, uuid, uuid, text, text, numeric, text, text);
+drop function if exists public.save_task(uuid, date, uuid, uuid, uuid, text, text, numeric, text, text, text);
 
 create or replace function public.save_task(
   p_task_id uuid default null,
@@ -709,6 +713,7 @@ create or replace function public.save_task(
   p_task_type1 text default null,
   p_task_type2 text default null,
   p_task_usedtime numeric default null,
+  p_url text default '',
   p_content text default null,
   p_note text default ''
 )
@@ -787,6 +792,7 @@ begin
       project_page_id,
       task_type_id,
       task_usedtime,
+      url,
       content,
       note
     )
@@ -799,6 +805,7 @@ begin
       p_project_page_id,
       v_task_type_id,
       p_task_usedtime,
+      coalesce(p_url, ''),
       p_content,
       coalesce(p_note, '')
     )
@@ -812,6 +819,7 @@ begin
       project_page_id = p_project_page_id,
       task_type_id = v_task_type_id,
       task_usedtime = p_task_usedtime,
+      url = coalesce(p_url, ''),
       content = p_content,
       note = coalesce(p_note, ''),
       updated_at = timezone('utc', now())
@@ -968,7 +976,7 @@ as $$
     nullif(public.resolve_service_name(sg.service_name, sg.name), '') as service_name,
     nullif(p.name, '') as project_display_name,
     nullif(pp.title, '') as page_display_name,
-    nullif(pp.url, '') as page_url
+    coalesce(nullif(t.url, ''), nullif(pp.url, '')) as page_url
   from public.tasks t
   left join public.cost_groups cg on cg.id = t.cost_group_id
   left join public.task_types tt on tt.id = t.task_type_id
@@ -1800,7 +1808,7 @@ as $$
     nullif(public.resolve_service_name(sg.service_name, sg.name), '') as service_name,
     nullif(p.name, '') as project_display_name,
     nullif(pp.title, '') as page_display_name,
-    nullif(pp.url, '') as page_url
+    coalesce(nullif(t.url, ''), nullif(pp.url, '')) as page_url
   from public.tasks t
   join public.cost_groups cg on cg.id = t.cost_group_id
   left join public.task_types tt on tt.id = t.task_type_id
@@ -1894,7 +1902,7 @@ as $$
     nullif(public.resolve_service_name(sg.service_name, sg.name), '') as service_name,
     nullif(p.name, '') as project_display_name,
     nullif(pp.title, '') as page_display_name,
-    nullif(pp.url, '') as page_url
+    coalesce(nullif(t.url, ''), nullif(pp.url, '')) as page_url
   from public.tasks t
   join public.cost_groups cg on cg.id = t.cost_group_id
   left join public.task_types tt on tt.id = t.task_type_id
@@ -2396,7 +2404,7 @@ as $$
     m.email as member_email,
     nullif(p.name, '') as project_name,
     nullif(pp.title, '') as page_title,
-    nullif(pp.url, '') as page_url,
+    coalesce(nullif(t.url, ''), nullif(pp.url, '')) as page_url,
     nullif(p.platform, '') as platform,
     p.service_group_id,
     nullif(public.resolve_service_group_name(sg.service_group_name, sg.name), '') as service_group_name,
@@ -2412,7 +2420,7 @@ as $$
     and t.id = p_task_id
 $$;
 
-drop function if exists public.admin_save_task(uuid, uuid, date, uuid, uuid, uuid, text, text, numeric, text, text);
+drop function if exists public.admin_save_task(uuid, uuid, date, uuid, uuid, uuid, text, text, numeric, text, text, text);
 
 create or replace function public.admin_save_task(
   p_task_id uuid default null,
@@ -2424,6 +2432,7 @@ create or replace function public.admin_save_task(
   p_task_type1 text default null,
   p_task_type2 text default null,
   p_task_usedtime numeric default null,
+  p_url text default '',
   p_content text default '',
   p_note text default ''
 )
@@ -2524,6 +2533,7 @@ begin
       project_page_id,
       task_type_id,
       task_usedtime,
+      url,
       content,
       note
     )
@@ -2536,6 +2546,7 @@ begin
       p_project_page_id,
       v_task_type_id,
       p_task_usedtime,
+      coalesce(p_url, ''),
       coalesce(p_content, ''),
       coalesce(p_note, '')
     )
@@ -2550,6 +2561,7 @@ begin
       project_page_id = p_project_page_id,
       task_type_id = v_task_type_id,
       task_usedtime = p_task_usedtime,
+      url = coalesce(p_url, ''),
       content = coalesce(p_content, ''),
       note = coalesce(p_note, ''),
       updated_at = timezone('utc', now())
@@ -2883,7 +2895,7 @@ as $$
     m.email as member_email,
     nullif(p.name, '') as project_name,
     nullif(pp.title, '') as page_title,
-    nullif(pp.url, '') as page_url,
+    coalesce(nullif(t.url, ''), nullif(pp.url, '')) as page_url,
     nullif(p.platform, '') as platform,
     p.service_group_id,
     nullif(public.resolve_service_group_name(sg.service_group_name, sg.name), '') as service_group_name,
@@ -2928,7 +2940,7 @@ grant execute on function public.next_member_account_id(text) to authenticated;
 grant execute on function public.admin_find_auth_user_by_email(text) to authenticated;
 grant execute on function public.bind_auth_session_member(uuid, text) to authenticated;
 grant execute on function public.touch_member_last_login(uuid, text) to authenticated;
-grant execute on function public.save_task(uuid, date, uuid, uuid, uuid, text, text, numeric, text, text) to authenticated;
+grant execute on function public.save_task(uuid, date, uuid, uuid, uuid, text, text, numeric, text, text, text) to authenticated;
 grant execute on function public.delete_task(uuid) to authenticated;
 grant execute on function public.get_tasks_by_date(uuid, date) to authenticated;
 grant execute on function public.get_task_activities() to authenticated;
@@ -2949,7 +2961,7 @@ grant execute on function public.get_qa_stats_projects() to authenticated;
 grant execute on function public.search_tasks_export(uuid, date, date, uuid, uuid, text, text, numeric, numeric, text) to authenticated;
 grant execute on function public.search_tasks_page(uuid, date, date, uuid, uuid, text, text, numeric, numeric, text) to authenticated;
 grant execute on function public.admin_get_task(uuid) to authenticated;
-grant execute on function public.admin_save_task(uuid, uuid, date, uuid, uuid, uuid, text, text, numeric, text, text) to authenticated;
+grant execute on function public.admin_save_task(uuid, uuid, date, uuid, uuid, uuid, text, text, numeric, text, text, text) to authenticated;
 grant execute on function public.admin_delete_task(uuid) to authenticated;
 grant execute on function public.admin_get_task_type_usage_summary(uuid, text, text) to authenticated;
 grant execute on function public.admin_replace_task_type_usage(text, text, text, text) to authenticated;

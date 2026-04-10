@@ -146,7 +146,7 @@ describe('ReportsPage', () => {
   });
 
   it('switches the shared form into edit mode when a report is selected', () => {
-    const slice = createSliceMock(true);
+    const slice: unknown = createSliceMock(true);
     slice.isEditMode = true;
     slice.selectedReportId = 'report-1';
     slice.selectedReport = slice.dailyReports[0];
@@ -164,7 +164,7 @@ describe('ReportsPage', () => {
   });
 
   it('renders overhead controls separately from the main form', () => {
-    const slice = createSliceMock(true);
+    const slice: unknown = createSliceMock(true);
     slice.overheadCostGroupId = 'cost-group-1';
     mockUseReportsSlice.mockReturnValue(slice);
 
