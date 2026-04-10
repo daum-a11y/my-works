@@ -87,14 +87,14 @@ export interface ProjectListRow {
   projectType1: string;
   name: string;
   platformId: string | null;
-  platform: string;
+  platform: string | null;
   serviceGroupId: string | null;
-  serviceGroupName: string;
-  reportUrl: string;
+  serviceGroupName: string | null;
+  reportUrl: string | null;
   reporterMemberId: string | null;
-  reporterDisplay: string;
+  reporterDisplay: string | null;
   reviewerMemberId: string | null;
-  reviewerDisplay: string;
+  reviewerDisplay: string | null;
   startDate: string;
   endDate: string;
   isActive: boolean;
@@ -105,13 +105,13 @@ export interface ReportProjectOptionRow {
   id: string;
   projectType1: string;
   name: string;
-  platform: string;
+  platform: string | null;
   serviceGroupId: string | null;
-  serviceGroupName: string;
-  serviceName: string;
+  serviceGroupName: string | null;
+  serviceName: string | null;
   costGroupId: string | null;
-  costGroupName: string;
-  reportUrl: string;
+  costGroupName: string | null;
+  reportUrl: string | null;
 }
 
 export interface ProjectPage {
@@ -143,12 +143,12 @@ export interface Task {
   note: string;
   createdAt: string;
   updatedAt: string;
-  platform: string;
-  serviceGroupName: string;
-  serviceName: string;
-  projectDisplayName: string;
-  pageDisplayName: string;
-  pageUrl: string;
+  platform: string | null;
+  serviceGroupName: string | null;
+  serviceName: string | null;
+  projectDisplayName: string | null;
+  pageDisplayName: string | null;
+  pageUrl: string | null;
 }
 
 export interface SearchTaskRow {
@@ -220,8 +220,8 @@ export interface ResourceServiceSummaryRow {
   year: string;
   month: string;
   costGroupName: string;
-  serviceGroupName: string;
-  serviceName: string;
+  serviceGroupName: string | null;
+  serviceName: string | null;
   taskUsedtime: number;
 }
 
@@ -353,10 +353,10 @@ export interface SaveProjectPageInput {
 
 export interface DashboardProjectItem {
   projectId: string;
-  type1: string;
-  projectName: string;
-  platform: string;
-  serviceGroupName: string;
+  type1: string | null;
+  projectName: string | null;
+  platform: string | null;
+  serviceGroupName: string | null;
   startDate: string;
   endDate: string;
 }
@@ -384,22 +384,22 @@ export interface MonitoringStatsRow {
   trackStatus: PageStatus;
   monitoringInProgress: boolean;
   qaInProgress: boolean;
-  note: string;
+  note: string | null;
   updatedAt: string;
-  serviceGroupName: string;
-  projectName: string;
-  platform: string;
-  assigneeDisplay: string;
-  reportUrl: string;
+  serviceGroupName: string | null;
+  projectName: string | null;
+  platform: string | null;
+  assigneeDisplay: string | null;
+  reportUrl: string | null;
 }
 
 export interface QaStatsProjectRow {
   id: string;
-  type1: string;
-  name: string;
-  serviceGroupName: string;
-  reportUrl: string;
-  reporterDisplay: string;
+  type1: string | null;
+  name: string | null;
+  serviceGroupName: string | null;
+  reportUrl: string | null;
+  reporterDisplay: string | null;
   startDate: string;
   endDate: string;
   isActive: boolean;

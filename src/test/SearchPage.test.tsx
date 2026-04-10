@@ -126,7 +126,7 @@ describe('SearchPage', () => {
 
     expect(mockDataClient.searchTasksPage).toHaveBeenCalledWith(
       expect.objectContaining({ id: 'member-1' }),
-      expect.objectContaining({ startDate: monthStart, endDate: monthEnd, query: '' }),
+      expect.objectContaining({ startDate: monthStart, endDate: monthEnd, query: null }),
       1,
       25,
     );

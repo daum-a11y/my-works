@@ -2,25 +2,43 @@ import type { ApiRecord, RawPagedResult } from '../../api/api.types';
 import type { PagedResult, SearchTaskRow } from '../../types/domain';
 import { getToday } from '../../utils';
 
+function readValue(record: ApiRecord, snakeKey: string, camelKey: string) {
+  return record[snakeKey] ?? record[camelKey];
+}
+
 export function toSearchTaskRow(record: ApiRecord): SearchTaskRow {
   return {
     id: String(record.id ?? ''),
-    taskDate: String(record.task_date ?? getToday()),
-    costGroupId: String(record.cost_group_id ?? ''),
-    costGroupName: String(record.cost_group_name ?? ''),
-    taskType1: String(record.task_type1 ?? ''),
-    taskType2: String(record.task_type2 ?? ''),
-    taskUsedtime: Number(record.task_usedtime ?? 0),
+    taskDate: String(readValue(record, 'task_date', 'taskDate') ?? getToday()),
+    costGroupId: String(readValue(record, 'cost_group_id', 'costGroupId') ?? ''),
+    costGroupName: String(readValue(record, 'cost_group_name', 'costGroupName') ?? ''),
+    taskType1: String(readValue(record, 'task_type1', 'taskType1') ?? ''),
+    taskType2: String(readValue(record, 'task_type2', 'taskType2') ?? ''),
+    taskUsedtime: Number(readValue(record, 'task_usedtime', 'taskUsedtime') ?? 0),
     content: String(record.content ?? ''),
     note: String(record.note ?? ''),
-    updatedAt: String(record.updated_at ?? getToday()),
+    updatedAt: String(readValue(record, 'updated_at', 'updatedAt') ?? getToday()),
     platform: record.platform == null ? null : String(record.platform),
-    serviceGroupName: record.service_group_name == null ? null : String(record.service_group_name),
-    serviceName: record.service_name == null ? null : String(record.service_name),
+    serviceGroupName:
+      readValue(record, 'service_group_name', 'serviceGroupName') == null
+        ? null
+        : String(readValue(record, 'service_group_name', 'serviceGroupName')),
+    serviceName:
+      readValue(record, 'service_name', 'serviceName') == null
+        ? null
+        : String(readValue(record, 'service_name', 'serviceName')),
     projectDisplayName:
-      record.project_display_name == null ? null : String(record.project_display_name),
-    pageDisplayName: record.page_display_name == null ? null : String(record.page_display_name),
-    pageUrl: record.page_url == null ? null : String(record.page_url),
+      readValue(record, 'project_display_name', 'projectDisplayName') == null
+        ? null
+        : String(readValue(record, 'project_display_name', 'projectDisplayName')),
+    pageDisplayName:
+      readValue(record, 'page_display_name', 'pageDisplayName') == null
+        ? null
+        : String(readValue(record, 'page_display_name', 'pageDisplayName')),
+    pageUrl:
+      readValue(record, 'page_url', 'pageUrl') == null
+        ? null
+        : String(readValue(record, 'page_url', 'pageUrl')),
   };
 }
 

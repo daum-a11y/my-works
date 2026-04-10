@@ -83,7 +83,7 @@ export function MonitoringStatsPage() {
   const startEdit = (row: MonitoringStatsRow) => {
     setEditingPageId(row.pageId);
     setDraftStatus(row.trackStatus);
-    setDraftNote(row.note);
+    setDraftNote(row.note ?? '');
   };
 
   const cancelEdit = () => {

@@ -24,6 +24,7 @@ import {
   draftFromReport,
   getTodayInputValue,
   parseReportTaskUsedtimeInput,
+  serializeManualReportContent,
   shiftDateInput,
   sortReportsDescending,
   validateTaskTypeSelection,
@@ -50,6 +51,8 @@ export interface ReportsSlice {
   canEditReports: boolean;
   isSaving: boolean;
   statusMessage: string;
+  statusKind: 'success' | 'error' | 'info';
+  isEditMode: boolean;
   activeTab: 'report' | 'period';
   setActiveTab: (tab: 'report' | 'period') => void;
   setDraftField: <K extends keyof ReportDraft>(key: K, value: ReportDraft[K]) => void;
@@ -57,10 +60,13 @@ export interface ReportsSlice {
   setProjectQuery: (value: string) => void;
   applyProjectQuery: () => void;
   selectReport: (id: string) => void;
+  cancelEdit: () => void;
   startNewReport: () => void;
   resetDraft: () => void;
   saveDraft: (reportDateOverride?: string) => Promise<void>;
   deleteDraft: (id: string) => Promise<void>;
+  overheadCostGroupId: string;
+  setOverheadCostGroupId: (value: string) => void;
   saveOverheadReport: (taskUsedtime: number, reportDate?: string) => Promise<void>;
   jumpDraftDate: (offsetDays: number) => void;
 }
@@ -123,6 +129,8 @@ export function useReportsSlice(): ReportsSlice {
   const [projectQuery, setProjectQuery] = useState('');
   const [appliedProjectQuery, setAppliedProjectQuery] = useState('');
   const [statusMessage, setStatusMessage] = useState('');
+  const [statusKind, setStatusKind] = useState<'success' | 'error' | 'info'>('info');
+  const [overheadCostGroupId, setOverheadCostGroupId] = useState('');
 
   const tasksQuery = useQuery({
     queryKey: ['reports', 'tasks', member?.id, selectedDate],
@@ -392,9 +400,11 @@ export function useReportsSlice(): ReportsSlice {
       setProjectQuery('');
       setAppliedProjectQuery('');
       setActiveTab('report');
-      setStatusMessage(variables.id ? '수정되었습니다.' : '등록되었습니다.');
+      setStatusKind('success');
+      setStatusMessage(variables.id ? '업무가 수정되었습니다.' : '업무가 저장되었습니다.');
     },
     onError: (error) => {
+      setStatusKind('error');
       setStatusMessage(toErrorMessage(error, '저장하지 못했습니다.'));
     },
   });
@@ -421,9 +431,11 @@ export function useReportsSlice(): ReportsSlice {
         setAppliedProjectQuery('');
       }
 
-      setStatusMessage('보고서를 삭제했습니다.');
+      setStatusKind('success');
+      setStatusMessage('업무가 삭제되었습니다.');
     },
     onError: (error) => {
+      setStatusKind('error');
       setStatusMessage(toErrorMessage(error, '삭제하지 못했습니다.'));
     },
   });
@@ -519,14 +531,20 @@ export function useReportsSlice(): ReportsSlice {
 
     setSelectedReportId(id);
     setDraft(draftFromReport(report));
+    setStatusMessage('');
   };
 
-  const startNewReport = () => {
+  const cancelEdit = () => {
     setSelectedReportId(null);
     setDraft(createEmptyReportDraft());
     setProjectQuery('');
     setAppliedProjectQuery('');
     setActiveTab('report');
+    setStatusMessage('');
+  };
+
+  const startNewReport = () => {
+    cancelEdit();
     setStatusMessage('');
   };
 
@@ -550,8 +568,18 @@ export function useReportsSlice(): ReportsSlice {
       const taskType = validateTaskTypeSelection(taskTypes, draft.type1, draft.type2);
       const taskUsedtime = parseReportTaskUsedtimeInput(draft.taskUsedtime);
       const page = draft.pageId ? (pagesById.get(draft.pageId) ?? null) : null;
-      const pageName = draft.manualPageName || page?.title || '';
-      const content = draft.content.trim() || pageName || '업무';
+      const pageName = draft.manualPageName.trim() || page?.title || '';
+      const contentInput = draft.content.trim();
+      if (!contentInput) {
+        setStatusKind('error');
+        setStatusMessage('업무 내용을 입력해 주세요.');
+        return;
+      }
+
+      const content =
+        !draft.pageId && pageName
+          ? serializeManualReportContent(pageName, contentInput)
+          : contentInput;
 
       await saveMutation.mutateAsync({
         id: selectedReportId ?? undefined,
@@ -566,6 +594,7 @@ export function useReportsSlice(): ReportsSlice {
         note: draft.note.trim(),
       });
     } catch (error) {
+      setStatusKind('error');
       setStatusMessage(toErrorMessage(error, '저장하지 못했습니다.'));
     }
   };
@@ -584,6 +613,7 @@ export function useReportsSlice(): ReportsSlice {
     }
 
     if (!member?.reportRequired) {
+      setStatusKind('error');
       setStatusMessage('업무보고 입력 권한이 없습니다.');
       return;
     }
@@ -592,13 +622,20 @@ export function useReportsSlice(): ReportsSlice {
       const taskType = validateTaskTypeSelection(taskTypes, '기타버퍼', '오버헤드');
       const taskDate = normalizeTaskDate(reportDate);
       if (!isValidTaskDate(taskDate)) {
+        setStatusKind('error');
         setStatusMessage('일자 값이 올바르지 않습니다.');
+        return;
+      }
+
+      if (!overheadCostGroupId) {
+        setStatusKind('error');
+        setStatusMessage('오버헤드 청구그룹을 선택해 주세요.');
         return;
       }
 
       await saveMutation.mutateAsync({
         taskDate,
-        costGroupId: draft.costGroupId,
+        costGroupId: overheadCostGroupId,
         projectId: '',
         pageId: '',
         taskType1: taskType.type1,
@@ -607,7 +644,11 @@ export function useReportsSlice(): ReportsSlice {
         content: '오버헤드',
         note: '',
       });
+      setStatusKind('success');
+      setStatusMessage('오버헤드가 등록되었습니다.');
+      setOverheadCostGroupId('');
     } catch (error) {
+      setStatusKind('error');
       setStatusMessage(toErrorMessage(error, '저장하지 못했습니다.'));
     }
   };
@@ -635,8 +676,10 @@ export function useReportsSlice(): ReportsSlice {
     type2Options,
     platformOptions,
     canEditReports,
-    isSaving: saveMutation.isPending,
+    isSaving: saveMutation.isPending || deleteMutation.isPending,
     statusMessage,
+    statusKind,
+    isEditMode: Boolean(selectedReportId),
     activeTab,
     setActiveTab,
     setDraftField,
@@ -644,10 +687,13 @@ export function useReportsSlice(): ReportsSlice {
     setProjectQuery,
     applyProjectQuery,
     selectReport,
+    cancelEdit,
     startNewReport,
     resetDraft,
     saveDraft,
     deleteDraft,
+    overheadCostGroupId,
+    setOverheadCostGroupId,
     saveOverheadReport,
     jumpDraftDate,
   };

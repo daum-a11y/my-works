@@ -12,28 +12,51 @@ import {
 } from '../../types/domain';
 import { getToday, readBooleanFlag } from '../../utils';
 
+function readValue(record: ApiRecord, snakeKey: string, camelKey: string) {
+  return record[snakeKey] ?? record[camelKey];
+}
+
 export function toTask(record: ApiRecord): Task {
   return {
     id: String(record.id),
-    memberId: String(record.member_id ?? ''),
-    taskDate: String(record.task_date ?? getToday()),
-    costGroupId: String(record.cost_group_id ?? ''),
-    costGroupName: String(record.cost_group_name ?? ''),
-    projectId: record.project_id ? String(record.project_id) : null,
-    pageId: record.project_page_id ? String(record.project_page_id) : null,
-    taskType1: String(record.task_type1 ?? ''),
-    taskType2: String(record.task_type2 ?? ''),
-    taskUsedtime: Number(record.task_usedtime ?? 0),
+    memberId: String(readValue(record, 'member_id', 'memberId') ?? ''),
+    taskDate: String(readValue(record, 'task_date', 'taskDate') ?? getToday()),
+    costGroupId: String(readValue(record, 'cost_group_id', 'costGroupId') ?? ''),
+    costGroupName: String(readValue(record, 'cost_group_name', 'costGroupName') ?? ''),
+    projectId: readValue(record, 'project_id', 'projectId')
+      ? String(readValue(record, 'project_id', 'projectId'))
+      : null,
+    pageId: readValue(record, 'project_page_id', 'pageId')
+      ? String(readValue(record, 'project_page_id', 'pageId'))
+      : null,
+    taskType1: String(readValue(record, 'task_type1', 'taskType1') ?? ''),
+    taskType2: String(readValue(record, 'task_type2', 'taskType2') ?? ''),
+    taskUsedtime: Number(readValue(record, 'task_usedtime', 'taskUsedtime') ?? 0),
     content: String(record.content ?? ''),
     note: String(record.note ?? ''),
-    createdAt: String(record.created_at ?? getToday()),
-    updatedAt: String(record.updated_at ?? getToday()),
-    platform: String(record.platform ?? '-'),
-    serviceGroupName: String(record.service_group_name ?? ''),
-    serviceName: String(record.service_name ?? ''),
-    projectDisplayName: String(record.project_display_name ?? ''),
-    pageDisplayName: String(record.page_display_name ?? ''),
-    pageUrl: String(record.page_url ?? ''),
+    createdAt: String(readValue(record, 'created_at', 'createdAt') ?? getToday()),
+    updatedAt: String(readValue(record, 'updated_at', 'updatedAt') ?? getToday()),
+    platform: record.platform == null ? null : String(record.platform),
+    serviceGroupName:
+      readValue(record, 'service_group_name', 'serviceGroupName') == null
+        ? null
+        : String(readValue(record, 'service_group_name', 'serviceGroupName')),
+    serviceName:
+      readValue(record, 'service_name', 'serviceName') == null
+        ? null
+        : String(readValue(record, 'service_name', 'serviceName')),
+    projectDisplayName:
+      readValue(record, 'project_display_name', 'projectDisplayName') == null
+        ? null
+        : String(readValue(record, 'project_display_name', 'projectDisplayName')),
+    pageDisplayName:
+      readValue(record, 'page_display_name', 'pageDisplayName') == null
+        ? null
+        : String(readValue(record, 'page_display_name', 'pageDisplayName')),
+    pageUrl:
+      readValue(record, 'page_url', 'pageUrl') == null
+        ? null
+        : String(readValue(record, 'page_url', 'pageUrl')),
   };
 }
 
@@ -85,48 +108,80 @@ export function toServiceGroup(record: ApiRecord): ServiceGroup {
 export function toProject(record: ApiRecord): Project {
   return {
     id: String(record.id),
-    createdByMemberId: record.created_by_member_id ? String(record.created_by_member_id) : null,
-    projectType1: String(record.project_type1 ?? ''),
+    createdByMemberId: readValue(record, 'created_by_member_id', 'createdByMemberId')
+      ? String(readValue(record, 'created_by_member_id', 'createdByMemberId'))
+      : null,
+    projectType1: String(readValue(record, 'project_type1', 'projectType1') ?? ''),
     name: String(record.name ?? ''),
-    platformId: record.platform_id ? String(record.platform_id) : null,
+    platformId: readValue(record, 'platform_id', 'platformId')
+      ? String(readValue(record, 'platform_id', 'platformId'))
+      : null,
     platform: String(record.platform ?? ''),
-    serviceGroupId: record.service_group_id ? String(record.service_group_id) : null,
-    reportUrl: String(record.report_url ?? ''),
-    reporterMemberId: record.reporter_member_id ? String(record.reporter_member_id) : null,
-    reviewerMemberId: record.reviewer_member_id ? String(record.reviewer_member_id) : null,
-    startDate: String(record.start_date ?? getToday()),
-    endDate: String(record.end_date ?? getToday()),
-    isActive: Boolean(record.is_active ?? true),
+    serviceGroupId: readValue(record, 'service_group_id', 'serviceGroupId')
+      ? String(readValue(record, 'service_group_id', 'serviceGroupId'))
+      : null,
+    reportUrl: String(readValue(record, 'report_url', 'reportUrl') ?? ''),
+    reporterMemberId: readValue(record, 'reporter_member_id', 'reporterMemberId')
+      ? String(readValue(record, 'reporter_member_id', 'reporterMemberId'))
+      : null,
+    reviewerMemberId: readValue(record, 'reviewer_member_id', 'reviewerMemberId')
+      ? String(readValue(record, 'reviewer_member_id', 'reviewerMemberId'))
+      : null,
+    startDate: String(readValue(record, 'start_date', 'startDate') ?? getToday()),
+    endDate: String(readValue(record, 'end_date', 'endDate') ?? getToday()),
+    isActive: Boolean(readValue(record, 'is_active', 'isActive') ?? true),
   };
 }
 
 export function toProjectPage(record: ApiRecord): ProjectPage {
   return {
     id: String(record.id),
-    projectId: String(record.project_id ?? ''),
+    projectId: String(readValue(record, 'project_id', 'projectId') ?? ''),
     title: String(record.title ?? ''),
     url: String(record.url ?? ''),
-    ownerMemberId: record.owner_member_id ? String(record.owner_member_id) : null,
-    monitoringMonth: String(record.monitoring_month ?? ''),
-    trackStatus: normalizePageStatus(String(record.track_status ?? '미수정')),
-    monitoringInProgress: Boolean(record.monitoring_in_progress ?? false),
-    qaInProgress: Boolean(record.qa_in_progress ?? false),
+    ownerMemberId: readValue(record, 'owner_member_id', 'ownerMemberId')
+      ? String(readValue(record, 'owner_member_id', 'ownerMemberId'))
+      : null,
+    monitoringMonth: String(readValue(record, 'monitoring_month', 'monitoringMonth') ?? ''),
+    trackStatus: normalizePageStatus(
+      String(readValue(record, 'track_status', 'trackStatus') ?? '미수정'),
+    ),
+    monitoringInProgress: Boolean(
+      readValue(record, 'monitoring_in_progress', 'monitoringInProgress') ?? false,
+    ),
+    qaInProgress: Boolean(readValue(record, 'qa_in_progress', 'qaInProgress') ?? false),
     note: String(record.note ?? ''),
-    updatedAt: String(record.updated_at ?? getToday()),
+    updatedAt: String(readValue(record, 'updated_at', 'updatedAt') ?? getToday()),
   };
 }
 
 export function toReportProjectOption(record: ApiRecord): ReportProjectOptionRow {
   return {
     id: String(record.id ?? ''),
-    projectType1: String(record.project_type1 ?? ''),
+    projectType1: String(readValue(record, 'project_type1', 'projectType1') ?? ''),
     name: String(record.name ?? ''),
-    platform: String(record.platform ?? ''),
-    serviceGroupId: record.service_group_id ? String(record.service_group_id) : null,
-    serviceGroupName: String(record.service_group_name ?? ''),
-    serviceName: String(record.service_name ?? ''),
-    costGroupId: record.cost_group_id ? String(record.cost_group_id) : null,
-    costGroupName: String(record.cost_group_name ?? ''),
-    reportUrl: String(record.report_url ?? ''),
+    platform: record.platform == null ? null : String(record.platform),
+    serviceGroupId: readValue(record, 'service_group_id', 'serviceGroupId')
+      ? String(readValue(record, 'service_group_id', 'serviceGroupId'))
+      : null,
+    serviceGroupName:
+      readValue(record, 'service_group_name', 'serviceGroupName') == null
+        ? null
+        : String(readValue(record, 'service_group_name', 'serviceGroupName')),
+    serviceName:
+      readValue(record, 'service_name', 'serviceName') == null
+        ? null
+        : String(readValue(record, 'service_name', 'serviceName')),
+    costGroupId: readValue(record, 'cost_group_id', 'costGroupId')
+      ? String(readValue(record, 'cost_group_id', 'costGroupId'))
+      : null,
+    costGroupName:
+      readValue(record, 'cost_group_name', 'costGroupName') == null
+        ? null
+        : String(readValue(record, 'cost_group_name', 'costGroupName')),
+    reportUrl:
+      readValue(record, 'report_url', 'reportUrl') == null
+        ? null
+        : String(readValue(record, 'report_url', 'reportUrl')),
   };
 }

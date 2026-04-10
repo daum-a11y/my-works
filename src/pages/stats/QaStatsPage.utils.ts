@@ -31,5 +31,8 @@ export function buildMonthRange(monthKeys: string[]): string[] {
 }
 
 export function sortProjects(left: QaStatsProjectRow, right: QaStatsProjectRow) {
-  return right.endDate.localeCompare(left.endDate) || left.name.localeCompare(right.name);
+  return (
+    right.endDate.localeCompare(left.endDate) ||
+    (left.name ?? '').localeCompare(right.name ?? '', 'ko')
+  );
 }

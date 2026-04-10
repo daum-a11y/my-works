@@ -5,8 +5,8 @@ interface ResourceServiceSummaryRow {
   year: string;
   month: string;
   costGroupName: string;
-  serviceGroupName: string;
-  serviceName: string;
+  serviceGroupName: string | null;
+  serviceName: string | null;
   taskUsedtime: number;
 }
 
@@ -21,14 +21,13 @@ export function buildResourceServiceYearRows(
 
   for (const row of rowsData) {
     const month = `${row.year}-${row.month}`;
+    const serviceGroupName = row.serviceGroupName ?? '';
+    const serviceName = row.serviceName ?? '';
     const monthMap = grouped.get(month) ?? new Map<string, Map<string, Map<string, number>>>();
     const costGroupMap = monthMap.get(row.costGroupName) ?? new Map<string, Map<string, number>>();
-    const groupMap = costGroupMap.get(row.serviceGroupName) ?? new Map<string, number>();
-    groupMap.set(
-      row.serviceName,
-      (groupMap.get(row.serviceName) ?? 0) + Math.round(row.taskUsedtime),
-    );
-    costGroupMap.set(row.serviceGroupName, groupMap);
+    const groupMap = costGroupMap.get(serviceGroupName) ?? new Map<string, number>();
+    groupMap.set(serviceName, (groupMap.get(serviceName) ?? 0) + Math.round(row.taskUsedtime));
+    costGroupMap.set(serviceGroupName, groupMap);
     monthMap.set(row.costGroupName, costGroupMap);
     grouped.set(month, monthMap);
   }

@@ -63,11 +63,11 @@ export function MonitoringStatsDetailsTable({
           {rows.map((row) => (
             <tr key={row.pageId}>
               <td>{formatMonthLabel(monthKeyFromMonitoringMonth(row.monitoringMonth))}</td>
-              <td>{row.platform}</td>
-              <td>{row.serviceGroupName}</td>
-              <td>{row.projectName}</td>
+              <td>{row.platform || '-'}</td>
+              <td>{row.serviceGroupName || '-'}</td>
+              <td>{row.projectName || '-'}</td>
               <td>{row.title}</td>
-              <td>{row.assigneeDisplay}</td>
+              <td>{row.assigneeDisplay || '-'}</td>
               <td>
                 {editingPageId === row.pageId ? (
                   <select

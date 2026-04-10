@@ -182,7 +182,8 @@ describe('Projects routes', () => {
 
     mockDataClient.getProjects.mockResolvedValue([baseProject]);
     mockDataClient.getProject.mockResolvedValue(baseProject);
-    mockDataClient.searchProjectsPage.mockImplementation(async (filters, query, page, pageSize) => {
+    mockDataClient.searchProjectsPage.mockImplementation(async (filters, page, pageSize) => {
+      const query = filters.query ?? '';
       const items = [
         {
           ...baseProject,
@@ -398,7 +399,7 @@ describe('Projects routes', () => {
       endDate: '2026-03-31',
       isActive: true,
     }));
-    mockDataClient.searchProjectsPage.mockImplementation(async (_, __, page, pageSize) => ({
+    mockDataClient.searchProjectsPage.mockImplementation(async (_, page, pageSize) => ({
       items: pagedProjects.slice((page - 1) * pageSize, page * pageSize),
       totalCount: pagedProjects.length,
       page,

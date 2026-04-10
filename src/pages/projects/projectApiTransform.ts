@@ -10,25 +10,51 @@ import type { ProjectListRow } from '../../types/domain';
 import { getToday, readBooleanFlag } from '../../utils';
 import type { Member } from '../../types/domain';
 
+function readValue(record: ApiRecord, snakeKey: string, camelKey: string) {
+  return record[snakeKey] ?? record[camelKey];
+}
+
 export function toProjectListRow(record: ApiRecord): ProjectListRow {
   return {
     id: String(record.id),
-    createdByMemberId: record.created_by_member_id ? String(record.created_by_member_id) : null,
-    projectType1: String(record.project_type1 ?? ''),
+    createdByMemberId: readValue(record, 'created_by_member_id', 'createdByMemberId')
+      ? String(readValue(record, 'created_by_member_id', 'createdByMemberId'))
+      : null,
+    projectType1: String(readValue(record, 'project_type1', 'projectType1') ?? ''),
     name: String(record.name ?? ''),
-    platformId: record.platform_id ? String(record.platform_id) : null,
-    platform: String(record.platform ?? ''),
-    serviceGroupId: record.service_group_id ? String(record.service_group_id) : null,
-    serviceGroupName: String(record.service_group_name ?? '-'),
-    reportUrl: String(record.report_url ?? ''),
-    reporterMemberId: record.reporter_member_id ? String(record.reporter_member_id) : null,
-    reporterDisplay: String(record.reporter_display ?? '-'),
-    reviewerMemberId: record.reviewer_member_id ? String(record.reviewer_member_id) : null,
-    reviewerDisplay: String(record.reviewer_display ?? '-'),
-    startDate: String(record.start_date ?? getToday()),
-    endDate: String(record.end_date ?? getToday()),
-    isActive: Boolean(record.is_active ?? true),
-    pageCount: Number(record.page_count ?? 0),
+    platformId: readValue(record, 'platform_id', 'platformId')
+      ? String(readValue(record, 'platform_id', 'platformId'))
+      : null,
+    platform: record.platform == null ? null : String(record.platform),
+    serviceGroupId: readValue(record, 'service_group_id', 'serviceGroupId')
+      ? String(readValue(record, 'service_group_id', 'serviceGroupId'))
+      : null,
+    serviceGroupName:
+      readValue(record, 'service_group_name', 'serviceGroupName') == null
+        ? null
+        : String(readValue(record, 'service_group_name', 'serviceGroupName')),
+    reportUrl:
+      readValue(record, 'report_url', 'reportUrl') == null
+        ? null
+        : String(readValue(record, 'report_url', 'reportUrl')),
+    reporterMemberId: readValue(record, 'reporter_member_id', 'reporterMemberId')
+      ? String(readValue(record, 'reporter_member_id', 'reporterMemberId'))
+      : null,
+    reporterDisplay:
+      readValue(record, 'reporter_display', 'reporterDisplay') == null
+        ? null
+        : String(readValue(record, 'reporter_display', 'reporterDisplay')),
+    reviewerMemberId: readValue(record, 'reviewer_member_id', 'reviewerMemberId')
+      ? String(readValue(record, 'reviewer_member_id', 'reviewerMemberId'))
+      : null,
+    reviewerDisplay:
+      readValue(record, 'reviewer_display', 'reviewerDisplay') == null
+        ? null
+        : String(readValue(record, 'reviewer_display', 'reviewerDisplay')),
+    startDate: String(readValue(record, 'start_date', 'startDate') ?? getToday()),
+    endDate: String(readValue(record, 'end_date', 'endDate') ?? getToday()),
+    isActive: Boolean(readValue(record, 'is_active', 'isActive') ?? true),
+    pageCount: Number(readValue(record, 'page_count', 'pageCount') ?? 0),
   };
 }
 

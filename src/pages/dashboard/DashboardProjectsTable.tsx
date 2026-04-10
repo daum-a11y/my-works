@@ -1,9 +1,9 @@
 interface DashboardProjectRow {
   projectId: string;
-  type1: string;
-  platform: string;
-  serviceGroupName: string;
-  projectName: string;
+  type1: string | null;
+  platform: string | null;
+  serviceGroupName: string | null;
+  projectName: string | null;
   startDate: string;
   endDate: string;
 }
@@ -34,10 +34,10 @@ export function DashboardProjectsTable({ projects }: DashboardProjectsTableProps
           <tbody>
             {projects.map((item) => (
               <tr key={item.projectId}>
-                <td>{item.type1}</td>
-                <td>{item.platform}</td>
-                <td>{item.serviceGroupName}</td>
-                <td>{item.projectName}</td>
+                <td>{item.type1 || '-'}</td>
+                <td>{item.platform || '-'}</td>
+                <td>{item.serviceGroupName || '-'}</td>
+                <td>{item.projectName || '-'}</td>
                 <td>{item.startDate}</td>
                 <td>{item.endDate}</td>
               </tr>

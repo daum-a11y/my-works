@@ -23,9 +23,9 @@ export function QaStatsProjectsTable({ projects }: QaStatsProjectsTableProps) {
           {projects.map((project) => (
             <tr key={project.id}>
               <td>{formatMonthLabel(monthKeyFromDate(project.endDate))}</td>
-              <td>{project.serviceGroupName}</td>
-              <td>{project.name}</td>
-              <td>{project.reporterDisplay}</td>
+              <td>{project.serviceGroupName || '-'}</td>
+              <td>{project.name || '-'}</td>
+              <td>{project.reporterDisplay || '-'}</td>
               <td>
                 {project.reportUrl ? (
                   <a

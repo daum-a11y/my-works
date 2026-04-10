@@ -658,10 +658,10 @@ set search_path = public
 as $$
   select
     p.id as project_id,
-    coalesce(nullif(p.project_type1, ''), '-') as type1,
-    coalesce(nullif(p.name, ''), '-') as project_name,
-    coalesce(nullif(p.platform, ''), '-') as platform,
-    coalesce(nullif(sg.name, ''), '-') as service_group_name,
+    nullif(p.project_type1, '') as type1,
+    nullif(p.name, '') as project_name,
+    nullif(p.platform, '') as platform,
+    nullif(sg.name, '') as service_group_name,
     p.start_date,
     p.end_date
   from public.projects p
@@ -710,7 +710,7 @@ as $$
     t.member_id,
     t.task_date,
     t.cost_group_id,
-    coalesce(cg.name, '') as cost_group_name,
+    nullif(cg.name, '') as cost_group_name,
     t.project_id,
     t.project_page_id,
     t.task_type1,
@@ -721,20 +721,12 @@ as $$
     t.created_at,
     t.updated_at
     ,
-    coalesce(nullif(p.platform, ''), '-') as platform,
-    case
-      when coalesce(sg.name, '') = '' or sg.name = '미분류' then ''
-      when position(' / ' in sg.name) > 0 then split_part(sg.name, ' / ', 1)
-      else sg.name
-    end as service_group_name,
-    case
-      when coalesce(sg.name, '') = '' or sg.name = '미분류' then ''
-      when position(' / ' in sg.name) > 0 then coalesce(nullif(split_part(sg.name, ' / ', 2), ''), '')
-      else sg.name
-    end as service_name,
-    coalesce(nullif(p.name, ''), '') as project_display_name,
-    coalesce(nullif(pp.title, ''), '') as page_display_name,
-    coalesce(pp.url, '') as page_url
+    nullif(p.platform, '') as platform,
+    nullif(sg.name, '') as service_group_name,
+    null::text as service_name,
+    nullif(p.name, '') as project_display_name,
+    nullif(pp.title, '') as page_display_name,
+    nullif(pp.url, '') as page_url
   from public.tasks t
   left join public.cost_groups cg on cg.id = t.cost_group_id
   left join public.projects p on p.id = t.project_id
@@ -1497,20 +1489,17 @@ as $$
     pp.title,
     pp.url,
     pp.owner_member_id,
-    coalesce(pp.monitoring_month, '') as monitoring_month,
+    pp.monitoring_month,
     pp.track_status,
     pp.monitoring_in_progress,
     pp.qa_in_progress,
-    coalesce(pp.note, '') as note,
+    nullif(pp.note, '') as note,
     pp.updated_at,
-    coalesce(sg.name, '-') as service_group_name,
-    p.name as project_name,
-    coalesce(nullif(p.platform, ''), '-') as platform,
-    coalesce(
-      nullif(concat_ws(' ', nullif(owner.account_id, ''), nullif(owner.name, '')), ''),
-      '미지정'
-    ) as assignee_display,
-    coalesce(p.report_url, '') as report_url
+    nullif(sg.name, '') as service_group_name,
+    nullif(p.name, '') as project_name,
+    nullif(p.platform, '') as platform,
+    nullif(concat_ws(' ', nullif(owner.account_id, ''), nullif(owner.name, '')), '') as assignee_display,
+    nullif(p.report_url, '') as report_url
   from public.project_pages pp
   join public.projects p on p.id = pp.project_id
   left join public.service_groups sg on sg.id = p.service_group_id
@@ -1539,12 +1528,9 @@ as $$
     p.id,
     p.project_type1 as type1,
     p.name,
-    coalesce(sg.name, '-') as service_group_name,
-    coalesce(p.report_url, '') as report_url,
-    coalesce(
-      nullif(concat_ws(' ', nullif(reporter.account_id, ''), nullif(reporter.name, '')), ''),
-      '미지정'
-    ) as reporter_display,
+    nullif(sg.name, '') as service_group_name,
+    nullif(p.report_url, '') as report_url,
+    nullif(concat_ws(' ', nullif(reporter.account_id, ''), nullif(reporter.name, '')), '') as reporter_display,
     p.start_date,
     p.end_date,
     p.is_active
@@ -1612,20 +1598,8 @@ as $$
     t.created_at,
     t.updated_at,
     nullif(p.platform, '') as platform,
-    nullif(
-      case
-        when position(' / ' in coalesce(sg.name, '')) > 0 then split_part(sg.name, ' / ', 1)
-        else sg.name
-      end,
-      ''
-    ) as service_group_name,
-    nullif(
-      case
-        when position(' / ' in coalesce(sg.name, '')) > 0 then split_part(sg.name, ' / ', 2)
-        else null
-      end,
-      ''
-    ) as service_name,
+    nullif(sg.name, '') as service_group_name,
+    null::text as service_name,
     nullif(p.name, '') as project_display_name,
     nullif(pp.title, '') as page_display_name,
     nullif(pp.url, '') as page_url
@@ -1717,20 +1691,8 @@ as $$
     t.note,
     t.updated_at,
     nullif(p.platform, '') as platform,
-    nullif(
-      case
-        when position(' / ' in coalesce(sg.name, '')) > 0 then split_part(sg.name, ' / ', 1)
-        else sg.name
-      end,
-      ''
-    ) as service_group_name,
-    nullif(
-      case
-        when position(' / ' in coalesce(sg.name, '')) > 0 then split_part(sg.name, ' / ', 2)
-        else null
-      end,
-      ''
-    ) as service_name,
+    nullif(sg.name, '') as service_group_name,
+    null::text as service_name,
     nullif(p.name, '') as project_display_name,
     nullif(pp.title, '') as page_display_name,
     nullif(pp.url, '') as page_url
@@ -1966,18 +1928,12 @@ as $$
     p.platform_id,
     p.platform,
     p.service_group_id,
-    coalesce(sg.name, '-') as service_group_name,
-    p.report_url,
+    nullif(sg.name, '') as service_group_name,
+    nullif(p.report_url, '') as report_url,
     p.reporter_member_id,
-    coalesce(
-      nullif(concat_ws(' ', nullif(reporter.account_id, ''), nullif(reporter.name, '')), ''),
-      '-'
-    ) as reporter_display,
+    nullif(concat_ws(' ', nullif(reporter.account_id, ''), nullif(reporter.name, '')), '') as reporter_display,
     p.reviewer_member_id,
-    coalesce(
-      nullif(concat_ws(' ', nullif(reviewer.account_id, ''), nullif(reviewer.name, '')), ''),
-      '-'
-    ) as reviewer_display,
+    nullif(concat_ws(' ', nullif(reviewer.account_id, ''), nullif(reviewer.name, '')), '') as reviewer_display,
     p.start_date,
     p.end_date,
     p.is_active,
@@ -2058,15 +2014,11 @@ as $$
     p.name,
     p.platform,
     p.service_group_id,
-    coalesce(nullif(split_part(sg.name, ' / ', 1), ''), coalesce(sg.name, '')) as service_group_name,
-    case
-      when coalesce(sg.name, '') = '' or sg.name = '미분류' then ''
-      when position(' / ' in sg.name) > 0 then coalesce(nullif(split_part(sg.name, ' / ', 2), ''), '')
-      else ''
-    end as service_name,
+    nullif(sg.name, '') as service_group_name,
+    null::text as service_name,
     sg.cost_group_id,
-    coalesce(cg.name, '') as cost_group_name,
-    p.report_url
+    nullif(cg.name, '') as cost_group_name,
+    nullif(p.report_url, '') as report_url
   from public.projects p
   join public.service_groups sg on sg.id = p.service_group_id
   left join public.cost_groups cg on cg.id = sg.cost_group_id
@@ -2240,21 +2192,13 @@ as $$
     t.updated_at,
     m.name as member_name,
     m.email as member_email,
-    coalesce(p.name, '') as project_name,
-    coalesce(pp.title, '') as page_title,
-    coalesce(pp.url, '') as page_url,
-    coalesce(p.platform, '') as platform,
+    nullif(p.name, '') as project_name,
+    nullif(pp.title, '') as page_title,
+    nullif(pp.url, '') as page_url,
+    nullif(p.platform, '') as platform,
     p.service_group_id,
-    case
-      when coalesce(sg.name, '') = '' or sg.name = '미분류' then '미분류'
-      when position(' / ' in sg.name) > 0 then split_part(sg.name, ' / ', 1)
-      else sg.name
-    end as service_group_name,
-    case
-      when coalesce(sg.name, '') = '' or sg.name = '미분류' then '미분류'
-      when position(' / ' in sg.name) > 0 then coalesce(nullif(split_part(sg.name, ' / ', 2), ''), '미분류')
-      else sg.name
-    end as service_name
+    nullif(sg.name, '') as service_group_name,
+    null::text as service_name
   from public.tasks t
   join public.members m on m.id = t.member_id
   join public.cost_groups cg on cg.id = t.cost_group_id
@@ -2729,21 +2673,13 @@ as $$
     t.updated_at,
     m.name as member_name,
     m.email as member_email,
-    coalesce(p.name, '') as project_name,
-    coalesce(pp.title, '') as page_title,
-    coalesce(pp.url, '') as page_url,
-    coalesce(p.platform, '') as platform,
+    nullif(p.name, '') as project_name,
+    nullif(pp.title, '') as page_title,
+    nullif(pp.url, '') as page_url,
+    nullif(p.platform, '') as platform,
     p.service_group_id,
-    case
-      when coalesce(sg.name, '') = '' or sg.name = '미분류' then '미분류'
-      when position(' / ' in sg.name) > 0 then split_part(sg.name, ' / ', 1)
-      else sg.name
-    end as service_group_name,
-    case
-      when coalesce(sg.name, '') = '' or sg.name = '미분류' then '미분류'
-      when position(' / ' in sg.name) > 0 then coalesce(nullif(split_part(sg.name, ' / ', 2), ''), '미분류')
-      else sg.name
-    end as service_name
+    nullif(sg.name, '') as service_group_name,
+    null::text as service_name
   from public.tasks t
   join public.members m on m.id = t.member_id
   join public.cost_groups cg on cg.id = t.cost_group_id
