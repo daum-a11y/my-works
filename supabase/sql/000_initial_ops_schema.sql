@@ -291,8 +291,6 @@ create table if not exists public.tasks (
   project_id uuid references public.projects(id),
   project_page_id uuid references public.project_pages(id),
   task_type_id uuid references public.task_types(id),
-  task_type1 text not null,
-  task_type2 text not null,
   task_usedtime numeric(5, 1) not null default 0,
   content text not null,
   note text not null default '',
@@ -303,9 +301,35 @@ create table if not exists public.tasks (
 alter table public.tasks
   add column if not exists cost_group_id uuid;
 
-update public.tasks
-set task_type_id = public.resolve_task_type_id(task_type1, task_type2)
-where task_type_id is distinct from public.resolve_task_type_id(task_type1, task_type2);
+do $$
+begin
+  if exists (
+    select 1
+    from information_schema.columns
+    where table_schema = 'public'
+      and table_name = 'tasks'
+      and column_name = 'task_type1'
+  ) and exists (
+    select 1
+    from information_schema.columns
+    where table_schema = 'public'
+      and table_name = 'tasks'
+      and column_name = 'task_type2'
+  ) then
+    execute $sql$
+      update public.tasks
+      set task_type_id = public.resolve_task_type_id(task_type1, task_type2)
+      where task_type_id is distinct from public.resolve_task_type_id(task_type1, task_type2)
+    $sql$;
+  end if;
+end
+$$;
+
+alter table public.tasks
+  drop column if exists task_type1;
+
+alter table public.tasks
+  drop column if exists task_type2;
 
 alter table public.tasks
   drop constraint if exists tasks_cost_group_id_fkey;
@@ -434,6 +458,46 @@ drop trigger if exists tasks_set_updated_at on public.tasks;
 create trigger tasks_set_updated_at
 before update on public.tasks
 for each row execute function public.set_updated_at();
+
+drop trigger if exists members_set_audit_member_ids on public.members;
+create trigger members_set_audit_member_ids
+before insert or update on public.members
+for each row execute function public.set_audit_member_ids();
+
+drop trigger if exists service_groups_set_audit_member_ids on public.service_groups;
+create trigger service_groups_set_audit_member_ids
+before insert or update on public.service_groups
+for each row execute function public.set_audit_member_ids();
+
+drop trigger if exists cost_groups_set_audit_member_ids on public.cost_groups;
+create trigger cost_groups_set_audit_member_ids
+before insert or update on public.cost_groups
+for each row execute function public.set_audit_member_ids();
+
+drop trigger if exists platforms_set_audit_member_ids on public.platforms;
+create trigger platforms_set_audit_member_ids
+before insert or update on public.platforms
+for each row execute function public.set_audit_member_ids();
+
+drop trigger if exists task_types_set_audit_member_ids on public.task_types;
+create trigger task_types_set_audit_member_ids
+before insert or update on public.task_types
+for each row execute function public.set_audit_member_ids();
+
+drop trigger if exists projects_set_audit_member_ids on public.projects;
+create trigger projects_set_audit_member_ids
+before insert or update on public.projects
+for each row execute function public.set_audit_member_ids();
+
+drop trigger if exists project_pages_set_audit_member_ids on public.project_pages;
+create trigger project_pages_set_audit_member_ids
+before insert or update on public.project_pages
+for each row execute function public.set_audit_member_ids();
+
+drop trigger if exists tasks_set_audit_member_ids on public.tasks;
+create trigger tasks_set_audit_member_ids
+before insert or update on public.tasks
+for each row execute function public.set_audit_member_ids();
 
 create or replace function public.current_member_id()
 returns uuid
@@ -634,7 +698,7 @@ create trigger on_auth_user_created_bind_member
 after insert on auth.users
 for each row execute function public.handle_auth_user_created();
 
-drop function if exists public.save_task(uuid, date, uuid, uuid, text, text, numeric, text, text);
+drop function if exists public.save_task(uuid, date, uuid, uuid, uuid, text, text, numeric, text, text);
 
 create or replace function public.save_task(
   p_task_id uuid default null,
@@ -722,8 +786,6 @@ begin
       project_id,
       project_page_id,
       task_type_id,
-      task_type1,
-      task_type2,
       task_usedtime,
       content,
       note
@@ -736,8 +798,6 @@ begin
       p_project_id,
       p_project_page_id,
       v_task_type_id,
-      p_task_type1,
-      p_task_type2,
       p_task_usedtime,
       p_content,
       coalesce(p_note, '')
@@ -751,8 +811,6 @@ begin
       project_id = p_project_id,
       project_page_id = p_project_page_id,
       task_type_id = v_task_type_id,
-      task_type1 = p_task_type1,
-      task_type2 = p_task_type2,
       task_usedtime = p_task_usedtime,
       content = p_content,
       note = coalesce(p_note, ''),
@@ -897,8 +955,8 @@ as $$
     nullif(cg.name, '') as cost_group_name,
     t.project_id,
     t.project_page_id,
-    t.task_type1,
-    t.task_type2,
+    coalesce(tt.type1, '') as task_type1,
+    coalesce(tt.type2, '') as task_type2,
     t.task_usedtime,
     t.content,
     t.note,
@@ -913,6 +971,7 @@ as $$
     nullif(pp.url, '') as page_url
   from public.tasks t
   left join public.cost_groups cg on cg.id = t.cost_group_id
+  left join public.task_types tt on tt.id = t.task_type_id
   left join public.projects p on p.id = t.project_id
   left join public.project_pages pp on pp.id = t.project_page_id
   left join public.service_groups sg on sg.id = p.service_group_id
@@ -1042,9 +1101,10 @@ as $$
   select
     to_char(t.task_date, 'YYYY') as year,
     to_char(t.task_date, 'MM') as month,
-    t.task_type1,
+    coalesce(tt.type1, '미분류') as task_type1,
     sum(t.task_usedtime) as task_usedtime
   from public.tasks t
+  left join public.task_types tt on tt.id = t.task_type_id
   where public.current_member_id() is not null
     and (
       (public.current_user_is_admin() and (p_member_id is null or t.member_id = p_member_id))
@@ -1054,7 +1114,7 @@ as $$
         and (p_member_id is null or p_member_id = public.current_member_id())
       )
     )
-  group by to_char(t.task_date, 'YYYY'), to_char(t.task_date, 'MM'), t.task_type1
+  group by to_char(t.task_date, 'YYYY'), to_char(t.task_date, 'MM'), coalesce(tt.type1, '미분류')
   order by year desc, month desc, task_type1 asc
 $$;
 
@@ -1107,9 +1167,10 @@ as $$
   select
     to_char(t.task_date, 'YYYY') as year,
     to_char(t.task_date, 'MM') as month,
-    t.task_type1,
+    coalesce(tt.type1, '미분류') as task_type1,
     sum(t.task_usedtime) as task_usedtime
   from public.tasks t
+  left join public.task_types tt on tt.id = t.task_type_id
   join year_bounds yb on true
   where public.current_member_id() is not null
     and p_year is not null
@@ -1123,7 +1184,7 @@ as $$
     )
     and t.task_date >= yb.year_start
     and t.task_date < yb.year_end
-  group by to_char(t.task_date, 'YYYY'), to_char(t.task_date, 'MM'), t.task_type1
+  group by to_char(t.task_date, 'YYYY'), to_char(t.task_date, 'MM'), coalesce(tt.type1, '미분류')
   order by month desc, task_type1 asc
 $$;
 
@@ -1154,9 +1215,7 @@ as $$
   left join public.cost_groups cg on cg.id = t.cost_group_id
   left join public.projects p on p.id = t.project_id
   left join public.service_groups sg on sg.id = p.service_group_id
-  left join public.task_types tt
-    on tt.type1 = t.task_type1
-   and tt.type2 = t.task_type2
+  left join public.task_types tt on tt.id = t.task_type_id
   where public.current_member_id() is not null
     and (
       (public.current_user_is_admin() and (p_member_id is null or t.member_id = p_member_id))
@@ -1189,9 +1248,7 @@ set search_path = public
 as $$
   select extract(year from t.task_date)::text as year
   from public.tasks t
-  left join public.task_types tt
-    on tt.type1 = t.task_type1
-   and tt.type2 = t.task_type2
+  left join public.task_types tt on tt.id = t.task_type_id
   where public.current_member_id() is not null
     and (
       (public.current_user_is_admin() and (p_member_id is null or t.member_id = p_member_id))
@@ -1240,9 +1297,7 @@ as $$
   left join public.cost_groups cg on cg.id = t.cost_group_id
   left join public.projects p on p.id = t.project_id
   left join public.service_groups sg on sg.id = p.service_group_id
-  left join public.task_types tt
-    on tt.type1 = t.task_type1
-   and tt.type2 = t.task_type2
+  left join public.task_types tt on tt.id = t.task_type_id
   where public.current_member_id() is not null
     and p_year is not null
     and (
@@ -1286,8 +1341,8 @@ as $$
     select
       t.member_id,
       m.account_id,
-      coalesce(t.task_type1, '미분류') as task_type1,
-      coalesce(t.task_type2, '미분류') as task_type2,
+      coalesce(tt.type1, '미분류') as task_type1,
+      coalesce(tt.type2, '미분류') as task_type2,
       t.task_usedtime,
       coalesce(tt.requires_service_group, t.project_id is not null) as is_service_task,
       coalesce(cg.name, '미분류') as cost_group_name,
@@ -1299,9 +1354,7 @@ as $$
     join public.cost_groups cg on cg.id = t.cost_group_id
     left join public.projects p on p.id = t.project_id
     left join public.service_groups sg on sg.id = p.service_group_id
-    left join public.task_types tt
-      on tt.type1 = t.task_type1
-     and tt.type2 = t.task_type2
+    left join public.task_types tt on tt.id = t.task_type_id
     where public.current_member_id() is not null
       and p_month is not null
       and (
@@ -1528,10 +1581,11 @@ as $$
   ),
   type_counts as (
     select
-      t.task_type1 as type,
+      coalesce(tt.type1, '미분류') as type,
       sum(t.task_usedtime) as task_usedtime
     from public.tasks t
-    group by t.task_type1
+    left join public.task_types tt on tt.id = t.task_type_id
+    group by coalesce(tt.type1, '미분류')
   ),
   monitoring_count as (
     select count(*)::bigint as count
@@ -1734,8 +1788,8 @@ as $$
     cg.name as cost_group_name,
     t.project_id,
     t.project_page_id,
-    t.task_type1,
-    t.task_type2,
+    coalesce(tt.type1, '') as task_type1,
+    coalesce(tt.type2, '') as task_type2,
     t.task_usedtime,
     t.content,
     t.note,
@@ -1749,6 +1803,7 @@ as $$
     nullif(pp.url, '') as page_url
   from public.tasks t
   join public.cost_groups cg on cg.id = t.cost_group_id
+  left join public.task_types tt on tt.id = t.task_type_id
   left join public.projects p on p.id = t.project_id
   left join public.project_pages pp on pp.id = t.project_page_id
   left join public.service_groups sg on sg.id = p.service_group_id
@@ -1765,8 +1820,8 @@ as $$
     and (p_end_date is null or t.task_date <= p_end_date)
     and (p_project_id is null or t.project_id = p_project_id)
     and (p_project_page_id is null or t.project_page_id = p_project_page_id)
-    and (p_task_type1 is null or t.task_type1 = p_task_type1)
-    and (p_task_type2 is null or t.task_type2 = p_task_type2)
+    and (p_task_type1 is null or tt.type1 = p_task_type1)
+    and (p_task_type2 is null or tt.type2 = p_task_type2)
     and (p_min_task_usedtime is null or t.task_usedtime >= p_min_task_usedtime)
     and (p_max_task_usedtime is null or t.task_usedtime <= p_max_task_usedtime)
     and (
@@ -1775,8 +1830,8 @@ as $$
         ' ',
         coalesce(p.name, ''),
         coalesce(pp.title, ''),
-        t.task_type1,
-        t.task_type2,
+        coalesce(tt.type1, ''),
+        coalesce(tt.type2, ''),
         t.content,
         t.note
       ) ilike '%' || p_keyword || '%'
@@ -1828,8 +1883,8 @@ as $$
     t.task_date,
     t.cost_group_id,
     cg.name as cost_group_name,
-    t.task_type1,
-    t.task_type2,
+    coalesce(tt.type1, '') as task_type1,
+    coalesce(tt.type2, '') as task_type2,
     t.task_usedtime,
     t.content,
     t.note,
@@ -1842,6 +1897,7 @@ as $$
     nullif(pp.url, '') as page_url
   from public.tasks t
   join public.cost_groups cg on cg.id = t.cost_group_id
+  left join public.task_types tt on tt.id = t.task_type_id
   left join public.projects p on p.id = t.project_id
   left join public.project_pages pp on pp.id = t.project_page_id
   left join public.service_groups sg on sg.id = p.service_group_id
@@ -1851,8 +1907,8 @@ as $$
     and (p_end_date is null or t.task_date <= p_end_date)
     and (p_project_id is null or t.project_id = p_project_id)
     and (p_project_page_id is null or t.project_page_id = p_project_page_id)
-    and (p_task_type1 is null or t.task_type1 = p_task_type1)
-    and (p_task_type2 is null or t.task_type2 = p_task_type2)
+    and (p_task_type1 is null or tt.type1 = p_task_type1)
+    and (p_task_type2 is null or tt.type2 = p_task_type2)
     and (p_min_task_usedtime is null or t.task_usedtime >= p_min_task_usedtime)
     and (p_max_task_usedtime is null or t.task_usedtime <= p_max_task_usedtime)
     and (
@@ -1861,8 +1917,8 @@ as $$
         ' ',
         coalesce(t.content, ''),
         coalesce(t.note, ''),
-        coalesce(t.task_type1, ''),
-        coalesce(t.task_type2, ''),
+        coalesce(tt.type1, ''),
+        coalesce(tt.type2, ''),
         coalesce(p.name, ''),
         coalesce(pp.title, '')
       ) ilike '%' || p_keyword || '%'
@@ -2330,8 +2386,8 @@ as $$
     cg.name as cost_group_name,
     t.project_id,
     t.project_page_id,
-    t.task_type1,
-    t.task_type2,
+    coalesce(tt.type1, '') as task_type1,
+    coalesce(tt.type2, '') as task_type2,
     t.task_usedtime,
     t.content,
     t.note,
@@ -2348,6 +2404,7 @@ as $$
   from public.tasks t
   join public.members m on m.id = t.member_id
   join public.cost_groups cg on cg.id = t.cost_group_id
+  left join public.task_types tt on tt.id = t.task_type_id
   left join public.projects p on p.id = t.project_id
   left join public.project_pages pp on pp.id = t.project_page_id
   left join public.service_groups sg on sg.id = p.service_group_id
@@ -2355,7 +2412,7 @@ as $$
     and t.id = p_task_id
 $$;
 
-drop function if exists public.admin_save_task(uuid, uuid, date, uuid, uuid, text, text, numeric, text, text);
+drop function if exists public.admin_save_task(uuid, uuid, date, uuid, uuid, uuid, text, text, numeric, text, text);
 
 create or replace function public.admin_save_task(
   p_task_id uuid default null,
@@ -2466,8 +2523,6 @@ begin
       project_id,
       project_page_id,
       task_type_id,
-      task_type1,
-      task_type2,
       task_usedtime,
       content,
       note
@@ -2480,8 +2535,6 @@ begin
       p_project_id,
       p_project_page_id,
       v_task_type_id,
-      trim(p_task_type1),
-      trim(p_task_type2),
       p_task_usedtime,
       coalesce(p_content, ''),
       coalesce(p_note, '')
@@ -2496,8 +2549,6 @@ begin
       project_id = p_project_id,
       project_page_id = p_project_page_id,
       task_type_id = v_task_type_id,
-      task_type1 = trim(p_task_type1),
-      task_type2 = trim(p_task_type2),
       task_usedtime = p_task_usedtime,
       content = coalesce(p_content, ''),
       note = coalesce(p_note, ''),
@@ -2550,11 +2601,6 @@ as $$
     select t.id
     from public.tasks t
     where t.task_type_id = p_task_type_id
-    union
-    select t.id
-    from public.tasks t
-    where t.task_type1 = p_type1
-      and t.task_type2 = p_type2
   )
   select count(*)::bigint as task_count
   from matched
@@ -2572,18 +2618,24 @@ language plpgsql
 security definer
 set search_path = public
 as $$
+declare
+  v_next_task_type_id uuid;
 begin
   if not public.current_user_is_admin() then
     raise exception 'admin only';
   end if;
 
+  v_next_task_type_id := public.resolve_task_type_id(p_next_type1, p_next_type2);
+
+  if v_next_task_type_id is null then
+    raise exception 'next task_type not found';
+  end if;
+
   update public.tasks
   set
-    task_type1 = p_next_type1,
-    task_type2 = p_next_type2,
+    task_type_id = v_next_task_type_id,
     updated_at = timezone('utc', now())
-  where task_type1 = p_old_type1
-    and task_type2 = p_old_type2;
+  where task_type_id = public.resolve_task_type_id(p_old_type1, p_old_type2);
 end;
 $$;
 
@@ -2821,8 +2873,8 @@ as $$
     cg.name as cost_group_name,
     t.project_id,
     t.project_page_id,
-    t.task_type1,
-    t.task_type2,
+    coalesce(tt.type1, '') as task_type1,
+    coalesce(tt.type2, '') as task_type2,
     t.task_usedtime,
     t.content,
     t.note,
@@ -2839,6 +2891,7 @@ as $$
   from public.tasks t
   join public.members m on m.id = t.member_id
   join public.cost_groups cg on cg.id = t.cost_group_id
+  left join public.task_types tt on tt.id = t.task_type_id
   left join public.projects p on p.id = t.project_id
   left join public.project_pages pp on pp.id = t.project_page_id
   left join public.service_groups sg on sg.id = p.service_group_id
@@ -2848,8 +2901,8 @@ as $$
     and (p_end_date is null or t.task_date <= p_end_date)
     and (p_project_id is null or t.project_id = p_project_id)
     and (p_project_page_id is null or t.project_page_id = p_project_page_id)
-    and (p_task_type1 is null or t.task_type1 = p_task_type1)
-    and (p_task_type2 is null or t.task_type2 = p_task_type2)
+    and (p_task_type1 is null or tt.type1 = p_task_type1)
+    and (p_task_type2 is null or tt.type2 = p_task_type2)
     and (p_cost_group_id is null or t.cost_group_id = p_cost_group_id)
     and (
       p_keyword is null
@@ -2859,8 +2912,8 @@ as $$
         m.email,
         p.name,
         pp.title,
-        t.task_type1,
-        t.task_type2,
+        coalesce(tt.type1, ''),
+        coalesce(tt.type2, ''),
         t.content,
         t.note
       ) ilike '%' || p_keyword || '%'
