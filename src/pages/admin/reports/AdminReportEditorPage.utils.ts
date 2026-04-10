@@ -52,7 +52,7 @@ export function toTaskTypes(
     id: item.id,
     type1: item.type1,
     type2: item.type2,
-    label: item.displayLabel,
+    label: [item.type1, item.type2].filter(Boolean).join(' / '),
     displayOrder: item.displayOrder,
     requiresServiceGroup: item.requiresServiceGroup,
     isActive: item.isActive,
@@ -64,6 +64,8 @@ export function toServiceGroups(
 ): ServiceGroup[] {
   return items.map(toAdminServiceGroup).map((item) => ({
     id: item.id,
+    svcGroup: item.svcGroup,
+    svcName: item.svcName,
     name: item.name,
     costGroupId: item.costGroupId,
     costGroupName: item.costGroupName,

@@ -12,12 +12,22 @@ import type {
   MemberAdminItem,
 } from './admin.types';
 
+function composeServiceName(svcGroup: string, svcName: string) {
+  if (!svcGroup && !svcName) return '';
+  if (!svcGroup) return svcName;
+  if (!svcName) return svcGroup;
+  return `${svcGroup} / ${svcName}`;
+}
+
 function splitServiceName(name: string) {
   const normalized = String(name ?? '').trim();
   if (!normalized) return { svcGroup: '', svcName: '' };
-  const [group, ...rest] = normalized.split(' > ');
-  if (rest.length === 0) return { svcGroup: normalized, svcName: normalized };
-  return { svcGroup: group.trim(), svcName: rest.join(' / ').trim() };
+  const separator = normalized.indexOf(' / ');
+  if (separator < 0) return { svcGroup: normalized, svcName: '' };
+  return {
+    svcGroup: normalized.slice(0, separator).trim(),
+    svcName: normalized.slice(separator + 3).trim(),
+  };
 }
 
 export function toAdminTaskType(record: ApiRecord): AdminTaskTypeItem {
@@ -25,7 +35,7 @@ export function toAdminTaskType(record: ApiRecord): AdminTaskTypeItem {
     id: String(record.id ?? ''),
     type1: String(record.type1 ?? ''),
     type2: String(record.type2 ?? ''),
-    displayLabel: String(record.display_label ?? `${record.type1 ?? ''} / ${record.type2 ?? ''}`),
+    memo: String(record.memo ?? ''),
     displayOrder: Number(record.display_order ?? 0),
     requiresServiceGroup: Boolean(record.requires_service_group ?? false),
     isActive: Boolean(record.is_active ?? true),
@@ -51,15 +61,18 @@ export function toAdminPlatform(record: ApiRecord): AdminPlatformItem {
 }
 
 export function toAdminServiceGroup(record: ApiRecord): AdminServiceGroupItem {
-  const parts = splitServiceName(String(record.name ?? ''));
+  const fallback = splitServiceName(String(record.name ?? ''));
+  const svcGroup =
+    record.svc_group == null ? fallback.svcGroup : String(record.svc_group ?? '').trim();
+  const svcName = record.svc_name == null ? fallback.svcName : String(record.svc_name ?? '').trim();
   const costGroupRecord = Array.isArray(record.cost_groups)
     ? record.cost_groups[0]
     : record.cost_groups;
   return {
     id: String(record.id ?? ''),
-    name: String(record.name ?? ''),
-    svcGroup: parts.svcGroup,
-    svcName: parts.svcName,
+    name: composeServiceName(svcGroup, svcName),
+    svcGroup,
+    svcName,
     costGroupId: record.cost_group_id ? String(record.cost_group_id) : null,
     costGroupName:
       costGroupRecord && typeof costGroupRecord === 'object'

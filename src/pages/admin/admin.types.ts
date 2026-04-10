@@ -58,7 +58,7 @@ export interface AdminTaskTypeItem {
   id: string;
   type1: string;
   type2: string;
-  displayLabel: string;
+  memo: string;
   displayOrder: number;
   requiresServiceGroup: boolean;
   isActive: boolean;
@@ -68,7 +68,7 @@ export interface AdminTaskTypePayload {
   id?: string;
   type1: string;
   type2: string;
-  displayLabel: string;
+  memo: string;
   displayOrder: number;
   requiresServiceGroup: boolean;
   isActive: boolean;

@@ -262,7 +262,7 @@ const configuredClient: DataClient = !supabase
       async getTaskTypes() {
         const { data, error } = await supabase
           .from('task_types')
-          .select('*')
+          .select('id, type1, type2, requires_service_group, display_order, is_active')
           .order('display_order');
         if (error) throw error;
         return (data ?? []) as ApiRecord[];
@@ -283,7 +283,9 @@ const configuredClient: DataClient = !supabase
       async getServiceGroups() {
         const { data, error } = await supabase
           .from('service_groups')
-          .select('id, name, cost_group_id, display_order, is_active, cost_groups(name)')
+          .select(
+            'id, svc_group, svc_name, name, cost_group_id, display_order, is_active, cost_groups(name)',
+          )
           .order('display_order');
         if (error) throw error;
         return (data ?? []) as ApiRecord[];

@@ -3,7 +3,7 @@ import type { CostGroup, Platform, ProjectPage } from '../../types/domain';
 import type { ProjectViewModel, ReportDraft } from './reportUtils';
 
 interface ReportsEditorFormProps {
-  activeTab: 'report' | 'period';
+  mode: 'create' | 'edit';
   draft: ReportDraft;
   draftPages: ProjectPage[];
   costGroupOptions: CostGroup[];
@@ -12,18 +12,16 @@ interface ReportsEditorFormProps {
   isListDateValid: boolean;
   platformOptions: Platform[];
   projectQuery: string;
-  reportTabType1Options: string[];
   type1Options: string[];
   type2Options: string[];
   type2Placeholder: string;
   type1Value: string;
-  typeFilteredProjects: ProjectViewModel[];
   projectSearchPlaceholder: string;
   projectTypeSelected: boolean;
-  isProjectLinkedTab: boolean;
+  showTypeStep: boolean;
+  showProjectLookupStep: boolean;
+  showTaskStep: boolean;
   showPlatformSelect: boolean;
-  showReadonlyService: boolean;
-  showProjectSelect: boolean;
   showPageSelect: boolean;
   showPageUrl: boolean;
   showManualPageName: boolean;
@@ -32,8 +30,8 @@ interface ReportsEditorFormProps {
   isReadonlyWorkHours: boolean;
   manualPageLabel: string;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
-  onActiveTabChange: (tab: 'report' | 'period') => void;
   onDraftFieldChange: <K extends keyof ReportDraft>(key: K, value: ReportDraft[K]) => void;
+  onCancelEdit: () => void;
   onProjectQueryChange: (value: string) => void;
   onProjectSearch: () => void;
   onProjectSearchKeyDown: (event: KeyboardEvent<HTMLInputElement>) => void;
@@ -42,7 +40,7 @@ interface ReportsEditorFormProps {
 }
 
 export function ReportsEditorForm({
-  activeTab,
+  mode,
   draft,
   draftPages,
   costGroupOptions,
@@ -51,18 +49,16 @@ export function ReportsEditorForm({
   isListDateValid,
   platformOptions,
   projectQuery,
-  reportTabType1Options,
   type1Options,
   type2Options,
   type2Placeholder,
   type1Value,
-  typeFilteredProjects,
   projectSearchPlaceholder,
   projectTypeSelected,
-  isProjectLinkedTab,
+  showTypeStep,
+  showProjectLookupStep,
+  showTaskStep,
   showPlatformSelect,
-  showReadonlyService,
-  showProjectSelect,
   showPageSelect,
   showPageUrl,
   showManualPageName,
@@ -71,8 +67,8 @@ export function ReportsEditorForm({
   isReadonlyWorkHours,
   manualPageLabel,
   onSubmit,
-  onActiveTabChange,
   onDraftFieldChange,
+  onCancelEdit,
   onProjectQueryChange,
   onProjectSearch,
   onProjectSearchKeyDown,
@@ -81,36 +77,23 @@ export function ReportsEditorForm({
 }: ReportsEditorFormProps) {
   return (
     <section className="reports-page__panel">
-      <div className="reports-page__tab-row">
-        <button
-          type="button"
-          className={[
-            'reports-page__tab-button',
-            activeTab === 'report' ? 'reports-page__tab-button--active' : '',
-          ]
-            .filter(Boolean)
-            .join(' ')}
-          onClick={() => onActiveTabChange('report')}
-        >
-          기본 입력
-        </button>
-        <button
-          type="button"
-          className={[
-            'reports-page__tab-button',
-            activeTab === 'period' ? 'reports-page__tab-button--active' : '',
-          ]
-            .filter(Boolean)
-            .join(' ')}
-          onClick={() => onActiveTabChange('period')}
-        >
-          TYPE 입력
-        </button>
+      <div className="reports-page__panel-head">
+        <h2 className="reports-page__panel-title">{mode === 'edit' ? '업무 수정' : '업무보고'}</h2>
+        {mode === 'edit' ? (
+          <button
+            type="button"
+            className="reports-page__button reports-page__button--secondary"
+            onClick={onCancelEdit}
+          >
+            편집 취소
+          </button>
+        ) : null}
       </div>
 
       <form className="reports-page__form" onSubmit={onSubmit}>
-        {activeTab === 'report' ? (
-          <div className="reports-page__form-grid">
+        <div className="reports-page__step">
+          <span className="reports-page__step-label">1. 분류</span>
+          <div className="reports-page__form-grid reports-page__form-grid--compact">
             <label className="reports-page__field">
               <span>청구그룹</span>
               <select
@@ -128,203 +111,197 @@ export function ReportsEditorForm({
               </select>
             </label>
 
-            <label className="reports-page__field">
-              <span>프로젝트검색</span>
-              <input
-                value={projectQuery}
-                onChange={(event) => onProjectQueryChange(event.target.value)}
-                onKeyDown={onProjectSearchKeyDown}
-                placeholder="검색어입력"
-              />
-            </label>
+            {showTypeStep ? (
+              <>
+                {projectTypeSelected ? (
+                  <label className="reports-page__field">
+                    <span>타입1</span>
+                    <input value={type1Value} readOnly />
+                  </label>
+                ) : (
+                  <label className="reports-page__field">
+                    <span>타입1</span>
+                    <select
+                      value={draft.type1}
+                      onChange={(event) => onDraftFieldChange('type1', event.target.value)}
+                    >
+                      <option value="">선택하세요</option>
+                      {type1Options.map((option) => (
+                        <option key={option} value={option}>
+                          {option}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                )}
 
-            <div className="reports-page__search-button-field">
-              <span className="sr-only">프로젝트 검색</span>
-              <button
-                type="button"
-                className="reports-page__button reports-page__button--secondary"
-                onClick={onProjectSearch}
-              >
-                검색
-              </button>
+                <label className="reports-page__field">
+                  <span>타입2</span>
+                  <select
+                    value={draft.type2}
+                    onChange={(event) => onType2Change(event.target.value)}
+                  >
+                    {type2Placeholder ? <option value="">{type2Placeholder}</option> : null}
+                    {type2Options.map((option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                {showPlatformSelect ? (
+                  <label className="reports-page__field">
+                    <span>플랫폼</span>
+                    <select
+                      value={draft.platform}
+                      onChange={(event) => onDraftFieldChange('platform', event.target.value)}
+                    >
+                      <option value="">선택하세요</option>
+                      {platformOptions
+                        .filter(
+                          (platform) => platform.isVisible || platform.name === draft.platform,
+                        )
+                        .map((platform) => (
+                          <option key={platform.id} value={platform.name}>
+                            {platform.name}
+                          </option>
+                        ))}
+                    </select>
+                  </label>
+                ) : null}
+              </>
+            ) : null}
+          </div>
+        </div>
+
+        {showProjectLookupStep ? (
+          <div className="reports-page__step">
+            <span className="reports-page__step-label">2. 프로젝트</span>
+            <div className="reports-page__project-lookup">
+              <label className="reports-page__field">
+                <span>프로젝트 검색</span>
+                <input
+                  value={projectQuery}
+                  onChange={(event) => onProjectQueryChange(event.target.value)}
+                  onKeyDown={onProjectSearchKeyDown}
+                  placeholder="검색어 입력"
+                />
+              </label>
+
+              <div className="reports-page__search-button-field">
+                <span className="sr-only">프로젝트 검색</span>
+                <button
+                  type="button"
+                  className="reports-page__button reports-page__button--secondary"
+                  onClick={onProjectSearch}
+                >
+                  검색
+                </button>
+              </div>
+
+              <label className="reports-page__field reports-page__field--project">
+                <span>프로젝트</span>
+                <select
+                  value={draft.projectId}
+                  onChange={(event) => onDraftFieldChange('projectId', event.target.value)}
+                  disabled={!draft.costGroupId}
+                >
+                  <option value="">{projectSearchPlaceholder}</option>
+                  {filteredProjectOptions.map((project) => (
+                    <option key={project.id} value={project.id}>
+                      {`${project.project.projectType1} - ${project.project.platform} - ${project.project.name}`}
+                    </option>
+                  ))}
+                </select>
+              </label>
             </div>
-
-            <label className="reports-page__field">
-              <span>프로젝트</span>
-              <select
-                value={draft.projectId}
-                onChange={(event) => onDraftFieldChange('projectId', event.target.value)}
-                disabled={!draft.costGroupId}
-              >
-                <option value="">{projectSearchPlaceholder}</option>
-                {filteredProjectOptions.map((project) => (
-                  <option key={project.id} value={project.id}>
-                    {`${project.project.projectType1} - ${project.project.platform} - ${project.project.name}`}
-                  </option>
-                ))}
-              </select>
-            </label>
           </div>
         ) : null}
 
-        <div className="reports-page__form-grid">
-          {projectTypeSelected ? (
-            <label className="reports-page__field">
-              <span>타입1</span>
-              <input value={type1Value} readOnly />
-            </label>
-          ) : (
-            <label className="reports-page__field">
-              <span>타입1</span>
-              <select
-                value={draft.type1}
-                onChange={(event) => onDraftFieldChange('type1', event.target.value)}
-              >
-                <option value="">{isProjectLinkedTab ? '선택해주세요' : 'type1'}</option>
-                {(isProjectLinkedTab ? reportTabType1Options : type1Options).map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            </label>
-          )}
-
-          <label className="reports-page__field">
-            <span>타입2</span>
-            <select value={draft.type2} onChange={(event) => onType2Change(event.target.value)}>
-              {type2Placeholder ? <option value="">{type2Placeholder}</option> : null}
-              {type2Options.map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          {showPlatformSelect ? (
-            <label className="reports-page__field">
-              <span>플랫폼</span>
-              <select
-                value={draft.platform}
-                onChange={(event) => onDraftFieldChange('platform', event.target.value)}
-              >
-                <option value="">선택하세요</option>
-                {platformOptions
-                  .filter((platform) => platform.isVisible || platform.name === draft.platform)
-                  .map((platform) => (
-                    <option key={platform.id} value={platform.name}>
-                      {platform.name}
+        {showTaskStep ? (
+          <div className="reports-page__step">
+            <span className="reports-page__step-label">
+              {showProjectLookupStep ? '3. 기록' : '2. 기록'}
+            </span>
+            <div className="reports-page__form-grid">
+              {showPageSelect ? (
+                <label className="reports-page__field">
+                  <span>페이지명</span>
+                  <select
+                    value={draft.pageId}
+                    onChange={(event) => onDraftFieldChange('pageId', event.target.value)}
+                  >
+                    <option value="">
+                      {draftPages.length ? '선택하세요' : '페이지가 존재하지 않습니다.'}
                     </option>
-                  ))}
-              </select>
-            </label>
-          ) : null}
+                    {draftPages.map((page) => (
+                      <option key={page.id} value={page.id}>
+                        {page.title}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              ) : null}
 
-          {showReadonlyService ? (
-            <>
+              {showManualPageName ? (
+                <label className="reports-page__field">
+                  <span>페이지명</span>
+                  {isVacationType ? (
+                    <select
+                      value={draft.manualPageName}
+                      onChange={(event) => onVacationTypeChange(event.target.value)}
+                    >
+                      <option value="">선택하세요</option>
+                      <option value="오전 반차">오전 반차</option>
+                      <option value="오후 반차">오후 반차</option>
+                      <option value="전일 휴가">전일 휴가</option>
+                    </select>
+                  ) : (
+                    <input
+                      value={draft.manualPageName}
+                      onChange={(event) => onDraftFieldChange('manualPageName', event.target.value)}
+                      placeholder={manualPageLabel}
+                    />
+                  )}
+                </label>
+              ) : null}
+
+              {showPageUrl ? (
+                <label className="reports-page__field">
+                  <span>{showPageSelect ? '페이지 URL' : 'URL'}</span>
+                  <input
+                    value={draft.pageUrl}
+                    onChange={(event) => onDraftFieldChange('pageUrl', event.target.value)}
+                    readOnly={usesProjectLookup}
+                  />
+                </label>
+              ) : null}
+
               <label className="reports-page__field">
-                <span>청구그룹</span>
-                <input value={draft.costGroupName} readOnly />
-              </label>
-              <label className="reports-page__field">
-                <span>서비스 그룹</span>
-                <input value={draft.serviceGroupName} readOnly />
-              </label>
-              <label className="reports-page__field">
-                <span>서비스 명</span>
-                <input value={draft.serviceName} readOnly />
-              </label>
-            </>
-          ) : null}
-
-          {showProjectSelect && !isProjectLinkedTab ? (
-            <label className="reports-page__field">
-              <span>프로젝트</span>
-              <select
-                value={draft.projectId}
-                onChange={(event) => onDraftFieldChange('projectId', event.target.value)}
-                disabled={!draft.costGroupId}
-              >
-                <option value="">
-                  {typeFilteredProjects.length ? '선택하세요' : '프로젝트가 존재하지 않습니다.'}
-                </option>
-                {typeFilteredProjects.map((project) => (
-                  <option key={project.id} value={project.id}>
-                    {project.project.name}
-                  </option>
-                ))}
-              </select>
-            </label>
-          ) : null}
-
-          {showPageSelect ? (
-            <label className="reports-page__field">
-              <span>{isProjectLinkedTab ? '페이지명' : '프로젝트 페이지'}</span>
-              <select
-                value={draft.pageId}
-                onChange={(event) => onDraftFieldChange('pageId', event.target.value)}
-              >
-                <option value="">
-                  {draftPages.length ? '선택하세요' : '페이지가 존재하지 않습니다.'}
-                </option>
-                {draftPages.map((page) => (
-                  <option key={page.id} value={page.id}>
-                    {page.title}
-                  </option>
-                ))}
-              </select>
-            </label>
-          ) : null}
-
-          {showManualPageName ? (
-            <label className="reports-page__field">
-              <span>{manualPageLabel}</span>
-              {isVacationType ? (
-                <select
-                  value={draft.manualPageName}
-                  onChange={(event) => onVacationTypeChange(event.target.value)}
-                >
-                  <option value="">선택하세요</option>
-                  <option value="오전 반차">오전 반차</option>
-                  <option value="오후 반차">오후 반차</option>
-                  <option value="전일 휴가">전일 휴가</option>
-                </select>
-              ) : (
+                <span>태스크명</span>
                 <input
-                  value={draft.manualPageName}
-                  onChange={(event) => onDraftFieldChange('manualPageName', event.target.value)}
-                  placeholder={manualPageLabel}
+                  value={draft.content}
+                  onChange={(event) => onDraftFieldChange('content', event.target.value)}
                 />
-              )}
-            </label>
-          ) : null}
+              </label>
 
-          {showPageUrl ? (
-            <label className="reports-page__field">
-              <span>{showPageSelect ? '페이지 URL' : 'URL'}</span>
-              <input
-                value={draft.pageUrl}
-                onChange={(event) => onDraftFieldChange('pageUrl', event.target.value)}
-                readOnly={isProjectLinkedTab || usesProjectLookup}
-              />
-            </label>
-          ) : null}
+              <label className="reports-page__field">
+                <span>업무 시간(분)</span>
+                <input
+                  type="number"
+                  min="0"
+                  step="1"
+                  value={draft.taskUsedtime}
+                  onChange={(event) => onDraftFieldChange('taskUsedtime', event.target.value)}
+                  readOnly={isReadonlyWorkHours}
+                />
+              </label>
+            </div>
+          </div>
+        ) : null}
 
-          <label className="reports-page__field">
-            <span>총시간</span>
-            <input
-              type="number"
-              min="0"
-              step="1"
-              value={draft.taskUsedtime}
-              onChange={(event) => onDraftFieldChange('taskUsedtime', event.target.value)}
-              readOnly={isReadonlyWorkHours}
-            />
-          </label>
-        </div>
-
-        <label className="reports-page__field">
+        <label className="reports-page__field reports-page__field--note">
           <span>비고</span>
           <textarea
             value={draft.note}
@@ -339,8 +316,17 @@ export function ReportsEditorForm({
             className="reports-page__button reports-page__button--primary"
             disabled={isSaving || !isListDateValid}
           >
-            업무저장
+            {mode === 'edit' ? '수정 저장' : '업무 저장'}
           </button>
+          {mode === 'edit' ? (
+            <button
+              type="button"
+              className="reports-page__button reports-page__button--secondary"
+              onClick={onCancelEdit}
+            >
+              편집 취소
+            </button>
+          ) : null}
         </div>
       </form>
     </section>

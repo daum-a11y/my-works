@@ -39,38 +39,6 @@ export function ProjectEditorForm({
   return (
     <div className={'projects-feature__editor-form-grid'}>
       <label className={'projects-feature__field'}>
-        <span>프로젝트 종류</span>
-        <select
-          value={projectDraft.projectType1}
-          onChange={(event) => onProjectDraftChange({ projectType1: event.target.value })}
-        >
-          <option value="">선택하세요</option>
-          {projectTypeOptions.map((projectType1) => (
-            <option key={projectType1} value={projectType1}>
-              {projectType1}
-            </option>
-          ))}
-        </select>
-      </label>
-
-      <label className={'projects-feature__field'}>
-        <span>플랫폼</span>
-        <select
-          value={projectDraft.platformId}
-          onChange={(event) => onProjectDraftChange({ platformId: event.target.value })}
-        >
-          <option value="">선택</option>
-          {platforms
-            .filter((platform) => platform.isVisible || platform.id === projectDraft.platformId)
-            .map((platform) => (
-              <option key={platform.id} value={platform.id}>
-                {platform.name}
-              </option>
-            ))}
-        </select>
-      </label>
-
-      <label className={'projects-feature__field'}>
         <span>청구그룹</span>
         <select
           value={selectedCostGroupId}
@@ -84,6 +52,21 @@ export function ProjectEditorForm({
               </option>
             ) : null,
           )}
+        </select>
+      </label>
+
+      <label className={'projects-feature__field'}>
+        <span>프로젝트 종류</span>
+        <select
+          value={projectDraft.projectType1}
+          onChange={(event) => onProjectDraftChange({ projectType1: event.target.value })}
+        >
+          <option value="">선택하세요</option>
+          {projectTypeOptions.map((projectType1) => (
+            <option key={projectType1} value={projectType1}>
+              {projectType1}
+            </option>
+          ))}
         </select>
       </label>
 
@@ -116,6 +99,23 @@ export function ProjectEditorForm({
               {name}
             </option>
           ))}
+        </select>
+      </label>
+
+      <label className={'projects-feature__field'}>
+        <span>플랫폼</span>
+        <select
+          value={projectDraft.platformId}
+          onChange={(event) => onProjectDraftChange({ platformId: event.target.value })}
+        >
+          <option value="">선택</option>
+          {platforms
+            .filter((platform) => platform.isVisible || platform.id === projectDraft.platformId)
+            .map((platform) => (
+              <option key={platform.id} value={platform.id}>
+                {platform.name}
+              </option>
+            ))}
         </select>
       </label>
 

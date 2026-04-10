@@ -250,6 +250,10 @@ export function buildProjectViewModels(projects: Project[], serviceGroups: Servi
 
 export function buildProjectViewModelsFromRows(rows: ReportProjectOptionRow[]) {
   return rows.map((row) => {
+    const platform = row.platform ?? '';
+    const reportUrl = row.reportUrl ?? '';
+    const serviceGroupName = row.serviceGroupName ?? '';
+    const serviceName = row.serviceName ?? '';
     const next = buildProjectLookup(
       {
         id: row.id,
@@ -257,23 +261,23 @@ export function buildProjectViewModelsFromRows(rows: ReportProjectOptionRow[]) {
         projectType1: row.projectType1,
         name: row.name,
         platformId: null,
-        platform: row.platform,
+        platform,
         serviceGroupId: row.serviceGroupId,
-        reportUrl: row.reportUrl,
+        reportUrl,
         reporterMemberId: null,
         reviewerMemberId: null,
         startDate: '',
         endDate: '',
         isActive: true,
       },
-      row.serviceName ? `${row.serviceGroupName} / ${row.serviceName}` : row.serviceGroupName,
+      serviceName ? `${serviceGroupName} / ${serviceName}` : serviceGroupName,
     );
     return {
       ...next,
       costGroupId: row.costGroupId,
-      costGroupName: row.costGroupName,
-      serviceGroupName: row.serviceGroupName,
-      serviceName: row.serviceName,
+      costGroupName: row.costGroupName ?? '',
+      serviceGroupName,
+      serviceName,
     };
   });
 }

@@ -4,12 +4,7 @@ import { setDocumentTitle } from '../../router/navigation';
 import { getTaskTypeUiRule } from '../../utils/taskType';
 import { ReportsDateNavigator } from './ReportsDateNavigator';
 import { ReportsEditorForm } from './ReportsEditorForm';
-import {
-  buildSelectableTaskType1Options,
-  buildTaskType2OptionsForValue,
-  getTodayInputValue,
-  shiftDateInput,
-} from './reportUtils';
+import { getTodayInputValue, shiftDateInput } from './reportUtils';
 import { ReportsResultsTable } from './ReportsResultsTable';
 import { normalizeDateForInput } from './ReportsPage.utils';
 import { useReportsSlice } from './useReportsSlice';
@@ -23,7 +18,6 @@ export function ReportsPage() {
   const location = useLocation();
   const appliedDashboardDateRef = useRef('');
   const {
-    activeTab,
     draft,
     draftPages,
     costGroupOptions,
@@ -37,19 +31,23 @@ export function ReportsPage() {
     deleteDraft,
     selectReport,
     selectedDate,
-    selectedReport,
     selectedReportId,
+    isEditMode,
     setDraftField,
     setActiveTab,
     setSelectedDate,
     setProjectQuery,
     projectQuery,
     statusMessage,
+    statusKind,
     taskTypes,
     platformOptions,
     type1Options,
     type2Options,
     canEditReports,
+    cancelEdit,
+    overheadCostGroupId,
+    setOverheadCostGroupId,
   } = useReportsSlice();
   const todayInputValue = getTodayInputValue();
   const reportDateFromDashboard =
@@ -85,15 +83,7 @@ export function ReportsPage() {
       ) ?? null,
     [draft.type1, draft.type2, taskTypes],
   );
-  const reportTabType1Options = useMemo(() => {
-    const preferredOrder = ['민원', '데이터버퍼', '일반버퍼', '교육', '기타버퍼', '휴무'];
-    const available = preferredOrder.filter((type1) =>
-      buildSelectableTaskType1Options(taskTypes, draft.type1).includes(type1),
-    );
-    return available.length ? available : type1Options;
-  }, [draft.type1, taskTypes, type1Options]);
-  const isProjectLinkedTab = activeTab === 'report';
-  const projectTypeSelected = isProjectLinkedTab && Boolean(draft.projectId);
+  const projectTypeSelected = Boolean(draft.projectId);
   const type1Value = projectTypeSelected
     ? currentProject?.project.projectType1 || draft.type1
     : draft.type1;
@@ -102,23 +92,25 @@ export function ReportsPage() {
   const usesProjectLookup = typeRule.projectLinked;
   const usesManualPageWithUrl = typeRule.manualPageWithUrl;
   const usesManualPageOnly = typeRule.manualPageOnly;
+  const showTypeStep = Boolean(draft.costGroupId || draft.type1 || draft.type2);
   const showPlatformSelect = !projectTypeSelected && usesProjectLookup;
-  const showReadonlyService = projectTypeSelected || usesProjectLookup;
-  const showProjectSelect = isProjectLinkedTab || usesProjectLookup;
+  const projectLookupReady =
+    Boolean(draft.costGroupId && draft.type1 && draft.type2) &&
+    (!showPlatformSelect || Boolean(draft.platform));
+  const showProjectLookupStep = usesProjectLookup && projectLookupReady;
   const isVacationType = typeRule.vacation;
   const isFixedDayType = false;
-  const showProjectLinkedPageSelect = projectTypeSelected && typeRule.projectPageSelectable;
-  const showProjectLinkedPageUrl = projectTypeSelected && requiresServiceGroup;
-  const showPageSelect = isProjectLinkedTab
-    ? showProjectLinkedPageSelect
-    : Boolean(draft.projectId) && typeRule.projectPageSelectable;
-  const showPageUrl = isProjectLinkedTab
-    ? showProjectLinkedPageUrl
-    : usesProjectLookup || usesManualPageWithUrl || (requiresServiceGroup && !showPageSelect);
-  const showManualPageName = isProjectLinkedTab
-    ? (projectTypeSelected && typeRule.projectLinked && !typeRule.projectPageSelectable) ||
-      isVacationType
-    : usesManualPageWithUrl || usesManualPageOnly || isVacationType;
+  const showPageSelect = projectTypeSelected && typeRule.projectPageSelectable;
+  const showPageUrl =
+    usesProjectLookup || usesManualPageWithUrl || (requiresServiceGroup && !showPageSelect);
+  const showManualPageName =
+    (projectTypeSelected && typeRule.projectLinked && !typeRule.projectPageSelectable) ||
+    usesManualPageWithUrl ||
+    usesManualPageOnly ||
+    isVacationType;
+  const showTaskStep =
+    Boolean(draft.costGroupId && draft.type1 && draft.type2) &&
+    (!usesProjectLookup || Boolean(draft.projectId) || !showProjectLookupStep);
   const isReadonlyWorkHours = isVacationType || isFixedDayType;
   const manualPageLabel = useMemo(() => {
     if (isVacationType) {
@@ -127,20 +119,8 @@ export function ReportsPage() {
     if ((typeRule.projectLinked && !typeRule.projectPageSelectable) || usesManualPageOnly) {
       return '페이지명';
     }
-    return '페이지명 & 내용';
+    return '페이지명';
   }, [isVacationType, typeRule.projectLinked, typeRule.projectPageSelectable, usesManualPageOnly]);
-  const typeFilteredProjects = useMemo(() => {
-    if (!draft.platform || !draft.type1 || !draft.costGroupId) {
-      return [] as typeof filteredProjectOptions;
-    }
-
-    return filteredProjectOptions.filter(
-      (project) =>
-        project.costGroupId === draft.costGroupId &&
-        project.project.platform === draft.platform &&
-        project.project.projectType1 === draft.type1,
-    );
-  }, [draft.costGroupId, draft.platform, draft.type1, filteredProjectOptions]);
   const projectSearchPlaceholder = useMemo(() => {
     if (!draft.costGroupId) {
       return '청구그룹을 먼저 선택하세요';
@@ -154,17 +134,14 @@ export function ReportsPage() {
     return `${projectQuery} 로 검색되었습니다. 목록을 선택하세요`;
   }, [draft.costGroupId, filteredProjectOptions.length, projectQuery]);
   const type2Placeholder = useMemo(() => {
-    if (isProjectLinkedTab) {
-      return '선택하세요';
-    }
-    if (draft.type1 === '휴무') {
+    if (!draft.type1 || draft.type1 === '휴무') {
       return '선택하세요';
     }
     if (!type2Options.length) {
       return '타입2가 존재하지 않습니다.';
     }
     return '';
-  }, [draft.type1, isProjectLinkedTab, type2Options.length]);
+  }, [draft.type1, type2Options.length]);
   const currentListDateText = useMemo(() => {
     const value = selectedDate || todayInputValue;
     return value ? value.slice(0, 10) : '';
@@ -247,7 +224,11 @@ export function ReportsPage() {
   };
 
   const handleDelete = (id: string) => {
-    const confirmed = window.confirm('정말 삭제 하시겠습니까?');
+    const target = dailyReports.find((report) => report.id === id);
+    const summary = target
+      ? `${formatDateSummary(target.reportDate)} / ${target.projectDisplayName !== '-' ? target.projectDisplayName : `${target.type1} ${target.type2}`}`
+      : '선택한 업무';
+    const confirmed = window.confirm(`${summary} 항목을 삭제하시겠습니까?`);
     if (!confirmed) {
       return;
     }
@@ -255,12 +236,7 @@ export function ReportsPage() {
     void deleteDraft(id);
   };
 
-  const selectedReportType2Options = useMemo(
-    () => buildTaskType2OptionsForValue(taskTypes, draft.type1, draft.type2),
-    [draft.type1, draft.type2, taskTypes],
-  );
   const isListDateValid = /^\d{4}-\d{2}-\d{2}$/.test(currentListDateValue);
-
   return (
     <section className="reports-page reports-page--page">
       <header className="reports-page__hero">
@@ -268,7 +244,6 @@ export function ReportsPage() {
           <h1 className="reports-page__title">업무보고</h1>
         </div>
       </header>
-      {statusMessage ? <p className="reports-page__status-message">{statusMessage}</p> : null}
 
       <ReportsDateNavigator
         currentListDateText={currentListDateText}
@@ -278,7 +253,7 @@ export function ReportsPage() {
       <div className="reports-page__grid-layout">
         {canEditReports ? (
           <ReportsEditorForm
-            activeTab={activeTab}
+            mode={isEditMode ? 'edit' : 'create'}
             draft={draft}
             draftPages={draftPages}
             costGroupOptions={costGroupOptions}
@@ -287,18 +262,16 @@ export function ReportsPage() {
             isListDateValid={isListDateValid}
             platformOptions={platformOptions}
             projectQuery={projectQuery}
-            reportTabType1Options={reportTabType1Options}
             type1Options={type1Options}
             type2Options={type2Options}
             type2Placeholder={type2Placeholder}
             type1Value={type1Value}
-            typeFilteredProjects={typeFilteredProjects}
             projectSearchPlaceholder={projectSearchPlaceholder}
             projectTypeSelected={projectTypeSelected}
-            isProjectLinkedTab={isProjectLinkedTab}
+            showTypeStep={showTypeStep}
+            showProjectLookupStep={showProjectLookupStep}
+            showTaskStep={showTaskStep}
             showPlatformSelect={showPlatformSelect}
-            showReadonlyService={showReadonlyService}
-            showProjectSelect={showProjectSelect}
             showPageSelect={showPageSelect}
             showPageUrl={showPageUrl}
             showManualPageName={showManualPageName}
@@ -307,8 +280,8 @@ export function ReportsPage() {
             isReadonlyWorkHours={isReadonlyWorkHours}
             manualPageLabel={manualPageLabel}
             onSubmit={onSubmit}
-            onActiveTabChange={setActiveTab}
             onDraftFieldChange={setDraftField}
+            onCancelEdit={cancelEdit}
             onProjectQueryChange={setProjectQuery}
             onProjectSearch={applyProjectQuery}
             onProjectSearchKeyDown={handleProjectSearchKeyDown}
@@ -316,35 +289,40 @@ export function ReportsPage() {
             onVacationTypeChange={handleVacationTypeChange}
           />
         ) : null}
-      </div>
 
-      <section className={canEditReports ? 'reports-page__panel' : undefined}>
-        <ReportsResultsTable
-          rows={dailyReports}
-          canEdit={canEditReports}
-          selectedReportId={selectedReportId}
-          selectedReport={selectedReport}
-          editDateValue={draft.reportDate}
-          editType2Value={draft.type2}
-          editWorkHoursValue={draft.taskUsedtime}
-          editNoteValue={draft.note}
-          editType2Options={selectedReportType2Options}
-          onEditDateChange={(value) => setDraftField('reportDate', value)}
-          onEditType2Change={(value) => setDraftField('type2', value)}
-          onEditWorkHoursChange={(value) => setDraftField('taskUsedtime', value)}
-          onEditNoteChange={(value) => setDraftField('note', value)}
-          onSaveEdit={() => {
-            void saveDraft();
-          }}
-          summaryDate={currentListDateValue}
-          onSelect={selectReport}
-          onDelete={handleDelete}
-          onOverhead={(reportDate, remainingMinutes) => {
-            void saveOverheadReport(remainingMinutes, reportDate);
-          }}
-          emptyMessage="결과가 미존재."
-        />
-      </section>
+        <section
+          className={
+            canEditReports ? 'reports-page__panel reports-page__panel--results' : undefined
+          }
+        >
+          {statusMessage ? (
+            <p
+              className={`reports-page__status-message reports-page__status-message--${statusKind}`}
+            >
+              {statusMessage}
+            </p>
+          ) : null}
+          <ReportsResultsTable
+            rows={dailyReports}
+            canEdit={canEditReports}
+            selectedReportId={selectedReportId}
+            summaryDate={currentListDateValue}
+            overheadCostGroupId={overheadCostGroupId}
+            costGroupOptions={costGroupOptions}
+            onOverheadCostGroupChange={setOverheadCostGroupId}
+            onSelect={selectReport}
+            onDelete={handleDelete}
+            onOverhead={(reportDate, remainingMinutes) => {
+              void saveOverheadReport(remainingMinutes, reportDate);
+            }}
+            emptyMessage="결과가 미존재."
+          />
+        </section>
+      </div>
     </section>
   );
+}
+
+function formatDateSummary(value: string) {
+  return value.slice(0, 10);
 }

@@ -3,14 +3,12 @@ import type { AdminTaskTypePayload } from '../admin.types';
 
 interface AdminTaskTypeEditorFormProps {
   draft: AdminTaskTypePayload;
-  isEditMode: boolean;
   titleRef: RefObject<HTMLInputElement | null>;
   onDraftChange: (patch: Partial<AdminTaskTypePayload>) => void;
 }
 
 export function AdminTaskTypeEditorForm({
   draft,
-  isEditMode,
   titleRef,
   onDraftChange,
 }: AdminTaskTypeEditorFormProps) {
@@ -55,15 +53,13 @@ export function AdminTaskTypeEditorForm({
         </select>
       </label>
 
-      {isEditMode ? (
-        <label className={'projects-feature__field'}>
-          <span>비고</span>
-          <input
-            value={draft.displayLabel}
-            onChange={(event) => onDraftChange({ displayLabel: event.target.value })}
-          />
-        </label>
-      ) : null}
+      <label className={'projects-feature__field'}>
+        <span>비고</span>
+        <input
+          value={draft.memo}
+          onChange={(event) => onDraftChange({ memo: event.target.value })}
+        />
+      </label>
     </div>
   );
 }

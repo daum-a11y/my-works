@@ -3,44 +3,28 @@ import { formatReportDate, formatReportTaskUsedtime, type ReportViewModel } from
 interface ReportsResultsTableProps {
   rows: ReportViewModel[];
   canEdit: boolean;
+  selectedReportId: string | null;
   onSelect: (id: string) => void;
   onDelete: (id: string) => void;
   onOverhead: (date: string, remainingMinutes: number) => void;
-  selectedReportId: string | null;
-  selectedReport: ReportViewModel | null;
-  editDateValue: string;
-  editType2Value: string;
-  editWorkHoursValue: string;
-  editNoteValue: string;
-  editType2Options: string[];
-  onEditDateChange: (value: string) => void;
-  onEditType2Change: (value: string) => void;
-  onEditWorkHoursChange: (value: string) => void;
-  onEditNoteChange: (value: string) => void;
-  onSaveEdit: () => void;
   summaryDate: string;
+  overheadCostGroupId: string;
+  costGroupOptions: Array<{ id: string; name: string }>;
+  onOverheadCostGroupChange: (value: string) => void;
   emptyMessage: string;
 }
 
 export function ReportsResultsTable({
   rows,
   canEdit,
+  selectedReportId,
   onSelect,
   onDelete,
   onOverhead,
-  selectedReportId,
-  selectedReport,
-  editDateValue,
-  editType2Value,
-  editWorkHoursValue,
-  editNoteValue,
-  editType2Options,
-  onEditDateChange,
-  onEditType2Change,
-  onEditWorkHoursChange,
-  onEditNoteChange,
-  onSaveEdit,
   summaryDate,
+  overheadCostGroupId,
+  costGroupOptions,
+  onOverheadCostGroupChange,
   emptyMessage,
 }: ReportsResultsTableProps) {
   const totalMinutes = rows.reduce((sum, report) => sum + report.taskUsedtime, 0);
@@ -62,31 +46,18 @@ export function ReportsResultsTable({
               <th scope="col">서비스그룹</th>
               <th scope="col">서비스명</th>
               <th scope="col">프로젝트명</th>
-              <th scope="col">페이지&amp;내용</th>
+              <th scope="col">페이지 / 태스크명</th>
               <th scope="col">URL</th>
-              <th scope="col">총시간</th>
+              <th scope="col">시간</th>
               <th scope="col">비고</th>
               <th scope="col">관리</th>
             </tr>
           </thead>
           <tbody>
             {rows.map((report) => {
-              const isSelected = selectedReportId === report.id;
-
               return (
-                <tr key={report.id} data-active={isSelected || undefined}>
-                  <td>
-                    {isSelected && selectedReport ? (
-                      <input
-                        type="date"
-                        value={editDateValue}
-                        readOnly={!canEdit}
-                        onChange={(event) => onEditDateChange(event.target.value)}
-                      />
-                    ) : (
-                      formatReportDate(report.reportDate)
-                    )}
-                  </td>
+                <tr key={report.id} data-active={selectedReportId === report.id || undefined}>
+                  <td>{formatReportDate(report.reportDate)}</td>
                   <td>
                     <strong>{report.costGroupName || '-'}</strong>
                   </td>
@@ -94,22 +65,7 @@ export function ReportsResultsTable({
                     <strong>{report.type1}</strong>
                   </td>
                   <td>
-                    {isSelected && selectedReport ? (
-                      <select
-                        value={editType2Value}
-                        onChange={(event) => onEditType2Change(event.target.value)}
-                      >
-                        {(editType2Options.length ? editType2Options : [editType2Value]).map(
-                          (type2) => (
-                            <option key={type2} value={type2}>
-                              {type2}
-                            </option>
-                          ),
-                        )}
-                      </select>
-                    ) : (
-                      <strong>{report.type2}</strong>
-                    )}
+                    <strong>{report.type2}</strong>
                   </td>
                   <td>
                     <strong>{report.platform || '-'}</strong>
@@ -125,6 +81,9 @@ export function ReportsResultsTable({
                   </td>
                   <td>
                     <strong>{report.pageDisplayName}</strong>
+                    {report.content && report.content !== report.pageDisplayName ? (
+                      <span>{report.content}</span>
+                    ) : null}
                   </td>
                   <td>
                     {report.pageUrl ? (
@@ -135,59 +94,29 @@ export function ReportsResultsTable({
                       '-'
                     )}
                   </td>
+                  <td>{formatReportTaskUsedtime(report.taskUsedtime)}</td>
+                  <td>{report.note || '-'}</td>
                   <td>
-                    {isSelected && selectedReport && canEdit ? (
-                      <input
-                        type="text"
-                        value={editWorkHoursValue}
-                        onChange={(event) => onEditWorkHoursChange(event.target.value)}
-                      />
-                    ) : (
-                      formatReportTaskUsedtime(report.taskUsedtime)
-                    )}
-                  </td>
-                  <td>
-                    {isSelected && selectedReport && canEdit ? (
-                      <input
-                        type="text"
-                        value={editNoteValue}
-                        onChange={(event) => onEditNoteChange(event.target.value)}
-                      />
-                    ) : (
-                      report.note || '-'
-                    )}
-                  </td>
-                  <td>
-                    {isSelected && selectedReport && canEdit ? (
-                      <button
-                        type="button"
-                        className="reports-page__row-button"
-                        onClick={onSaveEdit}
-                      >
-                        저장
-                      </button>
-                    ) : (
-                      <>
-                        {canEdit ? (
-                          <button
-                            type="button"
-                            className="reports-page__row-button"
-                            onClick={() => onSelect(report.id)}
-                          >
-                            수정
-                          </button>
-                        ) : null}
-                        {canEdit ? (
-                          <button
-                            type="button"
-                            className="reports-page__row-button"
-                            onClick={() => onDelete(report.id)}
-                          >
-                            삭제
-                          </button>
-                        ) : null}
-                      </>
-                    )}
+                    <>
+                      {canEdit ? (
+                        <button
+                          type="button"
+                          className="reports-page__row-button"
+                          onClick={() => onSelect(report.id)}
+                        >
+                          수정
+                        </button>
+                      ) : null}
+                      {canEdit ? (
+                        <button
+                          type="button"
+                          className="reports-page__row-button"
+                          onClick={() => onDelete(report.id)}
+                        >
+                          삭제
+                        </button>
+                      ) : null}
+                    </>
                   </td>
                 </tr>
               );
@@ -205,8 +134,25 @@ export function ReportsResultsTable({
       {missingMinutes > 0 ? (
         <div className="reports-page__table-footer">
           <p className="reports-page__table-footer-text">
-            부족한 시간 <strong>{missingMinutes}분</strong>
+            오늘 총 입력 <strong>{totalMinutes}분</strong> / 부족 시간{' '}
+            <strong>{missingMinutes}분</strong>
           </p>
+          {canEdit ? (
+            <label className="reports-page__table-footer-field">
+              <span>오버헤드 청구그룹</span>
+              <select
+                value={overheadCostGroupId}
+                onChange={(event) => onOverheadCostGroupChange(event.target.value)}
+              >
+                <option value="">선택하세요</option>
+                {costGroupOptions.map((group) => (
+                  <option key={group.id} value={group.id}>
+                    {group.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+          ) : null}
           {canEdit && canAddOverhead ? (
             <button
               type="button"

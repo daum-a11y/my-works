@@ -13,7 +13,7 @@ function createDraft(taskType?: AdminTaskTypeItem): AdminTaskTypePayload {
     return {
       type1: '',
       type2: '',
-      displayLabel: '',
+      memo: '',
       displayOrder: 0,
       requiresServiceGroup: false,
       isActive: true,
@@ -24,27 +24,11 @@ function createDraft(taskType?: AdminTaskTypeItem): AdminTaskTypePayload {
     id: taskType.id,
     type1: taskType.type1,
     type2: taskType.type2,
-    displayLabel: taskType.displayLabel,
+    memo: taskType.memo,
     displayOrder: taskType.displayOrder,
     requiresServiceGroup: taskType.requiresServiceGroup,
     isActive: taskType.isActive,
   };
-}
-
-function buildDisplayLabel(type1: string, type2: string, displayLabel: string) {
-  const normalizedDisplayLabel = displayLabel.trim();
-  if (normalizedDisplayLabel) {
-    return normalizedDisplayLabel;
-  }
-
-  const normalizedType1 = type1.trim();
-  const normalizedType2 = type2.trim();
-
-  if (normalizedType1 && normalizedType2) {
-    return `${normalizedType1} / ${normalizedType2}`;
-  }
-
-  return normalizedType1 || normalizedType2;
 }
 
 export function AdminTaskTypeEditorPage() {
@@ -114,7 +98,7 @@ export function AdminTaskTypeEditorPage() {
         ...payload,
         type1: payload.type1.trim(),
         type2: payload.type2.trim(),
-        displayLabel: buildDisplayLabel(payload.type1, payload.type2, payload.displayLabel),
+        memo: payload.memo.trim(),
       });
     },
     onSuccess: async () => {
@@ -214,7 +198,6 @@ export function AdminTaskTypeEditorPage() {
         >
           <AdminTaskTypeEditorForm
             draft={draft}
-            isEditMode={isEditMode}
             titleRef={titleRef}
             onDraftChange={(patch) =>
               setDraft((current) => ({

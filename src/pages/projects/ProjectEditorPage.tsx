@@ -35,7 +35,7 @@ import { splitServiceGroupName } from './ProjectEditorPage.service';
 import '../../styles/pages/ProjectsPage.scss';
 
 export function ProjectEditorPage() {
-  const { session } = useAuth();
+  const { session, status } = useAuth();
   const member = session?.member ?? null;
   const { projectId } = useParams();
   const navigate = useNavigate();
@@ -52,6 +52,7 @@ export function ProjectEditorPage() {
   const query = useQuery({
     queryKey: ['project-editor', member?.id, projectId ?? 'new'],
     enabled: Boolean(member),
+    retry: false,
     queryFn: async () => {
       const [project, pages, members, serviceGroups, platforms, taskTypes] = await Promise.all([
         projectId ? dataClient.getProject(projectId) : Promise.resolve(null),
@@ -380,7 +381,50 @@ export function ProjectEditorPage() {
     await deletePageMutation.mutateAsync(page.id);
   };
 
-  if (isEditMode && !query.isLoading && !selectedProject) {
+  const loading = status === 'loading' || query.isLoading;
+  const queryError = query.error instanceof Error ? query.error.message : '';
+
+  if (loading) {
+    return (
+      <section className="projects-feature projects-feature--shell projects-feature--editor">
+        <header className={'projects-feature__editor-header'}>
+          <h1 className={'projects-feature__title'}>
+            {isEditMode ? PROJECT_EDITOR_EDIT_TITLE : PROJECT_EDITOR_CREATE_TITLE}
+          </h1>
+          {isEditMode ? (
+            <Link
+              to="/projects"
+              className={'projects-feature__button projects-feature__button--secondary'}
+            >
+              목록으로
+            </Link>
+          ) : null}
+        </header>
+        <p className={'projects-feature__status-message'}>프로젝트 데이터를 불러오는 중입니다.</p>
+      </section>
+    );
+  }
+
+  if (queryError) {
+    return (
+      <section className="projects-feature projects-feature--shell projects-feature--editor">
+        <header className={'projects-feature__editor-header'}>
+          <h1 className={'projects-feature__title'}>
+            {isEditMode ? PROJECT_EDITOR_EDIT_TITLE : PROJECT_EDITOR_CREATE_TITLE}
+          </h1>
+          <Link
+            to="/projects"
+            className={'projects-feature__button projects-feature__button--secondary'}
+          >
+            목록으로
+          </Link>
+        </header>
+        <p className={'projects-feature__status-message'}>{queryError}</p>
+      </section>
+    );
+  }
+
+  if (isEditMode && !selectedProject) {
     return (
       <section className="projects-feature projects-feature--shell projects-feature--editor">
         <header className={'projects-feature__editor-header'}>

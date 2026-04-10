@@ -238,7 +238,6 @@ def build_dump():
                 "type_num",
                 "type_one",
                 "type_two",
-                "type_etc",
                 "type_include_svc",
                 "type_active",
             ],
@@ -405,7 +404,7 @@ def build_dump():
             "id": stable_uuid("task-type", row["type_num"]),
             "type1": type1,
             "type2": type2,
-            "display_label": blank_to_none(row["type_etc"]) or f"{type1} / {type2}",
+            "memo": None,
             "requires_service_group": requires_service_group,
             "display_order": int(row["type_num"]),
             "is_active": bool_flag(row["type_active"], True) if raw_type2 is not None else False,
@@ -436,7 +435,7 @@ def build_dump():
             "id": stable_uuid("task-type-task", f"{type1}|{type2}"),
             "type1": type1,
             "type2": type2,
-            "display_label": f"{type1} / {type2}",
+            "memo": None,
             "requires_service_group": requires_service_group,
             "display_order": next_task_type_order,
             "is_active": False if raw_type2 is None else True,
@@ -500,9 +499,12 @@ def build_dump():
         code = int(code_text) if code_text and code_text.isdigit() else None
         source_service_num = int(row["svc_num"])
         raw_service_group = blank_to_none(row["svc_group"])
+        raw_service_name = blank_to_none(row["svc_name"])
         group = {
             "id": stable_uuid("service-group", row["svc_num"]),
             "source_service_num": source_service_num,
+            "svc_group": raw_service_group,
+            "svc_name": raw_service_name,
             "name": name,
             "cost_group_id": cost_group_by_code.get(code, {}).get("id") or uncategorized_cost_group_id,
             "display_order": source_service_num,
@@ -534,6 +536,8 @@ def build_dump():
                 synthetic_group = {
                     "id": stable_uuid("service-group-synthetic", synthetic_name),
                     "source_service_num": None,
+                    "svc_group": raw_group,
+                    "svc_name": raw_name,
                     "name": synthetic_name,
                     "cost_group_id": service_group_cost_by_group.get(raw_group) or uncategorized_cost_group_id,
                     "display_order": service_group_order_by_group.get(
@@ -1087,7 +1091,7 @@ def build_dump():
             "id",
             "type1",
             "type2",
-            "display_label",
+            "memo",
             "requires_service_group",
             "display_order",
             "is_active",
@@ -1100,6 +1104,8 @@ def build_dump():
         "public.service_groups",
         [
             "id",
+            "svc_group",
+            "svc_name",
             "name",
             "cost_group_id",
             "display_order",

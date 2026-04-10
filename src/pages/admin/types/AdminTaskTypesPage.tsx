@@ -125,7 +125,7 @@ export function AdminTaskTypesPage() {
         items={taskTypes.map((item) => ({
           id: item.id,
           title: `${item.type1} / ${item.type2}`,
-          description: item.displayLabel || undefined,
+          description: item.memo || undefined,
           badge: item.requiresServiceGroup ? '프로젝트' : '일반',
           inactive: !item.isActive,
         }))}

@@ -24,7 +24,6 @@ import {
   draftFromReport,
   getTodayInputValue,
   parseReportTaskUsedtimeInput,
-  serializeManualReportContent,
   shiftDateInput,
   sortReportsDescending,
   validateTaskTypeSelection,
@@ -569,17 +568,7 @@ export function useReportsSlice(): ReportsSlice {
       const taskUsedtime = parseReportTaskUsedtimeInput(draft.taskUsedtime);
       const page = draft.pageId ? (pagesById.get(draft.pageId) ?? null) : null;
       const pageName = draft.manualPageName.trim() || page?.title || '';
-      const contentInput = draft.content.trim();
-      if (!contentInput) {
-        setStatusKind('error');
-        setStatusMessage('업무 내용을 입력해 주세요.');
-        return;
-      }
-
-      const content =
-        !draft.pageId && pageName
-          ? serializeManualReportContent(pageName, contentInput)
-          : contentInput;
+      const content = draft.content.trim() || pageName || '업무';
 
       await saveMutation.mutateAsync({
         id: selectedReportId ?? undefined,

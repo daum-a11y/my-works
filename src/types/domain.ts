@@ -58,6 +58,8 @@ export interface Platform {
 
 export interface ServiceGroup {
   id: string;
+  svcGroup: string;
+  svcName: string;
   name: string;
   costGroupId: string | null;
   costGroupName: string;

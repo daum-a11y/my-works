@@ -11,6 +11,67 @@ begin
 end;
 $$;
 
+create or replace function public.compose_service_group_label(
+  p_svc_group text,
+  p_svc_name text
+)
+returns text
+language sql
+immutable
+as $$
+  select case
+    when coalesce(nullif(trim(p_svc_group), ''), nullif(trim(p_svc_name), '')) is null then null
+    when nullif(trim(p_svc_group), '') is null then trim(p_svc_name)
+    when nullif(trim(p_svc_name), '') is null then trim(p_svc_group)
+    else trim(p_svc_group) || ' / ' || trim(p_svc_name)
+  end
+$$;
+
+create or replace function public.resolve_service_group_name(
+  p_svc_group text,
+  p_name text default null
+)
+returns text
+language sql
+immutable
+as $$
+  select case
+    when nullif(trim(p_svc_group), '') is not null then trim(p_svc_group)
+    when nullif(trim(p_name), '') is null then null
+    when position(' / ' in p_name) > 0 then split_part(trim(p_name), ' / ', 1)
+    else trim(p_name)
+  end
+$$;
+
+create or replace function public.resolve_service_name(
+  p_svc_name text,
+  p_name text default null
+)
+returns text
+language sql
+immutable
+as $$
+  select case
+    when nullif(trim(p_svc_name), '') is not null then trim(p_svc_name)
+    when nullif(trim(p_name), '') is null then null
+    when position(' / ' in p_name) > 0 then nullif(split_part(trim(p_name), ' / ', 2), '')
+    else null
+  end
+$$;
+
+create or replace function public.sync_service_group_name()
+returns trigger
+language plpgsql
+set search_path = public
+as $$
+begin
+  new.svc_group := public.resolve_service_group_name(new.svc_group, new.name);
+  new.svc_name := public.resolve_service_name(new.svc_name, new.name);
+  new.name := public.compose_service_group_label(new.svc_group, new.svc_name);
+  return new;
+end;
+$$;
+
 create table if not exists public.members (
   id uuid primary key default gen_random_uuid(),
   auth_user_id uuid unique,
@@ -32,6 +93,8 @@ create table if not exists public.members (
 
 create table if not exists public.service_groups (
   id uuid primary key default gen_random_uuid(),
+  svc_group text,
+  svc_name text,
   name text not null,
   cost_group_id uuid,
   display_order integer not null default 0,
@@ -39,6 +102,34 @@ create table if not exists public.service_groups (
   created_at timestamptz not null default timezone('utc', now()),
   updated_at timestamptz not null default timezone('utc', now())
 );
+
+alter table public.service_groups
+  add column if not exists svc_group text;
+
+alter table public.service_groups
+  add column if not exists svc_name text;
+
+alter table public.service_groups
+  alter column svc_group drop not null;
+
+alter table public.service_groups
+  alter column svc_name drop not null;
+
+update public.service_groups
+set
+  svc_group = public.resolve_service_group_name(svc_group, name),
+  svc_name = public.resolve_service_name(svc_name, name),
+  name = public.compose_service_group_label(
+    public.resolve_service_group_name(svc_group, name),
+    public.resolve_service_name(svc_name, name)
+  )
+where
+  coalesce(trim(svc_group), '') = ''
+  or coalesce(trim(svc_name), '') = ''
+  or name is distinct from public.compose_service_group_label(
+    public.resolve_service_group_name(svc_group, name),
+    public.resolve_service_name(svc_name, name)
+  );
 
 create table if not exists public.cost_groups (
   id uuid primary key default gen_random_uuid(),
@@ -65,17 +156,33 @@ alter table public.service_groups
   add constraint service_groups_cost_group_id_fkey
   foreign key (cost_group_id) references public.cost_groups(id);
 
+drop trigger if exists service_groups_sync_name on public.service_groups;
+
+create trigger service_groups_sync_name
+before insert or update on public.service_groups
+for each row
+execute function public.sync_service_group_name();
+
 create table if not exists public.task_types (
   id uuid primary key default gen_random_uuid(),
   type1 text not null,
   type2 text not null,
-  display_label text not null,
+  memo text,
   requires_service_group boolean not null default false,
   display_order integer not null default 0,
   is_active boolean not null default true,
   created_at timestamptz not null default timezone('utc', now()),
   updated_at timestamptz not null default timezone('utc', now())
 );
+
+alter table public.task_types
+  add column if not exists memo text;
+
+alter table public.task_types
+  drop column if exists display_label;
+
+alter table public.task_types
+  drop column if exists type_etc;
 
 create table if not exists public.projects (
   id uuid primary key default gen_random_uuid(),
@@ -661,7 +768,7 @@ as $$
     nullif(p.project_type1, '') as type1,
     nullif(p.name, '') as project_name,
     nullif(p.platform, '') as platform,
-    nullif(sg.name, '') as service_group_name,
+    nullif(public.resolve_service_group_name(sg.svc_group, sg.name), '') as service_group_name,
     p.start_date,
     p.end_date
   from public.projects p
@@ -722,8 +829,8 @@ as $$
     t.updated_at
     ,
     nullif(p.platform, '') as platform,
-    nullif(sg.name, '') as service_group_name,
-    null::text as service_name,
+    nullif(public.resolve_service_group_name(sg.svc_group, sg.name), '') as service_group_name,
+    nullif(public.resolve_service_name(sg.svc_name, sg.name), '') as service_name,
     nullif(p.name, '') as project_display_name,
     nullif(pp.title, '') as page_display_name,
     nullif(pp.url, '') as page_url
@@ -963,16 +1070,8 @@ as $$
     to_char(t.task_date, 'YYYY') as year,
     to_char(t.task_date, 'MM') as month,
     coalesce(cg.name, '미분류') as cost_group_name,
-    case
-      when coalesce(sg.name, '') = '' or sg.name = '미분류' then '미분류'
-      when position(' / ' in sg.name) > 0 then split_part(sg.name, ' / ', 1)
-      else sg.name
-    end as service_group_name,
-    case
-      when coalesce(sg.name, '') = '' or sg.name = '미분류' then '미분류'
-      when position(' / ' in sg.name) > 0 then coalesce(nullif(split_part(sg.name, ' / ', 2), ''), '미분류')
-      else sg.name
-    end as service_name,
+    public.resolve_service_group_name(sg.svc_group, sg.name) as service_group_name,
+    public.resolve_service_name(sg.svc_name, sg.name) as service_name,
     sum(t.task_usedtime) as task_usedtime
   from public.tasks t
   left join public.cost_groups cg on cg.id = t.cost_group_id
@@ -995,16 +1094,8 @@ as $$
     to_char(t.task_date, 'YYYY'),
     to_char(t.task_date, 'MM'),
     coalesce(cg.name, '미분류'),
-    case
-      when coalesce(sg.name, '') = '' or sg.name = '미분류' then '미분류'
-      when position(' / ' in sg.name) > 0 then split_part(sg.name, ' / ', 1)
-      else sg.name
-    end,
-    case
-      when coalesce(sg.name, '') = '' or sg.name = '미분류' then '미분류'
-      when position(' / ' in sg.name) > 0 then coalesce(nullif(split_part(sg.name, ' / ', 2), ''), '미분류')
-      else sg.name
-    end
+    public.resolve_service_group_name(sg.svc_group, sg.name),
+    public.resolve_service_name(sg.svc_name, sg.name)
   order by year desc, month desc, cost_group_name asc, service_group_name asc, service_name asc
 $$;
 
@@ -1064,16 +1155,8 @@ as $$
     to_char(t.task_date, 'YYYY') as year,
     to_char(t.task_date, 'MM') as month,
     coalesce(cg.name, '미분류') as cost_group_name,
-    case
-      when coalesce(sg.name, '') = '' or sg.name = '미분류' then '미분류'
-      when position(' / ' in sg.name) > 0 then split_part(sg.name, ' / ', 1)
-      else sg.name
-    end as service_group_name,
-    case
-      when coalesce(sg.name, '') = '' or sg.name = '미분류' then '미분류'
-      when position(' / ' in sg.name) > 0 then nullif(split_part(sg.name, ' / ', 2), '')
-      else sg.name
-    end as service_name,
+    public.resolve_service_group_name(sg.svc_group, sg.name) as service_group_name,
+    nullif(public.resolve_service_name(sg.svc_name, sg.name), '') as service_name,
     sum(t.task_usedtime) as task_usedtime
   from public.tasks t
   join year_bounds yb on true
@@ -1100,16 +1183,8 @@ as $$
     to_char(t.task_date, 'YYYY'),
     to_char(t.task_date, 'MM'),
     coalesce(cg.name, '미분류'),
-    case
-      when coalesce(sg.name, '') = '' or sg.name = '미분류' then '미분류'
-      when position(' / ' in sg.name) > 0 then split_part(sg.name, ' / ', 1)
-      else sg.name
-    end,
-    case
-      when coalesce(sg.name, '') = '' or sg.name = '미분류' then '미분류'
-      when position(' / ' in sg.name) > 0 then coalesce(nullif(split_part(sg.name, ' / ', 2), ''), '미분류')
-      else sg.name
-    end
+    public.resolve_service_group_name(sg.svc_group, sg.name),
+    public.resolve_service_name(sg.svc_name, sg.name)
   order by month desc, cost_group_name asc, service_group_name asc, service_name asc
 $$;
 
@@ -1139,16 +1214,8 @@ as $$
       t.task_usedtime,
       coalesce(tt.requires_service_group, t.project_id is not null) as is_service_task,
       coalesce(cg.name, '미분류') as cost_group_name,
-      case
-        when coalesce(sg.name, '') = '' or sg.name = '미분류' then '미분류'
-        when position(' / ' in sg.name) > 0 then split_part(sg.name, ' / ', 1)
-        else sg.name
-      end as service_group_name,
-      case
-        when coalesce(sg.name, '') = '' or sg.name = '미분류' then '미분류'
-        when position(' / ' in sg.name) > 0 then coalesce(nullif(split_part(sg.name, ' / ', 2), ''), '미분류')
-        else sg.name
-      end as service_name
+      public.resolve_service_group_name(sg.svc_group, sg.name) as service_group_name,
+      public.resolve_service_name(sg.svc_name, sg.name) as service_name
     from public.tasks t
     join public.members m on m.id = t.member_id
     join month_bounds mb on true
@@ -1495,7 +1562,7 @@ as $$
     pp.qa_in_progress,
     nullif(pp.note, '') as note,
     pp.updated_at,
-    nullif(sg.name, '') as service_group_name,
+    nullif(public.resolve_service_group_name(sg.svc_group, sg.name), '') as service_group_name,
     nullif(p.name, '') as project_name,
     nullif(p.platform, '') as platform,
     nullif(concat_ws(' ', nullif(owner.account_id, ''), nullif(owner.name, '')), '') as assignee_display,
@@ -1528,7 +1595,7 @@ as $$
     p.id,
     p.project_type1 as type1,
     p.name,
-    nullif(sg.name, '') as service_group_name,
+    nullif(public.resolve_service_group_name(sg.svc_group, sg.name), '') as service_group_name,
     nullif(p.report_url, '') as report_url,
     nullif(concat_ws(' ', nullif(reporter.account_id, ''), nullif(reporter.name, '')), '') as reporter_display,
     p.start_date,
@@ -1598,8 +1665,8 @@ as $$
     t.created_at,
     t.updated_at,
     nullif(p.platform, '') as platform,
-    nullif(sg.name, '') as service_group_name,
-    null::text as service_name,
+    nullif(public.resolve_service_group_name(sg.svc_group, sg.name), '') as service_group_name,
+    nullif(public.resolve_service_name(sg.svc_name, sg.name), '') as service_name,
     nullif(p.name, '') as project_display_name,
     nullif(pp.title, '') as page_display_name,
     nullif(pp.url, '') as page_url
@@ -1691,8 +1758,8 @@ as $$
     t.note,
     t.updated_at,
     nullif(p.platform, '') as platform,
-    nullif(sg.name, '') as service_group_name,
-    null::text as service_name,
+    nullif(public.resolve_service_group_name(sg.svc_group, sg.name), '') as service_group_name,
+    nullif(public.resolve_service_name(sg.svc_name, sg.name), '') as service_name,
     nullif(p.name, '') as project_display_name,
     nullif(pp.title, '') as page_display_name,
     nullif(pp.url, '') as page_url
@@ -1928,7 +1995,7 @@ as $$
     p.platform_id,
     p.platform,
     p.service_group_id,
-    nullif(sg.name, '') as service_group_name,
+    nullif(public.resolve_service_group_name(sg.svc_group, sg.name), '') as service_group_name,
     nullif(p.report_url, '') as report_url,
     p.reporter_member_id,
     nullif(concat_ws(' ', nullif(reporter.account_id, ''), nullif(reporter.name, '')), '') as reporter_display,
@@ -1954,7 +2021,7 @@ as $$
         coalesce(p.name, ''),
         coalesce(p.platform, ''),
         coalesce(p.report_url, ''),
-        coalesce(sg.name, ''),
+        coalesce(public.compose_service_group_label(sg.svc_group, sg.svc_name), ''),
         coalesce(reporter.account_id, ''),
         coalesce(reporter.name, ''),
         coalesce(reviewer.account_id, ''),
@@ -1971,6 +2038,8 @@ as $$
     p.platform_id,
     p.platform,
     p.service_group_id,
+    sg.svc_group,
+    sg.svc_name,
     sg.name,
     p.report_url,
     p.reporter_member_id,
@@ -2014,8 +2083,8 @@ as $$
     p.name,
     p.platform,
     p.service_group_id,
-    nullif(sg.name, '') as service_group_name,
-    null::text as service_name,
+    nullif(public.resolve_service_group_name(sg.svc_group, sg.name), '') as service_group_name,
+    nullif(public.resolve_service_name(sg.svc_name, sg.name), '') as service_name,
     sg.cost_group_id,
     nullif(cg.name, '') as cost_group_name,
     nullif(p.report_url, '') as report_url
@@ -2034,7 +2103,7 @@ as $$
         coalesce(p.project_type1, ''),
         coalesce(p.name, ''),
         coalesce(p.platform, ''),
-        coalesce(sg.name, ''),
+        coalesce(public.compose_service_group_label(sg.svc_group, sg.svc_name), ''),
         coalesce(cg.name, ''),
         coalesce(p.report_url, '')
       ) ilike '%' || p_keyword || '%'
@@ -2197,8 +2266,8 @@ as $$
     nullif(pp.url, '') as page_url,
     nullif(p.platform, '') as platform,
     p.service_group_id,
-    nullif(sg.name, '') as service_group_name,
-    null::text as service_name
+    nullif(public.resolve_service_group_name(sg.svc_group, sg.name), '') as service_group_name,
+    nullif(public.resolve_service_name(sg.svc_name, sg.name), '') as service_name
   from public.tasks t
   join public.members m on m.id = t.member_id
   join public.cost_groups cg on cg.id = t.cost_group_id
@@ -2678,8 +2747,8 @@ as $$
     nullif(pp.url, '') as page_url,
     nullif(p.platform, '') as platform,
     p.service_group_id,
-    nullif(sg.name, '') as service_group_name,
-    null::text as service_name
+    nullif(public.resolve_service_group_name(sg.svc_group, sg.name), '') as service_group_name,
+    nullif(public.resolve_service_name(sg.svc_name, sg.name), '') as service_name
   from public.tasks t
   join public.members m on m.id = t.member_id
   join public.cost_groups cg on cg.id = t.cost_group_id

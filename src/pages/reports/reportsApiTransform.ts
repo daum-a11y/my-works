@@ -16,6 +16,42 @@ function readValue(record: ApiRecord, snakeKey: string, camelKey: string) {
   return record[snakeKey] ?? record[camelKey];
 }
 
+function composeServiceGroupLabel(svcGroup: string, svcName: string) {
+  if (!svcGroup && !svcName) {
+    return '';
+  }
+  if (!svcGroup) {
+    return svcName;
+  }
+  if (!svcName) {
+    return svcGroup;
+  }
+  return `${svcGroup} / ${svcName}`;
+}
+
+function splitServiceGroupLabel(value: string) {
+  const normalized = value.trim();
+  if (!normalized) {
+    return {
+      svcGroup: '',
+      svcName: '',
+    };
+  }
+
+  const separator = normalized.indexOf(' / ');
+  if (separator < 0) {
+    return {
+      svcGroup: normalized,
+      svcName: '',
+    };
+  }
+
+  return {
+    svcGroup: normalized.slice(0, separator),
+    svcName: normalized.slice(separator + 3),
+  };
+}
+
 export function toTask(record: ApiRecord): Task {
   return {
     id: String(record.id),
@@ -61,11 +97,13 @@ export function toTask(record: ApiRecord): Task {
 }
 
 export function toTaskType(record: ApiRecord): TaskType {
+  const type1 = String(record.type1 ?? '');
+  const type2 = String(record.type2 ?? '');
   return {
     id: String(record.id ?? ''),
-    type1: String(record.type1 ?? ''),
-    type2: String(record.type2 ?? ''),
-    label: String(record.display_label ?? ''),
+    type1,
+    type2,
+    label: [type1, type2].filter(Boolean).join(' / '),
     displayOrder: Number(record.display_order ?? 0),
     requiresServiceGroup: Boolean(record.requires_service_group ?? false),
     isActive: Boolean(record.is_active ?? true),
@@ -92,9 +130,16 @@ export function toCostGroup(record: ApiRecord): CostGroup {
 
 export function toServiceGroup(record: ApiRecord): ServiceGroup {
   const costGroup = Array.isArray(record.cost_groups) ? record.cost_groups[0] : record.cost_groups;
+  const svcGroupRaw = readValue(record, 'svc_group', 'svcGroup');
+  const svcNameRaw = readValue(record, 'svc_name', 'svcName');
+  const fallback = splitServiceGroupLabel(String(record.name ?? ''));
+  const svcGroup = svcGroupRaw == null ? fallback.svcGroup : String(svcGroupRaw);
+  const svcName = svcNameRaw == null ? fallback.svcName : String(svcNameRaw);
   return {
     id: String(record.id ?? ''),
-    name: String(record.name ?? ''),
+    svcGroup,
+    svcName,
+    name: composeServiceGroupLabel(svcGroup, svcName),
     costGroupId: record.cost_group_id ? String(record.cost_group_id) : null,
     costGroupName:
       costGroup && typeof costGroup === 'object'

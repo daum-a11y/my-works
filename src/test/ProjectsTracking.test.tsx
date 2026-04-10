@@ -479,6 +479,37 @@ describe('Projects routes', () => {
     });
   });
 
+  it('renders billing group before type, service, and platform in the editor form', async () => {
+    renderProjectEditor('/projects/project-1/edit');
+
+    const costGroupField = await screen.findByLabelText('청구그룹');
+    const projectTypeField = screen.getByLabelText('프로젝트 종류');
+    const serviceGroupField = screen.getByLabelText('서비스그룹');
+    const platformField = screen.getByLabelText('플랫폼');
+
+    expect(
+      costGroupField.compareDocumentPosition(projectTypeField) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(
+      projectTypeField.compareDocumentPosition(serviceGroupField) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(
+      serviceGroupField.compareDocumentPosition(platformField) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+  });
+
+  it('shows the actual query error instead of falling back to not found', async () => {
+    mockDataClient.getProject.mockRejectedValueOnce(new Error('프로젝트 조회 실패'));
+
+    renderProjectEditor('/projects/project-1/edit');
+
+    await waitFor(() => {
+      expect(screen.getByText('프로젝트 조회 실패')).toBeInTheDocument();
+    });
+    expect(screen.queryByText('프로젝트를 찾을 수 없습니다.')).not.toBeInTheDocument();
+  });
+
   it('deletes project and page when delete actions are confirmed', async () => {
     const user = userEvent.setup();
 

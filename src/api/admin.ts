@@ -193,9 +193,7 @@ const configuredAdminClient: AdminDataClient = !supabase
       async listTaskTypes() {
         const { data, error } = await supabase
           .from('task_types')
-          .select(
-            'id, type1, type2, display_label, display_order, is_active, requires_service_group',
-          )
+          .select('id, type1, type2, memo, display_order, is_active, requires_service_group')
           .order('display_order');
         if (error) throw error;
         return (data ?? []) as ApiRecord[];
@@ -219,7 +217,9 @@ const configuredAdminClient: AdminDataClient = !supabase
       async listServiceGroups() {
         const { data, error } = await supabase
           .from('service_groups')
-          .select('id, name, cost_group_id, display_order, is_active, cost_groups(name)')
+          .select(
+            'id, svc_group, svc_name, name, cost_group_id, display_order, is_active, cost_groups(name)',
+          )
           .order('display_order');
         if (error) throw error;
         return (data ?? []) as ApiRecord[];
@@ -434,16 +434,14 @@ const configuredAdminClient: AdminDataClient = !supabase
               id: payload.id ?? undefined,
               type1: payload.type1,
               type2: payload.type2,
-              display_label: payload.displayLabel,
+              memo: payload.memo,
               display_order: payload.displayOrder,
               requires_service_group: payload.requiresServiceGroup,
               is_active: payload.isActive,
             },
             { onConflict: 'id' },
           )
-          .select(
-            'id, type1, type2, display_label, display_order, requires_service_group, is_active',
-          )
+          .select('id, type1, type2, memo, display_order, requires_service_group, is_active')
           .single();
         if (error) throw error;
         return data as ApiRecord;
@@ -482,6 +480,8 @@ const configuredAdminClient: AdminDataClient = !supabase
           .upsert(
             {
               id: payload.id ?? undefined,
+              svc_group: payload.svcGroup,
+              svc_name: payload.svcName,
               name: payload.name,
               cost_group_id: payload.costGroupId,
               display_order: payload.displayOrder,
@@ -489,7 +489,9 @@ const configuredAdminClient: AdminDataClient = !supabase
             },
             { onConflict: 'id' },
           )
-          .select('id, name, cost_group_id, display_order, is_active, cost_groups(name)')
+          .select(
+            'id, svc_group, svc_name, name, cost_group_id, display_order, is_active, cost_groups(name)',
+          )
           .single();
         if (error) throw error;
         return data as ApiRecord;
