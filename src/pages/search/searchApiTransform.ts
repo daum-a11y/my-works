@@ -14,12 +14,13 @@ export function toSearchTaskRow(record: ApiRecord): SearchTaskRow {
     content: String(record.content ?? ''),
     note: String(record.note ?? ''),
     updatedAt: String(record.updated_at ?? getToday()),
-    platform: String(record.platform ?? '-'),
-    serviceGroupName: String(record.service_group_name ?? '-'),
-    serviceName: String(record.service_name ?? '-'),
-    projectDisplayName: String(record.project_display_name ?? '-'),
-    pageDisplayName: String(record.page_display_name ?? '-'),
-    pageUrl: String(record.page_url ?? ''),
+    platform: record.platform == null ? null : String(record.platform),
+    serviceGroupName: record.service_group_name == null ? null : String(record.service_group_name),
+    serviceName: record.service_name == null ? null : String(record.service_name),
+    projectDisplayName:
+      record.project_display_name == null ? null : String(record.project_display_name),
+    pageDisplayName: record.page_display_name == null ? null : String(record.page_display_name),
+    pageUrl: record.page_url == null ? null : String(record.page_url),
   };
 }
 

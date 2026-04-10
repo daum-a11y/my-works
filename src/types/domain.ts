@@ -162,12 +162,12 @@ export interface SearchTaskRow {
   content: string;
   note: string;
   updatedAt: string;
-  platform: string;
-  serviceGroupName: string;
-  serviceName: string;
-  projectDisplayName: string;
-  pageDisplayName: string;
-  pageUrl: string;
+  platform: string | null;
+  serviceGroupName: string | null;
+  serviceName: string | null;
+  projectDisplayName: string | null;
+  pageDisplayName: string | null;
+  pageUrl: string | null;
 }
 
 export interface DailyTask {

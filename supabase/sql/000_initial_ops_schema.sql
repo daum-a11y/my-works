@@ -1583,7 +1583,13 @@ returns table (
   content text,
   note text,
   created_at timestamptz,
-  updated_at timestamptz
+  updated_at timestamptz,
+  platform text,
+  service_group_name text,
+  service_name text,
+  project_display_name text,
+  page_display_name text,
+  page_url text
 )
 language sql
 stable
@@ -1605,20 +1611,24 @@ as $$
     t.note,
     t.created_at,
     t.updated_at,
-    coalesce(nullif(p.platform, ''), '-') as platform,
-    case
-      when coalesce(sg.name, '') = '' or sg.name = '미분류' then '미분류'
-      when position(' / ' in sg.name) > 0 then split_part(sg.name, ' / ', 1)
-      else sg.name
-    end as service_group_name,
-    case
-      when coalesce(sg.name, '') = '' or sg.name = '미분류' then '미분류'
-      when position(' / ' in sg.name) > 0 then coalesce(nullif(split_part(sg.name, ' / ', 2), ''), '미분류')
-      else sg.name
-    end as service_name,
-    coalesce(nullif(p.name, ''), '-') as project_display_name,
-    coalesce(nullif(pp.title, ''), '-') as page_display_name,
-    coalesce(pp.url, '') as page_url
+    nullif(p.platform, '') as platform,
+    nullif(
+      case
+        when position(' / ' in coalesce(sg.name, '')) > 0 then split_part(sg.name, ' / ', 1)
+        else sg.name
+      end,
+      ''
+    ) as service_group_name,
+    nullif(
+      case
+        when position(' / ' in coalesce(sg.name, '')) > 0 then split_part(sg.name, ' / ', 2)
+        else null
+      end,
+      ''
+    ) as service_name,
+    nullif(p.name, '') as project_display_name,
+    nullif(pp.title, '') as page_display_name,
+    nullif(pp.url, '') as page_url
   from public.tasks t
   join public.cost_groups cg on cg.id = t.cost_group_id
   left join public.projects p on p.id = t.project_id
@@ -1706,20 +1716,24 @@ as $$
     t.content,
     t.note,
     t.updated_at,
-    coalesce(nullif(p.platform, ''), '-') as platform,
-    case
-      when coalesce(sg.name, '') = '' or sg.name = '미분류' then '미분류'
-      when position(' / ' in sg.name) > 0 then split_part(sg.name, ' / ', 1)
-      else sg.name
-    end as service_group_name,
-    case
-      when coalesce(sg.name, '') = '' or sg.name = '미분류' then '미분류'
-      when position(' / ' in sg.name) > 0 then coalesce(nullif(split_part(sg.name, ' / ', 2), ''), '미분류')
-      else sg.name
-    end as service_name,
-    coalesce(nullif(p.name, ''), '-') as project_display_name,
-    coalesce(nullif(pp.title, ''), '-') as page_display_name,
-    coalesce(pp.url, '') as page_url
+    nullif(p.platform, '') as platform,
+    nullif(
+      case
+        when position(' / ' in coalesce(sg.name, '')) > 0 then split_part(sg.name, ' / ', 1)
+        else sg.name
+      end,
+      ''
+    ) as service_group_name,
+    nullif(
+      case
+        when position(' / ' in coalesce(sg.name, '')) > 0 then split_part(sg.name, ' / ', 2)
+        else null
+      end,
+      ''
+    ) as service_name,
+    nullif(p.name, '') as project_display_name,
+    nullif(pp.title, '') as page_display_name,
+    nullif(pp.url, '') as page_url
   from public.tasks t
   join public.cost_groups cg on cg.id = t.cost_group_id
   left join public.projects p on p.id = t.project_id

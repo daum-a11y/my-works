@@ -52,7 +52,7 @@ export function SearchResultsTable({ reports }: SearchResultsTableProps) {
                   <strong>{report.serviceName || '-'}</strong>
                 </td>
                 <td>
-                  <strong>{report.projectDisplayName}</strong>
+                  <strong>{report.projectDisplayName || '-'}</strong>
                 </td>
                 <td>
                   <strong>{report.pageDisplayName || '-'}</strong>
