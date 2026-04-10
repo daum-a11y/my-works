@@ -134,7 +134,7 @@ export function ReportsResultsTable({
       {missingMinutes > 0 ? (
         <div className="reports-page__table-footer">
           <p className="reports-page__table-footer-text">
-            오늘 총 입력 <strong>{totalMinutes}분</strong> / 부족 시간{' '}
+            오늘 총 입력 <strong>{totalMinutes}분</strong> / 부족{' '}
             <strong>{missingMinutes}분</strong>
           </p>
           {canEdit ? (

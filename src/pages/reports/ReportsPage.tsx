@@ -41,7 +41,6 @@ export function ReportsPage() {
     statusMessage,
     statusKind,
     taskTypes,
-    platformOptions,
     type1Options,
     type2Options,
     canEditReports,
@@ -92,10 +91,7 @@ export function ReportsPage() {
   const usesProjectLookup = typeRule.projectLinked;
   const usesManualPageWithUrl = typeRule.manualPageWithUrl;
   const showTypeStep = Boolean(draft.costGroupId || draft.type1 || draft.type2);
-  const showPlatformSelect = !projectTypeSelected && usesProjectLookup;
-  const projectLookupReady =
-    Boolean(draft.costGroupId && draft.type1 && draft.type2) &&
-    (!showPlatformSelect || Boolean(draft.platform));
+  const projectLookupReady = Boolean(draft.costGroupId && draft.type1 && draft.type2);
   const showProjectLookupStep = usesProjectLookup && projectLookupReady;
   const isVacationType = typeRule.vacation;
   const isFixedDayType = false;
@@ -232,7 +228,6 @@ export function ReportsPage() {
             filteredProjectOptions={filteredProjectOptions}
             isSaving={isSaving}
             isListDateValid={isListDateValid}
-            platformOptions={platformOptions}
             projectQuery={projectQuery}
             type1Options={type1Options}
             type2Options={type2Options}
@@ -243,7 +238,6 @@ export function ReportsPage() {
             showTypeStep={showTypeStep}
             showProjectLookupStep={showProjectLookupStep}
             showTaskStep={showTaskStep}
-            showPlatformSelect={showPlatformSelect}
             showPageSelect={showPageSelect}
             showPageUrl={showPageUrl}
             usesProjectLookup={usesProjectLookup}

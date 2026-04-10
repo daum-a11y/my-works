@@ -1,5 +1,5 @@
 import type { FormEvent, KeyboardEvent } from 'react';
-import type { CostGroup, Platform, ProjectPage } from '../../types/domain';
+import type { CostGroup, ProjectPage } from '../../types/domain';
 import type { ProjectViewModel, ReportDraft } from './reportUtils';
 
 interface ReportsEditorFormProps {
@@ -10,7 +10,6 @@ interface ReportsEditorFormProps {
   filteredProjectOptions: ProjectViewModel[];
   isSaving: boolean;
   isListDateValid: boolean;
-  platformOptions: Platform[];
   projectQuery: string;
   type1Options: string[];
   type2Options: string[];
@@ -21,7 +20,6 @@ interface ReportsEditorFormProps {
   showTypeStep: boolean;
   showProjectLookupStep: boolean;
   showTaskStep: boolean;
-  showPlatformSelect: boolean;
   showPageSelect: boolean;
   showPageUrl: boolean;
   usesProjectLookup: boolean;
@@ -43,7 +41,6 @@ export function ReportsEditorForm({
   filteredProjectOptions,
   isSaving,
   isListDateValid,
-  platformOptions,
   projectQuery,
   type1Options,
   type2Options,
@@ -54,7 +51,6 @@ export function ReportsEditorForm({
   showTypeStep,
   showProjectLookupStep,
   showTaskStep,
-  showPlatformSelect,
   showPageSelect,
   showPageUrl,
   isReadonlyWorkHours,
@@ -139,27 +135,6 @@ export function ReportsEditorForm({
                     ))}
                   </select>
                 </label>
-
-                {showPlatformSelect ? (
-                  <label className="reports-page__field">
-                    <span>플랫폼</span>
-                    <select
-                      value={draft.platform}
-                      onChange={(event) => onDraftFieldChange('platform', event.target.value)}
-                    >
-                      <option value="">선택하세요</option>
-                      {platformOptions
-                        .filter(
-                          (platform) => platform.isVisible || platform.name === draft.platform,
-                        )
-                        .map((platform) => (
-                          <option key={platform.id} value={platform.name}>
-                            {platform.name}
-                          </option>
-                        ))}
-                    </select>
-                  </label>
-                ) : null}
               </>
             ) : null}
           </div>
@@ -199,7 +174,7 @@ export function ReportsEditorForm({
                   <option value="">{projectSearchPlaceholder}</option>
                   {filteredProjectOptions.map((project) => (
                     <option key={project.id} value={project.id}>
-                      {`${project.project.projectType1} - ${project.project.platform} - ${project.project.name}`}
+                      {[project.project.platform, project.project.name].filter(Boolean).join(' - ')}
                     </option>
                   ))}
                 </select>

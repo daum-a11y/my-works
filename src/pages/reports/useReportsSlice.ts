@@ -139,22 +139,15 @@ export function useReportsSlice(): ReportsSlice {
   const tasks = useMemo(() => (tasksQuery.data ?? []).map(toTask), [tasksQuery.data]);
 
   const reportProjectsQuery = useQuery({
-    queryKey: [
-      'reports',
-      'project-options',
-      draft.costGroupId,
-      draft.platform,
-      draft.type1,
-      appliedProjectQuery,
-    ],
+    queryKey: ['reports', 'project-options', draft.costGroupId, draft.type1, appliedProjectQuery],
     queryFn: async () =>
       dataClient.searchReportProjects({
         costGroupId: draft.costGroupId || null,
-        platform: draft.platform || null,
+        platform: null,
         projectType1: draft.type1 || null,
         query: appliedProjectQuery || null,
       }),
-    enabled: Boolean(member && draft.costGroupId && draft.platform && draft.type1),
+    enabled: Boolean(member && draft.costGroupId && draft.type1),
   });
 
   const serviceGroupsQuery = useQuery({
@@ -493,6 +486,7 @@ export function useReportsSlice(): ReportsSlice {
         next.pageId = '';
         const costGroup = costGroupOptions.find((item) => item.id === String(value)) ?? null;
         next.costGroupName = costGroup?.name ?? '';
+        next.platform = '';
         next.serviceGroupName = '';
         next.serviceName = '';
         next.pageUrl = '';
@@ -506,6 +500,12 @@ export function useReportsSlice(): ReportsSlice {
       }
 
       if (key === 'type1') {
+        next.projectId = '';
+        next.pageId = '';
+        next.platform = '';
+        next.serviceGroupName = '';
+        next.serviceName = '';
+        next.pageUrl = '';
         const nextType2Options = buildTaskType2OptionsForValue(
           taskTypes,
           String(value),
