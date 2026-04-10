@@ -64,8 +64,8 @@ export function toServiceGroups(
 ): ServiceGroup[] {
   return items.map(toAdminServiceGroup).map((item) => ({
     id: item.id,
-    svcGroup: item.svcGroup,
-    svcName: item.svcName,
+    serviceGroupName: item.serviceGroupName,
+    serviceName: item.serviceName,
     name: item.name,
     costGroupId: item.costGroupId,
     costGroupName: item.costGroupName,

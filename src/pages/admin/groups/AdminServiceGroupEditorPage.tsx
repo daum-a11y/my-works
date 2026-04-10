@@ -12,8 +12,8 @@ function createDraft(item?: AdminServiceGroupItem): AdminServiceGroupPayload {
   if (!item) {
     return {
       name: '',
-      svcGroup: '',
-      svcName: '',
+      serviceGroupName: '',
+      serviceName: '',
       costGroupId: '',
       svcActive: true,
       displayOrder: 0,
@@ -24,8 +24,8 @@ function createDraft(item?: AdminServiceGroupItem): AdminServiceGroupPayload {
   return {
     id: item.id,
     name: item.name,
-    svcGroup: item.svcGroup,
-    svcName: item.svcName,
+    serviceGroupName: item.serviceGroupName,
+    serviceName: item.serviceName,
     costGroupId: item.costGroupId ?? '',
     svcActive: item.svcActive,
     displayOrder: item.displayOrder,
@@ -108,15 +108,15 @@ export function AdminServiceGroupEditorPage() {
 
   const saveMutation = useMutation({
     mutationFn: async (payload: AdminServiceGroupPayload) => {
-      const svcGroup = payload.svcGroup.trim();
-      const svcName = payload.svcName.trim();
+      const serviceGroupName = payload.serviceGroupName.trim();
+      const serviceName = payload.serviceName.trim();
       const svcActive = payload.svcActive;
 
       return adminDataClient.saveServiceGroupAdmin({
         ...payload,
-        name: composeServiceName(svcGroup, svcName),
-        svcGroup,
-        svcName,
+        name: composeServiceName(serviceGroupName, serviceName),
+        serviceGroupName,
+        serviceName,
         costGroupId: payload.costGroupId.trim(),
         svcActive,
         isActive: svcActive,

@@ -58,7 +58,7 @@ export interface AdminTaskTypeItem {
   id: string;
   type1: string;
   type2: string;
-  memo: string;
+  note: string;
   displayOrder: number;
   requiresServiceGroup: boolean;
   isActive: boolean;
@@ -68,7 +68,7 @@ export interface AdminTaskTypePayload {
   id?: string;
   type1: string;
   type2: string;
-  memo: string;
+  note: string;
   displayOrder: number;
   requiresServiceGroup: boolean;
   isActive: boolean;
@@ -113,8 +113,8 @@ export interface AdminReorderPayload {
 export interface AdminServiceGroupItem {
   id: string;
   name: string;
-  svcGroup: string;
-  svcName: string;
+  serviceGroupName: string;
+  serviceName: string;
   costGroupId: string | null;
   costGroupName: string;
   svcActive: boolean;
@@ -125,8 +125,8 @@ export interface AdminServiceGroupItem {
 export interface AdminServiceGroupPayload {
   id?: string;
   name: string;
-  svcGroup: string;
-  svcName: string;
+  serviceGroupName: string;
+  serviceName: string;
   costGroupId: string;
   svcActive: boolean;
   displayOrder: number;

@@ -501,6 +501,7 @@ export function ProjectEditorPage() {
             newPageDraft={newPageDraft}
             selectedProjectPages={selectedProjectPages}
             pageDrafts={pageDrafts}
+            members={members}
             canDeletePage={(page) => canDeletePage(page, member?.id ?? null, member?.role)}
             onToggleAdd={() => {
               setPageAddOpen((current) => !current);

@@ -14,7 +14,7 @@ function groupServiceGroups(items: readonly AdminServiceGroupItem[]) {
 
   for (const item of items) {
     const costGroupKey = item.costGroupName || '-';
-    const serviceGroupKey = item.svcGroup || '-';
+    const serviceGroupKey = item.serviceGroupName || '-';
     const serviceGroups = grouped.get(costGroupKey) ?? new Map<string, AdminServiceGroupItem[]>();
     const rows = serviceGroups.get(serviceGroupKey) ?? [];
     rows.push(item);
@@ -23,8 +23,8 @@ function groupServiceGroups(items: readonly AdminServiceGroupItem[]) {
   }
 
   return Array.from(grouped.entries()).map(([costGroupName, serviceGroups]) => {
-    const groups = Array.from(serviceGroups.entries()).map(([svcGroup, rows]) => ({
-      svcGroup,
+    const groups = Array.from(serviceGroups.entries()).map(([serviceGroupName, rows]) => ({
+      serviceGroupName,
       rows,
     }));
 

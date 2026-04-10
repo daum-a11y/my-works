@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import type { AdminServiceGroupItem } from '../admin.types';
 
 interface AdminServiceGroupGroup {
-  svcGroup: string;
+  serviceGroupName: string;
   rows: AdminServiceGroupItem[];
 }
 
@@ -52,10 +52,10 @@ export function AdminServiceGroupsResultsTable({
                         scope="row"
                         className="admin-crud-page__row-key"
                       >
-                        {group.svcGroup}
+                        {group.serviceGroupName}
                       </td>
                     ) : null}
-                    <td>{item.svcName || '-'}</td>
+                    <td>{item.serviceName || '-'}</td>
                     <td>{item.svcActive ? '노출' : '숨김'}</td>
                     <td>
                       <div className="admin-crud-page__actions">

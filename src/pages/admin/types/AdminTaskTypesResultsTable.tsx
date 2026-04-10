@@ -49,7 +49,7 @@ export function AdminTaskTypesResultsTable({
                   <td>{item.type2}</td>
                   <td>{item.requiresServiceGroup ? '프로젝트' : '일반'}</td>
                   <td>{activeTypeMap.get(item.id) ? '활성' : '비활성'}</td>
-                  <td>{item.memo || '-'}</td>
+                  <td>{item.note || '-'}</td>
                   <td>
                     <div className="admin-crud-page__actions">
                       <Link

@@ -20,16 +20,16 @@ export function AdminServiceGroupEditorForm({
         <span>서비스그룹</span>
         <input
           ref={titleRef}
-          value={draft.svcGroup}
-          onChange={(event) => onDraftChange({ svcGroup: event.target.value })}
+          value={draft.serviceGroupName}
+          onChange={(event) => onDraftChange({ serviceGroupName: event.target.value })}
         />
       </label>
 
       <label className={'projects-feature__field'}>
         <span>서비스명</span>
         <input
-          value={draft.svcName}
-          onChange={(event) => onDraftChange({ svcName: event.target.value })}
+          value={draft.serviceName}
+          onChange={(event) => onDraftChange({ serviceName: event.target.value })}
         />
       </label>
 

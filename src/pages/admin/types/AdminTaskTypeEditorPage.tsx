@@ -13,7 +13,7 @@ function createDraft(taskType?: AdminTaskTypeItem): AdminTaskTypePayload {
     return {
       type1: '',
       type2: '',
-      memo: '',
+      note: '',
       displayOrder: 0,
       requiresServiceGroup: false,
       isActive: true,
@@ -24,7 +24,7 @@ function createDraft(taskType?: AdminTaskTypeItem): AdminTaskTypePayload {
     id: taskType.id,
     type1: taskType.type1,
     type2: taskType.type2,
-    memo: taskType.memo,
+    note: taskType.note,
     displayOrder: taskType.displayOrder,
     requiresServiceGroup: taskType.requiresServiceGroup,
     isActive: taskType.isActive,
@@ -98,7 +98,7 @@ export function AdminTaskTypeEditorPage() {
         ...payload,
         type1: payload.type1.trim(),
         type2: payload.type2.trim(),
-        memo: payload.memo.trim(),
+        note: payload.note.trim(),
       });
     },
     onSuccess: async () => {

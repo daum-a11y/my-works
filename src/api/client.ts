@@ -284,7 +284,7 @@ const configuredClient: DataClient = !supabase
         const { data, error } = await supabase
           .from('service_groups')
           .select(
-            'id, svc_group, svc_name, name, cost_group_id, display_order, is_active, cost_groups(name)',
+            'id, service_group_name, service_name, name, cost_group_id, display_order, is_active, cost_groups(name)',
           )
           .order('display_order');
         if (error) throw error;

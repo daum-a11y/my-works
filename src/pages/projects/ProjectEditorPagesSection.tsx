@@ -7,6 +7,7 @@ interface ProjectEditorPagesSectionProps {
   newPageDraft: PageFormState | null;
   selectedProjectPages: ProjectPage[];
   pageDrafts: Record<string, PageFormState>;
+  members: Array<{ id: string; accountId: string; name: string }>;
   canDeletePage: (page: ProjectPage) => boolean;
   onToggleAdd: () => void;
   onNewPageDraftChange: (patch: Partial<PageFormState>) => void;
@@ -23,6 +24,7 @@ export function ProjectEditorPagesSection({
   newPageDraft,
   selectedProjectPages,
   pageDrafts,
+  members,
   canDeletePage,
   onToggleAdd,
   onNewPageDraftChange,
@@ -65,6 +67,20 @@ export function ProjectEditorPagesSection({
                 onChange={(event) => onNewPageDraftChange({ url: event.target.value })}
               />
             </label>
+            <label className={'projects-feature__field'}>
+              <span className={'sr-only'}>담당자</span>
+              <select
+                value={newPageDraft.ownerMemberId}
+                onChange={(event) => onNewPageDraftChange({ ownerMemberId: event.target.value })}
+              >
+                <option value="">담당자 선택</option>
+                {members.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {[item.accountId, item.name].filter(Boolean).join(' ')}
+                  </option>
+                ))}
+              </select>
+            </label>
           </div>
           <div className="projects-feature__form-actions projects-feature__page-table-actions">
             <button
@@ -86,6 +102,7 @@ export function ProjectEditorPagesSection({
               <tr>
                 <th scope="col">페이지명</th>
                 <th scope="col">페이지URL</th>
+                <th scope="col">담당자</th>
                 <th scope="col">작업</th>
               </tr>
             </thead>
@@ -120,6 +137,25 @@ export function ProjectEditorPagesSection({
                           onPageDraftChange(page.id, { url: event.target.value })
                         }
                       />
+                    </td>
+                    <td>
+                      <label className={'sr-only'} htmlFor={`page-owner-${page.id}`}>
+                        담당자
+                      </label>
+                      <select
+                        id={`page-owner-${page.id}`}
+                        value={draft.ownerMemberId}
+                        onChange={(event) =>
+                          onPageDraftChange(page.id, { ownerMemberId: event.target.value })
+                        }
+                      >
+                        <option value="">담당자 선택</option>
+                        {members.map((item) => (
+                          <option key={item.id} value={item.id}>
+                            {[item.accountId, item.name].filter(Boolean).join(' ')}
+                          </option>
+                        ))}
+                      </select>
                     </td>
                     <td>
                       <div className={'projects-feature__page-table-actions'}>

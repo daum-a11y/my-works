@@ -56,8 +56,8 @@ export function AdminTaskTypeEditorForm({
       <label className={'projects-feature__field'}>
         <span>비고</span>
         <input
-          value={draft.memo}
-          onChange={(event) => onDraftChange({ memo: event.target.value })}
+          value={draft.note}
+          onChange={(event) => onDraftChange({ note: event.target.value })}
         />
       </label>
     </div>
