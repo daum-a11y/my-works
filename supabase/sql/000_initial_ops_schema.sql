@@ -909,7 +909,7 @@ as $$
   select
     p.id as project_id,
     nullif(p.project_type1, '') as type1,
-    nullif(p.name, '') as project_name,
+    p.name as project_name,
     nullif(p.platform, '') as platform,
     nullif(public.resolve_service_group_name(sg.service_group_name, sg.name), '') as service_group_name,
     p.start_date,
@@ -946,9 +946,9 @@ returns table (
   platform text,
   service_group_name text,
   service_name text,
-  project_display_name text,
-  page_display_name text,
-  page_url text
+  project_name text,
+  page_title text,
+  url text
 )
 language sql
 stable
@@ -974,9 +974,9 @@ as $$
     nullif(p.platform, '') as platform,
     nullif(public.resolve_service_group_name(sg.service_group_name, sg.name), '') as service_group_name,
     nullif(public.resolve_service_name(sg.service_name, sg.name), '') as service_name,
-    nullif(p.name, '') as project_display_name,
-    nullif(pp.title, '') as page_display_name,
-    coalesce(nullif(t.url, ''), nullif(pp.url, '')) as page_url
+    p.name as project_name,
+    pp.title as page_title,
+    t.url
   from public.tasks t
   left join public.cost_groups cg on cg.id = t.cost_group_id
   left join public.task_types tt on tt.id = t.task_type_id
@@ -1702,7 +1702,7 @@ as $$
     nullif(pp.note, '') as note,
     pp.updated_at,
     nullif(public.resolve_service_group_name(sg.service_group_name, sg.name), '') as service_group_name,
-    nullif(p.name, '') as project_name,
+    p.name as project_name,
     nullif(p.platform, '') as platform,
     nullif(concat_ws(' ', nullif(owner.account_id, ''), nullif(owner.name, '')), '') as assignee_display,
     nullif(p.report_url, '') as report_url
@@ -1779,9 +1779,9 @@ returns table (
   platform text,
   service_group_name text,
   service_name text,
-  project_display_name text,
-  page_display_name text,
-  page_url text
+  project_name text,
+  page_title text,
+  url text
 )
 language sql
 stable
@@ -1806,9 +1806,9 @@ as $$
     nullif(p.platform, '') as platform,
     nullif(public.resolve_service_group_name(sg.service_group_name, sg.name), '') as service_group_name,
     nullif(public.resolve_service_name(sg.service_name, sg.name), '') as service_name,
-    nullif(p.name, '') as project_display_name,
-    nullif(pp.title, '') as page_display_name,
-    coalesce(nullif(t.url, ''), nullif(pp.url, '')) as page_url
+    p.name as project_name,
+    pp.title as page_title,
+    t.url
   from public.tasks t
   join public.cost_groups cg on cg.id = t.cost_group_id
   left join public.task_types tt on tt.id = t.task_type_id
@@ -1876,9 +1876,9 @@ returns table (
   platform text,
   service_group_name text,
   service_name text,
-  project_display_name text,
-  page_display_name text,
-  page_url text
+  project_name text,
+  page_title text,
+  url text
 )
 language sql
 stable
@@ -1900,9 +1900,9 @@ as $$
     nullif(p.platform, '') as platform,
     nullif(public.resolve_service_group_name(sg.service_group_name, sg.name), '') as service_group_name,
     nullif(public.resolve_service_name(sg.service_name, sg.name), '') as service_name,
-    nullif(p.name, '') as project_display_name,
-    nullif(pp.title, '') as page_display_name,
-    coalesce(nullif(t.url, ''), nullif(pp.url, '')) as page_url
+    p.name as project_name,
+    pp.title as page_title,
+    t.url
   from public.tasks t
   join public.cost_groups cg on cg.id = t.cost_group_id
   left join public.task_types tt on tt.id = t.task_type_id
@@ -2375,7 +2375,7 @@ returns table (
   member_email text,
   project_name text,
   page_title text,
-  page_url text,
+  url text,
   platform text,
   service_group_id uuid,
   service_group_name text,
@@ -2402,9 +2402,9 @@ as $$
     t.updated_at,
     m.name as member_name,
     m.email as member_email,
-    nullif(p.name, '') as project_name,
-    nullif(pp.title, '') as page_title,
-    coalesce(nullif(t.url, ''), nullif(pp.url, '')) as page_url,
+    p.name as project_name,
+    pp.title as page_title,
+    t.url,
     nullif(p.platform, '') as platform,
     p.service_group_id,
     nullif(public.resolve_service_group_name(sg.service_group_name, sg.name), '') as service_group_name,
@@ -2454,7 +2454,7 @@ returns table (
   member_email text,
   project_name text,
   page_title text,
-  page_url text,
+  url text,
   platform text,
   service_group_id uuid,
   service_group_name text,
@@ -2866,7 +2866,7 @@ returns table (
   member_email text,
   project_name text,
   page_title text,
-  page_url text,
+  url text,
   platform text,
   service_group_id uuid,
   service_group_name text,
@@ -2893,9 +2893,9 @@ as $$
     t.updated_at,
     m.name as member_name,
     m.email as member_email,
-    nullif(p.name, '') as project_name,
-    nullif(pp.title, '') as page_title,
-    coalesce(nullif(t.url, ''), nullif(pp.url, '')) as page_url,
+    p.name as project_name,
+    pp.title as page_title,
+    t.url,
     nullif(p.platform, '') as platform,
     p.service_group_id,
     nullif(public.resolve_service_group_name(sg.service_group_name, sg.name), '') as service_group_name,

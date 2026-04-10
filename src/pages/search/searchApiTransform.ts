@@ -27,18 +27,15 @@ export function toSearchTaskRow(record: ApiRecord): SearchTaskRow {
       readValue(record, 'service_name', 'serviceName') == null
         ? null
         : String(readValue(record, 'service_name', 'serviceName')),
-    projectDisplayName:
-      readValue(record, 'project_display_name', 'projectDisplayName') == null
+    projectName:
+      readValue(record, 'project_name', 'projectName') == null
         ? null
-        : String(readValue(record, 'project_display_name', 'projectDisplayName')),
-    pageDisplayName:
-      readValue(record, 'page_display_name', 'pageDisplayName') == null
+        : String(readValue(record, 'project_name', 'projectName')),
+    pageTitle:
+      readValue(record, 'page_title', 'pageTitle') == null
         ? null
-        : String(readValue(record, 'page_display_name', 'pageDisplayName')),
-    pageUrl:
-      readValue(record, 'page_url', 'pageUrl') == null
-        ? null
-        : String(readValue(record, 'page_url', 'pageUrl')),
+        : String(readValue(record, 'page_title', 'pageTitle')),
+    url: readValue(record, 'url', 'url') == null ? null : String(readValue(record, 'url', 'url')),
   };
 }
 

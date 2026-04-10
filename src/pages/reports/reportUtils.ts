@@ -508,8 +508,9 @@ export function buildReportViewModel(
 }
 
 export function buildTaskReportViewModel(task: Task, owner: { id: string; name: string }) {
-  const projectDisplayName = task.projectDisplayName || '-';
-  const pageDisplayName = task.pageDisplayName || task.content || '-';
+  const projectDisplayName = task.projectName || '-';
+  const pageDisplayName = task.pageTitle || task.content || '-';
+  const pageUrl = task.url || '';
   const searchText = normalizeText(
     [
       task.costGroupName,
@@ -522,7 +523,7 @@ export function buildTaskReportViewModel(task: Task, owner: { id: string; name: 
       task.taskType2,
       task.content,
       task.note,
-      task.pageUrl,
+      pageUrl,
       task.id,
     ].join(' '),
   );
@@ -536,8 +537,8 @@ export function buildTaskReportViewModel(task: Task, owner: { id: string; name: 
     costGroupName: task.costGroupName,
     projectId: task.projectId ?? '',
     pageId: task.pageId ?? '',
-    projectName: task.projectDisplayName || '',
-    pageName: task.pageDisplayName || task.content || '',
+    projectName: task.projectName || '',
+    pageName: task.pageTitle || task.content || '',
     type1: task.taskType1 as ReportViewModel['type1'],
     type2: task.taskType2 as ReportViewModel['type2'],
     taskUsedtime: task.taskUsedtime,
@@ -550,7 +551,7 @@ export function buildTaskReportViewModel(task: Task, owner: { id: string; name: 
     serviceName: task.serviceName || '',
     projectDisplayName,
     pageDisplayName,
-    pageUrl: task.pageUrl || '',
+    pageUrl,
     searchText,
   } satisfies ReportViewModel;
 }

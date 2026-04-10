@@ -148,9 +148,9 @@ export interface Task {
   platform: string | null;
   serviceGroupName: string | null;
   serviceName: string | null;
-  projectDisplayName: string | null;
-  pageDisplayName: string | null;
-  pageUrl: string | null;
+  projectName: string | null;
+  pageTitle: string | null;
+  url: string | null;
 }
 
 export interface SearchTaskRow {
@@ -167,9 +167,9 @@ export interface SearchTaskRow {
   platform: string | null;
   serviceGroupName: string | null;
   serviceName: string | null;
-  projectDisplayName: string | null;
-  pageDisplayName: string | null;
-  pageUrl: string | null;
+  projectName: string | null;
+  pageTitle: string | null;
+  url: string | null;
 }
 
 export interface DailyTask {

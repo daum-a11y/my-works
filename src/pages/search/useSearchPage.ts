@@ -141,10 +141,10 @@ export function useSearchPage() {
         { header: '플랫폼', value: (report) => report.platform || '-', width: 14 },
         { header: '서비스그룹', value: (report) => report.serviceGroupName || '-', width: 16 },
         { header: '서비스명', value: (report) => report.serviceName || '-', width: 18 },
-        { header: '프로젝트명', value: (report) => report.projectDisplayName, width: 24 },
-        { header: '페이지명', value: (report) => report.pageDisplayName || '-', width: 20 },
+        { header: '프로젝트명', value: (report) => report.projectName || '-', width: 24 },
+        { header: '페이지명', value: (report) => report.pageTitle || '-', width: 20 },
         { header: '내용', value: (report) => report.content || '-', width: 30 },
-        { header: 'URL', value: (report) => report.pageUrl || '-', width: 32 },
+        { header: 'URL', value: (report) => report.url || '-', width: 32 },
         {
           header: '작업시간',
           value: (report) => formatReportTaskUsedtime(report.taskUsedtime),

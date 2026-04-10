@@ -52,15 +52,15 @@ export function SearchResultsTable({ reports }: SearchResultsTableProps) {
                   <strong>{report.serviceName || '-'}</strong>
                 </td>
                 <td>
-                  <strong>{report.projectDisplayName || '-'}</strong>
+                  <strong>{report.projectName || '-'}</strong>
                 </td>
                 <td>
-                  <strong>{report.pageDisplayName || '-'}</strong>
+                  <strong>{report.pageTitle || '-'}</strong>
                 </td>
                 <td>{report.content || '-'}</td>
                 <td>
-                  {report.pageUrl ? (
-                    <a href={report.pageUrl} target="_blank" rel="noreferrer">
+                  {report.url ? (
+                    <a href={report.url} target="_blank" rel="noreferrer">
                       링크
                     </a>
                   ) : (
