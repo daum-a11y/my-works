@@ -6,12 +6,16 @@ import { PageSection } from '../../components/shared/PageSection';
 import { dataClient } from '../../api/client';
 import { getToday } from '../../utils';
 import { buildCalendarWeeks, buildMonthDays, getCurrentMonth } from './resourceUtils';
-import { RESOURCE_SUMMARY_PAGE_TITLE } from './ResourceSummaryPage.constants';
+import {
+  RESOURCE_SUMMARY_DEFAULT_SORT,
+  RESOURCE_SUMMARY_PAGE_TITLE,
+} from './ResourceSummaryPage.constants';
 import type { ResourceSummaryRow } from './ResourceSummaryPage.types';
 import { formatMemberLabel } from './ResourceSummaryPage.format';
 import { ResourceSummaryResults } from './ResourceSummaryResults';
 import { useAuth } from '../../auth/AuthContext';
 import { toResourceSummaryDay, toResourceSummaryMember } from './resourceApiTransform';
+import { sortResourceSummaryRows, type ResourceSummarySortState } from './ResourceSummaryPage.sort';
 import '../../styles/pages/ProjectsPage.scss';
 import '../../styles/pages/ResourcePage.scss';
 
@@ -25,6 +29,9 @@ export function ResourceSummaryPage() {
   const [missingOnlyDraft, setMissingOnlyDraft] = useState(false);
   const [appliedMonth, setAppliedMonth] = useState(() => getCurrentMonth());
   const [appliedMissingOnly, setAppliedMissingOnly] = useState(false);
+  const [sortState, setSortState] = useState<ResourceSummarySortState>(
+    RESOURCE_SUMMARY_DEFAULT_SORT,
+  );
   const [detailMemberId, setDetailMemberId] = useState('');
   const [detailOpen, setDetailOpen] = useState(false);
 
@@ -110,8 +117,17 @@ export function ResourceSummaryPage() {
       ? rowsForMembers.filter((row) => row.hasMissingDay)
       : rowsForMembers;
 
-    return filteredRows.sort((left, right) => left.label.localeCompare(right.label, 'ko'));
-  }, [activeMembers, appliedMissingOnly, appliedMonth, currentMonth, member, summaryRows, today]);
+    return sortResourceSummaryRows(filteredRows, sortState);
+  }, [
+    activeMembers,
+    appliedMissingOnly,
+    appliedMonth,
+    currentMonth,
+    member,
+    sortState,
+    summaryRows,
+    today,
+  ]);
 
   useEffect(() => {
     if (!rows.length) {
@@ -161,6 +177,7 @@ export function ResourceSummaryPage() {
   const handleSearch = () => {
     setAppliedMonth(monthDraft);
     setAppliedMissingOnly(missingOnlyDraft);
+    setSortState(RESOURCE_SUMMARY_DEFAULT_SORT);
     setDetailOpen(false);
     setDetailMemberId('');
   };
@@ -211,6 +228,8 @@ export function ResourceSummaryPage() {
 
       <ResourceSummaryResults
         rows={rows}
+        sortState={sortState}
+        onSortChange={setSortState}
         detailOpen={detailOpen}
         detailMember={detailMember}
         monthState={monthState}

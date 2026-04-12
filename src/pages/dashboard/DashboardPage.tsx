@@ -6,6 +6,11 @@ import { useAuth } from '../../auth/AuthContext';
 import { buildCalendarWeeks, getCurrentMonth, shiftMonth } from '../resource/resourceUtils';
 import { DashboardCalendarSection } from './DashboardCalendarSection';
 import { DashboardProjectsTable } from './DashboardProjectsTable';
+import { DASHBOARD_PROJECTS_DEFAULT_SORT } from './DashboardPage.constants';
+import {
+  sortDashboardProjects,
+  type DashboardProjectsSortState,
+} from './DashboardProjectsTable.sort';
 import { toDashboardSnapshot, toDashboardTaskCalendarDay } from './dashboardApiTransform';
 import '../../styles/pages/DashboardPage.scss';
 
@@ -13,6 +18,9 @@ export function DashboardPage() {
   const { session } = useAuth();
   const member = session?.member;
   const [selectedMonth, setSelectedMonth] = useState(() => getCurrentMonth());
+  const [projectsSortState, setProjectsSortState] = useState<DashboardProjectsSortState>(
+    DASHBOARD_PROJECTS_DEFAULT_SORT,
+  );
   const shouldShowWorklogCalendar = member?.reportRequired === true;
 
   useEffect(() => {
@@ -32,7 +40,10 @@ export function DashboardPage() {
   });
 
   const dashboard = useMemo(() => toDashboardSnapshot(dashboardQuery.data), [dashboardQuery.data]);
-  const inProgressProjects = dashboard?.inProgressProjects ?? [];
+  const inProgressProjects = useMemo(
+    () => sortDashboardProjects(dashboard?.inProgressProjects ?? [], projectsSortState),
+    [dashboard?.inProgressProjects, projectsSortState],
+  );
   const calendarTasks = useMemo(
     () => (tasksQuery.data ?? []).map(toDashboardTaskCalendarDay),
     [tasksQuery.data],
@@ -77,7 +88,11 @@ export function DashboardPage() {
         />
       ) : null}
 
-      <DashboardProjectsTable projects={inProgressProjects} />
+      <DashboardProjectsTable
+        projects={inProgressProjects}
+        sortState={projectsSortState}
+        onSortChange={setProjectsSortState}
+      />
     </div>
   );
 }

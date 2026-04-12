@@ -1,21 +1,28 @@
-import { TableEmptyRow } from '../../components/shared/TableEmptyRow';
-
-interface DashboardProjectRow {
-  projectId: string;
-  type1: string | null;
-  platform: string | null;
-  costGroupName: string | null;
-  serviceGroupName: string | null;
-  projectName: string | null;
-  startDate: string;
-  endDate: string;
-}
+import { SortableTableHeaderButton, TableEmptyRow } from '../../components/shared';
+import type {
+  DashboardProjectRow,
+  DashboardProjectsSortState,
+} from './DashboardProjectsTable.sort';
 
 interface DashboardProjectsTableProps {
   projects: readonly DashboardProjectRow[];
+  sortState: DashboardProjectsSortState;
+  onSortChange: (next: DashboardProjectsSortState) => void;
 }
 
-export function DashboardProjectsTable({ projects }: DashboardProjectsTableProps) {
+export function DashboardProjectsTable({
+  projects,
+  sortState,
+  onSortChange,
+}: DashboardProjectsTableProps) {
+  const getAriaSort = (key: DashboardProjectsSortState['key']) => {
+    if (sortState.key !== key) {
+      return 'none';
+    }
+
+    return sortState.direction === 'asc' ? 'ascending' : 'descending';
+  };
+
   return (
     <section className="dashboard-page__section">
       <div className="dashboard-page__section-head">
@@ -26,13 +33,62 @@ export function DashboardProjectsTable({ projects }: DashboardProjectsTableProps
           <caption className="sr-only">진행중인 프로젝트</caption>
           <thead>
             <tr>
-              <th scope="col">청구그룹</th>
-              <th scope="col">타입1</th>
-              <th scope="col">서비스 그룹</th>
-              <th scope="col">프로젝트명</th>
-              <th scope="col">플랫폼</th>
-              <th scope="col">시작일</th>
-              <th scope="col">종료일</th>
+              <th scope="col" aria-sort={getAriaSort('costGroupName')}>
+                <SortableTableHeaderButton
+                  label="청구그룹"
+                  sortKey="costGroupName"
+                  sortState={sortState}
+                  onChange={onSortChange}
+                />
+              </th>
+              <th scope="col" aria-sort={getAriaSort('type1')}>
+                <SortableTableHeaderButton
+                  label="타입1"
+                  sortKey="type1"
+                  sortState={sortState}
+                  onChange={onSortChange}
+                />
+              </th>
+              <th scope="col" aria-sort={getAriaSort('serviceGroupName')}>
+                <SortableTableHeaderButton
+                  label="서비스 그룹"
+                  sortKey="serviceGroupName"
+                  sortState={sortState}
+                  onChange={onSortChange}
+                />
+              </th>
+              <th scope="col" aria-sort={getAriaSort('projectName')}>
+                <SortableTableHeaderButton
+                  label="프로젝트명"
+                  sortKey="projectName"
+                  sortState={sortState}
+                  onChange={onSortChange}
+                />
+              </th>
+              <th scope="col" aria-sort={getAriaSort('platform')}>
+                <SortableTableHeaderButton
+                  label="플랫폼"
+                  sortKey="platform"
+                  sortState={sortState}
+                  onChange={onSortChange}
+                />
+              </th>
+              <th scope="col" aria-sort={getAriaSort('startDate')}>
+                <SortableTableHeaderButton
+                  label="시작일"
+                  sortKey="startDate"
+                  sortState={sortState}
+                  onChange={onSortChange}
+                />
+              </th>
+              <th scope="col" aria-sort={getAriaSort('endDate')}>
+                <SortableTableHeaderButton
+                  label="종료일"
+                  sortKey="endDate"
+                  sortState={sortState}
+                  onChange={onSortChange}
+                />
+              </th>
             </tr>
           </thead>
           <tbody>

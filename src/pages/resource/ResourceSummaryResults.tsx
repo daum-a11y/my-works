@@ -1,7 +1,9 @@
 import clsx from 'clsx';
+import { SortableTableHeaderButton } from '../../components/shared';
 import { MonthlyReportCalendar } from '../../components/shared/MonthlyReportCalendar';
 import { TableEmptyRow } from '../../components/shared/TableEmptyRow';
 import type { ResourceSummaryRow } from './ResourceSummaryPage.types';
+import type { ResourceSummarySortState } from './ResourceSummaryPage.sort';
 import {
   formatMemberLabel,
   formatSignedMinutes,
@@ -19,6 +21,8 @@ interface ResourceSummaryMonthState {
 
 interface ResourceSummaryResultsProps {
   rows: ResourceSummaryRow[];
+  sortState: ResourceSummarySortState;
+  onSortChange: (next: ResourceSummarySortState) => void;
   detailOpen: boolean;
   detailMember: { accountId: string; name: string } | null;
   monthState: ResourceSummaryMonthState | null;
@@ -28,12 +32,22 @@ interface ResourceSummaryResultsProps {
 
 export function ResourceSummaryResults({
   rows,
+  sortState,
+  onSortChange,
   detailOpen,
   detailMember,
   monthState,
   onDetailOpen,
   onDetailClose,
 }: ResourceSummaryResultsProps) {
+  const getAriaSort = (key: ResourceSummarySortState['key']) => {
+    if (sortState.key !== key) {
+      return 'none';
+    }
+
+    return sortState.direction === 'asc' ? 'ascending' : 'descending';
+  };
+
   return (
     <>
       <section className="resource-summary-page__content-section">
@@ -42,8 +56,22 @@ export function ResourceSummaryResults({
             <caption className="sr-only">월별 사용자 업무보고 현황</caption>
             <thead>
               <tr>
-                <th>이름</th>
-                <th>미작성 시간</th>
+                <th scope="col" aria-sort={getAriaSort('label')}>
+                  <SortableTableHeaderButton
+                    label="이름"
+                    sortKey="label"
+                    sortState={sortState}
+                    onChange={onSortChange}
+                  />
+                </th>
+                <th scope="col" aria-sort={getAriaSort('diffMinutes')}>
+                  <SortableTableHeaderButton
+                    label="미작성 시간"
+                    sortKey="diffMinutes"
+                    sortState={sortState}
+                    onChange={onSortChange}
+                  />
+                </th>
                 <th>상세</th>
               </tr>
             </thead>
