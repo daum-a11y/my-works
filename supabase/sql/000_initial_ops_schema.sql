@@ -3140,6 +3140,7 @@ end;
 $$;
 
 drop function if exists public.admin_search_tasks(uuid, date, date, uuid, uuid, text, text, uuid, text);
+drop function if exists public.admin_search_tasks(uuid, date, date, uuid, uuid, uuid, uuid, uuid, text, text, uuid, text);
 
 create or replace function public.admin_search_tasks(
   p_member_id uuid default null,
@@ -3147,6 +3148,9 @@ create or replace function public.admin_search_tasks(
   p_end_date date default null,
   p_project_id uuid default null,
   p_project_page_id uuid default null,
+  p_platform_id uuid default null,
+  p_service_group_id uuid default null,
+  p_task_type_id uuid default null,
   p_task_type1 text default null,
   p_task_type2 text default null,
   p_cost_group_id uuid default null,
@@ -3218,6 +3222,9 @@ as $$
     and (p_end_date is null or t.task_date <= p_end_date)
     and (p_project_id is null or t.project_id = p_project_id)
     and (p_project_page_id is null or t.project_page_id = p_project_page_id)
+    and (p_platform_id is null or p.platform_id = p_platform_id)
+    and (p_service_group_id is null or p.service_group_id = p_service_group_id)
+    and (p_task_type_id is null or t.task_type_id = p_task_type_id)
     and (p_task_type1 is null or tt.type1 = p_task_type1)
     and (p_task_type2 is null or tt.type2 = p_task_type2)
     and (p_cost_group_id is null or t.cost_group_id = p_cost_group_id)
@@ -3283,7 +3290,7 @@ grant execute on function public.search_projects_page(date, date, text) to authe
 grant execute on function public.search_report_projects(uuid, text, text, text) to authenticated;
 grant execute on function public.upsert_project(uuid, text, text, uuid, uuid, text, uuid, uuid, date, date, boolean) to authenticated;
 grant execute on function public.upsert_project_page(uuid, uuid, text, text, uuid, text, text, boolean, boolean, text) to authenticated;
-grant execute on function public.admin_search_tasks(uuid, date, date, uuid, uuid, text, text, uuid, text) to authenticated;
+grant execute on function public.admin_search_tasks(uuid, date, date, uuid, uuid, uuid, uuid, uuid, text, text, uuid, text) to authenticated;
 
 alter table public.members enable row level security;
 alter table public.service_groups enable row level security;

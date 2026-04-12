@@ -2,6 +2,7 @@ import { type FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router-dom';
 import { adminDataClient } from '../../../api/admin';
+import { openAdminTaskSearch } from '../adminTaskSearchLink';
 import { AdminTaskTypeEditorActionRow } from './AdminTaskTypeEditorActionRow';
 import { AdminTaskTypeEditorForm } from './AdminTaskTypeEditorForm';
 import { AdminTaskTypeTransferDialog } from './AdminTaskTypeTransferDialog';
@@ -228,6 +229,20 @@ export function AdminTaskTypeEditorPage() {
     });
   };
 
+  const handleViewTasks = () => {
+    if (!selectedTaskType) {
+      return;
+    }
+
+    openAdminTaskSearch({
+      startDate: '',
+      endDate: '',
+      taskTypeId: selectedTaskType.id,
+      taskType1: selectedTaskType.type1,
+      taskType2: selectedTaskType.type2,
+    });
+  };
+
   if (taskTypesQuery.isLoading && isEditMode) {
     return (
       <section className="projects-feature projects-feature__shell projects-feature__editor-shell">
@@ -287,6 +302,7 @@ export function AdminTaskTypeEditorPage() {
             savePending={saveMutation.isPending}
             onDelete={() => void handleDelete()}
             onTransfer={handleTransferOpen}
+            onViewTasks={handleViewTasks}
           />
         </form>
       </section>

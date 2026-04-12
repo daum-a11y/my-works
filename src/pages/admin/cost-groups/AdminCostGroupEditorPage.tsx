@@ -2,6 +2,7 @@ import { type FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router-dom';
 import { adminDataClient } from '../../../api/admin';
+import { openAdminTaskSearch } from '../adminTaskSearchLink';
 import { AdminCostGroupEditorActionRow } from './AdminCostGroupEditorActionRow';
 import { AdminCostGroupEditorForm } from './AdminCostGroupEditorForm';
 import { AdminCostGroupTransferDialog } from './AdminCostGroupTransferDialog';
@@ -198,6 +199,18 @@ export function AdminCostGroupEditorPage() {
     });
   };
 
+  const handleViewTasks = () => {
+    if (!selectedCostGroup) {
+      return;
+    }
+
+    openAdminTaskSearch({
+      startDate: '',
+      endDate: '',
+      costGroupId: selectedCostGroup.id,
+    });
+  };
+
   if (costGroupsQuery.isLoading && isEditMode) {
     return (
       <section className="projects-feature projects-feature__shell projects-feature__editor-shell">
@@ -255,6 +268,7 @@ export function AdminCostGroupEditorPage() {
             savePending={saveMutation.isPending}
             onDelete={() => void handleDelete()}
             onTransfer={handleTransferOpen}
+            onViewTasks={handleViewTasks}
           />
         </form>
       </section>

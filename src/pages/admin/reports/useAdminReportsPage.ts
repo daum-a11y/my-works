@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { adminDataClient } from '../../../api/admin';
 import {
   toAdminCostGroup,
@@ -30,10 +30,13 @@ import {
 
 export function useAdminReportsPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const queryClient = useQueryClient();
-  const [filters, setFilters] = useState<AdminTaskSearchFilters>(() => createDefaultFilters());
+  const [filters, setFilters] = useState<AdminTaskSearchFilters>(() =>
+    createInitialFilters(location.search),
+  );
   const [appliedFilters, setAppliedFilters] = useState<AdminTaskSearchFilters>(() =>
-    createDefaultFilters(),
+    createInitialFilters(location.search),
   );
   const [memberFilterIds, setMemberFilterIds] = useState<string[]>([]);
   const [appliedMemberFilterIds, setAppliedMemberFilterIds] = useState<string[]>([]);
@@ -82,8 +85,11 @@ export function useAdminReportsPage() {
           startDate: appliedFilters.startDate || null,
           endDate: appliedFilters.endDate || null,
           costGroupId: appliedFilters.costGroupId || null,
+          platformId: appliedFilters.platformId || null,
+          serviceGroupId: appliedFilters.serviceGroupId || null,
           projectId: appliedFilters.projectId || null,
           pageId: appliedFilters.pageId || null,
+          taskTypeId: appliedFilters.taskTypeId || null,
           taskType1: appliedFilters.taskType1 || null,
           taskType2: appliedFilters.taskType2 || null,
           keyword: appliedFilters.keyword || null,
@@ -352,5 +358,26 @@ export function useAdminReportsPage() {
     totalTasks,
     visibleMembers,
     visibleProjects: projects,
+  };
+}
+
+function createInitialFilters(search: string): AdminTaskSearchFilters {
+  const defaults = createDefaultFilters();
+  const params = new URLSearchParams(search);
+
+  return {
+    ...defaults,
+    startDate: params.has('startDate') ? (params.get('startDate') ?? '') : defaults.startDate,
+    endDate: params.has('endDate') ? (params.get('endDate') ?? '') : defaults.endDate,
+    memberId: params.get('memberId') ?? defaults.memberId,
+    costGroupId: params.get('costGroupId') ?? defaults.costGroupId,
+    platformId: params.get('platformId') ?? defaults.platformId,
+    serviceGroupId: params.get('serviceGroupId') ?? defaults.serviceGroupId,
+    projectId: params.get('projectId') ?? defaults.projectId,
+    pageId: params.get('pageId') ?? defaults.pageId,
+    taskTypeId: params.get('taskTypeId') ?? defaults.taskTypeId,
+    taskType1: params.get('taskType1') ?? defaults.taskType1,
+    taskType2: params.get('taskType2') ?? defaults.taskType2,
+    keyword: params.get('keyword') ?? defaults.keyword,
   };
 }

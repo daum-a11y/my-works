@@ -58,6 +58,26 @@ afterEach(() => {
 });
 
 describe('AdminPlatformEditorPage', () => {
+  it('opens the task search page filtered by the current platform in a new tab', async () => {
+    listPlatforms.mockResolvedValue([
+      { id: 'platform-1', name: '기존 플랫폼', display_order: 1, is_visible: true },
+      { id: 'platform-2', name: '새 플랫폼', display_order: 2, is_visible: true },
+    ]);
+    const openSpy = vi.spyOn(window, 'open').mockImplementation(() => null);
+    const user = userEvent.setup();
+
+    renderEditor();
+
+    await user.click(await screen.findByRole('button', { name: '조회' }));
+
+    expect(openSpy).toHaveBeenCalledWith(
+      '/org/search?startDate=&endDate=&platformId=platform-1',
+      '_blank',
+      'noopener,noreferrer',
+    );
+    openSpy.mockRestore();
+  });
+
   it('opens the transfer dialog with visible target platforms only and closes without saving', async () => {
     listPlatforms.mockResolvedValue([
       { id: 'platform-1', name: '기존 플랫폼', display_order: 1, is_visible: true },

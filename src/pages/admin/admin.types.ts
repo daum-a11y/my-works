@@ -3,8 +3,11 @@ export interface AdminTaskSearchFilters {
   endDate: string;
   memberId: string;
   costGroupId: string;
+  platformId: string;
+  serviceGroupId: string;
   projectId: string;
   pageId: string;
+  taskTypeId: string;
   taskType1: string;
   taskType2: string;
   keyword: string;

@@ -2,6 +2,7 @@ import { type FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router-dom';
 import { adminDataClient } from '../../../api/admin';
+import { openAdminTaskSearch } from '../adminTaskSearchLink';
 import { AdminServiceGroupEditorActionRow } from './AdminServiceGroupEditorActionRow';
 import { AdminServiceGroupEditorForm } from './AdminServiceGroupEditorForm';
 import { AdminServiceGroupTransferDialog } from './AdminServiceGroupTransferDialog';
@@ -255,6 +256,19 @@ export function AdminServiceGroupEditorPage() {
     });
   };
 
+  const handleViewTasks = () => {
+    if (!selectedServiceGroup) {
+      return;
+    }
+
+    openAdminTaskSearch({
+      startDate: '',
+      endDate: '',
+      costGroupId: selectedServiceGroup.costGroupId ?? '',
+      serviceGroupId: selectedServiceGroup.id,
+    });
+  };
+
   if (serviceGroupsQuery.isLoading && isEditMode) {
     return (
       <section className="projects-feature projects-feature__shell projects-feature__editor-shell">
@@ -316,6 +330,7 @@ export function AdminServiceGroupEditorPage() {
             canSave={Boolean(draft.costGroupId)}
             onDelete={() => void handleDelete()}
             onTransfer={handleTransferOpen}
+            onViewTasks={handleViewTasks}
           />
         </form>
       </section>

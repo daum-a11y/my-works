@@ -9,6 +9,7 @@ interface AdminCostGroupEditorActionRowProps {
   savePending: boolean;
   onDelete: () => void;
   onTransfer: () => void;
+  onViewTasks: () => void;
 }
 
 export function AdminCostGroupEditorActionRow({
@@ -20,6 +21,7 @@ export function AdminCostGroupEditorActionRow({
   savePending,
   onDelete,
   onTransfer,
+  onViewTasks,
 }: AdminCostGroupEditorActionRowProps) {
   const helpText = transferHelpText;
 
@@ -48,6 +50,16 @@ export function AdminCostGroupEditorActionRow({
             disabled={transferPending || transferBlocked || deletePending || savePending}
           >
             전환
+          </button>
+        ) : null}
+        {isEditMode ? (
+          <button
+            type="button"
+            className={'projects-feature__button projects-feature__button--secondary'}
+            onClick={onViewTasks}
+            disabled={transferPending}
+          >
+            조회
           </button>
         ) : null}
         {helpText ? <span className="projects-feature__helper-text">{helpText}</span> : null}

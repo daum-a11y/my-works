@@ -61,6 +61,26 @@ afterEach(() => {
 });
 
 describe('AdminCostGroupEditorPage', () => {
+  it('opens the task search page filtered by the current cost group in a new tab', async () => {
+    listCostGroups.mockResolvedValue([
+      { id: 'cost-group-1', name: '기존 청구그룹', display_order: 1, is_active: true },
+      { id: 'cost-group-2', name: '새 청구그룹', display_order: 2, is_active: true },
+    ]);
+    const openSpy = vi.spyOn(window, 'open').mockImplementation(() => null);
+    const user = userEvent.setup();
+
+    renderEditor();
+
+    await user.click(await screen.findByRole('button', { name: '조회' }));
+
+    expect(openSpy).toHaveBeenCalledWith(
+      '/org/search?startDate=&endDate=&costGroupId=cost-group-1',
+      '_blank',
+      'noopener,noreferrer',
+    );
+    openSpy.mockRestore();
+  });
+
   it('opens the transfer dialog with active target cost groups only and closes without saving', async () => {
     listCostGroups.mockResolvedValue([
       { id: 'cost-group-1', name: '기존 청구그룹', display_order: 1, is_active: true },

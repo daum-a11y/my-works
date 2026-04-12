@@ -126,14 +126,14 @@ export function AdminReportsResultsTable({
                   onChange={onSortChange}
                 />
               </th>
-              <th scope="col">비고</th>
+              {/*<th scope="col">비고</th>*/}
               <th scope="col">관리</th>
             </tr>
           </thead>
           <tbody>
             {tasks.length === 0 ? (
               <TableEmptyRow
-                colSpan={14}
+                colSpan={13}
                 className={'admin-reports-page__empty-state'}
                 message="검색 결과가 없습니다."
               />
@@ -173,7 +173,7 @@ export function AdminReportsResultsTable({
                       )}
                     </td>
                     <td>{formatTimeCell(task.taskUsedtime)}</td>
-                    <td>{task.note || '-'}</td>
+                    {/*<td>{task.note || '-'}</td>*/}
                     <td>
                       <div className={'admin-reports-page__action-stack'}>
                         <button

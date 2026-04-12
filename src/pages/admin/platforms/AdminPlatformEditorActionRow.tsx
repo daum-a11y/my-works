@@ -9,6 +9,7 @@ interface AdminPlatformEditorActionRowProps {
   savePending: boolean;
   onDelete: () => void;
   onTransfer: () => void;
+  onViewTasks: () => void;
 }
 
 export function AdminPlatformEditorActionRow({
@@ -20,6 +21,7 @@ export function AdminPlatformEditorActionRow({
   savePending,
   onDelete,
   onTransfer,
+  onViewTasks,
 }: AdminPlatformEditorActionRowProps) {
   return (
     <div className="projects-feature__form-actions projects-feature__editor-form-actions">
@@ -45,6 +47,14 @@ export function AdminPlatformEditorActionRow({
               disabled={transferPending || transferBlocked || deletePending || savePending}
             >
               전환
+            </button>
+            <button
+              type="button"
+              className={'projects-feature__button projects-feature__button--secondary'}
+              onClick={onViewTasks}
+              disabled={transferPending}
+            >
+              조회
             </button>
             {transferHelpText ? (
               <p className={'projects-feature__help-text'}>{transferHelpText}</p>

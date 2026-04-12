@@ -2,6 +2,7 @@ import { type FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router-dom';
 import { adminDataClient } from '../../../api/admin';
+import { openAdminTaskSearch } from '../adminTaskSearchLink';
 import { AdminPlatformEditorActionRow } from './AdminPlatformEditorActionRow';
 import { AdminPlatformEditorForm } from './AdminPlatformEditorForm';
 import { AdminPlatformTransferDialog } from './AdminPlatformTransferDialog';
@@ -181,6 +182,18 @@ export function AdminPlatformEditorPage() {
     });
   };
 
+  const handleViewTasks = () => {
+    if (!selectedPlatform) {
+      return;
+    }
+
+    openAdminTaskSearch({
+      startDate: '',
+      endDate: '',
+      platformId: selectedPlatform.id,
+    });
+  };
+
   if (platformsQuery.isLoading && isEditMode) {
     return (
       <section className="projects-feature projects-feature__shell projects-feature__editor-shell">
@@ -233,6 +246,7 @@ export function AdminPlatformEditorPage() {
             savePending={saveMutation.isPending}
             onDelete={() => void handleDelete()}
             onTransfer={handleTransferOpen}
+            onViewTasks={handleViewTasks}
           />
         </form>
       </section>

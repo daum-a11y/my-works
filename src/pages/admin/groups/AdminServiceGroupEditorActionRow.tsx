@@ -12,6 +12,7 @@ interface AdminServiceGroupEditorActionRowProps {
   canSave: boolean;
   onDelete: () => void;
   onTransfer: () => void;
+  onViewTasks: () => void;
 }
 
 export function AdminServiceGroupEditorActionRow({
@@ -26,6 +27,7 @@ export function AdminServiceGroupEditorActionRow({
   canSave,
   onDelete,
   onTransfer,
+  onViewTasks,
 }: AdminServiceGroupEditorActionRowProps) {
   return (
     <div className="projects-feature__form-actions projects-feature__editor-form-actions">
@@ -51,6 +53,14 @@ export function AdminServiceGroupEditorActionRow({
               disabled={transferPending || transferBlocked || deletePending || savePending}
             >
               전환
+            </button>
+            <button
+              type="button"
+              className={'projects-feature__button projects-feature__button--secondary'}
+              onClick={onViewTasks}
+              disabled={transferPending}
+            >
+              조회
             </button>
             {transferHelpText || deleteHelpText ? (
               <p className={'projects-feature__help-text'}>{transferHelpText || deleteHelpText}</p>

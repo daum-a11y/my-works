@@ -72,6 +72,44 @@ afterEach(() => {
 });
 
 describe('AdminServiceGroupEditorPage', () => {
+  it('opens the task search page filtered by the current service group in a new tab', async () => {
+    listServiceGroups.mockResolvedValue([
+      {
+        id: 'service-group-1',
+        name: '커머스 / 주문',
+        service_group_name: '커머스',
+        service_name: '주문',
+        cost_group_id: 'cost-group-1',
+        display_order: 1,
+        is_active: true,
+        cost_groups: { name: '내부' },
+      },
+      {
+        id: 'service-group-2',
+        name: '커머스 / 결제',
+        service_group_name: '커머스',
+        service_name: '결제',
+        cost_group_id: 'cost-group-1',
+        display_order: 2,
+        is_active: true,
+        cost_groups: { name: '내부' },
+      },
+    ]);
+    const openSpy = vi.spyOn(window, 'open').mockImplementation(() => null);
+    const user = userEvent.setup();
+
+    renderEditor();
+
+    await user.click(await screen.findByRole('button', { name: '조회' }));
+
+    expect(openSpy).toHaveBeenCalledWith(
+      '/org/search?startDate=&endDate=&costGroupId=cost-group-1&serviceGroupId=service-group-1',
+      '_blank',
+      'noopener,noreferrer',
+    );
+    openSpy.mockRestore();
+  });
+
   it('opens the transfer dialog with active target service groups only and closes without saving', async () => {
     listServiceGroups.mockResolvedValue([
       {

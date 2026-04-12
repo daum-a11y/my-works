@@ -35,8 +35,11 @@ export interface AdminDataClient {
       startDate: string | null;
       endDate: string | null;
       costGroupId: string | null;
+      platformId: string | null;
+      serviceGroupId: string | null;
       projectId: string | null;
       pageId: string | null;
+      taskTypeId: string | null;
       taskType1: string | null;
       taskType2: string | null;
       keyword: string | null;
@@ -324,6 +327,9 @@ const configuredAdminClient: AdminDataClient = !supabase
               p_end_date: filters.endDate,
               p_project_id: filters.projectId,
               p_project_page_id: filters.pageId,
+              p_platform_id: filters.platformId,
+              p_service_group_id: filters.serviceGroupId,
+              p_task_type_id: filters.taskTypeId,
               p_task_type1: filters.taskType1,
               p_task_type2: filters.taskType2,
               p_cost_group_id: filters.costGroupId,

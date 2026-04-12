@@ -62,6 +62,46 @@ afterEach(() => {
 });
 
 describe('AdminTaskTypeEditorPage', () => {
+  it('opens the task search page filtered by the current task type in a new tab', async () => {
+    listTaskTypes.mockResolvedValue([
+      {
+        id: 'task-type-1',
+        type1: '개발',
+        type2: '구현',
+        note: '',
+        display_order: 1,
+        requires_service_group: true,
+        is_active: true,
+      },
+      {
+        id: 'task-type-2',
+        type1: 'QA',
+        type2: '검수',
+        note: '',
+        display_order: 2,
+        requires_service_group: false,
+        is_active: true,
+      },
+    ]);
+    const openSpy = vi.spyOn(window, 'open').mockImplementation(() => null);
+    const user = userEvent.setup();
+
+    renderEditor();
+
+    await user.click(await screen.findByRole('button', { name: '조회' }));
+
+    const url = new URL(String(openSpy.mock.calls[0][0]), 'http://localhost');
+    expect(url.pathname).toBe('/org/search');
+    expect(url.searchParams.get('startDate')).toBe('');
+    expect(url.searchParams.get('endDate')).toBe('');
+    expect(url.searchParams.get('taskTypeId')).toBe('task-type-1');
+    expect(url.searchParams.get('taskType1')).toBe('개발');
+    expect(url.searchParams.get('taskType2')).toBe('구현');
+    expect(openSpy.mock.calls[0][1]).toBe('_blank');
+    expect(openSpy.mock.calls[0][2]).toBe('noopener,noreferrer');
+    openSpy.mockRestore();
+  });
+
   it('opens the transfer dialog with active target task types only and closes without saving', async () => {
     listTaskTypes.mockResolvedValue([
       {
