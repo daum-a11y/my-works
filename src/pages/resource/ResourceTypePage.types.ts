@@ -1,5 +1,6 @@
 export interface ResourceTypeItemSummary {
-  type: string;
+  type1: string;
+  type2: string;
   minutes: number;
 }
 
@@ -8,6 +9,7 @@ export interface ResourceTypeMonthSummary {
   totalMinutes: number;
   workingDays: number;
   items: ResourceTypeItemSummary[];
+  type1Items: ResourceTypeItemSummary[];
 }
 
 export interface ResourceTypeYearSummary {

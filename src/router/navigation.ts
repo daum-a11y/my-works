@@ -57,7 +57,7 @@ export const adminNavigation = [
     label: '리소스',
     icon: Database,
     children: [
-      { to: '/resource/type', label: '업무유형 집계' },
+      { to: '/resource/type', label: '업무 타입 집계' },
       { to: '/resource/svc', label: '서비스 그룹 집계' },
       { to: '/resource/month', label: '월간 리포트' },
     ],

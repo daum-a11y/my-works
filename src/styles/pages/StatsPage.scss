@@ -402,7 +402,7 @@
   }
 
   .stats-page__table th {
-    color: var(--text-table-color);
+    color: var(--text-muted);
     font-size: var(--text-table-size);
     font-weight: var(--text-table-weight);
     line-height: var(--text-table-line-height);
@@ -481,7 +481,7 @@
 
   .stats-page__empty {
     padding: 16px;
-    color: var(--text-secondary);
+    color: var(--text-tertiary);
     font-size: var(--text-body-size);
     font-weight: var(--text-body-weight);
     line-height: var(--text-body-line-height);

@@ -1247,6 +1247,7 @@ returns table (
   year text,
   month text,
   task_type1 text,
+  task_type2 text,
   task_usedtime numeric
 )
 language sql
@@ -1258,6 +1259,7 @@ as $$
     to_char(t.task_date, 'YYYY') as year,
     to_char(t.task_date, 'MM') as month,
     coalesce(tt.type1, '미분류') as task_type1,
+    coalesce(tt.type2, '미분류') as task_type2,
     sum(t.task_usedtime) as task_usedtime
   from public.tasks t
   left join public.task_types tt on tt.id = t.task_type_id
@@ -1270,8 +1272,12 @@ as $$
         and (p_member_id is null or p_member_id = public.current_member_id())
       )
     )
-  group by to_char(t.task_date, 'YYYY'), to_char(t.task_date, 'MM'), coalesce(tt.type1, '미분류')
-  order by year desc, month desc, task_type1 asc
+  group by
+    to_char(t.task_date, 'YYYY'),
+    to_char(t.task_date, 'MM'),
+    coalesce(tt.type1, '미분류'),
+    coalesce(tt.type2, '미분류')
+  order by year desc, month desc, task_type1 asc, task_type2 asc
 $$;
 
 create or replace function public.get_resource_type_summary_years(
@@ -1308,6 +1314,7 @@ returns table (
   year text,
   month text,
   task_type1 text,
+  task_type2 text,
   task_usedtime numeric
 )
 language sql
@@ -1324,6 +1331,7 @@ as $$
     to_char(t.task_date, 'YYYY') as year,
     to_char(t.task_date, 'MM') as month,
     coalesce(tt.type1, '미분류') as task_type1,
+    coalesce(tt.type2, '미분류') as task_type2,
     sum(t.task_usedtime) as task_usedtime
   from public.tasks t
   left join public.task_types tt on tt.id = t.task_type_id
@@ -1340,8 +1348,12 @@ as $$
     )
     and t.task_date >= yb.year_start
     and t.task_date < yb.year_end
-  group by to_char(t.task_date, 'YYYY'), to_char(t.task_date, 'MM'), coalesce(tt.type1, '미분류')
-  order by month desc, task_type1 asc
+  group by
+    to_char(t.task_date, 'YYYY'),
+    to_char(t.task_date, 'MM'),
+    coalesce(tt.type1, '미분류'),
+    coalesce(tt.type2, '미분류')
+  order by month desc, task_type1 asc, task_type2 asc
 $$;
 
 create or replace function public.get_resource_service_summary(

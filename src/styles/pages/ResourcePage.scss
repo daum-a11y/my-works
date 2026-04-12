@@ -1028,7 +1028,7 @@
 
   &__table th {
     background: var(--surface-canvas-strong);
-    color: var(--text-table-color);
+    color: var(--text-muted);
     font-size: var(--text-table-size);
     font-weight: var(--text-table-weight);
     line-height: var(--text-table-line-height);
@@ -1431,7 +1431,7 @@
   }
 
   .projects-feature__table th {
-    color: var(--text-table-color);
+    color: var(--text-muted);
     font-weight: var(--text-table-weight);
     letter-spacing: var(--text-table-tracking);
     text-transform: uppercase;
@@ -1742,7 +1742,7 @@
   }
 
   .projects-feature__page-table th {
-    color: var(--text-table-color);
+    color: var(--text-muted);
     font-size: var(--text-table-size);
     font-weight: var(--font-weight-medium);
     line-height: var(--text-table-line-height);

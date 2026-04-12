@@ -219,6 +219,7 @@ export interface ResourceTypeSummaryRow {
   year: string;
   month: string;
   taskType1: string;
+  taskType2: string;
   taskUsedtime: number;
 }
 

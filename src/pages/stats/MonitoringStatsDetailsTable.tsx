@@ -3,6 +3,7 @@ import {
   type MonitoringStatsRow,
   type SubtaskStatus,
 } from '../../types/domain';
+import { TableEmptyRow } from '../../components/shared';
 import {
   formatMonthLabel,
   formatTrackStatus,
@@ -203,11 +204,11 @@ export function MonitoringStatsDetailsTable({
             </tr>
           ))}
           {!rows.length ? (
-            <tr>
-              <td colSpan={11} className={'stats-page__empty'}>
-                조건에 맞는 모니터링 내역이 없습니다.
-              </td>
-            </tr>
+            <TableEmptyRow
+              colSpan={11}
+              className={'stats-page__empty'}
+              message="조건에 맞는 모니터링 내역이 없습니다."
+            />
           ) : null}
         </tbody>
       </table>

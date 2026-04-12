@@ -5,6 +5,7 @@ interface ResourceTypeSummaryRow {
   year: string;
   month: string;
   taskType1: string;
+  taskType2: string;
   taskUsedtime: number;
 }
 
@@ -19,7 +20,7 @@ export function buildResourceTypeYearRows(
 
   for (const row of rowsData) {
     const month = `${row.year}-${row.month}`;
-    const key = row.taskType1;
+    const key = `${row.taskType1}\u0000${row.taskType2}`;
     const monthMap = grouped.get(month) ?? new Map<string, number>();
     monthMap.set(key, (monthMap.get(key) ?? 0) + Math.round(row.taskUsedtime));
     grouped.set(month, monthMap);
@@ -32,13 +33,29 @@ export function buildResourceTypeYearRows(
   )) {
     const year = month.slice(0, 4);
     const months = years.get(year) ?? [];
+    const items = Array.from(types.entries())
+      .map(([key, minutes]) => {
+        const [type1, type2] = key.split('\u0000');
+        return { type1, type2, minutes };
+      })
+      .sort(
+        (left, right) =>
+          left.type1.localeCompare(right.type1) || left.type2.localeCompare(right.type2),
+      );
+    const type1Totals = new Map<string, number>();
+
+    for (const item of items) {
+      type1Totals.set(item.type1, (type1Totals.get(item.type1) ?? 0) + item.minutes);
+    }
+
     months.push({
       month: month.slice(5, 7),
       workingDays: countWorkingDays(month),
-      totalMinutes: Array.from(types.values()).reduce((sum, value) => sum + value, 0),
-      items: Array.from(types.entries())
+      totalMinutes: items.reduce((sum, item) => sum + item.minutes, 0),
+      items,
+      type1Items: Array.from(type1Totals.entries())
         .sort(([left], [right]) => left.localeCompare(right))
-        .map(([type, minutes]) => ({ type, minutes })),
+        .map(([type1, minutes]) => ({ type1, type2: '합계', minutes })),
     });
     years.set(year, months);
   }

@@ -11,15 +11,14 @@ export function ResourceTypeYearRows({ row, fold }: ResourceTypeYearRowsProps) {
     return (
       <>
         {row.months.map((month) => (
-          <tr key={`${row.year}-${month.month}-sum`} className="resource-page__summary-strong-row">
-            <td>{month.month}월</td>
-            <td>전체</td>
-            <td>{formatMm(month.totalMinutes, month.workingDays)}</td>
-          </tr>
+          <ResourceTypeMonthRows
+            key={`${row.year}-${month.month}-type1`}
+            month={month}
+            items={month.type1Items}
+          />
         ))}
         <tr className="resource-page__summary-strong-row">
-          <td>{row.year}년 합계</td>
-          <td>전체</td>
+          <td colSpan={3}>{row.year}년 합계</td>
           <td>{formatMm(row.yearTotalMinutes, 21.73)}</td>
         </tr>
       </>
@@ -29,34 +28,63 @@ export function ResourceTypeYearRows({ row, fold }: ResourceTypeYearRowsProps) {
   return (
     <>
       {row.months.map((month) => (
-        <ResourceTypeMonthDetailRows key={`${row.year}-${month.month}`} month={month} />
+        <ResourceTypeMonthRows
+          key={`${row.year}-${month.month}`}
+          month={month}
+          items={month.items}
+          showMonthSummary
+        />
       ))}
       <tr className="resource-page__summary-strong-row">
-        <td colSpan={2}>{row.year}년 합계</td>
+        <td colSpan={3}>{row.year}년 합계</td>
         <td>{formatMm(row.yearTotalMinutes, 21.73)}</td>
       </tr>
     </>
   );
 }
 
-interface ResourceTypeMonthDetailRowsProps {
+interface ResourceTypeMonthRowsProps {
   month: ResourceTypeMonthSummary;
+  items: ResourceTypeMonthSummary['items'];
+  showMonthSummary?: boolean;
 }
 
-function ResourceTypeMonthDetailRows({ month }: ResourceTypeMonthDetailRowsProps) {
+function ResourceTypeMonthRows({
+  month,
+  items,
+  showMonthSummary = false,
+}: ResourceTypeMonthRowsProps) {
+  const type1RowSpans = new Map<string, number>();
+  const firstType1Indexes = new Set<number>();
+
+  for (const item of items) {
+    type1RowSpans.set(item.type1, (type1RowSpans.get(item.type1) ?? 0) + 1);
+  }
+
+  for (let index = 0; index < items.length; index += 1) {
+    if (index === 0 || items[index - 1].type1 !== items[index].type1) {
+      firstType1Indexes.add(index);
+    }
+  }
+
   return (
     <>
-      {month.items.map((item, index) => (
-        <tr key={`${month.month}-${item.type}`}>
-          {index === 0 ? <td rowSpan={month.items.length}>{month.month}월</td> : null}
-          <td>{item.type}</td>
+      {items.map((item, index) => (
+        <tr key={`${month.month}-${item.type1}-${item.type2}`}>
+          {index === 0 ? <td rowSpan={items.length}>{month.month}월</td> : null}
+          {firstType1Indexes.has(index) ? (
+            <td rowSpan={type1RowSpans.get(item.type1)}>{item.type1}</td>
+          ) : null}
+          <td>{item.type2}</td>
           <td>{formatMm(item.minutes, month.workingDays)}</td>
         </tr>
       ))}
-      <tr className="resource-page__summary-strong-row">
-        <td colSpan={2}>{month.month}월 합계</td>
-        <td>{formatMm(month.totalMinutes, month.workingDays)}</td>
-      </tr>
+      {showMonthSummary ? (
+        <tr className="resource-page__summary-strong-row">
+          <td colSpan={3}>{month.month}월 합계</td>
+          <td>{formatMm(month.totalMinutes, month.workingDays)}</td>
+        </tr>
+      ) : null}
     </>
   );
 }

@@ -21,17 +21,18 @@ export function ResourceTypeTableSection({
     return (
       <div className="projects-feature__table-wrap">
         <table className="projects-feature__table">
-          <caption className="sr-only">연도와 월 기준 업무유형 집계 표</caption>
+          <caption className="sr-only">연도와 월 기준 업무 타입 집계 표</caption>
           <thead>
             <tr>
               <th scope="col">월</th>
-              <th scope="col">업무유형</th>
+              <th scope="col">타입1</th>
+              <th scope="col">타입2</th>
               <th scope="col">MM</th>
             </tr>
           </thead>
           <tbody>
             <TableEmptyRow
-              colSpan={3}
+              colSpan={4}
               className="projects-feature__empty-state"
               message="표시할 타입별 집계가 없습니다."
             />
@@ -44,7 +45,7 @@ export function ResourceTypeTableSection({
   return (
     <section className="resource-page__table-tabs-section">
       <div className="resource-page__table-tabs-scroller">
-        <div className="resource-page__table-tabs" role="tablist" aria-label="업무유형 집계 연도">
+        <div className="resource-page__table-tabs" role="tablist" aria-label="업무 타입 집계 연도">
           {years.map((year) => {
             const selected = year === activeYear;
 
@@ -81,11 +82,12 @@ export function ResourceTypeTableSection({
         >
           <div className="projects-feature__table-wrap">
             <table className="projects-feature__table">
-              <caption className="sr-only">{activeRow.year}년 월 기준 업무유형 집계 표</caption>
+              <caption className="sr-only">{activeRow.year}년 월 기준 업무 타입 집계 표</caption>
               <thead>
                 <tr>
                   <th scope="col">월</th>
-                  <th scope="col">업무유형</th>
+                  <th scope="col">타입1</th>
+                  <th scope="col">타입2</th>
                   <th scope="col">MM</th>
                 </tr>
               </thead>

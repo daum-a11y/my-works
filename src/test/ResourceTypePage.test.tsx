@@ -67,6 +67,7 @@ describe('ResourceTypePage', () => {
               year: '2024',
               month: '02',
               taskType1: '모니터링',
+              taskType2: '점검',
               taskUsedtime: 60,
             },
           ];
@@ -77,12 +78,21 @@ describe('ResourceTypePage', () => {
             year: '2023',
             month: '04',
             taskType1: 'QA',
+            taskType2: '사전준비',
             taskUsedtime: 180,
           },
           {
             year: '2023',
             month: '04',
+            taskType1: 'QA',
+            taskType2: '리뷰',
+            taskUsedtime: 120,
+          },
+          {
+            year: '2023',
+            month: '04',
             taskType1: '일반버퍼',
+            taskType2: '지원',
             taskUsedtime: 60,
           },
         ];
@@ -90,7 +100,7 @@ describe('ResourceTypePage', () => {
     );
   });
 
-  it('groups resource rows by type1 like the legacy page', async () => {
+  it('shows type1 and type2 rows when expanded', async () => {
     const queryClient = new QueryClient();
 
     render(
@@ -106,8 +116,7 @@ describe('ResourceTypePage', () => {
 
     expect(screen.getByRole('tab', { name: '2023년' })).toBeInTheDocument();
     expect(screen.getAllByRole('cell', { name: '모니터링' }).length).toBeGreaterThan(0);
-    expect(screen.queryByText('QA / 사전준비')).not.toBeInTheDocument();
-    expect(screen.queryByText('QA / 리뷰')).not.toBeInTheDocument();
+    expect(screen.getByRole('cell', { name: '점검' })).toBeInTheDocument();
   });
 
   it('shows only the selected year table and switches with tabs', async () => {
@@ -130,10 +139,10 @@ describe('ResourceTypePage', () => {
 
     await waitFor(() => {
       expect(screen.getByRole('tab', { name: '2023년' })).toHaveAttribute('aria-selected', 'true');
-      expect(screen.getByRole('cell', { name: 'QA' })).toBeInTheDocument();
+      expect(screen.getAllByRole('cell', { name: 'QA' })).toHaveLength(1);
     });
 
-    expect(screen.getByRole('cell', { name: 'QA' })).toBeInTheDocument();
+    expect(screen.getAllByRole('cell', { name: 'QA' })).toHaveLength(1);
     expect(screen.getByRole('cell', { name: '일반버퍼' })).toBeInTheDocument();
     expect(screen.queryByRole('cell', { name: '모니터링' })).not.toBeInTheDocument();
   });
@@ -154,7 +163,7 @@ describe('ResourceTypePage', () => {
     screen.getByRole('tab', { name: '2023년' }).click();
 
     await waitFor(() => {
-      expect(screen.getByRole('cell', { name: 'QA' })).toBeInTheDocument();
+      expect(screen.getAllByRole('cell', { name: 'QA' })).toHaveLength(1);
     });
 
     const rows = within(screen.getByRole('table')).getAllByRole('row');
@@ -165,5 +174,45 @@ describe('ResourceTypePage', () => {
     expect(yearSummaryRow).toBeDefined();
     expect(within(monthSummaryRow!).getAllByRole('cell')).toHaveLength(2);
     expect(within(yearSummaryRow!).getAllByRole('cell')).toHaveLength(2);
+  });
+
+  it('folds rows into type1 totals and expands back to type1/type2 details', async () => {
+    const queryClient = new QueryClient();
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <ResourceTypePage />
+      </QueryClientProvider>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByRole('tab', { name: '2023년' })).toBeInTheDocument();
+    });
+
+    screen.getByRole('tab', { name: '2023년' }).click();
+
+    await waitFor(() => {
+      expect(screen.getByRole('cell', { name: '사전준비' })).toBeInTheDocument();
+      expect(screen.getByRole('cell', { name: '리뷰' })).toBeInTheDocument();
+    });
+
+    expect(screen.getByRole('cell', { name: 'QA' })).toHaveAttribute('rowspan', '2');
+
+    screen.getByRole('button', { name: '접기' }).click();
+
+    await waitFor(() => {
+      expect(screen.getAllByRole('cell', { name: '합계' })).toHaveLength(2);
+    });
+
+    expect(screen.queryByRole('cell', { name: '사전준비' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('cell', { name: '리뷰' })).not.toBeInTheDocument();
+    expect(screen.getAllByRole('cell', { name: 'QA' })).toHaveLength(1);
+
+    screen.getByRole('button', { name: '펼치기' }).click();
+
+    await waitFor(() => {
+      expect(screen.getByRole('cell', { name: '사전준비' })).toBeInTheDocument();
+      expect(screen.getByRole('cell', { name: '리뷰' })).toBeInTheDocument();
+    });
   });
 });

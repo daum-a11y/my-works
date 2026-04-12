@@ -9,7 +9,7 @@ export interface TableEmptyRowProps extends ComponentPropsWithoutRef<'td'> {
 export function TableEmptyRow({ colSpan, message, className, ...props }: TableEmptyRowProps) {
   return (
     <tr>
-      <td colSpan={colSpan} className={clsx(className)} {...props}>
+      <td colSpan={colSpan} className={clsx('table-empty-row', className)} {...props}>
         {message}
       </td>
     </tr>

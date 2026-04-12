@@ -138,6 +138,12 @@ select {
   letter-spacing: var(--text-table-tracking);
 }
 
+.table-empty-row {
+  font-size: var(--text-body-size);
+  font-weight: var(--text-body-weight);
+  line-height: var(--text-body-line-height);
+}
+
 .platform-badge {
   background: var(--state-info-bg);
   border-color: var(--state-info-border);

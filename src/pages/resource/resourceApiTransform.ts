@@ -39,6 +39,7 @@ export function toResourceTypeSummaryRow(record: ApiRecord): ResourceTypeSummary
     year: String(record.year ?? ''),
     month: String(record.month ?? ''),
     taskType1: String(readValue(record, 'task_type1', 'taskType1') ?? ''),
+    taskType2: String(readValue(record, 'task_type2', 'taskType2') ?? ''),
     taskUsedtime: Number(readValue(record, 'task_usedtime', 'taskUsedtime') ?? 0),
   };
 }

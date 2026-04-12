@@ -215,7 +215,7 @@
     font-size: var(--text-table-size);
     text-transform: uppercase;
     letter-spacing: var(--text-table-tracking);
-    color: var(--text-table-color);
+    color: var(--text-muted);
     font-weight: var(--text-table-weight);
     line-height: var(--text-table-line-height);
     position: sticky;
@@ -804,7 +804,7 @@
     top: 0;
     z-index: 1;
     background: color-mix(in oklab, var(--theme-admin-surface) 34%, var(--surface-canvas-strong));
-    color: var(--text-table-color);
+    color: var(--text-muted);
     font-size: var(--text-table-size);
     font-weight: var(--text-table-weight);
     line-height: var(--text-table-line-height);
@@ -1292,7 +1292,7 @@
   }
 
   .projects-feature__table th {
-    color: var(--text-table-color);
+    color: var(--text-muted);
     font-weight: var(--text-table-weight);
     letter-spacing: var(--text-table-tracking);
     text-transform: uppercase;
@@ -1603,7 +1603,7 @@
   }
 
   .projects-feature__page-table th {
-    color: var(--text-table-color);
+    color: var(--text-muted);
     font-size: var(--text-table-size);
     font-weight: var(--font-weight-medium);
     line-height: var(--text-table-line-height);
@@ -2007,7 +2007,7 @@
     position: sticky;
     top: 0;
     z-index: 1;
-    color: var(--text-table-color);
+    color: var(--text-muted);
     font-size: var(--text-table-size);
     font-weight: var(--text-table-weight);
     line-height: var(--text-table-line-height);
@@ -2258,7 +2258,7 @@
     top: 0;
     z-index: 1;
     background: var(--surface-canvas-strong);
-    color: var(--text-table-color);
+    color: var(--text-muted);
     font-weight: var(--text-table-weight);
     letter-spacing: var(--text-table-tracking);
     text-transform: uppercase;
@@ -3226,7 +3226,7 @@
     top: 0;
     z-index: 1;
     background: color-mix(in oklab, var(--theme-admin-surface) 34%, var(--surface-canvas-strong));
-    color: var(--text-table-color);
+    color: var(--text-muted);
     font-size: var(--text-table-size);
     font-weight: var(--text-table-weight);
     line-height: var(--text-table-line-height);

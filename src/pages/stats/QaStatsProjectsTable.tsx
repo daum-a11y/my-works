@@ -1,3 +1,4 @@
+import { TableEmptyRow } from '../../components/shared';
 import type { QaStatsProjectRow } from '../../types/domain';
 import { formatMonthLabel, monthKeyFromDate } from './QaStatsPage.utils';
 
@@ -45,11 +46,11 @@ export function QaStatsProjectsTable({ projects }: QaStatsProjectsTableProps) {
             </tr>
           ))}
           {!projects.length ? (
-            <tr>
-              <td colSpan={6} className={'stats-page__empty'}>
-                조건에 맞는 QA 내역이 없습니다.
-              </td>
-            </tr>
+            <TableEmptyRow
+              colSpan={6}
+              className={'stats-page__empty'}
+              message="조건에 맞는 QA 내역이 없습니다."
+            />
           ) : null}
         </tbody>
       </table>
