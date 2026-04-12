@@ -116,7 +116,7 @@
   .stats-page__filter-button {
     min-height: var(--control-height-md);
     padding: 0 var(--control-padding-x);
-    border: 1px solid color-mix(in oklab, var(--button-primary-bg) 82%, black 18%);
+    border: 1px solid var(--button-primary-border);
     background: var(--button-primary-bg);
     color: var(--text-inverse);
     font: inherit;

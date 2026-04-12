@@ -175,7 +175,7 @@
   .projects-feature__filter-button {
     min-height: var(--control-height-md);
     padding: 0 var(--space-3);
-    border-color: color-mix(in oklab, var(--button-primary-bg) 82%, black 18%);
+    border-color: var(--button-primary-border);
     background: var(--button-primary-bg);
     color: var(--text-inverse);
     font-size: var(--text-form-size);

@@ -204,13 +204,13 @@
   }
 
   .reports-page__status-message--success {
-    border: 1px solid color-mix(in oklab, #27824f 38%, var(--border-default));
-    background: color-mix(in oklab, #27824f 10%, var(--surface-panel));
+    border: 1px solid var(--state-success-border);
+    background: color-mix(in oklab, var(--state-success-bg) 58%, var(--surface-panel));
   }
 
   .reports-page__status-message--error {
-    border: 1px solid color-mix(in oklab, #d33 45%, var(--border-default));
-    background: color-mix(in oklab, #d33 10%, var(--surface-panel));
+    border: 1px solid var(--state-danger-border);
+    background: color-mix(in oklab, var(--state-danger-bg) 58%, var(--surface-panel));
   }
 
   .reports-page__panel-meta {

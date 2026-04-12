@@ -92,9 +92,18 @@ vi.mock('../pages/profile', () => ({
   UserProfilePage: () => <div>profile-page</div>,
 }));
 
-vi.mock('../layouts/AuthenticatedLayout', () => ({
-  AuthenticatedLayout: () => <div>authenticated-layout</div>,
-}));
+vi.mock('../layouts/AuthenticatedLayout', async () => {
+  const { Outlet } = await import('react-router-dom');
+
+  return {
+    AuthenticatedLayout: () => (
+      <div>
+        <div>authenticated-layout</div>
+        <Outlet />
+      </div>
+    ),
+  };
+});
 
 describe('RootRouter', () => {
   afterEach(() => {
@@ -149,6 +158,57 @@ describe('RootRouter', () => {
 
     await waitFor(() => {
       expect(screen.getByText('login-page')).toBeInTheDocument();
+    });
+  });
+
+  it('redirects non-admin members away from organization summary', async () => {
+    window.history.replaceState({}, '', '/org/summary');
+    mockUseAuth.mockReturnValue({
+      status: 'authenticated',
+      authFlow: 'default',
+      isRecoverySession: false,
+      session: {
+        member: {
+          id: 'member-1',
+          accountId: 'user01',
+          name: '사용자',
+          role: 'user',
+          isActive: true,
+          status: 'active',
+        },
+      },
+    });
+
+    render(<RootRouter />);
+
+    await waitFor(() => {
+      expect(screen.getByText('dashboard-page')).toBeInTheDocument();
+    });
+    expect(screen.queryByText('resource-summary-page')).not.toBeInTheDocument();
+  });
+
+  it('allows admins to open organization summary', async () => {
+    window.history.replaceState({}, '', '/org/summary');
+    mockUseAuth.mockReturnValue({
+      status: 'authenticated',
+      authFlow: 'default',
+      isRecoverySession: false,
+      session: {
+        member: {
+          id: 'member-1',
+          accountId: 'admin01',
+          name: '관리자',
+          role: 'admin',
+          isActive: true,
+          status: 'active',
+        },
+      },
+    });
+
+    render(<RootRouter />);
+
+    await waitFor(() => {
+      expect(screen.getByText('resource-summary-page')).toBeInTheDocument();
     });
   });
 

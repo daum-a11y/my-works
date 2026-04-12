@@ -126,12 +126,12 @@ export function RootRouter() {
             <Route path="/projects" element={<ProjectsPage />} />
             <Route path="/projects/new" element={<ProjectEditorPage />} />
             <Route path="/projects/:projectId/edit" element={<ProjectEditorPage />} />
-            <Route path="/org/summary" element={<ResourceSummaryPage />} />
             <Route path="/stats/qa" element={<QaStatsPage />} />
             <Route path="/stats/monitoring" element={<MonitoringStatsPage />} />
             <Route path="/profile" element={<UserProfilePage />} />
             <Route path="/password-change" element={<Navigate to="/profile" replace />} />
             <Route element={<AdminRoute />}>
+              <Route path="/org/summary" element={<ResourceSummaryPage />} />
               <Route path="/resource/month" element={<ResourceMonthPage />} />
               <Route path="/resource/month/:type" element={<ResourceMonthPage />} />
               <Route path="/resource/type" element={<ResourceTypePage />} />

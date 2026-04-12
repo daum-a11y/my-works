@@ -299,7 +299,7 @@
   .password-settings-page__button--primary {
     background: var(--button-primary-bg);
     color: var(--accent-foreground);
-    border-color: color-mix(in oklab, var(--button-primary-bg) 82%, black 18%);
+    border-color: var(--button-primary-border);
     box-shadow: inset 0 1px 0 color-mix(in oklab, white 26%, transparent);
   }
 

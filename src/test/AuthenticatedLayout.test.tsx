@@ -17,6 +17,43 @@ afterEach(() => {
 });
 
 describe('AuthenticatedLayout', () => {
+  it('does not show organization management links to non-admin members', () => {
+    const queryClient = new QueryClient({
+      defaultOptions: {
+        queries: { retry: false },
+      },
+    });
+
+    mockUseAuth.mockReturnValue({
+      session: {
+        member: {
+          name: '홍길동',
+          accountId: 'hong.gd',
+          role: 'user',
+        },
+      },
+      logout: vi.fn(),
+    });
+
+    render(
+      <ThemePreferenceProvider>
+        <QueryClientProvider client={queryClient}>
+          <MemoryRouter initialEntries={['/dashboard']}>
+            <Routes>
+              <Route path="/" element={<AuthenticatedLayout />}>
+                <Route path="dashboard" element={<div>dashboard-page</div>} />
+              </Route>
+            </Routes>
+          </MemoryRouter>
+        </QueryClientProvider>
+      </ThemePreferenceProvider>,
+    );
+
+    expect(screen.queryByText('조직 관리')).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: '업무보고 현황' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: '업무보고 조회' })).not.toBeInTheDocument();
+  });
+
   it('opens the user menu and keeps profile and logout actions inside it', async () => {
     const user = userEvent.setup();
     const logout = vi.fn().mockResolvedValue(undefined);

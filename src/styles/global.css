@@ -56,8 +56,8 @@ select,
 }
 
 ::selection {
-  background: color-mix(in oklab, var(--accent-soft) 82%, white);
-  color: var(--text-primary);
+  background: var(--selection-bg);
+  color: var(--selection-fg);
 }
 
 input,

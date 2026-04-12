@@ -38,12 +38,12 @@
   &--primary {
     color: var(--text-inverse);
     background: var(--button-primary-bg);
-    border-color: color-mix(in srgb, var(--button-primary-bg) 74%, black);
+    border-color: var(--button-primary-border);
   }
 
   &--primary:not([data-disabled]):hover {
     background: var(--button-primary-bg-hover);
-    box-shadow: 0 8px 18px rgba(48, 66, 122, 0.14);
+    box-shadow: var(--button-primary-hover-shadow);
   }
 
   &--secondary {
@@ -71,6 +71,6 @@
   &--danger {
     color: var(--text-inverse);
     background: var(--button-danger-bg);
-    border-color: color-mix(in srgb, var(--button-danger-bg) 82%, white);
+    border-color: var(--button-danger-border);
   }
 }

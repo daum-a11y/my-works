@@ -42,6 +42,9 @@ export const baseNavigation = [
       { to: '/stats/monitoring', label: '모니터링 통계' },
     ],
   },
+] as const satisfies readonly NavigationItem[];
+
+export const adminNavigation = [
   {
     label: '조직 관리',
     icon: BriefcaseBusiness,
@@ -50,9 +53,6 @@ export const baseNavigation = [
       { to: '/org/search', label: '업무보고 조회' },
     ],
   },
-] as const satisfies readonly NavigationItem[];
-
-export const adminNavigation = [
   {
     label: '리소스',
     icon: Database,
