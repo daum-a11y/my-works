@@ -3,7 +3,7 @@ import {
   buildTaskType2Options as buildTaskType2OptionValues,
 } from '../../../utils/taskType';
 import { toLocalDateInputValue } from '../../../utils';
-import type { AdminTaskSearchItem, AdminTaskTypeItem, MemberAdminItem } from '../admin.types';
+import type { AdminTaskSearchItem, AdminTaskTypeItem } from '../admin.types';
 import type { SortKey, SortState } from './AdminReportsPage.types';
 
 export function buildExportFilename(startDate: string, endDate: string) {
@@ -53,16 +53,12 @@ function compareText(left: string, right: string) {
   return left.localeCompare(right, 'ko');
 }
 
-function getSortValue(
-  task: AdminTaskSearchItem,
-  membersById: Map<string, MemberAdminItem>,
-  key: SortKey,
-) {
+function getSortValue(task: AdminTaskSearchItem, key: SortKey) {
   switch (key) {
     case 'id':
       return task.id;
     case 'member':
-      return membersById.get(task.memberId)?.accountId ?? task.memberId;
+      return task.memberAccountId || task.memberId;
     case 'costGroup':
       return task.costGroupName;
     case 'taskType1':
@@ -89,16 +85,12 @@ function getSortValue(
   }
 }
 
-export function sortTasks(
-  tasks: readonly AdminTaskSearchItem[],
-  sort: SortState,
-  membersById: Map<string, MemberAdminItem>,
-) {
+export function sortTasks(tasks: readonly AdminTaskSearchItem[], sort: SortState) {
   const direction = sort.direction === 'asc' ? 1 : -1;
 
   return [...tasks].sort((left, right) => {
-    const leftValue = getSortValue(left, membersById, sort.key);
-    const rightValue = getSortValue(right, membersById, sort.key);
+    const leftValue = getSortValue(left, sort.key);
+    const rightValue = getSortValue(right, sort.key);
 
     if (typeof leftValue === 'number' && typeof rightValue === 'number') {
       return (leftValue - rightValue) * direction;

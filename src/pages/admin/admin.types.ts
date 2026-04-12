@@ -16,6 +16,7 @@ export interface AdminTaskSearchFilters {
 export interface AdminTaskSearchItem {
   id: string;
   memberId: string;
+  memberAccountId: string;
   memberName: string;
   memberEmail: string;
   taskDate: string;

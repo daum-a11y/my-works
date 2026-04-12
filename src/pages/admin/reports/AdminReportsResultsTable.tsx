@@ -138,7 +138,7 @@ export function AdminReportsResultsTable({
                   <tr key={task.id}>
                     <td>{task.taskDate}</td>
                     <td>
-                      <strong>{task.memberId}</strong>
+                      <strong>{task.memberAccountId || task.memberId}</strong>
                       <div className={'admin-reports-page__muted'}>{task.memberName}</div>
                     </td>
                     <td>{task.costGroupName || '-'}</td>

@@ -158,6 +158,7 @@ export function toAdminTask(record: ApiRecord): AdminTaskSearchItem {
   return {
     id: String(record.id ?? ''),
     memberId: String(record.member_id ?? ''),
+    memberAccountId: String(record.member_account_id ?? record.memberAccountId ?? ''),
     memberName: String(record.member_name ?? ''),
     memberEmail: String(record.member_email ?? ''),
     taskDate: String(record.task_date ?? ''),

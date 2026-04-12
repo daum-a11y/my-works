@@ -1083,6 +1083,7 @@ create or replace function public.get_tasks_by_date(
 returns table (
   id uuid,
   member_id uuid,
+  member_account_id text,
   task_date date,
   cost_group_id uuid,
   cost_group_name text,
@@ -1110,6 +1111,7 @@ as $$
   select
     t.id,
     t.member_id,
+    m.account_id as member_account_id,
     t.task_date,
     t.cost_group_id,
     nullif(cg.name, '') as cost_group_name,
@@ -2093,6 +2095,7 @@ create or replace function public.search_tasks_page(
 returns table (
   id uuid,
   member_id uuid,
+  member_account_id text,
   task_date date,
   cost_group_id uuid,
   cost_group_name text,
@@ -2117,6 +2120,7 @@ as $$
   select
     t.id,
     t.member_id,
+    m.account_id as member_account_id,
     t.task_date,
     t.cost_group_id,
     cg.name as cost_group_name,
@@ -2610,6 +2614,7 @@ create or replace function public.admin_get_task(
 returns table (
   id uuid,
   member_id uuid,
+  member_account_id text,
   task_date date,
   cost_group_id uuid,
   cost_group_name text,
@@ -2639,6 +2644,7 @@ as $$
   select
     t.id,
     t.member_id,
+    m.account_id as member_account_id,
     t.task_date,
     t.cost_group_id,
     cg.name as cost_group_name,
@@ -3393,6 +3399,7 @@ create or replace function public.admin_search_tasks(
 returns table (
   id uuid,
   member_id uuid,
+  member_account_id text,
   task_date date,
   cost_group_id uuid,
   cost_group_name text,
@@ -3422,6 +3429,7 @@ as $$
   select
     t.id,
     t.member_id,
+    m.account_id as member_account_id,
     t.task_date,
     t.cost_group_id,
     cg.name as cost_group_name,

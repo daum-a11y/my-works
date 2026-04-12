@@ -167,8 +167,8 @@ export function useAdminReportsPage() {
     );
   }, [memberSearchInput, members]);
   const sortedTasks = useMemo(
-    () => sortTasks(filteredTasks, sortState, membersById),
-    [filteredTasks, membersById, sortState],
+    () => sortTasks(filteredTasks, sortState),
+    [filteredTasks, sortState],
   );
   const totalMinutes = useMemo(
     () => sortedTasks.reduce((sum, task) => sum + task.taskUsedtime, 0),
@@ -247,7 +247,7 @@ export function useAdminReportsPage() {
         { header: '일자', value: (task) => task.taskDate, width: 12 },
         {
           header: 'ID',
-          value: (task) => membersById.get(task.memberId)?.accountId ?? task.memberId,
+          value: (task) => task.memberAccountId || task.memberId,
           width: 18,
         },
         { header: '청구그룹', value: (task) => task.costGroupName, width: 16 },
