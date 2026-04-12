@@ -684,10 +684,6 @@
     display: contents;
   }
 
-  .projects-feature__subtask-add-row td {
-    background: var(--surface-canvas-strong);
-  }
-
   .projects-feature__subtask-table th:last-child {
     text-align: center;
   }
@@ -718,6 +714,80 @@
   .projects-feature__subtask-table td :is(input, select, textarea):focus-visible {
     outline: 2px solid var(--focus-ring-color);
     outline-offset: 1px;
+  }
+
+  .projects-feature__subtask-read-title {
+    display: grid;
+    gap: var(--space-1);
+    min-width: 0;
+  }
+
+  .projects-feature__subtask-read-title strong {
+    color: var(--text-primary);
+    font-weight: var(--font-weight-semibold);
+    overflow-wrap: anywhere;
+  }
+
+  .projects-feature__subtask-read-note {
+    color: var(--text-tertiary);
+    font-size: var(--text-meta-size);
+    line-height: var(--text-meta-line-height);
+    overflow-wrap: anywhere;
+  }
+
+  .projects-feature__subtask-title-stack {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .projects-feature__subtask-title-stack textarea {
+    min-height: 34px;
+    resize: vertical;
+  }
+
+  .projects-feature__subtask-edit-row td {
+    padding: 0;
+    background: var(--surface-canvas-strong);
+  }
+
+  .projects-feature__subtask-edit-panel {
+    display: grid;
+    gap: var(--space-3);
+    padding: var(--space-3);
+  }
+
+  .projects-feature__subtask-edit-grid {
+    display: grid;
+    grid-template-columns: minmax(220px, 1.4fr) minmax(220px, 1.2fr) minmax(150px, 0.8fr) minmax(
+        140px,
+        0.7fr
+      );
+    gap: var(--space-3);
+    align-items: start;
+  }
+
+  .projects-feature__subtask-edit-grid label {
+    display: grid;
+    gap: var(--space-1);
+    color: var(--text-secondary);
+    font-size: var(--text-label-size);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--text-label-line-height);
+  }
+
+  .projects-feature__subtask-edit-note {
+    grid-column: 1 / -1;
+  }
+
+  .projects-feature__subtask-edit-note textarea {
+    min-height: 72px;
+    resize: vertical;
+  }
+
+  .projects-feature__subtask-edit-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-2);
   }
 
   .projects-feature__subtask-table-actions {

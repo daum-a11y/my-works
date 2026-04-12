@@ -1,4 +1,4 @@
-import type { FormEvent } from 'react';
+import { Fragment, useState, type FormEvent } from 'react';
 import { EmptyState } from '../../components/shared/EmptyState';
 import { subtaskStatusOptions, type ProjectSubtask, type SubtaskStatus } from '../../types/domain';
 import type { SubtaskFormState } from './ProjectEditorPage.types';
@@ -9,6 +9,7 @@ interface ProjectEditorSubtasksSectionProps {
   selectedProjectSubtasks: ProjectSubtask[];
   subtaskDrafts: Record<string, SubtaskFormState>;
   members: Array<{ id: string; accountId: string; name: string }>;
+  canEditSubtask: (subtask: ProjectSubtask) => boolean;
   canDeleteSubtask: (subtask: ProjectSubtask) => boolean;
   onToggleAdd: () => void;
   onNewSubtaskDraftChange: (patch: Partial<SubtaskFormState>) => void;
@@ -26,6 +27,7 @@ export function ProjectEditorSubtasksSection({
   selectedProjectSubtasks,
   subtaskDrafts,
   members,
+  canEditSubtask,
   canDeleteSubtask,
   onToggleAdd,
   onNewSubtaskDraftChange,
@@ -37,6 +39,7 @@ export function ProjectEditorSubtasksSection({
   toSubtaskDraft,
 }: ProjectEditorSubtasksSectionProps) {
   const addFormId = 'project-subtask-add-form';
+  const [editingSubtaskId, setEditingSubtaskId] = useState<string | null>(null);
   const showSubtaskTable = subtaskAddOpen || selectedProjectSubtasks.length > 0;
 
   return (
@@ -85,16 +88,28 @@ export function ProjectEditorSubtasksSection({
               {subtaskAddOpen && newSubtaskDraft ? (
                 <tr className={'projects-feature__subtask-add-row'}>
                   <td>
-                    <label className={'sr-only'} htmlFor="new-subtask-title">
-                      과업명
-                    </label>
-                    <input
-                      id="new-subtask-title"
-                      form={addFormId}
-                      value={newSubtaskDraft.title}
-                      placeholder="과업명"
-                      onChange={(event) => onNewSubtaskDraftChange({ title: event.target.value })}
-                    />
+                    <div className={'projects-feature__subtask-title-stack'}>
+                      <label className={'sr-only'} htmlFor="new-subtask-title">
+                        과업명
+                      </label>
+                      <input
+                        id="new-subtask-title"
+                        form={addFormId}
+                        value={newSubtaskDraft.title}
+                        placeholder="과업명"
+                        onChange={(event) => onNewSubtaskDraftChange({ title: event.target.value })}
+                      />
+                      <label className={'sr-only'} htmlFor="new-subtask-note">
+                        과업 비고
+                      </label>
+                      <input
+                        id="new-subtask-note"
+                        form={addFormId}
+                        value={newSubtaskDraft.note}
+                        placeholder="비고"
+                        onChange={(event) => onNewSubtaskDraftChange({ note: event.target.value })}
+                      />
+                    </div>
                   </td>
                   <td>
                     <label className={'sr-only'} htmlFor="new-subtask-url">
@@ -104,7 +119,7 @@ export function ProjectEditorSubtasksSection({
                       id="new-subtask-url"
                       form={addFormId}
                       value={newSubtaskDraft.url}
-                      placeholder="https://example.com/subtask"
+                      placeholder="보고서 URL"
                       onChange={(event) => onNewSubtaskDraftChange({ url: event.target.value })}
                     />
                   </td>
@@ -165,95 +180,182 @@ export function ProjectEditorSubtasksSection({
               ) : null}
               {selectedProjectSubtasks.map((subtask) => {
                 const draft = subtaskDrafts[subtask.id] ?? toSubtaskDraft(subtask);
+                const owner = members.find((item) => item.id === subtask.ownerMemberId);
+                const ownerText = owner
+                  ? [owner.accountId, owner.name].filter(Boolean).join(' ')
+                  : '-';
+                const isEditing = editingSubtaskId === subtask.id;
+                const canEdit = canEditSubtask(subtask);
 
                 return (
-                  <tr key={subtask.id}>
-                    <td>
-                      <label className={'sr-only'} htmlFor={`subtask-title-${subtask.id}`}>
-                        과업명
-                      </label>
-                      <input
-                        id={`subtask-title-${subtask.id}`}
-                        value={draft.title}
-                        placeholder="과업명"
-                        onChange={(event) =>
-                          onSubtaskDraftChange(subtask.id, { title: event.target.value })
-                        }
-                      />
-                    </td>
-                    <td>
-                      <label className={'sr-only'} htmlFor={`subtask-url-${subtask.id}`}>
-                        보고서 URL
-                      </label>
-                      <input
-                        id={`subtask-url-${subtask.id}`}
-                        value={draft.url}
-                        placeholder="보고서 URL"
-                        onChange={(event) =>
-                          onSubtaskDraftChange(subtask.id, { url: event.target.value })
-                        }
-                      />
-                    </td>
-                    <td>
-                      <label className={'sr-only'} htmlFor={`subtask-owner-${subtask.id}`}>
-                        담당자
-                      </label>
-                      <select
-                        id={`subtask-owner-${subtask.id}`}
-                        value={draft.ownerMemberId}
-                        onChange={(event) =>
-                          onSubtaskDraftChange(subtask.id, { ownerMemberId: event.target.value })
-                        }
-                      >
-                        <option value="">담당자 선택</option>
-                        {members.map((item) => (
-                          <option key={item.id} value={item.id}>
-                            {[item.accountId, item.name].filter(Boolean).join(' ')}
-                          </option>
-                        ))}
-                      </select>
-                    </td>
-                    <td>
-                      <label className={'sr-only'} htmlFor={`subtask-status-${subtask.id}`}>
-                        상태
-                      </label>
-                      <select
-                        id={`subtask-status-${subtask.id}`}
-                        value={draft.trackStatus}
-                        onChange={(event) =>
-                          onSubtaskDraftChange(subtask.id, {
-                            trackStatus: event.target.value as SubtaskStatus,
-                          })
-                        }
-                      >
-                        {subtaskStatusOptions.map((status) => (
-                          <option key={status} value={status}>
-                            {status}
-                          </option>
-                        ))}
-                      </select>
-                    </td>
-                    <td>
-                      <div className={'projects-feature__subtask-table-actions'}>
-                        <button
-                          type="button"
-                          className={'projects-feature__button projects-feature__button--secondary'}
-                          onClick={() => onSubtaskSave(subtask.id)}
-                        >
-                          수정
-                        </button>
-                        {canDeleteSubtask(subtask) ? (
-                          <button
-                            type="button"
-                            className={'projects-feature__delete-button'}
-                            onClick={() => onSubtaskDelete(subtask)}
+                  <Fragment key={subtask.id}>
+                    <tr>
+                      <td>
+                        <div className={'projects-feature__subtask-read-title'}>
+                          <strong>{subtask.title}</strong>
+                          {subtask.note ? (
+                            <span className={'projects-feature__subtask-read-note'}>
+                              {subtask.note}
+                            </span>
+                          ) : null}
+                        </div>
+                      </td>
+                      <td>
+                        {subtask.url ? (
+                          <a
+                            href={subtask.url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className={'projects-feature__table-link'}
                           >
-                            삭제
-                          </button>
-                        ) : null}
-                      </div>
-                    </td>
-                  </tr>
+                            링크
+                          </a>
+                        ) : (
+                          '-'
+                        )}
+                      </td>
+                      <td>{ownerText}</td>
+                      <td>
+                        <span className="status-badge" data-status={subtask.trackStatus}>
+                          {subtask.trackStatus}
+                        </span>
+                      </td>
+                      <td>
+                        <div className={'projects-feature__subtask-table-actions'}>
+                          {canEdit ? (
+                            <button
+                              type="button"
+                              className={
+                                'projects-feature__button projects-feature__button--secondary'
+                              }
+                              aria-expanded={isEditing}
+                              onClick={() => {
+                                onSubtaskDraftChange(subtask.id, toSubtaskDraft(subtask));
+                                setEditingSubtaskId(isEditing ? null : subtask.id);
+                              }}
+                            >
+                              수정
+                            </button>
+                          ) : (
+                            '-'
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                    {isEditing ? (
+                      <tr className={'projects-feature__subtask-edit-row'}>
+                        <td colSpan={5}>
+                          <div className={'projects-feature__subtask-edit-panel'}>
+                            <div className={'projects-feature__subtask-edit-grid'}>
+                              <label>
+                                <span>과업명</span>
+                                <input
+                                  id={`subtask-title-${subtask.id}`}
+                                  value={draft.title}
+                                  onChange={(event) =>
+                                    onSubtaskDraftChange(subtask.id, { title: event.target.value })
+                                  }
+                                />
+                              </label>
+                              <label>
+                                <span>보고서 URL</span>
+                                <input
+                                  id={`subtask-url-${subtask.id}`}
+                                  value={draft.url}
+                                  onChange={(event) =>
+                                    onSubtaskDraftChange(subtask.id, { url: event.target.value })
+                                  }
+                                />
+                              </label>
+                              <label>
+                                <span>담당자</span>
+                                <select
+                                  id={`subtask-owner-${subtask.id}`}
+                                  value={draft.ownerMemberId}
+                                  onChange={(event) =>
+                                    onSubtaskDraftChange(subtask.id, {
+                                      ownerMemberId: event.target.value,
+                                    })
+                                  }
+                                >
+                                  <option value="">담당자 선택</option>
+                                  {members.map((item) => (
+                                    <option key={item.id} value={item.id}>
+                                      {[item.accountId, item.name].filter(Boolean).join(' ')}
+                                    </option>
+                                  ))}
+                                </select>
+                              </label>
+                              <label>
+                                <span>상태</span>
+                                <select
+                                  id={`subtask-status-${subtask.id}`}
+                                  value={draft.trackStatus}
+                                  onChange={(event) =>
+                                    onSubtaskDraftChange(subtask.id, {
+                                      trackStatus: event.target.value as SubtaskStatus,
+                                    })
+                                  }
+                                >
+                                  {subtaskStatusOptions.map((status) => (
+                                    <option key={status} value={status}>
+                                      {status}
+                                    </option>
+                                  ))}
+                                </select>
+                              </label>
+                              <label className={'projects-feature__subtask-edit-note'}>
+                                <span>과업 비고</span>
+                                <textarea
+                                  id={`subtask-note-${subtask.id}`}
+                                  value={draft.note}
+                                  rows={3}
+                                  onChange={(event) =>
+                                    onSubtaskDraftChange(subtask.id, { note: event.target.value })
+                                  }
+                                />
+                              </label>
+                            </div>
+                            <div className={'projects-feature__subtask-edit-actions'}>
+                              <button
+                                type="button"
+                                className={
+                                  'projects-feature__button projects-feature__button--secondary'
+                                }
+                                aria-label="과업 저장"
+                                disabled={savePending}
+                                onClick={() => onSubtaskSave(subtask.id)}
+                              >
+                                저장
+                              </button>
+                              <button
+                                type="button"
+                                className={
+                                  'projects-feature__button projects-feature__button--secondary'
+                                }
+                                onClick={() => {
+                                  onSubtaskDraftChange(subtask.id, toSubtaskDraft(subtask));
+                                  setEditingSubtaskId(null);
+                                }}
+                              >
+                                취소
+                              </button>
+                              {canDeleteSubtask(subtask) ? (
+                                <button
+                                  type="button"
+                                  className={'projects-feature__delete-button'}
+                                  aria-label="과업 삭제"
+                                  onClick={() => onSubtaskDelete(subtask)}
+                                >
+                                  삭제
+                                </button>
+                              ) : null}
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    ) : null}
+                  </Fragment>
                 );
               })}
             </tbody>

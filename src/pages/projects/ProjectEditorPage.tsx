@@ -555,6 +555,9 @@ export function ProjectEditorPage() {
             selectedProjectSubtasks={selectedProjectSubtasks}
             subtaskDrafts={subtaskDrafts}
             members={members}
+            canEditSubtask={(subtask) =>
+              canDeleteSubtask(subtask, member?.id ?? null, member?.role)
+            }
             canDeleteSubtask={(subtask) =>
               canDeleteSubtask(subtask, member?.id ?? null, member?.role)
             }

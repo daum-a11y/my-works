@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { TableEmptyRow } from '../../components/shared';
 import type { QaStatsProjectRow } from '../../types/domain';
 import { formatMonthLabel, monthKeyFromDate } from './QaStatsPage.utils';
@@ -27,7 +28,15 @@ export function QaStatsProjectsTable({ projects }: QaStatsProjectsTableProps) {
               <td>{formatMonthLabel(monthKeyFromDate(project.endDate))}</td>
               <td>{project.costGroupName || '-'}</td>
               <td>{project.serviceGroupName || '-'}</td>
-              <td>{project.name || '-'}</td>
+              <td>
+                {project.id && project.name ? (
+                  <Link to={`/projects/${project.id}/edit`} className={'stats-page__link'}>
+                    {project.name}
+                  </Link>
+                ) : (
+                  project.name || '-'
+                )}
+              </td>
               <td>{project.reporterDisplay || '-'}</td>
               <td>
                 {project.reportUrl ? (

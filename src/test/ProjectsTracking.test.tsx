@@ -470,14 +470,18 @@ describe('Projects routes', () => {
       );
     });
 
-    await user.selectOptions(screen.getByLabelText('상태'), '미수정');
     await user.click(screen.getByRole('button', { name: '수정' }));
+    await user.selectOptions(screen.getByLabelText('상태'), '미수정');
+    await user.clear(screen.getByLabelText('과업 비고'));
+    await user.type(screen.getByLabelText('과업 비고'), '비고 수정');
+    await user.click(screen.getByRole('button', { name: '과업 저장' }));
 
     await waitFor(() => {
       expect(mockDataClient.saveProjectSubtask).toHaveBeenCalledWith(
         expect.objectContaining({
           id: 'subtask-1',
           trackStatus: '미수정',
+          note: '비고 수정',
         }),
       );
     });
@@ -485,6 +489,7 @@ describe('Projects routes', () => {
     await user.click(screen.getByRole('button', { name: '과업 추가' }));
     await user.type(screen.getAllByLabelText('과업명')[0], '신규 과업');
     await user.type(screen.getAllByLabelText('보고서 URL')[0], 'https://example.com/new');
+    await user.type(screen.getAllByLabelText('과업 비고')[0], '신규 비고');
     await user.selectOptions(screen.getAllByLabelText('상태')[0], '일부 수정');
     await user.click(screen.getByRole('button', { name: '추가' }));
 
@@ -496,6 +501,7 @@ describe('Projects routes', () => {
           url: 'https://example.com/new',
           ownerMemberId: 'member-1',
           trackStatus: '일부 수정',
+          note: '신규 비고',
         }),
       );
     });
@@ -514,8 +520,9 @@ describe('Projects routes', () => {
       expect(screen.getByLabelText('프로젝트 종류')).toHaveValue('type-qa');
     });
 
-    await user.selectOptions(screen.getByLabelText('상태'), '미수정');
     await user.click(screen.getByRole('button', { name: '수정' }));
+    await user.selectOptions(screen.getByLabelText('상태'), '미수정');
+    await user.click(screen.getByRole('button', { name: '과업 저장' }));
 
     await waitFor(() => {
       expect(window.alert).toHaveBeenCalledWith(
@@ -560,11 +567,10 @@ describe('Projects routes', () => {
 
     renderProjectEditor('/projects/project-1/edit');
 
-    await waitFor(() => {
-      expect(screen.getAllByRole('button', { name: '삭제' }).length).toBeGreaterThan(0);
-    });
+    await screen.findByRole('button', { name: '수정' });
+    await user.click(screen.getByRole('button', { name: '수정' }));
 
-    await user.click(screen.getAllByRole('button', { name: '삭제' })[1]);
+    await user.click(screen.getByRole('button', { name: '과업 삭제' }));
 
     await waitFor(() => {
       expect(mockDataClient.deleteProjectSubtask).toHaveBeenCalledWith('subtask-1');

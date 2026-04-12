@@ -276,7 +276,9 @@ describe('Stats pages', () => {
 
     render(
       <QueryClientProvider client={queryClient}>
-        <QaStatsPage />
+        <MemoryRouter>
+          <QaStatsPage />
+        </MemoryRouter>
       </QueryClientProvider>,
     );
 
@@ -293,6 +295,10 @@ describe('Stats pages', () => {
     expect(screen.getByRole('columnheader', { name: '청구그룹' })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: '서비스 그룹' })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: '프로젝트명' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'QA 대상' })).toHaveAttribute(
+      'href',
+      '/projects/project-1/edit',
+    );
     expect(screen.getByRole('columnheader', { name: '리포터' })).toBeInTheDocument();
     expect(screen.getAllByText('legacy-1(운영 사용자)').length).toBeGreaterThan(0);
     expect(screen.queryByText('iOS')).not.toBeInTheDocument();
@@ -310,7 +316,9 @@ describe('Stats pages', () => {
 
     render(
       <QueryClientProvider client={queryClient}>
-        <QaStatsPage />
+        <MemoryRouter>
+          <QaStatsPage />
+        </MemoryRouter>
       </QueryClientProvider>,
     );
 
