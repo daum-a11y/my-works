@@ -293,7 +293,9 @@ const configuredClient: DataClient = !supabase
       async getProjects() {
         const { data, error } = await supabase
           .from('projects')
-          .select('*, platforms(name), task_types(type1)')
+          .select(
+            '*, platforms(name), task_types(type1), service_groups(service_group_name, service_name, name, cost_group_id, cost_groups(name))',
+          )
           .order('is_active', { ascending: false })
           .order('name');
         if (error) throw error;
@@ -329,7 +331,9 @@ const configuredClient: DataClient = !supabase
       async getProject(projectId) {
         const { data, error } = await supabase
           .from('projects')
-          .select('*, platforms(name), task_types(type1)')
+          .select(
+            '*, platforms(name), task_types(type1), service_groups(service_group_name, service_name, name, cost_group_id, cost_groups(name))',
+          )
           .eq('id', projectId)
           .maybeSingle();
         if (error) throw error;

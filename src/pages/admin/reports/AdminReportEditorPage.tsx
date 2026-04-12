@@ -27,13 +27,17 @@ import {
   toPages,
   toPlatforms,
   toProjects,
-  toServiceGroups,
   toTaskTypes,
 } from './AdminReportEditorPage.utils';
 import { toAdminTask, toMemberAdmin } from '../adminApiTransform';
 import { AdminReportEditorForm } from './AdminReportEditorForm';
 import { useAlertMessage } from '../../../hooks/useAlertMessage';
 import '../../../styles/pages/AdminPage.scss';
+
+function getSelectedProjectOption(projects: Project[], projectId: string) {
+  const project = projects.find((item) => item.id === projectId) ?? null;
+  return project ? (buildProjectViewModels([project])[0] ?? null) : null;
+}
 
 export function AdminReportEditorPage() {
   const navigate = useNavigate();
@@ -58,10 +62,6 @@ export function AdminReportEditorPage() {
   const taskTypesQuery = useQuery({
     queryKey: ['admin', 'task-types'],
     queryFn: () => adminDataClient.listTaskTypes(),
-  });
-  const serviceGroupsQuery = useQuery({
-    queryKey: ['admin', 'service-groups'],
-    queryFn: () => adminDataClient.listServiceGroups(),
   });
   const costGroupsQuery = useQuery({
     queryKey: ['admin', 'cost-groups'],
@@ -109,10 +109,6 @@ export function AdminReportEditorPage() {
 
   const members = useMemo(() => (membersQuery.data ?? []).map(toMemberAdmin), [membersQuery.data]);
   const taskTypes = useMemo(() => toTaskTypes(taskTypesQuery.data ?? []), [taskTypesQuery.data]);
-  const serviceGroups = useMemo(
-    () => toServiceGroups(serviceGroupsQuery.data ?? []),
-    [serviceGroupsQuery.data],
-  );
   const costGroups = useMemo(
     () => toCostGroups(costGroupsQuery.data ?? []),
     [costGroupsQuery.data],
@@ -150,11 +146,6 @@ export function AdminReportEditorPage() {
     () => new Map(pages.map((item) => [item.id, item] as const)),
     [pages],
   );
-  const serviceGroupsById = useMemo(
-    () => new Map(serviceGroups.map((item) => [item.id, item] as const)),
-    [serviceGroups],
-  );
-
   useEffect(() => {
     if (!selectedMemberId && members.length > 0 && !isEdit) {
       setSelectedMemberId(locationState?.memberId || members[0]!.id);
@@ -175,10 +166,7 @@ export function AdminReportEditorPage() {
     setStatusMessage('');
   }, [taskQuery.data]);
 
-  const projectOptions = useMemo(
-    () => buildProjectViewModels(projects, serviceGroups),
-    [projects, serviceGroups],
-  );
+  const projectOptions = useMemo(() => buildProjectViewModels(projects), [projects]);
   const normalizedProjectQuery = (appliedProjectQuery ?? '').trim().toLowerCase();
   const filteredProjectOptions = useMemo(() => {
     if (appliedProjectQuery === null) {
@@ -305,25 +293,17 @@ export function AdminReportEditorPage() {
         next.subtaskId = '';
         const project = projectsById.get(String(value));
         if (project) {
-          const normalizedServiceName = project.serviceGroupId
-            ? (serviceGroupsById.get(project.serviceGroupId)?.name ?? '')
-            : '';
-          const separator = normalizedServiceName.indexOf(' / ');
+          const projectOption = getSelectedProjectOption(projects, String(value));
           next.type1 = project.taskType1;
           const nextType2Options = buildTaskType2OptionsForValue(taskTypes, next.type1, next.type2);
           if (!nextType2Options.includes(next.type2)) {
             next.type2 = '';
           }
           next.platform = project.platform;
-          next.costGroupId = project.serviceGroupId
-            ? (serviceGroupsById.get(project.serviceGroupId)?.costGroupId ?? '')
-            : '';
-          next.costGroupName = project.serviceGroupId
-            ? (serviceGroupsById.get(project.serviceGroupId)?.costGroupName ?? '')
-            : '';
-          next.serviceGroupName =
-            separator < 0 ? normalizedServiceName : normalizedServiceName.slice(0, separator);
-          next.serviceName = separator < 0 ? '' : normalizedServiceName.slice(separator + 3);
+          next.costGroupId = projectOption?.costGroupId ?? '';
+          next.costGroupName = projectOption?.costGroupName ?? '';
+          next.serviceGroupName = projectOption?.serviceGroupName ?? '';
+          next.serviceName = projectOption?.serviceName ?? '';
         } else {
           next.type1 = '';
           next.type2 = '';
@@ -454,7 +434,6 @@ export function AdminReportEditorPage() {
   const loading =
     membersQuery.isLoading ||
     taskTypesQuery.isLoading ||
-    serviceGroupsQuery.isLoading ||
     costGroupsQuery.isLoading ||
     selectedProjectQuery.isLoading ||
     reportProjectsQuery.isLoading ||
@@ -463,7 +442,6 @@ export function AdminReportEditorPage() {
   const queryError =
     (membersQuery.error instanceof Error && membersQuery.error.message) ||
     (taskTypesQuery.error instanceof Error && taskTypesQuery.error.message) ||
-    (serviceGroupsQuery.error instanceof Error && serviceGroupsQuery.error.message) ||
     (costGroupsQuery.error instanceof Error && costGroupsQuery.error.message) ||
     (platformsQuery.error instanceof Error && platformsQuery.error.message) ||
     (selectedProjectQuery.error instanceof Error && selectedProjectQuery.error.message) ||

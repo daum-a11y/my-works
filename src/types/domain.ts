@@ -75,7 +75,11 @@ export interface Project {
   name: string;
   platformId: string | null;
   platform: string;
+  costGroupId?: string | null;
+  costGroupName?: string | null;
   serviceGroupId: string | null;
+  serviceGroupName?: string | null;
+  serviceName?: string | null;
   reportUrl: string;
   reporterMemberId: string | null;
   reviewerMemberId: string | null;

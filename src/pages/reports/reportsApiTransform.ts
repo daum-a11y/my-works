@@ -151,6 +151,24 @@ export function toServiceGroup(record: ApiRecord): ServiceGroup {
 export function toProject(record: ApiRecord): Project {
   const taskType = Array.isArray(record.task_types) ? record.task_types[0] : record.task_types;
   const platform = Array.isArray(record.platforms) ? record.platforms[0] : record.platforms;
+  const serviceGroup = Array.isArray(record.service_groups)
+    ? record.service_groups[0]
+    : record.service_groups;
+  const costGroup =
+    serviceGroup && typeof serviceGroup === 'object' && 'cost_groups' in (serviceGroup as ApiRecord)
+      ? Array.isArray((serviceGroup as ApiRecord).cost_groups)
+        ? (((serviceGroup as ApiRecord).cost_groups as ApiRecord[])[0] ?? null)
+        : (((serviceGroup as ApiRecord).cost_groups as ApiRecord | null) ?? null)
+      : null;
+  const serviceGroupNameRaw =
+    serviceGroup && typeof serviceGroup === 'object'
+      ? ((serviceGroup as ApiRecord).service_group_name ?? (serviceGroup as ApiRecord).name)
+      : readValue(record, 'service_group_name', 'serviceGroupName');
+  const serviceNameRaw =
+    serviceGroup && typeof serviceGroup === 'object'
+      ? (serviceGroup as ApiRecord).service_name
+      : readValue(record, 'service_name', 'serviceName');
+  const splitService = splitServiceGroupLabel(String(serviceGroupNameRaw ?? ''));
   return {
     id: String(record.id),
     createdByMemberId: readValue(record, 'created_by_member_id', 'createdByMemberId')
@@ -171,9 +189,28 @@ export function toProject(record: ApiRecord): Project {
       platform && typeof platform === 'object'
         ? String((platform as ApiRecord).name ?? '')
         : String(record.platform ?? ''),
+    costGroupId:
+      serviceGroup && typeof serviceGroup === 'object'
+        ? String((serviceGroup as ApiRecord).cost_group_id ?? '') || null
+        : readValue(record, 'cost_group_id', 'costGroupId')
+          ? String(readValue(record, 'cost_group_id', 'costGroupId'))
+          : null,
+    costGroupName:
+      costGroup && typeof costGroup === 'object'
+        ? String((costGroup as ApiRecord).name ?? '')
+        : readValue(record, 'cost_group_name', 'costGroupName') == null
+          ? null
+          : String(readValue(record, 'cost_group_name', 'costGroupName')),
     serviceGroupId: readValue(record, 'service_group_id', 'serviceGroupId')
       ? String(readValue(record, 'service_group_id', 'serviceGroupId'))
       : null,
+    serviceGroupName:
+      serviceGroupNameRaw == null
+        ? null
+        : serviceNameRaw == null
+          ? splitService.serviceGroupName
+          : String(serviceGroupNameRaw),
+    serviceName: serviceNameRaw == null ? splitService.serviceName || null : String(serviceNameRaw),
     reportUrl: String(readValue(record, 'report_url', 'reportUrl') ?? ''),
     reporterMemberId: readValue(record, 'reporter_member_id', 'reporterMemberId')
       ? String(readValue(record, 'reporter_member_id', 'reporterMemberId'))

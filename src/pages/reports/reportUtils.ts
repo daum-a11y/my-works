@@ -3,7 +3,6 @@ import type {
   ProjectSubtask,
   ReportProjectOptionRow,
   ReportFilters as OpsReportFilters,
-  ServiceGroup,
   Task,
   TaskType,
 } from '../../types/domain';
@@ -150,10 +149,6 @@ function compareStrings(left: string, right: string) {
   return left.localeCompare(right, 'ko');
 }
 
-function buildServiceGroupMap(serviceGroups: ServiceGroup[]) {
-  return new Map(serviceGroups.map((group) => [group.id, group] as const));
-}
-
 function splitServiceGroupName(value: string) {
   const normalized = value.trim();
   if (!normalized) {
@@ -177,8 +172,16 @@ function splitServiceGroupName(value: string) {
   };
 }
 
-function buildProjectLookup(project: Project, normalizedServiceName: string) {
-  const { serviceGroupName, serviceName } = splitServiceGroupName(normalizedServiceName);
+function buildProjectLookup(project: Project) {
+  const joinedServiceGroupName = project.serviceGroupName ?? '';
+  const joinedServiceName = project.serviceName ?? '';
+  const { serviceGroupName, serviceName } =
+    joinedServiceName || joinedServiceGroupName
+      ? {
+          serviceGroupName: joinedServiceGroupName,
+          serviceName: joinedServiceName,
+        }
+      : splitServiceGroupName('');
   const projectName = project.name || '';
   const label = [serviceGroupName, projectName].filter(Boolean).join(' / ') || projectName;
   const searchText = normalizeText(
@@ -188,8 +191,8 @@ function buildProjectLookup(project: Project, normalizedServiceName: string) {
   return {
     id: project.id,
     project,
-    costGroupId: null,
-    costGroupName: '',
+    costGroupId: project.costGroupId ?? null,
+    costGroupName: project.costGroupName ?? '',
     serviceGroupId: project.serviceGroupId,
     serviceGroupName,
     serviceName,
@@ -220,20 +223,8 @@ function buildSubtaskLookup(
   } satisfies ProjectSubtaskViewModel;
 }
 
-export function buildProjectViewModels(projects: Project[], serviceGroups: ServiceGroup[]) {
-  const serviceGroupsById = buildServiceGroupMap(serviceGroups);
-
-  return projects.map((project) => {
-    const serviceGroup = project.serviceGroupId
-      ? serviceGroupsById.get(project.serviceGroupId)
-      : null;
-    const next = buildProjectLookup(project, serviceGroup?.name ?? '');
-    return {
-      ...next,
-      costGroupId: serviceGroup?.costGroupId ?? null,
-      costGroupName: serviceGroup?.costGroupName ?? '',
-    };
-  });
+export function buildProjectViewModels(projects: Project[]) {
+  return projects.map((project) => buildProjectLookup(project));
 }
 
 export function buildProjectViewModelsFromRows(rows: ReportProjectOptionRow[]) {
@@ -242,25 +233,26 @@ export function buildProjectViewModelsFromRows(rows: ReportProjectOptionRow[]) {
     const reportUrl = row.reportUrl ?? '';
     const serviceGroupName = row.serviceGroupName ?? '';
     const serviceName = row.serviceName ?? '';
-    const next = buildProjectLookup(
-      {
-        id: row.id,
-        createdByMemberId: null,
-        taskTypeId: row.taskTypeId,
-        taskType1: row.taskType1,
-        name: row.name,
-        platformId: null,
-        platform,
-        serviceGroupId: row.serviceGroupId,
-        reportUrl,
-        reporterMemberId: null,
-        reviewerMemberId: null,
-        startDate: '',
-        endDate: '',
-        isActive: true,
-      },
-      serviceName ? `${serviceGroupName} / ${serviceName}` : serviceGroupName,
-    );
+    const next = buildProjectLookup({
+      id: row.id,
+      createdByMemberId: null,
+      taskTypeId: row.taskTypeId,
+      taskType1: row.taskType1,
+      name: row.name,
+      platformId: null,
+      platform,
+      costGroupId: row.costGroupId,
+      costGroupName: row.costGroupName,
+      serviceGroupId: row.serviceGroupId,
+      serviceGroupName,
+      serviceName,
+      reportUrl,
+      reporterMemberId: null,
+      reviewerMemberId: null,
+      startDate: '',
+      endDate: '',
+      isActive: true,
+    });
     return {
       ...next,
       costGroupId: row.costGroupId,
@@ -271,19 +263,12 @@ export function buildProjectViewModelsFromRows(rows: ReportProjectOptionRow[]) {
   });
 }
 
-export function buildProjectSubtaskViewModels(
-  pages: ProjectSubtask[],
-  projects: Project[],
-  serviceGroups: ServiceGroup[],
-) {
+export function buildProjectSubtaskViewModels(pages: ProjectSubtask[], projects: Project[]) {
   const projectsById = new Map(projects.map((project) => [project.id, project] as const));
-  const serviceGroupsById = buildServiceGroupMap(serviceGroups);
 
   return pages.map((subtask) => {
     const project = projectsById.get(subtask.projectId);
-    const serviceGroupName = project?.serviceGroupId
-      ? (serviceGroupsById.get(project.serviceGroupId)?.name ?? '')
-      : '';
+    const serviceGroupName = project?.serviceGroupName ?? '';
     return buildSubtaskLookup(subtask, project, serviceGroupName);
   });
 }
@@ -448,18 +433,14 @@ export function buildReportFromDraft(
 export function buildReportViewModel(
   report: ReportRecord,
   projectsById: Map<string, Project>,
-  serviceGroupsById: Map<string, ServiceGroup>,
   subtasksById: Map<string, ProjectSubtask>,
 ) {
   const project = report.projectId ? (projectsById.get(report.projectId) ?? null) : null;
   const subtask = report.subtaskId ? (subtasksById.get(report.subtaskId) ?? null) : null;
-  const splitProjectService = project?.serviceGroupId
-    ? splitServiceGroupName(serviceGroupsById.get(project.serviceGroupId)?.name ?? '')
-    : null;
   const costGroupName = report.costGroupName ?? '';
-  const serviceGroupName = splitProjectService?.serviceGroupName ?? '';
+  const serviceGroupName = project?.serviceGroupName ?? '';
   const platform = project?.platform ?? '';
-  const serviceName = splitProjectService?.serviceName ?? '';
+  const serviceName = project?.serviceName ?? '';
   const resolvedProjectName = project?.name ?? report.projectName ?? '';
   const projectDisplayName = resolvedProjectName || '-';
   const subtaskDisplayName = subtask?.title || report.subtaskName || '-';

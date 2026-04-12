@@ -152,6 +152,8 @@ export interface AdminProjectOption {
   costGroupId: string | null;
   costGroupName: string;
   serviceGroupId: string | null;
+  serviceGroupName: string;
+  serviceName: string;
   reportUrl: string;
   isActive: boolean;
 }

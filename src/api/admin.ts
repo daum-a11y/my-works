@@ -259,7 +259,7 @@ const configuredAdminClient: AdminDataClient = !supabase
         const { data, error } = await supabase
           .from('projects')
           .select(
-            'id, name, task_type_id, platform_id, service_group_id, report_url, is_active, task_types(type1), platforms(name), service_groups(cost_group_id, cost_groups(name))',
+            'id, name, task_type_id, platform_id, service_group_id, report_url, is_active, task_types(type1), platforms(name), service_groups(service_group_name, service_name, name, cost_group_id, cost_groups(name))',
           )
           .order('name');
         if (error) throw error;
@@ -279,7 +279,7 @@ const configuredAdminClient: AdminDataClient = !supabase
         const { data, error } = await supabase
           .from('projects')
           .select(
-            'id, name, task_type_id, platform_id, service_group_id, report_url, is_active, task_types(type1), platforms(name), service_groups(cost_group_id, cost_groups(name))',
+            'id, name, task_type_id, platform_id, service_group_id, report_url, is_active, task_types(type1), platforms(name), service_groups(service_group_name, service_name, name, cost_group_id, cost_groups(name))',
           )
           .eq('id', projectId)
           .maybeSingle();
@@ -301,7 +301,7 @@ const configuredAdminClient: AdminDataClient = !supabase
         let query = supabase
           .from('projects')
           .select(
-            'id, name, task_type_id, platform_id, service_group_id, report_url, is_active, task_types(type1), platforms(name), service_groups!inner(cost_group_id, cost_groups(name))',
+            'id, name, task_type_id, platform_id, service_group_id, report_url, is_active, task_types(type1), platforms(name), service_groups!inner(service_group_name, service_name, name, cost_group_id, cost_groups(name))',
           )
           .eq('is_active', true)
           .order('name')

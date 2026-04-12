@@ -129,6 +129,14 @@ export function toAdminProject(record: ApiRecord): AdminProjectOption {
         ? String(costGroupRecord.name ?? '')
         : '',
     serviceGroupId: record.service_group_id ? String(record.service_group_id) : null,
+    serviceGroupName:
+      serviceGroupRecord && typeof serviceGroupRecord === 'object'
+        ? String((serviceGroupRecord as ApiRecord).service_group_name ?? '')
+        : '',
+    serviceName:
+      serviceGroupRecord && typeof serviceGroupRecord === 'object'
+        ? String((serviceGroupRecord as ApiRecord).service_name ?? '')
+        : '',
     reportUrl: String(record.report_url ?? ''),
     isActive: Boolean(record.is_active ?? true),
   };

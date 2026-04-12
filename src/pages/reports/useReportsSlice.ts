@@ -9,7 +9,6 @@ import {
   toProject,
   toProjectSubtask,
   toReportProjectOption,
-  toServiceGroup,
   toTask,
   toTaskType,
 } from './reportsApiTransform';
@@ -151,11 +150,6 @@ export function useReportsSlice(): ReportsSlice {
     enabled: Boolean(member && draft.costGroupId && draft.type1 && appliedProjectQuery !== null),
   });
 
-  const serviceGroupsQuery = useQuery({
-    queryKey: ['reports', 'service-groups'],
-    queryFn: async () => dataClient.getServiceGroups(),
-    enabled: Boolean(member),
-  });
   const costGroupsQuery = useQuery({
     queryKey: ['reports', 'cost-groups'],
     queryFn: async () => dataClient.getCostGroups(),
@@ -208,10 +202,6 @@ export function useReportsSlice(): ReportsSlice {
     () => (platformsQuery.data ?? []).map(toPlatform),
     [platformsQuery.data],
   );
-  const serviceGroups = useMemo(
-    () => (serviceGroupsQuery.data ?? []).map(toServiceGroup),
-    [serviceGroupsQuery.data],
-  );
   const pages = useMemo(() => (pagesQuery.data ?? []).map(toProjectSubtask), [pagesQuery.data]);
   const taskTypes = useMemo(
     () => (taskTypesQuery.data ?? []).map(toTaskType),
@@ -227,8 +217,8 @@ export function useReportsSlice(): ReportsSlice {
       return [];
     }
 
-    return buildProjectViewModels([toProject(selectedProjectQuery.data)], serviceGroups);
-  }, [selectedProjectQuery.data, serviceGroups]);
+    return buildProjectViewModels([toProject(selectedProjectQuery.data)]);
+  }, [selectedProjectQuery.data]);
   const projectOptions = useMemo(() => {
     const merged = [...selectedProjectOptions, ...projectOptionsFromSearch];
     const seen = new Set<string>();
@@ -250,11 +240,6 @@ export function useReportsSlice(): ReportsSlice {
     () => new Map(pages.map((page) => [page.id, page] as const)),
     [pages],
   );
-  const serviceGroupsById = useMemo(
-    () => new Map(serviceGroups.map((group) => [group.id, group] as const)),
-    [serviceGroups],
-  );
-
   const reports = useMemo(() => {
     if (!member) {
       return [];
@@ -367,9 +352,7 @@ export function useReportsSlice(): ReportsSlice {
           throw new Error('선택한 프로젝트 정보를 확인할 수 없습니다.');
         }
 
-        const projectCostGroupId = project.serviceGroupId
-          ? (serviceGroupsById.get(project.serviceGroupId)?.costGroupId ?? '')
-          : '';
+        const projectCostGroupId = project.costGroupId ?? '';
 
         if (!projectCostGroupId || projectCostGroupId !== costGroupId) {
           throw new Error('선택한 프로젝트의 청구그룹과 입력값이 일치하지 않습니다.');
@@ -453,31 +436,22 @@ export function useReportsSlice(): ReportsSlice {
 
       if (key === 'projectId') {
         next.subtaskId = '';
-        const project =
-          projectOptionsById.get(String(value))?.project ??
-          (selectedProjectQuery.data ? toProject(selectedProjectQuery.data) : null);
-        if (project) {
-          const normalizedServiceName = project.serviceGroupId
-            ? (serviceGroupsById.get(project.serviceGroupId)?.name ?? '')
-            : '';
-          const costGroup = project.serviceGroupId
-            ? (serviceGroupsById.get(project.serviceGroupId)?.costGroupName ?? '')
-            : '';
-          const costGroupId = project.serviceGroupId
-            ? (serviceGroupsById.get(project.serviceGroupId)?.costGroupId ?? '')
-            : '';
-          const separator = normalizedServiceName.indexOf(' / ');
+        const projectOption =
+          projectOptionsById.get(String(value)) ??
+          selectedProjectOptions.find((project) => project.id === String(value)) ??
+          null;
+        const project = projectOption?.project ?? null;
+        if (projectOption && project) {
           next.type1 = project.taskType1;
           const nextType2Options = buildTaskType2OptionsForValue(taskTypes, next.type1, next.type2);
           if (!nextType2Options.includes(next.type2)) {
             next.type2 = '';
           }
           next.platform = project.platform;
-          next.costGroupId = costGroupId;
-          next.costGroupName = costGroup;
-          next.serviceGroupName =
-            separator < 0 ? normalizedServiceName : normalizedServiceName.slice(0, separator);
-          next.serviceName = separator < 0 ? '' : normalizedServiceName.slice(separator + 3);
+          next.costGroupId = projectOption.costGroupId ?? '';
+          next.costGroupName = projectOption.costGroupName;
+          next.serviceGroupName = projectOption.serviceGroupName;
+          next.serviceName = projectOption.serviceName;
         } else {
           next.type1 = '';
           next.type2 = '';
