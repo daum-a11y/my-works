@@ -290,7 +290,7 @@
   }
 
   .reports-page__form-grid--compact {
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    grid-template-columns: repeat(2, minmax(160px, 1fr));
   }
 
   .reports-page__project-lookup {
@@ -323,6 +323,10 @@
 
   .reports-page__field--project {
     grid-column: 1 / -1;
+  }
+
+  .reports-page__field--row-start {
+    grid-column: 1;
   }
 
   .reports-page__field--note {
@@ -523,6 +527,10 @@
   }
 
   @media (max-width: 720px) {
+    .reports-page__form-grid--compact {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
     .reports-page__button-row,
     .reports-page__action-row,
     .reports-page__date-actions {

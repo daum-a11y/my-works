@@ -21,8 +21,6 @@ interface ReportsEditorFormProps {
   showProjectLookupStep: boolean;
   showTaskStep: boolean;
   showPageSelect: boolean;
-  showPageUrl: boolean;
-  usesProjectLookup: boolean;
   isReadonlyWorkHours: boolean;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
   onDraftFieldChange: <K extends keyof ReportDraft>(key: K, value: ReportDraft[K]) => void;
@@ -52,7 +50,6 @@ export function ReportsEditorForm({
   showProjectLookupStep,
   showTaskStep,
   showPageSelect,
-  showPageUrl,
   isReadonlyWorkHours,
   onSubmit,
   onDraftFieldChange,
@@ -65,7 +62,7 @@ export function ReportsEditorForm({
   return (
     <section className="reports-page__panel">
       <div className="reports-page__panel-head">
-        <h2 className="reports-page__panel-title">{mode === 'edit' ? '업무 수정' : '업무보고'}</h2>
+        <h2 className="reports-page__panel-title">{mode === 'edit' ? '업무 수정' : '업무 등록'}</h2>
         {mode === 'edit' ? (
           <button
             type="button"
@@ -87,7 +84,7 @@ export function ReportsEditorForm({
                 onChange={(event) => onDraftFieldChange('costGroupId', event.target.value)}
               >
                 <option value="">
-                  {costGroupOptions.length ? '선택하세요' : '청구그룹이 없습니다.'}
+                  {costGroupOptions.length ? '선택' : '청구그룹이 없습니다.'}
                 </option>
                 {costGroupOptions.map((group) => (
                   <option key={group.id} value={group.id}>
@@ -96,22 +93,21 @@ export function ReportsEditorForm({
                 ))}
               </select>
             </label>
-
             {showTypeStep ? (
               <>
                 {projectTypeSelected ? (
-                  <label className="reports-page__field">
+                  <label className="reports-page__field reports-page__field--row-start">
                     <span>타입1</span>
                     <input value={type1Value} readOnly />
                   </label>
                 ) : (
-                  <label className="reports-page__field">
+                  <label className="reports-page__field reports-page__field--row-start">
                     <span>타입1</span>
                     <select
                       value={draft.type1}
                       onChange={(event) => onDraftFieldChange('type1', event.target.value)}
                     >
-                      <option value="">선택하세요</option>
+                      <option value="">선택</option>
                       {type1Options.map((option) => (
                         <option key={option} value={option}>
                           {option}
@@ -179,22 +175,16 @@ export function ReportsEditorForm({
                   ))}
                 </select>
               </label>
-            </div>
-          </div>
-        ) : null}
 
-        {showTaskStep ? (
-          <div className="reports-page__step">
-            <div className="reports-page__form-grid">
               {showPageSelect ? (
-                <label className="reports-page__field">
+                <label className="reports-page__field reports-page__field--project">
                   <span>페이지명</span>
                   <select
                     value={draft.pageId}
                     onChange={(event) => onDraftFieldChange('pageId', event.target.value)}
                   >
                     <option value="">
-                      {draftPages.length ? '선택하세요' : '페이지가 존재하지 않습니다.'}
+                      {draftPages.length ? '선택' : '페이지가 존재하지 않습니다.'}
                     </option>
                     {draftPages.map((page) => (
                       <option key={page.id} value={page.id}>
@@ -204,17 +194,13 @@ export function ReportsEditorForm({
                   </select>
                 </label>
               ) : null}
+            </div>
+          </div>
+        ) : null}
 
-              {showPageUrl ? (
-                <label className="reports-page__field">
-                  <span>{showPageSelect ? '페이지 URL' : 'URL'}</span>
-                  <input
-                    value={draft.pageUrl}
-                    onChange={(event) => onDraftFieldChange('pageUrl', event.target.value)}
-                  />
-                </label>
-              ) : null}
-
+        {showTaskStep ? (
+          <div className="reports-page__step">
+            <div className="reports-page__form-grid">
               <label className="reports-page__field">
                 <span>태스크명</span>
                 <input
@@ -228,24 +214,33 @@ export function ReportsEditorForm({
                 <input
                   type="number"
                   min="0"
+                  max="480"
                   step="1"
                   value={draft.taskUsedtime}
                   onChange={(event) => onDraftFieldChange('taskUsedtime', event.target.value)}
                   readOnly={isReadonlyWorkHours}
                 />
               </label>
+
+              <label className="reports-page__field">
+                <span>URL</span>
+                <input
+                  value={draft.url}
+                  onChange={(event) => onDraftFieldChange('url', event.target.value)}
+                />
+              </label>
+
+              <label className="reports-page__field reports-page__field--note">
+                <span>비고</span>
+                <textarea
+                  value={draft.note}
+                  onChange={(event) => onDraftFieldChange('note', event.target.value)}
+                  rows={2}
+                />
+              </label>
             </div>
           </div>
         ) : null}
-
-        <label className="reports-page__field reports-page__field--note">
-          <span>비고</span>
-          <textarea
-            value={draft.note}
-            onChange={(event) => onDraftFieldChange('note', event.target.value)}
-            rows={2}
-          />
-        </label>
 
         <div className="reports-page__action-row">
           <button

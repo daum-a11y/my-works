@@ -39,6 +39,7 @@ export interface ReportsSlice {
   draft: ReportDraft;
   selectedDate: string;
   projectQuery: string;
+  appliedProjectQuery: string | null;
   projectOptions: ProjectViewModel[];
   filteredProjectOptions: ProjectViewModel[];
   draftPages: ProjectPage[];
@@ -126,7 +127,7 @@ export function useReportsSlice(): ReportsSlice {
   const [draft, setDraft] = useState<ReportDraft>(() => createEmptyReportDraft());
   const [selectedDate, setSelectedDate] = useState(() => getTodayInputValue());
   const [projectQuery, setProjectQuery] = useState('');
-  const [appliedProjectQuery, setAppliedProjectQuery] = useState('');
+  const [appliedProjectQuery, setAppliedProjectQuery] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState('');
   const [statusKind, setStatusKind] = useState<'success' | 'error' | 'info'>('info');
   const [overheadCostGroupId, setOverheadCostGroupId] = useState('');
@@ -147,7 +148,7 @@ export function useReportsSlice(): ReportsSlice {
         taskType1: draft.type1 || null,
         query: appliedProjectQuery || null,
       }),
-    enabled: Boolean(member && draft.costGroupId && draft.type1),
+    enabled: Boolean(member && draft.costGroupId && draft.type1 && appliedProjectQuery !== null),
   });
 
   const serviceGroupsQuery = useQuery({
@@ -264,8 +265,12 @@ export function useReportsSlice(): ReportsSlice {
     [reports, selectedReportId],
   );
 
-  const normalizedProjectQuery = appliedProjectQuery.trim().toLowerCase();
+  const normalizedProjectQuery = (appliedProjectQuery ?? '').trim().toLowerCase();
   const filteredProjectOptions = useMemo(() => {
+    if (appliedProjectQuery === null) {
+      return [];
+    }
+
     const base = projectOptions;
 
     if (!normalizedProjectQuery) {
@@ -277,7 +282,7 @@ export function useReportsSlice(): ReportsSlice {
         project.project.name.trim().toLowerCase().includes(normalizedProjectQuery),
       )
       .slice(0, 60);
-  }, [normalizedProjectQuery, projectOptions]);
+  }, [appliedProjectQuery, normalizedProjectQuery, projectOptions]);
 
   const draftPages = useMemo(
     () => pages.filter((page) => page.projectId === draft.projectId),
@@ -311,7 +316,7 @@ export function useReportsSlice(): ReportsSlice {
       taskType1: string;
       taskType2: string;
       taskUsedtime: number;
-      pageUrl: string;
+      url: string;
       content: string;
       note: string;
     }) => {
@@ -379,7 +384,7 @@ export function useReportsSlice(): ReportsSlice {
         taskType1: taskType.type1,
         taskType2: taskType.type2,
         taskUsedtime: input.taskUsedtime,
-        pageUrl: input.pageUrl,
+        url: input.url,
         content: input.content,
         note: input.note,
       });
@@ -392,7 +397,7 @@ export function useReportsSlice(): ReportsSlice {
       const mappedTask = toTask(task);
       setSelectedDate(mappedTask.taskDate);
       setProjectQuery('');
-      setAppliedProjectQuery('');
+      setAppliedProjectQuery(null);
       setActiveTab('report');
       setStatusKind('success');
       setStatusMessage(variables.id ? '업무가 수정되었습니다.' : '업무가 저장되었습니다.');
@@ -422,7 +427,7 @@ export function useReportsSlice(): ReportsSlice {
         setSelectedReportId(null);
         setDraft(createEmptyReportDraft());
         setProjectQuery('');
-        setAppliedProjectQuery('');
+        setAppliedProjectQuery(null);
       }
 
       setStatusKind('success');
@@ -470,14 +475,12 @@ export function useReportsSlice(): ReportsSlice {
           next.serviceGroupName =
             separator < 0 ? normalizedServiceName : normalizedServiceName.slice(0, separator);
           next.serviceName = separator < 0 ? '' : normalizedServiceName.slice(separator + 3);
-          next.pageUrl = '';
         } else {
           next.type1 = '';
           next.type2 = '';
           next.platform = '';
           next.serviceGroupName = '';
           next.serviceName = '';
-          next.pageUrl = '';
         }
       }
 
@@ -489,14 +492,6 @@ export function useReportsSlice(): ReportsSlice {
         next.platform = '';
         next.serviceGroupName = '';
         next.serviceName = '';
-        next.pageUrl = '';
-      }
-
-      if (key === 'pageId') {
-        const page = pagesById.get(String(value));
-        if (page) {
-          next.pageUrl = page.url;
-        }
       }
 
       if (key === 'type1') {
@@ -505,7 +500,6 @@ export function useReportsSlice(): ReportsSlice {
         next.platform = '';
         next.serviceGroupName = '';
         next.serviceName = '';
-        next.pageUrl = '';
         const nextType2Options = buildTaskType2OptionsForValue(
           taskTypes,
           String(value),
@@ -539,7 +533,7 @@ export function useReportsSlice(): ReportsSlice {
     setSelectedReportId(null);
     setDraft(createEmptyReportDraft());
     setProjectQuery('');
-    setAppliedProjectQuery('');
+    setAppliedProjectQuery(null);
     setActiveTab('report');
     setStatusMessage('');
   };
@@ -568,9 +562,7 @@ export function useReportsSlice(): ReportsSlice {
 
       const taskType = validateTaskTypeSelection(taskTypes, draft.type1, draft.type2);
       const taskUsedtime = parseReportTaskUsedtimeInput(draft.taskUsedtime);
-      const page = draft.pageId ? (pagesById.get(draft.pageId) ?? null) : null;
-      const pageName = draft.manualPageName.trim() || page?.title || '';
-      const content = draft.content.trim() || pageName || '업무';
+      const content = draft.content.trim() || '업무';
 
       await saveMutation.mutateAsync({
         id: selectedReportId ?? undefined,
@@ -581,7 +573,7 @@ export function useReportsSlice(): ReportsSlice {
         taskType1: taskType.type1,
         taskType2: taskType.type2,
         taskUsedtime,
-        pageUrl: draft.pageUrl.trim(),
+        url: draft.url.trim(),
         content,
         note: draft.note.trim(),
       });
@@ -621,7 +613,7 @@ export function useReportsSlice(): ReportsSlice {
 
       if (!overheadCostGroupId) {
         setStatusKind('error');
-        setStatusMessage('오버헤드 청구그룹을 선택해 주세요.');
+        setStatusMessage('청구그룹을 선택해 주세요.');
         return;
       }
 
@@ -633,7 +625,7 @@ export function useReportsSlice(): ReportsSlice {
         taskType1: taskType.type1,
         taskType2: taskType.type2,
         taskUsedtime,
-        pageUrl: '',
+        url: '',
         content: '오버헤드',
         note: '',
       });
@@ -660,6 +652,7 @@ export function useReportsSlice(): ReportsSlice {
     draft,
     selectedDate,
     projectQuery,
+    appliedProjectQuery,
     projectOptions,
     filteredProjectOptions,
     costGroupOptions,

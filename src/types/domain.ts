@@ -325,7 +325,7 @@ export interface SaveTaskInput {
   taskType1: string;
   taskType2: string;
   taskUsedtime: number;
-  pageUrl: string;
+  url: string;
   content: string;
   note: string;
 }

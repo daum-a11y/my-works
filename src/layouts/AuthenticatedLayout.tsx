@@ -159,7 +159,7 @@ export function AuthenticatedLayout() {
                   className="authenticated-layout__user-menu-trigger"
                   aria-haspopup="menu"
                   aria-expanded={isUserMenuOpen}
-                  aria-label={`${session?.member.name ?? '사용자'} 메뉴`}
+                  aria-label={`사용자 메뉴`}
                   onClick={() => setIsUserMenuOpen((open) => !open)}
                 >
                   <div
@@ -194,6 +194,10 @@ export function AuthenticatedLayout() {
                     <div className="authenticated-layout__user-menu-identity">
                       <div
                         className="authenticated-layout__user-menu-identity-avatar"
+                        style={{
+                          backgroundColor: avatarColor.backgroundColor,
+                          color: avatarColor.textColor,
+                        }}
                         aria-hidden="true"
                       >
                         {userInitials}

@@ -46,7 +46,8 @@ export function ReportsResultsTable({
               <th scope="col">서비스 그룹</th>
               <th scope="col">서비스명</th>
               <th scope="col">프로젝트명</th>
-              <th scope="col">페이지 / 태스크명</th>
+              <th scope="col">페이지명</th>
+              <th scope="col">태스크명</th>
               <th scope="col">URL</th>
               <th scope="col">시간</th>
               <th scope="col">비고</th>
@@ -81,14 +82,14 @@ export function ReportsResultsTable({
                   </td>
                   <td>
                     <strong>{report.pageDisplayName}</strong>
-                    {report.content && report.content !== report.pageDisplayName ? (
-                      <span>{report.content}</span>
-                    ) : null}
                   </td>
                   <td>
-                    {report.pageUrl ? (
-                      <a href={report.pageUrl} target="_blank" rel="noreferrer">
-                        {report.pageUrl}
+                    <strong>{report.content || '-'}</strong>
+                  </td>
+                  <td>
+                    {report.url ? (
+                      <a href={report.url} target="_blank" rel="noreferrer">
+                        {report.url}
                       </a>
                     ) : (
                       '-'
@@ -123,7 +124,7 @@ export function ReportsResultsTable({
             })}
             {!rows.length && (
               <tr>
-                <td colSpan={13} className="reports-page__empty-state">
+                <td colSpan={14} className="reports-page__empty-state">
                   {emptyMessage}
                 </td>
               </tr>
@@ -139,12 +140,12 @@ export function ReportsResultsTable({
           </p>
           {canEdit ? (
             <label className="reports-page__table-footer-field">
-              <span>오버헤드 청구그룹</span>
+              <span>청구그룹</span>
               <select
                 value={overheadCostGroupId}
                 onChange={(event) => onOverheadCostGroupChange(event.target.value)}
               >
-                <option value="">선택하세요</option>
+                <option value="">선택</option>
                 {costGroupOptions.map((group) => (
                   <option key={group.id} value={group.id}>
                     {group.name}

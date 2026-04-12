@@ -832,7 +832,7 @@ const Trigger: React.FC<React.HTMLAttributes<HTMLDivElement>> = (props) => {
       onClick={toggle}
       className={`select-trigger ${props.className || ''}`}
     >
-      {value || '선택하세요'}
+      {value || '선택'}
     </div>
   );
 };

@@ -43,8 +43,6 @@ interface AdminReportEditorFormProps {
   showManualPageName: boolean;
   manualPageLabel: string;
   isVacationType: boolean;
-  showPageUrl: boolean;
-  usesProjectLookup: boolean;
   isReadonlyWorkHours: boolean;
   savePending: boolean;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
@@ -62,7 +60,7 @@ interface AdminReportEditorFormProps {
   onPageChange: (value: string) => void;
   onManualPageNameChange: (value: string) => void;
   onVacationTypeChange: (value: string) => void;
-  onPageUrlChange: (value: string) => void;
+  onUrlChange: (value: string) => void;
   onTaskUsedtimeChange: (value: string) => void;
   onNoteChange: (value: string) => void;
   onCancel: () => void;
@@ -103,8 +101,6 @@ export function AdminReportEditorForm({
   showManualPageName,
   manualPageLabel,
   isVacationType,
-  showPageUrl,
-  usesProjectLookup,
   isReadonlyWorkHours,
   savePending,
   onSubmit,
@@ -122,7 +118,7 @@ export function AdminReportEditorForm({
   onPageChange,
   onManualPageNameChange,
   onVacationTypeChange,
-  onPageUrlChange,
+  onUrlChange,
   onTaskUsedtimeChange,
   onNoteChange,
   onCancel,
@@ -192,8 +188,6 @@ export function AdminReportEditorForm({
             showManualPageName={showManualPageName}
             manualPageLabel={manualPageLabel}
             isVacationType={isVacationType}
-            showPageUrl={showPageUrl}
-            usesProjectLookup={usesProjectLookup}
             isReadonlyWorkHours={isReadonlyWorkHours}
             onType1Change={onType1Change}
             onType2Change={onType2Change}
@@ -202,7 +196,7 @@ export function AdminReportEditorForm({
             onPageChange={onPageChange}
             onManualPageNameChange={onManualPageNameChange}
             onVacationTypeChange={onVacationTypeChange}
-            onPageUrlChange={onPageUrlChange}
+            onUrlChange={onUrlChange}
             onTaskUsedtimeChange={onTaskUsedtimeChange}
           />
 

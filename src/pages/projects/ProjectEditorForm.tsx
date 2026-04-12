@@ -61,7 +61,7 @@ export function ProjectEditorForm({
           value={projectDraft.taskTypeId}
           onChange={(event) => onProjectDraftChange({ taskTypeId: event.target.value })}
         >
-          <option value="">선택하세요</option>
+          <option value="">선택</option>
           {projectTypeOptions.map((projectType) => (
             <option key={projectType.id} value={projectType.id}>
               {projectType.type1}

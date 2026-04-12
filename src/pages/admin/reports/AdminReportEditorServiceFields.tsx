@@ -21,7 +21,7 @@ export function AdminReportEditorServiceFields({
         <label className={'reports-page__field'}>
           <span>플랫폼</span>
           <select value={draft.platform} onChange={(event) => onPlatformChange(event.target.value)}>
-            <option value="">선택하세요</option>
+            <option value="">선택</option>
             {platforms
               .filter((platform) => platform.isVisible || platform.name === draft.platform)
               .map((platform) => (

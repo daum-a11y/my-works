@@ -26,7 +26,7 @@ export interface AdminTaskSearchItem {
   projectName: string | null;
   pageId: string | null;
   pageTitle: string | null;
-  pageUrl: string | null;
+  url: string | null;
   serviceGroupId: string | null;
   serviceGroupName: string | null;
   serviceName: string | null;
@@ -53,7 +53,7 @@ export interface AdminTaskSaveInput {
   taskType1: string;
   taskType2: string;
   taskUsedtime: number;
-  pageUrl: string;
+  url: string;
   content: string;
   note: string;
 }

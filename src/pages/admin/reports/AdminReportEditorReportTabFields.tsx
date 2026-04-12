@@ -34,7 +34,7 @@ export function AdminReportEditorReportTabFields({
           value={draft.costGroupId}
           onChange={(event) => onCostGroupChange(event.target.value)}
         >
-          <option value="">{costGroups.length ? '선택하세요' : '청구그룹이 없습니다.'}</option>
+          <option value="">{costGroups.length ? '선택' : '청구그룹이 없습니다.'}</option>
           {costGroups.map((group) => (
             <option key={group.id} value={group.id}>
               {group.name}

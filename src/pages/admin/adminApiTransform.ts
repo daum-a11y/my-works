@@ -156,7 +156,7 @@ export function toAdminTask(record: ApiRecord): AdminTaskSearchItem {
     projectName: record.project_name == null ? null : String(record.project_name),
     pageId: record.project_page_id ? String(record.project_page_id) : null,
     pageTitle: record.page_title == null ? null : String(record.page_title),
-    pageUrl: record.url == null ? null : String(record.url),
+    url: record.url == null ? null : String(record.url),
     serviceGroupId: record.service_group_id ? String(record.service_group_id) : null,
     serviceGroupName: record.service_group_name == null ? null : String(record.service_group_name),
     serviceName: record.service_name == null ? null : String(record.service_name),

@@ -361,7 +361,7 @@ const configuredAdminClient: AdminDataClient = !supabase
           p_task_type1: input.taskType1,
           p_task_type2: input.taskType2,
           p_task_usedtime: input.taskUsedtime,
-          p_url: input.pageUrl,
+          p_url: input.url,
           p_content: input.content,
           p_note: input.note,
         });

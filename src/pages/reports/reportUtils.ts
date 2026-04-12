@@ -67,7 +67,7 @@ export interface ReportDraft {
   serviceGroupName: string;
   serviceName: string;
   manualPageName: string;
-  pageUrl: string;
+  url: string;
   taskUsedtime: string;
   content: string;
   note: string;
@@ -100,7 +100,7 @@ export interface ReportViewModel extends ReportRecord {
   serviceName: string;
   projectDisplayName: string;
   pageDisplayName: string;
-  pageUrl: string;
+  url: string;
   searchText: string;
 }
 
@@ -398,7 +398,7 @@ export function createEmptyReportDraft(referenceDate = new Date()): ReportDraft 
     serviceGroupName: '',
     serviceName: '',
     manualPageName: '',
-    pageUrl: '',
+    url: '',
     taskUsedtime: '60',
     content: '',
     note: '',
@@ -419,7 +419,7 @@ export function draftFromReport(report: ReportRecord): ReportDraft {
     serviceGroupName: reportView.serviceGroupName ?? '',
     serviceName: reportView.serviceName ?? '',
     manualPageName: report.pageName,
-    pageUrl: reportView.pageUrl ?? '',
+    url: reportView.url ?? '',
     taskUsedtime: String(report.taskUsedtime),
     content: report.content,
     note: report.note,
@@ -477,7 +477,6 @@ export function buildReportViewModel(
   const resolvedProjectName = project?.name ?? report.projectName ?? '';
   const projectDisplayName = resolvedProjectName || '-';
   const pageDisplayName = page?.title || report.pageName || '-';
-  const pageUrl = page?.url || '';
   const searchText = normalizeText(
     [
       report.reportDate,
@@ -486,7 +485,6 @@ export function buildReportViewModel(
       serviceGroupName,
       serviceName,
       pageDisplayName,
-      pageUrl,
       report.type1,
       report.type2,
       report.content,
@@ -502,15 +500,15 @@ export function buildReportViewModel(
     serviceName,
     projectDisplayName,
     pageDisplayName,
-    pageUrl,
+    url: '',
     searchText,
   } satisfies ReportViewModel;
 }
 
 export function buildTaskReportViewModel(task: Task, owner: { id: string; name: string }) {
   const projectDisplayName = task.projectName || '-';
-  const pageDisplayName = task.pageTitle || task.content || '-';
-  const pageUrl = task.url || '';
+  const pageDisplayName = task.pageTitle || '-';
+  const url = task.url || '';
   const searchText = normalizeText(
     [
       task.costGroupName,
@@ -523,7 +521,7 @@ export function buildTaskReportViewModel(task: Task, owner: { id: string; name: 
       task.taskType2,
       task.content,
       task.note,
-      pageUrl,
+      url,
       task.id,
     ].join(' '),
   );
@@ -538,7 +536,7 @@ export function buildTaskReportViewModel(task: Task, owner: { id: string; name: 
     projectId: task.projectId ?? '',
     pageId: task.pageId ?? '',
     projectName: task.projectName || '',
-    pageName: task.pageTitle || task.content || '',
+    pageName: task.pageTitle || '',
     type1: task.taskType1 as ReportViewModel['type1'],
     type2: task.taskType2 as ReportViewModel['type2'],
     taskUsedtime: task.taskUsedtime,
@@ -551,7 +549,7 @@ export function buildTaskReportViewModel(task: Task, owner: { id: string; name: 
     serviceName: task.serviceName || '',
     projectDisplayName,
     pageDisplayName,
-    pageUrl,
+    url,
     searchText,
   } satisfies ReportViewModel;
 }
@@ -616,7 +614,7 @@ function buildReportSearchText(report: ReportRecord) {
       report.reportDate,
       report.projectName,
       report.pageName,
-      // Search stays permissive; page URL is only present on view models.
+      // Search stays permissive; task URL is only present on view models.
       report.type1,
       report.type2,
       report.content,

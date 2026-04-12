@@ -264,7 +264,7 @@
     justify-content: center;
     flex: 0 0 auto;
     background: color-mix(in oklab, var(--surface-canvas-strong) 78%, var(--surface-panel));
-    border: 1px solid var(--border-subtle);
+    border-radius: 4px;
     color: var(--text-tertiary);
     font-size: 11px;
     font-weight: 700;
@@ -365,7 +365,7 @@
     justify-content: center;
     flex: 0 0 auto;
     background: color-mix(in oklab, var(--surface-canvas-strong) 78%, var(--surface-panel));
-    border: 1px solid var(--border-subtle);
+    border-radius: 4px;
     color: var(--text-tertiary);
     font-size: 12px;
     font-weight: 700;

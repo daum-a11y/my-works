@@ -258,7 +258,7 @@ export function useAdminReportsPage() {
         { header: '서비스명', value: (task) => task.serviceName || '-', width: 20 },
         { header: '프로젝트명', value: (task) => task.projectName || '-', width: 22 },
         { header: '페이지명', value: (task) => task.pageTitle || '-', width: 22 },
-        { header: '링크', value: (task) => task.pageUrl || '-', width: 28 },
+        { header: '링크', value: (task) => task.url || '-', width: 28 },
         { header: '시간', value: (task) => task.taskUsedtime, width: 10 },
         { header: '비고', value: (task) => task.note, width: 28 },
       ],

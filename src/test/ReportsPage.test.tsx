@@ -176,7 +176,7 @@ describe('ReportsPage', () => {
 
     expect(screen.getByText(/오늘 총 입력/)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: '오버헤드 등록' })).toBeInTheDocument();
-    expect(screen.getByText('오버헤드 청구그룹')).toBeInTheDocument();
+    expect(screen.getByText('청구그룹')).toBeInTheDocument();
     expect(screen.getByLabelText('태스크명')).toBeInTheDocument();
   });
 });

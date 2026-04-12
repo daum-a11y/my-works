@@ -38,6 +38,7 @@ export function ReportsPage() {
     setSelectedDate,
     setProjectQuery,
     projectQuery,
+    appliedProjectQuery,
     statusMessage,
     statusKind,
     taskTypes,
@@ -75,29 +76,18 @@ export function ReportsPage() {
       null,
     [draft.projectId, filteredProjectOptions, projectOptions],
   );
-  const selectedTaskType = useMemo(
-    () =>
-      taskTypes.find(
-        (taskType) => taskType.type1 === draft.type1 && taskType.type2 === draft.type2,
-      ) ?? null,
-    [draft.type1, draft.type2, taskTypes],
-  );
   const projectTypeSelected = Boolean(draft.projectId);
   const type1Value = projectTypeSelected
     ? currentProject?.project.taskType1 || draft.type1
     : draft.type1;
-  const requiresServiceGroup = selectedTaskType?.requiresServiceGroup ?? false;
   const typeRule = useMemo(() => getTaskTypeUiRule(type1Value, taskTypes), [taskTypes, type1Value]);
   const usesProjectLookup = typeRule.projectLinked;
-  const usesManualPageWithUrl = typeRule.manualPageWithUrl;
   const showTypeStep = Boolean(draft.costGroupId || draft.type1 || draft.type2);
   const projectLookupReady = Boolean(draft.costGroupId && draft.type1 && draft.type2);
   const showProjectLookupStep = usesProjectLookup && projectLookupReady;
   const isVacationType = typeRule.vacation;
   const isFixedDayType = false;
   const showPageSelect = projectTypeSelected && typeRule.projectPageSelectable;
-  const showPageUrl =
-    usesProjectLookup || usesManualPageWithUrl || (requiresServiceGroup && !showPageSelect);
   const showTaskStep =
     Boolean(draft.costGroupId && draft.type1 && draft.type2) &&
     (!usesProjectLookup || Boolean(draft.projectId) || !showProjectLookupStep);
@@ -106,22 +96,25 @@ export function ReportsPage() {
     if (!draft.costGroupId) {
       return '청구그룹을 먼저 선택하세요';
     }
-    if (!projectQuery.trim()) {
-      return '선택하세요';
+    if (appliedProjectQuery === null) {
+      return '검색어 입력 후 검색하세요';
+    }
+    if (!appliedProjectQuery.trim()) {
+      return '선택';
     }
     if (!filteredProjectOptions.length) {
       return '검색 결과가 없습니다.';
     }
-    return `${projectQuery} 로 검색되었습니다. 목록을 선택하세요`;
-  }, [draft.costGroupId, filteredProjectOptions.length, projectQuery]);
+    return `${appliedProjectQuery} 로 검색되었습니다. 목록을 선택하세요`;
+  }, [appliedProjectQuery, draft.costGroupId, filteredProjectOptions.length]);
   const type2Placeholder = useMemo(() => {
     if (!draft.type1 || draft.type1 === '휴무') {
-      return '선택하세요';
+      return '선택';
     }
     if (!type2Options.length) {
       return '타입2가 존재하지 않습니다.';
     }
-    return '';
+    return '선택';
   }, [draft.type1, type2Options.length]);
   const currentListDateText = useMemo(() => {
     const value = selectedDate || todayInputValue;
@@ -239,8 +232,6 @@ export function ReportsPage() {
             showProjectLookupStep={showProjectLookupStep}
             showTaskStep={showTaskStep}
             showPageSelect={showPageSelect}
-            showPageUrl={showPageUrl}
-            usesProjectLookup={usesProjectLookup}
             isReadonlyWorkHours={isReadonlyWorkHours}
             onSubmit={onSubmit}
             onDraftFieldChange={setDraftField}

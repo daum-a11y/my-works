@@ -31,7 +31,7 @@ export function AdminReportEditorBasicFields({
           onChange={(event) => onMemberChange(event.target.value)}
           disabled={isEdit}
         >
-          <option value="">{members.length ? '선택하세요' : '사용자가 없습니다.'}</option>
+          <option value="">{members.length ? '선택' : '사용자가 없습니다.'}</option>
           {members.map((member) => (
             <option key={member.id} value={member.id}>
               {member.accountId} ({member.name})

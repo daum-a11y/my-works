@@ -10,14 +10,12 @@ interface AdminReportEditorTargetFieldsProps {
   showManualPageName: boolean;
   manualPageLabel: string;
   isVacationType: boolean;
-  showPageUrl: boolean;
-  usesProjectLookup: boolean;
   isReadonlyWorkHours: boolean;
   onProjectChange: (value: string) => void;
   onPageChange: (value: string) => void;
   onManualPageNameChange: (value: string) => void;
   onVacationTypeChange: (value: string) => void;
-  onPageUrlChange: (value: string) => void;
+  onUrlChange: (value: string) => void;
   onTaskUsedtimeChange: (value: string) => void;
 }
 
@@ -31,14 +29,12 @@ export function AdminReportEditorTargetFields({
   showManualPageName,
   manualPageLabel,
   isVacationType,
-  showPageUrl,
-  usesProjectLookup,
   isReadonlyWorkHours,
   onProjectChange,
   onPageChange,
   onManualPageNameChange,
   onVacationTypeChange,
-  onPageUrlChange,
+  onUrlChange,
   onTaskUsedtimeChange,
 }: AdminReportEditorTargetFieldsProps) {
   return (
@@ -52,7 +48,7 @@ export function AdminReportEditorTargetFields({
             disabled={!draft.costGroupId}
           >
             <option value="">
-              {typeFilteredProjects.length ? '선택하세요' : '프로젝트가 존재하지 않습니다.'}
+              {typeFilteredProjects.length ? '선택' : '프로젝트가 존재하지 않습니다.'}
             </option>
             {typeFilteredProjects.map((project) => (
               <option key={project.id} value={project.id}>
@@ -67,9 +63,7 @@ export function AdminReportEditorTargetFields({
         <label className={'reports-page__field'}>
           <span>{isProjectLinkedTab ? '페이지명' : '프로젝트 페이지'}</span>
           <select value={draft.pageId} onChange={(event) => onPageChange(event.target.value)}>
-            <option value="">
-              {draftPages.length ? '선택하세요' : '페이지가 존재하지 않습니다.'}
-            </option>
+            <option value="">{draftPages.length ? '선택' : '페이지가 존재하지 않습니다.'}</option>
             {draftPages.map((page) => (
               <option key={page.id} value={page.id}>
                 {page.title}
@@ -87,7 +81,7 @@ export function AdminReportEditorTargetFields({
               value={draft.manualPageName}
               onChange={(event) => onVacationTypeChange(event.target.value)}
             >
-              <option value="">선택하세요</option>
+              <option value="">선택</option>
               <option value="오전 반차">오전 반차</option>
               <option value="오후 반차">오후 반차</option>
               <option value="전일 휴가">전일 휴가</option>
@@ -102,16 +96,10 @@ export function AdminReportEditorTargetFields({
         </label>
       ) : null}
 
-      {showPageUrl ? (
-        <label className={'reports-page__field'}>
-          <span>{showPageSelect ? '페이지 URL' : 'URL'}</span>
-          <input
-            value={draft.pageUrl}
-            onChange={(event) => onPageUrlChange(event.target.value)}
-            readOnly={isProjectLinkedTab || usesProjectLookup}
-          />
-        </label>
-      ) : null}
+      <label className={'reports-page__field'}>
+        <span>URL</span>
+        <input value={draft.url} onChange={(event) => onUrlChange(event.target.value)} />
+      </label>
 
       <label className={'reports-page__field'}>
         <span>총시간</span>

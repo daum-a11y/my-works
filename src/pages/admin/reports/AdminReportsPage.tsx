@@ -108,7 +108,6 @@ export function AdminReportsPage() {
 
       <AdminReportsResultsTable
         tasks={page.sortedTasks}
-        membersById={page.membersById}
         sortState={page.sortState}
         deletePending={page.deletePending}
         onSortChange={page.setSortState}

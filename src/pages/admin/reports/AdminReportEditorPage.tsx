@@ -47,7 +47,7 @@ export function AdminReportEditorPage() {
   const [selectedMemberId, setSelectedMemberId] = useState(locationState?.memberId ?? '');
   const [draft, setDraft] = useState<ReportDraft>(() => createEmptyReportDraft());
   const [projectQuery, setProjectQuery] = useState('');
-  const [appliedProjectQuery, setAppliedProjectQuery] = useState('');
+  const [appliedProjectQuery, setAppliedProjectQuery] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState('');
 
   const membersQuery = useQuery({
@@ -91,7 +91,9 @@ export function AdminReportEditorPage() {
         taskType1: draft.type1 || null,
         query: appliedProjectQuery || null,
       }),
-    enabled: Boolean(draft.costGroupId && draft.platform && draft.type1),
+    enabled: Boolean(
+      draft.costGroupId && draft.platform && draft.type1 && appliedProjectQuery !== null,
+    ),
   });
   const pagesQuery = useQuery({
     queryKey: ['admin', 'project-pages', draft.projectId],
@@ -165,7 +167,7 @@ export function AdminReportEditorPage() {
     setDraft(createDraftFromTask(task));
     setActiveTab(task.projectId ? 'report' : 'period');
     setProjectQuery('');
-    setAppliedProjectQuery('');
+    setAppliedProjectQuery(null);
     setStatusMessage('');
   }, [taskQuery.data]);
 
@@ -173,8 +175,12 @@ export function AdminReportEditorPage() {
     () => buildProjectViewModels(projects, serviceGroups),
     [projects, serviceGroups],
   );
-  const normalizedProjectQuery = appliedProjectQuery.trim().toLowerCase();
+  const normalizedProjectQuery = (appliedProjectQuery ?? '').trim().toLowerCase();
   const filteredProjectOptions = useMemo(() => {
+    if (appliedProjectQuery === null) {
+      return [];
+    }
+
     const base = draft.costGroupId
       ? projectOptions.filter((project) => project.costGroupId === draft.costGroupId)
       : projectOptions;
@@ -187,7 +193,7 @@ export function AdminReportEditorPage() {
         project.project.name.trim().toLowerCase().includes(normalizedProjectQuery),
       )
       .slice(0, 60);
-  }, [draft.costGroupId, normalizedProjectQuery, projectOptions]);
+  }, [appliedProjectQuery, draft.costGroupId, normalizedProjectQuery, projectOptions]);
   const draftPages = useMemo(
     () => pages.filter((page) => page.projectId === draft.projectId),
     [draft.projectId, pages],
@@ -198,13 +204,6 @@ export function AdminReportEditorPage() {
       projectOptions.find((project) => project.id === draft.projectId) ??
       null,
     [draft.projectId, filteredProjectOptions, projectOptions],
-  );
-  const selectedTaskType = useMemo(
-    () =>
-      taskTypes.find(
-        (taskType) => taskType.type1 === draft.type1 && taskType.type2 === draft.type2,
-      ) ?? null,
-    [draft.type1, draft.type2, taskTypes],
   );
   const reportTabType1Options = useMemo(() => {
     const preferredOrder = ['민원', '데이터버퍼', '일반버퍼', '교육', '기타버퍼', '휴무'];
@@ -225,7 +224,6 @@ export function AdminReportEditorPage() {
   const type1Value = projectTypeSelected
     ? currentProject?.project.taskType1 || draft.type1
     : draft.type1;
-  const requiresServiceGroup = selectedTaskType?.requiresServiceGroup ?? false;
   const typeRule = useMemo(() => getTaskTypeUiRule(type1Value, taskTypes), [taskTypes, type1Value]);
   const usesProjectLookup = typeRule.projectLinked;
   const usesManualPageWithUrl = typeRule.manualPageWithUrl;
@@ -236,13 +234,9 @@ export function AdminReportEditorPage() {
   const isVacationType = typeRule.vacation;
   const isFixedDayType = false;
   const showProjectLinkedPageSelect = projectTypeSelected && typeRule.projectPageSelectable;
-  const showProjectLinkedPageUrl = projectTypeSelected && requiresServiceGroup;
   const showPageSelect = isProjectLinkedTab
     ? showProjectLinkedPageSelect
     : Boolean(draft.projectId) && typeRule.projectPageSelectable;
-  const showPageUrl = isProjectLinkedTab
-    ? showProjectLinkedPageUrl
-    : usesProjectLookup || usesManualPageWithUrl || (requiresServiceGroup && !showPageSelect);
   const showManualPageName = isProjectLinkedTab
     ? (projectTypeSelected && typeRule.projectLinked && !typeRule.projectPageSelectable) ||
       isVacationType
@@ -255,7 +249,7 @@ export function AdminReportEditorPage() {
     if ((typeRule.projectLinked && !typeRule.projectPageSelectable) || usesManualPageOnly) {
       return '페이지명';
     }
-    return '페이지명 & 내용';
+    return '페이지명';
   }, [isVacationType, typeRule.projectLinked, typeRule.projectPageSelectable, usesManualPageOnly]);
   const typeFilteredProjects = useMemo(() => {
     if (!draft.platform || !draft.type1) {
@@ -273,22 +267,25 @@ export function AdminReportEditorPage() {
     if (!draft.costGroupId) {
       return '청구그룹을 먼저 선택하세요';
     }
-    if (!projectQuery.trim()) {
-      return '선택하세요';
+    if (appliedProjectQuery === null) {
+      return '검색어 입력 후 검색하세요';
+    }
+    if (!appliedProjectQuery.trim()) {
+      return '선택';
     }
     if (!filteredProjectOptions.length) {
       return '검색 결과가 없습니다.';
     }
-    return `${projectQuery} 로 검색되었습니다. 목록을 선택하세요`;
-  }, [draft.costGroupId, filteredProjectOptions.length, projectQuery]);
+    return `${appliedProjectQuery} 로 검색되었습니다. 목록을 선택하세요`;
+  }, [appliedProjectQuery, draft.costGroupId, filteredProjectOptions.length]);
   const type2Placeholder = useMemo(() => {
     if (isProjectLinkedTab || draft.type1 === '휴무') {
-      return '선택하세요';
+      return '선택';
     }
     if (!type2Options.length) {
       return '타입2가 존재하지 않습니다.';
     }
-    return '';
+    return '선택';
   }, [draft.type1, isProjectLinkedTab, type2Options.length]);
 
   const setDraftField = <K extends keyof ReportDraft>(key: K, value: ReportDraft[K]) => {
@@ -318,14 +315,12 @@ export function AdminReportEditorPage() {
           next.serviceGroupName =
             separator < 0 ? normalizedServiceName : normalizedServiceName.slice(0, separator);
           next.serviceName = separator < 0 ? '' : normalizedServiceName.slice(separator + 3);
-          next.pageUrl = project.reportUrl;
         } else {
           next.type1 = '';
           next.type2 = '';
           next.platform = '';
           next.serviceGroupName = '';
           next.serviceName = '';
-          next.pageUrl = '';
         }
       }
 
@@ -336,14 +331,6 @@ export function AdminReportEditorPage() {
         next.costGroupName = costGroup?.name ?? '';
         next.serviceGroupName = '';
         next.serviceName = '';
-        next.pageUrl = '';
-      }
-
-      if (key === 'pageId') {
-        const page = pagesById.get(String(value));
-        if (page) {
-          next.pageUrl = page.url;
-        }
       }
 
       if (key === 'type1') {
@@ -438,7 +425,7 @@ export function AdminReportEditorPage() {
         taskType1: taskType.type1,
         taskType2: taskType.type2,
         taskUsedtime,
-        pageUrl: draft.pageUrl.trim(),
+        url: draft.url.trim(),
         content: draft.content.trim(),
         note: draft.note.trim(),
       });
@@ -525,8 +512,6 @@ export function AdminReportEditorPage() {
         showManualPageName={showManualPageName}
         manualPageLabel={manualPageLabel}
         isVacationType={isVacationType}
-        showPageUrl={showPageUrl}
-        usesProjectLookup={usesProjectLookup}
         isReadonlyWorkHours={isReadonlyWorkHours}
         savePending={saveMutation.isPending}
         onSubmit={onSubmit}
@@ -544,7 +529,7 @@ export function AdminReportEditorPage() {
         onPageChange={(value) => setDraftField('pageId', value)}
         onManualPageNameChange={(value) => setDraftField('manualPageName', value)}
         onVacationTypeChange={handleVacationTypeChange}
-        onPageUrlChange={(value) => setDraftField('pageUrl', value)}
+        onUrlChange={(value) => setDraftField('url', value)}
         onTaskUsedtimeChange={(value) => setDraftField('taskUsedtime', value)}
         onNoteChange={(value) => setDraftField('note', value)}
         onCancel={() => navigate('/org/search')}

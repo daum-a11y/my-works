@@ -1,11 +1,10 @@
 import { SortableTableHeaderButton, TableEmptyRow } from '../../../components/shared';
-import type { AdminTaskSearchItem, MemberAdminItem } from '../admin.types';
+import type { AdminTaskSearchItem } from '../admin.types';
 import type { SortState } from './AdminReportsPage.types';
 import { formatTimeCell } from './AdminReportsPage.utils';
 
 interface AdminReportsResultsTableProps {
   tasks: AdminTaskSearchItem[];
-  membersById: Map<string, MemberAdminItem>;
   sortState: SortState;
   deletePending: boolean;
   onSortChange: (next: SortState) => void;
@@ -15,7 +14,6 @@ interface AdminReportsResultsTableProps {
 
 export function AdminReportsResultsTable({
   tasks,
-  membersById,
   sortState,
   deletePending,
   onSortChange,
@@ -117,6 +115,7 @@ export function AdminReportsResultsTable({
                   onChange={onSortChange}
                 />
               </th>
+              <th scope="col">태스크명</th>
               <th scope="col">링크</th>
               <th scope="col" aria-sort={getAriaSort('taskUsedtime')}>
                 <SortableTableHeaderButton
@@ -133,22 +132,18 @@ export function AdminReportsResultsTable({
           <tbody>
             {tasks.length === 0 ? (
               <TableEmptyRow
-                colSpan={13}
+                colSpan={14}
                 className={'admin-reports-page__empty-state'}
                 message="검색 결과가 없습니다."
               />
             ) : (
               tasks.map((task) => {
-                const member = membersById.get(task.memberId);
-
                 return (
                   <tr key={task.id}>
                     <td>{task.taskDate}</td>
                     <td>
-                      <strong>{member?.accountId ?? task.memberId}</strong>
-                      <div className={'admin-reports-page__muted'}>
-                        {member?.name ?? task.memberName}
-                      </div>
+                      <strong>{task.memberId}</strong>
+                      <div className={'admin-reports-page__muted'}>{task.memberName}</div>
                     </td>
                     <td>{task.costGroupName || '-'}</td>
                     <td>{task.taskType1}</td>
@@ -158,10 +153,11 @@ export function AdminReportsResultsTable({
                     <td>{task.serviceName || '-'}</td>
                     <td>{task.projectName || '-'}</td>
                     <td>{task.pageTitle || '-'}</td>
+                    <td>{task.content || '-'}</td>
                     <td>
-                      {task.pageUrl ? (
+                      {task.url ? (
                         <a
-                          href={task.pageUrl}
+                          href={task.url}
                           target="_blank"
                           rel="noreferrer"
                           className={'admin-reports-page__table-link'}

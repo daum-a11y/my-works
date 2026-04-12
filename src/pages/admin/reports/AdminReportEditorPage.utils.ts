@@ -147,7 +147,7 @@ export function createDraftFromTask(task: AdminTaskSearchItem): ReportDraft {
     serviceGroupName: task.serviceGroupName || '',
     serviceName: task.serviceName || '',
     manualPageName: task.pageTitle || '',
-    pageUrl: task.pageUrl || '',
+    url: task.url || '',
     taskUsedtime: String(task.taskUsedtime ?? 0),
     content: task.content || '',
     note: task.note || '',
