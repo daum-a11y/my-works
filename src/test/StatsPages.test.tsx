@@ -201,6 +201,8 @@ describe('Stats pages', () => {
     expect((screen.getByLabelText('모니터링 종료월') as HTMLInputElement).value).toBe(
       defaultEndMonth,
     );
+    expect(screen.getByLabelText('모니터링 시작월')).toHaveAttribute('max', defaultEndMonth);
+    expect(screen.getByLabelText('모니터링 종료월')).toHaveAttribute('min', defaultStartMonth);
   });
 
   it('applies the monitoring period only after search is clicked', async () => {
@@ -300,6 +302,8 @@ describe('Stats pages', () => {
     expect(screen.getByText('추가 QA 대상')).toBeInTheDocument();
     expect((screen.getByLabelText('QA 시작월') as HTMLInputElement).value).toBe(defaultStartMonth);
     expect((screen.getByLabelText('QA 종료월') as HTMLInputElement).value).toBe(defaultEndMonth);
+    expect(screen.getByLabelText('QA 시작월')).toHaveAttribute('max', defaultEndMonth);
+    expect(screen.getByLabelText('QA 종료월')).toHaveAttribute('min', defaultStartMonth);
   });
 
   it('applies the QA period only after search is clicked', async () => {

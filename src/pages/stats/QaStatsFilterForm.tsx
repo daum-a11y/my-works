@@ -46,6 +46,7 @@ export function QaStatsFilterForm({
             type="month"
             aria-label="QA 시작월"
             value={draftStartMonth}
+            max={draftEndMonth || undefined}
             onChange={(event) => onDraftStartMonthChange(event.target.value)}
           />
         </PageFilterField>
@@ -54,6 +55,7 @@ export function QaStatsFilterForm({
             type="month"
             aria-label="QA 종료월"
             value={draftEndMonth}
+            min={draftStartMonth || undefined}
             onChange={(event) => onDraftEndMonthChange(event.target.value)}
           />
         </PageFilterField>

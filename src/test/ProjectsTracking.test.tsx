@@ -311,6 +311,8 @@ describe('Projects routes', () => {
     expect(screen.getByLabelText('페이지당 행 수')).toHaveValue('50');
     expect(screen.getByLabelText('시작일')).toHaveValue(toLocalDateInputValue(aYearAgo));
     expect(screen.getByLabelText('종료일')).toHaveValue(toLocalDateInputValue(today));
+    expect(screen.getByLabelText('시작일')).toHaveAttribute('max', toLocalDateInputValue(today));
+    expect(screen.getByLabelText('종료일')).toHaveAttribute('min', toLocalDateInputValue(aYearAgo));
     expect(screen.getByRole('link', { name: '프로젝트 추가' })).toHaveAttribute(
       'href',
       '/projects/new',
@@ -449,6 +451,8 @@ describe('Projects routes', () => {
     await waitFor(() => {
       expect(screen.getByLabelText('프로젝트 종류')).toHaveValue('type-qa');
     });
+    expect(screen.getByLabelText('QA시작일')).toHaveAttribute('max', '2026-03-31');
+    expect(screen.getByLabelText('QA종료일')).toHaveAttribute('min', '2026-03-01');
 
     await user.clear(screen.getByLabelText('프로젝트명'));
     await user.type(screen.getByLabelText('프로젝트명'), '알파 수정');

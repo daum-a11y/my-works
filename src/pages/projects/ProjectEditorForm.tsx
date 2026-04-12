@@ -141,6 +141,7 @@ export function ProjectEditorForm({
         <input
           type="date"
           value={projectDraft.startDate}
+          max={projectDraft.endDate || undefined}
           onChange={(event) => onProjectDraftChange({ startDate: event.target.value })}
         />
       </label>
@@ -150,6 +151,7 @@ export function ProjectEditorForm({
         <input
           type="date"
           value={projectDraft.endDate}
+          min={projectDraft.startDate || undefined}
           onChange={(event) => onProjectDraftChange({ endDate: event.target.value })}
         />
       </label>

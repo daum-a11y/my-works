@@ -55,6 +55,7 @@ export function SearchFilterForm({
           <input
             type="date"
             value={filterDraft.startDate}
+            max={filterDraft.endDate || undefined}
             onChange={(event) =>
               onFilterDraftChange({ ...filterDraft, startDate: event.target.value })
             }
@@ -64,6 +65,7 @@ export function SearchFilterForm({
           <input
             type="date"
             value={filterDraft.endDate}
+            min={filterDraft.startDate || undefined}
             onChange={(event) =>
               onFilterDraftChange({ ...filterDraft, endDate: event.target.value })
             }

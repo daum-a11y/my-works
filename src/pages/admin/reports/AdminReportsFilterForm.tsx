@@ -67,6 +67,7 @@ export function AdminReportsFilterForm({
             id="admin-reports-start-date"
             type="date"
             value={filters.startDate}
+            max={filters.endDate || undefined}
             onChange={(event) => onFilterField('startDate', event.target.value)}
           />
         </PageFilterField>
@@ -75,6 +76,7 @@ export function AdminReportsFilterForm({
             id="admin-reports-end-date"
             type="date"
             value={filters.endDate}
+            min={filters.startDate || undefined}
             onChange={(event) => onFilterField('endDate', event.target.value)}
           />
         </PageFilterField>

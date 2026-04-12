@@ -42,6 +42,7 @@ export function MonitoringStatsFilterForm({
             type="month"
             aria-label="모니터링 시작월"
             value={draftStartMonth}
+            max={draftEndMonth || undefined}
             onChange={(event) => onDraftStartMonthChange(event.target.value)}
           />
         </PageFilterField>
@@ -50,6 +51,7 @@ export function MonitoringStatsFilterForm({
             type="month"
             aria-label="모니터링 종료월"
             value={draftEndMonth}
+            min={draftStartMonth || undefined}
             onChange={(event) => onDraftEndMonthChange(event.target.value)}
           />
         </PageFilterField>

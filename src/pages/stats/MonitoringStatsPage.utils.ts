@@ -7,8 +7,15 @@ export function formatTrackStatus(value: SubtaskStatus) {
 
 export function monthKeyFromMonitoringMonth(value: string): string {
   const digits = value.replace(/\D/g, '');
+  const month = digits.slice(-2);
+  if (month < '01' || month > '12') {
+    return '';
+  }
   if (digits.length === 4) {
-    return `20${digits.slice(0, 2)}-${digits.slice(2, 4)}`;
+    return `20${digits.slice(0, 2)}-${month}`;
+  }
+  if (digits.length === 6) {
+    return `${digits.slice(0, 4)}-${month}`;
   }
   return '';
 }

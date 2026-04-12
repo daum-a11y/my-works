@@ -130,6 +130,8 @@ describe('SearchPage', () => {
       1,
       25,
     );
+    expect(screen.getByLabelText('시작일')).toHaveAttribute('max', monthEnd);
+    expect(screen.getByLabelText('종료일')).toHaveAttribute('min', monthStart);
 
     await user.type(screen.getByLabelText('검색어'), '로그인');
     await user.click(screen.getByRole('button', { name: '검색' }));
