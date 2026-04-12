@@ -41,6 +41,7 @@ export function AdminTaskTypeEditorPage() {
   const [draft, setDraft] = useState<AdminTaskTypePayload>(() => createDraft());
   const [transferDialogOpen, setTransferDialogOpen] = useState(false);
   const [transferTargetTaskTypeId, setTransferTargetTaskTypeId] = useState('');
+  const [transferDropExisting, setTransferDropExisting] = useState(false);
 
   const taskTypesQuery = useQuery({
     queryKey: ['admin', 'task-types'],
@@ -147,12 +148,18 @@ export function AdminTaskTypeEditorPage() {
   });
 
   const replaceTaskTypeUsageMutation = useMutation({
-    mutationFn: async (nextTaskTypeId: string) => {
+    mutationFn: async ({
+      nextTaskTypeId,
+      dropExisting,
+    }: {
+      nextTaskTypeId: string;
+      dropExisting: boolean;
+    }) => {
       if (!taskTypeId) {
         throw new Error('전환할 업무 타입이 없습니다.');
       }
 
-      await adminDataClient.replaceTaskTypeUsageById(taskTypeId, nextTaskTypeId);
+      await adminDataClient.replaceTaskTypeUsageById(taskTypeId, nextTaskTypeId, dropExisting);
     },
     onSuccess: async () => {
       await Promise.all([
@@ -206,6 +213,7 @@ export function AdminTaskTypeEditorPage() {
 
   const handleTransferOpen = () => {
     setTransferTargetTaskTypeId(transferTargetTaskTypes[0]?.id ?? '');
+    setTransferDropExisting(false);
     setTransferDialogOpen(true);
   };
 
@@ -214,7 +222,10 @@ export function AdminTaskTypeEditorPage() {
       return;
     }
 
-    replaceTaskTypeUsageMutation.mutate(transferTargetTaskTypeId);
+    replaceTaskTypeUsageMutation.mutate({
+      nextTaskTypeId: transferTargetTaskTypeId,
+      dropExisting: transferDropExisting,
+    });
   };
 
   if (taskTypesQuery.isLoading && isEditMode) {
@@ -286,12 +297,14 @@ export function AdminTaskTypeEditorPage() {
           sourceTaskType={selectedTaskType}
           targetTaskTypes={transferTargetTaskTypes}
           targetTaskTypeId={transferTargetTaskTypeId}
+          dropExisting={transferDropExisting}
           errorMessage={
             replaceTaskTypeUsageMutation.error instanceof Error
               ? replaceTaskTypeUsageMutation.error.message
               : ''
           }
           onTargetTaskTypeChange={setTransferTargetTaskTypeId}
+          onDropExistingChange={setTransferDropExisting}
           onClose={() => setTransferDialogOpen(false)}
           onSave={handleTransferSave}
         />

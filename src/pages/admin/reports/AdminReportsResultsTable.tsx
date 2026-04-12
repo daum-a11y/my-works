@@ -87,7 +87,7 @@ export function AdminReportsResultsTable({
               </th>
               <th scope="col" aria-sort={getAriaSort('serviceGroup')}>
                 <SortableTableHeaderButton
-                  label="서비스그룹"
+                  label="서비스 그룹"
                   sortKey="serviceGroup"
                   sortState={sortState}
                   onChange={onSortChange}

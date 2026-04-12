@@ -248,7 +248,7 @@ export function useAdminReportsPage() {
         { header: '타입1', value: (task) => task.taskType1, width: 14 },
         { header: '타입2', value: (task) => task.taskType2, width: 14 },
         { header: '플랫폼', value: (task) => task.platform || '-', width: 12 },
-        { header: '서비스그룹', value: (task) => task.serviceGroupName || '-', width: 16 },
+        { header: '서비스 그룹', value: (task) => task.serviceGroupName || '-', width: 16 },
         { header: '서비스명', value: (task) => task.serviceName || '-', width: 20 },
         { header: '프로젝트명', value: (task) => task.projectName || '-', width: 22 },
         { header: '페이지명', value: (task) => task.pageTitle || '-', width: 22 },

@@ -2668,9 +2668,12 @@ begin
 end;
 $$;
 
+drop function if exists public.admin_replace_task_type_usage_by_id(uuid, uuid);
+
 create or replace function public.admin_replace_task_type_usage_by_id(
   p_old_task_type_id uuid,
-  p_next_task_type_id uuid
+  p_next_task_type_id uuid,
+  p_drop_existing boolean default false
 )
 returns void
 language plpgsql
@@ -2722,11 +2725,16 @@ begin
     updated_at = timezone('utc', now())
   where task_type_id = p_old_task_type_id;
 
-  update public.task_types
-  set
-    is_active = false,
-    updated_at = timezone('utc', now())
-  where id = p_old_task_type_id;
+  if p_drop_existing then
+    delete from public.task_types
+    where id = p_old_task_type_id;
+  else
+    update public.task_types
+    set
+      is_active = false,
+      updated_at = timezone('utc', now())
+    where id = p_old_task_type_id;
+  end if;
 end;
 $$;
 
@@ -2822,9 +2830,12 @@ begin
 end;
 $$;
 
+drop function if exists public.admin_replace_platform_usage(uuid, uuid);
+
 create or replace function public.admin_replace_platform_usage(
   p_old_platform_id uuid,
-  p_next_platform_id uuid
+  p_next_platform_id uuid,
+  p_drop_existing boolean default false
 )
 returns void
 language plpgsql
@@ -2877,11 +2888,16 @@ begin
     updated_at = timezone('utc', now())
   where platform_id = p_old_platform_id;
 
-  update public.platforms
-  set
-    is_visible = false,
-    updated_at = timezone('utc', now())
-  where id = p_old_platform_id;
+  if p_drop_existing then
+    delete from public.platforms
+    where id = p_old_platform_id;
+  else
+    update public.platforms
+    set
+      is_visible = false,
+      updated_at = timezone('utc', now())
+    where id = p_old_platform_id;
+  end if;
 end;
 $$;
 
@@ -2973,6 +2989,76 @@ begin
 
   if v_updated_count <> v_expected_count then
     raise exception 'service_groups not found';
+  end if;
+end;
+$$;
+
+drop function if exists public.admin_replace_service_group_usage(uuid, uuid);
+
+create or replace function public.admin_replace_service_group_usage(
+  p_old_service_group_id uuid,
+  p_next_service_group_id uuid,
+  p_drop_existing boolean default false
+)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_old_service_group_id uuid;
+  v_next_service_group_id uuid;
+  v_next_service_group_active boolean;
+begin
+  if not public.current_user_is_admin() then
+    raise exception 'admin only';
+  end if;
+
+  if p_old_service_group_id is null or p_next_service_group_id is null then
+    raise exception 'service_group ids required';
+  end if;
+
+  if p_old_service_group_id = p_next_service_group_id then
+    raise exception 'next service_group must be different';
+  end if;
+
+  select id
+  into v_old_service_group_id
+  from public.service_groups
+  where id = p_old_service_group_id;
+
+  if v_old_service_group_id is null then
+    raise exception 'old service_group not found';
+  end if;
+
+  select id, is_active
+  into v_next_service_group_id, v_next_service_group_active
+  from public.service_groups
+  where id = p_next_service_group_id;
+
+  if v_next_service_group_id is null then
+    raise exception 'next service_group not found';
+  end if;
+
+  if v_next_service_group_active is not true then
+    raise exception 'next service_group must be active';
+  end if;
+
+  update public.projects
+  set
+    service_group_id = p_next_service_group_id,
+    updated_at = timezone('utc', now())
+  where service_group_id = p_old_service_group_id;
+
+  if p_drop_existing then
+    delete from public.service_groups
+    where id = p_old_service_group_id;
+  else
+    update public.service_groups
+    set
+      is_active = false,
+      updated_at = timezone('utc', now())
+    where id = p_old_service_group_id;
   end if;
 end;
 $$;
@@ -3108,12 +3194,13 @@ grant execute on function public.admin_save_task(uuid, uuid, date, uuid, uuid, u
 grant execute on function public.admin_delete_task(uuid) to authenticated;
 grant execute on function public.admin_get_task_type_usage_summary(uuid, text, text) to authenticated;
 grant execute on function public.admin_replace_task_type_usage(text, text, text, text) to authenticated;
-grant execute on function public.admin_replace_task_type_usage_by_id(uuid, uuid) to authenticated;
+grant execute on function public.admin_replace_task_type_usage_by_id(uuid, uuid, boolean) to authenticated;
 grant execute on function public.admin_reorder_task_types(uuid[]) to authenticated;
 grant execute on function public.admin_reorder_platforms(uuid[]) to authenticated;
-grant execute on function public.admin_replace_platform_usage(uuid, uuid) to authenticated;
+grant execute on function public.admin_replace_platform_usage(uuid, uuid, boolean) to authenticated;
 grant execute on function public.admin_reorder_cost_groups(uuid[]) to authenticated;
 grant execute on function public.admin_reorder_service_groups(uuid[]) to authenticated;
+grant execute on function public.admin_replace_service_group_usage(uuid, uuid, boolean) to authenticated;
 grant execute on function public.admin_get_member_task_count(uuid) to authenticated;
 grant execute on function public.search_projects_page(date, date, text) to authenticated;
 grant execute on function public.search_report_projects(uuid, text, text, text) to authenticated;

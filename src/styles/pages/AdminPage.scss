@@ -2894,6 +2894,30 @@
   gap: 6px;
 }
 
+.admin-crud-page__dialog .admin-crud-page__checkbox-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  color: var(--text-primary);
+  font-size: var(--text-form-size);
+  font-weight: var(--text-form-weight);
+  line-height: var(--text-form-line-height);
+  cursor: pointer;
+}
+
+.admin-crud-page__dialog .admin-crud-page__checkbox-field input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--accent-strong);
+}
+
+.admin-crud-page__dialog .admin-crud-page__checkbox-field:has(input:disabled) {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 .admin-crud-page__dialog .admin-crud-page__field-label {
   color: var(--text-primary);
   font-size: var(--text-form-size);

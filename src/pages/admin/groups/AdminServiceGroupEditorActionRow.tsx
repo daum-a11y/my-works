@@ -5,9 +5,13 @@ interface AdminServiceGroupEditorActionRowProps {
   deletePending: boolean;
   deleteBlocked: boolean;
   deleteHelpText: string;
+  transferPending: boolean;
+  transferBlocked: boolean;
+  transferHelpText: string;
   savePending: boolean;
   canSave: boolean;
   onDelete: () => void;
+  onTransfer: () => void;
 }
 
 export function AdminServiceGroupEditorActionRow({
@@ -15,9 +19,13 @@ export function AdminServiceGroupEditorActionRow({
   deletePending,
   deleteBlocked,
   deleteHelpText,
+  transferPending,
+  transferBlocked,
+  transferHelpText,
   savePending,
   canSave,
   onDelete,
+  onTransfer,
 }: AdminServiceGroupEditorActionRowProps) {
   return (
     <div className="projects-feature__form-actions projects-feature__editor-form-actions">
@@ -32,12 +40,20 @@ export function AdminServiceGroupEditorActionRow({
               type="button"
               className={'projects-feature__delete-button'}
               onClick={onDelete}
-              disabled={deletePending || deleteBlocked}
+              disabled={deletePending || deleteBlocked || transferPending}
             >
               삭제
             </button>
-            {deleteHelpText ? (
-              <p className={'projects-feature__help-text'}>{deleteHelpText}</p>
+            <button
+              type="button"
+              className={'projects-feature__button projects-feature__button--secondary'}
+              onClick={onTransfer}
+              disabled={transferPending || transferBlocked || deletePending || savePending}
+            >
+              전환
+            </button>
+            {transferHelpText || deleteHelpText ? (
+              <p className={'projects-feature__help-text'}>{transferHelpText || deleteHelpText}</p>
             ) : null}
           </>
         ) : null}

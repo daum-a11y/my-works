@@ -58,7 +58,7 @@ export const adminNavigation = [
     icon: Database,
     children: [
       { to: '/resource/type', label: '업무유형 집계' },
-      { to: '/resource/svc', label: '서비스그룹 집계' },
+      { to: '/resource/svc', label: '서비스 그룹 집계' },
       { to: '/resource/month', label: '월간 리포트' },
     ],
   },
@@ -67,7 +67,7 @@ export const adminNavigation = [
     icon: Shield,
     children: [
       { to: '/admin/cost-group', label: '청구그룹 관리' },
-      { to: '/admin/group', label: '서비스그룹 관리' },
+      { to: '/admin/group', label: '서비스 그룹 관리' },
       { to: '/admin/type', label: '업무 타입 관리' },
       { to: '/admin/platform', label: '플랫폼 관리' },
       { to: '/admin/members', label: '사용자 관리' },

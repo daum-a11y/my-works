@@ -7,8 +7,10 @@ interface AdminTaskTypeTransferDialogProps {
   sourceTaskType: AdminTaskTypeItem;
   targetTaskTypes: readonly AdminTaskTypeItem[];
   targetTaskTypeId: string;
+  dropExisting: boolean;
   errorMessage?: string;
   onTargetTaskTypeChange: (taskTypeId: string) => void;
+  onDropExistingChange: (dropExisting: boolean) => void;
   onClose: () => void;
   onSave: () => void;
 }
@@ -23,8 +25,10 @@ export function AdminTaskTypeTransferDialog({
   sourceTaskType,
   targetTaskTypes,
   targetTaskTypeId,
+  dropExisting,
   errorMessage = '',
   onTargetTaskTypeChange,
+  onDropExistingChange,
   onClose,
   onSave,
 }: AdminTaskTypeTransferDialogProps) {
@@ -135,6 +139,15 @@ export function AdminTaskTypeTransferDialog({
                   </option>
                 ))}
               </select>
+            </label>
+            <label className="admin-crud-page__checkbox-field">
+              <input
+                type="checkbox"
+                checked={dropExisting}
+                onChange={(event) => onDropExistingChange(event.target.checked)}
+                disabled={isPending}
+              />
+              <span>기존 항목 삭제</span>
             </label>
           </div>
 

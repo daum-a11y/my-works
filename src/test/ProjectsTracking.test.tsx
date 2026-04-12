@@ -484,7 +484,7 @@ describe('Projects routes', () => {
 
     const costGroupField = await screen.findByLabelText('청구그룹');
     const projectTypeField = screen.getByLabelText('프로젝트 종류');
-    const serviceGroupField = screen.getByLabelText('서비스그룹');
+    const serviceGroupField = screen.getByLabelText('서비스 그룹');
     const platformField = screen.getByLabelText('플랫폼');
 
     expect(

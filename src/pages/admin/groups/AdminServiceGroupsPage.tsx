@@ -43,7 +43,7 @@ export function AdminServiceGroupsPage() {
   const [orderDialogOpen, setOrderDialogOpen] = useState(false);
 
   useEffect(() => {
-    setDocumentTitle('서비스그룹 관리');
+    setDocumentTitle('서비스 그룹 관리');
   }, []);
 
   const serviceGroupsQuery = useQuery({
@@ -69,7 +69,7 @@ export function AdminServiceGroupsPage() {
       await queryClient.invalidateQueries({ queryKey: ['admin', 'service-groups'] });
       await queryClient.invalidateQueries({ queryKey: ['admin', 'cost-groups'] });
       setOrderDialogOpen(false);
-      setStatusMessage('서비스그룹 순서를 저장했습니다.');
+      setStatusMessage('서비스 그룹 순서를 저장했습니다.');
     },
   });
 
@@ -90,7 +90,7 @@ export function AdminServiceGroupsPage() {
       <header className="admin-crud-page__page-header">
         <div className="admin-crud-page__page-header-top">
           <div className="admin-crud-page__page-heading">
-            <h1 className="admin-crud-page__title">서비스그룹 관리</h1>
+            <h1 className="admin-crud-page__title">서비스 그룹 관리</h1>
           </div>
           <div className="admin-crud-page__page-header-actions">
             <button
@@ -102,7 +102,7 @@ export function AdminServiceGroupsPage() {
               순서변경
             </button>
             <Link to="/admin/group/new" className="admin-crud-page__header-action">
-              서비스그룹 추가
+              서비스 그룹 추가
             </Link>
           </div>
         </div>
@@ -114,7 +114,7 @@ export function AdminServiceGroupsPage() {
       <AdminServiceGroupsResultsTable groupedServiceGroups={groupedServiceGroups} />
 
       <AdminOrderDialog
-        title="서비스그룹 순서변경"
+        title="서비스 그룹 순서변경"
         items={serviceGroups.map((item) => ({
           id: item.id,
           title: item.name,

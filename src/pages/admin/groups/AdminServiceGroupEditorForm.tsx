@@ -17,7 +17,22 @@ export function AdminServiceGroupEditorForm({
   return (
     <div className={'projects-feature__editor-form-grid'}>
       <label className={'projects-feature__field'}>
-        <span>서비스그룹</span>
+        <span>청구그룹</span>
+        <select
+          value={draft.costGroupId}
+          onChange={(event) => onDraftChange({ costGroupId: event.target.value })}
+        >
+          <option value="">청구그룹 선택</option>
+          {costGroups.map((item) => (
+            <option key={item.id} value={item.id}>
+              {item.name}
+            </option>
+          ))}
+        </select>
+      </label>
+
+      <label className={'projects-feature__field'}>
+        <span>서비스 그룹</span>
         <input
           ref={titleRef}
           value={draft.serviceGroupName}
@@ -31,21 +46,6 @@ export function AdminServiceGroupEditorForm({
           value={draft.serviceName}
           onChange={(event) => onDraftChange({ serviceName: event.target.value })}
         />
-      </label>
-
-      <label className={'projects-feature__field'}>
-        <span>청구그룹</span>
-        <select
-          value={draft.costGroupId}
-          onChange={(event) => onDraftChange({ costGroupId: event.target.value })}
-        >
-          <option value="">청구그룹 선택</option>
-          {costGroups.map((item) => (
-            <option key={item.id} value={item.id}>
-              {item.name}
-            </option>
-          ))}
-        </select>
       </label>
 
       <label className={'projects-feature__field'}>

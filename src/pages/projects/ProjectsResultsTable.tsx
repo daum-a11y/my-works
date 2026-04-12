@@ -16,7 +16,7 @@ export function ProjectsResultsTable({ projects }: ProjectsResultsTableProps) {
           <tr>
             <th scope="col">타입1</th>
             <th scope="col">플랫폼</th>
-            <th scope="col">서비스그룹</th>
+            <th scope="col">서비스 그룹</th>
             <th scope="col">프로젝트명</th>
             <th scope="col">페이지 수</th>
             <th scope="col">보고서URL</th>

@@ -13,7 +13,7 @@ export function QaStatsProjectsTable({ projects }: QaStatsProjectsTableProps) {
         <thead>
           <tr>
             <th scope="col">월</th>
-            <th scope="col">서비스그룹</th>
+            <th scope="col">서비스 그룹</th>
             <th scope="col">프로젝트명</th>
             <th scope="col">리포터</th>
             <th scope="col">보고서URL</th>

@@ -43,7 +43,7 @@ export function ReportsResultsTable({
               <th scope="col">타입1</th>
               <th scope="col">타입2</th>
               <th scope="col">플랫폼</th>
-              <th scope="col">서비스그룹</th>
+              <th scope="col">서비스 그룹</th>
               <th scope="col">서비스명</th>
               <th scope="col">프로젝트명</th>
               <th scope="col">페이지 / 태스크명</th>

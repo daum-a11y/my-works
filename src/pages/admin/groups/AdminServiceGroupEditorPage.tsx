@@ -4,6 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { adminDataClient } from '../../../api/admin';
 import { AdminServiceGroupEditorActionRow } from './AdminServiceGroupEditorActionRow';
 import { AdminServiceGroupEditorForm } from './AdminServiceGroupEditorForm';
+import { AdminServiceGroupTransferDialog } from './AdminServiceGroupTransferDialog';
 import type { AdminServiceGroupItem, AdminServiceGroupPayload } from '../admin.types';
 import { toAdminCostGroup, toAdminServiceGroup } from '../adminApiTransform';
 import '../../../styles/pages/AdminPage.scss';
@@ -56,6 +57,9 @@ export function AdminServiceGroupEditorPage() {
   const titleRef = useRef<HTMLInputElement | null>(null);
   const isEditMode = Boolean(serviceGroupId);
   const [draft, setDraft] = useState<AdminServiceGroupPayload>(() => createDraft());
+  const [transferDialogOpen, setTransferDialogOpen] = useState(false);
+  const [transferTargetServiceGroupId, setTransferTargetServiceGroupId] = useState('');
+  const [transferDropExisting, setTransferDropExisting] = useState(false);
 
   const serviceGroupsQuery = useQuery({
     queryKey: ['admin', 'service-groups'],
@@ -76,6 +80,10 @@ export function AdminServiceGroupEditorPage() {
   );
   const selectedServiceGroup = useMemo(
     () => serviceGroups.find((item) => item.id === serviceGroupId) ?? null,
+    [serviceGroupId, serviceGroups],
+  );
+  const transferTargetServiceGroups = useMemo(
+    () => serviceGroups.filter((item) => item.id !== serviceGroupId && item.isActive),
     [serviceGroupId, serviceGroups],
   );
   const usageQuery = useQuery({
@@ -106,6 +114,16 @@ export function AdminServiceGroupEditorPage() {
     titleRef.current?.focus();
   }, [serviceGroupId]);
 
+  useEffect(() => {
+    if (!transferDialogOpen) {
+      return;
+    }
+
+    if (!transferTargetServiceGroups.some((item) => item.id === transferTargetServiceGroupId)) {
+      setTransferTargetServiceGroupId(transferTargetServiceGroups[0]?.id ?? '');
+    }
+  }, [transferDialogOpen, transferTargetServiceGroupId, transferTargetServiceGroups]);
+
   const saveMutation = useMutation({
     mutationFn: async (payload: AdminServiceGroupPayload) => {
       const serviceGroupName = payload.serviceGroupName.trim();
@@ -127,7 +145,7 @@ export function AdminServiceGroupEditorPage() {
       navigate('/admin/group', {
         replace: true,
         state: {
-          statusMessage: isEditMode ? '서비스그룹을 저장했습니다.' : '서비스그룹을 추가했습니다.',
+          statusMessage: isEditMode ? '서비스 그룹을 저장했습니다.' : '서비스 그룹을 추가했습니다.',
         },
       });
     },
@@ -136,7 +154,7 @@ export function AdminServiceGroupEditorPage() {
   const deleteMutation = useMutation({
     mutationFn: async () => {
       if (!serviceGroupId) {
-        throw new Error('삭제할 서비스그룹이 없습니다.');
+        throw new Error('삭제할 서비스 그룹이 없습니다.');
       }
 
       await adminDataClient.deleteServiceGroupAdmin(serviceGroupId);
@@ -145,7 +163,44 @@ export function AdminServiceGroupEditorPage() {
       await queryClient.invalidateQueries({ queryKey: ['admin', 'service-groups'] });
       navigate('/admin/group', {
         replace: true,
-        state: { statusMessage: '서비스그룹을 삭제했습니다.' },
+        state: { statusMessage: '서비스 그룹을 삭제했습니다.' },
+      });
+    },
+  });
+
+  const replaceServiceGroupUsageMutation = useMutation({
+    mutationFn: async ({
+      nextServiceGroupId,
+      dropExisting,
+    }: {
+      nextServiceGroupId: string;
+      dropExisting: boolean;
+    }) => {
+      if (!serviceGroupId) {
+        throw new Error('전환할 서비스 그룹이 없습니다.');
+      }
+
+      await adminDataClient.replaceServiceGroupUsage(
+        serviceGroupId,
+        nextServiceGroupId,
+        dropExisting,
+      );
+    },
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['admin', 'service-groups'] }),
+        queryClient.invalidateQueries({ queryKey: ['admin', 'projects'] }),
+        queryClient.invalidateQueries({ queryKey: ['admin', 'task-search'] }),
+        queryClient.invalidateQueries({ queryKey: ['reports'] }),
+        queryClient.invalidateQueries({ queryKey: ['search'] }),
+        queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
+        queryClient.invalidateQueries({ queryKey: ['monitoring-detail'] }),
+        queryClient.invalidateQueries({ queryKey: ['qa-projects'] }),
+        queryClient.invalidateQueries({ queryKey: ['resource'] }),
+      ]);
+      navigate('/admin/group', {
+        replace: true,
+        state: { statusMessage: '서비스 그룹 연관관계를 전환했습니다.' },
       });
     },
   });
@@ -163,6 +218,8 @@ export function AdminServiceGroupEditorPage() {
   }, [usageQuery.data]);
   const deleteBlocked = isEditMode && projectUsageCount > 0;
   const deleteHelpText = deleteBlocked ? `사용 중인 프로젝트 ${projectUsageCount}건` : '';
+  const transferBlocked = isEditMode && transferTargetServiceGroups.length === 0;
+  const transferHelpText = transferBlocked ? '전환할 활성 서비스 그룹이 없습니다.' : '';
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -181,6 +238,23 @@ export function AdminServiceGroupEditorPage() {
     await deleteMutation.mutateAsync();
   };
 
+  const handleTransferOpen = () => {
+    setTransferTargetServiceGroupId(transferTargetServiceGroups[0]?.id ?? '');
+    setTransferDropExisting(false);
+    setTransferDialogOpen(true);
+  };
+
+  const handleTransferSave = () => {
+    if (!selectedServiceGroup || !transferTargetServiceGroupId) {
+      return;
+    }
+
+    replaceServiceGroupUsageMutation.mutate({
+      nextServiceGroupId: transferTargetServiceGroupId,
+      dropExisting: transferDropExisting,
+    });
+  };
+
   if (serviceGroupsQuery.isLoading && isEditMode) {
     return (
       <section className="projects-feature projects-feature__shell projects-feature__editor-shell">
@@ -193,9 +267,9 @@ export function AdminServiceGroupEditorPage() {
     return (
       <section className="projects-feature projects-feature__shell projects-feature__editor-shell">
         <header className={'projects-feature__editor-header'}>
-          <h1 className={'projects-feature__title'}>서비스그룹 수정</h1>
+          <h1 className={'projects-feature__title'}>서비스 그룹 수정</h1>
         </header>
-        <p className={'projects-feature__status-message'}>서비스그룹을 찾을 수 없습니다.</p>
+        <p className={'projects-feature__status-message'}>서비스 그룹을 찾을 수 없습니다.</p>
       </section>
     );
   }
@@ -204,7 +278,7 @@ export function AdminServiceGroupEditorPage() {
     <section className="projects-feature projects-feature__shell projects-feature__editor-shell">
       <header className={'projects-feature__editor-header'}>
         <h1 className={'projects-feature__title'}>
-          {isEditMode ? '서비스그룹 수정' : '서비스그룹 추가'}
+          {isEditMode ? '서비스 그룹 수정' : '서비스 그룹 추가'}
         </h1>
       </header>
 
@@ -212,7 +286,7 @@ export function AdminServiceGroupEditorPage() {
 
       <section
         className="projects-feature__modal projects-feature__editor-surface"
-        aria-label="서비스그룹 편집 패널"
+        aria-label="서비스 그룹 편집 패널"
       >
         <form
           className="projects-feature__detail-form projects-feature__editor-detail-form"
@@ -235,12 +309,36 @@ export function AdminServiceGroupEditorPage() {
             deletePending={deleteMutation.isPending}
             deleteBlocked={deleteBlocked}
             deleteHelpText={deleteHelpText}
+            transferPending={replaceServiceGroupUsageMutation.isPending}
+            transferBlocked={transferBlocked}
+            transferHelpText={transferHelpText}
             savePending={saveMutation.isPending}
             canSave={Boolean(draft.costGroupId)}
             onDelete={() => void handleDelete()}
+            onTransfer={handleTransferOpen}
           />
         </form>
       </section>
+      {selectedServiceGroup ? (
+        <AdminServiceGroupTransferDialog
+          isOpen={transferDialogOpen}
+          isPending={replaceServiceGroupUsageMutation.isPending}
+          sourceServiceGroup={selectedServiceGroup}
+          costGroups={costGroups}
+          targetServiceGroups={transferTargetServiceGroups}
+          targetServiceGroupId={transferTargetServiceGroupId}
+          dropExisting={transferDropExisting}
+          errorMessage={
+            replaceServiceGroupUsageMutation.error instanceof Error
+              ? replaceServiceGroupUsageMutation.error.message
+              : ''
+          }
+          onTargetServiceGroupChange={setTransferTargetServiceGroupId}
+          onDropExistingChange={setTransferDropExisting}
+          onClose={() => setTransferDialogOpen(false)}
+          onSave={handleTransferSave}
+        />
+      ) : null}
     </section>
   );
 }

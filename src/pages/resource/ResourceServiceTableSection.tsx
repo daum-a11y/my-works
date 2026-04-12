@@ -21,12 +21,12 @@ export function ResourceServiceTableSection({
     return (
       <div className="projects-feature__table-wrap">
         <table className="projects-feature__table">
-          <caption className="sr-only">연도와 월 기준 서비스그룹 집계 표</caption>
+          <caption className="sr-only">연도와 월 기준 서비스 그룹 집계 표</caption>
           <thead>
             <tr>
               <th scope="col">월</th>
               <th scope="col">청구그룹</th>
-              <th scope="col">서비스그룹</th>
+              <th scope="col">서비스 그룹</th>
               <th scope="col">서비스명</th>
               <th scope="col">MM</th>
             </tr>
@@ -35,7 +35,7 @@ export function ResourceServiceTableSection({
             <TableEmptyRow
               colSpan={5}
               className="projects-feature__empty-state"
-              message="표시할 서비스그룹 집계가 없습니다."
+              message="표시할 서비스 그룹 집계가 없습니다."
             />
           </tbody>
         </table>
@@ -46,7 +46,11 @@ export function ResourceServiceTableSection({
   return (
     <section className="resource-page__table-tabs-section">
       <div className="resource-page__table-tabs-scroller">
-        <div className="resource-page__table-tabs" role="tablist" aria-label="서비스그룹 집계 연도">
+        <div
+          className="resource-page__table-tabs"
+          role="tablist"
+          aria-label="서비스 그룹 집계 연도"
+        >
           {years.map((year) => {
             const selected = year === activeYear;
 
@@ -83,12 +87,12 @@ export function ResourceServiceTableSection({
         >
           <div className="projects-feature__table-wrap">
             <table className="projects-feature__table">
-              <caption className="sr-only">{activeRow.year}년 월 기준 서비스그룹 집계 표</caption>
+              <caption className="sr-only">{activeRow.year}년 월 기준 서비스 그룹 집계 표</caption>
               <thead>
                 <tr>
                   <th scope="col">월</th>
                   <th scope="col">청구그룹</th>
-                  <th scope="col">서비스그룹</th>
+                  <th scope="col">서비스 그룹</th>
                   <th scope="col">서비스명</th>
                   <th scope="col">MM</th>
                 </tr>

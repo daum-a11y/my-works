@@ -139,7 +139,7 @@ export function useSearchPage() {
         { header: '타입1', value: (report) => report.taskType1, width: 12 },
         { header: '타입2', value: (report) => report.taskType2, width: 12 },
         { header: '플랫폼', value: (report) => report.platform || '-', width: 14 },
-        { header: '서비스그룹', value: (report) => report.serviceGroupName || '-', width: 16 },
+        { header: '서비스 그룹', value: (report) => report.serviceGroupName || '-', width: 16 },
         { header: '서비스명', value: (report) => report.serviceName || '-', width: 18 },
         { header: '프로젝트명', value: (report) => report.projectName || '-', width: 24 },
         { header: '페이지명', value: (report) => report.pageTitle || '-', width: 20 },

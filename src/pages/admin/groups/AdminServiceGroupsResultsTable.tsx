@@ -22,11 +22,11 @@ export function AdminServiceGroupsResultsTable({
   return (
     <div className="admin-crud-page__table-wrap">
       <table className="admin-crud-page__table">
-        <caption className="sr-only">서비스그룹 내역</caption>
+        <caption className="sr-only">서비스 그룹 내역</caption>
         <thead>
           <tr>
             <th>청구그룹</th>
-            <th>서비스그룹</th>
+            <th>서비스 그룹</th>
             <th>서비스명</th>
             <th>노출여부</th>
             <th>관리</th>
@@ -77,7 +77,7 @@ export function AdminServiceGroupsResultsTable({
           ) : (
             <tr>
               <td colSpan={5} className="admin-crud-page__empty-state">
-                표시할 서비스그룹 내역이 없습니다.
+                표시할 서비스 그룹 내역이 없습니다.
               </td>
             </tr>
           )}

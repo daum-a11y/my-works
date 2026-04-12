@@ -62,7 +62,11 @@ export interface AdminDataClient {
     nextType1: string,
     nextType2: string,
   ): Promise<void>;
-  replaceTaskTypeUsageById(oldTaskTypeId: string, nextTaskTypeId: string): Promise<void>;
+  replaceTaskTypeUsageById(
+    oldTaskTypeId: string,
+    nextTaskTypeId: string,
+    dropExisting?: boolean,
+  ): Promise<void>;
   reorderTaskTypes(payload: AdminReorderPayload): Promise<void>;
   saveServiceGroupAdmin(payload: AdminServiceGroupPayload): Promise<ApiRecord>;
   reorderServiceGroups(payload: AdminReorderPayload): Promise<void>;
@@ -72,10 +76,18 @@ export interface AdminDataClient {
   savePlatformAdmin(payload: AdminPlatformPayload): Promise<ApiRecord>;
   reorderPlatforms(payload: AdminReorderPayload): Promise<void>;
   deletePlatformAdmin(platformId: string): Promise<void>;
-  replacePlatformUsage(oldPlatformId: string, nextPlatformId: string): Promise<void>;
+  replacePlatformUsage(
+    oldPlatformId: string,
+    nextPlatformId: string,
+    dropExisting?: boolean,
+  ): Promise<void>;
   getServiceGroupUsageSummary(serviceGroupId: string): Promise<ApiRecord[]>;
   deleteServiceGroupAdmin(serviceGroupId: string): Promise<void>;
-  replaceServiceGroupUsage(oldServiceGroupId: string, nextServiceGroupId: string): Promise<void>;
+  replaceServiceGroupUsage(
+    oldServiceGroupId: string,
+    nextServiceGroupId: string,
+    dropExisting?: boolean,
+  ): Promise<void>;
 }
 
 const supabase = getSupabaseClient();
@@ -477,8 +489,9 @@ const configuredAdminClient: AdminDataClient = !supabase
         });
         if (error) throw error;
       },
-      async replaceTaskTypeUsageById(oldTaskTypeId, nextTaskTypeId) {
+      async replaceTaskTypeUsageById(oldTaskTypeId, nextTaskTypeId, dropExisting = false) {
         const { error } = await supabase.rpc('admin_replace_task_type_usage_by_id', {
+          p_drop_existing: dropExisting,
           p_old_task_type_id: oldTaskTypeId,
           p_next_task_type_id: nextTaskTypeId,
         });
@@ -572,8 +585,9 @@ const configuredAdminClient: AdminDataClient = !supabase
         const { error } = await supabase.from('platforms').delete().eq('id', platformId);
         if (error) throw error;
       },
-      async replacePlatformUsage(oldPlatformId, nextPlatformId) {
+      async replacePlatformUsage(oldPlatformId, nextPlatformId, dropExisting = false) {
         const { error } = await supabase.rpc('admin_replace_platform_usage', {
+          p_drop_existing: dropExisting,
           p_old_platform_id: oldPlatformId,
           p_next_platform_id: nextPlatformId,
         });
@@ -619,10 +633,10 @@ const configuredAdminClient: AdminDataClient = !supabase
           .eq('platform_id', oldPlatformId);
         if (projectsError) throw projectsError;
 
-        const { error: sourcePlatformError } = await supabase
-          .from('platforms')
-          .update({ is_visible: false })
-          .eq('id', oldPlatformId);
+        const sourcePlatformRequest = dropExisting
+          ? supabase.from('platforms').delete().eq('id', oldPlatformId)
+          : supabase.from('platforms').update({ is_visible: false }).eq('id', oldPlatformId);
+        const { error: sourcePlatformError } = await sourcePlatformRequest;
         if (sourcePlatformError) throw sourcePlatformError;
       },
       async getServiceGroupUsageSummary(serviceGroupId) {
@@ -638,11 +652,12 @@ const configuredAdminClient: AdminDataClient = !supabase
         const { error } = await supabase.from('service_groups').delete().eq('id', serviceGroupId);
         if (error) throw error;
       },
-      async replaceServiceGroupUsage(oldServiceGroupId, nextServiceGroupId) {
-        const { error } = await supabase
-          .from('projects')
-          .update({ service_group_id: nextServiceGroupId })
-          .eq('service_group_id', oldServiceGroupId);
+      async replaceServiceGroupUsage(oldServiceGroupId, nextServiceGroupId, dropExisting = false) {
+        const { error } = await supabase.rpc('admin_replace_service_group_usage', {
+          p_drop_existing: dropExisting,
+          p_old_service_group_id: oldServiceGroupId,
+          p_next_service_group_id: nextServiceGroupId,
+        });
         if (error) throw error;
       },
     };

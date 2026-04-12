@@ -7,8 +7,10 @@ interface AdminPlatformTransferDialogProps {
   sourcePlatform: AdminPlatformItem;
   targetPlatforms: readonly AdminPlatformItem[];
   targetPlatformId: string;
+  dropExisting: boolean;
   errorMessage?: string;
   onTargetPlatformChange: (platformId: string) => void;
+  onDropExistingChange: (dropExisting: boolean) => void;
   onClose: () => void;
   onSave: () => Promise<void> | void;
 }
@@ -19,8 +21,10 @@ export function AdminPlatformTransferDialog({
   sourcePlatform,
   targetPlatforms,
   targetPlatformId,
+  dropExisting,
   errorMessage = '',
   onTargetPlatformChange,
+  onDropExistingChange,
   onClose,
   onSave,
 }: AdminPlatformTransferDialogProps) {
@@ -87,6 +91,15 @@ export function AdminPlatformTransferDialog({
                   </option>
                 ))}
               </select>
+            </label>
+            <label className="admin-crud-page__checkbox-field">
+              <input
+                type="checkbox"
+                checked={dropExisting}
+                onChange={(event) => onDropExistingChange(event.target.checked)}
+                disabled={isPending}
+              />
+              <span>기존 항목 삭제</span>
             </label>
           </div>
 

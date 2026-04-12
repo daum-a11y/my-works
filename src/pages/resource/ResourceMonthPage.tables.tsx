@@ -136,7 +136,7 @@ export function ResourceMonthServiceTable({
         <thead>
           <tr>
             <th>청구그룹</th>
-            <th>서비스그룹</th>
+            <th>서비스 그룹</th>
             <th>서비스명</th>
             <th>타입1</th>
             <th>총 시간 (분)</th>

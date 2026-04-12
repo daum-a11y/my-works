@@ -113,6 +113,7 @@ describe('AdminTaskTypeEditorPage', () => {
 
     expect(screen.getByRole('dialog', { name: '업무 타입 전환' })).toBeInTheDocument();
     expect(screen.getByText('개발 / 구현')).toBeInTheDocument();
+    expect(screen.getByRole('checkbox', { name: '기존 항목 삭제' })).not.toBeChecked();
 
     const targetType1Select = screen.getByLabelText('변경할 타입1');
     const targetType2Select = screen.getByLabelText('변경할 타입2');
@@ -175,13 +176,14 @@ describe('AdminTaskTypeEditorPage', () => {
     renderEditor();
 
     await user.click(await screen.findByRole('button', { name: '전환' }));
+    await user.click(screen.getByRole('checkbox', { name: '기존 항목 삭제' }));
     await user.click(
       within(screen.getByRole('dialog', { name: '업무 타입 전환' })).getByRole('button', {
         name: '저장',
       }),
     );
 
-    expect(replaceTaskTypeUsageById).toHaveBeenCalledWith('task-type-1', 'task-type-2');
+    expect(replaceTaskTypeUsageById).toHaveBeenCalledWith('task-type-1', 'task-type-2', true);
     await screen.findByText('업무 타입 연관관계를 전환했습니다.');
   });
 

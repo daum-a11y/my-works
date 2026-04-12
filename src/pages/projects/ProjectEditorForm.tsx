@@ -71,7 +71,7 @@ export function ProjectEditorForm({
       </label>
 
       <label className={'projects-feature__field'}>
-        <span>서비스그룹</span>
+        <span>서비스 그룹</span>
         <select
           value={selectedServiceGroup}
           onChange={(event) => onServiceGroupChange(event.target.value)}

@@ -76,6 +76,7 @@ describe('AdminPlatformEditorPage', () => {
 
     expect(screen.getByRole('dialog', { name: '플랫폼 전환' })).toBeInTheDocument();
     expect(screen.getByText('기존 플랫폼')).toBeInTheDocument();
+    expect(screen.getByRole('checkbox', { name: '기존 항목 삭제' })).not.toBeChecked();
 
     const targetSelect = screen.getByLabelText('변경할 항목');
     expect(within(targetSelect).getByRole('option', { name: '새 플랫폼' })).toBeInTheDocument();
@@ -113,13 +114,14 @@ describe('AdminPlatformEditorPage', () => {
     renderEditor();
 
     await user.click(await screen.findByRole('button', { name: '전환' }));
+    await user.click(screen.getByRole('checkbox', { name: '기존 항목 삭제' }));
     await user.click(
       within(screen.getByRole('dialog', { name: '플랫폼 전환' })).getByRole('button', {
         name: '저장',
       }),
     );
 
-    expect(replacePlatformUsage).toHaveBeenCalledWith('platform-1', 'platform-2');
+    expect(replacePlatformUsage).toHaveBeenCalledWith('platform-1', 'platform-2', true);
     await screen.findByText('플랫폼 연관관계를 전환했습니다.');
   });
 

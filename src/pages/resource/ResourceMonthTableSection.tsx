@@ -82,7 +82,7 @@ export function ResourceMonthTableSection({
           aria-pressed={activeTableTab === 'service'}
           onClick={() => onTableTabChange('service')}
         >
-          서비스그룹별 합계
+          서비스 그룹별 합계
         </button>
         <button
           type="button"

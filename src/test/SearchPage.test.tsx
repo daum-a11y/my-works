@@ -145,7 +145,7 @@ describe('SearchPage', () => {
 
     expect(screen.getByRole('button', { name: '다운로드' })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: '청구그룹' })).toBeInTheDocument();
-    expect(screen.getByRole('columnheader', { name: '서비스그룹' })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: '서비스 그룹' })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: '페이지명' })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: '내용' })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: '작업시간' })).toBeInTheDocument();

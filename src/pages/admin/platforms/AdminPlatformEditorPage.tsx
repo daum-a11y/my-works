@@ -35,6 +35,7 @@ export function AdminPlatformEditorPage() {
   const [draft, setDraft] = useState<AdminPlatformPayload>(() => createDraft());
   const [transferDialogOpen, setTransferDialogOpen] = useState(false);
   const [transferTargetPlatformId, setTransferTargetPlatformId] = useState('');
+  const [transferDropExisting, setTransferDropExisting] = useState(false);
 
   const platformsQuery = useQuery({
     queryKey: ['admin', 'platforms'],
@@ -109,11 +110,17 @@ export function AdminPlatformEditorPage() {
   });
 
   const replacePlatformUsageMutation = useMutation({
-    mutationFn: async (nextPlatformId: string) => {
+    mutationFn: async ({
+      nextPlatformId,
+      dropExisting,
+    }: {
+      nextPlatformId: string;
+      dropExisting: boolean;
+    }) => {
       if (!platformId) {
         throw new Error('전환할 플랫폼이 없습니다.');
       }
-      await adminDataClient.replacePlatformUsage(platformId, nextPlatformId);
+      await adminDataClient.replacePlatformUsage(platformId, nextPlatformId, dropExisting);
     },
     onSuccess: async () => {
       await Promise.all([
@@ -159,6 +166,7 @@ export function AdminPlatformEditorPage() {
 
   const handleTransferOpen = () => {
     setTransferTargetPlatformId(transferTargetPlatforms[0]?.id ?? '');
+    setTransferDropExisting(false);
     setTransferDialogOpen(true);
   };
 
@@ -167,7 +175,10 @@ export function AdminPlatformEditorPage() {
       return;
     }
 
-    replacePlatformUsageMutation.mutate(transferTargetPlatformId);
+    replacePlatformUsageMutation.mutate({
+      nextPlatformId: transferTargetPlatformId,
+      dropExisting: transferDropExisting,
+    });
   };
 
   if (platformsQuery.isLoading && isEditMode) {
@@ -232,12 +243,14 @@ export function AdminPlatformEditorPage() {
           sourcePlatform={selectedPlatform}
           targetPlatforms={transferTargetPlatforms}
           targetPlatformId={transferTargetPlatformId}
+          dropExisting={transferDropExisting}
           errorMessage={
             replacePlatformUsageMutation.error instanceof Error
               ? replacePlatformUsageMutation.error.message
               : ''
           }
           onTargetPlatformChange={setTransferTargetPlatformId}
+          onDropExistingChange={setTransferDropExisting}
           onClose={() => setTransferDialogOpen(false)}
           onSave={handleTransferSave}
         />
