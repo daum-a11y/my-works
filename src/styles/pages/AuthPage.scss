@@ -219,20 +219,6 @@
     cursor: not-allowed;
   }
 
-  @media (max-width: 640px) {
-    padding: 16px;
-
-    &__panel,
-    &__feedback {
-      width: 100%;
-    }
-
-    &__hero,
-    &__form {
-      padding-left: 5px;
-    }
-  }
-
   @keyframes panel-enter {
     from {
       opacity: 0;
@@ -453,20 +439,6 @@
   &__back-link:active {
     transform: translateX(1px);
   }
-
-  @media (max-width: 640px) {
-    padding: 16px;
-
-    &__panel,
-    &__feedback {
-      width: 100%;
-    }
-
-    &__hero,
-    &__form {
-      padding-left: 5px;
-    }
-  }
 }
 
 /* password recovery */
@@ -612,19 +584,6 @@
 
   &__actions > * {
     width: 100%;
-  }
-
-  @media (max-width: 520px) {
-    padding: 16px;
-
-    &__panel {
-      width: 100%;
-    }
-
-    &__hero,
-    &__form {
-      padding-left: 5px;
-    }
   }
 }
 
@@ -847,20 +806,6 @@
   &__recovery-button:disabled {
     color: var(--text-tertiary);
     cursor: not-allowed;
-  }
-
-  @media (max-width: 640px) {
-    padding: 16px;
-
-    &__panel,
-    &__feedback {
-      width: 100%;
-    }
-
-    &__hero,
-    &__form {
-      padding-left: 5px;
-    }
   }
 
   @keyframes panel-enter {

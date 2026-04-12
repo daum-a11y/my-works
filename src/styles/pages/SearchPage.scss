@@ -314,46 +314,4 @@
   .search-page__table-number {
     font-variant-numeric: tabular-nums;
   }
-
-  @media (max-width: 1080px) {
-    .search-page__filter-bar,
-    .search-page__result-bar,
-    .search-page__result-metrics {
-      flex-wrap: wrap;
-    }
-
-    .search-page__filter-field {
-      flex: 1 1 180px;
-    }
-
-    .search-page__filter-actions {
-      flex-wrap: wrap;
-    }
-
-    .search-page__result-controls {
-      justify-content: flex-end;
-    }
-  }
-
-  @media (max-width: 720px) {
-    .search-page__page-header-top,
-    .search-page__panel-head {
-      flex-wrap: wrap;
-    }
-
-    .search-page__pager,
-    .search-page__result-metric,
-    .search-page__page-size-field {
-      width: 100%;
-    }
-
-    .search-page__page-size-field {
-      justify-content: space-between;
-      margin-left: 0;
-    }
-
-    .search-page__filter-divider {
-      display: none;
-    }
-  }
 }

@@ -862,27 +862,6 @@
     font-weight: 700;
     background: color-mix(in oklab, var(--surface-canvas-strong) 56%, var(--surface-panel));
   }
-
-  @media (max-width: 900px) {
-    .resource-page__summary-panels {
-      grid-template-columns: 1fr;
-    }
-
-    .resource-page__split-grid {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  @media (max-width: 900px) {
-    .resource-page__layout {
-      grid-template-columns: 1fr;
-    }
-
-    .resource-page__tabs {
-      position: static;
-      grid-template-columns: repeat(auto-fit, minmax(144px, 1fr));
-    }
-  }
 }
 
 /* resource month */

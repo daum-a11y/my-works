@@ -308,15 +308,6 @@
     line-height: var(--text-body-line-height);
   }
 
-  @media (max-width: 1100px) {
-    .admin-page__layout {
-      grid-template-columns: minmax(0, 1fr);
-    }
-    .admin-page__tab-list {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-
   .admin-page__tab-list {
     display: flex;
     flex-wrap: wrap;
@@ -448,23 +439,6 @@
   .admin-page__small-text {
     font-size: var(--text-meta-size);
     line-height: var(--text-meta-line-height);
-  }
-
-  @media (max-width: 1100px) {
-    .admin-page__validation-layout {
-      grid-template-columns: minmax(0, 1fr);
-    }
-  }
-
-  @media (max-width: 720px) {
-    .admin-page__actions button,
-    .admin-page__toolbar button {
-      flex: 1 1 calc(var(--space-6) * 6);
-    }
-
-    .admin-page__tab-list {
-      grid-template-columns: 1fr;
-    }
   }
 }
 
@@ -870,33 +844,6 @@
 
   .admin-members-page__button--danger:hover {
     border-color: color-mix(in oklab, var(--state-danger-border) 82%, black 18%);
-  }
-
-  @media (max-width: 960px) {
-    .admin-members-page__page-header-top,
-    .admin-members-page__filter-bar,
-    .admin-members-page__result-bar,
-    .admin-members-page__result-metrics {
-      flex-wrap: wrap;
-    }
-
-    .admin-members-page__filter-field {
-      flex: 1 1 220px;
-    }
-
-    .admin-members-page__result-controls {
-      width: 100%;
-      justify-content: flex-end;
-    }
-
-    .admin-members-page__editor-grid {
-      grid-template-columns: 1fr;
-    }
-
-    .admin-members-page__editor-actions {
-      justify-content: stretch;
-      flex-wrap: wrap;
-    }
   }
 }
 
@@ -2090,44 +2037,6 @@
     font-size: var(--text-meta-size);
     line-height: var(--text-body-line-height);
   }
-
-  @media (max-width: 960px) {
-    .reports-page__hero {
-      flex-direction: column;
-    }
-
-    .reports-page__grid-layout {
-      grid-template-columns: 1fr;
-    }
-
-    .reports-page__tab-list {
-      width: 100%;
-    }
-
-    .reports-page__tab-button {
-      flex: 1 1 160px;
-    }
-
-    .reports-page__panel-head {
-      flex-direction: column;
-    }
-  }
-
-  @media (max-width: 720px) {
-    .reports-page__button-row,
-    .reports-page__action-row,
-    .reports-page__date-actions {
-      width: 100%;
-    }
-
-    .reports-page__summary-grid {
-      grid-template-columns: 1fr;
-    }
-
-    .reports-page__chip-button {
-      flex: 1 1 calc(50% - 10px);
-    }
-  }
 }
 
 /* admin reports */
@@ -2938,18 +2847,6 @@
   opacity: 0.6;
 }
 
-@media (max-width: 840px) {
-  .admin-crud-page__dialog-header,
-  .admin-crud-page__dialog-footer {
-    align-items: stretch;
-    flex-direction: column;
-  }
-
-  .admin-crud-page__dialog {
-    max-height: 88vh;
-  }
-}
-
 .admin-crud-page {
   &--page {
     display: grid;
@@ -3394,20 +3291,5 @@
     color: var(--text-tertiary);
     font-size: var(--text-meta-size);
     line-height: var(--text-meta-line-height);
-  }
-
-  @media (max-width: 840px) {
-    .admin-crud-page__page-header-top {
-      align-items: stretch;
-      flex-direction: column;
-    }
-
-    .admin-crud-page__page-header-actions {
-      justify-content: flex-start;
-    }
-
-    .admin-crud-page__sortable-item {
-      grid-template-columns: auto minmax(0, 1fr);
-    }
   }
 }

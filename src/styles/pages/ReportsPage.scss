@@ -131,16 +131,6 @@
     }
   }
 
-  @media (max-width: 960px) {
-    .reports-page__date-navigator {
-      align-items: flex-start;
-    }
-
-    .reports-page__date-context {
-      gap: 10px;
-    }
-  }
-
   .reports-page__grid-layout {
     display: grid;
     grid-template-columns: minmax(320px, 372px) minmax(0, 1fr);
@@ -504,31 +494,5 @@
     display: grid;
     gap: 14px;
     min-width: 0;
-  }
-
-  @media (max-width: 960px) {
-    .reports-page__grid-layout {
-      grid-template-columns: 1fr;
-    }
-
-    .reports-page__panel-head {
-      flex-direction: column;
-    }
-  }
-
-  @media (max-width: 720px) {
-    .reports-page__form-grid--compact {
-      grid-template-columns: minmax(0, 1fr);
-    }
-
-    .reports-page__button-row,
-    .reports-page__action-row,
-    .reports-page__date-actions {
-      width: 100%;
-    }
-
-    .reports-page__chip-button {
-      flex: 1 1 calc(50% - 10px);
-    }
   }
 }

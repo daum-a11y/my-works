@@ -478,14 +478,4 @@
     font-weight: var(--text-form-weight);
     line-height: var(--text-form-line-height);
   }
-
-  @media (max-width: 720px) {
-    .stats-page__scoreboard {
-      grid-template-columns: 1fr;
-    }
-
-    .stats-page__chart {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
 }
