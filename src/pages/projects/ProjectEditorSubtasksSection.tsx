@@ -1,6 +1,6 @@
 import type { FormEvent } from 'react';
 import { EmptyState } from '../../components/shared/EmptyState';
-import type { ProjectSubtask } from '../../types/domain';
+import { subtaskStatusOptions, type ProjectSubtask, type SubtaskStatus } from '../../types/domain';
 import type { SubtaskFormState } from './ProjectEditorPage.types';
 
 interface ProjectEditorSubtasksSectionProps {
@@ -65,11 +65,19 @@ export function ProjectEditorSubtasksSection({
         <div className={'projects-feature__subtask-table-wrap'}>
           <table className={'projects-feature__subtask-table'}>
             <caption className={'sr-only'}>과업 리스트</caption>
+            <colgroup>
+              <col className="projects-feature__subtask-col-title" />
+              <col className="projects-feature__subtask-col-url" />
+              <col className="projects-feature__subtask-col-owner" />
+              <col className="projects-feature__subtask-col-status" />
+              <col className="projects-feature__subtask-col-actions" />
+            </colgroup>
             <thead>
               <tr>
                 <th scope="col">과업명</th>
-                <th scope="col">과업 URL</th>
+                <th scope="col">보고서 URL</th>
                 <th scope="col">담당자</th>
+                <th scope="col">상태</th>
                 <th scope="col">작업</th>
               </tr>
             </thead>
@@ -90,7 +98,7 @@ export function ProjectEditorSubtasksSection({
                   </td>
                   <td>
                     <label className={'sr-only'} htmlFor="new-subtask-url">
-                      과업 URL
+                      보고서 URL
                     </label>
                     <input
                       id="new-subtask-url"
@@ -116,6 +124,27 @@ export function ProjectEditorSubtasksSection({
                       {members.map((item) => (
                         <option key={item.id} value={item.id}>
                           {[item.accountId, item.name].filter(Boolean).join(' ')}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+                  <td>
+                    <label className={'sr-only'} htmlFor="new-subtask-status">
+                      상태
+                    </label>
+                    <select
+                      id="new-subtask-status"
+                      form={addFormId}
+                      value={newSubtaskDraft.trackStatus}
+                      onChange={(event) =>
+                        onNewSubtaskDraftChange({
+                          trackStatus: event.target.value as SubtaskStatus,
+                        })
+                      }
+                    >
+                      {subtaskStatusOptions.map((status) => (
+                        <option key={status} value={status}>
+                          {status}
                         </option>
                       ))}
                     </select>
@@ -154,12 +183,12 @@ export function ProjectEditorSubtasksSection({
                     </td>
                     <td>
                       <label className={'sr-only'} htmlFor={`subtask-url-${subtask.id}`}>
-                        과업 URL
+                        보고서 URL
                       </label>
                       <input
                         id={`subtask-url-${subtask.id}`}
                         value={draft.url}
-                        placeholder="과업 URL"
+                        placeholder="보고서 URL"
                         onChange={(event) =>
                           onSubtaskDraftChange(subtask.id, { url: event.target.value })
                         }
@@ -180,6 +209,26 @@ export function ProjectEditorSubtasksSection({
                         {members.map((item) => (
                           <option key={item.id} value={item.id}>
                             {[item.accountId, item.name].filter(Boolean).join(' ')}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
+                    <td>
+                      <label className={'sr-only'} htmlFor={`subtask-status-${subtask.id}`}>
+                        상태
+                      </label>
+                      <select
+                        id={`subtask-status-${subtask.id}`}
+                        value={draft.trackStatus}
+                        onChange={(event) =>
+                          onSubtaskDraftChange(subtask.id, {
+                            trackStatus: event.target.value as SubtaskStatus,
+                          })
+                        }
+                      >
+                        {subtaskStatusOptions.map((status) => (
+                          <option key={status} value={status}>
+                            {status}
                           </option>
                         ))}
                       </select>

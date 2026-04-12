@@ -8,6 +8,7 @@ import { AdminTaskTypeEditorForm } from './AdminTaskTypeEditorForm';
 import { AdminTaskTypeTransferDialog } from './AdminTaskTypeTransferDialog';
 import type { AdminTaskTypeItem, AdminTaskTypePayload } from '../admin.types';
 import { toAdminTaskType } from '../adminApiTransform';
+import { useAlertMessage } from '../../../hooks/useAlertMessage';
 import '../../../styles/pages/AdminPage.scss';
 
 function createDraft(taskType?: AdminTaskTypeItem): AdminTaskTypePayload {
@@ -186,6 +187,7 @@ export function AdminTaskTypeEditorPage() {
     (saveMutation.error instanceof Error && saveMutation.error.message) ||
     (deleteMutation.error instanceof Error && deleteMutation.error.message) ||
     '';
+  useAlertMessage(errorMessage);
   const taskUsageCount = useMemo(() => {
     const firstRow = usageQuery.data?.[0];
     return Number(firstRow?.task_count ?? 0);
@@ -269,9 +271,6 @@ export function AdminTaskTypeEditorPage() {
           {isEditMode ? '업무 타입 수정' : '업무 타입 추가'}
         </h1>
       </header>
-
-      {errorMessage ? <p className={'projects-feature__status-message'}>{errorMessage}</p> : null}
-
       <section
         className="projects-feature__modal projects-feature__editor-surface"
         aria-label="업무 타입 편집 패널"

@@ -8,6 +8,7 @@ import { AdminPlatformEditorForm } from './AdminPlatformEditorForm';
 import { AdminPlatformTransferDialog } from './AdminPlatformTransferDialog';
 import type { AdminPlatformItem, AdminPlatformPayload } from '../admin.types';
 import { toAdminPlatform } from '../adminApiTransform';
+import { useAlertMessage } from '../../../hooks/useAlertMessage';
 import '../../../styles/pages/AdminPage.scss';
 
 function createDraft(item?: AdminPlatformItem): AdminPlatformPayload {
@@ -151,6 +152,7 @@ export function AdminPlatformEditorPage() {
     (saveMutation.error instanceof Error && saveMutation.error.message) ||
     (deleteMutation.error instanceof Error && deleteMutation.error.message) ||
     '';
+  useAlertMessage(errorMessage);
   const transferBlocked = isEditMode && transferTargetPlatforms.length === 0;
   const transferHelpText = transferBlocked ? '전환할 노출 플랫폼이 없습니다.' : '';
 
@@ -218,7 +220,6 @@ export function AdminPlatformEditorPage() {
       <header className={'projects-feature__editor-header'}>
         <h1 className={'projects-feature__title'}>{isEditMode ? '플랫폼 수정' : '플랫폼 추가'}</h1>
       </header>
-      {errorMessage ? <p className={'projects-feature__status-message'}>{errorMessage}</p> : null}
       <section
         className="projects-feature__modal projects-feature__editor-surface"
         aria-label="플랫폼 편집 패널"

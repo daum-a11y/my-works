@@ -8,11 +8,13 @@ import { AdminMembersFilterForm } from './AdminMembersFilterForm';
 import { AdminMembersResultsTable } from './AdminMembersResultsTable';
 import { ADMIN_MEMBERS_PAGE_SIZE_OPTIONS } from './AdminMembersPage.constants';
 import { useAdminMembersPage } from './useAdminMembersPage';
+import { useAlertMessage } from '../../../hooks/useAlertMessage';
 import '../../../styles/pages/AdminPage.scss';
 const numberFormatter = new Intl.NumberFormat('ko-KR');
 
 export function AdminMembersPage() {
   const page = useAdminMembersPage();
+  useAlertMessage(page.errorMessage);
 
   return (
     <section className={'admin-members-page admin-members-page--page'}>
@@ -28,10 +30,6 @@ export function AdminMembersPage() {
       {page.statusMessage ? (
         <p className={'admin-members-page__status-text'}>{page.statusMessage}</p>
       ) : null}
-      {page.errorMessage ? (
-        <p className={'admin-members-page__helper-text'}>{page.errorMessage}</p>
-      ) : null}
-
       <PageSection title="필터">
         <AdminMembersFilterForm
           filterDraft={page.filterDraft}

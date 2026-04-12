@@ -8,6 +8,7 @@ import { AdminCostGroupEditorForm } from './AdminCostGroupEditorForm';
 import { AdminCostGroupTransferDialog } from './AdminCostGroupTransferDialog';
 import type { AdminCostGroupItem, AdminCostGroupPayload } from '../admin.types';
 import { toAdminCostGroup } from '../adminApiTransform';
+import { useAlertMessage } from '../../../hooks/useAlertMessage';
 import '../../../styles/pages/AdminPage.scss';
 
 function createDraft(item?: AdminCostGroupItem): AdminCostGroupPayload {
@@ -162,6 +163,7 @@ export function AdminCostGroupEditorPage() {
     (saveMutation.error instanceof Error && saveMutation.error.message) ||
     (deleteMutation.error instanceof Error && deleteMutation.error.message) ||
     '';
+  useAlertMessage(errorMessage);
   const transferBlocked = isEditMode && transferTargetCostGroups.length === 0;
   const transferHelpText = transferBlocked ? '전환할 활성 청구그룹이 없습니다.' : '';
 
@@ -237,9 +239,6 @@ export function AdminCostGroupEditorPage() {
           {isEditMode ? '청구그룹 수정' : '청구그룹 추가'}
         </h1>
       </header>
-
-      {errorMessage ? <p className={'projects-feature__status-message'}>{errorMessage}</p> : null}
-
       <section
         className="projects-feature__modal projects-feature__editor-surface"
         aria-label="청구그룹 편집 패널"

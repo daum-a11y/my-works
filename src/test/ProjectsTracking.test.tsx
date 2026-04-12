@@ -103,6 +103,7 @@ describe('Projects routes', () => {
     mockDataClient.getDashboard.mockReset();
     mockDataClient.getStats.mockReset();
     vi.spyOn(window, 'confirm').mockReturnValue(true);
+    vi.spyOn(window, 'alert').mockImplementation(() => undefined);
     mockUseAuth.mockReturnValue({
       status: 'authenticated',
       session: {
@@ -290,6 +291,7 @@ describe('Projects routes', () => {
 
   afterEach(() => {
     cleanup();
+    vi.restoreAllMocks();
   });
 
   it('renders date range filters and links to the new project page', async () => {
@@ -468,9 +470,22 @@ describe('Projects routes', () => {
       );
     });
 
+    await user.selectOptions(screen.getByLabelText('상태'), '미수정');
+    await user.click(screen.getByRole('button', { name: '수정' }));
+
+    await waitFor(() => {
+      expect(mockDataClient.saveProjectSubtask).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: 'subtask-1',
+          trackStatus: '미수정',
+        }),
+      );
+    });
+
     await user.click(screen.getByRole('button', { name: '과업 추가' }));
     await user.type(screen.getAllByLabelText('과업명')[0], '신규 과업');
-    await user.type(screen.getAllByLabelText('과업 URL')[0], 'https://example.com/new');
+    await user.type(screen.getAllByLabelText('보고서 URL')[0], 'https://example.com/new');
+    await user.selectOptions(screen.getAllByLabelText('상태')[0], '일부 수정');
     await user.click(screen.getByRole('button', { name: '추가' }));
 
     await waitFor(() => {
@@ -480,7 +495,31 @@ describe('Projects routes', () => {
           title: '신규 과업',
           url: 'https://example.com/new',
           ownerMemberId: 'member-1',
+          trackStatus: '일부 수정',
         }),
+      );
+    });
+  });
+
+  it('alerts when subtask save is rejected', async () => {
+    const user = userEvent.setup();
+    mockDataClient.saveProjectSubtask.mockRejectedValueOnce({
+      code: 'P0001',
+      message: 'project not found',
+    });
+
+    renderProjectEditor('/projects/project-1/edit');
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('프로젝트 종류')).toHaveValue('type-qa');
+    });
+
+    await user.selectOptions(screen.getByLabelText('상태'), '미수정');
+    await user.click(screen.getByRole('button', { name: '수정' }));
+
+    await waitFor(() => {
+      expect(window.alert).toHaveBeenCalledWith(
+        '프로젝트 수정 권한이 없거나 프로젝트를 찾을 수 없습니다.',
       );
     });
   });
@@ -511,7 +550,7 @@ describe('Projects routes', () => {
     renderProjectEditor('/projects/project-1/edit');
 
     await waitFor(() => {
-      expect(screen.getByText('프로젝트 조회 실패')).toBeInTheDocument();
+      expect(window.alert).toHaveBeenCalledWith('프로젝트 조회 실패');
     });
     expect(screen.queryByText('프로젝트를 찾을 수 없습니다.')).not.toBeInTheDocument();
   });

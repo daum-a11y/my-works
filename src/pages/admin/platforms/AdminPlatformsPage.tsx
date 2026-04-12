@@ -6,6 +6,7 @@ import { AdminOrderDialog } from '../../../components/admin/AdminOrderDialog';
 import { adminDataClient } from '../../../api/admin';
 import { AdminPlatformsResultsTable } from './AdminPlatformsResultsTable';
 import { toAdminPlatform } from '../adminApiTransform';
+import { useAlertMessage } from '../../../hooks/useAlertMessage';
 import '../../../styles/pages/AdminPage.scss';
 
 export function AdminPlatformsPage() {
@@ -52,6 +53,7 @@ export function AdminPlatformsPage() {
     (platformsQuery.error instanceof Error && platformsQuery.error.message) ||
     (reorderMutation.error instanceof Error && reorderMutation.error.message) ||
     '';
+  useAlertMessage(errorMessage);
 
   return (
     <section className="admin-crud-page admin-crud-page--page">
@@ -77,7 +79,6 @@ export function AdminPlatformsPage() {
       </header>
 
       {statusMessage ? <p className="admin-crud-page__helper-text">{statusMessage}</p> : null}
-      {errorMessage ? <p className="admin-crud-page__helper-text">{errorMessage}</p> : null}
 
       <AdminPlatformsResultsTable platforms={platforms} />
 

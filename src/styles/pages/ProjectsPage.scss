@@ -646,6 +646,22 @@
     table-layout: fixed;
   }
 
+  .projects-feature__subtask-col-url {
+    width: 17%;
+  }
+
+  .projects-feature__subtask-col-owner {
+    width: 15%;
+  }
+
+  .projects-feature__subtask-col-status {
+    width: 15%;
+  }
+
+  .projects-feature__subtask-col-actions {
+    width: 75px;
+  }
+
   .projects-feature__subtask-table th,
   .projects-feature__subtask-table td {
     padding: var(--space-3) var(--space-2);
@@ -672,20 +688,12 @@
     background: var(--surface-canvas-strong);
   }
 
-  .projects-feature__subtask-table th:last-child,
+  .projects-feature__subtask-table th:last-child {
+    text-align: center;
+  }
+
   .projects-feature__subtask-table td:last-child {
-    text-align: left;
-    width: 136px;
-  }
-
-  .projects-feature__subtask-table th:first-child,
-  .projects-feature__subtask-table td:first-child {
-    width: 36%;
-  }
-
-  .projects-feature__subtask-table th:nth-child(2),
-  .projects-feature__subtask-table td:nth-child(2) {
-    width: auto;
+    padding-inline: var(--space-1);
   }
 
   .projects-feature__subtask-table td :is(input, select, textarea) {
@@ -714,13 +722,15 @@
 
   .projects-feature__subtask-table-actions {
     display: flex;
-    justify-content: flex-end;
+    justify-content: center;
     gap: var(--space-2);
     white-space: nowrap;
   }
 
   .projects-feature__subtask-table-actions .projects-feature__button--secondary,
   .projects-feature__subtask-table-actions .projects-feature__delete-button {
+    min-height: var(--control-height-sm);
+    padding-inline: var(--space-2);
     font-weight: var(--font-weight-regular);
   }
 

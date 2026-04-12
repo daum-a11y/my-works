@@ -32,7 +32,27 @@ import {
   toProjectInput,
 } from './ProjectEditorPage.draft';
 import { splitServiceGroupName } from './ProjectEditorPage.service';
+import { useAlertMessage } from '../../hooks/useAlertMessage';
 import '../../styles/pages/ProjectsPage.scss';
+
+function getProjectEditorErrorMessage(error: unknown, fallback: string) {
+  const message =
+    error instanceof Error
+      ? error.message
+      : error && typeof error === 'object' && 'message' in error
+        ? String(error.message)
+        : '';
+
+  if (message === 'project not found') {
+    return '프로젝트 수정 권한이 없거나 프로젝트를 찾을 수 없습니다.';
+  }
+
+  if (message === 'project subtask not found') {
+    return '과업 수정 권한이 없거나 과업을 찾을 수 없습니다.';
+  }
+
+  return message || fallback;
+}
 
 export function ProjectEditorPage() {
   const { session, status } = useAuth();
@@ -246,7 +266,8 @@ export function ProjectEditorPage() {
       setProjectDraft(toProjectDraft(toProject(saved)));
     },
     onError: (error) => {
-      setStatusMessage(error instanceof Error ? error.message : '프로젝트를 저장하지 못했습니다.');
+      window.alert(getProjectEditorErrorMessage(error, '프로젝트를 저장하지 못했습니다.'));
+      setStatusMessage('');
     },
   });
 
@@ -275,7 +296,8 @@ export function ProjectEditorPage() {
       );
     },
     onError: (error) => {
-      setStatusMessage(error instanceof Error ? error.message : '과업을 저장하지 못했습니다.');
+      window.alert(getProjectEditorErrorMessage(error, '과업을 저장하지 못했습니다.'));
+      setStatusMessage('');
     },
   });
 
@@ -287,7 +309,8 @@ export function ProjectEditorPage() {
       navigate('/projects', { replace: true });
     },
     onError: (error) => {
-      setStatusMessage(error instanceof Error ? error.message : '프로젝트를 삭제하지 못했습니다.');
+      window.alert(getProjectEditorErrorMessage(error, '프로젝트를 삭제하지 못했습니다.'));
+      setStatusMessage('');
     },
   });
 
@@ -299,13 +322,18 @@ export function ProjectEditorPage() {
       setStatusMessage('과업을 삭제했습니다.');
     },
     onError: (error) => {
-      setStatusMessage(error instanceof Error ? error.message : '과업을 삭제하지 못했습니다.');
+      window.alert(getProjectEditorErrorMessage(error, '과업을 삭제하지 못했습니다.'));
+      setStatusMessage('');
     },
   });
 
   const handleProjectSave = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    await saveProjectMutation.mutateAsync(projectDraft);
+    try {
+      await saveProjectMutation.mutateAsync(projectDraft);
+    } catch {
+      // The mutation onError path renders the user-facing status message.
+    }
   };
 
   const handleSubtaskDraftChange = (subtaskId: string, patch: Partial<SubtaskFormState>) => {
@@ -345,7 +373,11 @@ export function ProjectEditorPage() {
       return;
     }
 
-    await saveSubtaskMutation.mutateAsync(draft);
+    try {
+      await saveSubtaskMutation.mutateAsync(draft);
+    } catch {
+      // The mutation onError path renders the user-facing status message.
+    }
   };
 
   const handleSubtaskAdd = async (event: FormEvent<HTMLFormElement>) => {
@@ -356,11 +388,15 @@ export function ProjectEditorPage() {
     }
 
     if (!newSubtaskDraft.title.trim()) {
-      setStatusMessage('과업명이 공백입니다.');
+      window.alert('과업명을 입력하십시오.');
       return;
     }
 
-    await saveSubtaskMutation.mutateAsync(newSubtaskDraft);
+    try {
+      await saveSubtaskMutation.mutateAsync(newSubtaskDraft);
+    } catch {
+      // The mutation onError path renders the user-facing status message.
+    }
   };
 
   const handleProjectDelete = async () => {
@@ -375,7 +411,11 @@ export function ProjectEditorPage() {
       return;
     }
 
-    await deleteProjectMutation.mutateAsync(selectedProject.id);
+    try {
+      await deleteProjectMutation.mutateAsync(selectedProject.id);
+    } catch {
+      // The mutation onError path renders the user-facing status message.
+    }
   };
 
   const handleSubtaskDelete = async (subtask: ProjectSubtask) => {
@@ -388,11 +428,16 @@ export function ProjectEditorPage() {
       return;
     }
 
-    await deleteSubtaskMutation.mutateAsync(subtask.id);
+    try {
+      await deleteSubtaskMutation.mutateAsync(subtask.id);
+    } catch {
+      // The mutation onError path renders the user-facing status message.
+    }
   };
 
   const loading = status === 'loading' || query.isLoading;
   const queryError = query.error instanceof Error ? query.error.message : '';
+  useAlertMessage(queryError);
 
   if (loading) {
     return (
@@ -429,7 +474,6 @@ export function ProjectEditorPage() {
             목록으로
           </Link>
         </header>
-        <p className={'projects-feature__status-message'}>{queryError}</p>
       </section>
     );
   }

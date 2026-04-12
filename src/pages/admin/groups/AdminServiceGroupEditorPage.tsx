@@ -8,6 +8,7 @@ import { AdminServiceGroupEditorForm } from './AdminServiceGroupEditorForm';
 import { AdminServiceGroupTransferDialog } from './AdminServiceGroupTransferDialog';
 import type { AdminServiceGroupItem, AdminServiceGroupPayload } from '../admin.types';
 import { toAdminCostGroup, toAdminServiceGroup } from '../adminApiTransform';
+import { useAlertMessage } from '../../../hooks/useAlertMessage';
 import '../../../styles/pages/AdminPage.scss';
 
 function createDraft(item?: AdminServiceGroupItem): AdminServiceGroupPayload {
@@ -213,6 +214,7 @@ export function AdminServiceGroupEditorPage() {
     (saveMutation.error instanceof Error && saveMutation.error.message) ||
     (deleteMutation.error instanceof Error && deleteMutation.error.message) ||
     '';
+  useAlertMessage(errorMessage);
   const projectUsageCount = useMemo(() => {
     const firstRow = usageQuery.data?.[0];
     return Number(firstRow?.project_count ?? 0);
@@ -295,9 +297,6 @@ export function AdminServiceGroupEditorPage() {
           {isEditMode ? '서비스 그룹 수정' : '서비스 그룹 추가'}
         </h1>
       </header>
-
-      {errorMessage ? <p className={'projects-feature__status-message'}>{errorMessage}</p> : null}
-
       <section
         className="projects-feature__modal projects-feature__editor-surface"
         aria-label="서비스 그룹 편집 패널"

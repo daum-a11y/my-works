@@ -8,6 +8,7 @@ import { getTodayInputValue, shiftDateInput } from './reportUtils';
 import { ReportsResultsTable } from './ReportsResultsTable';
 import { normalizeDateForInput } from './ReportsPage.utils';
 import { useReportsSlice } from './useReportsSlice';
+import { useAlertMessage } from '../../hooks/useAlertMessage';
 import '../../styles/pages/ReportsPage.scss';
 
 export function ReportsPage() {
@@ -50,6 +51,8 @@ export function ReportsPage() {
     setOverheadCostGroupId,
   } = useReportsSlice();
   const todayInputValue = getTodayInputValue();
+  const errorStatusMessage = statusKind === 'error' ? statusMessage : '';
+  useAlertMessage(errorStatusMessage);
   const reportDateFromDashboard =
     typeof location.state === 'object' && location.state && 'reportDate' in location.state
       ? String((location.state as { reportDate?: unknown }).reportDate ?? '')
@@ -248,7 +251,7 @@ export function ReportsPage() {
             canEditReports ? 'reports-page__panel reports-page__panel--results' : undefined
           }
         >
-          {statusMessage ? (
+          {statusMessage && statusKind !== 'error' ? (
             <p
               className={`reports-page__status-message reports-page__status-message--${statusKind}`}
             >

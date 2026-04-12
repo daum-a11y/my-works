@@ -1,13 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { PageHeader } from '../../components/shared/PageHeader';
 import { PageSection } from '../../components/shared/PageSection';
 import { dataClient } from '../../api/client';
 import { setDocumentTitle } from '../../router/navigation';
-import { type MonitoringStatsRow, type SubtaskStatus } from '../../types/domain';
+import { type MonitoringStatsRow } from '../../types/domain';
 import { getCurrentMonth, shiftMonth } from '../resource/resourceUtils';
 import {
-  MONITORING_STATS_DEFAULT_DRAFT_STATUS,
   MONITORING_STATS_DEFAULT_SUMMARY_VIEW,
   MONITORING_STATS_PAGE_TITLE,
 } from './MonitoringStatsPage.constants';
@@ -29,7 +28,6 @@ import '../../styles/pages/StatsPage.scss';
 export function MonitoringStatsPage() {
   const { session } = useAuth();
   const member = session?.member;
-  const queryClient = useQueryClient();
   const defaultEndMonth = getCurrentMonth();
   const defaultStartMonth = shiftMonth(defaultEndMonth, -5);
 
@@ -50,49 +48,12 @@ export function MonitoringStatsPage() {
   const [summaryView, setSummaryView] = useState<StatsSummaryView>(
     MONITORING_STATS_DEFAULT_SUMMARY_VIEW,
   );
-  const [editingSubtaskId, setEditingSubtaskId] = useState<string | null>(null);
-  const [draftStatus, setDraftStatus] = useState<SubtaskStatus>(
-    MONITORING_STATS_DEFAULT_DRAFT_STATUS,
-  );
-  const [draftNote, setDraftNote] = useState('');
   const [hoveredNoteSubtaskId, setHoveredNoteSubtaskId] = useState<string | null>(null);
   const [pinnedNoteSubtaskId, setPinnedNoteSubtaskId] = useState<string | null>(null);
 
   useEffect(() => {
     setDocumentTitle(MONITORING_STATS_PAGE_TITLE);
   }, []);
-
-  const savePageMutation = useMutation({
-    mutationFn: async (row: MonitoringStatsRow) =>
-      dataClient.saveProjectSubtask({
-        id: row.subtaskId,
-        projectId: row.projectId,
-        title: row.title,
-        url: row.url,
-        ownerMemberId: row.ownerMemberId,
-        monitoringMonth: row.monitoringMonth,
-        trackStatus: draftStatus,
-        monitoringInProgress: row.monitoringInProgress,
-        qaInProgress: row.qaInProgress,
-        note: draftNote.trim(),
-      }),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['monitoring-detail', member?.id] });
-      setEditingSubtaskId(null);
-    },
-  });
-
-  const startEdit = (row: MonitoringStatsRow) => {
-    setEditingSubtaskId(row.subtaskId);
-    setDraftStatus(row.trackStatus);
-    setDraftNote(row.note ?? '');
-  };
-
-  const cancelEdit = () => {
-    setEditingSubtaskId(null);
-    setDraftStatus(MONITORING_STATS_DEFAULT_DRAFT_STATUS);
-    setDraftNote('');
-  };
 
   const handleSearch = () => {
     const nextStart =
@@ -216,19 +177,10 @@ export function MonitoringStatsPage() {
       <PageSection title="모니터링 과업 목록">
         <MonitoringStatsDetailsTable
           rows={filteredRows}
-          editingSubtaskId={editingSubtaskId}
-          draftStatus={draftStatus}
-          draftNote={draftNote}
           hoveredNoteSubtaskId={hoveredNoteSubtaskId}
           pinnedNoteSubtaskId={pinnedNoteSubtaskId}
-          savePending={savePageMutation.isPending}
-          onDraftStatusChange={setDraftStatus}
-          onDraftNoteChange={setDraftNote}
           onHoveredNoteSubtaskIdChange={setHoveredNoteSubtaskId}
           onPinnedNoteSubtaskIdChange={setPinnedNoteSubtaskId}
-          onStartEdit={startEdit}
-          onSave={(row) => savePageMutation.mutate(row)}
-          onCancel={cancelEdit}
         />
       </PageSection>
     </div>

@@ -1,5 +1,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { MonitoringStatsPage, QaStatsPage } from '../pages/stats';
 import { getCurrentMonth, shiftMonth } from '../pages/resource/resourceUtils';
@@ -173,7 +174,9 @@ describe('Stats pages', () => {
 
     render(
       <QueryClientProvider client={queryClient}>
-        <MonitoringStatsPage />
+        <MemoryRouter>
+          <MonitoringStatsPage />
+        </MemoryRouter>
       </QueryClientProvider>,
     );
 
@@ -189,6 +192,10 @@ describe('Stats pages', () => {
     expect(screen.getByRole('columnheader', { name: '청구그룹' })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: '서비스 그룹' })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: '프로젝트명' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'QA 대상' })).toHaveAttribute(
+      'href',
+      '/projects/project-1/edit',
+    );
     expect(screen.getByRole('columnheader', { name: '과업명' })).toBeInTheDocument();
     expect(screen.getAllByText('legacy-1(운영 사용자)').length).toBeGreaterThan(0);
     expect(screen.getByRole('button', { name: '모니터링 과업 내용 보기' })).toBeInTheDocument();
@@ -210,7 +217,9 @@ describe('Stats pages', () => {
 
     render(
       <QueryClientProvider client={queryClient}>
-        <MonitoringStatsPage />
+        <MemoryRouter>
+          <MonitoringStatsPage />
+        </MemoryRouter>
       </QueryClientProvider>,
     );
 
@@ -239,12 +248,14 @@ describe('Stats pages', () => {
     expect(screen.getByText('과거 모니터링 과업')).toBeInTheDocument();
   });
 
-  it('edits monitoring status and note from the stats table', async () => {
+  it('keeps the monitoring stats table read-only', async () => {
     const queryClient = new QueryClient();
 
     render(
       <QueryClientProvider client={queryClient}>
-        <MonitoringStatsPage />
+        <MemoryRouter>
+          <MonitoringStatsPage />
+        </MemoryRouter>
       </QueryClientProvider>,
     );
 
@@ -252,24 +263,12 @@ describe('Stats pages', () => {
       expect(screen.getAllByText('모니터링 과업').length).toBeGreaterThan(0);
     });
 
-    fireEvent.click(screen.getByRole('button', { name: '수정' }));
-    fireEvent.change(screen.getByLabelText('모니터링 과업 상태'), {
-      target: { value: '일부 수정' },
-    });
-    fireEvent.change(screen.getByLabelText('모니터링 과업 비고'), {
-      target: { value: '남은 이슈 공유' },
-    });
-    fireEvent.click(screen.getByRole('button', { name: '저장' }));
-
-    await waitFor(() => {
-      expect(mockDataClient.saveProjectSubtask).toHaveBeenCalledWith(
-        expect.objectContaining({
-          id: 'page-1',
-          trackStatus: '일부 수정',
-          note: '남은 이슈 공유',
-        }),
-      );
-    });
+    expect(screen.queryByRole('columnheader', { name: '수정' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: '수정' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: '저장' })).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('모니터링 과업 상태')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('모니터링 과업 비고')).not.toBeInTheDocument();
+    expect(mockDataClient.saveProjectSubtask).not.toHaveBeenCalled();
   });
 
   it('shows only QA projects by project type', async () => {

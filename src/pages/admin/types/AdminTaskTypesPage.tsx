@@ -8,6 +8,7 @@ import { AdminTaskTypesResultsTable } from './AdminTaskTypesResultsTable';
 import '../../../styles/pages/AdminPage.scss';
 import type { AdminTaskTypeItem } from '../admin.types';
 import { toAdminTaskType } from '../adminApiTransform';
+import { useAlertMessage } from '../../../hooks/useAlertMessage';
 
 function groupTaskTypes(taskTypes: AdminTaskTypeItem[]) {
   const grouped = new Map<string, AdminTaskTypeItem[]>();
@@ -88,6 +89,7 @@ export function AdminTaskTypesPage() {
     (taskTypesQuery.error instanceof Error && taskTypesQuery.error.message) ||
     (reorderMutation.error instanceof Error && reorderMutation.error.message) ||
     '';
+  useAlertMessage(errorMessage);
 
   return (
     <section className="admin-crud-page admin-crud-page--page">
@@ -113,7 +115,6 @@ export function AdminTaskTypesPage() {
       </header>
 
       {statusMessage ? <p className="admin-crud-page__helper-text">{statusMessage}</p> : null}
-      {errorMessage ? <p className="admin-crud-page__helper-text">{errorMessage}</p> : null}
 
       <AdminTaskTypesResultsTable
         groupedTaskTypes={groupedTaskTypes}

@@ -1,8 +1,5 @@
-import {
-  subtaskStatusOptions,
-  type MonitoringStatsRow,
-  type SubtaskStatus,
-} from '../../types/domain';
+import { Link } from 'react-router-dom';
+import { type MonitoringStatsRow } from '../../types/domain';
 import { TableEmptyRow } from '../../components/shared';
 import {
   formatMonthLabel,
@@ -12,36 +9,18 @@ import {
 
 interface MonitoringStatsDetailsTableProps {
   rows: MonitoringStatsRow[];
-  editingSubtaskId: string | null;
-  draftStatus: SubtaskStatus;
-  draftNote: string;
   hoveredNoteSubtaskId: string | null;
   pinnedNoteSubtaskId: string | null;
-  savePending: boolean;
-  onDraftStatusChange: (value: SubtaskStatus) => void;
-  onDraftNoteChange: (value: string) => void;
   onHoveredNoteSubtaskIdChange: (value: string | null) => void;
   onPinnedNoteSubtaskIdChange: (value: string | null) => void;
-  onStartEdit: (row: MonitoringStatsRow) => void;
-  onSave: (row: MonitoringStatsRow) => void;
-  onCancel: () => void;
 }
 
 export function MonitoringStatsDetailsTable({
   rows,
-  editingSubtaskId,
-  draftStatus,
-  draftNote,
   hoveredNoteSubtaskId,
   pinnedNoteSubtaskId,
-  savePending,
-  onDraftStatusChange,
-  onDraftNoteChange,
   onHoveredNoteSubtaskIdChange,
   onPinnedNoteSubtaskIdChange,
-  onStartEdit,
-  onSave,
-  onCancel,
 }: MonitoringStatsDetailsTableProps) {
   const isNoteOpen = (subtaskId: string) =>
     hoveredNoteSubtaskId === subtaskId || pinnedNoteSubtaskId === subtaskId;
@@ -62,7 +41,6 @@ export function MonitoringStatsDetailsTable({
             <th scope="col">상태</th>
             <th scope="col">비고</th>
             <th scope="col">보고서URL</th>
-            <th scope="col">수정</th>
           </tr>
         </thead>
         <tbody>
@@ -72,39 +50,24 @@ export function MonitoringStatsDetailsTable({
               <td>{row.platform || '-'}</td>
               <td>{row.costGroupName || '-'}</td>
               <td>{row.serviceGroupName || '-'}</td>
-              <td>{row.projectName || '-'}</td>
+              <td>
+                {row.projectId && row.projectName ? (
+                  <Link to={`/projects/${row.projectId}/edit`} className={'stats-page__link'}>
+                    {row.projectName}
+                  </Link>
+                ) : (
+                  row.projectName || '-'
+                )}
+              </td>
               <td>{row.title}</td>
               <td>{row.assigneeDisplay || '-'}</td>
               <td>
-                {editingSubtaskId === row.subtaskId ? (
-                  <select
-                    aria-label={`${row.title} 상태`}
-                    className={'stats-page__inline-select'}
-                    value={draftStatus}
-                    onChange={(event) => onDraftStatusChange(event.target.value as SubtaskStatus)}
-                  >
-                    {subtaskStatusOptions.map((status) => (
-                      <option key={status} value={status}>
-                        {formatTrackStatus(status)}
-                      </option>
-                    ))}
-                  </select>
-                ) : (
-                  <span className="stats-page__status-badge" data-status={row.trackStatus}>
-                    {formatTrackStatus(row.trackStatus)}
-                  </span>
-                )}
+                <span className="stats-page__status-badge" data-status={row.trackStatus}>
+                  {formatTrackStatus(row.trackStatus)}
+                </span>
               </td>
               <td>
-                {editingSubtaskId === row.subtaskId ? (
-                  <textarea
-                    aria-label={`${row.title} 비고`}
-                    className={'stats-page__inline-textarea'}
-                    value={draftNote}
-                    onChange={(event) => onDraftNoteChange(event.target.value)}
-                    rows={3}
-                  />
-                ) : row.note ? (
+                {row.note ? (
                   <div
                     className={'stats-page__note-cell'}
                     onMouseEnter={() => onHoveredNoteSubtaskIdChange(row.subtaskId)}
@@ -171,40 +134,10 @@ export function MonitoringStatsDetailsTable({
                   '-'
                 )}
               </td>
-              <td>
-                {editingSubtaskId === row.subtaskId ? (
-                  <div className={'stats-page__inline-actions'}>
-                    <button
-                      type="button"
-                      className={'stats-page__inline-action stats-page__inline-action--primary'}
-                      onClick={() => onSave(row)}
-                      disabled={savePending}
-                    >
-                      저장
-                    </button>
-                    <button
-                      type="button"
-                      className={'stats-page__inline-action stats-page__inline-action--secondary'}
-                      onClick={onCancel}
-                      disabled={savePending}
-                    >
-                      취소
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    type="button"
-                    className={'stats-page__inline-action stats-page__inline-action--primary'}
-                    onClick={() => onStartEdit(row)}
-                  >
-                    수정
-                  </button>
-                )}
-              </td>
             </tr>
           ))}
           {!rows.length ? (
-            <TableEmptyRow colSpan={11} message="조건에 맞는 모니터링 내역이 없습니다." />
+            <TableEmptyRow colSpan={10} message="조건에 맞는 모니터링 내역이 없습니다." />
           ) : null}
         </tbody>
       </table>

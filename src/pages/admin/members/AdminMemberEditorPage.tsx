@@ -24,6 +24,7 @@ import {
   getSaveSuccessMessage,
 } from './AdminMemberEditorPage.utils';
 import { toMemberAdmin } from '../adminApiTransform';
+import { useAlertMessage } from '../../../hooks/useAlertMessage';
 import '../../../styles/pages/AdminPage.scss';
 
 export function AdminMemberEditorPage() {
@@ -176,6 +177,7 @@ export function AdminMemberEditorPage() {
     (deleteMutation.error instanceof Error && deleteMutation.error.message) ||
     (restoreMutation.error instanceof Error && restoreMutation.error.message) ||
     '';
+  useAlertMessage(errorMessage);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -253,9 +255,6 @@ export function AdminMemberEditorPage() {
           {isEditMode ? ADMIN_MEMBER_EDITOR_EDIT_TITLE : ADMIN_MEMBER_EDITOR_CREATE_TITLE}
         </h1>
       </header>
-
-      {errorMessage ? <p className={'projects-feature__status-message'}>{errorMessage}</p> : null}
-
       <section
         className="projects-feature__modal projects-feature__editor-surface"
         aria-label="사용자 편집 패널"
