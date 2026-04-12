@@ -40,9 +40,9 @@
   --raw-red-100: oklch(0.96 0.028 28);
 
   /* Surfaces */
-  --surface-canvas: var(--raw-paper-1);
+  --surface-canvas: var(--raw-paper-0);
   --surface-canvas-strong: var(--raw-paper-2);
-  --surface-sidebar: color-mix(in oklab, var(--raw-paper-2) 92%, var(--raw-slate-200));
+  --surface-sidebar: color-mix(in oklab, var(--raw-paper-2) 92%, var(--raw-paper-1));
   --surface-header: var(--raw-paper-0);
   --surface-panel: var(--raw-paper-0);
   --surface-panel-strong: color-mix(in oklab, var(--raw-paper-0) 88%, var(--raw-slate-200));
@@ -165,11 +165,11 @@
   --space-form-section-gap: 16px;
 
   /* High-density type scale */
-  --text-page-title-size: 28px;
+  --text-page-title-size: 24px;
   --text-page-title-weight: 700;
   --text-page-title-line-height: 1.2;
   --text-page-title-tracking: -1px;
-  --text-section-title-size: 15px;
+  --text-section-title-size: 18px;
   --text-section-title-weight: 700;
   --text-section-title-line-height: 1.2;
   --text-section-title-tracking: 0px;
@@ -187,7 +187,7 @@
   --text-label-weight: 700;
   --text-label-line-height: 1.2;
   --text-label-tracking: 1px;
-  --text-meta-size: 12px;
+  --text-meta-size: 13px;
   --text-meta-weight: 500;
   --text-meta-line-height: 1.45;
   --text-meta-tracking: 0;

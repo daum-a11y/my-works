@@ -3,10 +3,8 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-2);
-  min-height: 32px;
   min-width: max-content;
   width: 100%;
-  padding: 0 10px;
   border: 1px solid transparent;
   background: transparent;
   color: inherit;
@@ -24,8 +22,6 @@
 }
 
 .sortable-table-header-button:hover {
-  border-color: color-mix(in oklab, var(--border-strong) 62%, var(--border-default));
-  background: color-mix(in oklab, var(--surface-hover) 78%, var(--surface-canvas-strong));
   color: var(--text-primary);
 }
 
@@ -35,15 +31,7 @@
 }
 
 .sortable-table-header-button--active {
-  border-color: color-mix(in oklab, var(--accent-strong) 26%, var(--border-default));
-  background: color-mix(in oklab, var(--accent-soft) 62%, var(--surface-panel));
   color: var(--accent-strong);
-  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--accent-strong) 8%, transparent);
-}
-
-.sortable-table-header-button--active:hover {
-  border-color: color-mix(in oklab, var(--accent-strong) 38%, var(--border-default));
-  background: color-mix(in oklab, var(--accent-soft) 72%, var(--surface-panel));
 }
 
 .sortable-table-header-button__label {

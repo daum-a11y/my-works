@@ -1036,12 +1036,15 @@ as $$
   order by t.task_date asc
 $$;
 
+drop function if exists public.get_dashboard_snapshot();
+
 create or replace function public.get_dashboard_snapshot()
 returns table (
   project_id uuid,
   type1 text,
   project_name text,
   platform text,
+  cost_group_name text,
   service_group_name text,
   start_date date,
   end_date date
@@ -1056,6 +1059,7 @@ as $$
     nullif(ptt.type1, '') as type1,
     p.name as project_name,
     nullif(pl.name, '') as platform,
+    nullif(cg.name, '') as cost_group_name,
     nullif(public.resolve_service_group_name(sg.service_group_name, sg.name), '') as service_group_name,
     p.start_date,
     p.end_date
@@ -1063,6 +1067,7 @@ as $$
   left join public.task_types ptt on ptt.id = p.task_type_id
   left join public.platforms pl on pl.id = p.platform_id
   left join public.service_groups sg on sg.id = p.service_group_id
+  left join public.cost_groups cg on cg.id = sg.cost_group_id
   where public.current_member_id() is not null
     and p.start_date <= current_date
     and p.end_date >= current_date

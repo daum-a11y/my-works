@@ -377,6 +377,7 @@ export interface DashboardProjectItem {
   type1: string | null;
   projectName: string | null;
   platform: string | null;
+  costGroupName: string | null;
   serviceGroupName: string | null;
   startDate: string;
   endDate: string;

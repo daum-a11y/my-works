@@ -26,6 +26,7 @@ const mockDataClient = vi.hoisted(() => ({
   deleteTask: vi.fn(),
   searchTasks: vi.fn(),
   getDashboard: vi.fn(),
+  getDashboardTaskCalendar: vi.fn(),
   getStats: vi.fn(),
 }));
 
@@ -59,7 +60,7 @@ describe('DashboardPage', () => {
     });
 
     mockDataClient.getDashboard.mockReset();
-    mockDataClient.getTasks.mockReset();
+    mockDataClient.getDashboardTaskCalendar.mockReset();
     mockDataClient.getDashboard.mockResolvedValue({
       inProgressProjects: [
         {
@@ -67,13 +68,14 @@ describe('DashboardPage', () => {
           type1: 'QA',
           projectName: '알파',
           platform: 'iOS',
+          costGroupName: '내부',
           serviceGroupName: '커머스',
           startDate: '2026-03-01',
           endDate: '2026-03-31',
         },
       ],
     });
-    mockDataClient.getTasks.mockResolvedValue([]);
+    mockDataClient.getDashboardTaskCalendar.mockResolvedValue([]);
   });
 
   it('renders the in-progress project list', async () => {
@@ -92,6 +94,8 @@ describe('DashboardPage', () => {
     });
 
     expect(screen.getByText('알파')).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: '청구그룹' })).toBeInTheDocument();
+    expect(screen.getByText('내부')).toBeInTheDocument();
     expect(screen.getByText('커머스')).toBeInTheDocument();
     expect(screen.getByText('2026-03-01')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: '진행중인 프로젝트 목록' })).toBeInTheDocument();

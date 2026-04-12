@@ -32,7 +32,7 @@ export interface BreadcrumbItem {
 export const baseNavigation = [
   { to: '/dashboard', label: '대시보드', icon: LayoutDashboard },
   { to: '/person/report', label: '업무보고', icon: FileText },
-  { to: '/person/search', label: '내 업무내역', icon: Search },
+  { to: '/person/search', label: '내 업무 내역', icon: Search },
   {
     label: '프로젝트',
     icon: FolderCode,

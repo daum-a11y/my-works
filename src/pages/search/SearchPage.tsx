@@ -16,7 +16,7 @@ export function SearchPage() {
 
   return (
     <section className="search-page search-page--shell">
-      <PageHeader title="내 업무내역" />
+      <PageHeader title="내 업무 내역" />
 
       <PageSection title="필터">
         <SearchFilterForm
@@ -33,12 +33,12 @@ export function SearchPage() {
 
       <PageResultBar
         className="search-page__result-bar"
-        aria-label="업무내역 목록 요약"
+        aria-label="업무 내역 목록 요약"
         metrics={
           <>
             <PagePager
               className="search-page__pager"
-              aria-label="업무내역 목록 페이지 이동"
+              aria-label="업무 내역 목록 페이지 이동"
               buttonClassName="search-page__page-button"
               statusClassName="search-page__page-status"
               currentPage={page.currentPageSafe}

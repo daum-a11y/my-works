@@ -71,7 +71,7 @@
 
   .projects-feature__filter-field span {
     color: var(--text-tertiary);
-    font-size: var(--text-meta-size);
+    font-size: var(--text-label-size);
     font-weight: var(--text-meta-weight);
     line-height: var(--text-meta-line-height);
     letter-spacing: var(--text-meta-tracking);
@@ -504,7 +504,7 @@
 
   .projects-feature__filter-field span {
     color: var(--text-tertiary);
-    font-size: var(--text-meta-size);
+    font-size: var(--text-label-size);
     line-height: var(--text-meta-line-height);
   }
 
@@ -559,7 +559,7 @@
 
   .projects-feature__editor-form-grid .projects-feature__field > span {
     grid-column: 1;
-    font-weight: var(--font-weight-medium);
+    font-weight: var(--text-form-weight);
   }
 
   .projects-feature__editor-form-grid .projects-feature__field :is(input, select, textarea) {

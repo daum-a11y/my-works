@@ -67,7 +67,7 @@
 
   .reports-page__date-text strong {
     color: var(--text-primary);
-    font-size: var(--text-page-title-size);
+    font-size: var(--text-section-title-size);
     font-weight: var(--text-page-title-weight);
     line-height: var(--text-page-title-line-height);
     letter-spacing: var(--text-page-title-tracking);
@@ -75,7 +75,7 @@
 
   .reports-page__date-text span {
     color: var(--text-tertiary);
-    font-size: var(--text-meta-size);
+    font-size: var(--text-section-title-size);
     font-weight: 600;
     line-height: 1.2;
     letter-spacing: 0.02em;
@@ -311,7 +311,7 @@
   .reports-page__field > span {
     color: var(--text-primary);
     font-size: var(--text-form-size);
-    font-weight: 700;
+    font-weight: var(--text-form-weight);
     line-height: 1.25;
     letter-spacing: -0.01em;
   }

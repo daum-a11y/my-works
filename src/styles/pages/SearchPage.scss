@@ -86,7 +86,7 @@
 
   .search-page__filter-field span {
     color: var(--text-tertiary);
-    font-size: var(--text-meta-size);
+    font-size: var(--text-label-size);
     font-weight: var(--text-meta-weight);
     line-height: var(--text-meta-line-height);
     letter-spacing: var(--text-meta-tracking);
@@ -201,7 +201,7 @@
 
   .search-page__result-label {
     color: var(--text-tertiary);
-    font-size: var(--text-meta-size);
+    font-size: var(--text-label-size);
     font-weight: var(--text-meta-weight);
     line-height: 1;
     letter-spacing: var(--text-meta-tracking);
@@ -221,7 +221,7 @@
     align-items: center;
     gap: var(--space-2);
     color: var(--text-tertiary);
-    font-size: var(--text-meta-size);
+    font-size: var(--text-label-size);
     line-height: var(--text-meta-line-height);
     margin-left: auto;
     white-space: nowrap;

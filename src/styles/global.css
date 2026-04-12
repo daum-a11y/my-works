@@ -183,7 +183,7 @@ td.table-empty-row.table-empty-row .table-empty-row__message,
 td.table-empty-row.table-empty-row .table-empty-row__description,
 .empty-state.empty-state .empty-state__description {
   color: var(--text-tertiary);
-  font-size: var(--text-meta-size);
+  font-size: var(--text-label-size);
   font-weight: var(--text-meta-weight);
   line-height: var(--text-meta-line-height);
   letter-spacing: var(--text-meta-tracking);

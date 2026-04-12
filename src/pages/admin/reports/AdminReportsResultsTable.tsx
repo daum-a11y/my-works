@@ -131,11 +131,7 @@ export function AdminReportsResultsTable({
           </thead>
           <tbody>
             {tasks.length === 0 ? (
-              <TableEmptyRow
-                colSpan={14}
-                message="검색 조건에 맞는 업무보고가 없습니다."
-                description="검색어, 기간 또는 사용자를 조정하십시오."
-              />
+              <TableEmptyRow colSpan={14} message="검색 조건에 맞는 업무보고가 없습니다." />
             ) : (
               tasks.map((task) => {
                 return (

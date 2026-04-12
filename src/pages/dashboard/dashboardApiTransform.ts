@@ -30,6 +30,10 @@ export function toDashboardSnapshot(data: unknown): DashboardSnapshot {
             ? null
             : String(readValue(record, 'project_name', 'projectName')),
         platform: record.platform == null ? null : String(record.platform),
+        costGroupName:
+          readValue(record, 'cost_group_name', 'costGroupName') == null
+            ? null
+            : String(readValue(record, 'cost_group_name', 'costGroupName')),
         serviceGroupName:
           readValue(record, 'service_group_name', 'serviceGroupName') == null
             ? null

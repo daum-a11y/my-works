@@ -94,7 +94,7 @@ export function AuthenticatedLayout() {
     setAvatarColor(getAvatarColors(session?.member?.accountId || ''));
   }, [session?.member?.accountId]);
 
-  const userInitials = (session?.member?.accountId || '').slice(0, 2);
+  const userInitials = (session?.member?.accountId || '').slice(0, 1);
 
   return (
     <div className="authenticated-layout">
