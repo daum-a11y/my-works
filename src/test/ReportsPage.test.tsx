@@ -37,6 +37,7 @@ function createSliceMock(canEditReports: boolean): unknown {
     },
     selectedDate: today,
     projectQuery: '',
+    appliedProjectQuery: '',
     projectOptions: [],
     filteredProjectOptions: [],
     draftPages: [],
@@ -120,9 +121,9 @@ describe('ReportsPage', () => {
     );
 
     expect(screen.getByRole('heading', { level: 1, name: '업무보고' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { level: 2, name: '업무보고' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 2, name: '업무 등록' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: '업무 저장' })).toBeInTheDocument();
-    expect(screen.getByLabelText('태스크명')).toBeInTheDocument();
+    expect(screen.getByLabelText('업무명')).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: '청구그룹' })).toBeInTheDocument();
     expect(screen.getAllByText('내부').length).toBeGreaterThan(0);
     expect(screen.getAllByText(/접근성 포털/).length).toBeGreaterThan(0);
@@ -176,7 +177,7 @@ describe('ReportsPage', () => {
 
     expect(screen.getByText(/오늘 총 입력/)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: '오버헤드 등록' })).toBeInTheDocument();
-    expect(screen.getByText('청구그룹')).toBeInTheDocument();
-    expect(screen.getByLabelText('태스크명')).toBeInTheDocument();
+    expect(screen.getAllByText('청구그룹').length).toBeGreaterThan(0);
+    expect(screen.getByLabelText('업무명')).toBeInTheDocument();
   });
 });

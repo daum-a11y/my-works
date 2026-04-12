@@ -632,7 +632,7 @@
     align-items: center;
     justify-content: space-between;
     gap: var(--space-3);
-    margin-bottom: var(--space-3);
+    margin-bottom: 0;
   }
 
   .projects-feature__section-title {
@@ -642,20 +642,6 @@
     font-weight: var(--font-weight-semibold);
     line-height: var(--text-section-title-line-height);
     letter-spacing: var(--text-section-title-tracking);
-  }
-
-  .projects-feature__page-form-panel {
-    margin-bottom: var(--space-3);
-  }
-
-  .projects-feature__page-form-grid {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: var(--space-3);
-  }
-
-  .projects-feature__page-form-panel .projects-feature__form-actions {
-    margin-top: 0;
   }
 
   .projects-feature__page-table-wrap {
@@ -688,6 +674,14 @@
     background: var(--surface-canvas-strong);
   }
 
+  .projects-feature__page-add-form {
+    display: contents;
+  }
+
+  .projects-feature__page-add-row td {
+    background: var(--surface-canvas-strong);
+  }
+
   .projects-feature__page-table th:last-child,
   .projects-feature__page-table td:last-child {
     text-align: left;
@@ -704,8 +698,7 @@
     width: auto;
   }
 
-  .projects-feature__page-table td :is(input, select, textarea),
-  .projects-feature__page-form-panel .projects-feature__field :is(input, select, textarea) {
+  .projects-feature__page-table td :is(input, select, textarea) {
     min-height: var(--control-height-sm);
     padding: var(--control-padding-y) var(--control-padding-x);
     border: 1px solid var(--control-border);
@@ -720,17 +713,11 @@
     min-width: 0;
   }
 
-  .projects-feature__page-table td :is(input, select, textarea)::placeholder,
-  .projects-feature__page-form-panel
-    .projects-feature__field
-    :is(input, select, textarea)::placeholder {
+  .projects-feature__page-table td :is(input, select, textarea)::placeholder {
     color: var(--control-placeholder);
   }
 
-  .projects-feature__page-table td :is(input, select, textarea):focus-visible,
-  .projects-feature__page-form-panel
-    .projects-feature__field
-    :is(input, select, textarea):focus-visible {
+  .projects-feature__page-table td :is(input, select, textarea):focus-visible {
     outline: 2px solid var(--focus-ring-color);
     outline-offset: 1px;
   }
@@ -743,10 +730,7 @@
   }
 
   .projects-feature__page-table-actions .projects-feature__button--secondary,
-  .projects-feature__page-table-actions .projects-feature__delete-button,
-  .projects-feature__page-form-panel
-    .projects-feature__form-actions
-    .projects-feature__button--primary {
+  .projects-feature__page-table-actions .projects-feature__delete-button {
     font-weight: var(--font-weight-regular);
   }
 
@@ -756,5 +740,21 @@
     gap: var(--space-3);
     color: var(--text-tertiary);
     font-size: var(--text-meta-size);
+  }
+
+  .projects-feature__page-section {
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  .projects-feature__page-section > .projects-feature__empty-state {
+    display: grid;
+    place-items: center;
+    min-height: 112px;
+    padding: var(--space-4);
+    border: 1px solid var(--border-default);
+    background: var(--surface-panel);
+    color: var(--text-secondary);
+    text-align: center;
   }
 }

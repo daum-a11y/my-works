@@ -202,7 +202,7 @@ export function ReportsEditorForm({
           <div className="reports-page__step">
             <div className="reports-page__form-grid">
               <label className="reports-page__field">
-                <span>태스크명</span>
+                <span>업무명</span>
                 <input
                   value={draft.content}
                   onChange={(event) => onDraftFieldChange('content', event.target.value)}

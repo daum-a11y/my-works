@@ -47,7 +47,7 @@ export function ReportsResultsTable({
               <th scope="col">서비스명</th>
               <th scope="col">프로젝트명</th>
               <th scope="col">페이지명</th>
-              <th scope="col">태스크명</th>
+              <th scope="col">업무명</th>
               <th scope="col">URL</th>
               <th scope="col">시간</th>
               <th scope="col">비고</th>

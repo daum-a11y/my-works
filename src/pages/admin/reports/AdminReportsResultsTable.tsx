@@ -115,7 +115,7 @@ export function AdminReportsResultsTable({
                   onChange={onSortChange}
                 />
               </th>
-              <th scope="col">태스크명</th>
+              <th scope="col">업무명</th>
               <th scope="col">링크</th>
               <th scope="col" aria-sort={getAriaSort('taskUsedtime')}>
                 <SortableTableHeaderButton

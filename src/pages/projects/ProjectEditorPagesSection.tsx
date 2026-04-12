@@ -35,6 +35,9 @@ export function ProjectEditorPagesSection({
   savePending,
   toPageDraft,
 }: ProjectEditorPagesSectionProps) {
+  const addFormId = 'project-page-add-form';
+  const showPageTable = pageAddOpen || selectedProjectPages.length > 0;
+
   return (
     <section className={'projects-feature__page-section'}>
       <div className={'projects-feature__section-header'}>
@@ -43,58 +46,17 @@ export function ProjectEditorPagesSection({
           type="button"
           className={'projects-feature__button projects-feature__button--secondary'}
           onClick={onToggleAdd}
+          aria-expanded={pageAddOpen}
         >
-          페이지 추가
+          {pageAddOpen ? '추가 취소' : '페이지 추가'}
         </button>
       </div>
 
       {pageAddOpen && newPageDraft ? (
-        <form className={'projects-feature__page-form-panel'} onSubmit={onAddSubmit}>
-          <div className={'projects-feature__page-form-grid'}>
-            <label className={'projects-feature__field'}>
-              <span className={'sr-only'}>페이지명</span>
-              <input
-                value={newPageDraft.title}
-                placeholder="페이지명"
-                onChange={(event) => onNewPageDraftChange({ title: event.target.value })}
-              />
-            </label>
-            <label className={'projects-feature__field'}>
-              <span className={'sr-only'}>페이지URL</span>
-              <input
-                value={newPageDraft.url}
-                placeholder="페이지URL"
-                onChange={(event) => onNewPageDraftChange({ url: event.target.value })}
-              />
-            </label>
-            <label className={'projects-feature__field'}>
-              <span className={'sr-only'}>담당자</span>
-              <select
-                value={newPageDraft.ownerMemberId}
-                onChange={(event) => onNewPageDraftChange({ ownerMemberId: event.target.value })}
-              >
-                <option value="">담당자 선택</option>
-                {members.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {[item.accountId, item.name].filter(Boolean).join(' ')}
-                  </option>
-                ))}
-              </select>
-            </label>
-          </div>
-          <div className="projects-feature__form-actions projects-feature__page-table-actions">
-            <button
-              type="submit"
-              className={'projects-feature__button projects-feature__button--primary'}
-              disabled={savePending}
-            >
-              추가
-            </button>
-          </div>
-        </form>
+        <form id={addFormId} className={'projects-feature__page-add-form'} onSubmit={onAddSubmit} />
       ) : null}
 
-      {selectedProjectPages.length ? (
+      {showPageTable ? (
         <div className={'projects-feature__page-table-wrap'}>
           <table className={'projects-feature__page-table'}>
             <caption className={'sr-only'}>페이지 리스트</caption>
@@ -107,6 +69,66 @@ export function ProjectEditorPagesSection({
               </tr>
             </thead>
             <tbody>
+              {pageAddOpen && newPageDraft ? (
+                <tr className={'projects-feature__page-add-row'}>
+                  <td>
+                    <label className={'sr-only'} htmlFor="new-page-title">
+                      페이지명
+                    </label>
+                    <input
+                      id="new-page-title"
+                      form={addFormId}
+                      value={newPageDraft.title}
+                      placeholder="페이지명"
+                      onChange={(event) => onNewPageDraftChange({ title: event.target.value })}
+                    />
+                  </td>
+                  <td>
+                    <label className={'sr-only'} htmlFor="new-page-url">
+                      페이지URL
+                    </label>
+                    <input
+                      id="new-page-url"
+                      form={addFormId}
+                      value={newPageDraft.url}
+                      placeholder="https://example.com/page"
+                      onChange={(event) => onNewPageDraftChange({ url: event.target.value })}
+                    />
+                  </td>
+                  <td>
+                    <label className={'sr-only'} htmlFor="new-page-owner">
+                      담당자
+                    </label>
+                    <select
+                      id="new-page-owner"
+                      form={addFormId}
+                      value={newPageDraft.ownerMemberId}
+                      onChange={(event) =>
+                        onNewPageDraftChange({ ownerMemberId: event.target.value })
+                      }
+                    >
+                      <option value="">담당자 선택</option>
+                      {members.map((item) => (
+                        <option key={item.id} value={item.id}>
+                          {[item.accountId, item.name].filter(Boolean).join(' ')}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+                  <td>
+                    <div className={'projects-feature__page-table-actions'}>
+                      <button
+                        type="submit"
+                        form={addFormId}
+                        className={'projects-feature__button projects-feature__button--secondary'}
+                        disabled={savePending}
+                      >
+                        추가
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ) : null}
               {selectedProjectPages.map((page) => {
                 const draft = pageDrafts[page.id] ?? toPageDraft(page);
 
@@ -184,7 +206,11 @@ export function ProjectEditorPagesSection({
           </table>
         </div>
       ) : (
-        <div className={'projects-feature__empty-state'}>등록된 페이지가 없습니다.</div>
+        <div className={'projects-feature__empty-state'}>
+          {pageAddOpen
+            ? '페이지명과 URL을 입력한 뒤 추가하세요.'
+            : '등록된 페이지가 없습니다. 페이지 추가를 눌러 등록하세요.'}
+        </div>
       )}
     </section>
   );
