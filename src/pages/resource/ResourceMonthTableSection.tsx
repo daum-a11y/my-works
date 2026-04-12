@@ -4,6 +4,7 @@ import type {
   ResourceMonthReportServiceSummaryRow,
   ResourceMonthReportTypeRow,
 } from '../../types/domain';
+import { EmptyState } from '../../components/shared/EmptyState';
 import type { ResourceMonthTableTab } from './ResourceMonthPage.types';
 import {
   ResourceMonthReportTable,
@@ -50,7 +51,7 @@ export function ResourceMonthTableSection({
     return (
       <section className="resource-page__table-tabs-section">
         <div className="dashboard-page__table-wrap">
-          <div className="projects-feature__empty-state">데이터가 없습니다.</div>
+          <EmptyState message="표시할 월간 리소스 데이터가 없습니다." />
         </div>
       </section>
     );

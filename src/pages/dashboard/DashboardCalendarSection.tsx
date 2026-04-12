@@ -1,4 +1,5 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { EmptyState } from '../../components/shared/EmptyState';
 import { MonthlyReportCalendar } from '../../components/shared/MonthlyReportCalendar';
 
 interface DashboardMonthState {
@@ -62,7 +63,7 @@ export function DashboardCalendarSection({
           getDateLink={(date) => ({ to: '/reports', state: { reportDate: date } })}
         />
       ) : (
-        <div className="dashboard-page__empty">유저정보가 없습니다.</div>
+        <EmptyState message="사용자 정보를 확인할 수 없습니다." />
       )}
     </section>
   );

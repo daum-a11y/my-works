@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { TableEmptyRow } from '../../../components/shared/TableEmptyRow';
 import type { AdminTaskTypeItem } from '../admin.types';
 
 interface AdminTaskTypeGroup {
@@ -64,11 +65,7 @@ export function AdminTaskTypesResultsTable({
               )),
             )
           ) : (
-            <tr>
-              <td className="admin-crud-page__empty-state" colSpan={6}>
-                표시할 업무타입 내역이 없습니다.
-              </td>
-            </tr>
+            <TableEmptyRow colSpan={6} message="표시할 업무타입 내역이 없습니다." />
           )}
         </tbody>
       </table>

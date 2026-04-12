@@ -105,8 +105,7 @@
     font-variant-numeric: tabular-nums;
   }
 
-  &__table-wrap,
-  &__empty {
+  &__table-wrap {
     background: var(--surface-panel);
     border: 1px solid var(--border-default);
     box-shadow: var(--elevation-1);
@@ -148,17 +147,5 @@
 
   &__table tbody tr:last-child td {
     border-bottom: 0;
-  }
-
-  &__empty {
-    padding: 16px;
-    color: var(--text-tertiary);
-    font-size: var(--text-body-size);
-    line-height: var(--text-body-line-height);
-    text-align: center;
-  }
-
-  &__table .dashboard-page__empty {
-    padding: 36px !important;
   }
 }

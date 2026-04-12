@@ -1,4 +1,5 @@
 import type { FormEvent } from 'react';
+import { EmptyState } from '../../components/shared/EmptyState';
 import type { ProjectSubtask } from '../../types/domain';
 import type { SubtaskFormState } from './ProjectEditorPage.types';
 
@@ -210,11 +211,14 @@ export function ProjectEditorSubtasksSection({
           </table>
         </div>
       ) : (
-        <div className={'projects-feature__empty-state'}>
-          {subtaskAddOpen
-            ? '과업명과 URL을 입력한 뒤 추가하세요.'
-            : '등록된 과업이 없습니다. 과업 추가를 눌러 등록하세요.'}
-        </div>
+        <EmptyState
+          message={subtaskAddOpen ? '추가할 과업 정보를 입력하십시오.' : '등록된 과업이 없습니다.'}
+          description={
+            subtaskAddOpen
+              ? '과업명과 URL 입력 후 추가할 수 있습니다.'
+              : '과업 추가로 새 과업을 등록하십시오.'
+          }
+        />
       )}
     </section>
   );

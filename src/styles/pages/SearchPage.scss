@@ -315,13 +315,6 @@
     font-variant-numeric: tabular-nums;
   }
 
-  .search-page__empty-state {
-    padding: var(--space-5) var(--space-4);
-    text-align: center;
-    color: var(--text-tertiary);
-    font-size: var(--text-body-size);
-  }
-
   @media (max-width: 1080px) {
     .search-page__filter-bar,
     .search-page__result-bar,

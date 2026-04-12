@@ -1,5 +1,6 @@
 import clsx from 'clsx';
 import { MonthlyReportCalendar } from '../../components/shared/MonthlyReportCalendar';
+import { TableEmptyRow } from '../../components/shared/TableEmptyRow';
 import type { ResourceSummaryRow } from './ResourceSummaryPage.types';
 import {
   formatMemberLabel,
@@ -76,11 +77,11 @@ export function ResourceSummaryResults({
                   );
                 })
               ) : (
-                <tr>
-                  <td colSpan={3} className="projects-feature__empty-state">
-                    검색 결과가 없습니다.
-                  </td>
-                </tr>
+                <TableEmptyRow
+                  colSpan={3}
+                  message="조건에 맞는 사용자가 없습니다."
+                  description="검색 조건 또는 기간을 조정하십시오."
+                />
               )}
             </tbody>
           </table>

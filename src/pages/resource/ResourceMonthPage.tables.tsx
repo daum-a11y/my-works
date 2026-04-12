@@ -106,11 +106,7 @@ export function ResourceMonthTypeTable({
             </Fragment>
           ))}
           {!typeRows.length ? (
-            <TableEmptyRow
-              colSpan={5}
-              className="projects-feature__empty-state"
-              message="데이터 없음"
-            />
+            <TableEmptyRow colSpan={5} message="표시할 업무타입 집계가 없습니다." />
           ) : null}
         </tbody>
       </table>

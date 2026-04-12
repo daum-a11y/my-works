@@ -28,17 +28,9 @@ export function AdminMembersResultsTable({ loading, members }: AdminMembersResul
         </thead>
         <tbody>
           {loading ? (
-            <TableEmptyRow
-              colSpan={10}
-              className={'admin-members-page__empty-cell'}
-              message="불러오는 중..."
-            />
+            <TableEmptyRow colSpan={10} message="사용자 내역을 불러오는 중입니다." />
           ) : members.length === 0 ? (
-            <TableEmptyRow
-              colSpan={10}
-              className={'admin-members-page__empty-cell'}
-              message="조회된 사용자가 없습니다."
-            />
+            <TableEmptyRow colSpan={10} message="조회된 사용자가 없습니다." />
           ) : (
             members.map((member) => <AdminMemberRow key={member.id} member={member} />)
           )}

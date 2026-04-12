@@ -8,3 +8,4 @@ export * from './PageSection';
 export * from './PageSizeField';
 export * from './SortableTableHeaderButton';
 export * from './TableEmptyRow';
+export * from './EmptyState';

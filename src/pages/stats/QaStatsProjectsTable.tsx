@@ -46,11 +46,7 @@ export function QaStatsProjectsTable({ projects }: QaStatsProjectsTableProps) {
             </tr>
           ))}
           {!projects.length ? (
-            <TableEmptyRow
-              colSpan={6}
-              className={'stats-page__empty'}
-              message="조건에 맞는 QA 내역이 없습니다."
-            />
+            <TableEmptyRow colSpan={6} message="조건에 맞는 QA 내역이 없습니다." />
           ) : null}
         </tbody>
       </table>

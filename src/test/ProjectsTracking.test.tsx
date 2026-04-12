@@ -346,9 +346,8 @@ describe('Projects routes', () => {
     await user.click(screen.getByRole('button', { name: '검색' }));
 
     await waitFor(() => {
-      expect(
-        screen.getByText('검색 결과가 없습니다. 새 프로젝트를 등록하거나 기간을 조정하십시오.'),
-      ).toBeInTheDocument();
+      expect(screen.getByText('검색 조건에 맞는 프로젝트가 없습니다.')).toBeInTheDocument();
+      expect(screen.getByText('검색어 또는 기간을 조정하십시오.')).toBeInTheDocument();
     });
   });
 
@@ -381,9 +380,8 @@ describe('Projects routes', () => {
     await user.click(screen.getByRole('button', { name: '검색' }));
 
     await waitFor(() => {
-      expect(
-        screen.getByText('검색 결과가 없습니다. 새 프로젝트를 등록하거나 기간을 조정하십시오.'),
-      ).toBeInTheDocument();
+      expect(screen.getByText('검색 조건에 맞는 프로젝트가 없습니다.')).toBeInTheDocument();
+      expect(screen.getByText('검색어 또는 기간을 조정하십시오.')).toBeInTheDocument();
     });
   });
 

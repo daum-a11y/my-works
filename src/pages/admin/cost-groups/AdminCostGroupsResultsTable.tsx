@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { TableEmptyRow } from '../../../components/shared/TableEmptyRow';
 import type { AdminCostGroupItem } from '../admin.types';
 
 interface AdminCostGroupsResultsTableProps {
@@ -36,11 +37,7 @@ export function AdminCostGroupsResultsTable({ costGroups }: AdminCostGroupsResul
               </tr>
             ))
           ) : (
-            <tr>
-              <td colSpan={3} className="admin-crud-page__empty-state">
-                표시할 청구그룹 내역이 없습니다.
-              </td>
-            </tr>
+            <TableEmptyRow colSpan={3} message="표시할 청구그룹 내역이 없습니다." />
           )}
         </tbody>
       </table>

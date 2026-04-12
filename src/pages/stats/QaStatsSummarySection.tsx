@@ -8,7 +8,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { TableEmptyRow } from '../../components/shared';
+import { EmptyState, TableEmptyRow } from '../../components/shared';
 import type { MonthlyQaRow } from './QaStatsPage.types';
 import type { StatsSummaryView } from './QaStatsPage.types';
 
@@ -80,7 +80,7 @@ export function QaStatsSummarySection({
               </ResponsiveContainer>
             </div>
           ) : (
-            <p className={'stats-page__empty'}>QA 데이터가 없습니다.</p>
+            <EmptyState message="표시할 QA 데이터가 없습니다." />
           )}
         </div>
       ) : (
@@ -103,11 +103,7 @@ export function QaStatsSummarySection({
                 </tr>
               ))}
               {!monthlyRows.length ? (
-                <TableEmptyRow
-                  colSpan={3}
-                  className={'stats-page__empty'}
-                  message="월별 데이터가 없습니다."
-                />
+                <TableEmptyRow colSpan={3} message="월별 데이터가 없습니다." />
               ) : null}
             </tbody>
           </table>

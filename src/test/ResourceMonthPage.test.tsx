@@ -226,7 +226,7 @@ describe('ResourceMonthPage', () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByText('데이터가 없습니다.')).toBeInTheDocument();
+      expect(screen.getByText('표시할 월간 리소스 데이터가 없습니다.')).toBeInTheDocument();
     });
   });
 });

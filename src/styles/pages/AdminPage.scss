@@ -308,16 +308,6 @@
     line-height: var(--text-body-line-height);
   }
 
-  .admin-page__empty-state {
-    padding: var(--space-6) var(--space-4);
-    text-align: center;
-    color: var(--text-tertiary);
-    font-size: var(--text-body-size);
-    font-weight: var(--text-body-weight);
-    line-height: var(--text-body-line-height);
-    letter-spacing: var(--text-body-tracking);
-  }
-
   @media (max-width: 1100px) {
     .admin-page__layout {
       grid-template-columns: minmax(0, 1fr);
@@ -809,16 +799,6 @@
     font-weight: var(--text-table-weight);
     line-height: var(--text-table-line-height);
     letter-spacing: var(--text-table-tracking);
-  }
-
-  .admin-members-page__empty-cell {
-    padding: 32px 16px;
-    text-align: center !important;
-    color: var(--text-tertiary);
-    font-size: var(--text-body-size);
-    font-weight: var(--text-body-weight);
-    line-height: var(--text-body-line-height);
-    letter-spacing: var(--text-body-tracking);
   }
 
   .admin-members-page__editing-row {
@@ -1332,16 +1312,6 @@
   .projects-feature__page-size-field select:focus-visible {
     outline: 2px solid var(--focus-ring-color);
     outline-offset: 1px;
-  }
-
-  .projects-feature__empty-state {
-    padding: var(--space-6) var(--space-4);
-    color: var(--text-tertiary);
-    font-size: var(--text-body-size);
-    font-weight: var(--text-body-weight);
-    line-height: var(--text-body-line-height);
-    letter-spacing: var(--text-body-tracking);
-    text-align: center;
   }
 
   .projects-feature__action-button {
@@ -2121,16 +2091,6 @@
     line-height: var(--text-body-line-height);
   }
 
-  .reports-page__empty-state {
-    padding: var(--space-6) var(--space-4);
-    text-align: center;
-    color: var(--text-tertiary);
-    font-size: var(--text-body-size);
-    font-weight: var(--text-body-weight);
-    line-height: var(--text-body-line-height);
-    letter-spacing: var(--text-body-tracking);
-  }
-
   @media (max-width: 960px) {
     .reports-page__hero {
       flex-direction: column;
@@ -2268,16 +2228,6 @@
   .admin-reports-page__table thead th[aria-sort='descending'] {
     background: color-mix(in oklab, var(--accent-soft) 22%, var(--surface-canvas-strong));
     color: var(--text-primary);
-  }
-
-  .admin-reports-page__empty-state {
-    padding: var(--space-6) var(--space-4);
-    color: var(--text-tertiary);
-    text-align: center;
-    font-size: var(--text-body-size);
-    font-weight: var(--text-body-weight);
-    line-height: var(--text-body-line-height);
-    letter-spacing: var(--text-body-tracking);
   }
 
   .admin-reports-page__muted {
@@ -2621,9 +2571,6 @@
   .admin-reports-page__member-empty-state {
     margin: 0;
     grid-column: 1 / -1;
-    color: var(--text-tertiary);
-    font-size: var(--text-meta-size);
-    line-height: var(--text-meta-line-height);
   }
 
   .admin-reports-page__status-message {
@@ -3243,16 +3190,6 @@
 
   .admin-crud-page__inactive-cell {
     background: color-mix(in oklab, var(--surface-panel) 62%, var(--raw-slate-200));
-  }
-
-  .admin-crud-page__empty-state {
-    padding: 32px 16px;
-    text-align: center !important;
-    color: var(--text-tertiary);
-    font-size: var(--text-body-size);
-    font-weight: var(--text-body-weight);
-    line-height: var(--text-body-line-height);
-    letter-spacing: var(--text-body-tracking);
   }
 
   .admin-crud-page__actions {

@@ -479,14 +479,6 @@
     line-height: var(--text-form-line-height);
   }
 
-  .stats-page__empty {
-    padding: 16px;
-    color: var(--text-tertiary);
-    font-size: var(--text-body-size);
-    font-weight: var(--text-body-weight);
-    line-height: var(--text-body-line-height);
-  }
-
   @media (max-width: 720px) {
     .stats-page__scoreboard {
       grid-template-columns: 1fr;

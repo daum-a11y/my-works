@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { TableEmptyRow } from '../../../components/shared/TableEmptyRow';
 import type { AdminPlatformItem } from '../admin.types';
 
 interface AdminPlatformsResultsTableProps {
@@ -36,11 +37,7 @@ export function AdminPlatformsResultsTable({ platforms }: AdminPlatformsResultsT
               </tr>
             ))
           ) : (
-            <tr>
-              <td colSpan={3} className="admin-crud-page__empty-state">
-                표시할 플랫폼 내역이 없습니다.
-              </td>
-            </tr>
+            <TableEmptyRow colSpan={3} message="표시할 플랫폼 내역이 없습니다." />
           )}
         </tbody>
       </table>

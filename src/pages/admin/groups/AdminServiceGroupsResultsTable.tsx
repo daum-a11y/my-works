@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { TableEmptyRow } from '../../../components/shared/TableEmptyRow';
 import type { AdminServiceGroupItem } from '../admin.types';
 
 interface AdminServiceGroupGroup {
@@ -75,11 +76,7 @@ export function AdminServiceGroupsResultsTable({
               ),
             )
           ) : (
-            <tr>
-              <td colSpan={5} className="admin-crud-page__empty-state">
-                표시할 서비스 그룹 내역이 없습니다.
-              </td>
-            </tr>
+            <TableEmptyRow colSpan={5} message="표시할 서비스 그룹 내역이 없습니다." />
           )}
         </tbody>
       </table>

@@ -4,6 +4,7 @@ html {
 }
 
 :root {
+  --empty-state-min-height: 216px;
   font-family: var(--font-body);
   line-height: var(--line-height-body);
   font-weight: var(--font-weight-regular);
@@ -138,10 +139,54 @@ select {
   letter-spacing: var(--text-table-tracking);
 }
 
-.table-empty-row {
+td.table-empty-row.table-empty-row {
+  padding: var(--space-6) var(--space-4);
+  height: var(--empty-state-min-height);
+  text-align: center;
+  vertical-align: middle;
+  color: var(--text-secondary);
   font-size: var(--text-body-size);
   font-weight: var(--text-body-weight);
   line-height: var(--text-body-line-height);
+  letter-spacing: var(--text-body-tracking);
+  background: color-mix(in oklab, var(--surface-panel) 72%, var(--surface-canvas));
+}
+
+.empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--empty-state-min-height);
+  padding: var(--space-6) var(--space-4);
+  color: var(--text-secondary);
+  text-align: center;
+  background: color-mix(in oklab, var(--surface-panel) 72%, var(--surface-canvas));
+}
+
+.table-empty-row__content,
+.empty-state__content {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  max-width: 520px;
+}
+
+td.table-empty-row.table-empty-row .table-empty-row__message,
+.empty-state.empty-state .empty-state__message {
+  color: var(--text-secondary);
+  font-size: var(--text-body-size);
+  font-weight: var(--text-body-weight);
+  line-height: var(--text-body-line-height);
+}
+
+td.table-empty-row.table-empty-row .table-empty-row__description,
+.empty-state.empty-state .empty-state__description {
+  color: var(--text-tertiary);
+  font-size: var(--text-meta-size);
+  font-weight: var(--text-meta-weight);
+  line-height: var(--text-meta-line-height);
+  letter-spacing: var(--text-meta-tracking);
 }
 
 .platform-badge {

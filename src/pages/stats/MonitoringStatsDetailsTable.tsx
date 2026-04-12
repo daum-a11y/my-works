@@ -204,11 +204,7 @@ export function MonitoringStatsDetailsTable({
             </tr>
           ))}
           {!rows.length ? (
-            <TableEmptyRow
-              colSpan={11}
-              className={'stats-page__empty'}
-              message="조건에 맞는 모니터링 내역이 없습니다."
-            />
+            <TableEmptyRow colSpan={11} message="조건에 맞는 모니터링 내역이 없습니다." />
           ) : null}
         </tbody>
       </table>

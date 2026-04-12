@@ -1,4 +1,5 @@
 import type { FormEvent } from 'react';
+import { EmptyState } from '../../../components/shared/EmptyState';
 import { PageFilterField } from '../../../components/shared/PageFilterField';
 import type {
   AdminCostGroupItem,
@@ -202,9 +203,10 @@ export function AdminReportsFilterForm({
                 </div>
                 <div className={'admin-reports-page__member-checkboxes'}>
                   {visibleMembers.length === 0 ? (
-                    <p className={'admin-reports-page__member-empty-state'}>
-                      검색 결과가 없습니다.
-                    </p>
+                    <EmptyState
+                      className={'admin-reports-page__member-empty-state'}
+                      message="검색 조건에 맞는 사용자가 없습니다."
+                    />
                   ) : (
                     visibleMembers.map((member) => {
                       const checked = memberFilterIds.includes(member.id);

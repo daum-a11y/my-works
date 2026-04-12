@@ -1,3 +1,5 @@
+import { TableEmptyRow } from '../../components/shared/TableEmptyRow';
+
 interface DashboardProjectRow {
   projectId: string;
   type1: string | null;
@@ -43,11 +45,7 @@ export function DashboardProjectsTable({ projects }: DashboardProjectsTableProps
               </tr>
             ))}
             {!projects.length ? (
-              <tr>
-                <td colSpan={6} className="dashboard-page__empty">
-                  진행중인 프로젝트가 없습니다.
-                </td>
-              </tr>
+              <TableEmptyRow colSpan={6} message="진행중인 프로젝트가 없습니다." />
             ) : null}
           </tbody>
         </table>

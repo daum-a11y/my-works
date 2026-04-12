@@ -76,8 +76,8 @@ export function SearchResultsTable({ reports }: SearchResultsTableProps) {
             {!reports.length ? (
               <TableEmptyRow
                 colSpan={13}
-                className="search-page__empty-state"
-                message="검색 결과가 없습니다."
+                message="검색 조건에 맞는 업무보고가 없습니다."
+                description="검색어 또는 기간을 조정하십시오."
               />
             ) : null}
           </tbody>

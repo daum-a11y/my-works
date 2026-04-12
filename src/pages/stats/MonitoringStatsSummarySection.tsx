@@ -9,7 +9,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { TableEmptyRow } from '../../components/shared';
+import { EmptyState, TableEmptyRow } from '../../components/shared';
 import type { StatsSummaryView } from './MonitoringStatsPage.types';
 import type { MonthlyMonitoringRow } from './MonitoringStatsPage.utils';
 
@@ -104,7 +104,7 @@ export function MonitoringStatsSummarySection({
               </ResponsiveContainer>
             </div>
           ) : (
-            <p className={'stats-page__empty'}>모니터링 데이터가 없습니다.</p>
+            <EmptyState message="표시할 모니터링 데이터가 없습니다." />
           )}
         </div>
       ) : (
@@ -131,11 +131,7 @@ export function MonitoringStatsSummarySection({
                 </tr>
               ))}
               {!monthlyRows.length ? (
-                <TableEmptyRow
-                  colSpan={5}
-                  className={'stats-page__empty'}
-                  message="월별 데이터가 없습니다."
-                />
+                <TableEmptyRow colSpan={5} message="월별 데이터가 없습니다." />
               ) : null}
             </tbody>
           </table>

@@ -410,16 +410,6 @@
     outline-offset: 1px;
   }
 
-  .projects-feature__empty-state {
-    padding: var(--space-6) var(--space-4);
-    color: var(--text-tertiary);
-    font-size: var(--text-body-size);
-    font-weight: var(--text-body-weight);
-    line-height: var(--text-body-line-height);
-    letter-spacing: var(--text-body-tracking);
-    text-align: center;
-  }
-
   .projects-feature__action-button {
     display: inline-flex;
     align-items: center;
@@ -745,16 +735,5 @@
   .projects-feature__subtask-section {
     display: grid;
     gap: var(--space-3);
-  }
-
-  .projects-feature__subtask-section > .projects-feature__empty-state {
-    display: grid;
-    place-items: center;
-    min-height: 112px;
-    padding: var(--space-4);
-    border: 1px solid var(--border-default);
-    background: var(--surface-panel);
-    color: var(--text-secondary);
-    text-align: center;
   }
 }

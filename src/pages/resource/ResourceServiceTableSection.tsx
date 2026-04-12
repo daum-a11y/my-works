@@ -32,11 +32,7 @@ export function ResourceServiceTableSection({
             </tr>
           </thead>
           <tbody>
-            <TableEmptyRow
-              colSpan={5}
-              className="projects-feature__empty-state"
-              message="표시할 서비스 그룹 집계가 없습니다."
-            />
+            <TableEmptyRow colSpan={5} message="표시할 서비스 그룹 집계가 없습니다." />
           </tbody>
         </table>
       </div>

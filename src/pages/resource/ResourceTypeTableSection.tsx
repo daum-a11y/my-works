@@ -31,11 +31,7 @@ export function ResourceTypeTableSection({
             </tr>
           </thead>
           <tbody>
-            <TableEmptyRow
-              colSpan={4}
-              className="projects-feature__empty-state"
-              message="표시할 타입별 집계가 없습니다."
-            />
+            <TableEmptyRow colSpan={4} message="표시할 타입별 집계가 없습니다." />
           </tbody>
         </table>
       </div>

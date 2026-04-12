@@ -1,3 +1,4 @@
+import { TableEmptyRow } from '../../components/shared/TableEmptyRow';
 import { formatReportDate, formatReportTaskUsedtime, type ReportViewModel } from './reportUtils';
 
 interface ReportsResultsTableProps {
@@ -122,13 +123,7 @@ export function ReportsResultsTable({
                 </tr>
               );
             })}
-            {!rows.length && (
-              <tr>
-                <td colSpan={14} className="reports-page__empty-state">
-                  {emptyMessage}
-                </td>
-              </tr>
-            )}
+            {!rows.length && <TableEmptyRow colSpan={14} message={emptyMessage} />}
           </tbody>
         </table>
       </div>
