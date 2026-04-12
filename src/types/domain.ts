@@ -92,6 +92,7 @@ export interface ProjectListRow {
   name: string;
   platformId: string | null;
   platform: string | null;
+  costGroupName: string | null;
   serviceGroupId: string | null;
   serviceGroupName: string | null;
   reportUrl: string | null;
@@ -392,6 +393,7 @@ export interface MonitoringStatsRow {
   qaInProgress: boolean;
   note: string | null;
   updatedAt: string;
+  costGroupName: string | null;
   serviceGroupName: string | null;
   projectName: string | null;
   platform: string | null;
@@ -403,6 +405,7 @@ export interface QaStatsProjectRow {
   id: string;
   type1: string | null;
   name: string | null;
+  costGroupName: string | null;
   serviceGroupName: string | null;
   reportUrl: string | null;
   reporterDisplay: string | null;

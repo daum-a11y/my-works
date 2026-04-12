@@ -13,6 +13,7 @@ export function QaStatsProjectsTable({ projects }: QaStatsProjectsTableProps) {
         <thead>
           <tr>
             <th scope="col">월</th>
+            <th scope="col">청구그룹</th>
             <th scope="col">서비스 그룹</th>
             <th scope="col">프로젝트명</th>
             <th scope="col">리포터</th>
@@ -23,6 +24,7 @@ export function QaStatsProjectsTable({ projects }: QaStatsProjectsTableProps) {
           {projects.map((project) => (
             <tr key={project.id}>
               <td>{formatMonthLabel(monthKeyFromDate(project.endDate))}</td>
+              <td>{project.costGroupName || '-'}</td>
               <td>{project.serviceGroupName || '-'}</td>
               <td>{project.name || '-'}</td>
               <td>{project.reporterDisplay || '-'}</td>
@@ -44,7 +46,7 @@ export function QaStatsProjectsTable({ projects }: QaStatsProjectsTableProps) {
           ))}
           {!projects.length ? (
             <tr>
-              <td colSpan={5} className={'stats-page__empty'}>
+              <td colSpan={6} className={'stats-page__empty'}>
                 조건에 맞는 QA 내역이 없습니다.
               </td>
             </tr>

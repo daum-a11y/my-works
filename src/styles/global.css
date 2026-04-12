@@ -131,6 +131,13 @@ select {
   white-space: nowrap;
 }
 
+.status-badge {
+  font-size: var(--text-table-size);
+  font-weight: var(--text-table-weight);
+  line-height: var(--text-table-line-height);
+  letter-spacing: var(--text-table-tracking);
+}
+
 .platform-badge {
   background: var(--state-info-bg);
   border-color: var(--state-info-border);

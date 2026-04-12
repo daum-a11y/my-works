@@ -266,7 +266,7 @@
     background: color-mix(in oklab, var(--surface-canvas-strong) 78%, var(--surface-panel));
     border-radius: 4px;
     color: var(--text-tertiary);
-    font-size: 11px;
+    font-size: var(--text-badge-size);
     font-weight: 700;
     line-height: 1;
     text-transform: lowercase;
@@ -367,7 +367,7 @@
     background: color-mix(in oklab, var(--surface-canvas-strong) 78%, var(--surface-panel));
     border-radius: 4px;
     color: var(--text-tertiary);
-    font-size: 12px;
+    font-size: var(--text-badge-size);
     font-weight: 700;
     line-height: 1;
     text-transform: lowercase;

@@ -31,11 +31,10 @@
     margin: 0;
     color: var(--text-primary);
     font-family: var(--font-body);
-    font-size: var(--text-form-size);
+    font-size: var(--text-section-title-size);
     font-weight: var(--text-section-title-weight);
-    letter-spacing: 1px;
+    letter-spacing: var(--text-section-title-tracking);
     line-height: var(--text-section-title-line-height);
-    text-transform: uppercase;
   }
 
   .page-section__heading p {

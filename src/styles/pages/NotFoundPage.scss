@@ -81,10 +81,10 @@
   &__title {
     margin: 0;
     color: var(--text-primary);
-    font-size: clamp(24px, 2vw, 32px);
-    font-weight: var(--font-weight-heavy);
-    line-height: 1.08;
-    letter-spacing: -1px;
+    font-size: var(--text-page-title-size);
+    font-weight: var(--text-page-title-weight);
+    line-height: var(--text-page-title-line-height);
+    letter-spacing: var(--text-page-title-tracking);
   }
 
   &__description {

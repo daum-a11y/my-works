@@ -261,6 +261,15 @@ create table if not exists public.projects (
   updated_at timestamptz not null default timezone('utc', now())
 );
 
+do $$
+begin
+  if to_regclass('public.project_subtasks') is null
+    and to_regclass('public.project_pages') is not null then
+    alter table public.project_pages rename to project_subtasks;
+  end if;
+end
+$$;
+
 create table if not exists public.project_subtasks (
   id uuid primary key default gen_random_uuid(),
   project_id uuid not null references public.projects(id) on delete cascade,
@@ -280,6 +289,73 @@ create table if not exists public.project_subtasks (
     check (track_status in ('미수정', '전체 수정', '일부 수정'))
 );
 
+alter table public.project_subtasks
+  add column if not exists owner_member_id uuid references public.members(id);
+
+alter table public.project_subtasks
+  add column if not exists created_by_member_id uuid references public.members(id);
+
+alter table public.project_subtasks
+  add column if not exists updated_by_member_id uuid references public.members(id);
+
+alter table public.project_subtasks
+  add column if not exists url text not null default '';
+
+alter table public.project_subtasks
+  add column if not exists monitoring_month text;
+
+alter table public.project_subtasks
+  add column if not exists track_status text not null default '미수정';
+
+alter table public.project_subtasks
+  add column if not exists monitoring_in_progress boolean not null default false;
+
+alter table public.project_subtasks
+  add column if not exists qa_in_progress boolean not null default false;
+
+alter table public.project_subtasks
+  add column if not exists note text not null default '';
+
+alter table public.project_subtasks
+  add column if not exists updated_at timestamptz not null default timezone('utc', now());
+
+alter table public.project_subtasks
+  add column if not exists created_at timestamptz not null default timezone('utc', now());
+
+do $$
+begin
+  if exists (
+    select 1
+    from pg_constraint
+    where conrelid = 'public.project_subtasks'::regclass
+      and conname = 'project_pages_pkey'
+  ) and not exists (
+    select 1
+    from pg_constraint
+    where conrelid = 'public.project_subtasks'::regclass
+      and conname = 'project_subtasks_pkey'
+  ) then
+    alter table public.project_subtasks
+      rename constraint project_pages_pkey to project_subtasks_pkey;
+  end if;
+
+  if exists (
+    select 1
+    from pg_constraint
+    where conrelid = 'public.project_subtasks'::regclass
+      and conname = 'project_pages_track_status_check'
+  ) and not exists (
+    select 1
+    from pg_constraint
+    where conrelid = 'public.project_subtasks'::regclass
+      and conname = 'project_subtasks_track_status_check'
+  ) then
+    alter table public.project_subtasks
+      rename constraint project_pages_track_status_check to project_subtasks_track_status_check;
+  end if;
+end
+$$;
+
 create table if not exists public.tasks (
   id uuid primary key default gen_random_uuid(),
   member_id uuid not null references public.members(id) on delete cascade,
@@ -297,6 +373,59 @@ create table if not exists public.tasks (
   created_at timestamptz not null default timezone('utc', now()),
   updated_at timestamptz not null default timezone('utc', now())
 );
+
+do $$
+begin
+  if exists (
+    select 1
+    from information_schema.columns
+    where table_schema = 'public'
+      and table_name = 'tasks'
+      and column_name = 'project_page_id'
+  ) and not exists (
+    select 1
+    from information_schema.columns
+    where table_schema = 'public'
+      and table_name = 'tasks'
+      and column_name = 'project_subtask_id'
+  ) then
+    alter table public.tasks rename column project_page_id to project_subtask_id;
+  end if;
+end
+$$;
+
+alter table public.tasks
+  add column if not exists project_subtask_id uuid;
+
+do $$
+begin
+  if exists (
+    select 1
+    from pg_constraint
+    where conrelid = 'public.tasks'::regclass
+      and conname = 'tasks_project_page_id_fkey'
+  ) and not exists (
+    select 1
+    from pg_constraint
+    where conrelid = 'public.tasks'::regclass
+      and conname = 'tasks_project_subtask_id_fkey'
+  ) then
+    alter table public.tasks
+      rename constraint tasks_project_page_id_fkey to tasks_project_subtask_id_fkey;
+  end if;
+
+  if not exists (
+    select 1
+    from pg_constraint
+    where conrelid = 'public.tasks'::regclass
+      and conname = 'tasks_project_subtask_id_fkey'
+  ) then
+    alter table public.tasks
+      add constraint tasks_project_subtask_id_fkey
+      foreign key (project_subtask_id) references public.project_subtasks(id);
+  end if;
+end
+$$;
 
 alter table public.tasks
   add column if not exists cost_group_id uuid;
@@ -417,6 +546,21 @@ select
 from public.project_subtasks;
 
 create index if not exists idx_tasks_member_date on public.tasks (member_id, task_date desc);
+
+do $$
+begin
+  if to_regclass('public.idx_project_subtasks_owner') is null
+    and to_regclass('public.idx_project_pages_owner') is not null then
+    alter index public.idx_project_pages_owner rename to idx_project_subtasks_owner;
+  end if;
+
+  if to_regclass('public.idx_project_subtasks_lookup') is null
+    and to_regclass('public.idx_project_pages_lookup') is not null then
+    alter index public.idx_project_pages_lookup rename to idx_project_subtasks_lookup;
+  end if;
+end
+$$;
+
 create index if not exists idx_project_subtasks_owner on public.project_subtasks (owner_member_id);
 create index if not exists idx_projects_dates on public.projects (start_date, end_date);
 create index if not exists idx_projects_name on public.projects (name);
@@ -452,6 +596,7 @@ create trigger projects_set_updated_at
 before update on public.projects
 for each row execute function public.set_updated_at();
 
+drop trigger if exists project_pages_set_updated_at on public.project_subtasks;
 drop trigger if exists project_subtasks_set_updated_at on public.project_subtasks;
 create trigger project_subtasks_set_updated_at
 before update on public.project_subtasks
@@ -492,6 +637,7 @@ create trigger projects_set_audit_member_ids
 before insert or update on public.projects
 for each row execute function public.set_audit_member_ids();
 
+drop trigger if exists project_pages_set_audit_member_ids on public.project_subtasks;
 drop trigger if exists project_subtasks_set_audit_member_ids on public.project_subtasks;
 create trigger project_subtasks_set_audit_member_ids
 before insert or update on public.project_subtasks
@@ -1667,6 +1813,8 @@ as $$
   cross join qa_count qc
 $$;
 
+drop function if exists public.get_monitoring_stats_rows();
+
 create or replace function public.get_monitoring_stats_rows()
 returns table (
   subtask_id uuid,
@@ -1680,6 +1828,7 @@ returns table (
   qa_in_progress boolean,
   note text,
   updated_at timestamptz,
+  cost_group_name text,
   service_group_name text,
   project_name text,
   platform text,
@@ -1703,6 +1852,7 @@ as $$
     pp.qa_in_progress,
     nullif(pp.note, '') as note,
     pp.updated_at,
+    nullif(cg.name, '') as cost_group_name,
     nullif(public.resolve_service_group_name(sg.service_group_name, sg.name), '') as service_group_name,
     p.name as project_name,
     nullif(pl.name, '') as platform,
@@ -1712,15 +1862,19 @@ as $$
   join public.projects p on p.id = pp.project_id
   left join public.platforms pl on pl.id = p.platform_id
   left join public.service_groups sg on sg.id = p.service_group_id
+  left join public.cost_groups cg on cg.id = sg.cost_group_id
   left join public.members owner on owner.id = pp.owner_member_id
   order by pp.updated_at desc, pp.id desc
 $$;
+
+drop function if exists public.get_qa_stats_projects();
 
 create or replace function public.get_qa_stats_projects()
 returns table (
   id uuid,
   type1 text,
   name text,
+  cost_group_name text,
   service_group_name text,
   report_url text,
   reporter_display text,
@@ -1737,6 +1891,7 @@ as $$
     p.id,
     ptt.type1 as type1,
     p.name,
+    nullif(cg.name, '') as cost_group_name,
     nullif(public.resolve_service_group_name(sg.service_group_name, sg.name), '') as service_group_name,
     nullif(p.report_url, '') as report_url,
     nullif(concat_ws(' ', nullif(reporter.account_id, ''), nullif(reporter.name, '')), '') as reporter_display,
@@ -1746,6 +1901,7 @@ as $$
   from public.projects p
   left join public.task_types ptt on ptt.id = p.task_type_id
   left join public.service_groups sg on sg.id = p.service_group_id
+  left join public.cost_groups cg on cg.id = sg.cost_group_id
   left join public.members reporter on reporter.id = p.reporter_member_id
   where lower(trim(ptt.type1)) in ('qa', '접근성테스트')
   order by p.end_date desc, p.name asc
@@ -1988,6 +2144,9 @@ begin
 end;
 $$;
 
+drop function if exists public.upsert_project(uuid, text, text, uuid, uuid, text, uuid, uuid, date, date, boolean);
+drop function if exists public.upsert_project(uuid, uuid, text, uuid, uuid, text, uuid, uuid, date, date, boolean);
+
 create or replace function public.upsert_project(
   p_project_id uuid default null,
   p_task_type_id uuid default null,
@@ -2106,6 +2265,8 @@ begin
 end;
 $$;
 
+drop function if exists public.search_projects_page(date, date, text);
+
 create or replace function public.search_projects_page(
   p_start_date date default null,
   p_end_date date default null,
@@ -2119,6 +2280,7 @@ returns table (
   name text,
   platform_id uuid,
   platform text,
+  cost_group_name text,
   service_group_id uuid,
   service_group_name text,
   report_url text,
@@ -2144,6 +2306,7 @@ as $$
     p.name,
     p.platform_id,
     nullif(pl.name, '') as platform,
+    nullif(cg.name, '') as cost_group_name,
     p.service_group_id,
     nullif(public.resolve_service_group_name(sg.service_group_name, sg.name), '') as service_group_name,
     nullif(p.report_url, '') as report_url,
@@ -2159,6 +2322,7 @@ as $$
   left join public.task_types ptt on ptt.id = p.task_type_id
   left join public.platforms pl on pl.id = p.platform_id
   left join public.service_groups sg on sg.id = p.service_group_id
+  left join public.cost_groups cg on cg.id = sg.cost_group_id
   left join public.members reporter on reporter.id = p.reporter_member_id
   left join public.members reviewer on reviewer.id = p.reviewer_member_id
   left join public.project_subtasks pp on pp.project_id = p.id
@@ -2172,6 +2336,7 @@ as $$
         coalesce(ptt.type1, ''),
         coalesce(p.name, ''),
         coalesce(pl.name, ''),
+        coalesce(cg.name, ''),
         coalesce(p.report_url, ''),
         coalesce(public.compose_service_group_label(sg.service_group_name, sg.service_name), ''),
         coalesce(reporter.account_id, ''),
@@ -2190,6 +2355,7 @@ as $$
     p.name,
     p.platform_id,
     pl.name,
+    cg.name,
     p.service_group_id,
     sg.service_group_name,
     sg.service_name,
@@ -3288,7 +3454,7 @@ grant execute on function public.admin_replace_service_group_usage(uuid, uuid, b
 grant execute on function public.admin_get_member_task_count(uuid) to authenticated;
 grant execute on function public.search_projects_page(date, date, text) to authenticated;
 grant execute on function public.search_report_projects(uuid, text, text, text) to authenticated;
-grant execute on function public.upsert_project(uuid, text, text, uuid, uuid, text, uuid, uuid, date, date, boolean) to authenticated;
+grant execute on function public.upsert_project(uuid, uuid, text, uuid, uuid, text, uuid, uuid, date, date, boolean) to authenticated;
 grant execute on function public.upsert_project_subtask(uuid, uuid, text, text, uuid, text, text, boolean, boolean, text) to authenticated;
 grant execute on function public.admin_search_tasks(uuid, date, date, uuid, uuid, uuid, uuid, uuid, text, text, uuid, text) to authenticated;
 
@@ -3300,6 +3466,35 @@ alter table public.task_types enable row level security;
 alter table public.projects enable row level security;
 alter table public.project_subtasks enable row level security;
 alter table public.tasks enable row level security;
+
+drop policy if exists "members_active_directory_select" on public.members;
+drop policy if exists "members_admin_insert" on public.members;
+drop policy if exists "members_admin_update" on public.members;
+drop policy if exists "members_admin_delete" on public.members;
+drop policy if exists "service_groups_active_select" on public.service_groups;
+drop policy if exists "service_groups_admin_insert" on public.service_groups;
+drop policy if exists "service_groups_admin_update" on public.service_groups;
+drop policy if exists "service_groups_admin_delete" on public.service_groups;
+drop policy if exists "cost_groups_active_select" on public.cost_groups;
+drop policy if exists "cost_groups_admin_insert" on public.cost_groups;
+drop policy if exists "cost_groups_admin_update" on public.cost_groups;
+drop policy if exists "cost_groups_admin_delete" on public.cost_groups;
+drop policy if exists "platforms_active_select" on public.platforms;
+drop policy if exists "platforms_admin_insert" on public.platforms;
+drop policy if exists "platforms_admin_update" on public.platforms;
+drop policy if exists "platforms_admin_delete" on public.platforms;
+drop policy if exists "task_types_active_select" on public.task_types;
+drop policy if exists "task_types_admin_insert" on public.task_types;
+drop policy if exists "task_types_admin_update" on public.task_types;
+drop policy if exists "task_types_admin_delete" on public.task_types;
+drop policy if exists "projects_select_authenticated" on public.projects;
+drop policy if exists "projects_write_owner_or_admin" on public.projects;
+drop policy if exists "project_pages_select_active_member" on public.project_subtasks;
+drop policy if exists "project_pages_write_owner_or_admin" on public.project_subtasks;
+drop policy if exists "project_subtasks_select_active_member" on public.project_subtasks;
+drop policy if exists "project_subtasks_write_owner_or_admin" on public.project_subtasks;
+drop policy if exists "tasks_select_own_or_admin" on public.tasks;
+drop policy if exists "tasks_write_own_or_admin" on public.tasks;
 
 create policy "members_active_directory_select"
 on public.members

@@ -53,6 +53,7 @@ export function MonitoringStatsDetailsTable({
           <tr>
             <th scope="col">월</th>
             <th scope="col">플랫폼</th>
+            <th scope="col">청구그룹</th>
             <th scope="col">서비스 그룹</th>
             <th scope="col">프로젝트명</th>
             <th scope="col">과업명</th>
@@ -68,6 +69,7 @@ export function MonitoringStatsDetailsTable({
             <tr key={row.subtaskId}>
               <td>{formatMonthLabel(monthKeyFromMonitoringMonth(row.monitoringMonth))}</td>
               <td>{row.platform || '-'}</td>
+              <td>{row.costGroupName || '-'}</td>
               <td>{row.serviceGroupName || '-'}</td>
               <td>{row.projectName || '-'}</td>
               <td>{row.title}</td>
@@ -202,7 +204,7 @@ export function MonitoringStatsDetailsTable({
           ))}
           {!rows.length ? (
             <tr>
-              <td colSpan={10} className={'stats-page__empty'}>
+              <td colSpan={11} className={'stats-page__empty'}>
                 조건에 맞는 모니터링 내역이 없습니다.
               </td>
             </tr>

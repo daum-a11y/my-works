@@ -172,6 +172,7 @@ describe('Projects routes', () => {
       name: '알파',
       platformId: 'platform-1',
       platform: 'iOS-App',
+      costGroupName: '내부',
       serviceGroupId: 'svc-1',
       reportUrl: 'https://example.com/report',
       reporterMemberId: 'member-1',
@@ -305,6 +306,7 @@ describe('Projects routes', () => {
 
     expect(screen.getByText('총 건수')).toBeInTheDocument();
     expect(screen.getByText('1건')).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: '청구그룹' })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: '과업 수' })).toBeInTheDocument();
     expect(screen.getByLabelText('페이지당 행 수')).toHaveValue('50');
     expect(screen.getByLabelText('시작일')).toHaveValue(toLocalDateInputValue(aYearAgo));
@@ -321,6 +323,7 @@ describe('Projects routes', () => {
       'href',
       'https://example.com/report',
     );
+    expect(screen.getByText('내부')).toBeInTheDocument();
     expect(screen.getByText('legacy-1(운영 사용자)')).toBeInTheDocument();
     expect(screen.getByText('legacy-2(리뷰어)')).toBeInTheDocument();
   });

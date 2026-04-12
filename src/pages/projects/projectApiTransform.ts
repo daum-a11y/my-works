@@ -29,6 +29,10 @@ export function toProjectListRow(record: ApiRecord): ProjectListRow {
       ? String(readValue(record, 'platform_id', 'platformId'))
       : null,
     platform: record.platform == null ? null : String(record.platform),
+    costGroupName:
+      readValue(record, 'cost_group_name', 'costGroupName') == null
+        ? null
+        : String(readValue(record, 'cost_group_name', 'costGroupName')),
     serviceGroupId: readValue(record, 'service_group_id', 'serviceGroupId')
       ? String(readValue(record, 'service_group_id', 'serviceGroupId'))
       : null,

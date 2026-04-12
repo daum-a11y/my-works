@@ -28,6 +28,10 @@ export function toMonitoringStatsRow(record: ApiRecord): MonitoringStatsRow {
     qaInProgress: Boolean(readValue(record, 'qa_in_progress', 'qaInProgress') ?? false),
     note: record.note == null ? null : String(record.note),
     updatedAt: String(readValue(record, 'updated_at', 'updatedAt') ?? ''),
+    costGroupName:
+      readValue(record, 'cost_group_name', 'costGroupName') == null
+        ? null
+        : String(readValue(record, 'cost_group_name', 'costGroupName')),
     serviceGroupName:
       readValue(record, 'service_group_name', 'serviceGroupName') == null
         ? null
@@ -53,6 +57,10 @@ export function toQaStatsProject(record: ApiRecord): QaStatsProjectRow {
     id: String(record.id ?? ''),
     type1: record.type1 == null ? null : String(record.type1),
     name: record.name == null ? null : String(record.name),
+    costGroupName:
+      readValue(record, 'cost_group_name', 'costGroupName') == null
+        ? null
+        : String(readValue(record, 'cost_group_name', 'costGroupName')),
     serviceGroupName:
       readValue(record, 'service_group_name', 'serviceGroupName') == null
         ? null

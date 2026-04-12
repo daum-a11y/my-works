@@ -268,7 +268,7 @@ export function ReportsPage() {
             onOverhead={(reportDate, remainingMinutes) => {
               void saveOverheadReport(remainingMinutes, reportDate);
             }}
-            emptyMessage="결과가 미존재."
+            emptyMessage="결과가 없습니다."
           />
         </section>
       </div>

@@ -729,7 +729,7 @@ export function buildReportDownloadHtml(reports: readonly ReportViewModel[], tit
       }
       h1 {
         margin: 0 0 16px;
-        font-size: 24px;
+        font-size: 28px;
       }
       p {
         margin: 0 0 20px;
@@ -746,7 +746,7 @@ export function buildReportDownloadHtml(reports: readonly ReportViewModel[], tit
         border: 1px solid #d8d5cf;
         text-align: left;
         vertical-align: top;
-        font-size: 13px;
+        font-size: 14px;
       }
       th {
         background: #efebe5;

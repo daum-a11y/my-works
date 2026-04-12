@@ -165,9 +165,9 @@
   --space-form-section-gap: 16px;
 
   /* High-density type scale */
-  --text-page-title-size: 22px;
-  --text-page-title-weight: 600;
-  --text-page-title-line-height: 40px;
+  --text-page-title-size: 28px;
+  --text-page-title-weight: 700;
+  --text-page-title-line-height: 1.2;
   --text-page-title-tracking: -1px;
   --text-section-title-size: 15px;
   --text-section-title-weight: 700;
@@ -195,6 +195,7 @@
   --text-table-weight: 700;
   --text-table-line-height: 1.2;
   --text-table-tracking: 1px;
+  --text-table-color: var(--text-secondary);
   --text-badge-size: 12px;
   --text-badge-weight: 700;
   --text-badge-line-height: 1.1;

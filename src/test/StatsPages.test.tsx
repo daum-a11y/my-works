@@ -72,6 +72,7 @@ describe('Stats pages', () => {
         qaInProgress: true,
         note: '진행 내역\n공유 메모',
         updatedAt: '2026-03-24T09:00:00.000Z',
+        costGroupName: '청구그룹A',
         serviceGroupName: '서비스 그룹A',
         projectName: 'QA 대상',
         platform: 'iOS',
@@ -89,6 +90,7 @@ describe('Stats pages', () => {
         qaInProgress: false,
         note: '',
         updatedAt: '2025-07-24T09:00:00.000Z',
+        costGroupName: '청구그룹A',
         serviceGroupName: '서비스 그룹A',
         projectName: '과거 QA 대상',
         platform: 'Web',
@@ -106,6 +108,7 @@ describe('Stats pages', () => {
         qaInProgress: false,
         note: '',
         updatedAt: '2026-03-24T09:00:00.000Z',
+        costGroupName: '청구그룹A',
         serviceGroupName: '서비스 그룹A',
         projectName: '제외 대상',
         platform: 'Android',
@@ -117,6 +120,7 @@ describe('Stats pages', () => {
         id: 'project-1',
         type1: 'QA',
         name: 'QA 대상',
+        costGroupName: '청구그룹A',
         serviceGroupName: '서비스 그룹A',
         reportUrl: '',
         reporterDisplay: 'legacy-1(운영 사용자)',
@@ -128,6 +132,7 @@ describe('Stats pages', () => {
         id: 'project-3',
         type1: 'QA',
         name: '과거 QA 대상',
+        costGroupName: '청구그룹A',
         serviceGroupName: '서비스 그룹A',
         reportUrl: '',
         reporterDisplay: 'legacy-1(운영 사용자)',
@@ -139,6 +144,7 @@ describe('Stats pages', () => {
         id: 'project-2',
         type1: 'QA',
         name: '추가 QA 대상',
+        costGroupName: '청구그룹A',
         serviceGroupName: '서비스 그룹A',
         reportUrl: '',
         reporterDisplay: 'legacy-1(운영 사용자)',
@@ -180,6 +186,7 @@ describe('Stats pages', () => {
     expect(screen.getByRole('button', { name: '그래프' })).toHaveAttribute('aria-pressed', 'true');
     expect(screen.getByRole('button', { name: '표' })).toHaveAttribute('aria-pressed', 'false');
     expect(screen.getAllByText('2026/03').length).toBeGreaterThan(0);
+    expect(screen.getByRole('columnheader', { name: '청구그룹' })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: '서비스 그룹' })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: '프로젝트명' })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: '과업명' })).toBeInTheDocument();
@@ -282,6 +289,7 @@ describe('Stats pages', () => {
     expect(screen.getByRole('button', { name: '그래프' })).toHaveAttribute('aria-pressed', 'true');
     expect(screen.getByRole('button', { name: '표' })).toHaveAttribute('aria-pressed', 'false');
     expect(screen.getAllByText('2026/03').length).toBeGreaterThan(0);
+    expect(screen.getByRole('columnheader', { name: '청구그룹' })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: '서비스 그룹' })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: '프로젝트명' })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: '리포터' })).toBeInTheDocument();

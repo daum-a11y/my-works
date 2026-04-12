@@ -16,6 +16,7 @@ export function ProjectsResultsTable({ projects }: ProjectsResultsTableProps) {
           <tr>
             <th scope="col">타입1</th>
             <th scope="col">플랫폼</th>
+            <th scope="col">청구그룹</th>
             <th scope="col">서비스 그룹</th>
             <th scope="col">프로젝트명</th>
             <th scope="col">과업 수</th>
@@ -32,6 +33,7 @@ export function ProjectsResultsTable({ projects }: ProjectsResultsTableProps) {
             <tr key={project.id}>
               <td>{project.taskType1 || '-'}</td>
               <td>{project.platform || '-'}</td>
+              <td>{project.costGroupName || '-'}</td>
               <td>{project.serviceGroupName || '-'}</td>
               <td>{project.name}</td>
               <td>{project.subtaskCount}</td>
@@ -65,7 +67,7 @@ export function ProjectsResultsTable({ projects }: ProjectsResultsTableProps) {
           ))}
           {!projects.length ? (
             <TableEmptyRow
-              colSpan={11}
+              colSpan={12}
               className="projects-feature__empty-state"
               message="검색 결과가 없습니다. 새 프로젝트를 등록하거나 기간을 조정하십시오."
             />
