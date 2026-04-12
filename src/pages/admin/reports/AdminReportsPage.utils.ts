@@ -77,8 +77,8 @@ function getSortValue(
       return task.serviceName;
     case 'projectName':
       return task.projectName;
-    case 'pageTitle':
-      return task.pageTitle;
+    case 'subtaskTitle':
+      return task.subtaskTitle;
     case 'taskUsedtime':
       return task.taskUsedtime;
     case 'note':
@@ -161,7 +161,7 @@ export function createDefaultFilters() {
     platformId: '',
     serviceGroupId: '',
     projectId: '',
-    pageId: '',
+    subtaskId: '',
     taskTypeId: '',
     taskType1: '',
     taskType2: '',

@@ -17,18 +17,18 @@ interface AdminReportEditorDetailFieldsProps {
   showReadonlyService: boolean;
   showProjectSelect: boolean;
   typeFilteredProjects: ProjectViewModel[];
-  showPageSelect: boolean;
-  draftPages: Array<{ id: string; title: string }>;
-  showManualPageName: boolean;
-  manualPageLabel: string;
+  showSubtaskSelect: boolean;
+  draftSubtasks: Array<{ id: string; title: string }>;
+  showManualSubtaskName: boolean;
+  manualSubtaskLabel: string;
   isVacationType: boolean;
   isReadonlyWorkHours: boolean;
   onType1Change: (value: string) => void;
   onType2Change: (value: string) => void;
   onPlatformChange: (value: string) => void;
   onProjectChange: (value: string) => void;
-  onPageChange: (value: string) => void;
-  onManualPageNameChange: (value: string) => void;
+  onSubtaskChange: (value: string) => void;
+  onManualSubtaskNameChange: (value: string) => void;
   onVacationTypeChange: (value: string) => void;
   onUrlChange: (value: string) => void;
   onTaskUsedtimeChange: (value: string) => void;
@@ -48,18 +48,18 @@ export function AdminReportEditorDetailFields({
   showReadonlyService,
   showProjectSelect,
   typeFilteredProjects,
-  showPageSelect,
-  draftPages,
-  showManualPageName,
-  manualPageLabel,
+  showSubtaskSelect,
+  draftSubtasks,
+  showManualSubtaskName,
+  manualSubtaskLabel,
   isVacationType,
   isReadonlyWorkHours,
   onType1Change,
   onType2Change,
   onPlatformChange,
   onProjectChange,
-  onPageChange,
-  onManualPageNameChange,
+  onSubtaskChange,
+  onManualSubtaskNameChange,
   onVacationTypeChange,
   onUrlChange,
   onTaskUsedtimeChange,
@@ -92,15 +92,15 @@ export function AdminReportEditorDetailFields({
         isProjectLinkedTab={isProjectLinkedTab}
         showProjectSelect={showProjectSelect}
         typeFilteredProjects={typeFilteredProjects}
-        showPageSelect={showPageSelect}
-        draftPages={draftPages}
-        showManualPageName={showManualPageName}
-        manualPageLabel={manualPageLabel}
+        showSubtaskSelect={showSubtaskSelect}
+        draftSubtasks={draftSubtasks}
+        showManualSubtaskName={showManualSubtaskName}
+        manualSubtaskLabel={manualSubtaskLabel}
         isVacationType={isVacationType}
         isReadonlyWorkHours={isReadonlyWorkHours}
         onProjectChange={onProjectChange}
-        onPageChange={onPageChange}
-        onManualPageNameChange={onManualPageNameChange}
+        onSubtaskChange={onSubtaskChange}
+        onManualSubtaskNameChange={onManualSubtaskNameChange}
         onVacationTypeChange={onVacationTypeChange}
         onUrlChange={onUrlChange}
         onTaskUsedtimeChange={onTaskUsedtimeChange}

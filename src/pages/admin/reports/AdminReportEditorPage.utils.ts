@@ -2,14 +2,14 @@ import type {
   CostGroup,
   Platform,
   Project,
-  ProjectPage,
+  ProjectSubtask,
   ServiceGroup,
   TaskType,
 } from '../../../types/domain';
 import { adminDataClient } from '../../../api/admin';
 import {
   toAdminCostGroup,
-  toAdminPage,
+  toAdminSubtask,
   toAdminPlatform,
   toAdminProject,
   toAdminServiceGroup,
@@ -80,6 +80,7 @@ export function toProjects(
   return items.map(toAdminProject).map((item) => ({
     id: item.id,
     createdByMemberId: null,
+    taskTypeId: item.taskTypeId,
     taskType1: item.taskType1,
     name: item.name,
     platformId: item.platformId,
@@ -117,16 +118,16 @@ export function toPlatforms(
 }
 
 export function toPages(
-  items: Awaited<ReturnType<typeof adminDataClient.listProjectPages>>,
-): ProjectPage[] {
-  return items.map(toAdminPage).map((item) => ({
+  items: Awaited<ReturnType<typeof adminDataClient.listProjectSubtasks>>,
+): ProjectSubtask[] {
+  return items.map(toAdminSubtask).map((item) => ({
     id: item.id,
     projectId: item.projectId,
     title: item.title,
     url: item.url,
     ownerMemberId: null,
     monitoringMonth: '',
-    trackStatus: item.trackStatus as ProjectPage['trackStatus'],
+    trackStatus: item.trackStatus as ProjectSubtask['trackStatus'],
     monitoringInProgress: item.monitoringInProgress,
     qaInProgress: item.qaInProgress,
     note: '',
@@ -140,13 +141,13 @@ export function createDraftFromTask(task: AdminTaskSearchItem): ReportDraft {
     costGroupId: task.costGroupId,
     costGroupName: task.costGroupName,
     projectId: task.projectId ?? '',
-    pageId: task.pageId ?? '',
+    subtaskId: task.subtaskId ?? '',
     type1: task.taskType1,
     type2: task.taskType2,
     platform: task.platform || '',
     serviceGroupName: task.serviceGroupName || '',
     serviceName: task.serviceName || '',
-    manualPageName: task.pageTitle || '',
+    manualSubtaskName: task.subtaskTitle || '',
     url: task.url || '',
     taskUsedtime: String(task.taskUsedtime ?? 0),
     content: task.content || '',

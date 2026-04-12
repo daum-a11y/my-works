@@ -97,7 +97,7 @@ export function AdminReportEditorPage() {
   });
   const pagesQuery = useQuery({
     queryKey: ['admin', 'project-pages', draft.projectId],
-    queryFn: () => adminDataClient.listProjectPagesByProjectId(draft.projectId),
+    queryFn: () => adminDataClient.listProjectSubtasksByProjectId(draft.projectId),
     enabled: Boolean(draft.projectId),
   });
   const taskQuery = useQuery({
@@ -145,7 +145,10 @@ export function AdminReportEditorPage() {
     () => new Map(projects.map((item) => [item.id, item] as const)),
     [projects],
   );
-  const pagesById = useMemo(() => new Map(pages.map((item) => [item.id, item] as const)), [pages]);
+  const subtasksById = useMemo(
+    () => new Map(pages.map((item) => [item.id, item] as const)),
+    [pages],
+  );
   const serviceGroupsById = useMemo(
     () => new Map(serviceGroups.map((item) => [item.id, item] as const)),
     [serviceGroups],
@@ -194,7 +197,7 @@ export function AdminReportEditorPage() {
       )
       .slice(0, 60);
   }, [appliedProjectQuery, draft.costGroupId, normalizedProjectQuery, projectOptions]);
-  const draftPages = useMemo(
+  const draftSubtasks = useMemo(
     () => pages.filter((page) => page.projectId === draft.projectId),
     [draft.projectId, pages],
   );
@@ -226,31 +229,36 @@ export function AdminReportEditorPage() {
     : draft.type1;
   const typeRule = useMemo(() => getTaskTypeUiRule(type1Value, taskTypes), [taskTypes, type1Value]);
   const usesProjectLookup = typeRule.projectLinked;
-  const usesManualPageWithUrl = typeRule.manualPageWithUrl;
-  const usesManualPageOnly = typeRule.manualPageOnly;
+  const usesManualSubtaskWithUrl = typeRule.manualSubtaskWithUrl;
+  const usesManualSubtaskOnly = typeRule.manualSubtaskOnly;
   const showPlatformSelect = !projectTypeSelected && usesProjectLookup;
   const showReadonlyService = projectTypeSelected || usesProjectLookup;
   const showProjectSelect = isProjectLinkedTab || usesProjectLookup;
   const isVacationType = typeRule.vacation;
   const isFixedDayType = false;
-  const showProjectLinkedPageSelect = projectTypeSelected && typeRule.projectPageSelectable;
-  const showPageSelect = isProjectLinkedTab
-    ? showProjectLinkedPageSelect
-    : Boolean(draft.projectId) && typeRule.projectPageSelectable;
-  const showManualPageName = isProjectLinkedTab
-    ? (projectTypeSelected && typeRule.projectLinked && !typeRule.projectPageSelectable) ||
+  const showProjectLinkedSubtaskSelect = projectTypeSelected && typeRule.projectSubtaskSelectable;
+  const showSubtaskSelect = isProjectLinkedTab
+    ? showProjectLinkedSubtaskSelect
+    : Boolean(draft.projectId) && typeRule.projectSubtaskSelectable;
+  const showManualSubtaskName = isProjectLinkedTab
+    ? (projectTypeSelected && typeRule.projectLinked && !typeRule.projectSubtaskSelectable) ||
       isVacationType
-    : usesManualPageWithUrl || usesManualPageOnly || isVacationType;
+    : usesManualSubtaskWithUrl || usesManualSubtaskOnly || isVacationType;
   const isReadonlyWorkHours = isVacationType || isFixedDayType;
-  const manualPageLabel = useMemo(() => {
+  const manualSubtaskLabel = useMemo(() => {
     if (isVacationType) {
       return '휴가 종류';
     }
-    if ((typeRule.projectLinked && !typeRule.projectPageSelectable) || usesManualPageOnly) {
-      return '페이지명';
+    if ((typeRule.projectLinked && !typeRule.projectSubtaskSelectable) || usesManualSubtaskOnly) {
+      return '과업명';
     }
-    return '페이지명';
-  }, [isVacationType, typeRule.projectLinked, typeRule.projectPageSelectable, usesManualPageOnly]);
+    return '과업명';
+  }, [
+    isVacationType,
+    typeRule.projectLinked,
+    typeRule.projectSubtaskSelectable,
+    usesManualSubtaskOnly,
+  ]);
   const typeFilteredProjects = useMemo(() => {
     if (!draft.platform || !draft.type1) {
       return [] as typeof filteredProjectOptions;
@@ -293,7 +301,7 @@ export function AdminReportEditorPage() {
       const next = { ...current, [key]: value } as ReportDraft;
 
       if (key === 'projectId') {
-        next.pageId = '';
+        next.subtaskId = '';
         const project = projectsById.get(String(value));
         if (project) {
           const normalizedServiceName = project.serviceGroupId
@@ -326,7 +334,7 @@ export function AdminReportEditorPage() {
 
       if (key === 'costGroupId') {
         next.projectId = '';
-        next.pageId = '';
+        next.subtaskId = '';
         const costGroup = costGroups.find((item) => item.id === String(value)) ?? null;
         next.costGroupName = costGroup?.name ?? '';
         next.serviceGroupName = '';
@@ -358,13 +366,13 @@ export function AdminReportEditorPage() {
 
     const nextIsVacation = type1Value === '휴무';
     if (nextIsVacation) {
-      setDraftField('manualPageName', '');
+      setDraftField('manualSubtaskName', '');
       setDraftField('taskUsedtime', '');
       return;
     }
 
     if (previousWasVacation) {
-      setDraftField('manualPageName', '');
+      setDraftField('manualSubtaskName', '');
       setDraftField('taskUsedtime', '');
     }
   };
@@ -377,7 +385,7 @@ export function AdminReportEditorPage() {
   };
 
   const handleVacationTypeChange = (value: string) => {
-    setDraftField('manualPageName', value);
+    setDraftField('manualSubtaskName', value);
     if (value === '오전 반차' || value === '오후 반차') {
       setDraftField('taskUsedtime', '240');
       return;
@@ -398,12 +406,12 @@ export function AdminReportEditorPage() {
       const taskType = validateTaskTypeSelection(taskTypes, draft.type1, draft.type2);
       const taskUsedtime = parseReportTaskUsedtimeInput(draft.taskUsedtime);
       let projectId = draft.projectId.trim();
-      const pageId = draft.pageId.trim();
+      const subtaskId = draft.subtaskId.trim();
 
-      if (pageId) {
-        const page = pagesById.get(pageId);
+      if (subtaskId) {
+        const page = subtasksById.get(subtaskId);
         if (!page) {
-          throw new Error('선택한 페이지 정보를 확인할 수 없습니다.');
+          throw new Error('선택한 과업 정보를 확인할 수 없습니다.');
         }
 
         if (projectId && page.projectId !== projectId) {
@@ -421,7 +429,7 @@ export function AdminReportEditorPage() {
         taskDate: draft.reportDate,
         costGroupId: draft.costGroupId,
         projectId,
-        pageId,
+        subtaskId,
         taskType1: taskType.type1,
         taskType2: taskType.type2,
         taskUsedtime,
@@ -494,7 +502,7 @@ export function AdminReportEditorPage() {
         costGroups={costGroups}
         filteredProjectOptions={filteredProjectOptions}
         platforms={platforms}
-        draftPages={draftPages}
+        draftSubtasks={draftSubtasks}
         projectQuery={projectQuery}
         projectSearchPlaceholder={projectSearchPlaceholder}
         isProjectLinkedTab={isProjectLinkedTab}
@@ -508,9 +516,9 @@ export function AdminReportEditorPage() {
         showReadonlyService={showReadonlyService}
         showProjectSelect={showProjectSelect}
         typeFilteredProjects={typeFilteredProjects}
-        showPageSelect={showPageSelect}
-        showManualPageName={showManualPageName}
-        manualPageLabel={manualPageLabel}
+        showSubtaskSelect={showSubtaskSelect}
+        showManualSubtaskName={showManualSubtaskName}
+        manualSubtaskLabel={manualSubtaskLabel}
         isVacationType={isVacationType}
         isReadonlyWorkHours={isReadonlyWorkHours}
         savePending={saveMutation.isPending}
@@ -526,8 +534,8 @@ export function AdminReportEditorPage() {
         onType1Change={(value) => setDraftField('type1', value)}
         onType2Change={handleType2Change}
         onPlatformChange={(value) => setDraftField('platform', value)}
-        onPageChange={(value) => setDraftField('pageId', value)}
-        onManualPageNameChange={(value) => setDraftField('manualPageName', value)}
+        onSubtaskChange={(value) => setDraftField('subtaskId', value)}
+        onManualSubtaskNameChange={(value) => setDraftField('manualSubtaskName', value)}
         onVacationTypeChange={handleVacationTypeChange}
         onUrlChange={(value) => setDraftField('url', value)}
         onTaskUsedtimeChange={(value) => setDraftField('taskUsedtime', value)}

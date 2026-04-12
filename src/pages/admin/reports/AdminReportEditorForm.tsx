@@ -1,5 +1,5 @@
 import type { FormEvent, KeyboardEvent } from 'react';
-import type { Platform, ProjectPage } from '../../../types/domain';
+import type { Platform, ProjectSubtask } from '../../../types/domain';
 import type { ProjectViewModel, ReportDraft } from '../../reports/reportUtils';
 import { getTodayInputValue } from '../../reports/reportUtils';
 import { AdminReportEditorActionRow } from './AdminReportEditorActionRow';
@@ -25,7 +25,7 @@ interface AdminReportEditorFormProps {
   costGroups: Array<{ id: string; name: string }>;
   filteredProjectOptions: ProjectViewModel[];
   platforms: Platform[];
-  draftPages: ProjectPage[];
+  draftSubtasks: ProjectSubtask[];
   projectQuery: string;
   projectSearchPlaceholder: string;
   isProjectLinkedTab: boolean;
@@ -39,9 +39,9 @@ interface AdminReportEditorFormProps {
   showReadonlyService: boolean;
   showProjectSelect: boolean;
   typeFilteredProjects: ProjectViewModel[];
-  showPageSelect: boolean;
-  showManualPageName: boolean;
-  manualPageLabel: string;
+  showSubtaskSelect: boolean;
+  showManualSubtaskName: boolean;
+  manualSubtaskLabel: string;
   isVacationType: boolean;
   isReadonlyWorkHours: boolean;
   savePending: boolean;
@@ -57,8 +57,8 @@ interface AdminReportEditorFormProps {
   onType1Change: (value: string) => void;
   onType2Change: (value: string) => void;
   onPlatformChange: (value: string) => void;
-  onPageChange: (value: string) => void;
-  onManualPageNameChange: (value: string) => void;
+  onSubtaskChange: (value: string) => void;
+  onManualSubtaskNameChange: (value: string) => void;
   onVacationTypeChange: (value: string) => void;
   onUrlChange: (value: string) => void;
   onTaskUsedtimeChange: (value: string) => void;
@@ -83,7 +83,7 @@ export function AdminReportEditorForm({
   costGroups,
   filteredProjectOptions,
   platforms,
-  draftPages,
+  draftSubtasks,
   projectQuery,
   projectSearchPlaceholder,
   isProjectLinkedTab,
@@ -97,9 +97,9 @@ export function AdminReportEditorForm({
   showReadonlyService,
   showProjectSelect,
   typeFilteredProjects,
-  showPageSelect,
-  showManualPageName,
-  manualPageLabel,
+  showSubtaskSelect,
+  showManualSubtaskName,
+  manualSubtaskLabel,
   isVacationType,
   isReadonlyWorkHours,
   savePending,
@@ -115,8 +115,8 @@ export function AdminReportEditorForm({
   onType1Change,
   onType2Change,
   onPlatformChange,
-  onPageChange,
-  onManualPageNameChange,
+  onSubtaskChange,
+  onManualSubtaskNameChange,
   onVacationTypeChange,
   onUrlChange,
   onTaskUsedtimeChange,
@@ -183,18 +183,18 @@ export function AdminReportEditorForm({
             showReadonlyService={showReadonlyService}
             showProjectSelect={showProjectSelect}
             typeFilteredProjects={typeFilteredProjects}
-            showPageSelect={showPageSelect}
-            draftPages={draftPages}
-            showManualPageName={showManualPageName}
-            manualPageLabel={manualPageLabel}
+            showSubtaskSelect={showSubtaskSelect}
+            draftSubtasks={draftSubtasks}
+            showManualSubtaskName={showManualSubtaskName}
+            manualSubtaskLabel={manualSubtaskLabel}
             isVacationType={isVacationType}
             isReadonlyWorkHours={isReadonlyWorkHours}
             onType1Change={onType1Change}
             onType2Change={onType2Change}
             onPlatformChange={onPlatformChange}
             onProjectChange={onProjectChange}
-            onPageChange={onPageChange}
-            onManualPageNameChange={onManualPageNameChange}
+            onSubtaskChange={onSubtaskChange}
+            onManualSubtaskNameChange={onManualSubtaskNameChange}
             onVacationTypeChange={onVacationTypeChange}
             onUrlChange={onUrlChange}
             onTaskUsedtimeChange={onTaskUsedtimeChange}

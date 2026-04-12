@@ -1,4 +1,4 @@
-import type { Member, Project, ProjectPage } from '../../types/domain';
+import type { Member, Project, ProjectSubtask } from '../../types/domain';
 
 export function canDeleteProject(
   project: Project,
@@ -16,8 +16,8 @@ export function canDeleteProject(
   );
 }
 
-export function canDeletePage(
-  page: ProjectPage,
+export function canDeleteSubtask(
+  subtask: ProjectSubtask,
   memberId: string | null,
   role: Member['role'] | undefined,
 ) {
@@ -25,5 +25,5 @@ export function canDeletePage(
     return false;
   }
 
-  return role === 'admin' || page.ownerMemberId === memberId;
+  return role === 'admin' || subtask.ownerMemberId === memberId;
 }

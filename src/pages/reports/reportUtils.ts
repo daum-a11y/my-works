@@ -1,6 +1,6 @@
 import type {
   Project,
-  ProjectPage,
+  ProjectSubtask,
   ReportProjectOptionRow,
   ReportFilters as OpsReportFilters,
   ServiceGroup,
@@ -14,18 +14,6 @@ import {
 } from '../../utils/taskType';
 
 export type ReportFilters = OpsReportFilters;
-
-export const REPORT_TYPE1_OPTIONS = ['기획', '개발', 'QA', '운영', '지원'] as const;
-
-export const REPORT_TYPE2_OPTIONS = [
-  '작성',
-  '수정',
-  '검토',
-  '배포',
-  '점검',
-  '회의',
-  '지원',
-] as const;
 
 export const PERSONAL_REPORT_OWNER = {
   id: 'me',
@@ -43,9 +31,9 @@ export interface ReportRecord {
   costGroupId: string;
   costGroupName: string;
   projectId: string;
-  pageId: string;
+  subtaskId: string;
   projectName: string;
-  pageName: string;
+  subtaskName: string;
   type1: ReportType1;
   type2: ReportType2;
   taskUsedtime: number;
@@ -60,13 +48,13 @@ export interface ReportDraft {
   costGroupId: string;
   costGroupName: string;
   projectId: string;
-  pageId: string;
+  subtaskId: string;
   type1: ReportType1;
   type2: ReportType2;
   platform: string;
   serviceGroupName: string;
   serviceName: string;
-  manualPageName: string;
+  manualSubtaskName: string;
   url: string;
   taskUsedtime: string;
   content: string;
@@ -85,9 +73,9 @@ export interface ProjectViewModel {
   searchText: string;
 }
 
-export interface ProjectPageViewModel {
+export interface ProjectSubtaskViewModel {
   id: string;
-  page: ProjectPage;
+  subtask: ProjectSubtask;
   projectName: string;
   serviceGroupName: string;
   label: string;
@@ -99,7 +87,7 @@ export interface ReportViewModel extends ReportRecord {
   serviceGroupName: string;
   serviceName: string;
   projectDisplayName: string;
-  pageDisplayName: string;
+  subtaskDisplayName: string;
   url: string;
   searchText: string;
 }
@@ -117,7 +105,7 @@ export type ReportSortMode =
 export const DEFAULT_REPORT_FILTERS: ReportFilters = {
   query: '',
   projectId: '',
-  pageId: '',
+  subtaskId: '',
   taskType1: '',
   taskType2: '',
   startDate: '',
@@ -210,26 +198,26 @@ function buildProjectLookup(project: Project, normalizedServiceName: string) {
   } satisfies ProjectViewModel;
 }
 
-function buildPageLookup(
-  page: ProjectPage,
+function buildSubtaskLookup(
+  subtask: ProjectSubtask,
   project: Project | undefined,
   serviceGroupName: string,
 ) {
   const projectName = project?.name || '';
   const label =
-    [serviceGroupName, projectName, page.title].filter(Boolean).join(' / ') || page.title;
+    [serviceGroupName, projectName, subtask.title].filter(Boolean).join(' / ') || subtask.title;
   const searchText = normalizeText(
-    [serviceGroupName, projectName, page.title, page.note, page.url, page.id].join(' '),
+    [serviceGroupName, projectName, subtask.title, subtask.note, subtask.url, subtask.id].join(' '),
   );
 
   return {
-    id: page.id,
-    page,
+    id: subtask.id,
+    subtask,
     projectName,
     serviceGroupName,
     label,
     searchText,
-  } satisfies ProjectPageViewModel;
+  } satisfies ProjectSubtaskViewModel;
 }
 
 export function buildProjectViewModels(projects: Project[], serviceGroups: ServiceGroup[]) {
@@ -258,6 +246,7 @@ export function buildProjectViewModelsFromRows(rows: ReportProjectOptionRow[]) {
       {
         id: row.id,
         createdByMemberId: null,
+        taskTypeId: row.taskTypeId,
         taskType1: row.taskType1,
         name: row.name,
         platformId: null,
@@ -282,31 +271,29 @@ export function buildProjectViewModelsFromRows(rows: ReportProjectOptionRow[]) {
   });
 }
 
-export function buildProjectPageViewModels(
-  pages: ProjectPage[],
+export function buildProjectSubtaskViewModels(
+  pages: ProjectSubtask[],
   projects: Project[],
   serviceGroups: ServiceGroup[],
 ) {
   const projectsById = new Map(projects.map((project) => [project.id, project] as const));
   const serviceGroupsById = buildServiceGroupMap(serviceGroups);
 
-  return pages.map((page) => {
-    const project = projectsById.get(page.projectId);
+  return pages.map((subtask) => {
+    const project = projectsById.get(subtask.projectId);
     const serviceGroupName = project?.serviceGroupId
       ? (serviceGroupsById.get(project.serviceGroupId)?.name ?? '')
       : '';
-    return buildPageLookup(page, project, serviceGroupName);
+    return buildSubtaskLookup(subtask, project, serviceGroupName);
   });
 }
 
 export function buildTaskType1Options(taskTypes: TaskType[]) {
-  const values = buildTaskType1OptionValues(taskTypes);
-  return values.length ? values : [...REPORT_TYPE1_OPTIONS];
+  return buildTaskType1OptionValues(taskTypes);
 }
 
 export function buildSelectableTaskType1Options(taskTypes: TaskType[], currentValue = '') {
-  const values = buildTaskType1OptionValues(taskTypes, { currentValue });
-  return values.length ? values : [...REPORT_TYPE1_OPTIONS];
+  return buildTaskType1OptionValues(taskTypes, { currentValue });
 }
 
 export function buildSelectableProjectTypeOptions(taskTypes: TaskType[], currentValue = '') {
@@ -326,8 +313,7 @@ export function buildTaskType2OptionsForValue(
     return [];
   }
 
-  const values = buildTaskType2OptionValues(taskTypes, selectedType1, currentValue);
-  return values.length ? values : [...REPORT_TYPE2_OPTIONS];
+  return buildTaskType2OptionValues(taskTypes, selectedType1, currentValue);
 }
 
 export function validateTaskTypeSelection(taskTypes: TaskType[], type1: string, type2: string) {
@@ -391,13 +377,13 @@ export function createEmptyReportDraft(referenceDate = new Date()): ReportDraft 
     costGroupId: '',
     costGroupName: '',
     projectId: '',
-    pageId: '',
+    subtaskId: '',
     type1: '',
     type2: '',
     platform: '',
     serviceGroupName: '',
     serviceName: '',
-    manualPageName: '',
+    manualSubtaskName: '',
     url: '',
     taskUsedtime: '60',
     content: '',
@@ -412,13 +398,13 @@ export function draftFromReport(report: ReportRecord): ReportDraft {
     costGroupId: reportView.costGroupId ?? '',
     costGroupName: reportView.costGroupName ?? '',
     projectId: report.projectId,
-    pageId: report.pageId,
+    subtaskId: report.subtaskId,
     type1: report.type1,
     type2: report.type2,
     platform: reportView.platform ?? '',
     serviceGroupName: reportView.serviceGroupName ?? '',
     serviceName: reportView.serviceName ?? '',
-    manualPageName: report.pageName,
+    manualSubtaskName: report.subtaskName,
     url: reportView.url ?? '',
     taskUsedtime: String(report.taskUsedtime),
     content: report.content,
@@ -446,9 +432,9 @@ export function buildReportFromDraft(
     costGroupId: draft.costGroupId,
     costGroupName: draft.costGroupName,
     projectId: draft.projectId,
-    pageId: draft.pageId,
+    subtaskId: draft.subtaskId,
     projectName: existing?.projectName ?? '',
-    pageName: existing?.pageName ?? '',
+    subtaskName: existing?.subtaskName ?? '',
     type1: taskType.type1,
     type2: taskType.type2,
     taskUsedtime: parseReportTaskUsedtimeInput(draft.taskUsedtime),
@@ -463,10 +449,10 @@ export function buildReportViewModel(
   report: ReportRecord,
   projectsById: Map<string, Project>,
   serviceGroupsById: Map<string, ServiceGroup>,
-  pagesById: Map<string, ProjectPage>,
+  subtasksById: Map<string, ProjectSubtask>,
 ) {
   const project = report.projectId ? (projectsById.get(report.projectId) ?? null) : null;
-  const page = report.pageId ? (pagesById.get(report.pageId) ?? null) : null;
+  const subtask = report.subtaskId ? (subtasksById.get(report.subtaskId) ?? null) : null;
   const splitProjectService = project?.serviceGroupId
     ? splitServiceGroupName(serviceGroupsById.get(project.serviceGroupId)?.name ?? '')
     : null;
@@ -476,7 +462,7 @@ export function buildReportViewModel(
   const serviceName = splitProjectService?.serviceName ?? '';
   const resolvedProjectName = project?.name ?? report.projectName ?? '';
   const projectDisplayName = resolvedProjectName || '-';
-  const pageDisplayName = page?.title || report.pageName || '-';
+  const subtaskDisplayName = subtask?.title || report.subtaskName || '-';
   const searchText = normalizeText(
     [
       report.reportDate,
@@ -484,7 +470,7 @@ export function buildReportViewModel(
       platform,
       serviceGroupName,
       serviceName,
-      pageDisplayName,
+      subtaskDisplayName,
       report.type1,
       report.type2,
       report.content,
@@ -499,7 +485,7 @@ export function buildReportViewModel(
     serviceGroupName,
     serviceName,
     projectDisplayName,
-    pageDisplayName,
+    subtaskDisplayName,
     url: '',
     searchText,
   } satisfies ReportViewModel;
@@ -507,7 +493,7 @@ export function buildReportViewModel(
 
 export function buildTaskReportViewModel(task: Task, owner: { id: string; name: string }) {
   const projectDisplayName = task.projectName || '-';
-  const pageDisplayName = task.pageTitle || '-';
+  const subtaskDisplayName = task.subtaskTitle || '-';
   const url = task.url || '';
   const searchText = normalizeText(
     [
@@ -516,7 +502,7 @@ export function buildTaskReportViewModel(task: Task, owner: { id: string; name: 
       task.serviceGroupName,
       task.serviceName,
       projectDisplayName,
-      pageDisplayName,
+      subtaskDisplayName,
       task.taskType1,
       task.taskType2,
       task.content,
@@ -534,9 +520,9 @@ export function buildTaskReportViewModel(task: Task, owner: { id: string; name: 
     costGroupId: task.costGroupId,
     costGroupName: task.costGroupName,
     projectId: task.projectId ?? '',
-    pageId: task.pageId ?? '',
+    subtaskId: task.subtaskId ?? '',
     projectName: task.projectName || '',
-    pageName: task.pageTitle || '',
+    subtaskName: task.subtaskTitle || '',
     type1: task.taskType1 as ReportViewModel['type1'],
     type2: task.taskType2 as ReportViewModel['type2'],
     taskUsedtime: task.taskUsedtime,
@@ -548,7 +534,7 @@ export function buildTaskReportViewModel(task: Task, owner: { id: string; name: 
     serviceGroupName: task.serviceGroupName || '',
     serviceName: task.serviceName || '',
     projectDisplayName,
-    pageDisplayName,
+    subtaskDisplayName,
     url,
     searchText,
   } satisfies ReportViewModel;
@@ -572,13 +558,13 @@ export function sortReportsByMode<T extends ReportRecord>(
       case 'project-asc':
         return (
           compareStrings(left.projectName || '', right.projectName || '') ||
-          compareStrings(left.pageName || '', right.pageName || '') ||
+          compareStrings(left.subtaskName || '', right.subtaskName || '') ||
           compareStrings(left.id, right.id)
         );
       case 'project-desc':
         return (
           compareStrings(right.projectName || '', left.projectName || '') ||
-          compareStrings(right.pageName || '', left.pageName || '') ||
+          compareStrings(right.subtaskName || '', left.subtaskName || '') ||
           compareStrings(right.id, left.id)
         );
       case 'task-usedtime-desc':
@@ -613,7 +599,7 @@ function buildReportSearchText(report: ReportRecord) {
     [
       report.reportDate,
       report.projectName,
-      report.pageName,
+      report.subtaskName,
       // Search stays permissive; task URL is only present on view models.
       report.type1,
       report.type2,
@@ -640,7 +626,7 @@ export function reportMatchesFilters(report: ReportRecord, filters: ReportFilter
     return false;
   }
 
-  if (filters.pageId && report.pageId !== filters.pageId) {
+  if (filters.subtaskId && report.subtaskId !== filters.subtaskId) {
     return false;
   }
 
@@ -717,7 +703,7 @@ export function buildReportDownloadHtml(reports: readonly ReportViewModel[], tit
         <tr>
           <td>${escapeHtml(formatReportDate(report.reportDate))}</td>
           <td>${escapeHtml(report.projectDisplayName)}</td>
-          <td>${escapeHtml(report.pageDisplayName)}</td>
+          <td>${escapeHtml(report.subtaskDisplayName)}</td>
           <td>${escapeHtml(report.type1)}</td>
           <td>${escapeHtml(report.type2)}</td>
           <td>${escapeHtml(formatReportTaskUsedtime(report.taskUsedtime))}</td>

@@ -1,14 +1,14 @@
 import type { TaskType } from '../types/domain';
 
-const MANUAL_PAGE_WITH_URL_TYPE_NAMES = new Set(['데이터버퍼', 'RnD']);
-const MANUAL_PAGE_ONLY_TYPE_NAMES = new Set([
+const MANUAL_SUBTASK_WITH_URL_TYPE_NAMES = new Set(['데이터버퍼', 'RnD']);
+const MANUAL_SUBTASK_ONLY_TYPE_NAMES = new Set([
   '일반버퍼',
   '교육',
   '매니징',
   '매니징버퍼',
   '기타버퍼',
 ]);
-const PROJECT_PAGE_SELECT_TYPE_NAMES = new Set(['모니터링', '민원']);
+const PROJECT_SUBTASK_SELECT_TYPE_NAMES = new Set(['모니터링', '민원']);
 const QA_PROJECT_TYPE_NAMES = new Set(['QA', '접근성테스트']);
 
 function normalizeTypeName(value: string) {
@@ -158,8 +158,8 @@ export function getTaskTypeUiRule(type1: string, taskTypes: TaskType[]) {
   return {
     projectLinked,
     vacation: normalizedType1 === '휴무',
-    manualPageWithUrl: MANUAL_PAGE_WITH_URL_TYPE_NAMES.has(normalizedType1),
-    manualPageOnly: MANUAL_PAGE_ONLY_TYPE_NAMES.has(normalizedType1),
-    projectPageSelectable: PROJECT_PAGE_SELECT_TYPE_NAMES.has(normalizedType1),
+    manualSubtaskWithUrl: MANUAL_SUBTASK_WITH_URL_TYPE_NAMES.has(normalizedType1),
+    manualSubtaskOnly: MANUAL_SUBTASK_ONLY_TYPE_NAMES.has(normalizedType1),
+    projectSubtaskSelectable: PROJECT_SUBTASK_SELECT_TYPE_NAMES.has(normalizedType1),
   };
 }

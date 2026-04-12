@@ -15,9 +15,9 @@ const mockDataClient = vi.hoisted(() => ({
   getServiceGroups: vi.fn(),
   getProjects: vi.fn(),
   saveProject: vi.fn(),
-  getProjectPages: vi.fn(),
-  getAllProjectPages: vi.fn(),
-  saveProjectPage: vi.fn(),
+  getProjectSubtasks: vi.fn(),
+  getAllProjectSubtasks: vi.fn(),
+  saveProjectSubtask: vi.fn(),
   getTasksByDate: vi.fn(),
   saveTask: vi.fn(),
   deleteTask: vi.fn(),
@@ -70,7 +70,7 @@ describe('SearchPage', () => {
         isActive: true,
       },
     ]);
-    mockDataClient.getProjectPages.mockResolvedValue([
+    mockDataClient.getProjectSubtasks.mockResolvedValue([
       {
         id: 'page-1',
         projectId: 'project-1',
@@ -102,7 +102,7 @@ describe('SearchPage', () => {
           serviceGroupName: '-',
           serviceName: '-',
           projectName: '알파',
-          pageTitle: '로그인',
+          subtaskTitle: '로그인',
           url: 'https://example.com/login',
         },
       ],
@@ -146,7 +146,7 @@ describe('SearchPage', () => {
     expect(screen.getByRole('button', { name: '다운로드' })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: '청구그룹' })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: '서비스 그룹' })).toBeInTheDocument();
-    expect(screen.getByRole('columnheader', { name: '페이지명' })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: '과업명' })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: '내용' })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: '작업시간' })).toBeInTheDocument();
     expect(screen.getAllByText('알파').length).toBeGreaterThan(0);

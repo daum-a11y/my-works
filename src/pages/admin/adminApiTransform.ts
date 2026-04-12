@@ -1,9 +1,9 @@
 import type { ApiRecord } from '../../api/api.types';
-import { normalizePageStatus } from '../../types/domain';
+import { normalizeSubtaskStatus } from '../../types/domain';
 import { readBooleanFlag } from '../../utils';
 import type {
   AdminCostGroupItem,
-  AdminPageOption,
+  AdminSubtaskOption,
   AdminPlatformItem,
   AdminProjectOption,
   AdminServiceGroupItem,
@@ -28,6 +28,10 @@ function splitServiceName(name: string) {
     serviceGroupName: normalized.slice(0, separator).trim(),
     serviceName: normalized.slice(separator + 3).trim(),
   };
+}
+
+function readValue(record: ApiRecord, snakeKey: string, camelKey: string) {
+  return record[snakeKey] ?? record[camelKey];
 }
 
 export function toAdminTaskType(record: ApiRecord): AdminTaskTypeItem {
@@ -130,13 +134,13 @@ export function toAdminProject(record: ApiRecord): AdminProjectOption {
   };
 }
 
-export function toAdminPage(record: ApiRecord): AdminPageOption {
+export function toAdminSubtask(record: ApiRecord): AdminSubtaskOption {
   return {
     id: String(record.id ?? ''),
     projectId: String(record.project_id ?? ''),
     title: String(record.title ?? ''),
     url: String(record.url ?? ''),
-    trackStatus: normalizePageStatus(String(record.track_status ?? '미수정')),
+    trackStatus: normalizeSubtaskStatus(String(record.track_status ?? '미수정')),
     monitoringInProgress: Boolean(record.monitoring_in_progress ?? false),
     qaInProgress: Boolean(record.qa_in_progress ?? false),
   };
@@ -154,8 +158,8 @@ export function toAdminTask(record: ApiRecord): AdminTaskSearchItem {
     platform: record.platform == null ? null : String(record.platform),
     projectId: record.project_id ? String(record.project_id) : null,
     projectName: record.project_name == null ? null : String(record.project_name),
-    pageId: record.project_page_id ? String(record.project_page_id) : null,
-    pageTitle: record.page_title == null ? null : String(record.page_title),
+    subtaskId: record.project_subtask_id ? String(record.project_subtask_id) : null,
+    subtaskTitle: record.subtask_title == null ? null : String(record.subtask_title),
     url: record.url == null ? null : String(record.url),
     serviceGroupId: record.service_group_id ? String(record.service_group_id) : null,
     serviceGroupName: record.service_group_name == null ? null : String(record.service_group_name),
@@ -170,19 +174,25 @@ export function toAdminTask(record: ApiRecord): AdminTaskSearchItem {
 }
 
 export function toMemberAdmin(record: ApiRecord): MemberAdminItem {
-  const active = readBooleanFlag(record.user_active ?? record.is_active, true);
+  const active = readBooleanFlag(
+    readValue(record, 'user_active', 'userActive') ?? readValue(record, 'is_active', 'isActive'),
+    true,
+  );
   const memberStatus =
-    String(record.member_status ?? 'active') === 'pending' ? 'pending' : 'active';
-  const authUserId = record.auth_user_id ? String(record.auth_user_id) : null;
-  const accountId = String(record.account_id ?? '').trim();
+    String(readValue(record, 'member_status', 'memberStatus') ?? 'active') === 'pending'
+      ? 'pending'
+      : 'active';
+  const rawAuthUserId = readValue(record, 'auth_user_id', 'authUserId');
+  const authUserId = rawAuthUserId ? String(rawAuthUserId) : null;
+  const accountId = String(readValue(record, 'account_id', 'accountId') ?? '').trim();
   const email = String(record.email ?? '').trim();
+  const rawReportRequired = readValue(record, 'report_required', 'reportRequired');
   const reportRequired =
-    typeof record.report_required === 'boolean'
-      ? record.report_required
-      : typeof record.report_required === 'number'
-        ? record.report_required === 1
-        : String(record.report_required ?? 0) === '1' ||
-          String(record.report_required ?? false) === 'true';
+    typeof rawReportRequired === 'boolean'
+      ? rawReportRequired
+      : typeof rawReportRequired === 'number'
+        ? rawReportRequired === 1
+        : String(rawReportRequired ?? 0) === '1' || String(rawReportRequired ?? false) === 'true';
   const queueReasons: string[] = [];
   if (!authUserId) queueReasons.push('auth_unlinked');
   if (!accountId) queueReasons.push('account_id_missing');
@@ -196,15 +206,15 @@ export function toMemberAdmin(record: ApiRecord): MemberAdminItem {
     name: String(record.name ?? ''),
     email,
     note: String(record.note ?? ''),
-    role: Number(record.user_level ?? 0) === 1 ? 'admin' : 'user',
+    role: Number(readValue(record, 'user_level', 'userLevel') ?? 0) === 1 ? 'admin' : 'user',
     userActive: active,
     memberStatus,
     reportRequired,
     isActive: active,
-    authEmail: String(record.auth_email ?? record.email ?? ''),
+    authEmail: String(readValue(record, 'auth_email', 'authEmail') ?? record.email ?? ''),
     queueReasons,
-    joinedAt: String(record.joined_at ?? record.created_at ?? ''),
-    lastLoginAt: String(record.last_login_at ?? ''),
-    updatedAt: String(record.updated_at ?? ''),
+    joinedAt: String(readValue(record, 'joined_at', 'joinedAt') ?? record.created_at ?? ''),
+    lastLoginAt: String(readValue(record, 'last_login_at', 'lastLoginAt') ?? ''),
+    updatedAt: String(readValue(record, 'updated_at', 'updatedAt') ?? ''),
   };
 }

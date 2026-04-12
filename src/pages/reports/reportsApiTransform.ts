@@ -1,10 +1,10 @@
 import type { ApiRecord } from '../../api/api.types';
 import {
-  normalizePageStatus,
+  normalizeSubtaskStatus,
   type CostGroup,
   type Platform,
   type Project,
-  type ProjectPage,
+  type ProjectSubtask,
   type ReportProjectOptionRow,
   type ServiceGroup,
   type Task,
@@ -62,8 +62,8 @@ export function toTask(record: ApiRecord): Task {
     projectId: readValue(record, 'project_id', 'projectId')
       ? String(readValue(record, 'project_id', 'projectId'))
       : null,
-    pageId: readValue(record, 'project_page_id', 'pageId')
-      ? String(readValue(record, 'project_page_id', 'pageId'))
+    subtaskId: readValue(record, 'project_subtask_id', 'subtaskId')
+      ? String(readValue(record, 'project_subtask_id', 'subtaskId'))
       : null,
     taskType1: String(readValue(record, 'task_type1', 'taskType1') ?? ''),
     taskType2: String(readValue(record, 'task_type2', 'taskType2') ?? ''),
@@ -85,10 +85,10 @@ export function toTask(record: ApiRecord): Task {
       readValue(record, 'project_name', 'projectName') == null
         ? null
         : String(readValue(record, 'project_name', 'projectName')),
-    pageTitle:
-      readValue(record, 'page_title', 'pageTitle') == null
+    subtaskTitle:
+      readValue(record, 'subtask_title', 'subtaskTitle') == null
         ? null
-        : String(readValue(record, 'page_title', 'pageTitle')),
+        : String(readValue(record, 'subtask_title', 'subtaskTitle')),
     url: readValue(record, 'url', 'url') == null ? null : String(readValue(record, 'url', 'url')),
   };
 }
@@ -187,7 +187,7 @@ export function toProject(record: ApiRecord): Project {
   };
 }
 
-export function toProjectPage(record: ApiRecord): ProjectPage {
+export function toProjectSubtask(record: ApiRecord): ProjectSubtask {
   return {
     id: String(record.id),
     projectId: String(readValue(record, 'project_id', 'projectId') ?? ''),
@@ -197,7 +197,7 @@ export function toProjectPage(record: ApiRecord): ProjectPage {
       ? String(readValue(record, 'owner_member_id', 'ownerMemberId'))
       : null,
     monitoringMonth: String(readValue(record, 'monitoring_month', 'monitoringMonth') ?? ''),
-    trackStatus: normalizePageStatus(
+    trackStatus: normalizeSubtaskStatus(
       String(readValue(record, 'track_status', 'trackStatus') ?? '미수정'),
     ),
     monitoringInProgress: Boolean(

@@ -7,11 +7,11 @@ import {
   toMember,
   toPlatform,
   toProject,
-  toProjectPage,
+  toProjectSubtask,
   toServiceGroup,
   toTaskType,
 } from './projectApiTransform';
-import type { ProjectPage } from '../../types/domain';
+import type { ProjectSubtask } from '../../types/domain';
 import { buildTaskTypeOptionsForProjects } from '../../utils/taskType';
 import {
   PROJECT_EDITOR_CREATE_TITLE,
@@ -19,15 +19,15 @@ import {
 } from './ProjectEditorPage.constants';
 import { ProjectEditorActionRow } from './ProjectEditorActionRow';
 import { ProjectEditorForm } from './ProjectEditorForm';
-import { ProjectEditorPagesSection } from './ProjectEditorPagesSection';
-import type { PageFormState, ProjectFormState } from './ProjectEditorPage.types';
-import { canDeletePage, canDeleteProject } from './ProjectEditorPage.permissions';
+import { ProjectEditorSubtasksSection } from './ProjectEditorSubtasksSection';
+import type { SubtaskFormState, ProjectFormState } from './ProjectEditorPage.types';
+import { canDeleteSubtask, canDeleteProject } from './ProjectEditorPage.permissions';
 import {
-  initialPageDraft,
+  initialSubtaskDraft,
   initialProjectDraft,
-  sortPages,
-  toPageDraft,
-  toPageInput,
+  sortSubtasks,
+  toSubtaskDraft,
+  toSubtaskInput,
   toProjectDraft,
   toProjectInput,
 } from './ProjectEditorPage.draft';
@@ -44,9 +44,9 @@ export function ProjectEditorPage() {
   const isEditMode = Boolean(projectId);
 
   const [projectDraft, setProjectDraft] = useState<ProjectFormState>(initialProjectDraft);
-  const [pageDrafts, setPageDrafts] = useState<Record<string, PageFormState>>({});
-  const [newPageDraft, setNewPageDraft] = useState<PageFormState | null>(null);
-  const [pageAddOpen, setPageAddOpen] = useState(false);
+  const [subtaskDrafts, setSubtaskDrafts] = useState<Record<string, SubtaskFormState>>({});
+  const [newSubtaskDraft, setNewSubtaskDraft] = useState<SubtaskFormState | null>(null);
+  const [subtaskAddOpen, setSubtaskAddOpen] = useState(false);
   const [statusMessage, setStatusMessage] = useState('');
 
   const query = useQuery({
@@ -54,15 +54,15 @@ export function ProjectEditorPage() {
     enabled: Boolean(member),
     retry: false,
     queryFn: async () => {
-      const [project, pages, members, serviceGroups, platforms, taskTypes] = await Promise.all([
+      const [project, subtasks, members, serviceGroups, platforms, taskTypes] = await Promise.all([
         projectId ? dataClient.getProject(projectId) : Promise.resolve(null),
-        projectId ? dataClient.getProjectPagesByProjectId(projectId) : Promise.resolve([]),
+        projectId ? dataClient.getProjectSubtasksByProjectId(projectId) : Promise.resolve([]),
         dataClient.getMembers(),
         dataClient.getServiceGroups(),
         dataClient.getPlatforms(),
         dataClient.getTaskTypes(),
       ]);
-      return { project, pages, members, serviceGroups, platforms, taskTypes };
+      return { project, subtasks, members, serviceGroups, platforms, taskTypes };
     },
   });
 
@@ -71,7 +71,10 @@ export function ProjectEditorPage() {
     () => (projectRecord ? toProject(projectRecord) : null),
     [projectRecord],
   );
-  const pages = useMemo(() => (query.data?.pages ?? []).map(toProjectPage), [query.data?.pages]);
+  const subtasks = useMemo(
+    () => (query.data?.subtasks ?? []).map(toProjectSubtask),
+    [query.data?.subtasks],
+  );
   const members = useMemo(() => (query.data?.members ?? []).map(toMember), [query.data?.members]);
   const serviceGroups = useMemo(
     () => (query.data?.serviceGroups ?? []).map(toServiceGroup),
@@ -90,7 +93,7 @@ export function ProjectEditorPage() {
     [projectDraft.taskTypeId, taskTypes],
   );
 
-  const selectedProjectPages = useMemo(() => sortPages(pages), [pages]);
+  const selectedProjectSubtasks = useMemo(() => sortSubtasks(subtasks), [subtasks]);
   const visibleServiceGroups = useMemo(
     () =>
       serviceGroups.filter((group) => group.isActive || group.id === projectDraft.serviceGroupId),
@@ -154,12 +157,16 @@ export function ProjectEditorPage() {
     }
 
     setProjectDraft(toProjectDraft(selectedProject));
-    setPageDrafts(
-      Object.fromEntries(selectedProjectPages.map((page) => [page.id, toPageDraft(page)] as const)),
+    setSubtaskDrafts(
+      Object.fromEntries(
+        selectedProjectSubtasks.map((subtask) => [subtask.id, toSubtaskDraft(subtask)] as const),
+      ),
     );
-    setNewPageDraft(initialPageDraft(selectedProject.id, selectedProject.reporterMemberId ?? ''));
-    setPageAddOpen(false);
-  }, [isEditMode, selectedProject, selectedProjectPages]);
+    setNewSubtaskDraft(
+      initialSubtaskDraft(selectedProject.id, selectedProject.reporterMemberId ?? ''),
+    );
+    setSubtaskAddOpen(false);
+  }, [isEditMode, selectedProject, selectedProjectSubtasks]);
 
   useEffect(() => {
     if (isEditMode) {
@@ -167,9 +174,9 @@ export function ProjectEditorPage() {
     }
 
     setProjectDraft(initialProjectDraft());
-    setPageDrafts({});
-    setNewPageDraft(null);
-    setPageAddOpen(false);
+    setSubtaskDrafts({});
+    setNewSubtaskDraft(null);
+    setSubtaskAddOpen(false);
   }, [isEditMode]);
 
   useEffect(() => {
@@ -243,29 +250,32 @@ export function ProjectEditorPage() {
     },
   });
 
-  const savePageMutation = useMutation({
-    mutationFn: async (draft: PageFormState) => {
+  const saveSubtaskMutation = useMutation({
+    mutationFn: async (draft: SubtaskFormState) => {
       if (!member) {
         throw new Error('로그인 정보가 없습니다.');
       }
 
-      return dataClient.saveProjectPage(toPageInput(draft));
+      return dataClient.saveProjectSubtask(toSubtaskInput(draft));
     },
     onSuccess: async (saved) => {
       await queryClient.invalidateQueries({ queryKey: ['projects', member?.id] });
       await queryClient.invalidateQueries({ queryKey: ['project-editor', member?.id] });
-      const mappedPage = toProjectPage(saved);
-      setPageDrafts((current) => ({ ...current, [mappedPage.id]: toPageDraft(mappedPage) }));
-      setStatusMessage('페이지를 저장했습니다.');
-      setPageAddOpen(false);
-      setNewPageDraft(
+      const mappedSubtask = toProjectSubtask(saved);
+      setSubtaskDrafts((current) => ({
+        ...current,
+        [mappedSubtask.id]: toSubtaskDraft(mappedSubtask),
+      }));
+      setStatusMessage('과업을 저장했습니다.');
+      setSubtaskAddOpen(false);
+      setNewSubtaskDraft(
         selectedProject
-          ? initialPageDraft(selectedProject.id, selectedProject.reporterMemberId ?? '')
+          ? initialSubtaskDraft(selectedProject.id, selectedProject.reporterMemberId ?? '')
           : null,
       );
     },
     onError: (error) => {
-      setStatusMessage(error instanceof Error ? error.message : '페이지를 저장하지 못했습니다.');
+      setStatusMessage(error instanceof Error ? error.message : '과업을 저장하지 못했습니다.');
     },
   });
 
@@ -281,15 +291,15 @@ export function ProjectEditorPage() {
     },
   });
 
-  const deletePageMutation = useMutation({
-    mutationFn: async (id: string) => dataClient.deleteProjectPage(id),
+  const deleteSubtaskMutation = useMutation({
+    mutationFn: async (id: string) => dataClient.deleteProjectSubtask(id),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['projects', member?.id] });
       await queryClient.invalidateQueries({ queryKey: ['project-editor', member?.id] });
-      setStatusMessage('페이지를 삭제했습니다.');
+      setStatusMessage('과업을 삭제했습니다.');
     },
     onError: (error) => {
-      setStatusMessage(error instanceof Error ? error.message : '페이지를 삭제하지 못했습니다.');
+      setStatusMessage(error instanceof Error ? error.message : '과업을 삭제하지 못했습니다.');
     },
   });
 
@@ -298,59 +308,59 @@ export function ProjectEditorPage() {
     await saveProjectMutation.mutateAsync(projectDraft);
   };
 
-  const handlePageDraftChange = (pageId: string, patch: Partial<PageFormState>) => {
-    const basePage = selectedProjectPages.find((page) => page.id === pageId);
+  const handleSubtaskDraftChange = (subtaskId: string, patch: Partial<SubtaskFormState>) => {
+    const baseSubtask = selectedProjectSubtasks.find((subtask) => subtask.id === subtaskId);
 
-    if (!basePage) {
+    if (!baseSubtask) {
       return;
     }
 
-    setPageDrafts((current) => ({
+    setSubtaskDrafts((current) => ({
       ...current,
-      [pageId]: {
-        ...(current[pageId] ?? toPageDraft(basePage)),
+      [subtaskId]: {
+        ...(current[subtaskId] ?? toSubtaskDraft(baseSubtask)),
         ...patch,
       },
     }));
   };
 
-  const handleNewPageDraftChange = (patch: Partial<PageFormState>) => {
-    setNewPageDraft((current) => (current ? { ...current, ...patch } : current));
+  const handleNewSubtaskDraftChange = (patch: Partial<SubtaskFormState>) => {
+    setNewSubtaskDraft((current) => (current ? { ...current, ...patch } : current));
   };
 
-  const handlePageSave = async (pageId: string) => {
-    if (savePageMutation.isPending) {
+  const handleSubtaskSave = async (subtaskId: string) => {
+    if (saveSubtaskMutation.isPending) {
       return;
     }
 
-    const draft = pageDrafts[pageId];
+    const draft = subtaskDrafts[subtaskId];
     if (!draft) {
       return;
     }
 
     const confirmed = window.confirm(
-      '정말 수정 하시겠습니까?\n해당페이지를 사용한 모든 사람들의 내용이 수정됩니다.',
+      '정말 수정 하시겠습니까?\n해당 과업을 사용한 모든 사람들의 내용이 수정됩니다.',
     );
     if (!confirmed) {
       return;
     }
 
-    await savePageMutation.mutateAsync(draft);
+    await saveSubtaskMutation.mutateAsync(draft);
   };
 
-  const handlePageAdd = async (event: FormEvent<HTMLFormElement>) => {
+  const handleSubtaskAdd = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!newPageDraft) {
+    if (!newSubtaskDraft) {
       return;
     }
 
-    if (!newPageDraft.title.trim()) {
-      setStatusMessage('페이지 명이 공백입니다.');
+    if (!newSubtaskDraft.title.trim()) {
+      setStatusMessage('과업명이 공백입니다.');
       return;
     }
 
-    await savePageMutation.mutateAsync(newPageDraft);
+    await saveSubtaskMutation.mutateAsync(newSubtaskDraft);
   };
 
   const handleProjectDelete = async () => {
@@ -359,7 +369,7 @@ export function ProjectEditorPage() {
     }
 
     const confirmed = window.confirm(
-      '정말 삭제 하시겠습니까?\n프로젝트와 연결된 페이지도 함께 삭제됩니다.',
+      '정말 삭제 하시겠습니까?\n프로젝트와 연결된 과업도 함께 삭제됩니다.',
     );
     if (!confirmed) {
       return;
@@ -368,8 +378,8 @@ export function ProjectEditorPage() {
     await deleteProjectMutation.mutateAsync(selectedProject.id);
   };
 
-  const handlePageDelete = async (page: ProjectPage) => {
-    if (deletePageMutation.isPending) {
+  const handleSubtaskDelete = async (subtask: ProjectSubtask) => {
+    if (deleteSubtaskMutation.isPending) {
       return;
     }
 
@@ -378,7 +388,7 @@ export function ProjectEditorPage() {
       return;
     }
 
-    await deletePageMutation.mutateAsync(page.id);
+    await deleteSubtaskMutation.mutateAsync(subtask.id);
   };
 
   const loading = status === 'loading' || query.isLoading;
@@ -495,27 +505,29 @@ export function ProjectEditorPage() {
       </section>
 
       {isEditMode && selectedProject ? (
-        <section className={'projects-feature__modal'} aria-label="페이지 목록 패널">
-          <ProjectEditorPagesSection
-            pageAddOpen={pageAddOpen}
-            newPageDraft={newPageDraft}
-            selectedProjectPages={selectedProjectPages}
-            pageDrafts={pageDrafts}
+        <section className={'projects-feature__modal'} aria-label="과업 목록 패널">
+          <ProjectEditorSubtasksSection
+            subtaskAddOpen={subtaskAddOpen}
+            newSubtaskDraft={newSubtaskDraft}
+            selectedProjectSubtasks={selectedProjectSubtasks}
+            subtaskDrafts={subtaskDrafts}
             members={members}
-            canDeletePage={(page) => canDeletePage(page, member?.id ?? null, member?.role)}
+            canDeleteSubtask={(subtask) =>
+              canDeleteSubtask(subtask, member?.id ?? null, member?.role)
+            }
             onToggleAdd={() => {
-              setPageAddOpen((current) => !current);
-              setNewPageDraft(
-                initialPageDraft(selectedProject.id, selectedProject.reporterMemberId ?? ''),
+              setSubtaskAddOpen((current) => !current);
+              setNewSubtaskDraft(
+                initialSubtaskDraft(selectedProject.id, selectedProject.reporterMemberId ?? ''),
               );
             }}
-            onNewPageDraftChange={handleNewPageDraftChange}
-            onAddSubmit={(event) => void handlePageAdd(event)}
-            onPageDraftChange={handlePageDraftChange}
-            onPageSave={(pageId) => void handlePageSave(pageId)}
-            onPageDelete={(page) => void handlePageDelete(page)}
-            savePending={savePageMutation.isPending}
-            toPageDraft={toPageDraft}
+            onNewSubtaskDraftChange={handleNewSubtaskDraftChange}
+            onAddSubmit={(event) => void handleSubtaskAdd(event)}
+            onSubtaskDraftChange={handleSubtaskDraftChange}
+            onSubtaskSave={(subtaskId) => void handleSubtaskSave(subtaskId)}
+            onSubtaskDelete={(subtask) => void handleSubtaskDelete(subtask)}
+            savePending={saveSubtaskMutation.isPending}
+            toSubtaskDraft={toSubtaskDraft}
           />
         </section>
       ) : null}

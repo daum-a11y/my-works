@@ -6,7 +6,7 @@ export interface AdminTaskSearchFilters {
   platformId: string;
   serviceGroupId: string;
   projectId: string;
-  pageId: string;
+  subtaskId: string;
   taskTypeId: string;
   taskType1: string;
   taskType2: string;
@@ -24,8 +24,8 @@ export interface AdminTaskSearchItem {
   platform: string | null;
   projectId: string | null;
   projectName: string | null;
-  pageId: string | null;
-  pageTitle: string | null;
+  subtaskId: string | null;
+  subtaskTitle: string | null;
   url: string | null;
   serviceGroupId: string | null;
   serviceGroupName: string | null;
@@ -49,7 +49,7 @@ export interface AdminTaskSaveInput {
   taskDate: string;
   costGroupId: string;
   projectId: string;
-  pageId: string;
+  subtaskId: string;
   taskType1: string;
   taskType2: string;
   taskUsedtime: number;
@@ -156,7 +156,7 @@ export interface AdminProjectOption {
   isActive: boolean;
 }
 
-export interface AdminPageOption {
+export interface AdminSubtaskOption {
   id: string;
   projectId: string;
   title: string;

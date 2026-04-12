@@ -18,7 +18,7 @@ export function ProjectsResultsTable({ projects }: ProjectsResultsTableProps) {
             <th scope="col">플랫폼</th>
             <th scope="col">서비스 그룹</th>
             <th scope="col">프로젝트명</th>
-            <th scope="col">페이지 수</th>
+            <th scope="col">과업 수</th>
             <th scope="col">보고서URL</th>
             <th scope="col">QA시작일</th>
             <th scope="col">QA종료일</th>
@@ -34,7 +34,7 @@ export function ProjectsResultsTable({ projects }: ProjectsResultsTableProps) {
               <td>{project.platform || '-'}</td>
               <td>{project.serviceGroupName || '-'}</td>
               <td>{project.name}</td>
-              <td>{project.pageCount}</td>
+              <td>{project.subtaskCount}</td>
               <td>
                 {project.reportUrl ? (
                   <a

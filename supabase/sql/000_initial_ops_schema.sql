@@ -261,7 +261,7 @@ create table if not exists public.projects (
   updated_at timestamptz not null default timezone('utc', now())
 );
 
-create table if not exists public.project_pages (
+create table if not exists public.project_subtasks (
   id uuid primary key default gen_random_uuid(),
   project_id uuid not null references public.projects(id) on delete cascade,
   owner_member_id uuid references public.members(id),
@@ -276,7 +276,7 @@ create table if not exists public.project_pages (
   note text not null default '',
   updated_at timestamptz not null default timezone('utc', now()),
   created_at timestamptz not null default timezone('utc', now()),
-  constraint project_pages_track_status_check
+  constraint project_subtasks_track_status_check
     check (track_status in ('미수정', '전체 수정', '일부 수정'))
 );
 
@@ -288,7 +288,7 @@ create table if not exists public.tasks (
   task_date date not null,
   cost_group_id uuid references public.cost_groups(id),
   project_id uuid references public.projects(id),
-  project_page_id uuid references public.project_pages(id),
+  project_subtask_id uuid references public.project_subtasks(id),
   task_type_id uuid references public.task_types(id),
   task_usedtime numeric(5, 1) not null default 0,
   url text not null default '',
@@ -400,7 +400,7 @@ select
 from public.members
 where user_active = true;
 
-create or replace view public.project_pages_public_view
+create or replace view public.project_subtasks_public_view
 with (security_invoker = true) as
 select
   id,
@@ -414,13 +414,13 @@ select
   qa_in_progress,
   note,
   updated_at
-from public.project_pages;
+from public.project_subtasks;
 
 create index if not exists idx_tasks_member_date on public.tasks (member_id, task_date desc);
-create index if not exists idx_project_pages_owner on public.project_pages (owner_member_id);
+create index if not exists idx_project_subtasks_owner on public.project_subtasks (owner_member_id);
 create index if not exists idx_projects_dates on public.projects (start_date, end_date);
 create index if not exists idx_projects_name on public.projects (name);
-create index if not exists idx_project_pages_lookup on public.project_pages (project_id, title, url);
+create index if not exists idx_project_subtasks_lookup on public.project_subtasks (project_id, title, url);
 
 drop trigger if exists members_set_updated_at on public.members;
 create trigger members_set_updated_at
@@ -452,9 +452,9 @@ create trigger projects_set_updated_at
 before update on public.projects
 for each row execute function public.set_updated_at();
 
-drop trigger if exists project_pages_set_updated_at on public.project_pages;
-create trigger project_pages_set_updated_at
-before update on public.project_pages
+drop trigger if exists project_subtasks_set_updated_at on public.project_subtasks;
+create trigger project_subtasks_set_updated_at
+before update on public.project_subtasks
 for each row execute function public.set_updated_at();
 
 drop trigger if exists tasks_set_updated_at on public.tasks;
@@ -492,9 +492,9 @@ create trigger projects_set_audit_member_ids
 before insert or update on public.projects
 for each row execute function public.set_audit_member_ids();
 
-drop trigger if exists project_pages_set_audit_member_ids on public.project_pages;
-create trigger project_pages_set_audit_member_ids
-before insert or update on public.project_pages
+drop trigger if exists project_subtasks_set_audit_member_ids on public.project_subtasks;
+create trigger project_subtasks_set_audit_member_ids
+before insert or update on public.project_subtasks
 for each row execute function public.set_audit_member_ids();
 
 drop trigger if exists tasks_set_audit_member_ids on public.tasks;
@@ -708,7 +708,7 @@ create or replace function public.save_task(
   p_task_date date default null,
   p_cost_group_id uuid default null,
   p_project_id uuid default null,
-  p_project_page_id uuid default null,
+  p_project_subtask_id uuid default null,
   p_task_type1 text default null,
   p_task_type2 text default null,
   p_task_usedtime numeric default null,
@@ -788,7 +788,7 @@ begin
       task_date,
       cost_group_id,
       project_id,
-      project_page_id,
+      project_subtask_id,
       task_type_id,
       task_usedtime,
       url,
@@ -801,7 +801,7 @@ begin
       p_task_date,
       p_cost_group_id,
       p_project_id,
-      p_project_page_id,
+      p_project_subtask_id,
       v_task_type_id,
       p_task_usedtime,
       coalesce(p_url, ''),
@@ -815,7 +815,7 @@ begin
       task_date = p_task_date,
       cost_group_id = p_cost_group_id,
       project_id = p_project_id,
-      project_page_id = p_project_page_id,
+      project_subtask_id = p_project_subtask_id,
       task_type_id = v_task_type_id,
       task_usedtime = p_task_usedtime,
       url = coalesce(p_url, ''),
@@ -936,7 +936,7 @@ returns table (
   cost_group_id uuid,
   cost_group_name text,
   project_id uuid,
-  project_page_id uuid,
+  project_subtask_id uuid,
   task_type1 text,
   task_type2 text,
   task_usedtime numeric,
@@ -948,7 +948,7 @@ returns table (
   service_group_name text,
   service_name text,
   project_name text,
-  page_title text,
+  subtask_title text,
   url text
 )
 language sql
@@ -963,7 +963,7 @@ as $$
     t.cost_group_id,
     nullif(cg.name, '') as cost_group_name,
     t.project_id,
-    t.project_page_id,
+    t.project_subtask_id,
     coalesce(tt.type1, '') as task_type1,
     coalesce(tt.type2, '') as task_type2,
     t.task_usedtime,
@@ -976,14 +976,14 @@ as $$
     nullif(public.resolve_service_group_name(sg.service_group_name, sg.name), '') as service_group_name,
     nullif(public.resolve_service_name(sg.service_name, sg.name), '') as service_name,
     p.name as project_name,
-    pp.title as page_title,
+    pp.title as subtask_title,
     t.url
   from public.tasks t
   left join public.cost_groups cg on cg.id = t.cost_group_id
   left join public.task_types tt on tt.id = t.task_type_id
   left join public.projects p on p.id = t.project_id
   left join public.platforms pl on pl.id = p.platform_id
-  left join public.project_pages pp on pp.id = t.project_page_id
+  left join public.project_subtasks pp on pp.id = t.project_subtask_id
   left join public.service_groups sg on sg.id = p.service_group_id
   where public.current_member_id() is not null
     and p_task_date is not null
@@ -1579,7 +1579,7 @@ as $$
       p.start_date,
       p.end_date,
       pp.monitoring_month
-    from public.project_pages pp
+    from public.project_subtasks pp
     join public.projects p on p.id = pp.project_id
   ),
   status_counts as (
@@ -1669,7 +1669,7 @@ $$;
 
 create or replace function public.get_monitoring_stats_rows()
 returns table (
-  page_id uuid,
+  subtask_id uuid,
   project_id uuid,
   title text,
   url text,
@@ -1692,7 +1692,7 @@ security definer
 set search_path = public
 as $$
   select
-    pp.id as page_id,
+    pp.id as subtask_id,
     p.id as project_id,
     pp.title,
     pp.url,
@@ -1708,7 +1708,7 @@ as $$
     nullif(pl.name, '') as platform,
     nullif(concat_ws(' ', nullif(owner.account_id, ''), nullif(owner.name, '')), '') as assignee_display,
     nullif(p.report_url, '') as report_url
-  from public.project_pages pp
+  from public.project_subtasks pp
   join public.projects p on p.id = pp.project_id
   left join public.platforms pl on pl.id = p.platform_id
   left join public.service_groups sg on sg.id = p.service_group_id
@@ -1758,7 +1758,7 @@ create or replace function public.search_tasks_export(
   p_start_date date default null,
   p_end_date date default null,
   p_project_id uuid default null,
-  p_project_page_id uuid default null,
+  p_project_subtask_id uuid default null,
   p_task_type1 text default null,
   p_task_type2 text default null,
   p_min_task_usedtime numeric default null,
@@ -1772,7 +1772,7 @@ returns table (
   cost_group_id uuid,
   cost_group_name text,
   project_id uuid,
-  project_page_id uuid,
+  project_subtask_id uuid,
   task_type1 text,
   task_type2 text,
   task_usedtime numeric,
@@ -1784,7 +1784,7 @@ returns table (
   service_group_name text,
   service_name text,
   project_name text,
-  page_title text,
+  subtask_title text,
   url text
 )
 language sql
@@ -1799,7 +1799,7 @@ as $$
     t.cost_group_id,
     cg.name as cost_group_name,
     t.project_id,
-    t.project_page_id,
+    t.project_subtask_id,
     coalesce(tt.type1, '') as task_type1,
     coalesce(tt.type2, '') as task_type2,
     t.task_usedtime,
@@ -1811,14 +1811,14 @@ as $$
     nullif(public.resolve_service_group_name(sg.service_group_name, sg.name), '') as service_group_name,
     nullif(public.resolve_service_name(sg.service_name, sg.name), '') as service_name,
     p.name as project_name,
-    pp.title as page_title,
+    pp.title as subtask_title,
     t.url
   from public.tasks t
   join public.cost_groups cg on cg.id = t.cost_group_id
   left join public.task_types tt on tt.id = t.task_type_id
   left join public.projects p on p.id = t.project_id
   left join public.platforms pl on pl.id = p.platform_id
-  left join public.project_pages pp on pp.id = t.project_page_id
+  left join public.project_subtasks pp on pp.id = t.project_subtask_id
   left join public.service_groups sg on sg.id = p.service_group_id
   where public.current_member_id() is not null
     and (
@@ -1832,7 +1832,7 @@ as $$
     and (p_start_date is null or t.task_date >= p_start_date)
     and (p_end_date is null or t.task_date <= p_end_date)
     and (p_project_id is null or t.project_id = p_project_id)
-    and (p_project_page_id is null or t.project_page_id = p_project_page_id)
+    and (p_project_subtask_id is null or t.project_subtask_id = p_project_subtask_id)
     and (p_task_type1 is null or tt.type1 = p_task_type1)
     and (p_task_type2 is null or tt.type2 = p_task_type2)
     and (p_min_task_usedtime is null or t.task_usedtime >= p_min_task_usedtime)
@@ -1859,7 +1859,7 @@ create or replace function public.search_tasks_page(
   p_start_date date default null,
   p_end_date date default null,
   p_project_id uuid default null,
-  p_project_page_id uuid default null,
+  p_project_subtask_id uuid default null,
   p_task_type1 text default null,
   p_task_type2 text default null,
   p_min_task_usedtime numeric default null,
@@ -1882,7 +1882,7 @@ returns table (
   service_group_name text,
   service_name text,
   project_name text,
-  page_title text,
+  subtask_title text,
   url text
 )
 language sql
@@ -1906,21 +1906,21 @@ as $$
     nullif(public.resolve_service_group_name(sg.service_group_name, sg.name), '') as service_group_name,
     nullif(public.resolve_service_name(sg.service_name, sg.name), '') as service_name,
     p.name as project_name,
-    pp.title as page_title,
+    pp.title as subtask_title,
     t.url
   from public.tasks t
   join public.cost_groups cg on cg.id = t.cost_group_id
   left join public.task_types tt on tt.id = t.task_type_id
   left join public.projects p on p.id = t.project_id
   left join public.platforms pl on pl.id = p.platform_id
-  left join public.project_pages pp on pp.id = t.project_page_id
+  left join public.project_subtasks pp on pp.id = t.project_subtask_id
   left join public.service_groups sg on sg.id = p.service_group_id
   where public.current_member_id() is not null
     and t.member_id = coalesce(p_member_id, public.current_member_id())
     and (p_start_date is null or t.task_date >= p_start_date)
     and (p_end_date is null or t.task_date <= p_end_date)
     and (p_project_id is null or t.project_id = p_project_id)
-    and (p_project_page_id is null or t.project_page_id = p_project_page_id)
+    and (p_project_subtask_id is null or t.project_subtask_id = p_project_subtask_id)
     and (p_task_type1 is null or tt.type1 = p_task_type1)
     and (p_task_type2 is null or tt.type2 = p_task_type2)
     and (p_min_task_usedtime is null or t.task_usedtime >= p_min_task_usedtime)
@@ -2129,7 +2129,7 @@ returns table (
   start_date date,
   end_date date,
   is_active boolean,
-  page_count bigint
+  subtask_count bigint
 )
 language sql
 stable
@@ -2154,14 +2154,14 @@ as $$
     p.start_date,
     p.end_date,
     p.is_active,
-    count(pp.id)::bigint as page_count
+    count(pp.id)::bigint as subtask_count
   from public.projects p
   left join public.task_types ptt on ptt.id = p.task_type_id
   left join public.platforms pl on pl.id = p.platform_id
   left join public.service_groups sg on sg.id = p.service_group_id
   left join public.members reporter on reporter.id = p.reporter_member_id
   left join public.members reviewer on reviewer.id = p.reviewer_member_id
-  left join public.project_pages pp on pp.project_id = p.id
+  left join public.project_subtasks pp on pp.project_id = p.id
   where public.current_member_id() is not null
     and (p_start_date is null or p.end_date >= p_start_date)
     and (p_end_date is null or p.start_date <= p_end_date)
@@ -2269,8 +2269,8 @@ as $$
   limit 60
 $$;
 
-create or replace function public.upsert_project_page(
-  p_page_id uuid default null,
+create or replace function public.upsert_project_subtask(
+  p_subtask_id uuid default null,
   p_project_id uuid default null,
   p_title text default null,
   p_url text default '',
@@ -2281,14 +2281,14 @@ create or replace function public.upsert_project_page(
   p_qa_in_progress boolean default false,
   p_note text default ''
 )
-returns public.project_pages
+returns public.project_subtasks
 language plpgsql
 security definer
 set search_path = public
 as $$
 declare
   v_member_id uuid := public.current_member_id();
-  v_page public.project_pages;
+  v_subtask public.project_subtasks;
 begin
   if v_member_id is null then
     raise exception 'member not bound';
@@ -2315,8 +2315,8 @@ begin
     raise exception 'project not found';
   end if;
 
-  if p_page_id is null then
-    insert into public.project_pages (
+  if p_subtask_id is null then
+    insert into public.project_subtasks (
       project_id,
       owner_member_id,
       title,
@@ -2338,9 +2338,9 @@ begin
       p_qa_in_progress,
       coalesce(p_note, '')
     )
-    returning * into v_page;
+    returning * into v_subtask;
   else
-    update public.project_pages
+    update public.project_subtasks
     set
       project_id = p_project_id,
       owner_member_id = coalesce(p_owner_member_id, owner_member_id),
@@ -2352,19 +2352,19 @@ begin
       qa_in_progress = p_qa_in_progress,
       note = coalesce(p_note, ''),
       updated_at = timezone('utc', now())
-    where id = p_page_id
+    where id = p_subtask_id
       and (
         owner_member_id = v_member_id
         or public.current_user_is_admin()
       )
-    returning * into v_page;
+    returning * into v_subtask;
 
-    if v_page is null then
-      raise exception 'project page not found';
+    if v_subtask is null then
+      raise exception 'project subtask not found';
     end if;
   end if;
 
-  return v_page;
+  return v_subtask;
 end;
 $$;
 
@@ -2380,7 +2380,7 @@ returns table (
   cost_group_id uuid,
   cost_group_name text,
   project_id uuid,
-  project_page_id uuid,
+  project_subtask_id uuid,
   task_type1 text,
   task_type2 text,
   task_usedtime numeric,
@@ -2390,7 +2390,7 @@ returns table (
   member_name text,
   member_email text,
   project_name text,
-  page_title text,
+  subtask_title text,
   url text,
   platform text,
   service_group_id uuid,
@@ -2409,7 +2409,7 @@ as $$
     t.cost_group_id,
     cg.name as cost_group_name,
     t.project_id,
-    t.project_page_id,
+    t.project_subtask_id,
     coalesce(tt.type1, '') as task_type1,
     coalesce(tt.type2, '') as task_type2,
     t.task_usedtime,
@@ -2419,7 +2419,7 @@ as $$
     m.name as member_name,
     m.email as member_email,
     p.name as project_name,
-    pp.title as page_title,
+    pp.title as subtask_title,
     t.url,
     nullif(pl.name, '') as platform,
     p.service_group_id,
@@ -2431,7 +2431,7 @@ as $$
   left join public.task_types tt on tt.id = t.task_type_id
   left join public.projects p on p.id = t.project_id
   left join public.platforms pl on pl.id = p.platform_id
-  left join public.project_pages pp on pp.id = t.project_page_id
+  left join public.project_subtasks pp on pp.id = t.project_subtask_id
   left join public.service_groups sg on sg.id = p.service_group_id
   where public.current_user_is_admin()
     and t.id = p_task_id
@@ -2445,7 +2445,7 @@ create or replace function public.admin_save_task(
   p_task_date date default null,
   p_cost_group_id uuid default null,
   p_project_id uuid default null,
-  p_project_page_id uuid default null,
+  p_project_subtask_id uuid default null,
   p_task_type1 text default null,
   p_task_type2 text default null,
   p_task_usedtime numeric default null,
@@ -2460,7 +2460,7 @@ returns table (
   cost_group_id uuid,
   cost_group_name text,
   project_id uuid,
-  project_page_id uuid,
+  project_subtask_id uuid,
   task_type1 text,
   task_type2 text,
   task_usedtime numeric,
@@ -2470,7 +2470,7 @@ returns table (
   member_name text,
   member_email text,
   project_name text,
-  page_title text,
+  subtask_title text,
   url text,
   platform text,
   service_group_id uuid,
@@ -2547,7 +2547,7 @@ begin
       task_date,
       cost_group_id,
       project_id,
-      project_page_id,
+      project_subtask_id,
       task_type_id,
       task_usedtime,
       url,
@@ -2560,7 +2560,7 @@ begin
       p_task_date,
       p_cost_group_id,
       p_project_id,
-      p_project_page_id,
+      p_project_subtask_id,
       v_task_type_id,
       p_task_usedtime,
       coalesce(p_url, ''),
@@ -2575,7 +2575,7 @@ begin
       task_date = p_task_date,
       cost_group_id = p_cost_group_id,
       project_id = p_project_id,
-      project_page_id = p_project_page_id,
+      project_subtask_id = p_project_subtask_id,
       task_type_id = v_task_type_id,
       task_usedtime = p_task_usedtime,
       url = coalesce(p_url, ''),
@@ -3147,7 +3147,7 @@ create or replace function public.admin_search_tasks(
   p_start_date date default null,
   p_end_date date default null,
   p_project_id uuid default null,
-  p_project_page_id uuid default null,
+  p_project_subtask_id uuid default null,
   p_platform_id uuid default null,
   p_service_group_id uuid default null,
   p_task_type_id uuid default null,
@@ -3163,7 +3163,7 @@ returns table (
   cost_group_id uuid,
   cost_group_name text,
   project_id uuid,
-  project_page_id uuid,
+  project_subtask_id uuid,
   task_type1 text,
   task_type2 text,
   task_usedtime numeric,
@@ -3173,7 +3173,7 @@ returns table (
   member_name text,
   member_email text,
   project_name text,
-  page_title text,
+  subtask_title text,
   url text,
   platform text,
   service_group_id uuid,
@@ -3192,7 +3192,7 @@ as $$
     t.cost_group_id,
     cg.name as cost_group_name,
     t.project_id,
-    t.project_page_id,
+    t.project_subtask_id,
     coalesce(tt.type1, '') as task_type1,
     coalesce(tt.type2, '') as task_type2,
     t.task_usedtime,
@@ -3202,7 +3202,7 @@ as $$
     m.name as member_name,
     m.email as member_email,
     p.name as project_name,
-    pp.title as page_title,
+    pp.title as subtask_title,
     t.url,
     nullif(pl.name, '') as platform,
     p.service_group_id,
@@ -3214,14 +3214,14 @@ as $$
   left join public.task_types tt on tt.id = t.task_type_id
   left join public.projects p on p.id = t.project_id
   left join public.platforms pl on pl.id = p.platform_id
-  left join public.project_pages pp on pp.id = t.project_page_id
+  left join public.project_subtasks pp on pp.id = t.project_subtask_id
   left join public.service_groups sg on sg.id = p.service_group_id
   where public.current_user_is_admin()
     and (p_member_id is null or t.member_id = p_member_id)
     and (p_start_date is null or t.task_date >= p_start_date)
     and (p_end_date is null or t.task_date <= p_end_date)
     and (p_project_id is null or t.project_id = p_project_id)
-    and (p_project_page_id is null or t.project_page_id = p_project_page_id)
+    and (p_project_subtask_id is null or t.project_subtask_id = p_project_subtask_id)
     and (p_platform_id is null or p.platform_id = p_platform_id)
     and (p_service_group_id is null or p.service_group_id = p_service_group_id)
     and (p_task_type_id is null or t.task_type_id = p_task_type_id)
@@ -3289,7 +3289,7 @@ grant execute on function public.admin_get_member_task_count(uuid) to authentica
 grant execute on function public.search_projects_page(date, date, text) to authenticated;
 grant execute on function public.search_report_projects(uuid, text, text, text) to authenticated;
 grant execute on function public.upsert_project(uuid, text, text, uuid, uuid, text, uuid, uuid, date, date, boolean) to authenticated;
-grant execute on function public.upsert_project_page(uuid, uuid, text, text, uuid, text, text, boolean, boolean, text) to authenticated;
+grant execute on function public.upsert_project_subtask(uuid, uuid, text, text, uuid, text, text, boolean, boolean, text) to authenticated;
 grant execute on function public.admin_search_tasks(uuid, date, date, uuid, uuid, uuid, uuid, uuid, text, text, uuid, text) to authenticated;
 
 alter table public.members enable row level security;
@@ -3298,7 +3298,7 @@ alter table public.cost_groups enable row level security;
 alter table public.platforms enable row level security;
 alter table public.task_types enable row level security;
 alter table public.projects enable row level security;
-alter table public.project_pages enable row level security;
+alter table public.project_subtasks enable row level security;
 alter table public.tasks enable row level security;
 
 create policy "members_active_directory_select"
@@ -3459,14 +3459,14 @@ with check (
   or public.current_user_is_admin()
 );
 
-create policy "project_pages_select_active_member"
-on public.project_pages
+create policy "project_subtasks_select_active_member"
+on public.project_subtasks
 for select
 to authenticated
 using (public.current_user_is_active_member());
 
-create policy "project_pages_write_owner_or_admin"
-on public.project_pages
+create policy "project_subtasks_write_owner_or_admin"
+on public.project_subtasks
 for all
 to authenticated
 using (
@@ -3502,4 +3502,4 @@ with check (
 
 grant select on public.members_public_view to authenticated;
 grant select on public.active_members_public_view to authenticated;
-grant select on public.project_pages_public_view to authenticated;
+grant select on public.project_subtasks_public_view to authenticated;

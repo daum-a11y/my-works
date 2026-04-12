@@ -20,9 +20,9 @@ export interface AdminDataClient {
   listCostGroups(): Promise<ApiRecord[]>;
   listServiceGroups(): Promise<ApiRecord[]>;
   listProjects(): Promise<ApiRecord[]>;
-  listProjectPages(): Promise<ApiRecord[]>;
+  listProjectSubtasks(): Promise<ApiRecord[]>;
   getProjectAdminOption(projectId: string): Promise<ApiRecord | null>;
-  listProjectPagesByProjectId(projectId: string): Promise<ApiRecord[]>;
+  listProjectSubtasksByProjectId(projectId: string): Promise<ApiRecord[]>;
   searchReportProjectsAdmin(filters: {
     costGroupId: string | null;
     platform: string | null;
@@ -38,7 +38,7 @@ export interface AdminDataClient {
       platformId: string | null;
       serviceGroupId: string | null;
       projectId: string | null;
-      pageId: string | null;
+      subtaskId: string | null;
       taskTypeId: string | null;
       taskType1: string | null;
       taskType2: string | null;
@@ -117,13 +117,13 @@ const unconfiguredAdminClient: AdminDataClient = {
   async listProjects() {
     throw new Error(configurationErrorMessage);
   },
-  async listProjectPages() {
+  async listProjectSubtasks() {
     throw new Error(configurationErrorMessage);
   },
   async getProjectAdminOption() {
     throw new Error(configurationErrorMessage);
   },
-  async listProjectPagesByProjectId() {
+  async listProjectSubtasksByProjectId() {
     throw new Error(configurationErrorMessage);
   },
   async searchReportProjectsAdmin() {
@@ -265,9 +265,9 @@ const configuredAdminClient: AdminDataClient = !supabase
         if (error) throw error;
         return (data ?? []) as ApiRecord[];
       },
-      async listProjectPages() {
+      async listProjectSubtasks() {
         const { data, error } = await supabase
-          .from('project_pages')
+          .from('project_subtasks')
           .select(
             'id, project_id, title, url, track_status, monitoring_in_progress, qa_in_progress',
           )
@@ -286,9 +286,9 @@ const configuredAdminClient: AdminDataClient = !supabase
         if (error) throw error;
         return (data as ApiRecord | null) ?? null;
       },
-      async listProjectPagesByProjectId(projectId) {
+      async listProjectSubtasksByProjectId(projectId) {
         const { data, error } = await supabase
-          .from('project_pages')
+          .from('project_subtasks')
           .select(
             'id, project_id, title, url, track_status, monitoring_in_progress, qa_in_progress',
           )
@@ -326,7 +326,7 @@ const configuredAdminClient: AdminDataClient = !supabase
               p_start_date: filters.startDate,
               p_end_date: filters.endDate,
               p_project_id: filters.projectId,
-              p_project_page_id: filters.pageId,
+              p_project_subtask_id: filters.subtaskId,
               p_platform_id: filters.platformId,
               p_service_group_id: filters.serviceGroupId,
               p_task_type_id: filters.taskTypeId,
@@ -357,7 +357,7 @@ const configuredAdminClient: AdminDataClient = !supabase
           p_task_date: input.taskDate,
           p_cost_group_id: input.costGroupId,
           p_project_id: input.projectId || null,
-          p_project_page_id: input.pageId || null,
+          p_project_subtask_id: input.subtaskId || null,
           p_task_type1: input.taskType1,
           p_task_type2: input.taskType2,
           p_task_usedtime: input.taskUsedtime,

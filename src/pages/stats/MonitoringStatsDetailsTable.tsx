@@ -1,4 +1,8 @@
-import { pageStatusOptions, type MonitoringStatsRow, type PageStatus } from '../../types/domain';
+import {
+  subtaskStatusOptions,
+  type MonitoringStatsRow,
+  type SubtaskStatus,
+} from '../../types/domain';
 import {
   formatMonthLabel,
   formatTrackStatus,
@@ -7,16 +11,16 @@ import {
 
 interface MonitoringStatsDetailsTableProps {
   rows: MonitoringStatsRow[];
-  editingPageId: string | null;
-  draftStatus: PageStatus;
+  editingSubtaskId: string | null;
+  draftStatus: SubtaskStatus;
   draftNote: string;
-  hoveredNotePageId: string | null;
-  pinnedNotePageId: string | null;
+  hoveredNoteSubtaskId: string | null;
+  pinnedNoteSubtaskId: string | null;
   savePending: boolean;
-  onDraftStatusChange: (value: PageStatus) => void;
+  onDraftStatusChange: (value: SubtaskStatus) => void;
   onDraftNoteChange: (value: string) => void;
-  onHoveredNotePageIdChange: (value: string | null) => void;
-  onPinnedNotePageIdChange: (value: string | null) => void;
+  onHoveredNoteSubtaskIdChange: (value: string | null) => void;
+  onPinnedNoteSubtaskIdChange: (value: string | null) => void;
   onStartEdit: (row: MonitoringStatsRow) => void;
   onSave: (row: MonitoringStatsRow) => void;
   onCancel: () => void;
@@ -24,34 +28,34 @@ interface MonitoringStatsDetailsTableProps {
 
 export function MonitoringStatsDetailsTable({
   rows,
-  editingPageId,
+  editingSubtaskId,
   draftStatus,
   draftNote,
-  hoveredNotePageId,
-  pinnedNotePageId,
+  hoveredNoteSubtaskId,
+  pinnedNoteSubtaskId,
   savePending,
   onDraftStatusChange,
   onDraftNoteChange,
-  onHoveredNotePageIdChange,
-  onPinnedNotePageIdChange,
+  onHoveredNoteSubtaskIdChange,
+  onPinnedNoteSubtaskIdChange,
   onStartEdit,
   onSave,
   onCancel,
 }: MonitoringStatsDetailsTableProps) {
-  const isNoteOpen = (pageId: string) =>
-    hoveredNotePageId === pageId || pinnedNotePageId === pageId;
+  const isNoteOpen = (subtaskId: string) =>
+    hoveredNoteSubtaskId === subtaskId || pinnedNoteSubtaskId === subtaskId;
 
   return (
     <div className={'stats-page__table-wrap'}>
       <table className={'stats-page__table'}>
-        <caption className={'sr-only'}>필터링된 모니터링 페이지 목록</caption>
+        <caption className={'sr-only'}>필터링된 모니터링 과업 목록</caption>
         <thead>
           <tr>
             <th scope="col">월</th>
             <th scope="col">플랫폼</th>
             <th scope="col">서비스 그룹</th>
             <th scope="col">프로젝트명</th>
-            <th scope="col">페이지명</th>
+            <th scope="col">과업명</th>
             <th scope="col">담당자</th>
             <th scope="col">상태</th>
             <th scope="col">비고</th>
@@ -61,7 +65,7 @@ export function MonitoringStatsDetailsTable({
         </thead>
         <tbody>
           {rows.map((row) => (
-            <tr key={row.pageId}>
+            <tr key={row.subtaskId}>
               <td>{formatMonthLabel(monthKeyFromMonitoringMonth(row.monitoringMonth))}</td>
               <td>{row.platform || '-'}</td>
               <td>{row.serviceGroupName || '-'}</td>
@@ -69,14 +73,14 @@ export function MonitoringStatsDetailsTable({
               <td>{row.title}</td>
               <td>{row.assigneeDisplay || '-'}</td>
               <td>
-                {editingPageId === row.pageId ? (
+                {editingSubtaskId === row.subtaskId ? (
                   <select
                     aria-label={`${row.title} 상태`}
                     className={'stats-page__inline-select'}
                     value={draftStatus}
-                    onChange={(event) => onDraftStatusChange(event.target.value as PageStatus)}
+                    onChange={(event) => onDraftStatusChange(event.target.value as SubtaskStatus)}
                   >
-                    {pageStatusOptions.map((status) => (
+                    {subtaskStatusOptions.map((status) => (
                       <option key={status} value={status}>
                         {formatTrackStatus(status)}
                       </option>
@@ -89,7 +93,7 @@ export function MonitoringStatsDetailsTable({
                 )}
               </td>
               <td>
-                {editingPageId === row.pageId ? (
+                {editingSubtaskId === row.subtaskId ? (
                   <textarea
                     aria-label={`${row.title} 비고`}
                     className={'stats-page__inline-textarea'}
@@ -100,21 +104,23 @@ export function MonitoringStatsDetailsTable({
                 ) : row.note ? (
                   <div
                     className={'stats-page__note-cell'}
-                    onMouseEnter={() => onHoveredNotePageIdChange(row.pageId)}
+                    onMouseEnter={() => onHoveredNoteSubtaskIdChange(row.subtaskId)}
                     onMouseLeave={() =>
-                      onHoveredNotePageIdChange(
-                        hoveredNotePageId === row.pageId && pinnedNotePageId !== row.pageId
+                      onHoveredNoteSubtaskIdChange(
+                        hoveredNoteSubtaskId === row.subtaskId &&
+                          pinnedNoteSubtaskId !== row.subtaskId
                           ? null
-                          : hoveredNotePageId,
+                          : hoveredNoteSubtaskId,
                       )
                     }
-                    onFocusCapture={() => onHoveredNotePageIdChange(row.pageId)}
+                    onFocusCapture={() => onHoveredNoteSubtaskIdChange(row.subtaskId)}
                     onBlurCapture={(event) => {
                       if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
-                        onHoveredNotePageIdChange(
-                          hoveredNotePageId === row.pageId && pinnedNotePageId !== row.pageId
+                        onHoveredNoteSubtaskIdChange(
+                          hoveredNoteSubtaskId === row.subtaskId &&
+                            pinnedNoteSubtaskId !== row.subtaskId
                             ? null
-                            : hoveredNotePageId,
+                            : hoveredNoteSubtaskId,
                         );
                       }
                     }}
@@ -123,22 +129,22 @@ export function MonitoringStatsDetailsTable({
                       type="button"
                       className={[
                         'stats-page__note-toggle',
-                        isNoteOpen(row.pageId) ? 'stats-page__note-toggle--active' : '',
+                        isNoteOpen(row.subtaskId) ? 'stats-page__note-toggle--active' : '',
                       ]
                         .filter(Boolean)
                         .join(' ')}
-                      aria-expanded={isNoteOpen(row.pageId)}
+                      aria-expanded={isNoteOpen(row.subtaskId)}
                       aria-label={`${row.title} 내용 보기`}
                       onClick={() => {
-                        onPinnedNotePageIdChange(
-                          pinnedNotePageId === row.pageId ? null : row.pageId,
+                        onPinnedNoteSubtaskIdChange(
+                          pinnedNoteSubtaskId === row.subtaskId ? null : row.subtaskId,
                         );
-                        onHoveredNotePageIdChange(row.pageId);
+                        onHoveredNoteSubtaskIdChange(row.subtaskId);
                       }}
                     >
                       내용 보기
                     </button>
-                    {isNoteOpen(row.pageId) ? (
+                    {isNoteOpen(row.subtaskId) ? (
                       <div className={'stats-page__note-popover'} role="tooltip">
                         {row.note}
                       </div>
@@ -163,7 +169,7 @@ export function MonitoringStatsDetailsTable({
                 )}
               </td>
               <td>
-                {editingPageId === row.pageId ? (
+                {editingSubtaskId === row.subtaskId ? (
                   <div className={'stats-page__inline-actions'}>
                     <button
                       type="button"

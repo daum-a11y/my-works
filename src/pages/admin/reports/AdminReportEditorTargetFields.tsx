@@ -5,15 +5,15 @@ interface AdminReportEditorTargetFieldsProps {
   isProjectLinkedTab: boolean;
   showProjectSelect: boolean;
   typeFilteredProjects: ProjectViewModel[];
-  showPageSelect: boolean;
-  draftPages: Array<{ id: string; title: string }>;
-  showManualPageName: boolean;
-  manualPageLabel: string;
+  showSubtaskSelect: boolean;
+  draftSubtasks: Array<{ id: string; title: string }>;
+  showManualSubtaskName: boolean;
+  manualSubtaskLabel: string;
   isVacationType: boolean;
   isReadonlyWorkHours: boolean;
   onProjectChange: (value: string) => void;
-  onPageChange: (value: string) => void;
-  onManualPageNameChange: (value: string) => void;
+  onSubtaskChange: (value: string) => void;
+  onManualSubtaskNameChange: (value: string) => void;
   onVacationTypeChange: (value: string) => void;
   onUrlChange: (value: string) => void;
   onTaskUsedtimeChange: (value: string) => void;
@@ -24,15 +24,15 @@ export function AdminReportEditorTargetFields({
   isProjectLinkedTab,
   showProjectSelect,
   typeFilteredProjects,
-  showPageSelect,
-  draftPages,
-  showManualPageName,
-  manualPageLabel,
+  showSubtaskSelect,
+  draftSubtasks,
+  showManualSubtaskName,
+  manualSubtaskLabel,
   isVacationType,
   isReadonlyWorkHours,
   onProjectChange,
-  onPageChange,
-  onManualPageNameChange,
+  onSubtaskChange,
+  onManualSubtaskNameChange,
   onVacationTypeChange,
   onUrlChange,
   onTaskUsedtimeChange,
@@ -59,12 +59,12 @@ export function AdminReportEditorTargetFields({
         </label>
       ) : null}
 
-      {showPageSelect ? (
+      {showSubtaskSelect ? (
         <label className={'reports-page__field'}>
-          <span>{isProjectLinkedTab ? '페이지명' : '프로젝트 페이지'}</span>
-          <select value={draft.pageId} onChange={(event) => onPageChange(event.target.value)}>
-            <option value="">{draftPages.length ? '선택' : '페이지가 존재하지 않습니다.'}</option>
-            {draftPages.map((page) => (
+          <span>{isProjectLinkedTab ? '과업명' : '프로젝트 과업'}</span>
+          <select value={draft.subtaskId} onChange={(event) => onSubtaskChange(event.target.value)}>
+            <option value="">{draftSubtasks.length ? '선택' : '과업이 존재하지 않습니다.'}</option>
+            {draftSubtasks.map((page) => (
               <option key={page.id} value={page.id}>
                 {page.title}
               </option>
@@ -73,12 +73,12 @@ export function AdminReportEditorTargetFields({
         </label>
       ) : null}
 
-      {showManualPageName ? (
+      {showManualSubtaskName ? (
         <label className={'reports-page__field'}>
-          <span>{manualPageLabel}</span>
+          <span>{manualSubtaskLabel}</span>
           {isVacationType ? (
             <select
-              value={draft.manualPageName}
+              value={draft.manualSubtaskName}
               onChange={(event) => onVacationTypeChange(event.target.value)}
             >
               <option value="">선택</option>
@@ -88,9 +88,9 @@ export function AdminReportEditorTargetFields({
             </select>
           ) : (
             <input
-              value={draft.manualPageName}
-              onChange={(event) => onManualPageNameChange(event.target.value)}
-              placeholder={manualPageLabel}
+              value={draft.manualSubtaskName}
+              onChange={(event) => onManualSubtaskNameChange(event.target.value)}
+              placeholder={manualSubtaskLabel}
             />
           )}
         </label>

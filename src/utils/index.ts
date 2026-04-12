@@ -1,4 +1,4 @@
-import { type Member, type PageStatus } from '../types/domain';
+import { type Member, type SubtaskStatus } from '../types/domain';
 
 export function createId(prefix: string): string {
   return `${prefix}-${crypto.randomUUID()}`;
@@ -105,7 +105,7 @@ export function readBooleanFlag(value: unknown, fallback: boolean): boolean {
   return fallback;
 }
 
-export function sortStatus(status: PageStatus): number {
+export function sortStatus(status: SubtaskStatus): number {
   return {
     미수정: 0,
     '일부 수정': 1,

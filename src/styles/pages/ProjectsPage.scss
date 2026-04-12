@@ -489,7 +489,7 @@
   }
 
   .projects-feature__detail-form,
-  .projects-feature__page-section {
+  .projects-feature__subtask-section {
     padding: var(--space-4);
   }
 
@@ -644,27 +644,27 @@
     letter-spacing: var(--text-section-title-tracking);
   }
 
-  .projects-feature__page-table-wrap {
+  .projects-feature__subtask-table-wrap {
     overflow: auto;
     border: 1px solid var(--border-default);
     background: var(--surface-panel);
   }
 
-  .projects-feature__page-table {
+  .projects-feature__subtask-table {
     width: 100%;
     border-collapse: collapse;
     table-layout: fixed;
   }
 
-  .projects-feature__page-table th,
-  .projects-feature__page-table td {
+  .projects-feature__subtask-table th,
+  .projects-feature__subtask-table td {
     padding: var(--space-3) var(--space-2);
     border-bottom: 1px solid var(--border-subtle);
     text-align: left;
     vertical-align: middle;
   }
 
-  .projects-feature__page-table th {
+  .projects-feature__subtask-table th {
     color: var(--text-muted);
     font-size: var(--text-table-size);
     font-weight: var(--font-weight-medium);
@@ -674,31 +674,31 @@
     background: var(--surface-canvas-strong);
   }
 
-  .projects-feature__page-add-form {
+  .projects-feature__subtask-add-form {
     display: contents;
   }
 
-  .projects-feature__page-add-row td {
+  .projects-feature__subtask-add-row td {
     background: var(--surface-canvas-strong);
   }
 
-  .projects-feature__page-table th:last-child,
-  .projects-feature__page-table td:last-child {
+  .projects-feature__subtask-table th:last-child,
+  .projects-feature__subtask-table td:last-child {
     text-align: left;
     width: 136px;
   }
 
-  .projects-feature__page-table th:first-child,
-  .projects-feature__page-table td:first-child {
+  .projects-feature__subtask-table th:first-child,
+  .projects-feature__subtask-table td:first-child {
     width: 36%;
   }
 
-  .projects-feature__page-table th:nth-child(2),
-  .projects-feature__page-table td:nth-child(2) {
+  .projects-feature__subtask-table th:nth-child(2),
+  .projects-feature__subtask-table td:nth-child(2) {
     width: auto;
   }
 
-  .projects-feature__page-table td :is(input, select, textarea) {
+  .projects-feature__subtask-table td :is(input, select, textarea) {
     min-height: var(--control-height-sm);
     padding: var(--control-padding-y) var(--control-padding-x);
     border: 1px solid var(--control-border);
@@ -713,28 +713,28 @@
     min-width: 0;
   }
 
-  .projects-feature__page-table td :is(input, select, textarea)::placeholder {
+  .projects-feature__subtask-table td :is(input, select, textarea)::placeholder {
     color: var(--control-placeholder);
   }
 
-  .projects-feature__page-table td :is(input, select, textarea):focus-visible {
+  .projects-feature__subtask-table td :is(input, select, textarea):focus-visible {
     outline: 2px solid var(--focus-ring-color);
     outline-offset: 1px;
   }
 
-  .projects-feature__page-table-actions {
+  .projects-feature__subtask-table-actions {
     display: flex;
     justify-content: flex-end;
     gap: var(--space-2);
     white-space: nowrap;
   }
 
-  .projects-feature__page-table-actions .projects-feature__button--secondary,
-  .projects-feature__page-table-actions .projects-feature__delete-button {
+  .projects-feature__subtask-table-actions .projects-feature__button--secondary,
+  .projects-feature__subtask-table-actions .projects-feature__delete-button {
     font-weight: var(--font-weight-regular);
   }
 
-  .projects-feature__page-meta {
+  .projects-feature__subtask-meta {
     display: flex;
     flex-wrap: nowrap;
     gap: var(--space-3);
@@ -742,12 +742,12 @@
     font-size: var(--text-meta-size);
   }
 
-  .projects-feature__page-section {
+  .projects-feature__subtask-section {
     display: grid;
     gap: var(--space-3);
   }
 
-  .projects-feature__page-section > .projects-feature__empty-state {
+  .projects-feature__subtask-section > .projects-feature__empty-state {
     display: grid;
     place-items: center;
     min-height: 112px;

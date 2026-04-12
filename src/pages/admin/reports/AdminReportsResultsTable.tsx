@@ -107,10 +107,10 @@ export function AdminReportsResultsTable({
                   onChange={onSortChange}
                 />
               </th>
-              <th scope="col" aria-sort={getAriaSort('pageTitle')}>
+              <th scope="col" aria-sort={getAriaSort('subtaskTitle')}>
                 <SortableTableHeaderButton
-                  label="페이지명"
-                  sortKey="pageTitle"
+                  label="과업명"
+                  sortKey="subtaskTitle"
                   sortState={sortState}
                   onChange={onSortChange}
                 />
@@ -152,7 +152,7 @@ export function AdminReportsResultsTable({
                     <td>{task.serviceGroupName || '-'}</td>
                     <td>{task.serviceName || '-'}</td>
                     <td>{task.projectName || '-'}</td>
-                    <td>{task.pageTitle || '-'}</td>
+                    <td>{task.subtaskTitle || '-'}</td>
                     <td>{task.content || '-'}</td>
                     <td>
                       {task.url ? (

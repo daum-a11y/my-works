@@ -1,6 +1,6 @@
 import type { ApiRecord } from '../../api/api.types';
 import {
-  normalizePageStatus,
+  normalizeSubtaskStatus,
   type MonitoringStatsRow,
   type QaStatsProjectRow,
 } from '../../types/domain';
@@ -11,7 +11,7 @@ function readValue(record: ApiRecord, snakeKey: string, camelKey: string) {
 
 export function toMonitoringStatsRow(record: ApiRecord): MonitoringStatsRow {
   return {
-    pageId: String(readValue(record, 'page_id', 'pageId') ?? ''),
+    subtaskId: String(readValue(record, 'subtask_id', 'subtaskId') ?? ''),
     projectId: String(readValue(record, 'project_id', 'projectId') ?? ''),
     title: String(record.title ?? ''),
     url: String(record.url ?? ''),
@@ -19,7 +19,7 @@ export function toMonitoringStatsRow(record: ApiRecord): MonitoringStatsRow {
       ? String(readValue(record, 'owner_member_id', 'ownerMemberId'))
       : null,
     monitoringMonth: String(readValue(record, 'monitoring_month', 'monitoringMonth') ?? ''),
-    trackStatus: normalizePageStatus(
+    trackStatus: normalizeSubtaskStatus(
       String(readValue(record, 'track_status', 'trackStatus') ?? '미수정'),
     ),
     monitoringInProgress: Boolean(

@@ -46,7 +46,7 @@ export function ReportsResultsTable({
               <th scope="col">서비스 그룹</th>
               <th scope="col">서비스명</th>
               <th scope="col">프로젝트명</th>
-              <th scope="col">페이지명</th>
+              <th scope="col">과업명</th>
               <th scope="col">업무명</th>
               <th scope="col">URL</th>
               <th scope="col">시간</th>
@@ -81,7 +81,7 @@ export function ReportsResultsTable({
                     <strong>{report.projectDisplayName}</strong>
                   </td>
                   <td>
-                    <strong>{report.pageDisplayName}</strong>
+                    <strong>{report.subtaskDisplayName}</strong>
                   </td>
                   <td>
                     <strong>{report.content || '-'}</strong>

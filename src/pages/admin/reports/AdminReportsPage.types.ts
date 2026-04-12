@@ -9,7 +9,7 @@ export type SortKey =
   | 'serviceGroup'
   | 'serviceName'
   | 'projectName'
-  | 'pageTitle'
+  | 'subtaskTitle'
   | 'taskUsedtime'
   | 'note';
 

@@ -685,7 +685,7 @@ def build_dump():
     for row in pages:
         source_page_num = int(row["pj_page_num"])
         source_project_num = int(row["pj_unique_num"])
-        title = blank_to_none(row["pj_page_name"]) or f"[페이지 {source_page_num}]"
+        title = blank_to_none(row["pj_page_name"]) or f"[과업 {source_page_num}]"
         url = blank_to_none(row["pj_page_url"]) or ""
         project = project_by_source.get(source_project_num)
         if project is None:
@@ -911,10 +911,10 @@ def build_dump():
                     "source_kind": "task_synthetic",
                     "raw_pj_page_num": page_num,
                     "raw_pj_unique_num": project.get("source_project_ref"),
-                    "raw_pj_page_id": blank_to_none(row["task_user"]),
+                    "raw_task_user": blank_to_none(row["task_user"]),
                     "project_id": project["id"],
                     "owner_member_id": member["id"],
-                    "title": task_page or (f"[페이지 {page_num}]" if page_num is not None else "[페이지]"),
+                    "title": task_page or (f"[과업 {page_num}]" if page_num is not None else "[과업]"),
                     "url": task_page_url,
                     "monitoring_month": task_date,
                     "track_status": "미수정",
@@ -952,7 +952,7 @@ def build_dump():
             "created_by_member_id": member["id"],
             "task_date": parse_date(row["task_date"]) or "1970-01-01",
             "project_id": project["id"] if project else None,
-            "project_page_id": page["id"] if page else None,
+            "project_subtask_id": page["id"] if page else None,
             "task_type_id": task_type["id"] if task_type else None,
             "task_usedtime": task_usedtime,
             "url": task_page_url,
@@ -998,7 +998,7 @@ def build_dump():
                         )
                 else:
                     issue_counts["tasks_without_project_reference"] += 1
-        if task["project_id"] is not None and task["project_page_id"] is None and has_page_reference:
+        if task["project_id"] is not None and task["project_subtask_id"] is None and has_page_reference:
             issue_counts["tasks_unresolved_page"] += 1
             unresolved_page_refs[
                 (
@@ -1188,7 +1188,7 @@ def build_dump():
         project_rows,
     )
     lines += insert_block(
-        "public.project_pages",
+        "public.project_subtasks",
         [
             "id",
             "project_id",
@@ -1218,7 +1218,7 @@ def build_dump():
             "created_by_member_id",
             "task_date",
             "project_id",
-            "project_page_id",
+            "project_subtask_id",
             "task_type_id",
             "task_usedtime",
             "url",
@@ -1245,7 +1245,7 @@ def build_dump():
         "created_by_member_id",
         "task_date",
         "project_id",
-        "project_page_id",
+        "project_subtask_id",
         "task_type_id",
         "task_usedtime",
         "url",
@@ -1389,7 +1389,7 @@ def build_dump():
                 "service_groups": len(service_group_rows),
                 "platforms": len(platform_rows),
                 "projects": len(project_rows),
-                "project_pages": len(page_rows),
+                "project_subtasks": len(page_rows),
                 "tasks": len(task_rows),
             },
             ensure_ascii=False,

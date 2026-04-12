@@ -2,6 +2,7 @@ import { cleanup, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { ReportsPage } from '../pages/reports';
+import type { ReportsSlice } from '../pages/reports/useReportsSlice';
 import { getToday } from '../utils';
 
 const mockUseReportsSlice = vi.fn();
@@ -10,7 +11,7 @@ vi.mock('../pages/reports/useReportsSlice', () => ({
   useReportsSlice: () => mockUseReportsSlice(),
 }));
 
-function createSliceMock(canEditReports: boolean): unknown {
+function createSliceMock(canEditReports: boolean): ReportsSlice {
   const today = getToday();
 
   return {
@@ -23,14 +24,14 @@ function createSliceMock(canEditReports: boolean): unknown {
       costGroupId: 'cost-group-1',
       costGroupName: '내부',
       projectId: '',
-      pageId: '',
+      subtaskId: '',
       type1: '기획',
       type2: '작성',
       platform: '',
       serviceGroupName: '',
       serviceName: '',
-      manualPageName: '',
-      pageUrl: '',
+      manualSubtaskName: '',
+      url: '',
       taskUsedtime: '60',
       content: '',
       note: '',
@@ -40,7 +41,7 @@ function createSliceMock(canEditReports: boolean): unknown {
     appliedProjectQuery: '',
     projectOptions: [],
     filteredProjectOptions: [],
-    draftPages: [],
+    draftSubtasks: [],
     costGroupOptions: [{ id: 'cost-group-1', name: '내부', displayOrder: 0, isActive: true }],
     taskTypes: [
       {
@@ -65,9 +66,9 @@ function createSliceMock(canEditReports: boolean): unknown {
         costGroupId: 'cost-group-1',
         costGroupName: '내부',
         projectId: 'project-1',
-        pageId: 'page-1',
+        subtaskId: 'page-1',
         projectName: '접근성 포털',
-        pageName: '메인',
+        subtaskName: '메인',
         type1: '기획',
         type2: '작성',
         taskUsedtime: 60,
@@ -79,8 +80,8 @@ function createSliceMock(canEditReports: boolean): unknown {
         serviceGroupName: '',
         serviceName: '접근성 포털',
         projectDisplayName: '접근성 포털',
-        pageDisplayName: '메인',
-        pageUrl: 'https://example.com',
+        subtaskDisplayName: '메인',
+        url: 'https://example.com',
         searchText: '업무',
       },
     ],
@@ -147,7 +148,7 @@ describe('ReportsPage', () => {
   });
 
   it('switches the shared form into edit mode when a report is selected', () => {
-    const slice: unknown = createSliceMock(true);
+    const slice = createSliceMock(true);
     slice.isEditMode = true;
     slice.selectedReportId = 'report-1';
     slice.selectedReport = slice.dailyReports[0];
@@ -165,7 +166,7 @@ describe('ReportsPage', () => {
   });
 
   it('renders overhead controls separately from the main form', () => {
-    const slice: unknown = createSliceMock(true);
+    const slice = createSliceMock(true);
     slice.overheadCostGroupId = 'cost-group-1';
     mockUseReportsSlice.mockReturnValue(slice);
 

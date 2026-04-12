@@ -12,21 +12,25 @@ import type {
 } from '../../types/domain';
 import { getToday } from '../../utils';
 
+function readValue(record: ApiRecord, snakeKey: string, camelKey: string) {
+  return record[snakeKey] ?? record[camelKey];
+}
+
 export function toResourceSummaryMember(record: ApiRecord): ResourceSummaryMemberRow {
   return {
     id: String(record.id ?? ''),
-    accountId: String(record.account_id ?? ''),
+    accountId: String(readValue(record, 'account_id', 'accountId') ?? ''),
     name: String(record.name ?? ''),
   };
 }
 
 export function toResourceSummaryDay(record: ApiRecord): ResourceSummaryDayRow {
   return {
-    memberId: String(record.member_id ?? ''),
-    accountId: String(record.account_id ?? ''),
-    memberName: String(record.member_name ?? ''),
-    taskDate: String(record.task_date ?? getToday()),
-    taskUsedtime: Number(record.task_usedtime ?? 0),
+    memberId: String(readValue(record, 'member_id', 'memberId') ?? ''),
+    accountId: String(readValue(record, 'account_id', 'accountId') ?? ''),
+    memberName: String(readValue(record, 'member_name', 'memberName') ?? ''),
+    taskDate: String(readValue(record, 'task_date', 'taskDate') ?? getToday()),
+    taskUsedtime: Number(readValue(record, 'task_usedtime', 'taskUsedtime') ?? 0),
   };
 }
 
@@ -34,8 +38,8 @@ export function toResourceTypeSummaryRow(record: ApiRecord): ResourceTypeSummary
   return {
     year: String(record.year ?? ''),
     month: String(record.month ?? ''),
-    taskType1: String(record.task_type1 ?? ''),
-    taskUsedtime: Number(record.task_usedtime ?? 0),
+    taskType1: String(readValue(record, 'task_type1', 'taskType1') ?? ''),
+    taskUsedtime: Number(readValue(record, 'task_usedtime', 'taskUsedtime') ?? 0),
   };
 }
 
@@ -43,10 +47,10 @@ export function toResourceServiceSummaryRow(record: ApiRecord): ResourceServiceS
   return {
     year: String(record.year ?? ''),
     month: String(record.month ?? ''),
-    costGroupName: String(record.cost_group_name ?? ''),
-    serviceGroupName: String(record.service_group_name ?? ''),
-    serviceName: String(record.service_name ?? ''),
-    taskUsedtime: Number(record.task_usedtime ?? 0),
+    costGroupName: String(readValue(record, 'cost_group_name', 'costGroupName') ?? ''),
+    serviceGroupName: String(readValue(record, 'service_group_name', 'serviceGroupName') ?? ''),
+    serviceName: String(readValue(record, 'service_name', 'serviceName') ?? ''),
+    taskUsedtime: Number(readValue(record, 'task_usedtime', 'taskUsedtime') ?? 0),
   };
 }
 
@@ -60,20 +64,29 @@ export function toResourceMonthReport(data: unknown): ResourceMonthReport {
   }
 
   const record = asRecord(data);
-  const typeRows = Array.isArray(record.type_rows)
-    ? record.type_rows.map((entry) => {
+  const typeRowsRaw = readValue(record, 'type_rows', 'typeRows');
+  const serviceSummaryRowsRaw = readValue(record, 'service_summary_rows', 'serviceSummaryRows');
+  const serviceDetailRowsRaw = readValue(record, 'service_detail_rows', 'serviceDetailRows');
+  const memberTotalsRaw = readValue(record, 'member_totals', 'memberTotals');
+
+  const typeRows = Array.isArray(typeRowsRaw)
+    ? typeRowsRaw.map((entry) => {
         const item = asRecord(entry);
         return {
           type1: String(item.type1 ?? ''),
-          totalMinutes: Number(item.total_minutes ?? 0),
-          requiresServiceGroup: Boolean(item.requires_service_group ?? false),
+          totalMinutes: Number(readValue(item, 'total_minutes', 'totalMinutes') ?? 0),
+          requiresServiceGroup: Boolean(
+            readValue(item, 'requires_service_group', 'requiresServiceGroup') ?? false,
+          ),
           items: Array.isArray(item.items)
             ? item.items.map((subEntry) => {
                 const subItem = asRecord(subEntry);
                 return {
                   type2: String(subItem.type2 ?? ''),
                   minutes: Number(subItem.minutes ?? 0),
-                  requiresServiceGroup: Boolean(subItem.requires_service_group ?? false),
+                  requiresServiceGroup: Boolean(
+                    readValue(subItem, 'requires_service_group', 'requiresServiceGroup') ?? false,
+                  ),
                 };
               })
             : [],
@@ -81,13 +94,13 @@ export function toResourceMonthReport(data: unknown): ResourceMonthReport {
       })
     : [];
 
-  const serviceSummaryRows = Array.isArray(record.service_summary_rows)
-    ? record.service_summary_rows.map((entry) => {
+  const serviceSummaryRows = Array.isArray(serviceSummaryRowsRaw)
+    ? serviceSummaryRowsRaw.map((entry) => {
         const item = asRecord(entry);
         return {
-          costGroup: String(item.cost_group ?? ''),
+          costGroup: String(readValue(item, 'cost_group', 'costGroup') ?? ''),
           group: String(item.group ?? ''),
-          totalMinutes: Number(item.total_minutes ?? 0),
+          totalMinutes: Number(readValue(item, 'total_minutes', 'totalMinutes') ?? 0),
           names: Array.isArray(item.names)
             ? item.names.map((subEntry) => {
                 const subItem = asRecord(subEntry);
@@ -101,13 +114,13 @@ export function toResourceMonthReport(data: unknown): ResourceMonthReport {
       })
     : [];
 
-  const serviceDetailRows = Array.isArray(record.service_detail_rows)
-    ? record.service_detail_rows.map((entry) => {
+  const serviceDetailRows = Array.isArray(serviceDetailRowsRaw)
+    ? serviceDetailRowsRaw.map((entry) => {
         const item = asRecord(entry);
         return {
-          costGroup: String(item.cost_group ?? ''),
+          costGroup: String(readValue(item, 'cost_group', 'costGroup') ?? ''),
           group: String(item.group ?? ''),
-          totalMinutes: Number(item.total_minutes ?? 0),
+          totalMinutes: Number(readValue(item, 'total_minutes', 'totalMinutes') ?? 0),
           names: Array.isArray(item.names)
             ? item.names.map((subEntry) => {
                 const subItem = asRecord(subEntry);
@@ -129,13 +142,13 @@ export function toResourceMonthReport(data: unknown): ResourceMonthReport {
       })
     : [];
 
-  const memberTotals = Array.isArray(record.member_totals)
-    ? record.member_totals.map((entry) => {
+  const memberTotals = Array.isArray(memberTotalsRaw)
+    ? memberTotalsRaw.map((entry) => {
         const item = asRecord(entry);
         return {
           id: String(item.id ?? ''),
-          accountId: String(item.account_id ?? ''),
-          totalMinutes: Number(item.total_minutes ?? 0),
+          accountId: String(readValue(item, 'account_id', 'accountId') ?? ''),
+          totalMinutes: Number(readValue(item, 'total_minutes', 'totalMinutes') ?? 0),
         } satisfies ResourceMonthReportMemberTotal;
       })
     : [];

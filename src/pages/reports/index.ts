@@ -1,8 +1,6 @@
 export {
   DEFAULT_REPORT_FILTERS,
   PERSONAL_REPORT_OWNER,
-  REPORT_TYPE1_OPTIONS,
-  REPORT_TYPE2_OPTIONS,
   buildReportFromDraft,
   createEmptyReportDraft,
   draftFromReport,

@@ -31,10 +31,10 @@ export function toSearchTaskRow(record: ApiRecord): SearchTaskRow {
       readValue(record, 'project_name', 'projectName') == null
         ? null
         : String(readValue(record, 'project_name', 'projectName')),
-    pageTitle:
-      readValue(record, 'page_title', 'pageTitle') == null
+    subtaskTitle:
+      readValue(record, 'subtask_title', 'subtaskTitle') == null
         ? null
-        : String(readValue(record, 'page_title', 'pageTitle')),
+        : String(readValue(record, 'subtask_title', 'subtaskTitle')),
     url: readValue(record, 'url', 'url') == null ? null : String(readValue(record, 'url', 'url')),
   };
 }

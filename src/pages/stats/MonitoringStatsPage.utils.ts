@@ -1,7 +1,7 @@
-import type { MonitoringStatsRow, PageStatus } from '../../types/domain';
+import type { MonitoringStatsRow, SubtaskStatus } from '../../types/domain';
 export type { MonthlyMonitoringRow } from './MonitoringStatsPage.types';
 
-export function formatTrackStatus(value: PageStatus) {
+export function formatTrackStatus(value: SubtaskStatus) {
   return value;
 }
 

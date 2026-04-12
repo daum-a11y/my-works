@@ -4,7 +4,7 @@ import { PageHeader } from '../../components/shared/PageHeader';
 import { PageSection } from '../../components/shared/PageSection';
 import { dataClient } from '../../api/client';
 import { setDocumentTitle } from '../../router/navigation';
-import { type MonitoringStatsRow, type PageStatus } from '../../types/domain';
+import { type MonitoringStatsRow, type SubtaskStatus } from '../../types/domain';
 import { getCurrentMonth, shiftMonth } from '../resource/resourceUtils';
 import {
   MONITORING_STATS_DEFAULT_DRAFT_STATUS,
@@ -50,11 +50,13 @@ export function MonitoringStatsPage() {
   const [summaryView, setSummaryView] = useState<StatsSummaryView>(
     MONITORING_STATS_DEFAULT_SUMMARY_VIEW,
   );
-  const [editingPageId, setEditingPageId] = useState<string | null>(null);
-  const [draftStatus, setDraftStatus] = useState<PageStatus>(MONITORING_STATS_DEFAULT_DRAFT_STATUS);
+  const [editingSubtaskId, setEditingSubtaskId] = useState<string | null>(null);
+  const [draftStatus, setDraftStatus] = useState<SubtaskStatus>(
+    MONITORING_STATS_DEFAULT_DRAFT_STATUS,
+  );
   const [draftNote, setDraftNote] = useState('');
-  const [hoveredNotePageId, setHoveredNotePageId] = useState<string | null>(null);
-  const [pinnedNotePageId, setPinnedNotePageId] = useState<string | null>(null);
+  const [hoveredNoteSubtaskId, setHoveredNoteSubtaskId] = useState<string | null>(null);
+  const [pinnedNoteSubtaskId, setPinnedNoteSubtaskId] = useState<string | null>(null);
 
   useEffect(() => {
     setDocumentTitle(MONITORING_STATS_PAGE_TITLE);
@@ -62,8 +64,8 @@ export function MonitoringStatsPage() {
 
   const savePageMutation = useMutation({
     mutationFn: async (row: MonitoringStatsRow) =>
-      dataClient.saveProjectPage({
-        id: row.pageId,
+      dataClient.saveProjectSubtask({
+        id: row.subtaskId,
         projectId: row.projectId,
         title: row.title,
         url: row.url,
@@ -76,18 +78,18 @@ export function MonitoringStatsPage() {
       }),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['monitoring-detail', member?.id] });
-      setEditingPageId(null);
+      setEditingSubtaskId(null);
     },
   });
 
   const startEdit = (row: MonitoringStatsRow) => {
-    setEditingPageId(row.pageId);
+    setEditingSubtaskId(row.subtaskId);
     setDraftStatus(row.trackStatus);
     setDraftNote(row.note ?? '');
   };
 
   const cancelEdit = () => {
-    setEditingPageId(null);
+    setEditingSubtaskId(null);
     setDraftStatus(MONITORING_STATS_DEFAULT_DRAFT_STATUS);
     setDraftNote('');
   };
@@ -211,19 +213,19 @@ export function MonitoringStatsPage() {
         />
       </PageSection>
 
-      <PageSection title="모니터링 페이지 목록">
+      <PageSection title="모니터링 과업 목록">
         <MonitoringStatsDetailsTable
           rows={filteredRows}
-          editingPageId={editingPageId}
+          editingSubtaskId={editingSubtaskId}
           draftStatus={draftStatus}
           draftNote={draftNote}
-          hoveredNotePageId={hoveredNotePageId}
-          pinnedNotePageId={pinnedNotePageId}
+          hoveredNoteSubtaskId={hoveredNoteSubtaskId}
+          pinnedNoteSubtaskId={pinnedNoteSubtaskId}
           savePending={savePageMutation.isPending}
           onDraftStatusChange={setDraftStatus}
           onDraftNoteChange={setDraftNote}
-          onHoveredNotePageIdChange={setHoveredNotePageId}
-          onPinnedNotePageIdChange={setPinnedNotePageId}
+          onHoveredNoteSubtaskIdChange={setHoveredNoteSubtaskId}
+          onPinnedNoteSubtaskIdChange={setPinnedNoteSubtaskId}
           onStartEdit={startEdit}
           onSave={(row) => savePageMutation.mutate(row)}
           onCancel={cancelEdit}

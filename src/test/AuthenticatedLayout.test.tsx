@@ -54,7 +54,7 @@ describe('AuthenticatedLayout', () => {
 
     expect(screen.queryByRole('menu', { name: '사용자 메뉴' })).not.toBeInTheDocument();
 
-    await user.click(screen.getByRole('button', { name: '홍길동 메뉴' }));
+    await user.click(screen.getByRole('button', { name: '사용자 메뉴' }));
 
     expect(screen.getByRole('menu', { name: '사용자 메뉴' })).toBeInTheDocument();
     expect(screen.getByRole('menuitem', { name: '프로필' })).toBeInTheDocument();

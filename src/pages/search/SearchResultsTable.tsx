@@ -22,7 +22,7 @@ export function SearchResultsTable({ reports }: SearchResultsTableProps) {
               <th scope="col">서비스 그룹</th>
               <th scope="col">서비스명</th>
               <th scope="col">프로젝트명</th>
-              <th scope="col">페이지명</th>
+              <th scope="col">과업명</th>
               <th scope="col">내용</th>
               <th scope="col">URL</th>
               <th scope="col">작업시간</th>
@@ -55,7 +55,7 @@ export function SearchResultsTable({ reports }: SearchResultsTableProps) {
                   <strong>{report.projectName || '-'}</strong>
                 </td>
                 <td>
-                  <strong>{report.pageTitle || '-'}</strong>
+                  <strong>{report.subtaskTitle || '-'}</strong>
                 </td>
                 <td>{report.content || '-'}</td>
                 <td>

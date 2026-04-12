@@ -1,6 +1,6 @@
 import { getToday } from '../../utils';
-import type { Project, ProjectPage } from '../../types/domain';
-import type { PageFormState, ProjectFormState } from './ProjectEditorPage.types';
+import type { Project, ProjectSubtask } from '../../types/domain';
+import type { SubtaskFormState, ProjectFormState } from './ProjectEditorPage.types';
 
 export const initialProjectDraft = (): ProjectFormState => ({
   taskTypeId: '',
@@ -15,7 +15,7 @@ export const initialProjectDraft = (): ProjectFormState => ({
   isActive: true,
 });
 
-export const initialPageDraft = (projectId = '', ownerMemberId = ''): PageFormState => ({
+export const initialSubtaskDraft = (projectId = '', ownerMemberId = ''): SubtaskFormState => ({
   projectId,
   title: '',
   url: '',
@@ -42,17 +42,17 @@ export function toProjectDraft(project: Project): ProjectFormState {
   };
 }
 
-export function toPageDraft(page: ProjectPage): PageFormState {
+export function toSubtaskDraft(subtask: ProjectSubtask): SubtaskFormState {
   return {
-    id: page.id,
-    projectId: page.projectId,
-    title: page.title,
-    url: page.url,
-    ownerMemberId: page.ownerMemberId ?? '',
-    trackStatus: page.trackStatus,
-    monitoringInProgress: page.monitoringInProgress,
-    qaInProgress: page.qaInProgress,
-    note: page.note,
+    id: subtask.id,
+    projectId: subtask.projectId,
+    title: subtask.title,
+    url: subtask.url,
+    ownerMemberId: subtask.ownerMemberId ?? '',
+    trackStatus: subtask.trackStatus,
+    monitoringInProgress: subtask.monitoringInProgress,
+    qaInProgress: subtask.qaInProgress,
+    note: subtask.note,
   };
 }
 
@@ -72,7 +72,7 @@ export function toProjectInput(draft: ProjectFormState) {
   };
 }
 
-export function toPageInput(draft: PageFormState) {
+export function toSubtaskInput(draft: SubtaskFormState) {
   return {
     id: draft.id,
     projectId: draft.projectId,
@@ -86,8 +86,8 @@ export function toPageInput(draft: PageFormState) {
   };
 }
 
-export function sortPages(pages: ProjectPage[]) {
-  return [...pages].sort(
+export function sortSubtasks(subtasks: ProjectSubtask[]) {
+  return [...subtasks].sort(
     (left, right) =>
       right.updatedAt.localeCompare(left.updatedAt) || left.title.localeCompare(right.title, 'ko'),
   );

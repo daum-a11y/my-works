@@ -7,13 +7,13 @@ import {
   toCostGroup,
   toPlatform,
   toProject,
-  toProjectPage,
+  toProjectSubtask,
   toReportProjectOption,
   toServiceGroup,
   toTask,
   toTaskType,
 } from './reportsApiTransform';
-import type { CostGroup, Platform, ProjectPage, TaskType } from '../../types/domain';
+import type { CostGroup, Platform, ProjectSubtask, TaskType } from '../../types/domain';
 import {
   buildProjectViewModels,
   buildProjectViewModelsFromRows,
@@ -42,7 +42,7 @@ export interface ReportsSlice {
   appliedProjectQuery: string | null;
   projectOptions: ProjectViewModel[];
   filteredProjectOptions: ProjectViewModel[];
-  draftPages: ProjectPage[];
+  draftSubtasks: ProjectSubtask[];
   costGroupOptions: CostGroup[];
   taskTypes: TaskType[];
   type1Options: string[];
@@ -169,7 +169,7 @@ export function useReportsSlice(): ReportsSlice {
         return [];
       }
 
-      return dataClient.getProjectPagesByProjectId(draft.projectId);
+      return dataClient.getProjectSubtasksByProjectId(draft.projectId);
     },
     enabled: Boolean(member),
   });
@@ -212,7 +212,7 @@ export function useReportsSlice(): ReportsSlice {
     () => (serviceGroupsQuery.data ?? []).map(toServiceGroup),
     [serviceGroupsQuery.data],
   );
-  const pages = useMemo(() => (pagesQuery.data ?? []).map(toProjectPage), [pagesQuery.data]);
+  const pages = useMemo(() => (pagesQuery.data ?? []).map(toProjectSubtask), [pagesQuery.data]);
   const taskTypes = useMemo(
     () => (taskTypesQuery.data ?? []).map(toTaskType),
     [taskTypesQuery.data],
@@ -246,7 +246,10 @@ export function useReportsSlice(): ReportsSlice {
     () => new Map(projectOptions.map((project) => [project.id, project] as const)),
     [projectOptions],
   );
-  const pagesById = useMemo(() => new Map(pages.map((page) => [page.id, page] as const)), [pages]);
+  const subtasksById = useMemo(
+    () => new Map(pages.map((page) => [page.id, page] as const)),
+    [pages],
+  );
   const serviceGroupsById = useMemo(
     () => new Map(serviceGroups.map((group) => [group.id, group] as const)),
     [serviceGroups],
@@ -284,7 +287,7 @@ export function useReportsSlice(): ReportsSlice {
       .slice(0, 60);
   }, [appliedProjectQuery, normalizedProjectQuery, projectOptions]);
 
-  const draftPages = useMemo(
+  const draftSubtasks = useMemo(
     () => pages.filter((page) => page.projectId === draft.projectId),
     [draft.projectId, pages],
   );
@@ -312,7 +315,7 @@ export function useReportsSlice(): ReportsSlice {
       taskDate: string;
       costGroupId: string;
       projectId: string;
-      pageId: string;
+      subtaskId: string;
       taskType1: string;
       taskType2: string;
       taskUsedtime: number;
@@ -335,16 +338,16 @@ export function useReportsSlice(): ReportsSlice {
 
       let projectId = input.projectId.trim();
       const costGroupId = input.costGroupId.trim();
-      const pageId = input.pageId.trim();
+      const subtaskId = input.subtaskId.trim();
 
       if (!costGroupId) {
         throw new Error('청구그룹을 선택해 주세요.');
       }
 
-      if (pageId) {
-        const page = pagesById.get(pageId);
+      if (subtaskId) {
+        const page = subtasksById.get(subtaskId);
         if (!page) {
-          throw new Error('선택한 페이지 정보를 확인할 수 없습니다.');
+          throw new Error('선택한 과업 정보를 확인할 수 없습니다.');
         }
 
         if (projectId && page.projectId !== projectId) {
@@ -380,7 +383,7 @@ export function useReportsSlice(): ReportsSlice {
         taskDate: normalizedTaskDate,
         costGroupId,
         projectId: projectId || null,
-        pageId: pageId || null,
+        subtaskId: subtaskId || null,
         taskType1: taskType.type1,
         taskType2: taskType.type2,
         taskUsedtime: input.taskUsedtime,
@@ -449,7 +452,7 @@ export function useReportsSlice(): ReportsSlice {
       }
 
       if (key === 'projectId') {
-        next.pageId = '';
+        next.subtaskId = '';
         const project =
           projectOptionsById.get(String(value))?.project ??
           (selectedProjectQuery.data ? toProject(selectedProjectQuery.data) : null);
@@ -486,7 +489,7 @@ export function useReportsSlice(): ReportsSlice {
 
       if (key === 'costGroupId') {
         next.projectId = '';
-        next.pageId = '';
+        next.subtaskId = '';
         const costGroup = costGroupOptions.find((item) => item.id === String(value)) ?? null;
         next.costGroupName = costGroup?.name ?? '';
         next.platform = '';
@@ -496,7 +499,7 @@ export function useReportsSlice(): ReportsSlice {
 
       if (key === 'type1') {
         next.projectId = '';
-        next.pageId = '';
+        next.subtaskId = '';
         next.platform = '';
         next.serviceGroupName = '';
         next.serviceName = '';
@@ -569,7 +572,7 @@ export function useReportsSlice(): ReportsSlice {
         taskDate,
         costGroupId: draft.costGroupId,
         projectId: draft.projectId,
-        pageId: draft.pageId,
+        subtaskId: draft.subtaskId,
         taskType1: taskType.type1,
         taskType2: taskType.type2,
         taskUsedtime,
@@ -621,7 +624,7 @@ export function useReportsSlice(): ReportsSlice {
         taskDate,
         costGroupId: overheadCostGroupId,
         projectId: '',
-        pageId: '',
+        subtaskId: '',
         taskType1: taskType.type1,
         taskType2: taskType.type2,
         taskUsedtime,
@@ -656,7 +659,7 @@ export function useReportsSlice(): ReportsSlice {
     projectOptions,
     filteredProjectOptions,
     costGroupOptions,
-    draftPages,
+    draftSubtasks,
     taskTypes,
     type1Options,
     type2Options,

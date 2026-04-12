@@ -1,6 +1,6 @@
 export {
   toProject,
-  toProjectPage,
+  toProjectSubtask,
   toPlatform,
   toServiceGroup,
   toTaskType,
@@ -57,7 +57,7 @@ export function toProjectListRow(record: ApiRecord): ProjectListRow {
     startDate: String(readValue(record, 'start_date', 'startDate') ?? getToday()),
     endDate: String(readValue(record, 'end_date', 'endDate') ?? getToday()),
     isActive: Boolean(readValue(record, 'is_active', 'isActive') ?? true),
-    pageCount: Number(readValue(record, 'page_count', 'pageCount') ?? 0),
+    subtaskCount: Number(readValue(record, 'subtask_count', 'subtaskCount') ?? 0),
   };
 }
 

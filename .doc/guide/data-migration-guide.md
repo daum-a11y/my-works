@@ -64,7 +64,7 @@ python3 scripts/build_refined_dump.py
 
 구성:
 
-- `refined_dump.sql`: `members`, `cost_groups`, `task_types`, `service_groups`, `platforms`, `projects`, `project_pages`
+- `refined_dump.sql`: `members`, `cost_groups`, `task_types`, `service_groups`, `platforms`, `projects`, `project_subtasks`
 - `refined_dump_tasks.sql`: `tasks`
 - `refined_dump_issues.md`: 정제 과정에서 누락되거나 매핑되지 않은 데이터 로그
 
@@ -89,7 +89,7 @@ python3 scripts/build_refined_dump.py
 
 - `members`
 - `projects`
-- `project_pages`
+- `project_subtasks`
 - `tasks`
 - `refined_dump_issues.md`
 

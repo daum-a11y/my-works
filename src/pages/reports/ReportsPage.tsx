@@ -19,7 +19,7 @@ export function ReportsPage() {
   const appliedDashboardDateRef = useRef('');
   const {
     draft,
-    draftPages,
+    draftSubtasks,
     costGroupOptions,
     filteredProjectOptions,
     projectOptions,
@@ -87,7 +87,7 @@ export function ReportsPage() {
   const showProjectLookupStep = usesProjectLookup && projectLookupReady;
   const isVacationType = typeRule.vacation;
   const isFixedDayType = false;
-  const showPageSelect = projectTypeSelected && typeRule.projectPageSelectable;
+  const showSubtaskSelect = projectTypeSelected && typeRule.projectSubtaskSelectable;
   const showTaskStep =
     Boolean(draft.costGroupId && draft.type1 && draft.type2) &&
     (!usesProjectLookup || Boolean(draft.projectId) || !showProjectLookupStep);
@@ -140,13 +140,13 @@ export function ReportsPage() {
 
     const nextIsVacation = type1Value === '휴무';
     if (nextIsVacation) {
-      setDraftField('manualPageName', '');
+      setDraftField('manualSubtaskName', '');
       setDraftField('taskUsedtime', '');
       return;
     }
 
     if (previousWasVacation) {
-      setDraftField('manualPageName', '');
+      setDraftField('manualSubtaskName', '');
       setDraftField('taskUsedtime', '');
     }
   };
@@ -216,7 +216,7 @@ export function ReportsPage() {
           <ReportsEditorForm
             mode={isEditMode ? 'edit' : 'create'}
             draft={draft}
-            draftPages={draftPages}
+            draftSubtasks={draftSubtasks}
             costGroupOptions={costGroupOptions}
             filteredProjectOptions={filteredProjectOptions}
             isSaving={isSaving}
@@ -231,7 +231,7 @@ export function ReportsPage() {
             showTypeStep={showTypeStep}
             showProjectLookupStep={showProjectLookupStep}
             showTaskStep={showTaskStep}
-            showPageSelect={showPageSelect}
+            showSubtaskSelect={showSubtaskSelect}
             isReadonlyWorkHours={isReadonlyWorkHours}
             onSubmit={onSubmit}
             onDraftFieldChange={setDraftField}

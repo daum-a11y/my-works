@@ -1,16 +1,16 @@
 export type ProjectStatus = 'planning' | 'active' | 'blocked' | 'paused' | 'done';
 
-export type ProjectPageStatus = 'queued' | 'working' | 'review' | 'done';
+export type ProjectSubtaskStatus = 'queued' | 'working' | 'review' | 'done';
 
-export type ProjectPageTrackEnd = 0 | 1 | 2 | 3;
+export type ProjectSubtaskTrackEnd = 0 | 1 | 2 | 3;
 
-export interface ProjectPage {
+export interface ProjectSubtask {
   id: string;
   title: string;
   assignee: string;
   reviewer: string;
-  status: ProjectPageStatus;
-  trackEnd: ProjectPageTrackEnd;
+  status: ProjectSubtaskStatus;
+  trackEnd: ProjectSubtaskTrackEnd;
   note: string;
   updatedAt: string;
 }
@@ -25,14 +25,14 @@ export interface ProjectRecord {
   status: ProjectStatus;
   summary: string;
   updatedAt: string;
-  pages: ProjectPage[];
+  pages: ProjectSubtask[];
 }
 
 export interface PageAssignmentDraft {
-  pageId: string;
+  subtaskId: string;
   assignee: string;
   reviewer: string;
-  status: ProjectPageStatus;
-  trackEnd: ProjectPageTrackEnd;
+  status: ProjectSubtaskStatus;
+  trackEnd: ProjectSubtaskTrackEnd;
   note: string;
 }

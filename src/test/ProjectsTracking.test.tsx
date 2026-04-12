@@ -21,12 +21,12 @@ const mockDataClient = vi.hoisted(() => ({
   getProject: vi.fn(),
   saveProject: vi.fn(),
   deleteProject: vi.fn(),
-  getProjectPages: vi.fn(),
-  getProjectPagesByProjectId: vi.fn(),
-  getProjectPagesByProjectIds: vi.fn(),
-  getAllProjectPages: vi.fn(),
-  saveProjectPage: vi.fn(),
-  deleteProjectPage: vi.fn(),
+  getProjectSubtasks: vi.fn(),
+  getProjectSubtasksByProjectId: vi.fn(),
+  getProjectSubtasksByProjectIds: vi.fn(),
+  getAllProjectSubtasks: vi.fn(),
+  saveProjectSubtask: vi.fn(),
+  deleteProjectSubtask: vi.fn(),
   getTasks: vi.fn(),
   getAllTasks: vi.fn(),
   saveTask: vi.fn(),
@@ -89,12 +89,12 @@ describe('Projects routes', () => {
     mockDataClient.getProject.mockReset();
     mockDataClient.saveProject.mockReset();
     mockDataClient.deleteProject.mockReset();
-    mockDataClient.getProjectPages.mockReset();
-    mockDataClient.getProjectPagesByProjectId.mockReset();
-    mockDataClient.getProjectPagesByProjectIds.mockReset();
-    mockDataClient.getAllProjectPages.mockReset();
-    mockDataClient.saveProjectPage.mockReset();
-    mockDataClient.deleteProjectPage.mockReset();
+    mockDataClient.getProjectSubtasks.mockReset();
+    mockDataClient.getProjectSubtasksByProjectId.mockReset();
+    mockDataClient.getProjectSubtasksByProjectIds.mockReset();
+    mockDataClient.getAllProjectSubtasks.mockReset();
+    mockDataClient.saveProjectSubtask.mockReset();
+    mockDataClient.deleteProjectSubtask.mockReset();
     mockDataClient.getTasks.mockReset();
     mockDataClient.getAllTasks.mockReset();
     mockDataClient.saveTask.mockReset();
@@ -167,6 +167,7 @@ describe('Projects routes', () => {
     const baseProject = {
       id: 'project-1',
       createdByMemberId: null,
+      taskTypeId: 'type-qa',
       taskType1: 'QA',
       name: '알파',
       platformId: 'platform-1',
@@ -190,7 +191,7 @@ describe('Projects routes', () => {
           serviceGroupName: '접근성',
           reporterDisplay: 'legacy-1(운영 사용자)',
           reviewerDisplay: 'legacy-2(리뷰어)',
-          pageCount: 1,
+          subtaskCount: 1,
         },
       ].filter((project) => {
         if (filters.startDate && project.endDate < filters.startDate) {
@@ -215,9 +216,9 @@ describe('Projects routes', () => {
         pageSize,
       };
     });
-    mockDataClient.getProjectPages.mockResolvedValue([
+    mockDataClient.getProjectSubtasks.mockResolvedValue([
       {
-        id: 'page-1',
+        id: 'subtask-1',
         projectId: 'project-1',
         title: '로그인',
         url: 'https://example.com/login',
@@ -229,9 +230,9 @@ describe('Projects routes', () => {
         updatedAt: '2026-03-24T09:00:00.000Z',
       },
     ]);
-    mockDataClient.getProjectPagesByProjectId.mockResolvedValue([
+    mockDataClient.getProjectSubtasksByProjectId.mockResolvedValue([
       {
-        id: 'page-1',
+        id: 'subtask-1',
         projectId: 'project-1',
         title: '로그인',
         url: 'https://example.com/login',
@@ -243,9 +244,9 @@ describe('Projects routes', () => {
         updatedAt: '2026-03-24T09:00:00.000Z',
       },
     ]);
-    mockDataClient.getProjectPagesByProjectIds.mockResolvedValue([
+    mockDataClient.getProjectSubtasksByProjectIds.mockResolvedValue([
       {
-        id: 'page-1',
+        id: 'subtask-1',
         projectId: 'project-1',
         title: '로그인',
         url: 'https://example.com/login',
@@ -272,10 +273,10 @@ describe('Projects routes', () => {
       endDate: '2026-03-31',
       isActive: true,
     });
-    mockDataClient.saveProjectPage.mockResolvedValue({
-      id: 'page-2',
+    mockDataClient.saveProjectSubtask.mockResolvedValue({
+      id: 'subtask-2',
       projectId: 'project-1',
-      title: '신규 페이지',
+      title: '신규 과업',
       url: 'https://example.com/new',
       ownerMemberId: 'member-1',
       trackStatus: '미수정',
@@ -304,7 +305,7 @@ describe('Projects routes', () => {
 
     expect(screen.getByText('총 건수')).toBeInTheDocument();
     expect(screen.getByText('1건')).toBeInTheDocument();
-    expect(screen.getByRole('columnheader', { name: '페이지 수' })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: '과업 수' })).toBeInTheDocument();
     expect(screen.getByLabelText('페이지당 행 수')).toHaveValue('50');
     expect(screen.getByLabelText('시작일')).toHaveValue(toLocalDateInputValue(aYearAgo));
     expect(screen.getByLabelText('종료일')).toHaveValue(toLocalDateInputValue(today));
@@ -405,12 +406,12 @@ describe('Projects routes', () => {
       page,
       pageSize,
     }));
-    mockDataClient.getProjectPagesByProjectIds.mockResolvedValue(
+    mockDataClient.getProjectSubtasksByProjectIds.mockResolvedValue(
       Array.from({ length: 51 }, (_, index) => ({
-        id: `page-${index + 1}`,
+        id: `subtask-${index + 1}`,
         projectId: `project-${index + 1}`,
-        title: `페이지 ${index + 1}`,
-        url: `https://example.com/page-${index + 1}`,
+        title: `과업 ${index + 1}`,
+        url: `https://example.com/subtask-${index + 1}`,
         ownerMemberId: 'member-1',
         monitoringMonth: '2026-03',
         trackStatus: '전체 수정',
@@ -437,13 +438,13 @@ describe('Projects routes', () => {
     });
   });
 
-  it('opens the edit page and saves project and page drafts', async () => {
+  it('opens the edit page and saves project and subtask drafts', async () => {
     const user = userEvent.setup();
 
     renderProjectEditor('/projects/project-1/edit');
 
     await waitFor(() => {
-      expect(screen.getByLabelText('프로젝트 종류')).toHaveValue('QA');
+      expect(screen.getByLabelText('프로젝트 종류')).toHaveValue('type-qa');
     });
 
     await user.clear(screen.getByLabelText('프로젝트명'));
@@ -454,7 +455,7 @@ describe('Projects routes', () => {
       expect(mockDataClient.saveProject).toHaveBeenCalledWith(
         expect.objectContaining({
           id: 'project-1',
-          taskType1: 'QA',
+          taskTypeId: 'type-qa',
           name: '알파 수정',
           platformId: 'platform-1',
           serviceGroupId: 'svc-1',
@@ -462,16 +463,16 @@ describe('Projects routes', () => {
       );
     });
 
-    await user.click(screen.getByRole('button', { name: '페이지 추가' }));
-    await user.type(screen.getAllByLabelText('페이지명')[0], '신규 페이지');
-    await user.type(screen.getAllByLabelText('페이지URL')[0], 'https://example.com/new');
+    await user.click(screen.getByRole('button', { name: '과업 추가' }));
+    await user.type(screen.getAllByLabelText('과업명')[0], '신규 과업');
+    await user.type(screen.getAllByLabelText('과업 URL')[0], 'https://example.com/new');
     await user.click(screen.getByRole('button', { name: '추가' }));
 
     await waitFor(() => {
-      expect(mockDataClient.saveProjectPage).toHaveBeenCalledWith(
+      expect(mockDataClient.saveProjectSubtask).toHaveBeenCalledWith(
         expect.objectContaining({
           projectId: 'project-1',
-          title: '신규 페이지',
+          title: '신규 과업',
           url: 'https://example.com/new',
           ownerMemberId: 'member-1',
         }),
@@ -510,7 +511,7 @@ describe('Projects routes', () => {
     expect(screen.queryByText('프로젝트를 찾을 수 없습니다.')).not.toBeInTheDocument();
   });
 
-  it('deletes project and page when delete actions are confirmed', async () => {
+  it('deletes project and subtask when delete actions are confirmed', async () => {
     const user = userEvent.setup();
 
     renderProjectEditor('/projects/project-1/edit');
@@ -522,7 +523,7 @@ describe('Projects routes', () => {
     await user.click(screen.getAllByRole('button', { name: '삭제' })[1]);
 
     await waitFor(() => {
-      expect(mockDataClient.deleteProjectPage).toHaveBeenCalledWith('page-1');
+      expect(mockDataClient.deleteProjectSubtask).toHaveBeenCalledWith('subtask-1');
     });
 
     await user.click(screen.getAllByRole('button', { name: '삭제' })[0]);

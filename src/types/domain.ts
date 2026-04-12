@@ -1,9 +1,9 @@
 export type UserRole = 'user' | 'admin';
 export type MemberStatus = 'pending' | 'active';
 
-export type PageStatus = '미수정' | '전체 수정' | '일부 수정';
+export type SubtaskStatus = '미수정' | '전체 수정' | '일부 수정';
 
-export function normalizePageStatus(value: string | null | undefined): PageStatus {
+export function normalizeSubtaskStatus(value: string | null | undefined): SubtaskStatus {
   switch (value) {
     case '전체 수정':
     case '개선':
@@ -102,7 +102,7 @@ export interface ProjectListRow {
   startDate: string;
   endDate: string;
   isActive: boolean;
-  pageCount: number;
+  subtaskCount: number;
 }
 
 export interface ReportProjectOptionRow {
@@ -119,14 +119,14 @@ export interface ReportProjectOptionRow {
   reportUrl: string | null;
 }
 
-export interface ProjectPage {
+export interface ProjectSubtask {
   id: string;
   projectId: string;
   title: string;
   url: string;
   ownerMemberId: string | null;
   monitoringMonth: string;
-  trackStatus: PageStatus;
+  trackStatus: SubtaskStatus;
   monitoringInProgress: boolean;
   qaInProgress: boolean;
   note: string;
@@ -140,7 +140,7 @@ export interface Task {
   costGroupId: string;
   costGroupName: string;
   projectId: string | null;
-  pageId: string | null;
+  subtaskId: string | null;
   taskType1: string;
   taskType2: string;
   taskUsedtime: number;
@@ -152,7 +152,7 @@ export interface Task {
   serviceGroupName: string | null;
   serviceName: string | null;
   projectName: string | null;
-  pageTitle: string | null;
+  subtaskTitle: string | null;
   url: string | null;
 }
 
@@ -171,7 +171,7 @@ export interface SearchTaskRow {
   serviceGroupName: string | null;
   serviceName: string | null;
   projectName: string | null;
-  pageTitle: string | null;
+  subtaskTitle: string | null;
   url: string | null;
 }
 
@@ -179,7 +179,7 @@ export interface DailyTask {
   id: string;
   taskDate: string;
   projectId: string | null;
-  pageId: string | null;
+  subtaskId: string | null;
   taskType1: string;
   taskType2: string;
   taskUsedtime: number;
@@ -307,7 +307,7 @@ export interface PagedResult<T> {
 export interface ReportFilters {
   query: string;
   projectId: string;
-  pageId: string;
+  subtaskId: string;
   taskType1: string;
   taskType2: string;
   startDate: string;
@@ -321,7 +321,7 @@ export interface SaveTaskInput {
   taskDate: string;
   costGroupId: string;
   projectId: string | null;
-  pageId: string | null;
+  subtaskId: string | null;
   taskType1: string;
   taskType2: string;
   taskUsedtime: number;
@@ -344,14 +344,14 @@ export interface SaveProjectInput {
   isActive: boolean;
 }
 
-export interface SaveProjectPageInput {
+export interface SaveProjectSubtaskInput {
   id?: string;
   projectId: string;
   title: string;
   url: string;
   ownerMemberId: string | null;
   monitoringMonth?: string;
-  trackStatus: PageStatus;
+  trackStatus: SubtaskStatus;
   monitoringInProgress: boolean;
   qaInProgress: boolean;
   note: string;
@@ -376,18 +376,18 @@ export interface StatsSnapshot {
   totalTasks: number;
   monitoringInProgress: number;
   qaInProgress: number;
-  statusBreakdown: Array<{ status: PageStatus; count: number }>;
+  statusBreakdown: Array<{ status: SubtaskStatus; count: number }>;
   typeBreakdown: Array<{ type: string; taskUsedtime: number }>;
 }
 
 export interface MonitoringStatsRow {
-  pageId: string;
+  subtaskId: string;
   projectId: string;
   title: string;
   url: string;
   ownerMemberId: string | null;
   monitoringMonth: string;
-  trackStatus: PageStatus;
+  trackStatus: SubtaskStatus;
   monitoringInProgress: boolean;
   qaInProgress: boolean;
   note: string | null;
@@ -418,8 +418,8 @@ export interface OpsStore {
   taskTypes: TaskType[];
   serviceGroups: ServiceGroup[];
   projects: Project[];
-  projectPages: ProjectPage[];
+  projectSubtasks: ProjectSubtask[];
   tasks: Task[];
 }
 
-export const pageStatusOptions: PageStatus[] = ['미수정', '전체 수정', '일부 수정'];
+export const subtaskStatusOptions: SubtaskStatus[] = ['미수정', '전체 수정', '일부 수정'];

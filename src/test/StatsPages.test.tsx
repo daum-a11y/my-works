@@ -14,11 +14,11 @@ const mockDataClient = vi.hoisted(() => ({
   getServiceGroups: vi.fn(),
   getProjects: vi.fn(),
   saveProject: vi.fn(),
-  getProjectPages: vi.fn(),
-  getAllProjectPages: vi.fn(),
+  getProjectSubtasks: vi.fn(),
+  getAllProjectSubtasks: vi.fn(),
   getMonitoringStatsRows: vi.fn(),
   getQaStatsProjects: vi.fn(),
-  saveProjectPage: vi.fn(),
+  saveProjectSubtask: vi.fn(),
   getTasks: vi.fn(),
   saveTask: vi.fn(),
   deleteTask: vi.fn(),
@@ -61,9 +61,9 @@ describe('Stats pages', () => {
 
     mockDataClient.getMonitoringStatsRows.mockResolvedValue([
       {
-        pageId: 'page-1',
+        subtaskId: 'page-1',
         projectId: 'project-1',
-        title: '모니터링 페이지',
+        title: '모니터링 과업',
         reportUrl: '',
         ownerMemberId: 'member-1',
         monitoringMonth: '2603',
@@ -78,9 +78,9 @@ describe('Stats pages', () => {
         assigneeDisplay: 'legacy-1(운영 사용자)',
       },
       {
-        pageId: 'page-2',
+        subtaskId: 'page-2',
         projectId: 'project-3',
-        title: '과거 모니터링 페이지',
+        title: '과거 모니터링 과업',
         reportUrl: '',
         ownerMemberId: 'member-1',
         monitoringMonth: '2507',
@@ -95,9 +95,9 @@ describe('Stats pages', () => {
         assigneeDisplay: 'legacy-1(운영 사용자)',
       },
       {
-        pageId: 'page-3',
+        subtaskId: 'page-3',
         projectId: 'project-2',
-        title: '제외 페이지',
+        title: '제외 과업',
         reportUrl: '',
         ownerMemberId: 'member-1',
         monitoringMonth: '',
@@ -147,7 +147,7 @@ describe('Stats pages', () => {
         isActive: true,
       },
     ]);
-    mockDataClient.saveProjectPage.mockImplementation(async (input) => ({
+    mockDataClient.saveProjectSubtask.mockImplementation(async (input) => ({
       id: input.id ?? 'page-1',
       projectId: input.projectId,
       title: input.title,
@@ -172,7 +172,7 @@ describe('Stats pages', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getAllByText('모니터링 페이지').length).toBeGreaterThan(0);
+      expect(screen.getAllByText('모니터링 과업').length).toBeGreaterThan(0);
     });
 
     expect(screen.getByRole('heading', { name: '모니터링 통계' })).toBeInTheDocument();
@@ -182,12 +182,12 @@ describe('Stats pages', () => {
     expect(screen.getAllByText('2026/03').length).toBeGreaterThan(0);
     expect(screen.getByRole('columnheader', { name: '서비스 그룹' })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: '프로젝트명' })).toBeInTheDocument();
-    expect(screen.getByRole('columnheader', { name: '페이지명' })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: '과업명' })).toBeInTheDocument();
     expect(screen.getAllByText('legacy-1(운영 사용자)').length).toBeGreaterThan(0);
-    expect(screen.getByRole('button', { name: '모니터링 페이지 내용 보기' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '모니터링 과업 내용 보기' })).toBeInTheDocument();
     expect(screen.queryByText(/적용 기간/)).not.toBeInTheDocument();
     expect(screen.queryByText('2025-10 ~ 2026-03')).not.toBeInTheDocument();
-    expect(screen.queryByText('제외 페이지')).not.toBeInTheDocument();
+    expect(screen.queryByText('제외 과업')).not.toBeInTheDocument();
     expect((screen.getByLabelText('모니터링 시작월') as HTMLInputElement).value).toBe(
       defaultStartMonth,
     );
@@ -206,7 +206,7 @@ describe('Stats pages', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getAllByText('모니터링 페이지').length).toBeGreaterThan(0);
+      expect(screen.getAllByText('모니터링 과업').length).toBeGreaterThan(0);
     });
 
     expect((screen.getByLabelText('모니터링 시작월') as HTMLInputElement).value).toBe(
@@ -219,15 +219,15 @@ describe('Stats pages', () => {
     fireEvent.change(screen.getByLabelText('모니터링 시작월'), { target: { value: '2025-07' } });
     fireEvent.change(screen.getByLabelText('모니터링 종료월'), { target: { value: '2025-07' } });
 
-    expect(screen.getByText('모니터링 페이지')).toBeInTheDocument();
-    expect(screen.queryByText('과거 모니터링 페이지')).not.toBeInTheDocument();
+    expect(screen.getByText('모니터링 과업')).toBeInTheDocument();
+    expect(screen.queryByText('과거 모니터링 과업')).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: '검색' }));
 
     expect((screen.getByLabelText('모니터링 시작월') as HTMLInputElement).value).toBe('2025-07');
     expect((screen.getByLabelText('모니터링 종료월') as HTMLInputElement).value).toBe('2025-07');
-    expect(screen.queryByText('모니터링 페이지')).not.toBeInTheDocument();
-    expect(screen.getByText('과거 모니터링 페이지')).toBeInTheDocument();
+    expect(screen.queryByText('모니터링 과업')).not.toBeInTheDocument();
+    expect(screen.getByText('과거 모니터링 과업')).toBeInTheDocument();
   });
 
   it('edits monitoring status and note from the stats table', async () => {
@@ -240,20 +240,20 @@ describe('Stats pages', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getAllByText('모니터링 페이지').length).toBeGreaterThan(0);
+      expect(screen.getAllByText('모니터링 과업').length).toBeGreaterThan(0);
     });
 
     fireEvent.click(screen.getByRole('button', { name: '수정' }));
-    fireEvent.change(screen.getByLabelText('모니터링 페이지 상태'), {
+    fireEvent.change(screen.getByLabelText('모니터링 과업 상태'), {
       target: { value: '일부 수정' },
     });
-    fireEvent.change(screen.getByLabelText('모니터링 페이지 비고'), {
+    fireEvent.change(screen.getByLabelText('모니터링 과업 비고'), {
       target: { value: '남은 이슈 공유' },
     });
     fireEvent.click(screen.getByRole('button', { name: '저장' }));
 
     await waitFor(() => {
-      expect(mockDataClient.saveProjectPage).toHaveBeenCalledWith(
+      expect(mockDataClient.saveProjectSubtask).toHaveBeenCalledWith(
         expect.objectContaining({
           id: 'page-1',
           trackStatus: '일부 수정',

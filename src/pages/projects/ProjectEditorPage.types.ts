@@ -1,4 +1,4 @@
-import type { PageStatus } from '../../types/domain';
+import type { SubtaskStatus } from '../../types/domain';
 
 export interface ProjectFormState {
   id?: string;
@@ -14,13 +14,13 @@ export interface ProjectFormState {
   isActive: boolean;
 }
 
-export interface PageFormState {
+export interface SubtaskFormState {
   id?: string;
   projectId: string;
   title: string;
   url: string;
   ownerMemberId: string;
-  trackStatus: PageStatus;
+  trackStatus: SubtaskStatus;
   monitoringInProgress: boolean;
   qaInProgress: boolean;
   note: string;

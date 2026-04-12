@@ -4,7 +4,7 @@ import type {
   Member,
   ReportFilters,
   SaveProjectInput,
-  SaveProjectPageInput,
+  SaveProjectSubtaskInput,
   SaveTaskInput,
 } from '../types/domain';
 
@@ -35,12 +35,12 @@ export interface DataClient {
   getProject(projectId: string): Promise<ApiRecord | null>;
   saveProject(input: SaveProjectInput): Promise<ApiRecord>;
   deleteProject(projectId: string): Promise<void>;
-  getProjectPages(member: Member): Promise<ApiRecord[]>;
-  getAllProjectPages(): Promise<ApiRecord[]>;
-  getProjectPagesByProjectId(projectId: string): Promise<ApiRecord[]>;
-  getProjectPagesByProjectIds(projectIds: string[]): Promise<ApiRecord[]>;
-  saveProjectPage(input: SaveProjectPageInput): Promise<ApiRecord>;
-  deleteProjectPage(pageId: string): Promise<void>;
+  getProjectSubtasks(member: Member): Promise<ApiRecord[]>;
+  getAllProjectSubtasks(): Promise<ApiRecord[]>;
+  getProjectSubtasksByProjectId(projectId: string): Promise<ApiRecord[]>;
+  getProjectSubtasksByProjectIds(projectIds: string[]): Promise<ApiRecord[]>;
+  saveProjectSubtask(input: SaveProjectSubtaskInput): Promise<ApiRecord>;
+  deleteProjectSubtask(subtaskId: string): Promise<void>;
   getTasksByDate(member: Member, taskDate: string): Promise<ApiRecord[]>;
   getDashboardTaskCalendar(member: Member, month: string): Promise<ApiRecord[]>;
   getResourceSummary(member: Member, month: string): Promise<ApiRecord[]>;
@@ -124,22 +124,22 @@ const unconfiguredClient: DataClient = {
   async deleteProject() {
     throw new Error(configurationErrorMessage);
   },
-  async getProjectPages() {
+  async getProjectSubtasks() {
     throw new Error(configurationErrorMessage);
   },
-  async getAllProjectPages() {
+  async getAllProjectSubtasks() {
     throw new Error(configurationErrorMessage);
   },
-  async getProjectPagesByProjectId() {
+  async getProjectSubtasksByProjectId() {
     throw new Error(configurationErrorMessage);
   },
-  async getProjectPagesByProjectIds() {
+  async getProjectSubtasksByProjectIds() {
     throw new Error(configurationErrorMessage);
   },
-  async saveProjectPage() {
+  async saveProjectSubtask() {
     throw new Error(configurationErrorMessage);
   },
-  async deleteProjectPage() {
+  async deleteProjectSubtask() {
     throw new Error(configurationErrorMessage);
   },
   async getTasksByDate() {
@@ -358,44 +358,44 @@ const configuredClient: DataClient = !supabase
         const { error } = await supabase.from('projects').delete().eq('id', projectId);
         if (error) throw error;
       },
-      async getProjectPages() {
+      async getProjectSubtasks() {
         const { data, error } = await supabase
-          .from('project_pages_public_view')
+          .from('project_subtasks_public_view')
           .select('*')
           .order('updated_at', { ascending: false });
         if (error) throw error;
         return (data ?? []) as ApiRecord[];
       },
-      async getAllProjectPages() {
+      async getAllProjectSubtasks() {
         const { data, error } = await supabase
-          .from('project_pages_public_view')
+          .from('project_subtasks_public_view')
           .select('*')
           .order('updated_at', { ascending: false });
         if (error) throw error;
         return (data ?? []) as ApiRecord[];
       },
-      async getProjectPagesByProjectId(projectId) {
+      async getProjectSubtasksByProjectId(projectId) {
         const { data, error } = await supabase
-          .from('project_pages_public_view')
+          .from('project_subtasks_public_view')
           .select('*')
           .eq('project_id', projectId)
           .order('updated_at', { ascending: false });
         if (error) throw error;
         return (data ?? []) as ApiRecord[];
       },
-      async getProjectPagesByProjectIds(projectIds) {
+      async getProjectSubtasksByProjectIds(projectIds) {
         const { data, error } = await supabase
-          .from('project_pages_public_view')
+          .from('project_subtasks_public_view')
           .select('*')
           .in('project_id', projectIds)
           .order('updated_at', { ascending: false });
         if (error) throw error;
         return (data ?? []) as ApiRecord[];
       },
-      async saveProjectPage(input) {
+      async saveProjectSubtask(input) {
         const { data, error } = await supabase
-          .rpc('upsert_project_page', {
-            p_page_id: input.id ?? null,
+          .rpc('upsert_project_subtask', {
+            p_subtask_id: input.id ?? null,
             p_project_id: input.projectId,
             p_title: input.title,
             p_url: input.url,
@@ -410,8 +410,8 @@ const configuredClient: DataClient = !supabase
         if (error) throw error;
         return data as ApiRecord;
       },
-      async deleteProjectPage(pageId) {
-        const { error } = await supabase.from('project_pages').delete().eq('id', pageId);
+      async deleteProjectSubtask(subtaskId) {
+        const { error } = await supabase.from('project_subtasks').delete().eq('id', subtaskId);
         if (error) throw error;
       },
       async getTasksByDate(member, taskDate) {
@@ -509,7 +509,7 @@ const configuredClient: DataClient = !supabase
             p_task_date: input.taskDate,
             p_cost_group_id: input.costGroupId,
             p_project_id: input.projectId,
-            p_project_page_id: input.pageId,
+            p_project_subtask_id: input.subtaskId,
             p_task_type1: input.taskType1,
             p_task_type2: input.taskType2,
             p_task_usedtime: input.taskUsedtime,
@@ -533,7 +533,7 @@ const configuredClient: DataClient = !supabase
           p_start_date: filters.startDate || null,
           p_end_date: filters.endDate || null,
           p_project_id: filters.projectId || null,
-          p_project_page_id: filters.pageId || null,
+          p_project_subtask_id: filters.subtaskId || null,
           p_task_type1: filters.taskType1 || null,
           p_task_type2: filters.taskType2 || null,
           p_min_task_usedtime: filters.minTaskUsedtime
@@ -558,7 +558,7 @@ const configuredClient: DataClient = !supabase
               p_start_date: filters.startDate || null,
               p_end_date: filters.endDate || null,
               p_project_id: filters.projectId || null,
-              p_project_page_id: filters.pageId || null,
+              p_project_subtask_id: filters.subtaskId || null,
               p_task_type1: filters.taskType1 || null,
               p_task_type2: filters.taskType2 || null,
               p_min_task_usedtime: filters.minTaskUsedtime
