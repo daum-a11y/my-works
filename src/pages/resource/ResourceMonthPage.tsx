@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
 import { setDocumentTitle } from '../../router/navigation';
-import { EmptyState } from '../../components/shared/EmptyState';
 import { PageHeader } from '../../components/shared/PageHeader';
 import { dataClient } from '../../api/client';
 import {
@@ -150,9 +149,7 @@ export function ResourceMonthPage() {
     <section className="dashboard-page dashboard-page--page projects-feature projects-feature--shell resource-page resource-page--page">
       <PageHeader title={RESOURCE_MONTH_PAGE_TITLE} />
 
-      {query.isPending ? (
-        <EmptyState message="월간 리소스 데이터를 불러오는 중입니다." />
-      ) : (
+      {query.isPending ? null : (
         <>
           <ResourceMonthContextSection
             beforeMonth={beforeMonth}

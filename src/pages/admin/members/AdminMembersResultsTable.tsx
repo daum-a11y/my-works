@@ -27,13 +27,12 @@ export function AdminMembersResultsTable({ loading, members }: AdminMembersResul
           </tr>
         </thead>
         <tbody>
-          {loading ? (
-            <TableEmptyRow colSpan={10} message="사용자 내역을 불러오는 중입니다." />
-          ) : members.length === 0 ? (
+          {!loading && members.length === 0 ? (
             <TableEmptyRow colSpan={10} message="조회된 사용자가 없습니다." />
-          ) : (
-            members.map((member) => <AdminMemberRow key={member.id} member={member} />)
-          )}
+          ) : null}
+          {!loading
+            ? members.map((member) => <AdminMemberRow key={member.id} member={member} />)
+            : null}
         </tbody>
       </table>
     </div>

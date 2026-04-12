@@ -57,6 +57,7 @@ beforeEach(() => {
   inviteMemberAdmin.mockResolvedValue(undefined);
   resetMemberPasswordAdmin.mockResolvedValue(undefined);
   vi.spyOn(window, 'confirm').mockReturnValue(true);
+  vi.spyOn(window, 'alert').mockImplementation(() => undefined);
 });
 
 afterEach(() => {
@@ -253,9 +254,9 @@ describe('AdminMemberEditorPage', () => {
     await user.click(screen.getByRole('button', { name: '비밀번호 재설정' }));
 
     await waitFor(() => {
-      expect(
-        screen.getByText('Auth 이메일이 없어 비밀번호 재설정 메일을 보낼 수 없습니다.'),
-      ).toBeInTheDocument();
+      expect(window.alert).toHaveBeenCalledWith(
+        'Auth 이메일이 없어 비밀번호 재설정 메일을 보낼 수 없습니다.',
+      );
       expect(resetMemberPasswordAdmin).not.toHaveBeenCalled();
     });
   });

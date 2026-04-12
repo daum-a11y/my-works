@@ -273,9 +273,7 @@ export function AdminServiceGroupEditorPage() {
 
   if (serviceGroupsQuery.isLoading && isEditMode) {
     return (
-      <section className="projects-feature projects-feature__shell projects-feature__editor-shell">
-        <p className={'projects-feature__status-message'}>불러오는 중...</p>
-      </section>
+      <section className="projects-feature projects-feature__shell projects-feature__editor-shell" />
     );
   }
 

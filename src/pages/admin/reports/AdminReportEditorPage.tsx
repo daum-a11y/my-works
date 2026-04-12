@@ -32,6 +32,7 @@ import {
 } from './AdminReportEditorPage.utils';
 import { toAdminTask, toMemberAdmin } from '../adminApiTransform';
 import { AdminReportEditorForm } from './AdminReportEditorForm';
+import { useAlertMessage } from '../../../hooks/useAlertMessage';
 import '../../../styles/pages/AdminPage.scss';
 
 export function AdminReportEditorPage() {
@@ -470,12 +471,15 @@ export function AdminReportEditorPage() {
     (pagesQuery.error instanceof Error && pagesQuery.error.message) ||
     (taskQuery.error instanceof Error && taskQuery.error.message) ||
     '';
+  useAlertMessage(queryError || statusMessage);
   const currentMember = members.find((member) => member.id === selectedMemberId) ?? null;
 
   const onSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setStatusMessage('');
-    void saveMutation.mutateAsync();
+    void saveMutation.mutateAsync().catch(() => {
+      // Mutation onError updates statusMessage; useAlertMessage displays it.
+    });
   };
 
   return (

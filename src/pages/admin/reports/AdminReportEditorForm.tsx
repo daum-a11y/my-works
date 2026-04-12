@@ -137,7 +137,6 @@ export function AdminReportEditorForm({
       <AdminReportEditorStatus
         queryError={queryError}
         statusMessage={statusMessage}
-        loading={loading}
         isMissingEditTarget={missingEditTarget}
       />
 

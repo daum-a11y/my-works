@@ -27,9 +27,7 @@ export function AuthenticatedLayout() {
     textColor: '',
   });
   const userMenuRef = useRef<HTMLDivElement | null>(null);
-  const resourceFetchCount = useIsFetching({
-    predicate: (query) => query.queryKey[0] === 'resource',
-  });
+  const activeFetchCount = useIsFetching();
 
   const navigation = useMemo(
     () => (isAdmin ? [...baseNavigation, ...adminNavigation] : [...baseNavigation]),
@@ -293,7 +291,7 @@ export function AuthenticatedLayout() {
         </aside>
 
         <div className="authenticated-layout__content">
-          {resourceFetchCount > 0 ? (
+          {activeFetchCount > 0 ? (
             <div className="authenticated-layout__global-loading-overlay">
               <GlobalLoadingSpinner overlay />
             </div>

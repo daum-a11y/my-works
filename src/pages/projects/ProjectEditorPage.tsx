@@ -455,7 +455,6 @@ export function ProjectEditorPage() {
             </Link>
           ) : null}
         </header>
-        <p className={'projects-feature__status-message'}>프로젝트 데이터를 불러오는 중입니다.</p>
       </section>
     );
   }
