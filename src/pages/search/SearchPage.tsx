@@ -78,7 +78,11 @@ export function SearchPage() {
         }
       />
 
-      <SearchResultsTable reports={page.sortedReports} />
+      <SearchResultsTable
+        reports={page.sortedReports}
+        sortState={page.sortState}
+        onSortChange={page.setSortState}
+      />
     </section>
   );
 }

@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { SearchPage } from '../pages/search/SearchPage';
@@ -146,15 +146,86 @@ describe('SearchPage', () => {
     });
 
     expect(screen.getByRole('button', { name: '다운로드' })).toBeInTheDocument();
-    expect(screen.getByRole('columnheader', { name: '청구그룹' })).toBeInTheDocument();
-    expect(screen.getByRole('columnheader', { name: '서비스 그룹' })).toBeInTheDocument();
-    expect(screen.getByRole('columnheader', { name: '과업명' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /청구그룹 정렬/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /서비스 그룹 정렬/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /과업명 정렬/ })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: '내용' })).toBeInTheDocument();
-    expect(screen.getByRole('columnheader', { name: '작업시간' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /작업시간 정렬/ })).toBeInTheDocument();
     expect(screen.getAllByText('알파').length).toBeGreaterThan(0);
     expect(screen.getByText('로그인')).toBeInTheDocument();
     expect(screen.getAllByText('60분').length).toBeGreaterThan(0);
     expect(screen.getByText('1건')).toBeInTheDocument();
     expect(screen.getByText('1')).toBeInTheDocument();
+  });
+
+  it('sorts the visible rows by sortable table headers', async () => {
+    const user = userEvent.setup();
+    mockDataClient.searchTasksPage.mockResolvedValue({
+      items: [
+        {
+          id: 'task-1',
+          taskDate: '2026-03-24',
+          costGroupId: 'cost-group-1',
+          costGroupName: '내부',
+          taskType1: '기획',
+          taskType2: '작성',
+          taskUsedtime: 90,
+          content: '긴 업무',
+          note: '',
+          updatedAt: '2026-03-24T09:00:00.000Z',
+          platform: 'iOS',
+          serviceGroupName: '공통',
+          serviceName: '앱',
+          projectName: '알파',
+          subtaskTitle: '로그인',
+          url: '',
+        },
+        {
+          id: 'task-2',
+          taskDate: '2026-03-23',
+          costGroupId: 'cost-group-2',
+          costGroupName: '외부',
+          taskType1: 'QA',
+          taskType2: '검수',
+          taskUsedtime: 30,
+          content: '짧은 업무',
+          note: '',
+          updatedAt: '2026-03-23T09:00:00.000Z',
+          platform: 'Android',
+          serviceGroupName: '검색',
+          serviceName: '웹',
+          projectName: '베타',
+          subtaskTitle: '검색',
+          url: '',
+        },
+      ],
+      totalCount: 2,
+    });
+
+    const queryClient = new QueryClient();
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <SearchPage />
+      </QueryClientProvider>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('긴 업무')).toBeInTheDocument();
+    });
+
+    const tables = screen.getAllByRole('table', { name: '업무 리스트 테이블' });
+    const table = tables[tables.length - 1];
+    const firstDataRow = () => within(table).getAllByRole('row')[1];
+
+    expect(firstDataRow()).toHaveTextContent('긴 업무');
+
+    const sortButtons = screen.getAllByRole('button', { name: /작업시간 정렬/ });
+    await user.click(sortButtons[sortButtons.length - 1]);
+
+    expect(firstDataRow()).toHaveTextContent('짧은 업무');
+    expect(
+      within(table).getByRole('columnheader', { name: /작업시간 오름차순으로 정렬 중/ }),
+    ).toBeInTheDocument();
   });
 });

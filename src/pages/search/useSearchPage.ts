@@ -9,7 +9,11 @@ import {
   formatReportDate,
   formatReportTaskUsedtime,
 } from '../reports/reportUtils';
-import { SEARCH_DEFAULT_PAGE_SIZE, SEARCH_PAGE_TITLE } from './SearchPage.constants';
+import {
+  SEARCH_DEFAULT_PAGE_SIZE,
+  SEARCH_DEFAULT_SORT,
+  SEARCH_PAGE_TITLE,
+} from './SearchPage.constants';
 import type { SearchFilters } from './SearchPage.types';
 import {
   buildCurrentMonthFilters,
@@ -26,6 +30,7 @@ export function useSearchPage() {
   const [appliedFilters, setAppliedFilters] = useState<SearchFilters>(buildCurrentMonthFilters);
   const [searchInput, setSearchInput] = useState('');
   const [appliedSearch, setAppliedSearch] = useState('');
+  const [sortState, setSortState] = useState(SEARCH_DEFAULT_SORT);
   const [pageSize, setPageSize] = useState<number>(SEARCH_DEFAULT_PAGE_SIZE);
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -69,7 +74,7 @@ export function useSearchPage() {
       return true;
     });
   }, [tasksQuery.data]);
-  const sortedReports = useMemo(() => sortSearchRows(tasks), [tasks]);
+  const sortedReports = useMemo(() => sortSearchRows(tasks, sortState), [sortState, tasks]);
   const totalMinutes = useMemo(
     () => sortedReports.reduce((sum, report) => sum + report.taskUsedtime, 0),
     [sortedReports],
@@ -132,7 +137,7 @@ export function useSearchPage() {
     await downloadExcelFile(
       buildExportFilename(appliedFilters.startDate, appliedFilters.endDate),
       '검색결과',
-      sortSearchRows(downloadTasks),
+      sortSearchRows(downloadTasks, sortState),
       [
         { header: '일자', value: (report) => formatReportDate(report.taskDate), width: 12 },
         { header: '청구그룹', value: (report) => report.costGroupName || '-', width: 16 },
@@ -167,6 +172,8 @@ export function useSearchPage() {
     setFilterDraft,
     setPageSize,
     setSearchInput,
+    setSortState,
+    sortState,
     sortedReports,
     totalMinutes,
     totalPages,
