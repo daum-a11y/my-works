@@ -32,10 +32,10 @@ export function MonitoringStatsDetailsTable({
         <thead>
           <tr>
             <th scope="col">월</th>
-            <th scope="col">플랫폼</th>
             <th scope="col">청구그룹</th>
             <th scope="col">서비스 그룹</th>
             <th scope="col">프로젝트명</th>
+            <th scope="col">플랫폼</th>
             <th scope="col">과업명</th>
             <th scope="col">담당자</th>
             <th scope="col">상태</th>
@@ -47,7 +47,6 @@ export function MonitoringStatsDetailsTable({
           {rows.map((row) => (
             <tr key={row.subtaskId}>
               <td>{formatMonthLabel(monthKeyFromMonitoringMonth(row.monitoringMonth))}</td>
-              <td>{row.platform || '-'}</td>
               <td>{row.costGroupName || '-'}</td>
               <td>{row.serviceGroupName || '-'}</td>
               <td>
@@ -59,6 +58,7 @@ export function MonitoringStatsDetailsTable({
                   row.projectName || '-'
                 )}
               </td>
+              <td>{row.platform || '-'}</td>
               <td>{row.title}</td>
               <td>{row.assigneeDisplay || '-'}</td>
               <td>

@@ -420,6 +420,7 @@ export interface QaStatsProjectRow {
   id: string;
   type1: string | null;
   name: string | null;
+  platform: string | null;
   costGroupName: string | null;
   serviceGroupName: string | null;
   reportUrl: string | null;

@@ -32,6 +32,7 @@ describe('QaStatsPage', () => {
         id: 'project-1',
         type1: 'QA',
         name: '접근성 포털',
+        platform: 'Web',
         costGroupName: '청구그룹A',
         serviceGroupName: '-',
         reportUrl: '',
@@ -44,6 +45,7 @@ describe('QaStatsPage', () => {
         id: 'project-3',
         type1: 'QA',
         name: '메이커스 25년 3차',
+        platform: 'iOS',
         costGroupName: '청구그룹A',
         serviceGroupName: '-',
         reportUrl: '',
@@ -56,6 +58,7 @@ describe('QaStatsPage', () => {
         id: 'project-4',
         type1: 'QA',
         name: '메이커스 25년 3차 - 후속',
+        platform: 'Android',
         costGroupName: '청구그룹A',
         serviceGroupName: '-',
         reportUrl: '',
@@ -86,7 +89,10 @@ describe('QaStatsPage', () => {
 
     expect(screen.queryByText('메이커스 25년 3차')).not.toBeInTheDocument();
     expect(screen.queryByText('메이커스 25년 3차 - 후속')).not.toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: '플랫폼' })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: '청구그룹' })).toBeInTheDocument();
+    expect(screen.getByText('청구그룹A')).toBeInTheDocument();
+    expect(screen.getByText('Web')).toBeInTheDocument();
 
     fireEvent.change(screen.getByLabelText('QA 시작월'), { target: { value: '2025-06' } });
     fireEvent.change(screen.getByLabelText('QA 종료월'), { target: { value: '2025-06' } });

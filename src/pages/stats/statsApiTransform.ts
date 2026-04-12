@@ -57,6 +57,7 @@ export function toQaStatsProject(record: ApiRecord): QaStatsProjectRow {
     id: String(record.id ?? ''),
     type1: record.type1 == null ? null : String(record.type1),
     name: record.name == null ? null : String(record.name),
+    platform: record.platform == null ? null : String(record.platform),
     costGroupName:
       readValue(record, 'cost_group_name', 'costGroupName') == null
         ? null

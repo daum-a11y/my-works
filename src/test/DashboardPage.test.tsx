@@ -98,7 +98,7 @@ describe('DashboardPage', () => {
     expect(screen.getByText('내부')).toBeInTheDocument();
     expect(screen.getByText('커머스')).toBeInTheDocument();
     expect(screen.getByText('2026-03-01')).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: '진행중인 프로젝트 목록' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: '진행중인 프로젝트' })).toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: '진행중 모니터링 목록' })).not.toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: '진행중 QA 목록' })).not.toBeInTheDocument();
     expect(screen.queryByText('업무 보고 현황')).not.toBeInTheDocument();

@@ -1939,6 +1939,7 @@ returns table (
   id uuid,
   type1 text,
   name text,
+  platform text,
   cost_group_name text,
   service_group_name text,
   report_url text,
@@ -1956,6 +1957,7 @@ as $$
     p.id,
     ptt.type1 as type1,
     p.name,
+    nullif(pl.name, '') as platform,
     nullif(cg.name, '') as cost_group_name,
     nullif(public.resolve_service_group_name(sg.service_group_name, sg.name), '') as service_group_name,
     nullif(p.report_url, '') as report_url,
@@ -1965,6 +1967,7 @@ as $$
     p.is_active
   from public.projects p
   left join public.task_types ptt on ptt.id = p.task_type_id
+  left join public.platforms pl on pl.id = p.platform_id
   left join public.service_groups sg on sg.id = p.service_group_id
   left join public.cost_groups cg on cg.id = sg.cost_group_id
   left join public.members reporter on reporter.id = p.reporter_member_id

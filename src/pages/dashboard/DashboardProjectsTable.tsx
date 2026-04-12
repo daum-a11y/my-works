@@ -19,11 +19,11 @@ export function DashboardProjectsTable({ projects }: DashboardProjectsTableProps
   return (
     <section className="dashboard-page__section">
       <div className="dashboard-page__section-head">
-        <h2 className="dashboard-page__section-title">진행중인 프로젝트 목록</h2>
+        <h2 className="dashboard-page__section-title">진행중인 프로젝트</h2>
       </div>
       <div className="dashboard-page__table-wrap">
         <table className="dashboard-page__table">
-          <caption className="sr-only">진행중인 프로젝트 목록</caption>
+          <caption className="sr-only">진행중인 프로젝트</caption>
           <thead>
             <tr>
               <th scope="col">청구그룹</th>

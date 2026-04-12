@@ -74,11 +74,7 @@ export function SearchResultsTable({ reports }: SearchResultsTableProps) {
               </tr>
             ))}
             {!reports.length ? (
-              <TableEmptyRow
-                colSpan={13}
-                message="검색 조건에 맞는 업무보고가 없습니다."
-                description="검색어 또는 기간을 조정하십시오."
-              />
+              <TableEmptyRow colSpan={13} message="검색 조건에 맞는 업무보고가 없습니다." />
             ) : null}
           </tbody>
         </table>

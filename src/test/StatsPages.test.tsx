@@ -121,6 +121,7 @@ describe('Stats pages', () => {
         id: 'project-1',
         type1: 'QA',
         name: 'QA 대상',
+        platform: 'iOS',
         costGroupName: '청구그룹A',
         serviceGroupName: '서비스 그룹A',
         reportUrl: '',
@@ -133,6 +134,7 @@ describe('Stats pages', () => {
         id: 'project-3',
         type1: 'QA',
         name: '과거 QA 대상',
+        platform: 'Web',
         costGroupName: '청구그룹A',
         serviceGroupName: '서비스 그룹A',
         reportUrl: '',
@@ -145,6 +147,7 @@ describe('Stats pages', () => {
         id: 'project-2',
         type1: 'QA',
         name: '추가 QA 대상',
+        platform: 'Android',
         costGroupName: '청구그룹A',
         serviceGroupName: '서비스 그룹A',
         reportUrl: '',
@@ -189,7 +192,14 @@ describe('Stats pages', () => {
     expect(screen.getByRole('button', { name: '그래프' })).toHaveAttribute('aria-pressed', 'true');
     expect(screen.getByRole('button', { name: '표' })).toHaveAttribute('aria-pressed', 'false');
     expect(screen.getAllByText('2026/03').length).toBeGreaterThan(0);
+    expect(
+      screen.getByRole('row', {
+        name: '월 청구그룹 서비스 그룹 프로젝트명 플랫폼 과업명 담당자 상태 비고 보고서URL',
+      }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: '플랫폼' })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: '청구그룹' })).toBeInTheDocument();
+    expect(screen.getAllByText('청구그룹A').length).toBeGreaterThan(0);
     expect(screen.getByRole('columnheader', { name: '서비스 그룹' })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: '프로젝트명' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'QA 대상' })).toHaveAttribute(
@@ -292,7 +302,9 @@ describe('Stats pages', () => {
     expect(screen.getByRole('button', { name: '그래프' })).toHaveAttribute('aria-pressed', 'true');
     expect(screen.getByRole('button', { name: '표' })).toHaveAttribute('aria-pressed', 'false');
     expect(screen.getAllByText('2026/03').length).toBeGreaterThan(0);
+    expect(screen.getByRole('columnheader', { name: '플랫폼' })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: '청구그룹' })).toBeInTheDocument();
+    expect(screen.getAllByText('청구그룹A').length).toBeGreaterThan(0);
     expect(screen.getByRole('columnheader', { name: '서비스 그룹' })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: '프로젝트명' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'QA 대상' })).toHaveAttribute(
@@ -301,7 +313,7 @@ describe('Stats pages', () => {
     );
     expect(screen.getByRole('columnheader', { name: '리포터' })).toBeInTheDocument();
     expect(screen.getAllByText('legacy-1(운영 사용자)').length).toBeGreaterThan(0);
-    expect(screen.queryByText('iOS')).not.toBeInTheDocument();
+    expect(screen.getByText('iOS')).toBeInTheDocument();
     expect(screen.queryByText(/적용 기간/)).not.toBeInTheDocument();
     expect(screen.queryByText('2025-10 ~ 2026-03')).not.toBeInTheDocument();
     expect(screen.getByText('추가 QA 대상')).toBeInTheDocument();

@@ -18,6 +18,7 @@ export function QaStatsProjectsTable({ projects }: QaStatsProjectsTableProps) {
             <th scope="col">청구그룹</th>
             <th scope="col">서비스 그룹</th>
             <th scope="col">프로젝트명</th>
+            <th scope="col">플랫폼</th>
             <th scope="col">리포터</th>
             <th scope="col">보고서URL</th>
           </tr>
@@ -37,6 +38,7 @@ export function QaStatsProjectsTable({ projects }: QaStatsProjectsTableProps) {
                   project.name || '-'
                 )}
               </td>
+              <td>{project.platform || '-'}</td>
               <td>{project.reporterDisplay || '-'}</td>
               <td>
                 {project.reportUrl ? (
@@ -55,7 +57,7 @@ export function QaStatsProjectsTable({ projects }: QaStatsProjectsTableProps) {
             </tr>
           ))}
           {!projects.length ? (
-            <TableEmptyRow colSpan={6} message="조건에 맞는 QA 내역이 없습니다." />
+            <TableEmptyRow colSpan={7} message="조건에 맞는 QA 내역이 없습니다." />
           ) : null}
         </tbody>
       </table>
