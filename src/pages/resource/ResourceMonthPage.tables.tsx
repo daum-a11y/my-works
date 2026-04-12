@@ -1,6 +1,7 @@
 import { Fragment } from 'react';
 import clsx from 'clsx';
 import type {
+  ResourceMonthReportNonServiceSummaryRow,
   ResourceMonthReportServiceDetailRow,
   ResourceMonthReportServiceSummaryRow,
   ResourceMonthReportTypeRow,
@@ -221,17 +222,67 @@ export function ResourceMonthServiceTable({
 
 interface ResourceMonthReportTableProps {
   serviceSummaryRows: ResourceMonthReportServiceSummaryRow[];
-  unpaidRows: Array<{ type1: string; totalMinutes: number }>;
+  nonServiceSummaryRows: ResourceMonthReportNonServiceSummaryRow[];
   adjustedTotalMinutes: number;
   workingDays: number;
 }
 
+interface ResourceMonthReportBillingGroupRow {
+  costGroup: string;
+  items: Array<{
+    type1: string;
+    totalMinutes: number;
+    names: Array<{ name: string; minutes: number }>;
+  }>;
+}
+
+function toResourceMonthReportBillingGroups(
+  serviceSummaryRows: ResourceMonthReportServiceSummaryRow[],
+  nonServiceSummaryRows: ResourceMonthReportNonServiceSummaryRow[],
+) {
+  const groupMap = new Map<string, ResourceMonthReportBillingGroupRow>();
+
+  const getGroup = (costGroup: string) => {
+    const current = groupMap.get(costGroup);
+    if (current) {
+      return current;
+    }
+
+    const next = { costGroup, items: [] };
+    groupMap.set(costGroup, next);
+    return next;
+  };
+
+  serviceSummaryRows.forEach((row) => {
+    getGroup(row.costGroup).items.push({
+      type1: row.group,
+      totalMinutes: row.totalMinutes,
+      names: row.names,
+    });
+  });
+
+  nonServiceSummaryRows.forEach((row) => {
+    getGroup(row.costGroup).items.push({
+      type1: row.type1,
+      totalMinutes: row.totalMinutes,
+      names: row.items.map((item) => ({ name: item.type2, minutes: item.minutes })),
+    });
+  });
+
+  return Array.from(groupMap.values());
+}
+
 export function ResourceMonthReportTable({
   serviceSummaryRows,
-  unpaidRows,
+  nonServiceSummaryRows,
   adjustedTotalMinutes,
   workingDays,
 }: ResourceMonthReportTableProps) {
+  const billingGroupRows = toResourceMonthReportBillingGroups(
+    serviceSummaryRows,
+    nonServiceSummaryRows,
+  );
+
   return (
     <div className="dashboard-page__table-wrap">
       <table
@@ -258,32 +309,40 @@ export function ResourceMonthReportTable({
           </tr>
         </tfoot>
         <tbody>
-          {serviceSummaryRows.map((group) => (
-            <Fragment key={group.group}>
-              <tr>
-                <td rowSpan={group.names.length + 1}>{group.costGroup}</td>
-                <td rowSpan={group.names.length + 1}>{group.group}</td>
-                <td className="resource-page__table-summary-cell">합계</td>
-                <td>{formatMm(group.totalMinutes, workingDays)}</td>
-              </tr>
-              {group.names.map((name) => (
-                <tr key={`${group.group}-${name.name}`}>
-                  <td>{name.name}</td>
-                  <td className="resource-page__number-cell">
-                    {formatMm(name.minutes, workingDays)}
-                  </td>
-                </tr>
-              ))}
-            </Fragment>
-          ))}
-          {unpaidRows.map((row) => (
-            <tr key={row.type1}>
-              <td colSpan={3}>{row.type1}</td>
-              <td className="resource-page__number-cell">
-                {formatMm(row.totalMinutes, workingDays)}
-              </td>
-            </tr>
-          ))}
+          {billingGroupRows.map((group) => {
+            const groupRowSpan = group.items.reduce((sum, item) => sum + item.names.length + 1, 0);
+            let isFirstGroupRow = true;
+
+            return (
+              <Fragment key={group.costGroup}>
+                {group.items.map((item, itemIndex) => {
+                  const showCostGroup = isFirstGroupRow;
+                  isFirstGroupRow = false;
+
+                  return (
+                    <Fragment key={`${group.costGroup}-${item.type1}-${itemIndex}`}>
+                      <tr>
+                        {showCostGroup ? <td rowSpan={groupRowSpan}>{group.costGroup}</td> : null}
+                        <td rowSpan={item.names.length + 1}>{item.type1}</td>
+                        <td className="resource-page__table-summary-cell">합계</td>
+                        <td>{formatMm(item.totalMinutes, workingDays)}</td>
+                      </tr>
+                      {item.names.map((name, nameIndex) => (
+                        <tr
+                          key={`${group.costGroup}-${item.type1}-${itemIndex}-${name.name}-${nameIndex}`}
+                        >
+                          <td>{name.name}</td>
+                          <td className="resource-page__number-cell">
+                            {formatMm(name.minutes, workingDays)}
+                          </td>
+                        </tr>
+                      ))}
+                    </Fragment>
+                  );
+                })}
+              </Fragment>
+            );
+          })}
         </tbody>
       </table>
     </div>

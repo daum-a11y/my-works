@@ -44,10 +44,14 @@ export function ResourceMonthPage() {
   const report = useMemo(() => toResourceMonthReport(query.data), [query.data]);
   const typeRows = report?.typeRows ?? [];
   const serviceSummaryRows = report?.serviceSummaryRows ?? [];
+  const nonServiceSummaryRows = report?.nonServiceSummaryRows ?? [];
   const serviceDetailRows = report?.serviceDetailRows ?? [];
   const memberTotals = report?.memberTotals ?? [];
   const hasTableData =
-    typeRows.length > 0 || serviceSummaryRows.length > 0 || serviceDetailRows.length > 0;
+    typeRows.length > 0 ||
+    serviceSummaryRows.length > 0 ||
+    nonServiceSummaryRows.length > 0 ||
+    serviceDetailRows.length > 0;
 
   const totalMinutes = typeRows.reduce((sum, row) => sum + row.totalMinutes, 0);
   const unpaidLeaveMinutes =
@@ -64,17 +68,6 @@ export function ResourceMonthPage() {
     0,
     adjustedTotalMinutes - holidayMinutes - bufferMinutes - projectMinutes,
   );
-  const unpaidRows = typeRows
-    .filter((row) => !row.requiresServiceGroup)
-    .map((row) => ({
-      type1: row.type1,
-      totalMinutes:
-        row.type1 === '휴무'
-          ? Math.max(0, row.totalMinutes - unpaidLeaveMinutes)
-          : row.totalMinutes,
-    }))
-    .filter((row) => row.totalMinutes > 0);
-
   const { year, month } = parseMonth(selectedMonth);
   const beforeMonth = shiftMonth(selectedMonth, -1);
   const afterMonth = shiftMonth(selectedMonth, 1);
@@ -184,11 +177,11 @@ export function ResourceMonthPage() {
             onSvcFoldToggle={() => setSvcFold((current) => !current)}
             typeRows={typeRows}
             serviceSummaryRows={serviceSummaryRows}
+            nonServiceSummaryRows={nonServiceSummaryRows}
             serviceDetailRows={serviceDetailRows}
             totalMinutes={totalMinutes}
             adjustedTotalMinutes={adjustedTotalMinutes}
             projectMinutes={projectMinutes}
-            unpaidRows={unpaidRows}
             workingDays={workingDays}
           />
         </>

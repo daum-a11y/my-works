@@ -1629,6 +1629,54 @@ as $$
         ),
         '[]'::jsonb
       ),
+      'non_service_summary_rows',
+      coalesce(
+        (
+          select jsonb_agg(
+            jsonb_build_object(
+              'costGroup', non_service_group.cost_group,
+              'type1', non_service_group.type1,
+              'totalMinutes', non_service_group.total_minutes,
+              'items', non_service_group.items
+            )
+            order by non_service_group.cost_group asc, non_service_group.type1 asc
+          )
+          from (
+            select
+              br.cost_group_name as cost_group,
+              br.task_type1 as type1,
+              sum(br.task_usedtime) as total_minutes,
+              coalesce(
+                (
+                  select jsonb_agg(
+                    jsonb_build_object(
+                      'type2', non_service_item.type2,
+                      'minutes', non_service_item.minutes
+                    )
+                    order by non_service_item.type2 asc
+                  )
+                  from (
+                    select
+                      br2.task_type2 as type2,
+                      sum(br2.task_usedtime) as minutes
+                    from base_rows br2
+                    where not br2.is_service_task
+                      and not (br2.task_type1 = '휴무' and br2.task_type2 = '무급휴가')
+                      and br2.cost_group_name = br.cost_group_name
+                      and br2.task_type1 = br.task_type1
+                    group by br2.task_type2
+                  ) non_service_item
+                ),
+                '[]'::jsonb
+              ) as items
+            from base_rows br
+            where not br.is_service_task
+              and not (br.task_type1 = '휴무' and br.task_type2 = '무급휴가')
+            group by br.cost_group_name, br.task_type1
+          ) non_service_group
+        ),
+        '[]'::jsonb
+      ),
       'service_detail_rows',
       coalesce(
         (

@@ -98,6 +98,7 @@ describe('ResourceMonthPage', () => {
           names: [{ name: '카카오 선물하기', minutes: 120 }],
         },
       ],
+      nonServiceSummaryRows: [],
       serviceDetailRows: [
         {
           costGroup: '커머스',
@@ -128,10 +129,44 @@ describe('ResourceMonthPage', () => {
     expect(screen.getByText('점검')).toBeInTheDocument();
   });
 
+  it('groups non-project report rows under their billing group', async () => {
+    mockDataClient.getResourceMonthReport.mockResolvedValue({
+      typeRows: [
+        {
+          type1: '일반',
+          totalMinutes: 60,
+          requiresServiceGroup: false,
+          items: [{ type2: '회의', minutes: 60, requiresServiceGroup: false }],
+        },
+      ],
+      serviceSummaryRows: [],
+      nonServiceSummaryRows: [
+        {
+          costGroup: '공통',
+          type1: '일반',
+          totalMinutes: 60,
+          items: [{ type2: '회의', minutes: 60 }],
+        },
+      ],
+      serviceDetailRows: [],
+      memberTotals: [{ id: 'member-1', accountId: 'legacy-1', totalMinutes: 60 }],
+    });
+
+    renderPage();
+
+    await waitFor(() => {
+      expect(screen.getByText('공통')).toBeInTheDocument();
+    });
+
+    expect(screen.getByText('일반')).toBeInTheDocument();
+    expect(screen.getByText('회의')).toBeInTheDocument();
+  });
+
   it('keeps the previous month data visible while the next month is loading', async () => {
     const deferred = createDeferred<{
       typeRows: [];
       serviceSummaryRows: [];
+      nonServiceSummaryRows: [];
       serviceDetailRows: [];
       memberTotals: [];
     }>();
@@ -155,6 +190,7 @@ describe('ResourceMonthPage', () => {
               names: [{ name: '카카오 선물하기', minutes: 120 }],
             },
           ],
+          nonServiceSummaryRows: [],
           serviceDetailRows: [
             {
               costGroup: '커머스',
@@ -184,6 +220,7 @@ describe('ResourceMonthPage', () => {
     deferred.resolve({
       typeRows: [],
       serviceSummaryRows: [],
+      nonServiceSummaryRows: [],
       serviceDetailRows: [],
       memberTotals: [],
     });

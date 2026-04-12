@@ -2,6 +2,7 @@ import type { ApiRecord } from '../../api/api.types';
 import type {
   ResourceMonthReport,
   ResourceMonthReportMemberTotal,
+  ResourceMonthReportNonServiceSummaryRow,
   ResourceMonthReportServiceDetailRow,
   ResourceMonthReportServiceSummaryRow,
   ResourceMonthReportTypeRow,
@@ -61,12 +62,23 @@ function asRecord(value: unknown) {
 
 export function toResourceMonthReport(data: unknown): ResourceMonthReport {
   if (!data || typeof data !== 'object' || Array.isArray(data)) {
-    return { typeRows: [], serviceSummaryRows: [], serviceDetailRows: [], memberTotals: [] };
+    return {
+      typeRows: [],
+      serviceSummaryRows: [],
+      nonServiceSummaryRows: [],
+      serviceDetailRows: [],
+      memberTotals: [],
+    };
   }
 
   const record = asRecord(data);
   const typeRowsRaw = readValue(record, 'type_rows', 'typeRows');
   const serviceSummaryRowsRaw = readValue(record, 'service_summary_rows', 'serviceSummaryRows');
+  const nonServiceSummaryRowsRaw = readValue(
+    record,
+    'non_service_summary_rows',
+    'nonServiceSummaryRows',
+  );
   const serviceDetailRowsRaw = readValue(record, 'service_detail_rows', 'serviceDetailRows');
   const memberTotalsRaw = readValue(record, 'member_totals', 'memberTotals');
 
@@ -115,6 +127,26 @@ export function toResourceMonthReport(data: unknown): ResourceMonthReport {
       })
     : [];
 
+  const nonServiceSummaryRows = Array.isArray(nonServiceSummaryRowsRaw)
+    ? nonServiceSummaryRowsRaw.map((entry) => {
+        const item = asRecord(entry);
+        return {
+          costGroup: String(readValue(item, 'cost_group', 'costGroup') ?? ''),
+          type1: String(item.type1 ?? ''),
+          totalMinutes: Number(readValue(item, 'total_minutes', 'totalMinutes') ?? 0),
+          items: Array.isArray(item.items)
+            ? item.items.map((subEntry) => {
+                const subItem = asRecord(subEntry);
+                return {
+                  type2: String(subItem.type2 ?? ''),
+                  minutes: Number(subItem.minutes ?? 0),
+                };
+              })
+            : [],
+        } satisfies ResourceMonthReportNonServiceSummaryRow;
+      })
+    : [];
+
   const serviceDetailRows = Array.isArray(serviceDetailRowsRaw)
     ? serviceDetailRowsRaw.map((entry) => {
         const item = asRecord(entry);
@@ -154,5 +186,5 @@ export function toResourceMonthReport(data: unknown): ResourceMonthReport {
       })
     : [];
 
-  return { typeRows, serviceSummaryRows, serviceDetailRows, memberTotals };
+  return { typeRows, serviceSummaryRows, nonServiceSummaryRows, serviceDetailRows, memberTotals };
 }

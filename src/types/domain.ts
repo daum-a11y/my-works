@@ -271,6 +271,18 @@ export interface ResourceMonthReportServiceSummaryRow {
   names: ResourceMonthReportServiceNameSummary[];
 }
 
+export interface ResourceMonthReportNonServiceItem {
+  type2: string;
+  minutes: number;
+}
+
+export interface ResourceMonthReportNonServiceSummaryRow {
+  costGroup: string;
+  type1: string;
+  totalMinutes: number;
+  items: ResourceMonthReportNonServiceItem[];
+}
+
 export interface ResourceMonthReportServiceDetailItem {
   type1: string;
   minutes: number;
@@ -297,6 +309,7 @@ export interface ResourceMonthReportMemberTotal {
 export interface ResourceMonthReport {
   typeRows: ResourceMonthReportTypeRow[];
   serviceSummaryRows: ResourceMonthReportServiceSummaryRow[];
+  nonServiceSummaryRows: ResourceMonthReportNonServiceSummaryRow[];
   serviceDetailRows: ResourceMonthReportServiceDetailRow[];
   memberTotals: ResourceMonthReportMemberTotal[];
 }

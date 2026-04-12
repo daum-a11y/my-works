@@ -1,4 +1,5 @@
 import type {
+  ResourceMonthReportNonServiceSummaryRow,
   ResourceMonthReportServiceDetailRow,
   ResourceMonthReportServiceSummaryRow,
   ResourceMonthReportTypeRow,
@@ -20,11 +21,11 @@ interface ResourceMonthTableSectionProps {
   onSvcFoldToggle: () => void;
   typeRows: ResourceMonthReportTypeRow[];
   serviceSummaryRows: ResourceMonthReportServiceSummaryRow[];
+  nonServiceSummaryRows: ResourceMonthReportNonServiceSummaryRow[];
   serviceDetailRows: ResourceMonthReportServiceDetailRow[];
   totalMinutes: number;
   adjustedTotalMinutes: number;
   projectMinutes: number;
-  unpaidRows: Array<{ type1: string; totalMinutes: number }>;
   workingDays: number;
 }
 
@@ -38,11 +39,11 @@ export function ResourceMonthTableSection({
   onSvcFoldToggle,
   typeRows,
   serviceSummaryRows,
+  nonServiceSummaryRows,
   serviceDetailRows,
   totalMinutes,
   adjustedTotalMinutes,
   projectMinutes,
-  unpaidRows,
   workingDays,
 }: ResourceMonthTableSectionProps) {
   if (!hasTableData) {
@@ -145,7 +146,7 @@ export function ResourceMonthTableSection({
         <section className="resource-page__table-tab-panel">
           <ResourceMonthReportTable
             serviceSummaryRows={serviceSummaryRows}
-            unpaidRows={unpaidRows}
+            nonServiceSummaryRows={nonServiceSummaryRows}
             adjustedTotalMinutes={adjustedTotalMinutes}
             workingDays={workingDays}
           />
