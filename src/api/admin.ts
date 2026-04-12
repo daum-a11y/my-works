@@ -71,6 +71,7 @@ export interface AdminDataClient {
   savePlatformAdmin(payload: AdminPlatformPayload): Promise<ApiRecord>;
   reorderPlatforms(payload: AdminReorderPayload): Promise<void>;
   deletePlatformAdmin(platformId: string): Promise<void>;
+  replacePlatformUsage(oldPlatformId: string, nextPlatformId: string): Promise<void>;
   getServiceGroupUsageSummary(serviceGroupId: string): Promise<ApiRecord[]>;
   deleteServiceGroupAdmin(serviceGroupId: string): Promise<void>;
   replaceServiceGroupUsage(oldServiceGroupId: string, nextServiceGroupId: string): Promise<void>;
@@ -174,6 +175,9 @@ const unconfiguredAdminClient: AdminDataClient = {
     throw new Error(configurationErrorMessage);
   },
   async deletePlatformAdmin() {
+    throw new Error(configurationErrorMessage);
+  },
+  async replacePlatformUsage() {
     throw new Error(configurationErrorMessage);
   },
   async getServiceGroupUsageSummary() {
@@ -556,6 +560,59 @@ const configuredAdminClient: AdminDataClient = !supabase
       async deletePlatformAdmin(platformId) {
         const { error } = await supabase.from('platforms').delete().eq('id', platformId);
         if (error) throw error;
+      },
+      async replacePlatformUsage(oldPlatformId, nextPlatformId) {
+        const { error } = await supabase.rpc('admin_replace_platform_usage', {
+          p_old_platform_id: oldPlatformId,
+          p_next_platform_id: nextPlatformId,
+        });
+        if (!error) return;
+
+        const rpcError = error as unknown as ApiRecord;
+        const rpcMissing =
+          Number(rpcError.status ?? 0) === 404 ||
+          String(rpcError.code ?? '') === 'PGRST202' ||
+          String(rpcError.message ?? '').includes('admin_replace_platform_usage');
+
+        if (!rpcMissing) throw error;
+
+        if (oldPlatformId === nextPlatformId) {
+          throw new Error('변경할 플랫폼이 현재 플랫폼과 같습니다.');
+        }
+
+        const { data: platformRows, error: platformsError } = await supabase
+          .from('platforms')
+          .select('id, name, is_visible')
+          .in('id', [oldPlatformId, nextPlatformId]);
+        if (platformsError) throw platformsError;
+
+        const oldPlatform = (platformRows ?? []).find((item) => item.id === oldPlatformId);
+        const nextPlatform = (platformRows ?? []).find((item) => item.id === nextPlatformId);
+
+        if (!oldPlatform) {
+          throw new Error('현재 플랫폼을 찾을 수 없습니다.');
+        }
+        if (!nextPlatform) {
+          throw new Error('변경할 플랫폼을 찾을 수 없습니다.');
+        }
+        if (nextPlatform.is_visible !== true) {
+          throw new Error('노출 중인 플랫폼으로만 전환할 수 있습니다.');
+        }
+
+        const { error: projectsError } = await supabase
+          .from('projects')
+          .update({
+            platform_id: nextPlatformId,
+            platform: String(nextPlatform.name ?? ''),
+          })
+          .eq('platform_id', oldPlatformId);
+        if (projectsError) throw projectsError;
+
+        const { error: sourcePlatformError } = await supabase
+          .from('platforms')
+          .update({ is_visible: false })
+          .eq('id', oldPlatformId);
+        if (sourcePlatformError) throw sourcePlatformError;
       },
       async getServiceGroupUsageSummary(serviceGroupId) {
         const { data, error } = await supabase

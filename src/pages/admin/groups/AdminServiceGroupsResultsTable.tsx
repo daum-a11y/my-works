@@ -36,39 +36,42 @@ export function AdminServiceGroupsResultsTable({
           {groupedServiceGroups.length ? (
             groupedServiceGroups.map((costGroup) =>
               costGroup.groups.map((group) =>
-                group.rows.map((item, rowIndex) => (
-                  <tr
-                    key={item.id}
-                    className={item.svcActive ? '' : 'admin-crud-page__inactive-row'}
-                  >
-                    {group === costGroup.groups[0] && rowIndex === 0 ? (
-                      <td rowSpan={costGroup.rowSpan} className="admin-crud-page__row-key">
-                        {costGroup.costGroupName}
-                      </td>
-                    ) : null}
-                    {rowIndex === 0 ? (
-                      <td
-                        rowSpan={group.rows.length}
-                        scope="row"
-                        className="admin-crud-page__row-key"
-                      >
-                        {group.serviceGroupName}
-                      </td>
-                    ) : null}
-                    <td>{item.serviceName || '-'}</td>
-                    <td>{item.svcActive ? '노출' : '숨김'}</td>
-                    <td>
-                      <div className="admin-crud-page__actions">
-                        <Link
-                          to={`/admin/group/${item.id}/edit`}
-                          className="admin-crud-page__button admin-crud-page__button--secondary"
+                group.rows.map((item, rowIndex) => {
+                  const inactiveCellClassName = item.svcActive
+                    ? undefined
+                    : 'admin-crud-page__inactive-cell';
+
+                  return (
+                    <tr key={item.id}>
+                      {group === costGroup.groups[0] && rowIndex === 0 ? (
+                        <td rowSpan={costGroup.rowSpan} className="admin-crud-page__row-key">
+                          {costGroup.costGroupName}
+                        </td>
+                      ) : null}
+                      {rowIndex === 0 ? (
+                        <td
+                          rowSpan={group.rows.length}
+                          scope="row"
+                          className="admin-crud-page__row-key"
                         >
-                          수정
-                        </Link>
-                      </div>
-                    </td>
-                  </tr>
-                )),
+                          {group.serviceGroupName}
+                        </td>
+                      ) : null}
+                      <td className={inactiveCellClassName}>{item.serviceName || '-'}</td>
+                      <td className={inactiveCellClassName}>{item.svcActive ? '노출' : '숨김'}</td>
+                      <td className={inactiveCellClassName}>
+                        <div className="admin-crud-page__actions">
+                          <Link
+                            to={`/admin/group/${item.id}/edit`}
+                            className="admin-crud-page__button admin-crud-page__button--secondary"
+                          >
+                            수정
+                          </Link>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                }),
               ),
             )
           ) : (

@@ -2743,6 +2743,69 @@ begin
 end;
 $$;
 
+create or replace function public.admin_replace_platform_usage(
+  p_old_platform_id uuid,
+  p_next_platform_id uuid
+)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_old_platform_name text;
+  v_next_platform_name text;
+  v_next_platform_visible boolean;
+begin
+  if not public.current_user_is_admin() then
+    raise exception 'admin only';
+  end if;
+
+  if p_old_platform_id is null or p_next_platform_id is null then
+    raise exception 'platform ids required';
+  end if;
+
+  if p_old_platform_id = p_next_platform_id then
+    raise exception 'next platform must be different';
+  end if;
+
+  select name
+  into v_old_platform_name
+  from public.platforms
+  where id = p_old_platform_id;
+
+  if v_old_platform_name is null then
+    raise exception 'old platform not found';
+  end if;
+
+  select name, is_visible
+  into v_next_platform_name, v_next_platform_visible
+  from public.platforms
+  where id = p_next_platform_id;
+
+  if v_next_platform_name is null then
+    raise exception 'next platform not found';
+  end if;
+
+  if v_next_platform_visible is not true then
+    raise exception 'next platform must be visible';
+  end if;
+
+  update public.projects
+  set
+    platform_id = p_next_platform_id,
+    platform = v_next_platform_name,
+    updated_at = timezone('utc', now())
+  where platform_id = p_old_platform_id;
+
+  update public.platforms
+  set
+    is_visible = false,
+    updated_at = timezone('utc', now())
+  where id = p_old_platform_id;
+end;
+$$;
+
 create or replace function public.admin_reorder_cost_groups(
   p_cost_group_ids uuid[]
 )
@@ -2967,6 +3030,7 @@ grant execute on function public.admin_get_task_type_usage_summary(uuid, text, t
 grant execute on function public.admin_replace_task_type_usage(text, text, text, text) to authenticated;
 grant execute on function public.admin_reorder_task_types(uuid[]) to authenticated;
 grant execute on function public.admin_reorder_platforms(uuid[]) to authenticated;
+grant execute on function public.admin_replace_platform_usage(uuid, uuid) to authenticated;
 grant execute on function public.admin_reorder_cost_groups(uuid[]) to authenticated;
 grant execute on function public.admin_reorder_service_groups(uuid[]) to authenticated;
 grant execute on function public.admin_get_member_task_count(uuid) to authenticated;

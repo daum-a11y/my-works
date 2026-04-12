@@ -4,6 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { adminDataClient } from '../../../api/admin';
 import { AdminPlatformEditorActionRow } from './AdminPlatformEditorActionRow';
 import { AdminPlatformEditorForm } from './AdminPlatformEditorForm';
+import { AdminPlatformTransferDialog } from './AdminPlatformTransferDialog';
 import type { AdminPlatformItem, AdminPlatformPayload } from '../admin.types';
 import { toAdminPlatform } from '../adminApiTransform';
 import '../../../styles/pages/AdminPage.scss';
@@ -32,6 +33,8 @@ export function AdminPlatformEditorPage() {
   const titleRef = useRef<HTMLInputElement | null>(null);
   const isEditMode = Boolean(platformId);
   const [draft, setDraft] = useState<AdminPlatformPayload>(() => createDraft());
+  const [transferDialogOpen, setTransferDialogOpen] = useState(false);
+  const [transferTargetPlatformId, setTransferTargetPlatformId] = useState('');
 
   const platformsQuery = useQuery({
     queryKey: ['admin', 'platforms'],
@@ -44,6 +47,10 @@ export function AdminPlatformEditorPage() {
   );
   const selectedPlatform = useMemo(
     () => platforms.find((item) => item.id === platformId) ?? null,
+    [platformId, platforms],
+  );
+  const transferTargetPlatforms = useMemo(
+    () => platforms.filter((item) => item.id !== platformId && item.isVisible),
     [platformId, platforms],
   );
   const nextDisplayOrder = useMemo(
@@ -64,6 +71,16 @@ export function AdminPlatformEditorPage() {
   useEffect(() => {
     titleRef.current?.focus();
   }, [platformId]);
+
+  useEffect(() => {
+    if (!transferDialogOpen) {
+      return;
+    }
+
+    if (!transferTargetPlatforms.some((item) => item.id === transferTargetPlatformId)) {
+      setTransferTargetPlatformId(transferTargetPlatforms[0]?.id ?? '');
+    }
+  }, [transferDialogOpen, transferTargetPlatformId, transferTargetPlatforms]);
 
   const saveMutation = useMutation({
     mutationFn: async (payload: AdminPlatformPayload) =>
@@ -91,11 +108,43 @@ export function AdminPlatformEditorPage() {
     },
   });
 
+  const replacePlatformUsageMutation = useMutation({
+    mutationFn: async (nextPlatformId: string) => {
+      if (!platformId) {
+        throw new Error('전환할 플랫폼이 없습니다.');
+      }
+      await adminDataClient.replacePlatformUsage(platformId, nextPlatformId);
+    },
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['admin', 'platforms'] }),
+        queryClient.invalidateQueries({ queryKey: ['admin', 'projects'] }),
+        queryClient.invalidateQueries({ queryKey: ['admin', 'project-option'] }),
+        queryClient.invalidateQueries({ queryKey: ['admin', 'report-project-options'] }),
+        queryClient.invalidateQueries({ queryKey: ['admin', 'task-search'] }),
+        queryClient.invalidateQueries({ queryKey: ['reports', 'project-options'] }),
+        queryClient.invalidateQueries({ queryKey: ['projects'] }),
+        queryClient.invalidateQueries({ queryKey: ['project-editor'] }),
+        queryClient.invalidateQueries({ queryKey: ['search'] }),
+        queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
+        queryClient.invalidateQueries({ queryKey: ['monitoring-detail'] }),
+        queryClient.invalidateQueries({ queryKey: ['qa-projects'] }),
+        queryClient.invalidateQueries({ queryKey: ['resource'] }),
+      ]);
+      navigate('/admin/platform', {
+        replace: true,
+        state: { statusMessage: '플랫폼 연관관계를 전환했습니다.' },
+      });
+    },
+  });
+
   const errorMessage =
     (platformsQuery.error instanceof Error && platformsQuery.error.message) ||
     (saveMutation.error instanceof Error && saveMutation.error.message) ||
     (deleteMutation.error instanceof Error && deleteMutation.error.message) ||
     '';
+  const transferBlocked = isEditMode && transferTargetPlatforms.length === 0;
+  const transferHelpText = transferBlocked ? '전환할 노출 플랫폼이 없습니다.' : '';
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -106,6 +155,19 @@ export function AdminPlatformEditorPage() {
     if (!selectedPlatform) return;
     if (!window.confirm('정말 삭제 하시겠습니까? 복구할 수 없습니다.')) return;
     await deleteMutation.mutateAsync();
+  };
+
+  const handleTransferOpen = () => {
+    setTransferTargetPlatformId(transferTargetPlatforms[0]?.id ?? '');
+    setTransferDialogOpen(true);
+  };
+
+  const handleTransferSave = () => {
+    if (!selectedPlatform || !transferTargetPlatformId) {
+      return;
+    }
+
+    replacePlatformUsageMutation.mutate(transferTargetPlatformId);
   };
 
   if (platformsQuery.isLoading && isEditMode) {
@@ -154,11 +216,32 @@ export function AdminPlatformEditorPage() {
           <AdminPlatformEditorActionRow
             isEditMode={isEditMode}
             deletePending={deleteMutation.isPending}
+            transferPending={replacePlatformUsageMutation.isPending}
+            transferBlocked={transferBlocked}
+            transferHelpText={transferHelpText}
             savePending={saveMutation.isPending}
             onDelete={() => void handleDelete()}
+            onTransfer={handleTransferOpen}
           />
         </form>
       </section>
+      {selectedPlatform ? (
+        <AdminPlatformTransferDialog
+          isOpen={transferDialogOpen}
+          isPending={replacePlatformUsageMutation.isPending}
+          sourcePlatform={selectedPlatform}
+          targetPlatforms={transferTargetPlatforms}
+          targetPlatformId={transferTargetPlatformId}
+          errorMessage={
+            replacePlatformUsageMutation.error instanceof Error
+              ? replacePlatformUsageMutation.error.message
+              : ''
+          }
+          onTargetPlatformChange={setTransferTargetPlatformId}
+          onClose={() => setTransferDialogOpen(false)}
+          onSave={handleTransferSave}
+        />
+      ) : null}
     </section>
   );
 }

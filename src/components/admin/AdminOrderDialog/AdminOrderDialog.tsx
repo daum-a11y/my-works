@@ -123,7 +123,7 @@ export function AdminOrderDialog({
       }}
     >
       <section
-        className="admin-crud-page__dialog"
+        className="admin-crud-page__dialog admin-crud-page__dialog--wide"
         role="dialog"
         aria-modal="true"
         aria-label={title}

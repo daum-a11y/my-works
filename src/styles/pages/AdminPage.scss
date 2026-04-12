@@ -2809,6 +2809,176 @@
 
 /* admin master */
 
+.admin-crud-page__dialog-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: color-mix(in oklab, var(--surface-sidebar) 32%, transparent);
+  backdrop-filter: blur(3px);
+}
+
+.admin-crud-page__dialog {
+  width: min(100%, 464px);
+  max-height: calc(100dvh - 48px);
+  display: grid;
+  gap: 16px;
+  padding: 16px 16px 17px;
+  overflow: auto;
+  border: 1px solid color-mix(in oklab, var(--border-default) 76%, var(--accent-strong));
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--surface-panel) 96%, white) 0%,
+    var(--surface-panel) 100%
+  );
+  box-shadow: 0 24px 80px color-mix(in oklab, black 18%, transparent);
+}
+
+.admin-crud-page__dialog--wide {
+  width: min(760px, 100%);
+  max-height: min(calc(100dvh - 48px), 920px);
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  overflow: hidden;
+}
+
+.admin-crud-page__dialog-header,
+.admin-crud-page__dialog-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-width: 0;
+}
+
+.admin-crud-page__dialog-header {
+  padding-bottom: 3px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.admin-crud-page__dialog-heading {
+  display: grid;
+  gap: 6px;
+}
+
+.admin-crud-page__dialog-title {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: var(--text-section-title-size, 18px);
+  font-weight: var(--text-section-title-weight, 700);
+  line-height: var(--text-section-title-line-height, 1.2);
+}
+
+.admin-crud-page__dialog-description,
+.admin-crud-page__dialog-note {
+  margin: 0;
+  color: var(--text-tertiary);
+  font-size: var(--text-meta-size);
+  font-weight: var(--text-meta-weight);
+  line-height: var(--text-meta-line-height);
+  letter-spacing: var(--text-meta-tracking);
+}
+
+.admin-crud-page__dialog-footer {
+  justify-content: flex-end;
+}
+
+.admin-crud-page__dialog .admin-crud-page__dialog-form {
+  display: grid;
+  gap: 14px;
+}
+
+.admin-crud-page__dialog .admin-crud-page__stack-field {
+  display: grid;
+  gap: 6px;
+}
+
+.admin-crud-page__dialog .admin-crud-page__field-label {
+  color: var(--text-primary);
+  font-size: var(--text-form-size);
+  font-weight: 600;
+}
+
+.admin-crud-page__dialog .admin-crud-page__field-select,
+.admin-crud-page__dialog .admin-crud-page__readonly-value {
+  min-height: var(--control-height-md);
+  padding: var(--control-padding-y) var(--control-padding-x);
+  border: 1px solid var(--border-default);
+  background: var(--surface-default);
+  color: var(--text-primary);
+  font: inherit;
+}
+
+.admin-crud-page__dialog .admin-crud-page__field-select {
+  transition:
+    border-color 140ms ease,
+    background-color 140ms ease,
+    box-shadow 140ms ease;
+}
+
+.admin-crud-page__dialog .admin-crud-page__field-select:focus {
+  outline: 2px solid var(--accent-strong);
+  outline-offset: 2px;
+  background: color-mix(in oklab, var(--surface-default) 92%, white);
+}
+
+.admin-crud-page__dialog .admin-crud-page__readonly-value {
+  margin: 0;
+}
+
+.admin-crud-page__dialog .admin-crud-page__actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+}
+
+.admin-crud-page__dialog .admin-crud-page__button {
+  appearance: none;
+  min-height: var(--control-height-md);
+  padding: 0 var(--control-padding-x);
+  border: 1px solid var(--border-default);
+  font: inherit;
+  font-size: var(--text-form-size);
+  font-weight: var(--text-form-weight);
+  cursor: pointer;
+}
+
+.admin-crud-page__dialog .admin-crud-page__button--primary {
+  background: var(--button-primary-bg);
+  color: var(--accent-foreground);
+  border-color: color-mix(in oklab, var(--button-primary-bg) 82%, black 18%);
+  box-shadow: inset 0 1px 0 color-mix(in oklab, white 26%, transparent);
+}
+
+.admin-crud-page__dialog .admin-crud-page__button--secondary {
+  background: var(--button-secondary-bg);
+  color: var(--text-primary);
+  border-color: var(--button-secondary-border);
+}
+
+.admin-crud-page__dialog .admin-crud-page__button:hover:not(:disabled) {
+  filter: brightness(0.98);
+}
+
+.admin-crud-page__dialog .admin-crud-page__button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+@media (max-width: 840px) {
+  .admin-crud-page__dialog-header,
+  .admin-crud-page__dialog-footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .admin-crud-page__dialog {
+    max-height: 88vh;
+  }
+}
+
 .admin-crud-page {
   &--page {
     display: grid;
@@ -3047,6 +3217,10 @@
     background: color-mix(in oklab, var(--surface-panel) 62%, var(--raw-slate-200));
   }
 
+  .admin-crud-page__inactive-cell {
+    background: color-mix(in oklab, var(--surface-panel) 62%, var(--raw-slate-200));
+  }
+
   .admin-crud-page__empty-state {
     padding: 32px 16px;
     text-align: center !important;
@@ -3089,64 +3263,31 @@
     gap: var(--space-2);
   }
 
+  .admin-crud-page__field-label {
+    color: var(--text-primary);
+    font-size: var(--text-form-size);
+    font-weight: 600;
+  }
+
+  .admin-crud-page__readonly-value {
+    min-height: var(--control-height-md);
+    margin: 0;
+    padding: var(--control-padding-y) var(--control-padding-x);
+    border: 1px solid var(--control-border);
+    background: color-mix(in oklab, var(--control-bg) 42%, var(--surface-muted));
+    color: var(--text-secondary);
+    font-size: var(--text-form-size);
+    font-weight: var(--font-weight-regular);
+  }
+
+  .admin-crud-page__dialog-form {
+    display: grid;
+    gap: 12px;
+  }
+
   .admin-crud-page__row-key {
     color: var(--text-primary);
     font-weight: var(--font-weight-semibold);
-  }
-
-  .admin-crud-page__dialog-scrim {
-    position: fixed;
-    inset: 0;
-    z-index: 40;
-    display: grid;
-    place-items: center;
-    padding: var(--space-4);
-    background: color-mix(in oklab, var(--surface-canvas) 30%, black 70%);
-  }
-
-  .admin-crud-page__dialog {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-4);
-    width: min(760px, 100%);
-    max-height: min(88vh, 920px);
-    padding: var(--space-4);
-    overflow: hidden;
-    border: 1px solid var(--border-default);
-    background: var(--surface-panel);
-    box-shadow: var(--elevation-2);
-  }
-
-  .admin-crud-page__dialog-header,
-  .admin-crud-page__dialog-footer {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: var(--space-3);
-  }
-
-  .admin-crud-page__dialog-heading {
-    display: grid;
-    gap: 6px;
-  }
-
-  .admin-crud-page__dialog-title {
-    margin: 0;
-    color: var(--text-primary);
-    font-size: var(--text-section-title-size);
-    font-weight: var(--text-section-title-weight);
-    line-height: var(--text-section-title-line-height);
-    letter-spacing: var(--text-section-title-tracking);
-  }
-
-  .admin-crud-page__dialog-description,
-  .admin-crud-page__dialog-note {
-    margin: 0;
-    color: var(--text-tertiary);
-    font-size: var(--text-meta-size);
-    font-weight: var(--text-meta-weight);
-    line-height: var(--text-meta-line-height);
-    letter-spacing: var(--text-meta-tracking);
   }
 
   .admin-crud-page__sortable-list {
@@ -3191,16 +3332,24 @@
   }
 
   .admin-crud-page__sortable-handle {
+    appearance: none;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     width: 44px;
     height: 44px;
     padding: 0;
+    border: 0;
     background: color-mix(in oklab, var(--surface-panel) 78%, var(--surface-canvas-strong));
     color: var(--text-secondary);
     cursor: grab;
     user-select: none;
+  }
+
+  .admin-crud-page__sortable-handle svg {
+    width: 20px;
+    height: 20px;
+    pointer-events: none;
   }
 
   .admin-crud-page__sortable-handle:hover {
@@ -3286,25 +3435,14 @@
     line-height: var(--text-meta-line-height);
   }
 
-  .admin-crud-page__dialog-footer {
-    justify-content: flex-end;
-    padding-top: var(--space-3);
-  }
-
   @media (max-width: 840px) {
-    .admin-crud-page__page-header-top,
-    .admin-crud-page__dialog-header,
-    .admin-crud-page__dialog-footer {
+    .admin-crud-page__page-header-top {
       align-items: stretch;
       flex-direction: column;
     }
 
     .admin-crud-page__page-header-actions {
       justify-content: flex-start;
-    }
-
-    .admin-crud-page__dialog {
-      max-height: 88vh;
     }
 
     .admin-crud-page__sortable-item {

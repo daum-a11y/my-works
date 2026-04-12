@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useIsFetching } from '@tanstack/react-query';
 import clsx from 'clsx';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
@@ -13,6 +13,7 @@ import {
 } from '../router/navigation';
 import { GlobalLoadingSpinner } from '../components/layout/GlobalLoadingSpinner';
 import '../styles/pages/AuthenticatedLayout.scss';
+import { getAvatarColors } from '../utils/color';
 
 export function AuthenticatedLayout() {
   const location = useLocation();
@@ -21,6 +22,10 @@ export function AuthenticatedLayout() {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [logoutError, setLogoutError] = useState<string>('');
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [avatarColor, setAvatarColor] = useState<{ backgroundColor: string; textColor: string }>({
+    backgroundColor: '',
+    textColor: '',
+  });
   const userMenuRef = useRef<HTMLDivElement | null>(null);
   const resourceFetchCount = useIsFetching({
     predicate: (query) => query.queryKey[0] === 'resource',
@@ -85,7 +90,11 @@ export function AuthenticatedLayout() {
     }
   }
 
-  const userInitials = (session?.member?.accountId || session?.member?.name || '').slice(0, 2);
+  useLayoutEffect(() => {
+    setAvatarColor(getAvatarColors(session?.member?.accountId || ''));
+  }, [getAvatarColors]);
+
+  const userInitials = (session?.member?.accountId || '').slice(0, 2);
 
   return (
     <div className="authenticated-layout">
@@ -153,7 +162,14 @@ export function AuthenticatedLayout() {
                   aria-label={`${session?.member.name ?? '사용자'} 메뉴`}
                   onClick={() => setIsUserMenuOpen((open) => !open)}
                 >
-                  <div className="authenticated-layout__profile-icon" aria-hidden="true">
+                  <div
+                    className="authenticated-layout__profile-icon"
+                    style={{
+                      backgroundColor: avatarColor.backgroundColor,
+                      color: avatarColor.textColor,
+                    }}
+                    aria-hidden="true"
+                  >
                     {userInitials}
                   </div>
                   <div className="authenticated-layout__profile-info">
