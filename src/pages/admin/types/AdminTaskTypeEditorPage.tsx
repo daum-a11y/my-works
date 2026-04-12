@@ -4,6 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { adminDataClient } from '../../../api/admin';
 import { AdminTaskTypeEditorActionRow } from './AdminTaskTypeEditorActionRow';
 import { AdminTaskTypeEditorForm } from './AdminTaskTypeEditorForm';
+import { AdminTaskTypeTransferDialog } from './AdminTaskTypeTransferDialog';
 import type { AdminTaskTypeItem, AdminTaskTypePayload } from '../admin.types';
 import { toAdminTaskType } from '../adminApiTransform';
 import '../../../styles/pages/AdminPage.scss';
@@ -38,6 +39,8 @@ export function AdminTaskTypeEditorPage() {
   const titleRef = useRef<HTMLInputElement | null>(null);
   const isEditMode = Boolean(taskTypeId);
   const [draft, setDraft] = useState<AdminTaskTypePayload>(() => createDraft());
+  const [transferDialogOpen, setTransferDialogOpen] = useState(false);
+  const [transferTargetTaskTypeId, setTransferTargetTaskTypeId] = useState('');
 
   const taskTypesQuery = useQuery({
     queryKey: ['admin', 'task-types'],
@@ -50,6 +53,10 @@ export function AdminTaskTypeEditorPage() {
   );
   const selectedTaskType = useMemo(
     () => taskTypes.find((item) => item.id === taskTypeId) ?? null,
+    [taskTypeId, taskTypes],
+  );
+  const transferTargetTaskTypes = useMemo(
+    () => taskTypes.filter((item) => item.id !== taskTypeId && item.isActive),
     [taskTypeId, taskTypes],
   );
   const usageQuery = useQuery({
@@ -92,6 +99,16 @@ export function AdminTaskTypeEditorPage() {
     titleRef.current?.focus();
   }, [taskTypeId]);
 
+  useEffect(() => {
+    if (!transferDialogOpen) {
+      return;
+    }
+
+    if (!transferTargetTaskTypes.some((item) => item.id === transferTargetTaskTypeId)) {
+      setTransferTargetTaskTypeId(transferTargetTaskTypes[0]?.id ?? '');
+    }
+  }, [transferDialogOpen, transferTargetTaskTypeId, transferTargetTaskTypes]);
+
   const saveMutation = useMutation({
     mutationFn: async (payload: AdminTaskTypePayload) => {
       return adminDataClient.saveTaskTypeAdmin({
@@ -129,6 +146,32 @@ export function AdminTaskTypeEditorPage() {
     },
   });
 
+  const replaceTaskTypeUsageMutation = useMutation({
+    mutationFn: async (nextTaskTypeId: string) => {
+      if (!taskTypeId) {
+        throw new Error('전환할 업무 타입이 없습니다.');
+      }
+
+      await adminDataClient.replaceTaskTypeUsageById(taskTypeId, nextTaskTypeId);
+    },
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['admin', 'task-types'] }),
+        queryClient.invalidateQueries({ queryKey: ['admin', 'task-search'] }),
+        queryClient.invalidateQueries({ queryKey: ['reports'] }),
+        queryClient.invalidateQueries({ queryKey: ['search'] }),
+        queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
+        queryClient.invalidateQueries({ queryKey: ['monitoring-detail'] }),
+        queryClient.invalidateQueries({ queryKey: ['qa-projects'] }),
+        queryClient.invalidateQueries({ queryKey: ['resource'] }),
+      ]);
+      navigate('/admin/type', {
+        replace: true,
+        state: { statusMessage: '업무 타입 연관관계를 전환했습니다.' },
+      });
+    },
+  });
+
   const errorMessage =
     (taskTypesQuery.error instanceof Error && taskTypesQuery.error.message) ||
     (usageQuery.error instanceof Error && usageQuery.error.message) ||
@@ -141,6 +184,8 @@ export function AdminTaskTypeEditorPage() {
   }, [usageQuery.data]);
   const deleteBlocked = isEditMode && taskUsageCount > 0;
   const deleteHelpText = deleteBlocked ? `사용 중인 업무 ${taskUsageCount}건` : '';
+  const transferBlocked = isEditMode && transferTargetTaskTypes.length === 0;
+  const transferHelpText = transferBlocked ? '전환할 활성 업무 타입이 없습니다.' : '';
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -157,6 +202,19 @@ export function AdminTaskTypeEditorPage() {
     }
 
     await deleteMutation.mutateAsync();
+  };
+
+  const handleTransferOpen = () => {
+    setTransferTargetTaskTypeId(transferTargetTaskTypes[0]?.id ?? '');
+    setTransferDialogOpen(true);
+  };
+
+  const handleTransferSave = () => {
+    if (!selectedTaskType || !transferTargetTaskTypeId) {
+      return;
+    }
+
+    replaceTaskTypeUsageMutation.mutate(transferTargetTaskTypeId);
   };
 
   if (taskTypesQuery.isLoading && isEditMode) {
@@ -212,11 +270,32 @@ export function AdminTaskTypeEditorPage() {
             deletePending={deleteMutation.isPending}
             deleteBlocked={deleteBlocked}
             deleteHelpText={deleteHelpText}
+            transferPending={replaceTaskTypeUsageMutation.isPending}
+            transferBlocked={transferBlocked}
+            transferHelpText={transferHelpText}
             savePending={saveMutation.isPending}
             onDelete={() => void handleDelete()}
+            onTransfer={handleTransferOpen}
           />
         </form>
       </section>
+      {selectedTaskType ? (
+        <AdminTaskTypeTransferDialog
+          isOpen={transferDialogOpen}
+          isPending={replaceTaskTypeUsageMutation.isPending}
+          sourceTaskType={selectedTaskType}
+          targetTaskTypes={transferTargetTaskTypes}
+          targetTaskTypeId={transferTargetTaskTypeId}
+          errorMessage={
+            replaceTaskTypeUsageMutation.error instanceof Error
+              ? replaceTaskTypeUsageMutation.error.message
+              : ''
+          }
+          onTargetTaskTypeChange={setTransferTargetTaskTypeId}
+          onClose={() => setTransferDialogOpen(false)}
+          onSave={handleTransferSave}
+        />
+      ) : null}
     </section>
   );
 }

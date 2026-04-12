@@ -62,6 +62,7 @@ export interface AdminDataClient {
     nextType1: string,
     nextType2: string,
   ): Promise<void>;
+  replaceTaskTypeUsageById(oldTaskTypeId: string, nextTaskTypeId: string): Promise<void>;
   reorderTaskTypes(payload: AdminReorderPayload): Promise<void>;
   saveServiceGroupAdmin(payload: AdminServiceGroupPayload): Promise<ApiRecord>;
   reorderServiceGroups(payload: AdminReorderPayload): Promise<void>;
@@ -148,6 +149,9 @@ const unconfiguredAdminClient: AdminDataClient = {
     throw new Error(configurationErrorMessage);
   },
   async replaceTaskTypeUsage() {
+    throw new Error(configurationErrorMessage);
+  },
+  async replaceTaskTypeUsageById() {
     throw new Error(configurationErrorMessage);
   },
   async reorderTaskTypes() {
@@ -470,6 +474,13 @@ const configuredAdminClient: AdminDataClient = !supabase
           p_old_type2: oldType2,
           p_next_type1: nextType1,
           p_next_type2: nextType2,
+        });
+        if (error) throw error;
+      },
+      async replaceTaskTypeUsageById(oldTaskTypeId, nextTaskTypeId) {
+        const { error } = await supabase.rpc('admin_replace_task_type_usage_by_id', {
+          p_old_task_type_id: oldTaskTypeId,
+          p_next_task_type_id: nextTaskTypeId,
         });
         if (error) throw error;
       },

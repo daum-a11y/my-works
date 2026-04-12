@@ -5,8 +5,12 @@ interface AdminTaskTypeEditorActionRowProps {
   deletePending: boolean;
   deleteBlocked: boolean;
   deleteHelpText: string;
+  transferPending: boolean;
+  transferBlocked: boolean;
+  transferHelpText: string;
   savePending: boolean;
   onDelete: () => void;
+  onTransfer: () => void;
 }
 
 export function AdminTaskTypeEditorActionRow({
@@ -14,8 +18,12 @@ export function AdminTaskTypeEditorActionRow({
   deletePending,
   deleteBlocked,
   deleteHelpText,
+  transferPending,
+  transferBlocked,
+  transferHelpText,
   savePending,
   onDelete,
+  onTransfer,
 }: AdminTaskTypeEditorActionRowProps) {
   return (
     <div className="projects-feature__form-actions projects-feature__editor-form-actions">
@@ -30,12 +38,20 @@ export function AdminTaskTypeEditorActionRow({
               type="button"
               className={'projects-feature__delete-button'}
               onClick={onDelete}
-              disabled={deletePending || deleteBlocked}
+              disabled={deletePending || deleteBlocked || transferPending}
             >
               삭제
             </button>
-            {deleteHelpText ? (
-              <p className={'projects-feature__help-text'}>{deleteHelpText}</p>
+            <button
+              type="button"
+              className={'projects-feature__button projects-feature__button--secondary'}
+              onClick={onTransfer}
+              disabled={transferPending || transferBlocked || deletePending || savePending}
+            >
+              전환
+            </button>
+            {deleteHelpText || transferHelpText ? (
+              <p className={'projects-feature__help-text'}>{deleteHelpText || transferHelpText}</p>
             ) : null}
           </>
         ) : null}

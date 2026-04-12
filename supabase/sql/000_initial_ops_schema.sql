@@ -2668,6 +2668,68 @@ begin
 end;
 $$;
 
+create or replace function public.admin_replace_task_type_usage_by_id(
+  p_old_task_type_id uuid,
+  p_next_task_type_id uuid
+)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_old_task_type_id uuid;
+  v_next_task_type_id uuid;
+  v_next_task_type_active boolean;
+begin
+  if not public.current_user_is_admin() then
+    raise exception 'admin only';
+  end if;
+
+  if p_old_task_type_id is null or p_next_task_type_id is null then
+    raise exception 'task_type ids required';
+  end if;
+
+  if p_old_task_type_id = p_next_task_type_id then
+    raise exception 'next task_type must be different';
+  end if;
+
+  select id
+  into v_old_task_type_id
+  from public.task_types
+  where id = p_old_task_type_id;
+
+  if v_old_task_type_id is null then
+    raise exception 'old task_type not found';
+  end if;
+
+  select id, is_active
+  into v_next_task_type_id, v_next_task_type_active
+  from public.task_types
+  where id = p_next_task_type_id;
+
+  if v_next_task_type_id is null then
+    raise exception 'next task_type not found';
+  end if;
+
+  if v_next_task_type_active is not true then
+    raise exception 'next task_type must be active';
+  end if;
+
+  update public.tasks
+  set
+    task_type_id = p_next_task_type_id,
+    updated_at = timezone('utc', now())
+  where task_type_id = p_old_task_type_id;
+
+  update public.task_types
+  set
+    is_active = false,
+    updated_at = timezone('utc', now())
+  where id = p_old_task_type_id;
+end;
+$$;
+
 create or replace function public.admin_reorder_task_types(
   p_task_type_ids uuid[]
 )
@@ -3046,6 +3108,7 @@ grant execute on function public.admin_save_task(uuid, uuid, date, uuid, uuid, u
 grant execute on function public.admin_delete_task(uuid) to authenticated;
 grant execute on function public.admin_get_task_type_usage_summary(uuid, text, text) to authenticated;
 grant execute on function public.admin_replace_task_type_usage(text, text, text, text) to authenticated;
+grant execute on function public.admin_replace_task_type_usage_by_id(uuid, uuid) to authenticated;
 grant execute on function public.admin_reorder_task_types(uuid[]) to authenticated;
 grant execute on function public.admin_reorder_platforms(uuid[]) to authenticated;
 grant execute on function public.admin_replace_platform_usage(uuid, uuid) to authenticated;
