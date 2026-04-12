@@ -167,7 +167,7 @@ describe('Projects routes', () => {
     const baseProject = {
       id: 'project-1',
       createdByMemberId: null,
-      projectType1: 'QA',
+      taskType1: 'QA',
       name: '알파',
       platformId: 'platform-1',
       platform: 'iOS-App',
@@ -260,7 +260,7 @@ describe('Projects routes', () => {
     mockDataClient.saveProject.mockResolvedValue({
       id: 'project-1',
       createdByMemberId: null,
-      projectType1: 'QA',
+      taskType1: 'QA',
       name: '알파 수정',
       platformId: 'platform-1',
       platform: 'iOS-App',
@@ -387,7 +387,7 @@ describe('Projects routes', () => {
     const pagedProjects = Array.from({ length: 51 }, (_, index) => ({
       id: `project-${index + 1}`,
       createdByMemberId: null,
-      projectType1: 'QA',
+      taskType1: 'QA',
       name: `프로젝트 ${String(index + 1).padStart(3, '0')}`,
       platformId: 'platform-1',
       platform: 'iOS-App',
@@ -454,7 +454,7 @@ describe('Projects routes', () => {
       expect(mockDataClient.saveProject).toHaveBeenCalledWith(
         expect.objectContaining({
           id: 'project-1',
-          projectType1: 'QA',
+          taskType1: 'QA',
           name: '알파 수정',
           platformId: 'platform-1',
           serviceGroupId: 'svc-1',

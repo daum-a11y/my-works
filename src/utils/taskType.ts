@@ -66,6 +66,36 @@ export function buildProjectTypeOptions(taskTypes: TaskType[], currentValue = ''
   return buildTaskType1Options(taskTypes, { currentValue, projectOnly: true });
 }
 
+export function buildTaskTypeOptionsForProjects(taskTypes: TaskType[], currentId = '') {
+  const unique = new Set<string>();
+  const values: Array<Pick<TaskType, 'id' | 'type1'>> = [];
+
+  for (const taskType of taskTypes) {
+    const normalizedType1 = normalizeTypeName(taskType.type1);
+    if (!normalizedType1 || !taskType.requiresServiceGroup) {
+      continue;
+    }
+
+    if (!taskType.isActive && taskType.id !== currentId) {
+      continue;
+    }
+
+    if (unique.has(normalizedType1)) {
+      continue;
+    }
+
+    unique.add(normalizedType1);
+    values.push({ id: taskType.id, type1: normalizedType1 });
+  }
+
+  const current = taskTypes.find((taskType) => taskType.id === currentId);
+  if (current && !unique.has(normalizeTypeName(current.type1))) {
+    values.push({ id: current.id, type1: normalizeTypeName(current.type1) });
+  }
+
+  return values;
+}
+
 export function buildTaskType2Options(
   taskTypes: TaskType[],
   selectedType1 = '',

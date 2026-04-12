@@ -247,10 +247,9 @@ create table if not exists public.projects (
   id uuid primary key default gen_random_uuid(),
   created_by_member_id uuid references public.members(id),
   updated_by_member_id uuid references public.members(id),
-  project_type1 text not null default '',
+  task_type_id uuid references public.task_types(id),
   name text not null,
   platform_id uuid references public.platforms(id),
-  platform text not null,
   service_group_id uuid references public.service_groups(id),
   report_url text not null default '',
   reporter_member_id uuid references public.members(id),
@@ -261,6 +260,39 @@ create table if not exists public.projects (
   created_at timestamptz not null default timezone('utc', now()),
   updated_at timestamptz not null default timezone('utc', now())
 );
+
+alter table public.projects
+  add column if not exists task_type_id uuid references public.task_types(id);
+
+do $$
+begin
+  if exists (
+    select 1
+    from information_schema.columns
+    where table_schema = 'public'
+      and table_name = 'projects'
+      and column_name = 'project_type1'
+  ) then
+    update public.projects project
+    set task_type_id = matched.id
+    from lateral (
+      select task_type.id
+      from public.task_types task_type
+      where trim(task_type.type1) = trim(project.project_type1)
+        and task_type.requires_service_group = true
+      order by task_type.display_order asc, task_type.type2 asc, task_type.id asc
+      limit 1
+    ) matched
+    where project.task_type_id is null;
+  end if;
+end;
+$$;
+
+alter table public.projects
+  drop column if exists project_type1;
+
+alter table public.projects
+  drop column if exists platform;
 
 create table if not exists public.project_pages (
   id uuid primary key default gen_random_uuid(),
@@ -908,13 +940,15 @@ set search_path = public
 as $$
   select
     p.id as project_id,
-    nullif(p.project_type1, '') as type1,
+    nullif(ptt.type1, '') as type1,
     p.name as project_name,
-    nullif(p.platform, '') as platform,
+    nullif(pl.name, '') as platform,
     nullif(public.resolve_service_group_name(sg.service_group_name, sg.name), '') as service_group_name,
     p.start_date,
     p.end_date
   from public.projects p
+  left join public.task_types ptt on ptt.id = p.task_type_id
+  left join public.platforms pl on pl.id = p.platform_id
   left join public.service_groups sg on sg.id = p.service_group_id
   where public.current_member_id() is not null
     and p.start_date <= current_date
@@ -971,7 +1005,7 @@ as $$
     t.created_at,
     t.updated_at
     ,
-    nullif(p.platform, '') as platform,
+    nullif(pl.name, '') as platform,
     nullif(public.resolve_service_group_name(sg.service_group_name, sg.name), '') as service_group_name,
     nullif(public.resolve_service_name(sg.service_name, sg.name), '') as service_name,
     p.name as project_name,
@@ -981,6 +1015,7 @@ as $$
   left join public.cost_groups cg on cg.id = t.cost_group_id
   left join public.task_types tt on tt.id = t.task_type_id
   left join public.projects p on p.id = t.project_id
+  left join public.platforms pl on pl.id = p.platform_id
   left join public.project_pages pp on pp.id = t.project_page_id
   left join public.service_groups sg on sg.id = p.service_group_id
   where public.current_member_id() is not null
@@ -1703,11 +1738,12 @@ as $$
     pp.updated_at,
     nullif(public.resolve_service_group_name(sg.service_group_name, sg.name), '') as service_group_name,
     p.name as project_name,
-    nullif(p.platform, '') as platform,
+    nullif(pl.name, '') as platform,
     nullif(concat_ws(' ', nullif(owner.account_id, ''), nullif(owner.name, '')), '') as assignee_display,
     nullif(p.report_url, '') as report_url
   from public.project_pages pp
   join public.projects p on p.id = pp.project_id
+  left join public.platforms pl on pl.id = p.platform_id
   left join public.service_groups sg on sg.id = p.service_group_id
   left join public.members owner on owner.id = pp.owner_member_id
   order by pp.updated_at desc, pp.id desc
@@ -1732,7 +1768,7 @@ set search_path = public
 as $$
   select
     p.id,
-    p.project_type1 as type1,
+    ptt.type1 as type1,
     p.name,
     nullif(public.resolve_service_group_name(sg.service_group_name, sg.name), '') as service_group_name,
     nullif(p.report_url, '') as report_url,
@@ -1741,9 +1777,10 @@ as $$
     p.end_date,
     p.is_active
   from public.projects p
+  left join public.task_types ptt on ptt.id = p.task_type_id
   left join public.service_groups sg on sg.id = p.service_group_id
   left join public.members reporter on reporter.id = p.reporter_member_id
-  where lower(trim(p.project_type1)) in ('qa', '접근성테스트')
+  where lower(trim(ptt.type1)) in ('qa', '접근성테스트')
   order by p.end_date desc, p.name asc
 $$;
 
@@ -1803,7 +1840,7 @@ as $$
     t.note,
     t.created_at,
     t.updated_at,
-    nullif(p.platform, '') as platform,
+    nullif(pl.name, '') as platform,
     nullif(public.resolve_service_group_name(sg.service_group_name, sg.name), '') as service_group_name,
     nullif(public.resolve_service_name(sg.service_name, sg.name), '') as service_name,
     p.name as project_name,
@@ -1813,6 +1850,7 @@ as $$
   join public.cost_groups cg on cg.id = t.cost_group_id
   left join public.task_types tt on tt.id = t.task_type_id
   left join public.projects p on p.id = t.project_id
+  left join public.platforms pl on pl.id = p.platform_id
   left join public.project_pages pp on pp.id = t.project_page_id
   left join public.service_groups sg on sg.id = p.service_group_id
   where public.current_member_id() is not null
@@ -1897,7 +1935,7 @@ as $$
     t.content,
     t.note,
     t.updated_at,
-    nullif(p.platform, '') as platform,
+    nullif(pl.name, '') as platform,
     nullif(public.resolve_service_group_name(sg.service_group_name, sg.name), '') as service_group_name,
     nullif(public.resolve_service_name(sg.service_name, sg.name), '') as service_name,
     p.name as project_name,
@@ -1907,6 +1945,7 @@ as $$
   join public.cost_groups cg on cg.id = t.cost_group_id
   left join public.task_types tt on tt.id = t.task_type_id
   left join public.projects p on p.id = t.project_id
+  left join public.platforms pl on pl.id = p.platform_id
   left join public.project_pages pp on pp.id = t.project_page_id
   left join public.service_groups sg on sg.id = p.service_group_id
   where public.current_member_id() is not null
@@ -1984,7 +2023,7 @@ $$;
 
 create or replace function public.upsert_project(
   p_project_id uuid default null,
-  p_project_type1 text default '',
+  p_task_type_id uuid default null,
   p_name text default null,
   p_platform_id uuid default null,
   p_service_group_id uuid default null,
@@ -2003,7 +2042,6 @@ as $$
 declare
   v_member_id uuid := public.current_member_id();
   v_project public.projects;
-  v_platform_name text;
 begin
   if v_member_id is null then
     raise exception 'member not bound';
@@ -2017,13 +2055,21 @@ begin
     raise exception 'platform required';
   end if;
 
-  select name
-  into v_platform_name
-  from public.platforms
-  where id = p_platform_id;
-
-  if coalesce(trim(v_platform_name), '') = '' then
+  if not exists (select 1 from public.platforms where id = p_platform_id) then
     raise exception 'platform not found';
+  end if;
+
+  if p_task_type_id is null then
+    raise exception 'project type required';
+  end if;
+
+  if not exists (
+    select 1
+    from public.task_types
+    where id = p_task_type_id
+      and requires_service_group = true
+  ) then
+    raise exception 'project type not found';
   end if;
 
   if p_start_date is null then
@@ -2037,10 +2083,9 @@ begin
   if p_project_id is null then
     insert into public.projects (
       created_by_member_id,
-      project_type1,
+      task_type_id,
       name,
       platform_id,
-      platform,
       service_group_id,
       report_url,
       reporter_member_id,
@@ -2051,10 +2096,9 @@ begin
     )
     values (
       v_member_id,
-      coalesce(trim(p_project_type1), ''),
+      p_task_type_id,
       p_name,
       p_platform_id,
-      v_platform_name,
       p_service_group_id,
       coalesce(p_report_url, ''),
       p_reporter_member_id,
@@ -2067,13 +2111,9 @@ begin
   else
     update public.projects
     set
-      project_type1 = case
-        when nullif(trim(p_project_type1), '') is null then public.projects.project_type1
-        else trim(p_project_type1)
-      end,
+      task_type_id = p_task_type_id,
       name = p_name,
       platform_id = p_platform_id,
-      platform = v_platform_name,
       service_group_id = p_service_group_id,
       report_url = coalesce(p_report_url, ''),
       reporter_member_id = p_reporter_member_id,
@@ -2107,7 +2147,8 @@ create or replace function public.search_projects_page(
 returns table (
   id uuid,
   created_by_member_id uuid,
-  project_type1 text,
+  task_type_id uuid,
+  task_type1 text,
   name text,
   platform_id uuid,
   platform text,
@@ -2131,10 +2172,11 @@ as $$
   select
     p.id,
     p.created_by_member_id,
-    p.project_type1,
+    p.task_type_id,
+    ptt.type1,
     p.name,
     p.platform_id,
-    p.platform,
+    nullif(pl.name, '') as platform,
     p.service_group_id,
     nullif(public.resolve_service_group_name(sg.service_group_name, sg.name), '') as service_group_name,
     nullif(p.report_url, '') as report_url,
@@ -2147,6 +2189,8 @@ as $$
     p.is_active,
     count(pp.id)::bigint as page_count
   from public.projects p
+  left join public.task_types ptt on ptt.id = p.task_type_id
+  left join public.platforms pl on pl.id = p.platform_id
   left join public.service_groups sg on sg.id = p.service_group_id
   left join public.members reporter on reporter.id = p.reporter_member_id
   left join public.members reviewer on reviewer.id = p.reviewer_member_id
@@ -2158,9 +2202,9 @@ as $$
       p_keyword is null
       or concat_ws(
         ' ',
-        coalesce(p.project_type1, ''),
+        coalesce(ptt.type1, ''),
         coalesce(p.name, ''),
-        coalesce(p.platform, ''),
+        coalesce(pl.name, ''),
         coalesce(p.report_url, ''),
         coalesce(public.compose_service_group_label(sg.service_group_name, sg.service_name), ''),
         coalesce(reporter.account_id, ''),
@@ -2174,10 +2218,11 @@ as $$
   group by
     p.id,
     p.created_by_member_id,
-    p.project_type1,
+    p.task_type_id,
+    ptt.type1,
     p.name,
     p.platform_id,
-    p.platform,
+    pl.name,
     p.service_group_id,
     sg.service_group_name,
     sg.service_name,
@@ -2198,12 +2243,13 @@ $$;
 create or replace function public.search_report_projects(
   p_cost_group_id uuid default null,
   p_platform text default null,
-  p_project_type1 text default null,
+  p_task_type1 text default null,
   p_keyword text default null
 )
 returns table (
   id uuid,
-  project_type1 text,
+  task_type_id uuid,
+  task_type1 text,
   name text,
   platform text,
   service_group_id uuid,
@@ -2220,9 +2266,10 @@ set search_path = public
 as $$
   select
     p.id,
-    p.project_type1,
+    p.task_type_id,
+    ptt.type1,
     p.name,
-    p.platform,
+    nullif(pl.name, '') as platform,
     p.service_group_id,
     nullif(public.resolve_service_group_name(sg.service_group_name, sg.name), '') as service_group_name,
     nullif(public.resolve_service_name(sg.service_name, sg.name), '') as service_name,
@@ -2230,20 +2277,22 @@ as $$
     nullif(cg.name, '') as cost_group_name,
     nullif(p.report_url, '') as report_url
   from public.projects p
+  left join public.task_types ptt on ptt.id = p.task_type_id
+  left join public.platforms pl on pl.id = p.platform_id
   join public.service_groups sg on sg.id = p.service_group_id
   left join public.cost_groups cg on cg.id = sg.cost_group_id
   where public.current_member_id() is not null
     and p.is_active = true
     and (p_cost_group_id is null or sg.cost_group_id = p_cost_group_id)
-    and (p_platform is null or p.platform = p_platform)
-    and (p_project_type1 is null or p.project_type1 = p_project_type1)
+    and (p_platform is null or pl.name = p_platform)
+    and (p_task_type1 is null or ptt.type1 = p_task_type1)
     and (
       p_keyword is null
       or concat_ws(
         ' ',
-        coalesce(p.project_type1, ''),
+        coalesce(ptt.type1, ''),
         coalesce(p.name, ''),
-        coalesce(p.platform, ''),
+        coalesce(pl.name, ''),
         coalesce(public.compose_service_group_label(sg.service_group_name, sg.service_name), ''),
         coalesce(cg.name, ''),
         coalesce(p.report_url, '')
@@ -2405,7 +2454,7 @@ as $$
     p.name as project_name,
     pp.title as page_title,
     t.url,
-    nullif(p.platform, '') as platform,
+    nullif(pl.name, '') as platform,
     p.service_group_id,
     nullif(public.resolve_service_group_name(sg.service_group_name, sg.name), '') as service_group_name,
     nullif(public.resolve_service_name(sg.service_name, sg.name), '') as service_name
@@ -2414,6 +2463,7 @@ as $$
   join public.cost_groups cg on cg.id = t.cost_group_id
   left join public.task_types tt on tt.id = t.task_type_id
   left join public.projects p on p.id = t.project_id
+  left join public.platforms pl on pl.id = p.platform_id
   left join public.project_pages pp on pp.id = t.project_page_id
   left join public.service_groups sg on sg.id = p.service_group_id
   where public.current_user_is_admin()
@@ -2959,7 +3009,7 @@ as $$
     p.name as project_name,
     pp.title as page_title,
     t.url,
-    nullif(p.platform, '') as platform,
+    nullif(pl.name, '') as platform,
     p.service_group_id,
     nullif(public.resolve_service_group_name(sg.service_group_name, sg.name), '') as service_group_name,
     nullif(public.resolve_service_name(sg.service_name, sg.name), '') as service_name
@@ -2968,6 +3018,7 @@ as $$
   join public.cost_groups cg on cg.id = t.cost_group_id
   left join public.task_types tt on tt.id = t.task_type_id
   left join public.projects p on p.id = t.project_id
+  left join public.platforms pl on pl.id = p.platform_id
   left join public.project_pages pp on pp.id = t.project_page_id
   left join public.service_groups sg on sg.id = p.service_group_id
   where public.current_user_is_admin()

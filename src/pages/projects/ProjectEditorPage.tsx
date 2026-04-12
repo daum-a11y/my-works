@@ -12,7 +12,7 @@ import {
   toTaskType,
 } from './projectApiTransform';
 import type { ProjectPage } from '../../types/domain';
-import { buildProjectTypeOptions } from '../../utils/taskType';
+import { buildTaskTypeOptionsForProjects } from '../../utils/taskType';
 import {
   PROJECT_EDITOR_CREATE_TITLE,
   PROJECT_EDITOR_EDIT_TITLE,
@@ -86,8 +86,8 @@ export function ProjectEditorPage() {
     [query.data?.taskTypes],
   );
   const projectTypeOptions = useMemo(
-    () => buildProjectTypeOptions(taskTypes, projectDraft.projectType1),
-    [projectDraft.projectType1, taskTypes],
+    () => buildTaskTypeOptionsForProjects(taskTypes, projectDraft.taskTypeId),
+    [projectDraft.taskTypeId, taskTypes],
   );
 
   const selectedProjectPages = useMemo(() => sortPages(pages), [pages]);

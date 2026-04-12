@@ -70,7 +70,8 @@ export interface ServiceGroup {
 export interface Project {
   id: string;
   createdByMemberId: string | null;
-  projectType1: string;
+  taskTypeId: string | null;
+  taskType1: string;
   name: string;
   platformId: string | null;
   platform: string;
@@ -86,7 +87,8 @@ export interface Project {
 export interface ProjectListRow {
   id: string;
   createdByMemberId: string | null;
-  projectType1: string;
+  taskTypeId: string | null;
+  taskType1: string;
   name: string;
   platformId: string | null;
   platform: string | null;
@@ -105,7 +107,8 @@ export interface ProjectListRow {
 
 export interface ReportProjectOptionRow {
   id: string;
-  projectType1: string;
+  taskTypeId: string | null;
+  taskType1: string;
   name: string;
   platform: string | null;
   serviceGroupId: string | null;
@@ -329,7 +332,7 @@ export interface SaveTaskInput {
 
 export interface SaveProjectInput {
   id?: string;
-  projectType1: string;
+  taskTypeId: string | null;
   name: string;
   platformId: string | null;
   serviceGroupId: string | null;

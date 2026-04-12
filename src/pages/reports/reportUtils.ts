@@ -258,7 +258,7 @@ export function buildProjectViewModelsFromRows(rows: ReportProjectOptionRow[]) {
       {
         id: row.id,
         createdByMemberId: null,
-        projectType1: row.projectType1,
+        taskType1: row.taskType1,
         name: row.name,
         platformId: null,
         platform,

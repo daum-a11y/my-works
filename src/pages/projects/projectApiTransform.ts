@@ -20,7 +20,10 @@ export function toProjectListRow(record: ApiRecord): ProjectListRow {
     createdByMemberId: readValue(record, 'created_by_member_id', 'createdByMemberId')
       ? String(readValue(record, 'created_by_member_id', 'createdByMemberId'))
       : null,
-    projectType1: String(readValue(record, 'project_type1', 'projectType1') ?? ''),
+    taskTypeId: readValue(record, 'task_type_id', 'taskTypeId')
+      ? String(readValue(record, 'task_type_id', 'taskTypeId'))
+      : null,
+    taskType1: String(readValue(record, 'task_type1', 'taskType1') ?? ''),
     name: String(record.name ?? ''),
     platformId: readValue(record, 'platform_id', 'platformId')
       ? String(readValue(record, 'platform_id', 'platformId'))

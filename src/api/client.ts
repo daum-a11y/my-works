@@ -29,7 +29,7 @@ export interface DataClient {
   searchReportProjects(filters: {
     costGroupId: string | null;
     platform: string | null;
-    projectType1: string | null;
+    taskType1: string | null;
     query: string | null;
   }): Promise<ApiRecord[]>;
   getProject(projectId: string): Promise<ApiRecord | null>;
@@ -293,7 +293,7 @@ const configuredClient: DataClient = !supabase
       async getProjects() {
         const { data, error } = await supabase
           .from('projects')
-          .select('*, platforms(name)')
+          .select('*, platforms(name), task_types(type1)')
           .order('is_active', { ascending: false })
           .order('name');
         if (error) throw error;
@@ -320,7 +320,7 @@ const configuredClient: DataClient = !supabase
         const { data, error } = await supabase.rpc('search_report_projects', {
           p_cost_group_id: filters.costGroupId,
           p_platform: filters.platform,
-          p_project_type1: filters.projectType1,
+          p_task_type1: filters.taskType1,
           p_keyword: filters.query,
         });
         if (error) throw error;
@@ -329,7 +329,7 @@ const configuredClient: DataClient = !supabase
       async getProject(projectId) {
         const { data, error } = await supabase
           .from('projects')
-          .select('*, platforms(name)')
+          .select('*, platforms(name), task_types(type1)')
           .eq('id', projectId)
           .maybeSingle();
         if (error) throw error;
@@ -339,7 +339,7 @@ const configuredClient: DataClient = !supabase
         const { data, error } = await supabase
           .rpc('upsert_project', {
             p_project_id: input.id ?? null,
-            p_project_type1: input.projectType1,
+            p_task_type_id: input.taskTypeId,
             p_name: input.name,
             p_platform_id: input.platformId,
             p_service_group_id: input.serviceGroupId,

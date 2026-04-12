@@ -88,7 +88,7 @@ export function AdminReportEditorPage() {
       adminDataClient.searchReportProjectsAdmin({
         costGroupId: draft.costGroupId || null,
         platform: draft.platform || null,
-        projectType1: draft.type1 || null,
+        taskType1: draft.type1 || null,
         query: appliedProjectQuery || null,
       }),
     enabled: Boolean(draft.costGroupId && draft.platform && draft.type1),
@@ -223,7 +223,7 @@ export function AdminReportEditorPage() {
   const isProjectLinkedTab = activeTab === 'report';
   const projectTypeSelected = isProjectLinkedTab && Boolean(draft.projectId);
   const type1Value = projectTypeSelected
-    ? currentProject?.project.projectType1 || draft.type1
+    ? currentProject?.project.taskType1 || draft.type1
     : draft.type1;
   const requiresServiceGroup = selectedTaskType?.requiresServiceGroup ?? false;
   const typeRule = useMemo(() => getTaskTypeUiRule(type1Value, taskTypes), [taskTypes, type1Value]);
@@ -266,7 +266,7 @@ export function AdminReportEditorPage() {
       (project) =>
         project.costGroupId === draft.costGroupId &&
         project.project.platform === draft.platform &&
-        project.project.projectType1 === draft.type1,
+        project.project.taskType1 === draft.type1,
     );
   }, [draft.costGroupId, draft.platform, draft.type1, filteredProjectOptions]);
   const projectSearchPlaceholder = useMemo(() => {
@@ -303,7 +303,7 @@ export function AdminReportEditorPage() {
             ? (serviceGroupsById.get(project.serviceGroupId)?.name ?? '')
             : '';
           const separator = normalizedServiceName.indexOf(' / ');
-          next.type1 = project.projectType1;
+          next.type1 = project.taskType1;
           const nextType2Options = buildTaskType2OptionsForValue(taskTypes, next.type1, next.type2);
           if (!nextType2Options.includes(next.type2)) {
             next.type2 = '';

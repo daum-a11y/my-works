@@ -26,7 +26,7 @@ export interface AdminDataClient {
   searchReportProjectsAdmin(filters: {
     costGroupId: string | null;
     platform: string | null;
-    projectType1: string | null;
+    taskType1: string | null;
     query: string | null;
   }): Promise<ApiRecord[]>;
   searchTasksAdmin(
@@ -232,7 +232,7 @@ const configuredAdminClient: AdminDataClient = !supabase
         const { data, error } = await supabase
           .from('projects')
           .select(
-            'id, name, project_type1, platform_id, platform, service_group_id, report_url, is_active, platforms(name), service_groups(cost_group_id, cost_groups(name))',
+            'id, name, task_type_id, platform_id, service_group_id, report_url, is_active, task_types(type1), platforms(name), service_groups(cost_group_id, cost_groups(name))',
           )
           .order('name');
         if (error) throw error;
@@ -252,7 +252,7 @@ const configuredAdminClient: AdminDataClient = !supabase
         const { data, error } = await supabase
           .from('projects')
           .select(
-            'id, name, project_type1, platform_id, platform, service_group_id, report_url, is_active, platforms(name), service_groups(cost_group_id, cost_groups(name))',
+            'id, name, task_type_id, platform_id, service_group_id, report_url, is_active, task_types(type1), platforms(name), service_groups(cost_group_id, cost_groups(name))',
           )
           .eq('id', projectId)
           .maybeSingle();
@@ -274,15 +274,15 @@ const configuredAdminClient: AdminDataClient = !supabase
         let query = supabase
           .from('projects')
           .select(
-            'id, name, project_type1, platform_id, platform, service_group_id, report_url, is_active, platforms(name), service_groups!inner(cost_group_id, cost_groups(name))',
+            'id, name, task_type_id, platform_id, service_group_id, report_url, is_active, task_types(type1), platforms(name), service_groups!inner(cost_group_id, cost_groups(name))',
           )
           .eq('is_active', true)
           .order('name')
           .limit(60);
         if (filters.costGroupId)
           query = query.eq('service_groups.cost_group_id', filters.costGroupId);
-        if (filters.platform) query = query.eq('platform', filters.platform);
-        if (filters.projectType1) query = query.eq('project_type1', filters.projectType1);
+        if (filters.platform) query = query.eq('platforms.name', filters.platform);
+        if (filters.taskType1) query = query.eq('task_types.type1', filters.taskType1);
         if (filters.query) query = query.ilike('name', `%${filters.query}%`);
         const { data, error } = await query;
         if (error) throw error;

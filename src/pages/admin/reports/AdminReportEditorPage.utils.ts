@@ -80,7 +80,7 @@ export function toProjects(
   return items.map(toAdminProject).map((item) => ({
     id: item.id,
     createdByMemberId: null,
-    projectType1: item.projectType1,
+    taskType1: item.taskType1,
     name: item.name,
     platformId: item.platformId,
     platform: item.platform,

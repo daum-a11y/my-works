@@ -84,7 +84,7 @@ export function ReportsPage() {
   );
   const projectTypeSelected = Boolean(draft.projectId);
   const type1Value = projectTypeSelected
-    ? currentProject?.project.projectType1 || draft.type1
+    ? currentProject?.project.taskType1 || draft.type1
     : draft.type1;
   const requiresServiceGroup = selectedTaskType?.requiresServiceGroup ?? false;
   const typeRule = useMemo(() => getTaskTypeUiRule(type1Value, taskTypes), [taskTypes, type1Value]);

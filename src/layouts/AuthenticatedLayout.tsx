@@ -92,7 +92,7 @@ export function AuthenticatedLayout() {
 
   useLayoutEffect(() => {
     setAvatarColor(getAvatarColors(session?.member?.accountId || ''));
-  }, [getAvatarColors]);
+  }, [session?.member?.accountId]);
 
   const userInitials = (session?.member?.accountId || '').slice(0, 2);
 

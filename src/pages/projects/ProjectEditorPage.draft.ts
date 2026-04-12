@@ -3,7 +3,7 @@ import type { Project, ProjectPage } from '../../types/domain';
 import type { PageFormState, ProjectFormState } from './ProjectEditorPage.types';
 
 export const initialProjectDraft = (): ProjectFormState => ({
-  projectType1: '',
+  taskTypeId: '',
   name: '',
   platformId: '',
   serviceGroupId: '',
@@ -29,7 +29,7 @@ export const initialPageDraft = (projectId = '', ownerMemberId = ''): PageFormSt
 export function toProjectDraft(project: Project): ProjectFormState {
   return {
     id: project.id,
-    projectType1: project.projectType1,
+    taskTypeId: project.taskTypeId ?? '',
     name: project.name,
     platformId: project.platformId ?? '',
     serviceGroupId: project.serviceGroupId ?? '',
@@ -59,7 +59,7 @@ export function toPageDraft(page: ProjectPage): PageFormState {
 export function toProjectInput(draft: ProjectFormState) {
   return {
     id: draft.id,
-    projectType1: draft.projectType1.trim(),
+    taskTypeId: draft.taskTypeId.trim() || null,
     name: draft.name.trim(),
     platformId: draft.platformId.trim() || null,
     serviceGroupId: draft.serviceGroupId.trim() || null,

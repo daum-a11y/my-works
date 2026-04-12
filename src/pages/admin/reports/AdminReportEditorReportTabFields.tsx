@@ -74,7 +74,7 @@ export function AdminReportEditorReportTabFields({
           <option value="">{projectSearchPlaceholder}</option>
           {filteredProjectOptions.map((project) => (
             <option key={project.id} value={project.id}>
-              {`${project.project.projectType1} - ${project.project.platform} - ${project.project.name}`}
+              {`${project.project.taskType1} - ${project.project.platform} - ${project.project.name}`}
             </option>
           ))}
         </select>

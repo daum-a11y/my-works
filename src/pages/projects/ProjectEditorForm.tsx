@@ -3,7 +3,7 @@ import type { ProjectFormState } from './ProjectEditorPage.types';
 
 interface ProjectEditorFormProps {
   projectDraft: ProjectFormState;
-  projectTypeOptions: string[];
+  projectTypeOptions: Array<{ id: string; type1: string }>;
   platforms: Array<{ id: string; name: string; isVisible: boolean }>;
   serviceGroupOptions: Array<{ costGroupId: string | null; costGroupName: string }>;
   selectedCostGroupId: string;
@@ -58,13 +58,13 @@ export function ProjectEditorForm({
       <label className={'projects-feature__field'}>
         <span>프로젝트 종류</span>
         <select
-          value={projectDraft.projectType1}
-          onChange={(event) => onProjectDraftChange({ projectType1: event.target.value })}
+          value={projectDraft.taskTypeId}
+          onChange={(event) => onProjectDraftChange({ taskTypeId: event.target.value })}
         >
           <option value="">선택하세요</option>
-          {projectTypeOptions.map((projectType1) => (
-            <option key={projectType1} value={projectType1}>
-              {projectType1}
+          {projectTypeOptions.map((projectType) => (
+            <option key={projectType.id} value={projectType.id}>
+              {projectType.type1}
             </option>
           ))}
         </select>

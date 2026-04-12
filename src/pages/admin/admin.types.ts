@@ -142,7 +142,8 @@ export interface AdminServiceGroupUsageSummary {
 export interface AdminProjectOption {
   id: string;
   name: string;
-  projectType1: string;
+  taskTypeId: string | null;
+  taskType1: string;
   platformId: string | null;
   platform: string;
   costGroupId: string | null;

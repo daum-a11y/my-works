@@ -2,7 +2,7 @@ import type { PageStatus } from '../../types/domain';
 
 export interface ProjectFormState {
   id?: string;
-  projectType1: string;
+  taskTypeId: string;
   name: string;
   platformId: string;
   serviceGroupId: string;

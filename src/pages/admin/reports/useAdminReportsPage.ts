@@ -67,7 +67,7 @@ export function useAdminReportsPage() {
         ? adminDataClient.searchReportProjectsAdmin({
             costGroupId: filters.costGroupId || null,
             platform: null,
-            projectType1: null,
+            taskType1: null,
             query: null,
           })
         : Promise.resolve([]),

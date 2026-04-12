@@ -89,6 +89,9 @@ export function toAdminServiceGroup(record: ApiRecord): AdminServiceGroupItem {
 
 export function toAdminProject(record: ApiRecord): AdminProjectOption {
   const platformRecord = Array.isArray(record.platforms) ? record.platforms[0] : record.platforms;
+  const taskTypeRecord = Array.isArray(record.task_types)
+    ? record.task_types[0]
+    : record.task_types;
   const serviceGroupRecord = Array.isArray(record.service_groups)
     ? record.service_groups[0]
     : record.service_groups;
@@ -103,7 +106,11 @@ export function toAdminProject(record: ApiRecord): AdminProjectOption {
   return {
     id: String(record.id ?? ''),
     name: String(record.name ?? ''),
-    projectType1: String(record.project_type1 ?? ''),
+    taskTypeId: record.task_type_id ? String(record.task_type_id) : null,
+    taskType1:
+      taskTypeRecord && typeof taskTypeRecord === 'object'
+        ? String((taskTypeRecord as ApiRecord).type1 ?? '')
+        : String(record.task_type1 ?? ''),
     platformId: record.platform_id ? String(record.platform_id) : null,
     platform:
       platformRecord && typeof platformRecord === 'object'

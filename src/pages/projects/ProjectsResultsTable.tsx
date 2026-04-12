@@ -30,7 +30,7 @@ export function ProjectsResultsTable({ projects }: ProjectsResultsTableProps) {
         <tbody>
           {projects.map((project) => (
             <tr key={project.id}>
-              <td>{project.projectType1 || '-'}</td>
+              <td>{project.taskType1 || '-'}</td>
               <td>{project.platform || '-'}</td>
               <td>{project.serviceGroupName || '-'}</td>
               <td>{project.name}</td>

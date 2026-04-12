@@ -149,17 +149,28 @@ export function toServiceGroup(record: ApiRecord): ServiceGroup {
 }
 
 export function toProject(record: ApiRecord): Project {
+  const taskType = Array.isArray(record.task_types) ? record.task_types[0] : record.task_types;
+  const platform = Array.isArray(record.platforms) ? record.platforms[0] : record.platforms;
   return {
     id: String(record.id),
     createdByMemberId: readValue(record, 'created_by_member_id', 'createdByMemberId')
       ? String(readValue(record, 'created_by_member_id', 'createdByMemberId'))
       : null,
-    projectType1: String(readValue(record, 'project_type1', 'projectType1') ?? ''),
+    taskTypeId: readValue(record, 'task_type_id', 'taskTypeId')
+      ? String(readValue(record, 'task_type_id', 'taskTypeId'))
+      : null,
+    taskType1:
+      taskType && typeof taskType === 'object'
+        ? String((taskType as ApiRecord).type1 ?? '')
+        : String(readValue(record, 'task_type1', 'taskType1') ?? ''),
     name: String(record.name ?? ''),
     platformId: readValue(record, 'platform_id', 'platformId')
       ? String(readValue(record, 'platform_id', 'platformId'))
       : null,
-    platform: String(record.platform ?? ''),
+    platform:
+      platform && typeof platform === 'object'
+        ? String((platform as ApiRecord).name ?? '')
+        : String(record.platform ?? ''),
     serviceGroupId: readValue(record, 'service_group_id', 'serviceGroupId')
       ? String(readValue(record, 'service_group_id', 'serviceGroupId'))
       : null,
@@ -201,7 +212,10 @@ export function toProjectPage(record: ApiRecord): ProjectPage {
 export function toReportProjectOption(record: ApiRecord): ReportProjectOptionRow {
   return {
     id: String(record.id ?? ''),
-    projectType1: String(readValue(record, 'project_type1', 'projectType1') ?? ''),
+    taskTypeId: readValue(record, 'task_type_id', 'taskTypeId')
+      ? String(readValue(record, 'task_type_id', 'taskTypeId'))
+      : null,
+    taskType1: String(readValue(record, 'task_type1', 'taskType1') ?? ''),
     name: String(record.name ?? ''),
     platform: record.platform == null ? null : String(record.platform),
     serviceGroupId: readValue(record, 'service_group_id', 'serviceGroupId')

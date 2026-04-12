@@ -144,7 +144,7 @@ export function useReportsSlice(): ReportsSlice {
       dataClient.searchReportProjects({
         costGroupId: draft.costGroupId || null,
         platform: null,
-        projectType1: draft.type1 || null,
+        taskType1: draft.type1 || null,
         query: appliedProjectQuery || null,
       }),
     enabled: Boolean(member && draft.costGroupId && draft.type1),
@@ -459,7 +459,7 @@ export function useReportsSlice(): ReportsSlice {
             ? (serviceGroupsById.get(project.serviceGroupId)?.costGroupId ?? '')
             : '';
           const separator = normalizedServiceName.indexOf(' / ');
-          next.type1 = project.projectType1;
+          next.type1 = project.taskType1;
           const nextType2Options = buildTaskType2OptionsForValue(taskTypes, next.type1, next.type2);
           if (!nextType2Options.includes(next.type2)) {
             next.type2 = '';
