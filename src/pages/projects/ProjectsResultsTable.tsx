@@ -1,30 +1,115 @@
 import { Link } from 'react-router-dom';
-import { TableEmptyRow } from '../../components/shared/TableEmptyRow';
+import { SortableTableHeaderButton, TableEmptyRow } from '../../components/shared';
 import type { ProjectListRow } from '../../types/domain';
 import { formatDateLabel } from '../../utils';
+import type { ProjectsSortState } from './ProjectsPage.types';
 
 interface ProjectsResultsTableProps {
   projects: ProjectListRow[];
+  sortState: ProjectsSortState;
+  onSortChange: (next: ProjectsSortState) => void;
 }
 
-export function ProjectsResultsTable({ projects }: ProjectsResultsTableProps) {
+export function ProjectsResultsTable({
+  projects,
+  sortState,
+  onSortChange,
+}: ProjectsResultsTableProps) {
+  const getAriaSort = (key: ProjectsSortState['key']) => {
+    if (sortState.key !== key) {
+      return 'none';
+    }
+
+    return sortState.direction === 'asc' ? 'ascending' : 'descending';
+  };
+
   return (
     <div className="projects-feature__table-wrap">
       <table className="projects-feature__table">
         <caption className="sr-only">프로젝트 리스트</caption>
         <thead>
           <tr>
-            <th scope="col">타입1</th>
-            <th scope="col">플랫폼</th>
-            <th scope="col">청구그룹</th>
-            <th scope="col">서비스 그룹</th>
-            <th scope="col">프로젝트명</th>
-            <th scope="col">과업 수</th>
+            <th scope="col" aria-sort={getAriaSort('taskType1')}>
+              <SortableTableHeaderButton
+                label="타입1"
+                sortKey="taskType1"
+                sortState={sortState}
+                onChange={onSortChange}
+              />
+            </th>
+            <th scope="col" aria-sort={getAriaSort('platform')}>
+              <SortableTableHeaderButton
+                label="플랫폼"
+                sortKey="platform"
+                sortState={sortState}
+                onChange={onSortChange}
+              />
+            </th>
+            <th scope="col" aria-sort={getAriaSort('costGroupName')}>
+              <SortableTableHeaderButton
+                label="청구그룹"
+                sortKey="costGroupName"
+                sortState={sortState}
+                onChange={onSortChange}
+              />
+            </th>
+            <th scope="col" aria-sort={getAriaSort('serviceGroupName')}>
+              <SortableTableHeaderButton
+                label="서비스 그룹"
+                sortKey="serviceGroupName"
+                sortState={sortState}
+                onChange={onSortChange}
+              />
+            </th>
+            <th scope="col" aria-sort={getAriaSort('name')}>
+              <SortableTableHeaderButton
+                label="프로젝트명"
+                sortKey="name"
+                sortState={sortState}
+                onChange={onSortChange}
+              />
+            </th>
+            <th scope="col" aria-sort={getAriaSort('subtaskCount')}>
+              <SortableTableHeaderButton
+                label="과업 수"
+                sortKey="subtaskCount"
+                sortState={sortState}
+                onChange={onSortChange}
+              />
+            </th>
             <th scope="col">보고서URL</th>
-            <th scope="col">QA시작일</th>
-            <th scope="col">QA종료일</th>
-            <th scope="col">리포터</th>
-            <th scope="col">리뷰어</th>
+            <th scope="col" aria-sort={getAriaSort('startDate')}>
+              <SortableTableHeaderButton
+                label="QA시작일"
+                sortKey="startDate"
+                sortState={sortState}
+                onChange={onSortChange}
+              />
+            </th>
+            <th scope="col" aria-sort={getAriaSort('endDate')}>
+              <SortableTableHeaderButton
+                label="QA종료일"
+                sortKey="endDate"
+                sortState={sortState}
+                onChange={onSortChange}
+              />
+            </th>
+            <th scope="col" aria-sort={getAriaSort('reporterDisplay')}>
+              <SortableTableHeaderButton
+                label="리포터"
+                sortKey="reporterDisplay"
+                sortState={sortState}
+                onChange={onSortChange}
+              />
+            </th>
+            <th scope="col" aria-sort={getAriaSort('reviewerDisplay')}>
+              <SortableTableHeaderButton
+                label="리뷰어"
+                sortKey="reviewerDisplay"
+                sortState={sortState}
+                onChange={onSortChange}
+              />
+            </th>
             <th scope="col">수정</th>
           </tr>
         </thead>

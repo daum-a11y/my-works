@@ -80,7 +80,11 @@ export function ProjectsPage() {
         }
       />
 
-      <ProjectsResultsTable projects={page.projects} />
+      <ProjectsResultsTable
+        projects={page.projects}
+        sortState={page.sortState}
+        onSortChange={page.setSortState}
+      />
     </section>
   );
 }

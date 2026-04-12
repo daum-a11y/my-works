@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { cleanup, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -308,8 +308,8 @@ describe('Projects routes', () => {
 
     expect(screen.getByText('총 건수')).toBeInTheDocument();
     expect(screen.getByText('1건')).toBeInTheDocument();
-    expect(screen.getByRole('columnheader', { name: '청구그룹' })).toBeInTheDocument();
-    expect(screen.getByRole('columnheader', { name: '과업 수' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /청구그룹 정렬/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /과업 수 정렬/ })).toBeInTheDocument();
     expect(screen.getByLabelText('페이지당 행 수')).toHaveValue('50');
     expect(screen.getByLabelText('시작일')).toHaveValue(toLocalDateInputValue(aYearAgo));
     expect(screen.getByLabelText('종료일')).toHaveValue(toLocalDateInputValue(today));
@@ -385,6 +385,66 @@ describe('Projects routes', () => {
       expect(screen.getByText('검색 조건에 맞는 프로젝트가 없습니다.')).toBeInTheDocument();
       expect(screen.getByText('검색어 또는 기간을 조정하십시오.')).toBeInTheDocument();
     });
+  });
+
+  it('sorts projects by sortable headers', async () => {
+    const user = userEvent.setup();
+    const baseProjectA = {
+      id: 'project-1',
+      createdByMemberId: null,
+      taskTypeId: 'type-qa',
+      taskType1: 'QA',
+      name: '알파',
+      platformId: 'platform-1',
+      platform: 'iOS-App',
+      costGroupName: '내부',
+      serviceGroupId: 'svc-1',
+      serviceGroupName: '접근성',
+      reportUrl: 'https://example.com/report-a',
+      reporterMemberId: 'member-1',
+      reviewerMemberId: 'member-2',
+      reporterDisplay: 'legacy-1(운영 사용자)',
+      reviewerDisplay: 'legacy-2(리뷰어)',
+      startDate: '2026-03-01',
+      endDate: '2026-03-31',
+      isActive: true,
+      subtaskCount: 3,
+    };
+    const baseProjectB = {
+      ...baseProjectA,
+      id: 'project-2',
+      name: '베타',
+      costGroupName: '외부',
+      serviceGroupName: '검색',
+      reportUrl: 'https://example.com/report-b',
+      startDate: '2026-02-01',
+      endDate: '2026-02-28',
+      subtaskCount: 1,
+    };
+
+    mockDataClient.searchProjectsPage.mockResolvedValue({
+      items: [baseProjectA, baseProjectB],
+      totalCount: 2,
+    });
+
+    renderProjectsList();
+
+    await waitFor(() => {
+      expect(screen.getByText('알파')).toBeInTheDocument();
+      expect(screen.getByText('베타')).toBeInTheDocument();
+    });
+
+    const table = screen.getByRole('table', { name: '프로젝트 리스트' });
+    const firstDataRow = () => within(table).getAllByRole('row')[1];
+
+    expect(firstDataRow()).toHaveTextContent('알파');
+
+    await user.click(screen.getByRole('button', { name: /과업 수 정렬, 클릭하면 오름차순/ }));
+
+    expect(firstDataRow()).toHaveTextContent('베타');
+    expect(
+      within(table).getByRole('columnheader', { name: /과업 수 오름차순으로 정렬 중/ }),
+    ).toBeInTheDocument();
   });
 
   it('paginates projects in 50-row chunks', async () => {

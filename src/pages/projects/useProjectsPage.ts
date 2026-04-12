@@ -3,9 +3,13 @@ import { useQuery } from '@tanstack/react-query';
 import type { Member } from '../../types/domain';
 import { dataClient } from '../../api/client';
 import { setDocumentTitle } from '../../router/navigation';
-import { PROJECTS_DEFAULT_PAGE_SIZE, PROJECTS_PAGE_TITLE } from './ProjectsPage.constants';
+import {
+  PROJECTS_DEFAULT_PAGE_SIZE,
+  PROJECTS_DEFAULT_SORT,
+  PROJECTS_PAGE_TITLE,
+} from './ProjectsPage.constants';
 import type { ProjectFilterState } from './ProjectsPage.types';
-import { createInitialProjectFilters } from './ProjectsPage.utils';
+import { createInitialProjectFilters, sortProjects } from './ProjectsPage.utils';
 import { toProjectListRow } from './projectApiTransform';
 
 export function useProjectsPage(member: Member | null) {
@@ -15,6 +19,7 @@ export function useProjectsPage(member: Member | null) {
   );
   const [searchInput, setSearchInput] = useState('');
   const [appliedSearch, setAppliedSearch] = useState('');
+  const [sortState, setSortState] = useState(PROJECTS_DEFAULT_SORT);
   const [pageSize, setPageSize] = useState<number>(PROJECTS_DEFAULT_PAGE_SIZE);
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -45,7 +50,10 @@ export function useProjectsPage(member: Member | null) {
     }),
     [query.data],
   );
-  const projects = pagedProjects.items;
+  const projects = useMemo(
+    () => sortProjects(pagedProjects.items, sortState),
+    [pagedProjects.items, sortState],
+  );
   const totalProjects = pagedProjects.totalCount;
   const totalPages = Math.max(1, Math.ceil(totalProjects / pageSize));
   const currentPageSafe = Math.min(currentPage, totalPages);
@@ -84,6 +92,8 @@ export function useProjectsPage(member: Member | null) {
     setFilterDraft,
     setPageSize,
     setSearchInput,
+    setSortState,
+    sortState,
     totalPages,
     totalProjects,
   };
