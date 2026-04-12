@@ -2947,6 +2947,82 @@ begin
 end;
 $$;
 
+drop function if exists public.admin_replace_cost_group_usage(uuid, uuid);
+
+create or replace function public.admin_replace_cost_group_usage(
+  p_old_cost_group_id uuid,
+  p_next_cost_group_id uuid,
+  p_drop_existing boolean default false
+)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_old_cost_group_id uuid;
+  v_next_cost_group_id uuid;
+  v_next_cost_group_active boolean;
+begin
+  if not public.current_user_is_admin() then
+    raise exception 'admin only';
+  end if;
+
+  if p_old_cost_group_id is null or p_next_cost_group_id is null then
+    raise exception 'cost_group ids required';
+  end if;
+
+  if p_old_cost_group_id = p_next_cost_group_id then
+    raise exception 'next cost_group must be different';
+  end if;
+
+  select id
+  into v_old_cost_group_id
+  from public.cost_groups
+  where id = p_old_cost_group_id;
+
+  if v_old_cost_group_id is null then
+    raise exception 'old cost_group not found';
+  end if;
+
+  select id, is_active
+  into v_next_cost_group_id, v_next_cost_group_active
+  from public.cost_groups
+  where id = p_next_cost_group_id;
+
+  if v_next_cost_group_id is null then
+    raise exception 'next cost_group not found';
+  end if;
+
+  if v_next_cost_group_active is not true then
+    raise exception 'next cost_group must be active';
+  end if;
+
+  update public.service_groups
+  set
+    cost_group_id = p_next_cost_group_id,
+    updated_at = timezone('utc', now())
+  where cost_group_id = p_old_cost_group_id;
+
+  update public.tasks
+  set
+    cost_group_id = p_next_cost_group_id,
+    updated_at = timezone('utc', now())
+  where cost_group_id = p_old_cost_group_id;
+
+  if p_drop_existing then
+    delete from public.cost_groups
+    where id = p_old_cost_group_id;
+  else
+    update public.cost_groups
+    set
+      is_active = false,
+      updated_at = timezone('utc', now())
+    where id = p_old_cost_group_id;
+  end if;
+end;
+$$;
+
 create or replace function public.admin_reorder_service_groups(
   p_service_group_ids uuid[]
 )
@@ -3199,6 +3275,7 @@ grant execute on function public.admin_reorder_task_types(uuid[]) to authenticat
 grant execute on function public.admin_reorder_platforms(uuid[]) to authenticated;
 grant execute on function public.admin_replace_platform_usage(uuid, uuid, boolean) to authenticated;
 grant execute on function public.admin_reorder_cost_groups(uuid[]) to authenticated;
+grant execute on function public.admin_replace_cost_group_usage(uuid, uuid, boolean) to authenticated;
 grant execute on function public.admin_reorder_service_groups(uuid[]) to authenticated;
 grant execute on function public.admin_replace_service_group_usage(uuid, uuid, boolean) to authenticated;
 grant execute on function public.admin_get_member_task_count(uuid) to authenticated;

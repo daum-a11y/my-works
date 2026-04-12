@@ -73,6 +73,11 @@ export interface AdminDataClient {
   saveCostGroupAdmin(payload: AdminCostGroupPayload): Promise<ApiRecord>;
   reorderCostGroups(payload: AdminReorderPayload): Promise<void>;
   deleteCostGroupAdmin(costGroupId: string): Promise<void>;
+  replaceCostGroupUsage(
+    oldCostGroupId: string,
+    nextCostGroupId: string,
+    dropExisting?: boolean,
+  ): Promise<void>;
   savePlatformAdmin(payload: AdminPlatformPayload): Promise<ApiRecord>;
   reorderPlatforms(payload: AdminReorderPayload): Promise<void>;
   deletePlatformAdmin(platformId: string): Promise<void>;
@@ -182,6 +187,9 @@ const unconfiguredAdminClient: AdminDataClient = {
     throw new Error(configurationErrorMessage);
   },
   async deleteCostGroupAdmin() {
+    throw new Error(configurationErrorMessage);
+  },
+  async replaceCostGroupUsage() {
     throw new Error(configurationErrorMessage);
   },
   async savePlatformAdmin() {
@@ -556,6 +564,14 @@ const configuredAdminClient: AdminDataClient = !supabase
       },
       async deleteCostGroupAdmin(costGroupId) {
         const { error } = await supabase.from('cost_groups').delete().eq('id', costGroupId);
+        if (error) throw error;
+      },
+      async replaceCostGroupUsage(oldCostGroupId, nextCostGroupId, dropExisting = false) {
+        const { error } = await supabase.rpc('admin_replace_cost_group_usage', {
+          p_drop_existing: dropExisting,
+          p_old_cost_group_id: oldCostGroupId,
+          p_next_cost_group_id: nextCostGroupId,
+        });
         if (error) throw error;
       },
       async savePlatformAdmin(payload) {

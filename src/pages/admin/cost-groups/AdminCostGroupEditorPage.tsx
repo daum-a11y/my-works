@@ -4,6 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { adminDataClient } from '../../../api/admin';
 import { AdminCostGroupEditorActionRow } from './AdminCostGroupEditorActionRow';
 import { AdminCostGroupEditorForm } from './AdminCostGroupEditorForm';
+import { AdminCostGroupTransferDialog } from './AdminCostGroupTransferDialog';
 import type { AdminCostGroupItem, AdminCostGroupPayload } from '../admin.types';
 import { toAdminCostGroup } from '../adminApiTransform';
 import '../../../styles/pages/AdminPage.scss';
@@ -32,6 +33,9 @@ export function AdminCostGroupEditorPage() {
   const titleRef = useRef<HTMLInputElement | null>(null);
   const isEditMode = Boolean(costGroupId);
   const [draft, setDraft] = useState<AdminCostGroupPayload>(() => createDraft());
+  const [transferDialogOpen, setTransferDialogOpen] = useState(false);
+  const [transferTargetCostGroupId, setTransferTargetCostGroupId] = useState('');
+  const [transferDropExisting, setTransferDropExisting] = useState(false);
 
   const costGroupsQuery = useQuery({
     queryKey: ['admin', 'cost-groups'],
@@ -44,6 +48,10 @@ export function AdminCostGroupEditorPage() {
   );
   const selectedCostGroup = useMemo(
     () => costGroups.find((item) => item.id === costGroupId) ?? null,
+    [costGroupId, costGroups],
+  );
+  const transferTargetCostGroups = useMemo(
+    () => costGroups.filter((item) => item.id !== costGroupId && item.isActive),
     [costGroupId, costGroups],
   );
   const nextDisplayOrder = useMemo(
@@ -68,6 +76,16 @@ export function AdminCostGroupEditorPage() {
   useEffect(() => {
     titleRef.current?.focus();
   }, [costGroupId]);
+
+  useEffect(() => {
+    if (!transferDialogOpen) {
+      return;
+    }
+
+    if (!transferTargetCostGroups.some((item) => item.id === transferTargetCostGroupId)) {
+      setTransferTargetCostGroupId(transferTargetCostGroups[0]?.id ?? '');
+    }
+  }, [transferDialogOpen, transferTargetCostGroupId, transferTargetCostGroups]);
 
   const saveMutation = useMutation({
     mutationFn: async (payload: AdminCostGroupPayload) =>
@@ -104,11 +122,47 @@ export function AdminCostGroupEditorPage() {
     },
   });
 
+  const replaceCostGroupUsageMutation = useMutation({
+    mutationFn: async ({
+      nextCostGroupId,
+      dropExisting,
+    }: {
+      nextCostGroupId: string;
+      dropExisting: boolean;
+    }) => {
+      if (!costGroupId) {
+        throw new Error('전환할 청구그룹이 없습니다.');
+      }
+
+      await adminDataClient.replaceCostGroupUsage(costGroupId, nextCostGroupId, dropExisting);
+    },
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['admin', 'cost-groups'] }),
+        queryClient.invalidateQueries({ queryKey: ['admin', 'service-groups'] }),
+        queryClient.invalidateQueries({ queryKey: ['admin', 'projects'] }),
+        queryClient.invalidateQueries({ queryKey: ['admin', 'task-search'] }),
+        queryClient.invalidateQueries({ queryKey: ['reports'] }),
+        queryClient.invalidateQueries({ queryKey: ['search'] }),
+        queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
+        queryClient.invalidateQueries({ queryKey: ['monitoring-detail'] }),
+        queryClient.invalidateQueries({ queryKey: ['qa-projects'] }),
+        queryClient.invalidateQueries({ queryKey: ['resource'] }),
+      ]);
+      navigate('/admin/cost-group', {
+        replace: true,
+        state: { statusMessage: '청구그룹 연관관계를 전환했습니다.' },
+      });
+    },
+  });
+
   const errorMessage =
     (costGroupsQuery.error instanceof Error && costGroupsQuery.error.message) ||
     (saveMutation.error instanceof Error && saveMutation.error.message) ||
     (deleteMutation.error instanceof Error && deleteMutation.error.message) ||
     '';
+  const transferBlocked = isEditMode && transferTargetCostGroups.length === 0;
+  const transferHelpText = transferBlocked ? '전환할 활성 청구그룹이 없습니다.' : '';
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -125,6 +179,23 @@ export function AdminCostGroupEditorPage() {
     }
 
     await deleteMutation.mutateAsync();
+  };
+
+  const handleTransferOpen = () => {
+    setTransferTargetCostGroupId(transferTargetCostGroups[0]?.id ?? '');
+    setTransferDropExisting(false);
+    setTransferDialogOpen(true);
+  };
+
+  const handleTransferSave = () => {
+    if (!selectedCostGroup || !transferTargetCostGroupId) {
+      return;
+    }
+
+    replaceCostGroupUsageMutation.mutate({
+      nextCostGroupId: transferTargetCostGroupId,
+      dropExisting: transferDropExisting,
+    });
   };
 
   if (costGroupsQuery.isLoading && isEditMode) {
@@ -178,11 +249,34 @@ export function AdminCostGroupEditorPage() {
           <AdminCostGroupEditorActionRow
             isEditMode={isEditMode}
             deletePending={deleteMutation.isPending}
+            transferPending={replaceCostGroupUsageMutation.isPending}
+            transferBlocked={transferBlocked}
+            transferHelpText={transferHelpText}
             savePending={saveMutation.isPending}
             onDelete={() => void handleDelete()}
+            onTransfer={handleTransferOpen}
           />
         </form>
       </section>
+      {selectedCostGroup ? (
+        <AdminCostGroupTransferDialog
+          isOpen={transferDialogOpen}
+          isPending={replaceCostGroupUsageMutation.isPending}
+          sourceCostGroup={selectedCostGroup}
+          targetCostGroups={transferTargetCostGroups}
+          targetCostGroupId={transferTargetCostGroupId}
+          dropExisting={transferDropExisting}
+          errorMessage={
+            replaceCostGroupUsageMutation.error instanceof Error
+              ? replaceCostGroupUsageMutation.error.message
+              : ''
+          }
+          onTargetCostGroupChange={setTransferTargetCostGroupId}
+          onDropExistingChange={setTransferDropExisting}
+          onClose={() => setTransferDialogOpen(false)}
+          onSave={handleTransferSave}
+        />
+      ) : null}
     </section>
   );
 }
