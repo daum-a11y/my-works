@@ -92,7 +92,12 @@ export function AdminMembersPage() {
         }
       />
 
-      <AdminMembersResultsTable loading={page.loading} members={page.pagedMembers} />
+      <AdminMembersResultsTable
+        loading={page.loading}
+        members={page.pagedMembers}
+        sortState={page.sortState}
+        onSortChange={page.setSortState}
+      />
     </section>
   );
 }

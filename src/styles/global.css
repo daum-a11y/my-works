@@ -297,4 +297,9 @@ td.table-empty-row.table-empty-row .table-empty-row__description,
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
   }
+
+  .global-loading-spinner__indicator {
+    animation-duration: 1.6s !important;
+    animation-iteration-count: infinite !important;
+  }
 }
