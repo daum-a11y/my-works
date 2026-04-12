@@ -446,6 +446,14 @@ def build_dump():
         task_type_rows.append(task)
         task_type_by_pair[pair] = task
         task_type_requires_by_type1.setdefault(type1, set()).add(requires_service_group)
+
+    project_task_type_by_type1 = {}
+    for task_type in sorted(
+        task_type_rows,
+        key=lambda item: (item["display_order"], item["type2"], item["id"]),
+    ):
+        if task_type["requires_service_group"]:
+            project_task_type_by_type1.setdefault(task_type["type1"], task_type)
     cost_group_rows = [
         {
             "id": stable_uuid("cost-group", 1),
@@ -554,9 +562,26 @@ def build_dump():
     platform_by_name = {}
     platform_order = {}
     for row in projects:
-        name = blank_to_none(row["pj_platform"]) or "미분류"
+        name = blank_to_none(row["pj_platform"])
+        if name is None:
+            continue
         platform_order.setdefault(name, int(row["pj_num"]))
         platform_order[name] = min(platform_order[name], int(row["pj_num"]))
+    next_platform_order = max(platform_order.values(), default=0) + 1
+    for row in tasks:
+        name = blank_to_none(row["task_platform"])
+        if name is None:
+            continue
+        pair = (
+            blank_to_none(row["task_type1"]) or "미분류",
+            normalize_task_type2(row["task_type2"]),
+        )
+        task_type = task_type_by_pair.get(pair)
+        if not task_type or not task_type["requires_service_group"]:
+            continue
+        platform_order.setdefault(name, next_platform_order)
+        if platform_order[name] == next_platform_order:
+            next_platform_order += 1
     for name, display_order in sorted(platform_order.items(), key=lambda item: item[1]):
         platform = {
             "id": stable_uuid("platform", name),
@@ -577,8 +602,12 @@ def build_dump():
     project_name_service_index = {}
     for row in projects:
         source_project_num = int(row["pj_num"])
+        source_task_type1 = blank_to_none(row["pj_group_type1"]) or ""
+        project_task_type = project_task_type_by_type1.get(source_task_type1)
+        platform_name = blank_to_none(row["pj_platform"])
+        if project_task_type is None or platform_name is None:
+            continue
         name = blank_to_none(row["pj_name"]) or f"[프로젝트 {source_project_num}]"
-        platform_name = blank_to_none(row["pj_platform"]) or "미분류"
         service_name = normalize_service_name(
             row["pj_sev_group"],
             row["pj_sev_name"],
@@ -594,10 +623,11 @@ def build_dump():
             "raw_pj_sev_name": blank_to_none(row["pj_sev_name"]),
             "raw_pj_reporter": blank_to_none(row["pj_reporter"]),
             "created_by_member_id": member_by_account.get((blank_to_none(row["pj_reporter"]) or "").lower(), {}).get("id"),
-            "project_type1": blank_to_none(row["pj_group_type1"]) or "",
+            "task_type_id": project_task_type["id"],
+            "source_task_type1": source_task_type1,
             "name": name,
             "platform_id": platform_by_name[platform_name]["id"],
-            "platform": platform_name,
+            "source_platform_name": platform_name,
             "service_group_id": service_group_by_name.get(service_name, {}).get("id"),
             "report_url": blank_to_none(row["pj_page_report_url"]) or "",
             "reporter_member_id": member_by_account.get((blank_to_none(row["pj_reporter"]) or "").lower(), {}).get("id"),
@@ -744,11 +774,6 @@ def build_dump():
     for row in tasks:
         project_num = int(row["task_pj_report_num"]) if row["task_pj_report_num"] not in (None, 0, "0", "") else None
         page_num = int(row["task_page_report_num"]) if row["task_page_report_num"] not in (None, 0, "0", "") else None
-        project = project_by_source.get(int(project_num)) if project_num is not None else None
-        page = page_by_source.get(int(page_num)) if page_num is not None else None
-        if page is not None:
-            project = page_project_by_id.get(page["id"], project)
-
         raw_task_platform = blank_to_none(row["task_platform"])
         raw_task_svc_group = blank_to_none(row["task_svc_group"])
         raw_task_svc_name = blank_to_none(row["task_svc_name"])
@@ -775,23 +800,37 @@ def build_dump():
         if member is None:
             continue
 
-        if project is None and normalized_project_name:
+        project = None
+        page = None
+        if is_project_task:
+            project = project_by_source.get(int(project_num)) if project_num is not None else None
+            page = page_by_source.get(int(page_num)) if page_num is not None else None
+            if page is not None:
+                project = page_project_by_id.get(page["id"], project)
+
+        if is_project_task and project is None and normalized_project_name:
             project = unique_project_by_name_platform.get((normalized_project_name, task_platform_name))
-        if project is None and normalized_project_name:
+        if is_project_task and project is None and normalized_project_name:
             project = first_project_by_name_platform.get((normalized_project_name, task_platform_name))
-        if project is None and normalized_project_name:
+        if is_project_task and project is None and normalized_project_name:
             project = unique_project_by_name_service.get((normalized_project_name, task_service_name))
-        if project is None and normalized_project_name:
+        if is_project_task and project is None and normalized_project_name:
             project = first_project_by_name_service.get((normalized_project_name, task_service_name))
-        if project is None and normalized_project_name:
+        if is_project_task and project is None and normalized_project_name:
             project = unique_project_by_name.get(normalized_project_name)
-        if project is None and normalized_project_name:
+        if is_project_task and project is None and normalized_project_name:
             project = first_project_by_name.get(normalized_project_name)
         synthetic_project_name = normalized_project_name
         if not synthetic_project_name and is_project_task and has_project_context:
             synthetic_project_name = "미분류"
 
-        if project is None and synthetic_project_name and synthetic_project_name not in project_name_index:
+        if (
+            is_project_task
+            and project is None
+            and raw_task_platform is not None
+            and synthetic_project_name
+            and synthetic_project_name not in project_name_index
+        ):
             synthetic_key = (synthetic_project_name, task_platform_name, task_service_name)
             project = synthetic_project_by_key.get(synthetic_key)
             if project is None:
@@ -806,10 +845,11 @@ def build_dump():
                     "raw_pj_sev_name": raw_task_svc_name,
                     "raw_pj_reporter": blank_to_none(row["task_user"]),
                     "created_by_member_id": member["id"],
-                    "project_type1": pair[0] if is_project_task else "",
+                    "task_type_id": task_type["id"],
+                    "source_task_type1": pair[0],
                     "name": synthetic_project_name,
                     "platform_id": platform_by_name.get(task_platform_name, {}).get("id"),
-                    "platform": task_platform_name,
+                    "source_platform_name": task_platform_name,
                     "service_group_id": service_group_by_name.get(task_service_name, {}).get("id"),
                     "report_url": "",
                     "reporter_member_id": member["id"],
@@ -823,39 +863,39 @@ def build_dump():
                 project_rows.append(project)
                 synthetic_project_by_key[synthetic_key] = project
 
-        if page is None and project is not None and task_page_url:
+        if is_project_task and page is None and project is not None and task_page_url:
             page = unique_page_by_project_url.get((project["id"], task_page_url))
-        if page is None and project is not None and task_page_url:
+        if is_project_task and page is None and project is not None and task_page_url:
             page = first_page_by_project_url.get((project["id"], task_page_url))
             if page is not None:
                 project = page_project_by_id.get(page["id"], project)
 
-        if page is None and project is not None and task_page:
+        if is_project_task and page is None and project is not None and task_page:
             page = unique_page_by_project_title.get((project["id"], task_page))
-        if page is None and project is not None and task_page:
+        if is_project_task and page is None and project is not None and task_page:
             page = first_page_by_project_title.get((project["id"], task_page))
             if page is not None:
                 project = page_project_by_id.get(page["id"], project)
 
-        if page is None and task_page_url:
+        if is_project_task and page is None and task_page_url:
             page = unique_page_by_url.get(task_page_url)
-        if page is None and task_page_url:
+        if is_project_task and page is None and task_page_url:
             page = first_page_by_url.get(task_page_url)
             if page is not None:
                 project = page_project_by_id.get(page["id"], project)
 
-        if page is None and task_page:
+        if is_project_task and page is None and task_page:
             page = unique_page_by_title.get(task_page)
-        if page is None and task_page:
+        if is_project_task and page is None and task_page:
             page = first_page_by_title.get(task_page)
             if page is not None:
                 project = page_project_by_id.get(page["id"], project)
 
-        if page is None and (task_page or task_page_url):
+        if is_project_task and page is None and (task_page or task_page_url):
             page = unique_page_by_exact_tuple.get((normalized_project_name, task_page or "", task_page_url or ""))
             if page is not None:
                 project = page_project_by_id.get(page["id"], project)
-        if page is None and project is not None and (page_num is not None or task_page or task_page_url):
+        if is_project_task and page is None and project is not None and (page_num is not None or task_page or task_page_url):
             synthetic_page_key = (
                 project["id"],
                 str(page_num) if page_num is not None else "",
@@ -1037,8 +1077,9 @@ def build_dump():
                     "source_kind": project.get("source_kind"),
                     "source_project_ref": project.get("source_project_ref"),
                     "name": project["name"],
-                    "platform": project["platform"],
-                    "project_type1": project["project_type1"],
+                    "platform": project.get("source_platform_name"),
+                    "task_type_id": project.get("task_type_id"),
+                    "task_type1": project.get("source_task_type1"),
                     "raw_pj_sev_group": project.get("raw_pj_sev_group"),
                     "raw_pj_sev_name": project.get("raw_pj_sev_name"),
                     "raw_pj_reporter": project.get("raw_pj_reporter"),
@@ -1131,10 +1172,9 @@ def build_dump():
         [
             "id",
             "created_by_member_id",
-            "project_type1",
+            "task_type_id",
             "name",
             "platform_id",
-            "platform",
             "service_group_id",
             "report_url",
             "reporter_member_id",

@@ -247,9 +247,9 @@ create table if not exists public.projects (
   id uuid primary key default gen_random_uuid(),
   created_by_member_id uuid references public.members(id),
   updated_by_member_id uuid references public.members(id),
-  task_type_id uuid references public.task_types(id),
+  task_type_id uuid not null references public.task_types(id),
   name text not null,
-  platform_id uuid references public.platforms(id),
+  platform_id uuid not null references public.platforms(id),
   service_group_id uuid references public.service_groups(id),
   report_url text not null default '',
   reporter_member_id uuid references public.members(id),
@@ -260,39 +260,6 @@ create table if not exists public.projects (
   created_at timestamptz not null default timezone('utc', now()),
   updated_at timestamptz not null default timezone('utc', now())
 );
-
-alter table public.projects
-  add column if not exists task_type_id uuid references public.task_types(id);
-
-do $$
-begin
-  if exists (
-    select 1
-    from information_schema.columns
-    where table_schema = 'public'
-      and table_name = 'projects'
-      and column_name = 'project_type1'
-  ) then
-    update public.projects project
-    set task_type_id = matched.id
-    from lateral (
-      select task_type.id
-      from public.task_types task_type
-      where trim(task_type.type1) = trim(project.project_type1)
-        and task_type.requires_service_group = true
-      order by task_type.display_order asc, task_type.type2 asc, task_type.id asc
-      limit 1
-    ) matched
-    where project.task_type_id is null;
-  end if;
-end;
-$$;
-
-alter table public.projects
-  drop column if exists project_type1;
-
-alter table public.projects
-  drop column if exists platform;
 
 create table if not exists public.project_pages (
   id uuid primary key default gen_random_uuid(),
