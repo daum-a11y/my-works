@@ -401,15 +401,17 @@ export interface ProjectStatsRow {
   platform: string | null;
   costGroupName: string | null;
   serviceGroupName: string | null;
+  serviceName: string | null;
   reportUrl: string | null;
+  reporterAccountId: string | null;
+  reporterName: string | null;
   reporterDisplay: string | null;
+  reviewerAccountId: string | null;
+  reviewerName: string | null;
   reviewerDisplay: string | null;
   startDate: string;
   endDate: string;
   subtaskCount: number;
-  untouchedSubtaskCount: number;
-  partialSubtaskCount: number;
-  completedSubtaskCount: number;
 }
 
 export interface ProjectSubtaskStatsRow {

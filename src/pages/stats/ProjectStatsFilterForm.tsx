@@ -2,34 +2,28 @@ import type { FormEvent } from 'react';
 import { PageFilterBar } from '../../components/shared/PageFilterBar';
 import { PageFilterField } from '../../components/shared/PageFilterField';
 
-import type { ProjectStatsPeriodBasis } from './ProjectStatsPage.types';
-
 interface ProjectStatsFilterFormProps {
   draftStartMonth: string;
   draftEndMonth: string;
   draftTaskType1: string;
-  draftPeriodBasis: ProjectStatsPeriodBasis;
   taskType1Options: string[];
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
   onReset: () => void;
   onDraftStartMonthChange: (value: string) => void;
   onDraftEndMonthChange: (value: string) => void;
   onDraftTaskType1Change: (value: string) => void;
-  onDraftPeriodBasisChange: (value: ProjectStatsPeriodBasis) => void;
 }
 
 export function ProjectStatsFilterForm({
   draftStartMonth,
   draftEndMonth,
   draftTaskType1,
-  draftPeriodBasis,
   taskType1Options,
   onSubmit,
   onReset,
   onDraftStartMonthChange,
   onDraftEndMonthChange,
   onDraftTaskType1Change,
-  onDraftPeriodBasisChange,
 }: ProjectStatsFilterFormProps) {
   return (
     <form onSubmit={onSubmit}>
@@ -78,16 +72,6 @@ export function ProjectStatsFilterForm({
                 {option}
               </option>
             ))}
-          </select>
-        </PageFilterField>
-        <PageFilterField className={'stats-page__filter-field'} label="기간 기준">
-          <select
-            aria-label="프로젝트 통계 기간 기준"
-            value={draftPeriodBasis}
-            onChange={(event) => onDraftPeriodBasisChange(event.target.value as ProjectStatsPeriodBasis)}
-          >
-            <option value="project">프로젝트</option>
-            <option value="subtask">서브태스크</option>
           </select>
         </PageFilterField>
       </PageFilterBar>

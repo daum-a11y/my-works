@@ -79,7 +79,11 @@ export function ProjectEditorSubtasksSection({
             <thead>
               <tr>
                 <th scope="col">과업명</th>
-                <th scope="col">보고서<br/>URL</th>
+                <th scope="col">
+                  보고서
+                  <br />
+                  URL
+                </th>
                 <th scope="col">과업월</th>
                 <th scope="col">담당자</th>
                 <th scope="col">상태</th>
@@ -394,11 +398,6 @@ export function ProjectEditorSubtasksSection({
       ) : (
         <EmptyState
           message={subtaskAddOpen ? '추가할 과업 정보를 입력하십시오.' : '등록된 과업이 없습니다.'}
-          description={
-            subtaskAddOpen
-              ? '과업명과 URL 입력 후 추가할 수 있습니다.'
-              : '과업 추가로 새 과업을 등록하십시오.'
-          }
         />
       )}
     </section>

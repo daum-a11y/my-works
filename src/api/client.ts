@@ -79,14 +79,6 @@ export interface DataClient {
     startMonth: string;
     endMonth: string;
     taskType1: string | null;
-    periodBasis: 'project' | 'subtask';
-    sortKey: string;
-    sortDirection: 'asc' | 'desc';
-  }): Promise<ApiRecord[]>;
-  getMonitoringStatsRows(filters: {
-    startMonth: string;
-    endMonth: string;
-    taskType1: string | null;
     sortKey: string;
     sortDirection: 'asc' | 'desc';
   }): Promise<ApiRecord[]>;
@@ -218,9 +210,6 @@ const unconfiguredClient: DataClient = {
     throw new Error(configurationErrorMessage);
   },
   async getProjectStatsRows() {
-    throw new Error(configurationErrorMessage);
-  },
-  async getMonitoringStatsRows() {
     throw new Error(configurationErrorMessage);
   },
 };
@@ -408,7 +397,7 @@ const configuredClient: DataClient = !supabase
         if (error) throw error;
         return (data ?? []) as ApiRecord[];
       },
-      async getProjectSubtasksByProjectIds(projectIds, options) {
+      async getProjectSubtasksByProjectIds(projectIds) {
         const { data, error } = await supabase
           .from('project_subtasks_public_view')
           .select('*')
@@ -610,18 +599,6 @@ const configuredClient: DataClient = !supabase
       },
       async getProjectStatsRows(filters) {
         const { data, error } = await supabase.rpc('get_project_stats_rows', {
-          p_start_month: filters.startMonth,
-          p_end_month: filters.endMonth,
-          p_task_type1: filters.taskType1,
-          p_period_basis: filters.periodBasis,
-          p_sort_key: filters.sortKey,
-          p_sort_direction: filters.sortDirection,
-        });
-        if (error) throw error;
-        return (data ?? []) as ApiRecord[];
-      },
-      async getMonitoringStatsRows(filters) {
-        const { data, error } = await supabase.rpc('get_monitoring_stats_rows', {
           p_start_month: filters.startMonth,
           p_end_month: filters.endMonth,
           p_task_type1: filters.taskType1,

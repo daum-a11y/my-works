@@ -1,5 +1,4 @@
 export type StatsSummaryView = 'stats-page__chart' | 'stats-page__table';
-export type ProjectStatsPeriodBasis = 'project' | 'subtask';
 
 export type ProjectStatsSortKey =
   | 'month'
@@ -9,9 +8,8 @@ export type ProjectStatsSortKey =
   | 'projectName'
   | 'platform'
   | 'subtaskCount'
-  | 'untouchedSubtaskCount'
-  | 'partialSubtaskCount'
-  | 'completedSubtaskCount';
+  | 'reporterAccountId'
+  | 'reviewerAccountId';
 
 export interface ProjectStatsSortState {
   key: ProjectStatsSortKey;
@@ -21,6 +19,6 @@ export interface ProjectStatsSortState {
 export interface ProjectStatsMonthlyRow {
   monthKey: string;
   label: string;
-  projectCount: number;
-  subtaskCount: number;
+  totalProjectCount: number;
+  projectCountByType1: Record<string, number>;
 }

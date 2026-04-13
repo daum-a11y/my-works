@@ -14,12 +14,12 @@ $$;
 drop function if exists public.get_project_stats_rows();
 drop function if exists public.get_project_stats_rows(text, text, text, text, text);
 drop function if exists public.get_project_stats_rows(text, text, text, text, text, text);
+drop function if exists public.get_project_stats_rows(text, text, text, text);
 
 create or replace function public.get_project_stats_rows(
   p_start_month text,
   p_end_month text,
   p_task_type1 text default null,
-  p_period_basis text default 'project',
   p_sort_key text default 'month',
   p_sort_direction text default 'desc'
 )
@@ -30,15 +30,15 @@ returns table (
   platform text,
   cost_group_name text,
   service_group_name text,
+  service_name text,
   report_url text,
-  reporter_display text,
-  reviewer_display text,
+  reporter_account_id text,
+  reporter_name text,
+  reviewer_account_id text,
+  reviewer_name text,
   start_date date,
   end_date date,
-  subtask_count bigint,
-  untouched_subtask_count bigint,
-  partial_subtask_count bigint,
-  completed_subtask_count bigint
+  subtask_count bigint
 )
 language sql
 stable
@@ -47,35 +47,9 @@ set search_path = public
 as $$
   with params as (
     select
-      coalesce(nullif(trim(p_period_basis), ''), 'project') as period_basis,
       to_date(p_start_month || '-01', 'YYYY-MM-DD') as start_date,
       (to_date(p_end_month || '-01', 'YYYY-MM-DD') + interval '1 month' - interval '1 day')::date
         as end_date
-  ),
-  subtask_base as (
-    select
-      pp.*,
-      case
-        when regexp_replace(coalesce(pp.task_month, ''), '\D', '', 'g') ~ '^\d{4}$'
-          then to_date('20' || regexp_replace(pp.task_month, '\D', '', 'g') || '01', 'YYYYMMDD')
-        when regexp_replace(coalesce(pp.task_month, ''), '\D', '', 'g') ~ '^\d{6}$'
-          then to_date(regexp_replace(pp.task_month, '\D', '', 'g') || '01', 'YYYYMMDD')
-        when regexp_replace(coalesce(pp.task_month, ''), '\D', '', 'g') ~ '^\d{8}$'
-          then to_date(regexp_replace(pp.task_month, '\D', '', 'g'), 'YYYYMMDD')
-        else null
-      end as task_month_date
-    from public.project_subtasks pp
-  ),
-  selected_subtasks as (
-    select sb.*
-    from subtask_base sb
-    cross join params
-    where params.period_basis <> 'subtask'
-      or (
-        sb.task_month_date is not null
-        and sb.task_month_date >= params.start_date
-        and sb.task_month_date <= params.end_date
-      )
   )
   select
     p.id as project_id,
@@ -84,18 +58,15 @@ as $$
     nullif(pl.name, '') as platform,
     nullif(cg.name, '') as cost_group_name,
     nullif(public.resolve_service_group_name(sg.service_group_name, sg.name), '') as service_group_name,
+    nullif(public.resolve_service_name(sg.service_name, sg.name), '') as service_name,
     nullif(p.report_url, '') as report_url,
-    nullif(concat_ws(' ', nullif(reporter.account_id, ''), nullif(reporter.name, '')), '') as reporter_display,
-    nullif(concat_ws(' ', nullif(reviewer.account_id, ''), nullif(reviewer.name, '')), '') as reviewer_display,
+    nullif(reporter.account_id, '') as reporter_account_id,
+    nullif(reporter.name, '') as reporter_name,
+    nullif(reviewer.account_id, '') as reviewer_account_id,
+    nullif(reviewer.name, '') as reviewer_name,
     p.start_date,
     p.end_date,
-    count(pp.id)::bigint as subtask_count,
-    coalesce(sum(case when pp.task_status = '미수정' then 1 else 0 end), 0)::bigint
-      as untouched_subtask_count,
-    coalesce(sum(case when pp.task_status = '일부 수정' then 1 else 0 end), 0)::bigint
-      as partial_subtask_count,
-    coalesce(sum(case when pp.task_status = '전체 수정' then 1 else 0 end), 0)::bigint
-      as completed_subtask_count
+    count(pp.id)::bigint as subtask_count
   from public.projects p
   cross join params
   left join public.task_types tt on tt.id = p.task_type_id
@@ -104,23 +75,10 @@ as $$
   left join public.cost_groups cg on cg.id = sg.cost_group_id
   left join public.members reporter on reporter.id = p.reporter_member_id
   left join public.members reviewer on reviewer.id = p.reviewer_member_id
-  left join selected_subtasks pp on pp.project_id = p.id
+  left join public.project_subtasks pp on pp.project_id = p.id
   where public.current_member_id() is not null
-    and (
-      (
-        params.period_basis <> 'subtask'
-        and p.end_date >= params.start_date
-        and p.end_date <= params.end_date
-      )
-      or (
-        params.period_basis = 'subtask'
-        and exists (
-          select 1
-          from selected_subtasks ps
-          where ps.project_id = p.id
-        )
-      )
-    )
+    and p.end_date >= params.start_date
+    and p.end_date <= params.end_date
     and (nullif(trim(coalesce(p_task_type1, '')), '') is null or tt.type1 = p_task_type1)
   group by
     p.id,
@@ -129,30 +87,18 @@ as $$
     pl.name,
     cg.name,
     sg.service_group_name,
+    sg.service_name,
     sg.name,
     p.report_url,
     reporter.account_id,
     reporter.name,
     reviewer.account_id,
     reviewer.name,
-    params.period_basis,
     p.start_date,
     p.end_date
   order by
-    case
-      when p_sort_key = 'month' and lower(p_sort_direction) = 'asc'
-        then case
-          when params.period_basis = 'subtask' then min(pp.task_month_date)
-          else p.end_date
-        end
-    end asc,
-    case
-      when p_sort_key = 'month' and lower(p_sort_direction) <> 'asc'
-        then case
-          when params.period_basis = 'subtask' then max(pp.task_month_date)
-          else p.end_date
-        end
-    end desc,
+    case when p_sort_key = 'month' and lower(p_sort_direction) = 'asc' then p.end_date end asc,
+    case when p_sort_key = 'month' and lower(p_sort_direction) <> 'asc' then p.end_date end desc,
     case when p_sort_key = 'type1' and lower(p_sort_direction) = 'asc' then tt.type1 end asc,
     case when p_sort_key = 'type1' and lower(p_sort_direction) <> 'asc' then tt.type1 end desc,
     case when p_sort_key = 'costGroupName' and lower(p_sort_direction) = 'asc' then cg.name end asc,
@@ -165,21 +111,25 @@ as $$
     case when p_sort_key = 'projectName' and lower(p_sort_direction) <> 'asc' then p.name end desc,
     case when p_sort_key = 'platform' and lower(p_sort_direction) = 'asc' then pl.name end asc,
     case when p_sort_key = 'platform' and lower(p_sort_direction) <> 'asc' then pl.name end desc,
+    case
+      when p_sort_key = 'reporterAccountId' and lower(p_sort_direction) = 'asc'
+        then nullif(reporter.account_id, '')
+    end asc,
+    case
+      when p_sort_key = 'reporterAccountId' and lower(p_sort_direction) <> 'asc'
+        then nullif(reporter.account_id, '')
+    end desc,
+    case
+      when p_sort_key = 'reviewerAccountId' and lower(p_sort_direction) = 'asc'
+        then nullif(reviewer.account_id, '')
+    end asc,
+    case
+      when p_sort_key = 'reviewerAccountId' and lower(p_sort_direction) <> 'asc'
+        then nullif(reviewer.account_id, '')
+    end desc,
     case when p_sort_key = 'subtaskCount' and lower(p_sort_direction) = 'asc' then count(pp.id) end asc,
     case when p_sort_key = 'subtaskCount' and lower(p_sort_direction) <> 'asc' then count(pp.id) end desc,
-    case when p_sort_key = 'untouchedSubtaskCount' and lower(p_sort_direction) = 'asc'
-      then coalesce(sum(case when pp.task_status = '미수정' then 1 else 0 end), 0) end asc,
-    case when p_sort_key = 'untouchedSubtaskCount' and lower(p_sort_direction) <> 'asc'
-      then coalesce(sum(case when pp.task_status = '미수정' then 1 else 0 end), 0) end desc,
-    case when p_sort_key = 'partialSubtaskCount' and lower(p_sort_direction) = 'asc'
-      then coalesce(sum(case when pp.task_status = '일부 수정' then 1 else 0 end), 0) end asc,
-    case when p_sort_key = 'partialSubtaskCount' and lower(p_sort_direction) <> 'asc'
-      then coalesce(sum(case when pp.task_status = '일부 수정' then 1 else 0 end), 0) end desc,
-    case when p_sort_key = 'completedSubtaskCount' and lower(p_sort_direction) = 'asc'
-      then coalesce(sum(case when pp.task_status = '전체 수정' then 1 else 0 end), 0) end asc,
-    case when p_sort_key = 'completedSubtaskCount' and lower(p_sort_direction) <> 'asc'
-      then coalesce(sum(case when pp.task_status = '전체 수정' then 1 else 0 end), 0) end desc,
-    case when params.period_basis = 'subtask' then max(pp.task_month_date) else p.end_date end desc,
+    p.end_date desc,
     p.name asc,
     p.id desc
 $$;
@@ -3673,7 +3623,7 @@ grant execute on function public.get_resource_service_summary_years(uuid) to aut
 grant execute on function public.get_resource_service_summary_by_year(uuid, text) to authenticated;
 grant execute on function public.get_resource_month_report(uuid, text) to authenticated;
 grant execute on function public.get_stats() to authenticated;
-grant execute on function public.get_project_stats_rows(text, text, text, text, text, text) to authenticated;
+grant execute on function public.get_project_stats_rows(text, text, text, text, text) to authenticated;
 grant execute on function public.get_monitoring_stats_rows(text, text, text, text, text) to authenticated;
 grant execute on function public.search_tasks_export(uuid, date, date, uuid, uuid, text, text, numeric, numeric, text) to authenticated;
 grant execute on function public.search_tasks_page(uuid, date, date, uuid, uuid, text, text, numeric, numeric, text) to authenticated;

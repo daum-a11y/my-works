@@ -63,7 +63,8 @@ export function buildTaskType1Options(
 }
 
 export function buildProjectTypeOptions(taskTypes: TaskType[], currentValue = '') {
-  return buildTaskType1Options(taskTypes, { currentValue, projectOnly: true });
+  const values = buildTaskType1Options(taskTypes, { currentValue, projectOnly: true });
+  return ['전체', ...values.filter((value) => value !== '전체')];
 }
 
 export function buildTaskTypeOptionsForProjects(taskTypes: TaskType[], currentId = '') {
