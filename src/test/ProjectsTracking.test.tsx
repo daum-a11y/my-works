@@ -191,6 +191,7 @@ describe('Projects routes', () => {
         {
           ...baseProject,
           serviceGroupName: '접근성',
+          serviceName: '접근성 포털',
           reporterDisplay: 'legacy-1(운영 사용자)',
           reviewerDisplay: 'legacy-2(리뷰어)',
           subtaskCount: 1,
@@ -324,6 +325,7 @@ describe('Projects routes', () => {
       'https://example.com/report',
     );
     expect(screen.getByText('내부')).toBeInTheDocument();
+    expect(screen.getByText('접근성 포털')).toBeInTheDocument();
     expect(screen.getByText('legacy-1(운영 사용자)')).toBeInTheDocument();
     expect(screen.getByText('legacy-2(리뷰어)')).toBeInTheDocument();
   });
@@ -396,6 +398,7 @@ describe('Projects routes', () => {
       costGroupName: '내부',
       serviceGroupId: 'svc-1',
       serviceGroupName: '접근성',
+      serviceName: '접근성 포털',
       reportUrl: 'https://example.com/report-a',
       reporterMemberId: 'member-1',
       reviewerMemberId: 'member-2',
@@ -412,6 +415,7 @@ describe('Projects routes', () => {
       name: '베타',
       costGroupName: '외부',
       serviceGroupName: '검색',
+      serviceName: '통합검색',
       reportUrl: 'https://example.com/report-b',
       startDate: '2026-02-01',
       endDate: '2026-02-28',

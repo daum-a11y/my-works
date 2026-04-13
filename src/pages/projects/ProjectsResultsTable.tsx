@@ -29,22 +29,6 @@ export function ProjectsResultsTable({
         <caption className="sr-only">프로젝트 리스트</caption>
         <thead>
           <tr>
-            <th scope="col" aria-sort={getAriaSort('taskType1')}>
-              <SortableTableHeaderButton
-                label="타입1"
-                sortKey="taskType1"
-                sortState={sortState}
-                onChange={onSortChange}
-              />
-            </th>
-            <th scope="col" aria-sort={getAriaSort('platform')}>
-              <SortableTableHeaderButton
-                label="플랫폼"
-                sortKey="platform"
-                sortState={sortState}
-                onChange={onSortChange}
-              />
-            </th>
             <th scope="col" aria-sort={getAriaSort('costGroupName')}>
               <SortableTableHeaderButton
                 label="청구그룹"
@@ -53,10 +37,34 @@ export function ProjectsResultsTable({
                 onChange={onSortChange}
               />
             </th>
+            <th scope="col" aria-sort={getAriaSort('taskType1')}>
+              <SortableTableHeaderButton
+                label="타입1"
+                sortKey="taskType1"
+                sortState={sortState}
+                onChange={onSortChange}
+              />
+            </th>
             <th scope="col" aria-sort={getAriaSort('serviceGroupName')}>
               <SortableTableHeaderButton
                 label="서비스 그룹"
                 sortKey="serviceGroupName"
+                sortState={sortState}
+                onChange={onSortChange}
+              />
+            </th>
+            <th scope="col" aria-sort={getAriaSort('serviceName')}>
+              <SortableTableHeaderButton
+                label="서비스명"
+                sortKey="serviceName"
+                sortState={sortState}
+                onChange={onSortChange}
+              />
+            </th>
+            <th scope="col" aria-sort={getAriaSort('platform')}>
+              <SortableTableHeaderButton
+                label="플랫폼"
+                sortKey="platform"
                 sortState={sortState}
                 onChange={onSortChange}
               />
@@ -120,10 +128,11 @@ export function ProjectsResultsTable({
         <tbody>
           {projects.map((project) => (
             <tr key={project.id}>
-              <td>{project.taskType1 || '-'}</td>
-              <td>{project.platform || '-'}</td>
               <td>{project.costGroupName || '-'}</td>
+              <td>{project.taskType1 || '-'}</td>
               <td>{project.serviceGroupName || '-'}</td>
+              <td>{project.serviceName || '-'}</td>
+              <td>{project.platform || '-'}</td>
               <td>{project.name}</td>
               <td>{project.subtaskCount}</td>
               <td>
@@ -156,7 +165,7 @@ export function ProjectsResultsTable({
           ))}
           {!projects.length ? (
             <TableEmptyRow
-              colSpan={12}
+              colSpan={13}
               message="검색 조건에 맞는 프로젝트가 없습니다."
               description="검색어 또는 기간을 조정하십시오."
             />

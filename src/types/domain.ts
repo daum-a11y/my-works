@@ -99,6 +99,7 @@ export interface ProjectListRow {
   costGroupName: string | null;
   serviceGroupId: string | null;
   serviceGroupName: string | null;
+  serviceName: string | null;
   reportUrl: string | null;
   reporterMemberId: string | null;
   reporterDisplay: string | null;

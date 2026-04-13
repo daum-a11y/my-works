@@ -8,6 +8,7 @@ export type ProjectsSortKey =
   | 'platform'
   | 'costGroupName'
   | 'serviceGroupName'
+  | 'serviceName'
   | 'name'
   | 'subtaskCount'
   | 'startDate'

@@ -40,6 +40,10 @@ export function toProjectListRow(record: ApiRecord): ProjectListRow {
       readValue(record, 'service_group_name', 'serviceGroupName') == null
         ? null
         : String(readValue(record, 'service_group_name', 'serviceGroupName')),
+    serviceName:
+      readValue(record, 'service_name', 'serviceName') == null
+        ? null
+        : String(readValue(record, 'service_name', 'serviceName')),
     reportUrl:
       readValue(record, 'report_url', 'reportUrl') == null
         ? null

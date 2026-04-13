@@ -28,6 +28,8 @@ function getProjectsSortValue(project: ProjectListRow, key: ProjectsSortKey) {
       return project.costGroupName;
     case 'serviceGroupName':
       return project.serviceGroupName;
+    case 'serviceName':
+      return project.serviceName;
     case 'name':
       return project.name;
     case 'subtaskCount':
