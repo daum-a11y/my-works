@@ -414,7 +414,7 @@ const configuredClient: DataClient = !supabase
             p_title: input.title,
             p_url: input.url,
             p_owner_member_id: input.ownerMemberId,
-            p_task_month: input.taskMonth ?? null,
+            p_task_date: input.taskDate ?? null,
             p_task_status: input.taskStatus,
             p_note: input.note,
           })

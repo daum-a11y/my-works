@@ -20,7 +20,7 @@ export const initialSubtaskDraft = (projectId = '', ownerMemberId = ''): Subtask
   title: '',
   url: '',
   ownerMemberId,
-  taskMonth: '',
+  taskDate: '',
   taskStatus: '미수정',
   note: '',
 });
@@ -48,7 +48,7 @@ export function toSubtaskDraft(subtask: ProjectSubtask): SubtaskFormState {
     title: subtask.title,
     url: subtask.url,
     ownerMemberId: subtask.ownerMemberId ?? '',
-    taskMonth: subtask.taskMonth,
+    taskDate: subtask.taskDate,
     taskStatus: subtask.taskStatus,
     note: subtask.note,
   };
@@ -77,7 +77,7 @@ export function toSubtaskInput(draft: SubtaskFormState) {
     title: draft.title.trim(),
     url: draft.url.trim(),
     ownerMemberId: draft.ownerMemberId.trim() || null,
-    taskMonth: draft.taskMonth.trim() || undefined,
+    taskDate: draft.taskDate.trim() || undefined,
     taskStatus: draft.taskStatus,
     note: draft.note.trim(),
   };

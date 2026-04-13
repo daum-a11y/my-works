@@ -237,16 +237,30 @@ export function toProjectSubtask(record: ApiRecord): ProjectSubtask {
   return {
     id: String(readFirst(record, 'id', 'subtask_id', 'subtaskId') ?? ''),
     projectId: String(readValue(record, 'project_id', 'projectId') ?? ''),
-    title: String(readFirst(record, 'title', 'subtask_title', 'subtaskTitle', 'page_name', 'pj_page_name') ?? ''),
+    title: String(
+      readFirst(record, 'title', 'subtask_title', 'subtaskTitle', 'page_name', 'pj_page_name') ??
+        '',
+    ),
     url: String(record.url ?? ''),
     ownerMemberId: readValue(record, 'owner_member_id', 'ownerMemberId')
       ? String(readValue(record, 'owner_member_id', 'ownerMemberId'))
       : null,
-    taskMonth: String(
-      readFirst(record, 'task_month', 'taskMonth', 'monitoring_month', 'monitoringMonth', 'pj_page_date') ?? '',
+    taskDate: String(
+      readFirst(
+        record,
+        'task_date',
+        'taskDate',
+        'task_month',
+        'taskMonth',
+        'monitoring_month',
+        'monitoringMonth',
+        'pj_page_date',
+      ) ?? '',
     ),
     taskStatus: normalizeSubtaskStatus(
-      String(readFirst(record, 'task_status', 'taskStatus', 'track_status', 'trackStatus') ?? '미수정'),
+      String(
+        readFirst(record, 'task_status', 'taskStatus', 'track_status', 'trackStatus') ?? '미수정',
+      ),
     ),
     note: String(record.note ?? ''),
     updatedAt: String(readValue(record, 'updated_at', 'updatedAt') ?? getToday()),

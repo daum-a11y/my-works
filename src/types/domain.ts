@@ -130,7 +130,7 @@ export interface ProjectSubtask {
   title: string;
   url: string;
   ownerMemberId: string | null;
-  taskMonth: string;
+  taskDate: string;
   taskStatus: SubtaskStatus;
   note: string;
   updatedAt: string;
@@ -367,7 +367,7 @@ export interface SaveProjectSubtaskInput {
   title: string;
   url: string;
   ownerMemberId: string | null;
-  taskMonth?: string;
+  taskDate?: string;
   taskStatus: SubtaskStatus;
   note: string;
 }
@@ -421,7 +421,7 @@ export interface ProjectSubtaskStatsRow {
   title: string;
   url: string;
   ownerMemberId: string | null;
-  taskMonth: string;
+  taskDate: string;
   taskStatus: SubtaskStatus;
   note: string | null;
   updatedAt: string;

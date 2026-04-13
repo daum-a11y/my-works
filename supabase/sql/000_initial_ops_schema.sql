@@ -401,7 +401,7 @@ create table if not exists public.project_subtasks (
   updated_by_member_id uuid references public.members(id),
   title text not null,
   url text not null default '',
-  task_month text,
+  task_date text,
   task_status text not null default '미수정',
   note text not null default '',
   updated_at timestamptz not null default timezone('utc', now()),
@@ -409,6 +409,27 @@ create table if not exists public.project_subtasks (
   constraint project_subtasks_task_status_check
     check (task_status in ('미수정', '전체 수정', '일부 수정'))
 );
+
+do $$
+begin
+  if exists (
+    select 1
+    from information_schema.columns
+    where table_schema = 'public'
+      and table_name = 'project_subtasks'
+      and column_name = 'task_month'
+  ) and not exists (
+    select 1
+    from information_schema.columns
+    where table_schema = 'public'
+      and table_name = 'project_subtasks'
+      and column_name = 'task_date'
+  ) then
+    alter table public.project_subtasks
+      rename column task_month to task_date;
+  end if;
+end
+$$;
 
 alter table public.project_subtasks
   add column if not exists owner_member_id uuid references public.members(id);
@@ -423,7 +444,7 @@ alter table public.project_subtasks
   add column if not exists url text not null default '';
 
 alter table public.project_subtasks
-  add column if not exists task_month text;
+  add column if not exists task_date text;
 
 alter table public.project_subtasks
   add column if not exists task_status text not null default '미수정';
@@ -667,7 +688,7 @@ select
   owner_member_id,
   title,
   url,
-  task_month,
+  task_date,
   task_status,
   note,
   updated_at
@@ -1919,7 +1940,7 @@ as $$
       pp.note,
       p.start_date,
       p.end_date,
-      pp.task_month
+      pp.task_date
     from public.project_subtasks pp
     join public.projects p on p.id = pp.project_id
   ),
@@ -1997,7 +2018,7 @@ returns table (
   title text,
   url text,
   owner_member_id uuid,
-  task_month text,
+  task_date text,
   task_status text,
   note text,
   updated_at timestamptz,
@@ -2021,7 +2042,7 @@ as $$
       pp.title,
       pp.url,
       pp.owner_member_id,
-      pp.task_month,
+      pp.task_date,
       pp.task_status,
       nullif(pp.note, '') as note,
       pp.updated_at,
@@ -2032,14 +2053,14 @@ as $$
       nullif(concat_ws(' ', nullif(owner.account_id, ''), nullif(owner.name, '')), '') as assignee_display,
       nullif(p.report_url, '') as report_url,
       case
-        when regexp_replace(coalesce(pp.task_month, ''), '\D', '', 'g') ~ '^\d{4}$'
-          then to_date('20' || regexp_replace(pp.task_month, '\D', '', 'g') || '01', 'YYYYMMDD')
-        when regexp_replace(coalesce(pp.task_month, ''), '\D', '', 'g') ~ '^\d{6}$'
-          then to_date(regexp_replace(pp.task_month, '\D', '', 'g') || '01', 'YYYYMMDD')
-        when regexp_replace(coalesce(pp.task_month, ''), '\D', '', 'g') ~ '^\d{8}$'
-          then to_date(regexp_replace(pp.task_month, '\D', '', 'g'), 'YYYYMMDD')
+        when regexp_replace(coalesce(pp.task_date, ''), '\D', '', 'g') ~ '^\d{4}$'
+          then to_date('20' || regexp_replace(pp.task_date, '\D', '', 'g') || '01', 'YYYYMMDD')
+        when regexp_replace(coalesce(pp.task_date, ''), '\D', '', 'g') ~ '^\d{6}$'
+          then to_date(regexp_replace(pp.task_date, '\D', '', 'g') || '01', 'YYYYMMDD')
+        when regexp_replace(coalesce(pp.task_date, ''), '\D', '', 'g') ~ '^\d{8}$'
+          then to_date(regexp_replace(pp.task_date, '\D', '', 'g'), 'YYYYMMDD')
         else null
-      end as task_month_date,
+      end as task_date_value,
       case pp.task_status
         when '미수정' then 0
         when '일부 수정' then 1
@@ -2061,7 +2082,7 @@ as $$
     title,
     url,
     owner_member_id,
-    task_month,
+    task_date,
     task_status,
     note,
     updated_at,
@@ -2072,13 +2093,13 @@ as $$
     assignee_display,
     report_url
   from base
-  where task_month_date is not null
-    and task_month_date >= to_date(p_start_month || '-01', 'YYYY-MM-DD')
-    and task_month_date <= (to_date(p_end_month || '-01', 'YYYY-MM-DD') + interval '1 month' - interval '1 day')::date
+  where task_date_value is not null
+    and task_date_value >= to_date(p_start_month || '-01', 'YYYY-MM-DD')
+    and task_date_value <= (to_date(p_end_month || '-01', 'YYYY-MM-DD') + interval '1 month' - interval '1 day')::date
     and (p_task_type1 is null or type1 = p_task_type1)
   order by
-    case when p_sort_key = 'month' and lower(p_sort_direction) = 'asc' then task_month_date end asc,
-    case when p_sort_key = 'month' and lower(p_sort_direction) <> 'asc' then task_month_date end desc,
+    case when p_sort_key = 'month' and lower(p_sort_direction) = 'asc' then task_date_value end asc,
+    case when p_sort_key = 'month' and lower(p_sort_direction) <> 'asc' then task_date_value end desc,
     case when p_sort_key = 'costGroupName' and lower(p_sort_direction) = 'asc' then cost_group_name end asc,
     case when p_sort_key = 'costGroupName' and lower(p_sort_direction) <> 'asc' then cost_group_name end desc,
     case when p_sort_key = 'serviceGroupName' and lower(p_sort_direction) = 'asc' then service_group_name end asc,
@@ -2634,7 +2655,7 @@ create or replace function public.upsert_project_subtask(
   p_title text default null,
   p_url text default '',
   p_owner_member_id uuid default null,
-  p_task_month text default null,
+  p_task_date text default null,
   p_task_status text default '미수정',
   p_note text default ''
 )
@@ -2678,7 +2699,7 @@ begin
       owner_member_id,
       title,
       url,
-      task_month,
+      task_date,
       task_status,
       note
     )
@@ -2687,7 +2708,7 @@ begin
       coalesce(p_owner_member_id, v_member_id),
       p_title,
       coalesce(p_url, ''),
-      p_task_month,
+      p_task_date,
       p_task_status,
       coalesce(p_note, '')
     )
@@ -2699,7 +2720,7 @@ begin
       owner_member_id = coalesce(p_owner_member_id, owner_member_id),
       title = p_title,
       url = coalesce(p_url, ''),
-      task_month = p_task_month,
+      task_date = p_task_date,
       task_status = p_task_status,
       note = coalesce(p_note, ''),
       updated_at = timezone('utc', now())

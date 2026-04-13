@@ -68,23 +68,15 @@ export function ProjectEditorSubtasksSection({
         <div className={'projects-feature__subtask-table-wrap'}>
           <table className={'projects-feature__subtask-table'}>
             <caption className={'sr-only'}>태스크 리스트</caption>
-            <colgroup>
-              <col className="projects-feature__subtask-col-title" />
-              <col className="projects-feature__subtask-col-url" />
-              <col className="projects-feature__subtask-col-month" />
-              <col className="projects-feature__subtask-col-owner" />
-              <col className="projects-feature__subtask-col-status" />
-              <col className="projects-feature__subtask-col-actions" />
-            </colgroup>
             <thead>
               <tr>
+                <th scope="col">작업일</th>
                 <th scope="col">태스크명</th>
                 <th scope="col">
                   보고서
                   <br />
                   URL
                 </th>
-                <th scope="col">작업일</th>
                 <th scope="col">담당자</th>
                 <th scope="col">상태</th>
                 <th scope="col">작업</th>
@@ -93,6 +85,20 @@ export function ProjectEditorSubtasksSection({
             <tbody>
               {subtaskAddOpen && newSubtaskDraft ? (
                 <tr className={'projects-feature__subtask-add-row'}>
+                  <td>
+                    <label className={'sr-only'} htmlFor="new-subtask-month">
+                      작업일
+                    </label>
+                    <input
+                      id="new-subtask-date"
+                      form={addFormId}
+                      type="date"
+                      value={newSubtaskDraft.taskDate}
+                      onChange={(event) =>
+                        onNewSubtaskDraftChange({ taskDate: event.target.value })
+                      }
+                    />
+                  </td>
                   <td>
                     <div className={'projects-feature__subtask-title-stack'}>
                       <label className={'sr-only'} htmlFor="new-subtask-title">
@@ -106,7 +112,7 @@ export function ProjectEditorSubtasksSection({
                         onChange={(event) => onNewSubtaskDraftChange({ title: event.target.value })}
                       />
                       <label className={'sr-only'} htmlFor="new-subtask-note">
-                        태스크 비고
+                        비고
                       </label>
                       <input
                         id="new-subtask-note"
@@ -127,20 +133,6 @@ export function ProjectEditorSubtasksSection({
                       value={newSubtaskDraft.url}
                       placeholder="보고서 URL"
                       onChange={(event) => onNewSubtaskDraftChange({ url: event.target.value })}
-                    />
-                  </td>
-                  <td>
-                    <label className={'sr-only'} htmlFor="new-subtask-month">
-                      작업일
-                    </label>
-                    <input
-                      id="new-subtask-month"
-                      form={addFormId}
-                      type="month"
-                      value={newSubtaskDraft.taskMonth}
-                      onChange={(event) =>
-                        onNewSubtaskDraftChange({ taskMonth: event.target.value })
-                      }
                     />
                   </td>
                   <td>
@@ -210,6 +202,7 @@ export function ProjectEditorSubtasksSection({
                 return (
                   <Fragment key={subtask.id}>
                     <tr>
+                      <td>{subtask.taskDate || '-'}</td>
                       <td>
                         <div className={'projects-feature__subtask-read-title'}>
                           <strong>{subtask.title}</strong>
@@ -234,7 +227,6 @@ export function ProjectEditorSubtasksSection({
                           '-'
                         )}
                       </td>
-                      <td>{subtask.taskMonth || '-'}</td>
                       <td>{ownerText}</td>
                       <td>
                         <span className="status-badge" data-status={subtask.taskStatus}>
@@ -291,12 +283,12 @@ export function ProjectEditorSubtasksSection({
                               <label>
                                 <span>작업일</span>
                                 <input
-                                  id={`subtask-month-${subtask.id}`}
-                                  type="month"
-                                  value={draft.taskMonth}
+                                  id={`subtask-date-${subtask.id}`}
+                                  type="date"
+                                  value={draft.taskDate}
                                   onChange={(event) =>
                                     onSubtaskDraftChange(subtask.id, {
-                                      taskMonth: event.target.value,
+                                      taskDate: event.target.value,
                                     })
                                   }
                                 />
@@ -339,7 +331,7 @@ export function ProjectEditorSubtasksSection({
                                 </select>
                               </label>
                               <label className={'projects-feature__subtask-edit-note'}>
-                                <span>태스크 비고</span>
+                                <span>비고</span>
                                 <textarea
                                   id={`subtask-note-${subtask.id}`}
                                   value={draft.note}

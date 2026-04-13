@@ -225,7 +225,7 @@ describe('Projects routes', () => {
         title: '로그인',
         url: 'https://example.com/login',
         ownerMemberId: 'member-1',
-        taskMonth: '2026-03',
+        taskDate: '2026-03-24',
         taskStatus: '전체 수정',
         note: '메모',
         updatedAt: '2026-03-24T09:00:00.000Z',
@@ -238,7 +238,7 @@ describe('Projects routes', () => {
         title: '로그인',
         url: 'https://example.com/login',
         ownerMemberId: 'member-1',
-        taskMonth: '2026-03',
+        taskDate: '2026-03-24',
         taskStatus: '전체 수정',
         note: '메모',
         updatedAt: '2026-03-24T09:00:00.000Z',
@@ -251,7 +251,7 @@ describe('Projects routes', () => {
         title: '로그인',
         url: 'https://example.com/login',
         ownerMemberId: 'member-1',
-        taskMonth: '2026-03',
+        taskDate: '2026-03-24',
         taskStatus: '전체 수정',
         note: '메모',
         updatedAt: '2026-03-24T09:00:00.000Z',
@@ -278,7 +278,7 @@ describe('Projects routes', () => {
       title: '신규 태스크',
       url: 'https://example.com/new',
       ownerMemberId: 'member-1',
-      taskMonth: '',
+      taskDate: '',
       taskStatus: '미수정',
       note: '',
       updatedAt: '2026-03-24T09:00:00.000Z',
@@ -474,7 +474,7 @@ describe('Projects routes', () => {
         title: `태스크 ${index + 1}`,
         url: `https://example.com/subtask-${index + 1}`,
         ownerMemberId: 'member-1',
-        taskMonth: '2026-03',
+        taskDate: '2026-03-24',
         taskStatus: '전체 수정',
         note: '',
         updatedAt: '2026-03-24T09:00:00.000Z',
@@ -526,8 +526,8 @@ describe('Projects routes', () => {
 
     await user.click(screen.getByRole('button', { name: '수정' }));
     await user.selectOptions(screen.getByLabelText('상태'), '미수정');
-    await user.clear(screen.getByLabelText('태스크 비고'));
-    await user.type(screen.getByLabelText('태스크 비고'), '비고 수정');
+    await user.clear(screen.getByLabelText('비고'));
+    await user.type(screen.getByLabelText('비고'), '비고 수정');
     await user.click(screen.getByRole('button', { name: '태스크 저장' }));
 
     await waitFor(() => {
@@ -543,7 +543,7 @@ describe('Projects routes', () => {
     await user.click(screen.getByRole('button', { name: '태스크 추가' }));
     await user.type(screen.getAllByLabelText('태스크명')[0], '신규 태스크');
     await user.type(screen.getAllByLabelText('보고서 URL')[0], 'https://example.com/new');
-    await user.type(screen.getAllByLabelText('태스크 비고')[0], '신규 비고');
+    await user.type(screen.getAllByLabelText('비고')[0], '신규 비고');
     await user.selectOptions(screen.getAllByLabelText('상태')[0], '일부 수정');
     await user.click(screen.getByRole('button', { name: '추가' }));
 

@@ -20,7 +20,7 @@ export interface SubtaskFormState {
   title: string;
   url: string;
   ownerMemberId: string;
-  taskMonth: string;
+  taskDate: string;
   taskStatus: SubtaskStatus;
   note: string;
 }

@@ -130,7 +130,7 @@ export function toPages(
     title: item.title,
     url: item.url,
     ownerMemberId: null,
-    taskMonth: '',
+    taskDate: '',
     taskStatus: item.taskStatus as ProjectSubtask['taskStatus'],
     note: '',
     updatedAt: '',

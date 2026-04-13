@@ -78,7 +78,7 @@ describe('SearchPage', () => {
         url: 'https://example.com/login',
         ownerMemberId: 'member-1',
         taskStatus: '전체 수정',
-        taskMonth: '2026-03',
+        taskDate: '2026-03-24',
         note: '',
         updatedAt: '2026-03-24T09:00:00.000Z',
       },
