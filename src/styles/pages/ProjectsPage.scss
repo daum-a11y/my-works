@@ -741,57 +741,23 @@
   }
 
   .projects-feature__subtask-title-stack textarea {
-    min-height: 34px;
-    resize: vertical;
-  }
-
-  .projects-feature__subtask-edit-row td {
-    padding: 0;
-    background: var(--surface-canvas-strong);
-  }
-
-  .projects-feature__subtask-edit-panel {
-    display: grid;
-    gap: var(--space-3);
-    padding: var(--space-3);
-  }
-
-  .projects-feature__subtask-edit-grid {
-    display: grid;
-    grid-template-columns: minmax(220px, 1.4fr) minmax(220px, 1.2fr) minmax(150px, 0.8fr) minmax(
-        140px,
-        0.7fr
-      );
-    gap: var(--space-3);
-    align-items: start;
-  }
-
-  .projects-feature__subtask-edit-grid label {
-    display: grid;
-    gap: var(--space-1);
-    color: var(--text-secondary);
-    font-size: var(--text-label-size);
-    font-weight: var(--font-weight-semibold);
-    line-height: var(--text-label-line-height);
-  }
-
-  .projects-feature__subtask-edit-note {
-    grid-column: 1 / -1;
-  }
-
-  .projects-feature__subtask-edit-note textarea {
     min-height: 72px;
     resize: vertical;
   }
 
-  .projects-feature__subtask-edit-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: var(--space-2);
+  .projects-feature__subtask-edit-row td {
+    background: var(--surface-canvas-strong);
+    vertical-align: top;
+  }
+
+  .projects-feature__subtask-edit-row td:last-child {
+    padding-inline: var(--space-2);
+    background: var(--surface-canvas-strong);
   }
 
   .projects-feature__subtask-table-actions {
     display: flex;
+    flex-wrap: wrap;
     justify-content: center;
     gap: var(--space-2);
     white-space: nowrap;
