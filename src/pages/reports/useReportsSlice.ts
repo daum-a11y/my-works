@@ -332,7 +332,7 @@ export function useReportsSlice(): ReportsSlice {
       if (subtaskId) {
         const page = subtasksById.get(subtaskId);
         if (!page) {
-          throw new Error('선택한 과업 정보를 확인할 수 없습니다.');
+          throw new Error('선택한 태스크 정보를 확인할 수 없습니다.');
         }
 
         if (projectId && page.projectId !== projectId) {

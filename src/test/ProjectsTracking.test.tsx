@@ -275,7 +275,7 @@ describe('Projects routes', () => {
     mockDataClient.saveProjectSubtask.mockResolvedValue({
       id: 'subtask-2',
       projectId: 'project-1',
-      title: '신규 과업',
+      title: '신규 태스크',
       url: 'https://example.com/new',
       ownerMemberId: 'member-1',
       taskMonth: '',
@@ -305,7 +305,7 @@ describe('Projects routes', () => {
     expect(screen.getByText('총 건수')).toBeInTheDocument();
     expect(screen.getByText('1건')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /청구그룹 정렬/ })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /과업 수 정렬/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /태스크 수 정렬/ })).toBeInTheDocument();
     expect(screen.getByLabelText('페이지당 행 수')).toHaveValue('50');
     expect(screen.getByLabelText('시작일')).toHaveValue(toLocalDateInputValue(aYearAgo));
     expect(screen.getByLabelText('종료일')).toHaveValue(toLocalDateInputValue(today));
@@ -435,11 +435,11 @@ describe('Projects routes', () => {
 
     expect(firstDataRow()).toHaveTextContent('알파');
 
-    await user.click(screen.getByRole('button', { name: /과업 수 정렬, 클릭하면 오름차순/ }));
+    await user.click(screen.getByRole('button', { name: /태스크 수 정렬, 클릭하면 오름차순/ }));
 
     expect(firstDataRow()).toHaveTextContent('베타');
     expect(
-      within(table).getByRole('columnheader', { name: /과업 수 오름차순으로 정렬 중/ }),
+      within(table).getByRole('columnheader', { name: /태스크 수 오름차순으로 정렬 중/ }),
     ).toBeInTheDocument();
   });
 
@@ -471,7 +471,7 @@ describe('Projects routes', () => {
       Array.from({ length: 51 }, (_, index) => ({
         id: `subtask-${index + 1}`,
         projectId: `project-${index + 1}`,
-        title: `과업 ${index + 1}`,
+        title: `태스크 ${index + 1}`,
         url: `https://example.com/subtask-${index + 1}`,
         ownerMemberId: 'member-1',
         taskMonth: '2026-03',
@@ -526,38 +526,38 @@ describe('Projects routes', () => {
 
     await user.click(screen.getByRole('button', { name: '수정' }));
     await user.selectOptions(screen.getByLabelText('상태'), '미수정');
-    await user.clear(screen.getByLabelText('과업 비고'));
-    await user.type(screen.getByLabelText('과업 비고'), '비고 수정');
-    await user.click(screen.getByRole('button', { name: '과업 저장' }));
+    await user.clear(screen.getByLabelText('태스크 비고'));
+    await user.type(screen.getByLabelText('태스크 비고'), '비고 수정');
+    await user.click(screen.getByRole('button', { name: '태스크 저장' }));
 
     await waitFor(() => {
-        expect(mockDataClient.saveProjectSubtask).toHaveBeenCalledWith(
-          expect.objectContaining({
-            id: 'subtask-1',
-            taskStatus: '미수정',
-            note: '비고 수정',
-          }),
-        );
+      expect(mockDataClient.saveProjectSubtask).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: 'subtask-1',
+          taskStatus: '미수정',
+          note: '비고 수정',
+        }),
+      );
     });
 
-    await user.click(screen.getByRole('button', { name: '과업 추가' }));
-    await user.type(screen.getAllByLabelText('과업명')[0], '신규 과업');
+    await user.click(screen.getByRole('button', { name: '태스크 추가' }));
+    await user.type(screen.getAllByLabelText('태스크명')[0], '신규 태스크');
     await user.type(screen.getAllByLabelText('보고서 URL')[0], 'https://example.com/new');
-    await user.type(screen.getAllByLabelText('과업 비고')[0], '신규 비고');
+    await user.type(screen.getAllByLabelText('태스크 비고')[0], '신규 비고');
     await user.selectOptions(screen.getAllByLabelText('상태')[0], '일부 수정');
     await user.click(screen.getByRole('button', { name: '추가' }));
 
     await waitFor(() => {
-        expect(mockDataClient.saveProjectSubtask).toHaveBeenCalledWith(
-          expect.objectContaining({
-            projectId: 'project-1',
-            title: '신규 과업',
-            url: 'https://example.com/new',
-            ownerMemberId: 'member-1',
-            taskStatus: '일부 수정',
-            note: '신규 비고',
-          }),
-        );
+      expect(mockDataClient.saveProjectSubtask).toHaveBeenCalledWith(
+        expect.objectContaining({
+          projectId: 'project-1',
+          title: '신규 태스크',
+          url: 'https://example.com/new',
+          ownerMemberId: 'member-1',
+          taskStatus: '일부 수정',
+          note: '신규 비고',
+        }),
+      );
     });
   });
 
@@ -576,7 +576,7 @@ describe('Projects routes', () => {
 
     await user.click(screen.getByRole('button', { name: '수정' }));
     await user.selectOptions(screen.getByLabelText('상태'), '미수정');
-    await user.click(screen.getByRole('button', { name: '과업 저장' }));
+    await user.click(screen.getByRole('button', { name: '태스크 저장' }));
 
     await waitFor(() => {
       expect(window.alert).toHaveBeenCalledWith(
@@ -624,7 +624,7 @@ describe('Projects routes', () => {
     await screen.findByRole('button', { name: '수정' });
     await user.click(screen.getByRole('button', { name: '수정' }));
 
-    await user.click(screen.getByRole('button', { name: '과업 삭제' }));
+    await user.click(screen.getByRole('button', { name: '태스크 삭제' }));
 
     await waitFor(() => {
       expect(mockDataClient.deleteProjectSubtask).toHaveBeenCalledWith('subtask-1');

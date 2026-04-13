@@ -90,7 +90,7 @@ export function SearchResultsTable({ reports, sortState, onSortChange }: SearchR
             </th>
             <th scope="col" aria-sort={getAriaSort('subtaskTitle')}>
               <SortableTableHeaderButton
-                label="과업명"
+                label="태스크명"
                 sortKey="subtaskTitle"
                 sortState={sortState}
                 onChange={onSortChange}

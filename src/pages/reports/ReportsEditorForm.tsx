@@ -178,13 +178,13 @@ export function ReportsEditorForm({
 
               {showSubtaskSelect ? (
                 <label className="reports-page__field reports-page__field--project">
-                  <span>과업명</span>
+                  <span>태스크명</span>
                   <select
                     value={draft.subtaskId}
                     onChange={(event) => onDraftFieldChange('subtaskId', event.target.value)}
                   >
                     <option value="">
-                      {draftSubtasks.length ? '선택' : '과업이 존재하지 않습니다.'}
+                      {draftSubtasks.length ? '선택' : '태스크이 존재하지 않습니다.'}
                     </option>
                     {draftSubtasks.map((page) => (
                       <option key={page.id} value={page.id}>

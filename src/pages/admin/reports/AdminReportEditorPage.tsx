@@ -239,9 +239,9 @@ export function AdminReportEditorPage() {
       return '휴가 종류';
     }
     if ((typeRule.projectLinked && !typeRule.projectSubtaskSelectable) || usesManualSubtaskOnly) {
-      return '과업명';
+      return '태스크명';
     }
-    return '과업명';
+    return '태스크명';
   }, [
     isVacationType,
     typeRule.projectLinked,
@@ -392,7 +392,7 @@ export function AdminReportEditorPage() {
       if (subtaskId) {
         const page = subtasksById.get(subtaskId);
         if (!page) {
-          throw new Error('선택한 과업 정보를 확인할 수 없습니다.');
+          throw new Error('선택한 태스크 정보를 확인할 수 없습니다.');
         }
 
         if (projectId && page.projectId !== projectId) {

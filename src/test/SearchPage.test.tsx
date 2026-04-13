@@ -147,7 +147,7 @@ describe('SearchPage', () => {
     expect(screen.getByRole('button', { name: '다운로드' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /청구그룹 정렬/ })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /서비스 그룹 정렬/ })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /과업명 정렬/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /태스크명 정렬/ })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: '내용' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /작업시간 정렬/ })).toBeInTheDocument();
     expect(screen.getAllByText('알파').length).toBeGreaterThan(0);

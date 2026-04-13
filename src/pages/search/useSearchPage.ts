@@ -147,7 +147,7 @@ export function useSearchPage() {
         { header: '서비스 그룹', value: (report) => report.serviceGroupName || '-', width: 16 },
         { header: '서비스명', value: (report) => report.serviceName || '-', width: 18 },
         { header: '프로젝트명', value: (report) => report.projectName || '-', width: 24 },
-        { header: '과업명', value: (report) => report.subtaskTitle || '-', width: 20 },
+        { header: '태스크명', value: (report) => report.subtaskTitle || '-', width: 20 },
         { header: '내용', value: (report) => report.content || '-', width: 30 },
         { header: 'URL', value: (report) => report.url || '-', width: 32 },
         {

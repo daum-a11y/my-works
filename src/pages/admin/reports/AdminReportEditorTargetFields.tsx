@@ -61,9 +61,11 @@ export function AdminReportEditorTargetFields({
 
       {showSubtaskSelect ? (
         <label className={'reports-page__field'}>
-          <span>{isProjectLinkedTab ? '과업명' : '프로젝트 과업'}</span>
+          <span>{isProjectLinkedTab ? '태스크명' : '프로젝트 태스크'}</span>
           <select value={draft.subtaskId} onChange={(event) => onSubtaskChange(event.target.value)}>
-            <option value="">{draftSubtasks.length ? '선택' : '과업이 존재하지 않습니다.'}</option>
+            <option value="">
+              {draftSubtasks.length ? '선택' : '태스크이 존재하지 않습니다.'}
+            </option>
             {draftSubtasks.map((page) => (
               <option key={page.id} value={page.id}>
                 {page.title}

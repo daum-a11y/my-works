@@ -48,7 +48,7 @@ function getProjectEditorErrorMessage(error: unknown, fallback: string) {
   }
 
   if (message === 'project subtask not found') {
-    return '과업 수정 권한이 없거나 과업을 찾을 수 없습니다.';
+    return '태스크 수정 권한이 없거나 태스크을 찾을 수 없습니다.';
   }
 
   return message || fallback;
@@ -287,7 +287,7 @@ export function ProjectEditorPage() {
         ...current,
         [mappedSubtask.id]: toSubtaskDraft(mappedSubtask),
       }));
-      setStatusMessage('과업을 저장했습니다.');
+      setStatusMessage('태스크을 저장했습니다.');
       setSubtaskAddOpen(false);
       setNewSubtaskDraft(
         selectedProject
@@ -296,7 +296,7 @@ export function ProjectEditorPage() {
       );
     },
     onError: (error) => {
-      window.alert(getProjectEditorErrorMessage(error, '과업을 저장하지 못했습니다.'));
+      window.alert(getProjectEditorErrorMessage(error, '태스크을 저장하지 못했습니다.'));
       setStatusMessage('');
     },
   });
@@ -319,10 +319,10 @@ export function ProjectEditorPage() {
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['projects', member?.id] });
       await queryClient.invalidateQueries({ queryKey: ['project-editor', member?.id] });
-      setStatusMessage('과업을 삭제했습니다.');
+      setStatusMessage('태스크을 삭제했습니다.');
     },
     onError: (error) => {
-      window.alert(getProjectEditorErrorMessage(error, '과업을 삭제하지 못했습니다.'));
+      window.alert(getProjectEditorErrorMessage(error, '태스크을 삭제하지 못했습니다.'));
       setStatusMessage('');
     },
   });
@@ -367,7 +367,7 @@ export function ProjectEditorPage() {
     }
 
     const confirmed = window.confirm(
-      '정말 수정 하시겠습니까?\n해당 과업을 사용한 모든 사람들의 내용이 수정됩니다.',
+      '정말 수정 하시겠습니까?\n해당 태스크을 사용한 모든 사람들의 내용이 수정됩니다.',
     );
     if (!confirmed) {
       return;
@@ -388,7 +388,7 @@ export function ProjectEditorPage() {
     }
 
     if (!newSubtaskDraft.title.trim()) {
-      window.alert('과업명을 입력하십시오.');
+      window.alert('태스크명을 입력하십시오.');
       return;
     }
 
@@ -405,7 +405,7 @@ export function ProjectEditorPage() {
     }
 
     const confirmed = window.confirm(
-      '정말 삭제 하시겠습니까?\n프로젝트와 연결된 과업도 함께 삭제됩니다.',
+      '정말 삭제 하시겠습니까?\n프로젝트와 연결된 태스크도 함께 삭제됩니다.',
     );
     if (!confirmed) {
       return;
@@ -548,7 +548,7 @@ export function ProjectEditorPage() {
       </section>
 
       {isEditMode && selectedProject ? (
-        <section className={'projects-feature__modal'} aria-label="과업 목록 패널">
+        <section className={'projects-feature__modal'} aria-label="태스크 목록 패널">
           <ProjectEditorSubtasksSection
             subtaskAddOpen={subtaskAddOpen}
             newSubtaskDraft={newSubtaskDraft}

@@ -45,14 +45,14 @@ export function ProjectEditorSubtasksSection({
   return (
     <section className={'projects-feature__subtask-section'}>
       <div className={'projects-feature__section-header'}>
-        <h2 className={'projects-feature__section-title'}>과업 목록</h2>
+        <h2 className={'projects-feature__section-title'}>태스크 목록</h2>
         <button
           type="button"
           className={'projects-feature__button projects-feature__button--secondary'}
           onClick={onToggleAdd}
           aria-expanded={subtaskAddOpen}
         >
-          {subtaskAddOpen ? '추가 취소' : '과업 추가'}
+          {subtaskAddOpen ? '추가 취소' : '태스크 추가'}
         </button>
       </div>
 
@@ -67,7 +67,7 @@ export function ProjectEditorSubtasksSection({
       {showSubtaskTable ? (
         <div className={'projects-feature__subtask-table-wrap'}>
           <table className={'projects-feature__subtask-table'}>
-            <caption className={'sr-only'}>과업 리스트</caption>
+            <caption className={'sr-only'}>태스크 리스트</caption>
             <colgroup>
               <col className="projects-feature__subtask-col-title" />
               <col className="projects-feature__subtask-col-url" />
@@ -78,13 +78,13 @@ export function ProjectEditorSubtasksSection({
             </colgroup>
             <thead>
               <tr>
-                <th scope="col">과업명</th>
+                <th scope="col">태스크명</th>
                 <th scope="col">
                   보고서
                   <br />
                   URL
                 </th>
-                <th scope="col">과업월</th>
+                <th scope="col">작업일</th>
                 <th scope="col">담당자</th>
                 <th scope="col">상태</th>
                 <th scope="col">작업</th>
@@ -96,17 +96,17 @@ export function ProjectEditorSubtasksSection({
                   <td>
                     <div className={'projects-feature__subtask-title-stack'}>
                       <label className={'sr-only'} htmlFor="new-subtask-title">
-                        과업명
+                        태스크명
                       </label>
                       <input
                         id="new-subtask-title"
                         form={addFormId}
                         value={newSubtaskDraft.title}
-                        placeholder="과업명"
+                        placeholder="태스크명"
                         onChange={(event) => onNewSubtaskDraftChange({ title: event.target.value })}
                       />
                       <label className={'sr-only'} htmlFor="new-subtask-note">
-                        과업 비고
+                        태스크 비고
                       </label>
                       <input
                         id="new-subtask-note"
@@ -131,7 +131,7 @@ export function ProjectEditorSubtasksSection({
                   </td>
                   <td>
                     <label className={'sr-only'} htmlFor="new-subtask-month">
-                      과업월
+                      작업일
                     </label>
                     <input
                       id="new-subtask-month"
@@ -269,7 +269,7 @@ export function ProjectEditorSubtasksSection({
                           <div className={'projects-feature__subtask-edit-panel'}>
                             <div className={'projects-feature__subtask-edit-grid'}>
                               <label>
-                                <span>과업명</span>
+                                <span>태스크명</span>
                                 <input
                                   id={`subtask-title-${subtask.id}`}
                                   value={draft.title}
@@ -289,7 +289,7 @@ export function ProjectEditorSubtasksSection({
                                 />
                               </label>
                               <label>
-                                <span>과업월</span>
+                                <span>작업일</span>
                                 <input
                                   id={`subtask-month-${subtask.id}`}
                                   type="month"
@@ -339,7 +339,7 @@ export function ProjectEditorSubtasksSection({
                                 </select>
                               </label>
                               <label className={'projects-feature__subtask-edit-note'}>
-                                <span>과업 비고</span>
+                                <span>태스크 비고</span>
                                 <textarea
                                   id={`subtask-note-${subtask.id}`}
                                   value={draft.note}
@@ -356,7 +356,7 @@ export function ProjectEditorSubtasksSection({
                                 className={
                                   'projects-feature__button projects-feature__button--secondary'
                                 }
-                                aria-label="과업 저장"
+                                aria-label="태스크 저장"
                                 disabled={savePending}
                                 onClick={() => onSubtaskSave(subtask.id)}
                               >
@@ -378,7 +378,7 @@ export function ProjectEditorSubtasksSection({
                                 <button
                                   type="button"
                                   className={'projects-feature__delete-button'}
-                                  aria-label="과업 삭제"
+                                  aria-label="태스크 삭제"
                                   onClick={() => onSubtaskDelete(subtask)}
                                 >
                                   삭제
@@ -397,7 +397,9 @@ export function ProjectEditorSubtasksSection({
         </div>
       ) : (
         <EmptyState
-          message={subtaskAddOpen ? '추가할 과업 정보를 입력하십시오.' : '등록된 과업이 없습니다.'}
+          message={
+            subtaskAddOpen ? '추가할 태스크 정보를 입력하십시오.' : '등록된 과업이 없습니다.'
+          }
         />
       )}
     </section>

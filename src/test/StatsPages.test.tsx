@@ -73,7 +73,7 @@ const projectRows: MockProjectStatsRow[] = [
   {
     project_id: 'project-2',
     type1: 'QA',
-    project_name: '과업 없는 QA 프로젝트',
+    project_name: '태스크 없는 QA 프로젝트',
     platform: 'Android',
     cost_group_name: '청구그룹B',
     service_group_name: '서비스 그룹B',
@@ -247,7 +247,7 @@ describe('Stats pages', () => {
     expect(screen.queryByRole('option', { name: '일반업무' })).not.toBeInTheDocument();
     expect(screen.queryByLabelText('프로젝트 통계 기간 기준')).not.toBeInTheDocument();
     expect((screen.getByLabelText('프로젝트 통계 타입 1') as HTMLSelectElement).value).toBe('전체');
-    expect(screen.getByText('과업 없는 QA 프로젝트')).toBeInTheDocument();
+    expect(screen.getByText('태스크 없는 QA 프로젝트')).toBeInTheDocument();
     expect(screen.getAllByText('legacy-1(운영 사용자)').length).toBeGreaterThan(0);
     expect(screen.getByText('legacy-2(리뷰어)')).toBeInTheDocument();
     expect(screen.getAllByText('-').length).toBeGreaterThan(0);
@@ -365,7 +365,7 @@ describe('Stats pages', () => {
     await waitFor(() => {
       const projectTable = screen.getByRole('table', { name: '필터링된 프로젝트 목록' });
       const rows = within(projectTable).getAllByRole('row');
-      expect(rows[1]).toHaveTextContent('과업 없는 QA 프로젝트');
+      expect(rows[1]).toHaveTextContent('태스크 없는 QA 프로젝트');
       expect(rows[2]).toHaveTextContent('QA 대상');
     });
   });
