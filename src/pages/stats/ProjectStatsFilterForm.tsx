@@ -2,23 +2,35 @@ import type { FormEvent } from 'react';
 import { PageFilterBar } from '../../components/shared/PageFilterBar';
 import { PageFilterField } from '../../components/shared/PageFilterField';
 
-interface MonitoringStatsFilterFormProps {
+import type { ProjectStatsPeriodBasis } from './ProjectStatsPage.types';
+
+interface ProjectStatsFilterFormProps {
   draftStartMonth: string;
   draftEndMonth: string;
+  draftTaskType1: string;
+  draftPeriodBasis: ProjectStatsPeriodBasis;
+  taskType1Options: string[];
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
   onReset: () => void;
   onDraftStartMonthChange: (value: string) => void;
   onDraftEndMonthChange: (value: string) => void;
+  onDraftTaskType1Change: (value: string) => void;
+  onDraftPeriodBasisChange: (value: ProjectStatsPeriodBasis) => void;
 }
 
-export function MonitoringStatsFilterForm({
+export function ProjectStatsFilterForm({
   draftStartMonth,
   draftEndMonth,
+  draftTaskType1,
+  draftPeriodBasis,
+  taskType1Options,
   onSubmit,
   onReset,
   onDraftStartMonthChange,
   onDraftEndMonthChange,
-}: MonitoringStatsFilterFormProps) {
+  onDraftTaskType1Change,
+  onDraftPeriodBasisChange,
+}: ProjectStatsFilterFormProps) {
   return (
     <form onSubmit={onSubmit}>
       <PageFilterBar
@@ -40,7 +52,7 @@ export function MonitoringStatsFilterForm({
         <PageFilterField className={'stats-page__filter-field'} label="시작월">
           <input
             type="month"
-            aria-label="모니터링 시작월"
+            aria-label="프로젝트 통계 시작월"
             value={draftStartMonth}
             max={draftEndMonth || undefined}
             onChange={(event) => onDraftStartMonthChange(event.target.value)}
@@ -49,11 +61,34 @@ export function MonitoringStatsFilterForm({
         <PageFilterField className={'stats-page__filter-field'} label="종료월">
           <input
             type="month"
-            aria-label="모니터링 종료월"
+            aria-label="프로젝트 통계 종료월"
             value={draftEndMonth}
             min={draftStartMonth || undefined}
             onChange={(event) => onDraftEndMonthChange(event.target.value)}
           />
+        </PageFilterField>
+        <PageFilterField className={'stats-page__filter-field'} label="타입 1">
+          <select
+            aria-label="프로젝트 통계 타입 1"
+            value={draftTaskType1}
+            onChange={(event) => onDraftTaskType1Change(event.target.value)}
+          >
+            {taskType1Options.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </select>
+        </PageFilterField>
+        <PageFilterField className={'stats-page__filter-field'} label="기간 기준">
+          <select
+            aria-label="프로젝트 통계 기간 기준"
+            value={draftPeriodBasis}
+            onChange={(event) => onDraftPeriodBasisChange(event.target.value as ProjectStatsPeriodBasis)}
+          >
+            <option value="project">프로젝트</option>
+            <option value="subtask">서브태스크</option>
+          </select>
         </PageFilterField>
       </PageFilterBar>
     </form>

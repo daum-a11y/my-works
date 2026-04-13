@@ -16,6 +16,15 @@ function readValue(record: ApiRecord, snakeKey: string, camelKey: string) {
   return record[snakeKey] ?? record[camelKey];
 }
 
+function readFirst(record: ApiRecord, ...keys: string[]) {
+  for (const key of keys) {
+    if (record[key] != null) {
+      return record[key];
+    }
+  }
+  return null;
+}
+
 function composeServiceGroupLabel(serviceGroupName: string, serviceName: string) {
   if (!serviceGroupName && !serviceName) {
     return '';
@@ -226,21 +235,19 @@ export function toProject(record: ApiRecord): Project {
 
 export function toProjectSubtask(record: ApiRecord): ProjectSubtask {
   return {
-    id: String(record.id),
+    id: String(readFirst(record, 'id', 'subtask_id', 'subtaskId') ?? ''),
     projectId: String(readValue(record, 'project_id', 'projectId') ?? ''),
-    title: String(record.title ?? ''),
+    title: String(readFirst(record, 'title', 'subtask_title', 'subtaskTitle', 'page_name', 'pj_page_name') ?? ''),
     url: String(record.url ?? ''),
     ownerMemberId: readValue(record, 'owner_member_id', 'ownerMemberId')
       ? String(readValue(record, 'owner_member_id', 'ownerMemberId'))
       : null,
-    monitoringMonth: String(readValue(record, 'monitoring_month', 'monitoringMonth') ?? ''),
-    trackStatus: normalizeSubtaskStatus(
-      String(readValue(record, 'track_status', 'trackStatus') ?? '미수정'),
+    taskMonth: String(
+      readFirst(record, 'task_month', 'taskMonth', 'monitoring_month', 'monitoringMonth', 'pj_page_date') ?? '',
     ),
-    monitoringInProgress: Boolean(
-      readValue(record, 'monitoring_in_progress', 'monitoringInProgress') ?? false,
+    taskStatus: normalizeSubtaskStatus(
+      String(readFirst(record, 'task_status', 'taskStatus', 'track_status', 'trackStatus') ?? '미수정'),
     ),
-    qaInProgress: Boolean(readValue(record, 'qa_in_progress', 'qaInProgress') ?? false),
     note: String(record.note ?? ''),
     updatedAt: String(readValue(record, 'updated_at', 'updatedAt') ?? getToday()),
   };

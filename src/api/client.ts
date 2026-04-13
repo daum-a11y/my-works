@@ -38,7 +38,15 @@ export interface DataClient {
   getProjectSubtasks(member: Member): Promise<ApiRecord[]>;
   getAllProjectSubtasks(): Promise<ApiRecord[]>;
   getProjectSubtasksByProjectId(projectId: string): Promise<ApiRecord[]>;
-  getProjectSubtasksByProjectIds(projectIds: string[]): Promise<ApiRecord[]>;
+  getProjectSubtasksByProjectIds(
+    projectIds: string[],
+    options?: {
+      startMonth?: string | null;
+      endMonth?: string | null;
+      periodBasis?: 'project' | 'subtask';
+      taskType1?: string | null;
+    },
+  ): Promise<ApiRecord[]>;
   saveProjectSubtask(input: SaveProjectSubtaskInput): Promise<ApiRecord>;
   deleteProjectSubtask(subtaskId: string): Promise<void>;
   getTasksByDate(member: Member, taskDate: string): Promise<ApiRecord[]>;
@@ -67,8 +75,21 @@ export interface DataClient {
   ): Promise<RawPagedResult>;
   getDashboard(member: Member): Promise<unknown>;
   getStats(member: Member): Promise<unknown>;
-  getMonitoringStatsRows(): Promise<ApiRecord[]>;
-  getQaStatsProjects(): Promise<ApiRecord[]>;
+  getProjectStatsRows(filters: {
+    startMonth: string;
+    endMonth: string;
+    taskType1: string | null;
+    periodBasis: 'project' | 'subtask';
+    sortKey: string;
+    sortDirection: 'asc' | 'desc';
+  }): Promise<ApiRecord[]>;
+  getMonitoringStatsRows(filters: {
+    startMonth: string;
+    endMonth: string;
+    taskType1: string | null;
+    sortKey: string;
+    sortDirection: 'asc' | 'desc';
+  }): Promise<ApiRecord[]>;
 }
 
 const supabase = getSupabaseClient();
@@ -196,10 +217,10 @@ const unconfiguredClient: DataClient = {
   async getStats() {
     throw new Error(configurationErrorMessage);
   },
-  async getMonitoringStatsRows() {
+  async getProjectStatsRows() {
     throw new Error(configurationErrorMessage);
   },
-  async getQaStatsProjects() {
+  async getMonitoringStatsRows() {
     throw new Error(configurationErrorMessage);
   },
 };
@@ -387,7 +408,7 @@ const configuredClient: DataClient = !supabase
         if (error) throw error;
         return (data ?? []) as ApiRecord[];
       },
-      async getProjectSubtasksByProjectIds(projectIds) {
+      async getProjectSubtasksByProjectIds(projectIds, options) {
         const { data, error } = await supabase
           .from('project_subtasks_public_view')
           .select('*')
@@ -404,10 +425,8 @@ const configuredClient: DataClient = !supabase
             p_title: input.title,
             p_url: input.url,
             p_owner_member_id: input.ownerMemberId,
-            p_monitoring_month: input.monitoringMonth ?? null,
-            p_track_status: input.trackStatus,
-            p_monitoring_in_progress: input.monitoringInProgress,
-            p_qa_in_progress: input.qaInProgress,
+            p_task_month: input.taskMonth ?? null,
+            p_task_status: input.taskStatus,
             p_note: input.note,
           })
           .single();
@@ -589,13 +608,26 @@ const configuredClient: DataClient = !supabase
         if (error) throw error;
         return data;
       },
-      async getMonitoringStatsRows() {
-        const { data, error } = await supabase.rpc('get_monitoring_stats_rows');
+      async getProjectStatsRows(filters) {
+        const { data, error } = await supabase.rpc('get_project_stats_rows', {
+          p_start_month: filters.startMonth,
+          p_end_month: filters.endMonth,
+          p_task_type1: filters.taskType1,
+          p_period_basis: filters.periodBasis,
+          p_sort_key: filters.sortKey,
+          p_sort_direction: filters.sortDirection,
+        });
         if (error) throw error;
         return (data ?? []) as ApiRecord[];
       },
-      async getQaStatsProjects() {
-        const { data, error } = await supabase.rpc('get_qa_stats_projects');
+      async getMonitoringStatsRows(filters) {
+        const { data, error } = await supabase.rpc('get_monitoring_stats_rows', {
+          p_start_month: filters.startMonth,
+          p_end_month: filters.endMonth,
+          p_task_type1: filters.taskType1,
+          p_sort_key: filters.sortKey,
+          p_sort_direction: filters.sortDirection,
+        });
         if (error) throw error;
         return (data ?? []) as ApiRecord[];
       },

@@ -38,8 +38,7 @@ export const baseNavigation = [
     icon: FolderCode,
     children: [
       { to: '/projects', label: '프로젝트 관리', icon: Layers },
-      { to: '/stats/qa', label: 'QA 통계' },
-      { to: '/stats/monitoring', label: '모니터링 통계' },
+      { to: '/stats/projects', label: '프로젝트 통계' },
     ],
   },
 ] as const satisfies readonly NavigationItem[];

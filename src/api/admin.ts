@@ -268,9 +268,7 @@ const configuredAdminClient: AdminDataClient = !supabase
       async listProjectSubtasks() {
         const { data, error } = await supabase
           .from('project_subtasks')
-          .select(
-            'id, project_id, title, url, track_status, monitoring_in_progress, qa_in_progress',
-          )
+          .select('id, project_id, title, url, task_status')
           .order('updated_at', { ascending: false });
         if (error) throw error;
         return (data ?? []) as ApiRecord[];
@@ -289,9 +287,7 @@ const configuredAdminClient: AdminDataClient = !supabase
       async listProjectSubtasksByProjectId(projectId) {
         const { data, error } = await supabase
           .from('project_subtasks')
-          .select(
-            'id, project_id, title, url, track_status, monitoring_in_progress, qa_in_progress',
-          )
+          .select('id, project_id, title, url, task_status')
           .eq('project_id', projectId)
           .order('updated_at', { ascending: false });
         if (error) throw error;

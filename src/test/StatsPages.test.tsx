@@ -1,8 +1,8 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { MonitoringStatsPage, QaStatsPage } from '../pages/stats';
+import { ProjectStatsPage } from '../pages/stats';
 import { getCurrentMonth, shiftMonth } from '../pages/resource/resourceUtils';
 
 const mockUseAuth = vi.hoisted(() => vi.fn());
@@ -14,11 +14,13 @@ const mockDataClient = vi.hoisted(() => ({
   getTaskTypes: vi.fn(),
   getServiceGroups: vi.fn(),
   getProjects: vi.fn(),
+  getProjectStatsRows: vi.fn(),
   saveProject: vi.fn(),
   getProjectSubtasks: vi.fn(),
   getAllProjectSubtasks: vi.fn(),
+  getProjectSubtasksByProjectId: vi.fn(),
+  getProjectSubtasksByProjectIds: vi.fn(),
   getMonitoringStatsRows: vi.fn(),
-  getQaStatsProjects: vi.fn(),
   saveProjectSubtask: vi.fn(),
   getTasks: vi.fn(),
   saveTask: vi.fn(),
@@ -36,6 +38,175 @@ vi.mock('../auth/AuthContext', () => ({
 vi.mock('../api/client', () => ({
   dataClient: mockDataClient,
 }));
+
+type MockProjectStatsRow = {
+  project_id: string;
+  type1: string;
+  project_name: string;
+  platform: string;
+  cost_group_name: string;
+  service_group_name: string;
+  report_url: string;
+  reporter_display: string;
+  reviewer_display: string;
+  start_date: string;
+  end_date: string;
+  subtask_count: number;
+  untouched_subtask_count: number;
+  partial_subtask_count: number;
+  completed_subtask_count: number;
+};
+
+const projectRows: MockProjectStatsRow[] = [
+  {
+    project_id: 'project-1',
+    type1: 'QA',
+    project_name: 'QA 대상',
+    platform: 'iOS',
+    cost_group_name: '청구그룹A',
+    service_group_name: '서비스 그룹A',
+    report_url: 'https://example.com/project-1',
+    reporter_display: 'legacy-1(운영 사용자)',
+    reviewer_display: 'legacy-2(리뷰어)',
+    start_date: '2026-03-01',
+    end_date: '2026-03-31',
+    subtask_count: 2,
+    untouched_subtask_count: 1,
+    partial_subtask_count: 0,
+    completed_subtask_count: 1,
+  },
+  {
+    project_id: 'project-2',
+    type1: 'QA',
+    project_name: '과업 없는 QA 프로젝트',
+    platform: 'Android',
+    cost_group_name: '청구그룹B',
+    service_group_name: '서비스 그룹B',
+    report_url: '',
+    reporter_display: 'legacy-1(운영 사용자)',
+    reviewer_display: '',
+    start_date: '2026-02-01',
+    end_date: '2026-02-28',
+    subtask_count: 0,
+    untouched_subtask_count: 0,
+    partial_subtask_count: 0,
+    completed_subtask_count: 0,
+  },
+  {
+    project_id: 'project-3',
+    type1: '모니터링',
+    project_name: '과거 모니터링 프로젝트',
+    platform: 'Web',
+    cost_group_name: '청구그룹A',
+    service_group_name: '서비스 그룹A',
+    report_url: '',
+    reporter_display: 'legacy-3(담당자)',
+    reviewer_display: '',
+    start_date: '2025-07-01',
+    end_date: '2025-07-31',
+    subtask_count: 1,
+    untouched_subtask_count: 1,
+    partial_subtask_count: 0,
+    completed_subtask_count: 0,
+  },
+];
+
+const subtaskRows = [
+  {
+    id: 'subtask-1',
+    project_id: 'project-1',
+    owner_member_id: 'member-1',
+    title: '메인 점검',
+    url: 'https://example.com/subtask-1',
+    task_month: '2603',
+    task_status: '전체 수정',
+    note: '수정 완료',
+    updated_at: '2026-03-24T09:00:00.000Z',
+  },
+  {
+    id: 'subtask-2',
+    project_id: 'project-1',
+    owner_member_id: 'member-2',
+    title: '서브 점검',
+    url: '',
+    task_month: '2603',
+    task_status: '미수정',
+    note: '',
+    updated_at: '2026-03-23T09:00:00.000Z',
+  },
+  {
+    id: 'subtask-3',
+    project_id: 'project-3',
+    owner_member_id: 'member-3',
+    title: '과거 점검',
+    url: '',
+    task_month: '2507',
+    task_status: '미수정',
+    note: '',
+    updated_at: '2025-07-23T09:00:00.000Z',
+  },
+];
+
+function monthInRange(value: string, startMonth: string, endMonth: string) {
+  return value >= `${startMonth}-01` && value <= `${endMonth}-31`;
+}
+
+function taskMonthToDateString(taskMonth: string) {
+  const digits = taskMonth.replace(/\D/g, '');
+  if (digits.length === 4) {
+    return `20${digits.slice(0, 2)}-${digits.slice(2, 4)}-01`;
+  }
+  if (digits.length === 6) {
+    return `${digits.slice(0, 4)}-${digits.slice(4, 6)}-01`;
+  }
+  if (digits.length === 8) {
+    return `${digits.slice(0, 4)}-${digits.slice(4, 6)}-${digits.slice(6, 8)}`;
+  }
+  return '';
+}
+
+function compareText(left: string | null | undefined, right: string | null | undefined) {
+  return (left ?? '').localeCompare(right ?? '', 'ko');
+}
+
+function sortProjectRows(
+  rows: MockProjectStatsRow[],
+  sortKey: string,
+  sortDirection: 'asc' | 'desc',
+) {
+  const direction = sortDirection === 'asc' ? 1 : -1;
+  return [...rows].sort((left, right) => {
+    const result = (() => {
+      switch (sortKey) {
+        case 'type1':
+          return compareText(left.type1, right.type1);
+        case 'costGroupName':
+          return compareText(left.cost_group_name, right.cost_group_name);
+        case 'serviceGroupName':
+          return compareText(left.service_group_name, right.service_group_name);
+        case 'projectName':
+          return compareText(left.project_name, right.project_name);
+        case 'platform':
+          return compareText(left.platform, right.platform);
+        case 'subtaskCount':
+          return left.subtask_count - right.subtask_count;
+        case 'untouchedSubtaskCount':
+          return left.untouched_subtask_count - right.untouched_subtask_count;
+        case 'partialSubtaskCount':
+          return left.partial_subtask_count - right.partial_subtask_count;
+        case 'completedSubtaskCount':
+          return left.completed_subtask_count - right.completed_subtask_count;
+        case 'month':
+        default:
+          return compareText(left.end_date, right.end_date);
+      }
+    })();
+    if (result !== 0) {
+      return result * direction;
+    }
+    return compareText(left.project_id, right.project_id);
+  });
+}
 
 describe('Stats pages', () => {
   const defaultEndMonth = getCurrentMonth();
@@ -60,298 +231,335 @@ describe('Stats pages', () => {
       },
     });
 
-    mockDataClient.getMonitoringStatsRows.mockResolvedValue([
+    mockDataClient.getTaskTypes.mockResolvedValue([
       {
-        subtaskId: 'page-1',
-        projectId: 'project-1',
-        title: '모니터링 과업',
-        reportUrl: '',
-        ownerMemberId: 'member-1',
-        monitoringMonth: '2603',
-        trackStatus: '전체 수정',
-        monitoringInProgress: true,
-        qaInProgress: true,
-        note: '진행 내역\n공유 메모',
-        updatedAt: '2026-03-24T09:00:00.000Z',
-        costGroupName: '청구그룹A',
-        serviceGroupName: '서비스 그룹A',
-        projectName: 'QA 대상',
-        platform: 'iOS',
-        assigneeDisplay: 'legacy-1(운영 사용자)',
+        id: '1',
+        type1: 'QA',
+        type2: '리뷰',
+        requires_service_group: true,
+        display_order: 1,
+        is_active: true,
       },
       {
-        subtaskId: 'page-2',
-        projectId: 'project-3',
-        title: '과거 모니터링 과업',
-        reportUrl: '',
-        ownerMemberId: 'member-1',
-        monitoringMonth: '2507',
-        trackStatus: '미수정',
-        monitoringInProgress: false,
-        qaInProgress: false,
-        note: '',
-        updatedAt: '2025-07-24T09:00:00.000Z',
-        costGroupName: '청구그룹A',
-        serviceGroupName: '서비스 그룹A',
-        projectName: '과거 QA 대상',
-        platform: 'Web',
-        assigneeDisplay: 'legacy-1(운영 사용자)',
+        id: '2',
+        type1: '모니터링',
+        type2: '점검',
+        requires_service_group: true,
+        display_order: 2,
+        is_active: true,
       },
       {
-        subtaskId: 'page-3',
-        projectId: 'project-2',
-        title: '제외 과업',
-        reportUrl: '',
-        ownerMemberId: 'member-1',
-        monitoringMonth: '',
-        trackStatus: '미수정',
-        monitoringInProgress: false,
-        qaInProgress: false,
-        note: '',
-        updatedAt: '2026-03-24T09:00:00.000Z',
-        costGroupName: '청구그룹A',
-        serviceGroupName: '서비스 그룹A',
-        projectName: '제외 대상',
-        platform: 'Android',
-        assigneeDisplay: 'legacy-1(운영 사용자)',
+        id: '3',
+        type1: '일반업무',
+        type2: '회의',
+        requires_service_group: false,
+        display_order: 3,
+        is_active: true,
       },
     ]);
-    mockDataClient.getQaStatsProjects.mockResolvedValue([
-      {
-        id: 'project-1',
-        type1: 'QA',
-        name: 'QA 대상',
-        platform: 'iOS',
-        costGroupName: '청구그룹A',
-        serviceGroupName: '서비스 그룹A',
-        reportUrl: '',
-        reporterDisplay: 'legacy-1(운영 사용자)',
-        startDate: '2026-03-01',
-        endDate: '2026-03-31',
-        isActive: true,
-      },
-      {
-        id: 'project-3',
-        type1: 'QA',
-        name: '과거 QA 대상',
-        platform: 'Web',
-        costGroupName: '청구그룹A',
-        serviceGroupName: '서비스 그룹A',
-        reportUrl: '',
-        reporterDisplay: 'legacy-1(운영 사용자)',
-        startDate: '2025-07-01',
-        endDate: '2025-07-31',
-        isActive: true,
-      },
-      {
-        id: 'project-2',
-        type1: 'QA',
-        name: '추가 QA 대상',
-        platform: 'Android',
-        costGroupName: '청구그룹A',
-        serviceGroupName: '서비스 그룹A',
-        reportUrl: '',
-        reporterDisplay: 'legacy-1(운영 사용자)',
-        startDate: '2026-03-01',
-        endDate: '2026-03-31',
-        isActive: true,
-      },
+    mockDataClient.getMembers.mockResolvedValue([
+      { id: 'member-1', account_id: 'legacy-1', name: '운영 사용자' },
+      { id: 'member-2', account_id: 'legacy-2', name: '담당자B' },
+      { id: 'member-3', account_id: 'legacy-3', name: '담당자C' },
     ]);
-    mockDataClient.saveProjectSubtask.mockImplementation(async (input) => ({
-      id: input.id ?? 'page-1',
-      projectId: input.projectId,
-      title: input.title,
-      url: input.url,
-      ownerMemberId: input.ownerMemberId,
-      trackStatus: input.trackStatus,
-      monitoringInProgress: input.monitoringInProgress,
-      qaInProgress: input.qaInProgress,
-      note: input.note,
-      monitoringMonth: input.monitoringMonth ?? '2603',
-      updatedAt: '2026-03-24T09:00:00.000Z',
-    }));
-  });
-
-  it('shows only monitoring rows with monitoring month', async () => {
-    const queryClient = new QueryClient();
-
-    render(
-      <QueryClientProvider client={queryClient}>
-        <MemoryRouter>
-          <MonitoringStatsPage />
-        </MemoryRouter>
-      </QueryClientProvider>,
-    );
-
-    await waitFor(() => {
-      expect(screen.getAllByText('모니터링 과업').length).toBeGreaterThan(0);
+    mockDataClient.getProjectStatsRows.mockImplementation(async (filters) => {
+      const filteredRows = projectRows.filter((row) => {
+        if (filters.periodBasis === 'subtask') {
+          const matchingSubtasks = subtaskRows.filter(
+            (subtask) =>
+              subtask.project_id === row.project_id &&
+              monthInRange(taskMonthToDateString(subtask.task_month), filters.startMonth, filters.endMonth),
+          );
+          if (!matchingSubtasks.length) {
+            return false;
+          }
+        } else if (!monthInRange(row.end_date, filters.startMonth, filters.endMonth)) {
+          return false;
+        }
+        if (filters.taskType1 && row.type1 !== filters.taskType1) {
+          return false;
+        }
+        return true;
+      });
+      return sortProjectRows(filteredRows, filters.sortKey, filters.sortDirection);
     });
-
-    expect(screen.getByRole('heading', { name: '모니터링 통계' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: '월별 모니터링 현황' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '그래프' })).toHaveAttribute('aria-pressed', 'true');
-    expect(screen.getByRole('button', { name: '표' })).toHaveAttribute('aria-pressed', 'false');
-    expect(screen.getAllByText('2026/03').length).toBeGreaterThan(0);
-    expect(
-      screen.getByRole('row', {
-        name: '월 청구그룹 서비스 그룹 프로젝트명 플랫폼 과업명 담당자 상태 비고 보고서URL',
+    mockDataClient.getProjectSubtasksByProjectIds.mockImplementation(async (projectIds, options) =>
+      subtaskRows.filter((row) => {
+        if (!projectIds.includes(row.project_id)) {
+          return false;
+        }
+        return true;
       }),
-    ).toBeInTheDocument();
-    expect(screen.getByRole('columnheader', { name: '플랫폼' })).toBeInTheDocument();
-    expect(screen.getByRole('columnheader', { name: '청구그룹' })).toBeInTheDocument();
-    expect(screen.getAllByText('청구그룹A').length).toBeGreaterThan(0);
-    expect(screen.getByRole('columnheader', { name: '서비스 그룹' })).toBeInTheDocument();
-    expect(screen.getByRole('columnheader', { name: '프로젝트명' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'QA 대상' })).toHaveAttribute(
-      'href',
-      '/projects/project-1/edit',
     );
-    expect(screen.getByRole('columnheader', { name: '과업명' })).toBeInTheDocument();
-    expect(screen.getAllByText('legacy-1(운영 사용자)').length).toBeGreaterThan(0);
-    expect(screen.getByRole('button', { name: '모니터링 과업 내용 보기' })).toBeInTheDocument();
-    expect(screen.queryByText(/적용 기간/)).not.toBeInTheDocument();
-    expect(screen.queryByText('2025-10 ~ 2026-03')).not.toBeInTheDocument();
-    expect(screen.queryByText('제외 과업')).not.toBeInTheDocument();
-    expect((screen.getByLabelText('모니터링 시작월') as HTMLInputElement).value).toBe(
-      defaultStartMonth,
+    mockDataClient.getMonitoringStatsRows.mockImplementation(async (filters) =>
+      subtaskRows.filter((row) => {
+        const dateValue = taskMonthToDateString(row.task_month);
+        if (!dateValue || !monthInRange(dateValue, filters.startMonth, filters.endMonth)) {
+          return false;
+        }
+        if (!filters.taskType1) {
+          return true;
+        }
+        const project = projectRows.find((projectRow) => projectRow.project_id === row.project_id);
+        return project?.type1 === filters.taskType1;
+      }),
     );
-    expect((screen.getByLabelText('모니터링 종료월') as HTMLInputElement).value).toBe(
-      defaultEndMonth,
-    );
-    expect(screen.getByLabelText('모니터링 시작월')).toHaveAttribute('max', defaultEndMonth);
-    expect(screen.getByLabelText('모니터링 종료월')).toHaveAttribute('min', defaultStartMonth);
   });
 
-  it('applies the monitoring period only after search is clicked', async () => {
+  it('shows project rows, summary, and project-only type options', async () => {
     const queryClient = new QueryClient();
 
     render(
       <QueryClientProvider client={queryClient}>
         <MemoryRouter>
-          <MonitoringStatsPage />
+          <ProjectStatsPage />
         </MemoryRouter>
       </QueryClientProvider>,
     );
 
     await waitFor(() => {
-      expect(screen.getAllByText('모니터링 과업').length).toBeGreaterThan(0);
+      expect(screen.getByText('QA 대상')).toBeInTheDocument();
     });
 
-    expect((screen.getByLabelText('모니터링 시작월') as HTMLInputElement).value).toBe(
-      defaultStartMonth,
-    );
-    expect((screen.getByLabelText('모니터링 종료월') as HTMLInputElement).value).toBe(
-      defaultEndMonth,
+    expect(mockDataClient.getProjectStatsRows).toHaveBeenCalledWith({
+      startMonth: defaultStartMonth,
+      endMonth: defaultEndMonth,
+      taskType1: 'QA',
+      periodBasis: 'project',
+      sortKey: 'month',
+      sortDirection: 'desc',
+    });
+    expect(screen.getByRole('heading', { name: '프로젝트 통계' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: '월별 프로젝트 현황' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: '프로젝트 목록' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /종료월 정렬/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /서브태스크 수 정렬/ })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: 'QA' })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: '모니터링' })).toBeInTheDocument();
+    expect(screen.queryByRole('option', { name: '일반업무' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('option', { name: '전체' })).not.toBeInTheDocument();
+    expect((screen.getByLabelText('프로젝트 통계 타입 1') as HTMLSelectElement).value).toBe('QA');
+    expect(screen.getByText('과업 없는 QA 프로젝트')).toBeInTheDocument();
+    expect(screen.getByText('과업 없음')).toBeInTheDocument();
+    expect(screen.getByText('2026/03')).toBeInTheDocument();
+    expect(screen.getByText('2026/02')).toBeInTheDocument();
+  });
+
+  it('applies project period and type only after search is clicked', async () => {
+    const queryClient = new QueryClient();
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter>
+          <ProjectStatsPage />
+        </MemoryRouter>
+      </QueryClientProvider>,
     );
 
-    fireEvent.change(screen.getByLabelText('모니터링 시작월'), { target: { value: '2025-07' } });
-    fireEvent.change(screen.getByLabelText('모니터링 종료월'), { target: { value: '2025-07' } });
+    await waitFor(() => {
+      expect(screen.getByText('QA 대상')).toBeInTheDocument();
+    });
 
-    expect(screen.getByText('모니터링 과업')).toBeInTheDocument();
-    expect(screen.queryByText('과거 모니터링 과업')).not.toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText('프로젝트 통계 시작월'), { target: { value: '2025-07' } });
+    fireEvent.change(screen.getByLabelText('프로젝트 통계 종료월'), { target: { value: '2025-07' } });
+    fireEvent.change(screen.getByLabelText('프로젝트 통계 타입 1'), {
+      target: { value: '모니터링' },
+    });
+
+    expect(screen.getByText('QA 대상')).toBeInTheDocument();
+    expect(screen.queryByText('과거 모니터링 프로젝트')).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: '검색' }));
 
-    expect((screen.getByLabelText('모니터링 시작월') as HTMLInputElement).value).toBe('2025-07');
-    expect((screen.getByLabelText('모니터링 종료월') as HTMLInputElement).value).toBe('2025-07');
-    expect(screen.queryByText('모니터링 과업')).not.toBeInTheDocument();
-    expect(screen.getByText('과거 모니터링 과업')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(mockDataClient.getProjectStatsRows).toHaveBeenLastCalledWith({
+        startMonth: '2025-07',
+        endMonth: '2025-07',
+        taskType1: '모니터링',
+        periodBasis: 'project',
+        sortKey: 'month',
+        sortDirection: 'desc',
+      });
+    });
+    await waitFor(() => {
+      expect(screen.queryByText('QA 대상')).not.toBeInTheDocument();
+      expect(screen.getByText('과거 모니터링 프로젝트')).toBeInTheDocument();
+    });
   });
 
-  it('keeps the monitoring stats table read-only', async () => {
+  it('sorts parent project rows on the server side', async () => {
     const queryClient = new QueryClient();
 
     render(
       <QueryClientProvider client={queryClient}>
         <MemoryRouter>
-          <MonitoringStatsPage />
+          <ProjectStatsPage />
         </MemoryRouter>
       </QueryClientProvider>,
     );
 
     await waitFor(() => {
-      expect(screen.getAllByText('모니터링 과업').length).toBeGreaterThan(0);
+      expect(screen.getByText('QA 대상')).toBeInTheDocument();
     });
 
-    expect(screen.queryByRole('columnheader', { name: '수정' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: '수정' })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /미수정 정렬/ }));
+
+    await waitFor(() => {
+      expect(mockDataClient.getProjectStatsRows).toHaveBeenLastCalledWith({
+        startMonth: defaultStartMonth,
+        endMonth: defaultEndMonth,
+        taskType1: 'QA',
+        periodBasis: 'project',
+        sortKey: 'untouchedSubtaskCount',
+        sortDirection: 'asc',
+      });
+    });
+
+    await waitFor(() => {
+      const rows = screen.getAllByRole('row');
+      expect(rows[1]).toHaveTextContent('과업 없는 QA 프로젝트');
+      expect(rows[2]).toHaveTextContent('QA 대상');
+    });
+  });
+
+  it('expands a project row and shows only that project subtasks', async () => {
+    const queryClient = new QueryClient();
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter>
+          <ProjectStatsPage />
+        </MemoryRouter>
+      </QueryClientProvider>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('QA 대상')).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'QA 대상 서브태스크 펼치기' }));
+
+    await waitFor(() => {
+      expect(mockDataClient.getProjectSubtasksByProjectIds).toHaveBeenLastCalledWith(['project-1']);
+    });
+
+    const detailRegion = await screen.findByRole('table', { name: 'QA 대상 서브태스크 목록' });
+    expect(within(detailRegion).getByText('메인 점검')).toBeInTheDocument();
+    expect(within(detailRegion).getByText('서브 점검')).toBeInTheDocument();
+    expect(within(detailRegion).queryByText('과거 점검')).not.toBeInTheDocument();
+    expect(within(detailRegion).getByText('legacy-1(운영 사용자)')).toBeInTheDocument();
+    expect(within(detailRegion).getByText('legacy-2(담당자B)')).toBeInTheDocument();
+  });
+
+  it('keeps the project stats page read-only', async () => {
+    const queryClient = new QueryClient();
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter>
+          <ProjectStatsPage />
+        </MemoryRouter>
+      </QueryClientProvider>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('QA 대상')).toBeInTheDocument();
+    });
+
     expect(screen.queryByRole('button', { name: '저장' })).not.toBeInTheDocument();
-    expect(screen.queryByLabelText('모니터링 과업 상태')).not.toBeInTheDocument();
-    expect(screen.queryByLabelText('모니터링 과업 비고')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: '수정' })).not.toBeInTheDocument();
     expect(mockDataClient.saveProjectSubtask).not.toHaveBeenCalled();
   });
 
-  it('shows only QA projects by project type', async () => {
+  it('switches to subtask period basis and narrows projects by subtask month', async () => {
     const queryClient = new QueryClient();
 
     render(
       <QueryClientProvider client={queryClient}>
         <MemoryRouter>
-          <QaStatsPage />
+          <ProjectStatsPage />
         </MemoryRouter>
       </QueryClientProvider>,
     );
 
     await waitFor(() => {
-      expect(screen.getAllByText('QA 대상').length).toBeGreaterThan(0);
+      expect(screen.getByText('QA 대상')).toBeInTheDocument();
     });
 
-    expect(screen.getByRole('heading', { name: 'QA 통계' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: '월별 QA 현황' })).toBeInTheDocument();
-    expect(screen.getAllByRole('heading', { name: 'QA 프로젝트 목록' }).length).toBeGreaterThan(0);
-    expect(screen.getByRole('button', { name: '그래프' })).toHaveAttribute('aria-pressed', 'true');
-    expect(screen.getByRole('button', { name: '표' })).toHaveAttribute('aria-pressed', 'false');
-    expect(screen.getAllByText('2026/03').length).toBeGreaterThan(0);
-    expect(screen.getByRole('columnheader', { name: '플랫폼' })).toBeInTheDocument();
-    expect(screen.getByRole('columnheader', { name: '청구그룹' })).toBeInTheDocument();
-    expect(screen.getAllByText('청구그룹A').length).toBeGreaterThan(0);
-    expect(screen.getByRole('columnheader', { name: '서비스 그룹' })).toBeInTheDocument();
-    expect(screen.getByRole('columnheader', { name: '프로젝트명' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'QA 대상' })).toHaveAttribute(
-      'href',
-      '/projects/project-1/edit',
-    );
-    expect(screen.getByRole('columnheader', { name: '리포터' })).toBeInTheDocument();
-    expect(screen.getAllByText('legacy-1(운영 사용자)').length).toBeGreaterThan(0);
-    expect(screen.getByText('iOS')).toBeInTheDocument();
-    expect(screen.queryByText(/적용 기간/)).not.toBeInTheDocument();
-    expect(screen.queryByText('2025-10 ~ 2026-03')).not.toBeInTheDocument();
-    expect(screen.getByText('추가 QA 대상')).toBeInTheDocument();
-    expect((screen.getByLabelText('QA 시작월') as HTMLInputElement).value).toBe(defaultStartMonth);
-    expect((screen.getByLabelText('QA 종료월') as HTMLInputElement).value).toBe(defaultEndMonth);
-    expect(screen.getByLabelText('QA 시작월')).toHaveAttribute('max', defaultEndMonth);
-    expect(screen.getByLabelText('QA 종료월')).toHaveAttribute('min', defaultStartMonth);
-  });
-
-  it('applies the QA period only after search is clicked', async () => {
-    const queryClient = new QueryClient();
-
-    render(
-      <QueryClientProvider client={queryClient}>
-        <MemoryRouter>
-          <QaStatsPage />
-        </MemoryRouter>
-      </QueryClientProvider>,
-    );
-
-    await waitFor(() => {
-      expect(screen.getAllByText('QA 대상').length).toBeGreaterThan(0);
+    fireEvent.change(screen.getByLabelText('프로젝트 통계 시작월'), { target: { value: '2025-07' } });
+    fireEvent.change(screen.getByLabelText('프로젝트 통계 종료월'), { target: { value: '2025-07' } });
+    fireEvent.change(screen.getByLabelText('프로젝트 통계 타입 1'), {
+      target: { value: '모니터링' },
     });
-
-    expect((screen.getByLabelText('QA 시작월') as HTMLInputElement).value).toBe(defaultStartMonth);
-    expect((screen.getByLabelText('QA 종료월') as HTMLInputElement).value).toBe(defaultEndMonth);
-
-    fireEvent.change(screen.getByLabelText('QA 시작월'), { target: { value: '2025-07' } });
-    fireEvent.change(screen.getByLabelText('QA 종료월'), { target: { value: '2025-07' } });
-
-    expect(screen.getByText('QA 대상')).toBeInTheDocument();
-    expect(screen.queryByText('과거 QA 대상')).not.toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText('프로젝트 통계 기간 기준'), {
+      target: { value: 'subtask' },
+    });
 
     fireEvent.click(screen.getByRole('button', { name: '검색' }));
 
-    expect((screen.getByLabelText('QA 시작월') as HTMLInputElement).value).toBe('2025-07');
-    expect((screen.getByLabelText('QA 종료월') as HTMLInputElement).value).toBe('2025-07');
-    expect(screen.queryByText('QA 대상')).not.toBeInTheDocument();
-    expect(screen.getByText('과거 QA 대상')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(mockDataClient.getProjectStatsRows).toHaveBeenLastCalledWith({
+        startMonth: '2025-07',
+        endMonth: '2025-07',
+        taskType1: '모니터링',
+        periodBasis: 'subtask',
+        sortKey: 'month',
+        sortDirection: 'desc',
+      });
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('과거 모니터링 프로젝트')).toBeInTheDocument();
+      expect(screen.queryByText('QA 대상')).not.toBeInTheDocument();
+    });
+  });
+
+  it('loads expanded subtasks from subtask period rows when subtask basis is selected', async () => {
+    const queryClient = new QueryClient();
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter>
+          <ProjectStatsPage />
+        </MemoryRouter>
+      </QueryClientProvider>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('QA 대상')).toBeInTheDocument();
+    });
+
+    fireEvent.change(screen.getByLabelText('프로젝트 통계 시작월'), { target: { value: '2025-07' } });
+    fireEvent.change(screen.getByLabelText('프로젝트 통계 종료월'), { target: { value: '2025-07' } });
+    fireEvent.change(screen.getByLabelText('프로젝트 통계 타입 1'), {
+      target: { value: '모니터링' },
+    });
+    fireEvent.change(screen.getByLabelText('프로젝트 통계 기간 기준'), {
+      target: { value: 'subtask' },
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: '검색' }));
+
+    await waitFor(() => {
+      expect(screen.getByText('과거 모니터링 프로젝트')).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: '과거 모니터링 프로젝트 서브태스크 펼치기' }));
+
+    await waitFor(() => {
+      expect(mockDataClient.getMonitoringStatsRows).toHaveBeenLastCalledWith({
+        startMonth: '2025-07',
+        endMonth: '2025-07',
+        taskType1: '모니터링',
+        sortKey: 'month',
+        sortDirection: 'desc',
+      });
+    });
+
+    const detailRegion = await screen.findByRole('table', {
+      name: '과거 모니터링 프로젝트 서브태스크 목록',
+    });
+    expect(within(detailRegion).getByText('과거 점검')).toBeInTheDocument();
+    expect(within(detailRegion).getByText('2025/07')).toBeInTheDocument();
   });
 });

@@ -71,6 +71,7 @@ export function ProjectEditorSubtasksSection({
             <colgroup>
               <col className="projects-feature__subtask-col-title" />
               <col className="projects-feature__subtask-col-url" />
+              <col className="projects-feature__subtask-col-month" />
               <col className="projects-feature__subtask-col-owner" />
               <col className="projects-feature__subtask-col-status" />
               <col className="projects-feature__subtask-col-actions" />
@@ -78,7 +79,8 @@ export function ProjectEditorSubtasksSection({
             <thead>
               <tr>
                 <th scope="col">과업명</th>
-                <th scope="col">보고서 URL</th>
+                <th scope="col">보고서<br/>URL</th>
+                <th scope="col">과업월</th>
                 <th scope="col">담당자</th>
                 <th scope="col">상태</th>
                 <th scope="col">작업</th>
@@ -124,6 +126,20 @@ export function ProjectEditorSubtasksSection({
                     />
                   </td>
                   <td>
+                    <label className={'sr-only'} htmlFor="new-subtask-month">
+                      과업월
+                    </label>
+                    <input
+                      id="new-subtask-month"
+                      form={addFormId}
+                      type="month"
+                      value={newSubtaskDraft.taskMonth}
+                      onChange={(event) =>
+                        onNewSubtaskDraftChange({ taskMonth: event.target.value })
+                      }
+                    />
+                  </td>
+                  <td>
                     <label className={'sr-only'} htmlFor="new-subtask-owner">
                       담당자
                     </label>
@@ -150,10 +166,10 @@ export function ProjectEditorSubtasksSection({
                     <select
                       id="new-subtask-status"
                       form={addFormId}
-                      value={newSubtaskDraft.trackStatus}
+                      value={newSubtaskDraft.taskStatus}
                       onChange={(event) =>
                         onNewSubtaskDraftChange({
-                          trackStatus: event.target.value as SubtaskStatus,
+                          taskStatus: event.target.value as SubtaskStatus,
                         })
                       }
                     >
@@ -214,10 +230,11 @@ export function ProjectEditorSubtasksSection({
                           '-'
                         )}
                       </td>
+                      <td>{subtask.taskMonth || '-'}</td>
                       <td>{ownerText}</td>
                       <td>
-                        <span className="status-badge" data-status={subtask.trackStatus}>
-                          {subtask.trackStatus}
+                        <span className="status-badge" data-status={subtask.taskStatus}>
+                          {subtask.taskStatus}
                         </span>
                       </td>
                       <td>
@@ -244,7 +261,7 @@ export function ProjectEditorSubtasksSection({
                     </tr>
                     {isEditing ? (
                       <tr className={'projects-feature__subtask-edit-row'}>
-                        <td colSpan={5}>
+                        <td colSpan={6}>
                           <div className={'projects-feature__subtask-edit-panel'}>
                             <div className={'projects-feature__subtask-edit-grid'}>
                               <label>
@@ -264,6 +281,19 @@ export function ProjectEditorSubtasksSection({
                                   value={draft.url}
                                   onChange={(event) =>
                                     onSubtaskDraftChange(subtask.id, { url: event.target.value })
+                                  }
+                                />
+                              </label>
+                              <label>
+                                <span>과업월</span>
+                                <input
+                                  id={`subtask-month-${subtask.id}`}
+                                  type="month"
+                                  value={draft.taskMonth}
+                                  onChange={(event) =>
+                                    onSubtaskDraftChange(subtask.id, {
+                                      taskMonth: event.target.value,
+                                    })
                                   }
                                 />
                               </label>
@@ -290,10 +320,10 @@ export function ProjectEditorSubtasksSection({
                                 <span>상태</span>
                                 <select
                                   id={`subtask-status-${subtask.id}`}
-                                  value={draft.trackStatus}
+                                  value={draft.taskStatus}
                                   onChange={(event) =>
                                     onSubtaskDraftChange(subtask.id, {
-                                      trackStatus: event.target.value as SubtaskStatus,
+                                      taskStatus: event.target.value as SubtaskStatus,
                                     })
                                   }
                                 >

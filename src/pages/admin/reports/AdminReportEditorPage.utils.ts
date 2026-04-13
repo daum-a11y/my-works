@@ -130,10 +130,8 @@ export function toPages(
     title: item.title,
     url: item.url,
     ownerMemberId: null,
-    monitoringMonth: '',
-    trackStatus: item.trackStatus as ProjectSubtask['trackStatus'],
-    monitoringInProgress: item.monitoringInProgress,
-    qaInProgress: item.qaInProgress,
+    taskMonth: '',
+    taskStatus: item.taskStatus as ProjectSubtask['taskStatus'],
     note: '',
     updatedAt: '',
   }));

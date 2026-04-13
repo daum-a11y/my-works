@@ -390,6 +390,7 @@
     width: 100%;
     min-width: 896px;
     border-collapse: collapse;
+    table-layout: fixed;
   }
 
   .stats-page__table th,
@@ -411,6 +412,40 @@
     position: sticky;
     top: 0;
     z-index: 1;
+    word-break: keep-all;
+    white-space: normal;
+  }
+
+  .stats-page__table-col--toggle {
+    width: 88px;
+  }
+
+  .stats-page__table-col--month {
+    width: 112px;
+  }
+
+  .stats-page__table-col--type {
+    width: 92px;
+  }
+
+  .stats-page__table-col--platform {
+    width: 124px;
+  }
+
+  .stats-page__table-col--group {
+    width: 118px;
+  }
+
+  .stats-page__table-col--project {
+    width: auto;
+  }
+
+  .stats-page__table-col--count {
+    width: 96px;
+  }
+
+  .stats-page__table-col--report {
+    width: 92px;
   }
 
   .stats-page__table td strong {
@@ -477,5 +512,72 @@
     font-size: var(--text-form-size);
     font-weight: var(--text-form-weight);
     line-height: var(--text-form-line-height);
+  }
+
+  .stats-page__expand-button {
+    min-height: var(--control-height-sm);
+    padding: 0 12px;
+    border: 1px solid var(--border-default);
+    background: var(--surface-panel);
+    color: var(--text-primary);
+    font: inherit;
+    cursor: pointer;
+  }
+
+  .stats-page__subtasks-row td {
+    background: color-mix(in oklab, var(--surface-panel) 86%, var(--surface-canvas-strong));
+  }
+
+  .stats-page__subtable-wrap {
+    overflow: auto;
+    border: 1px solid var(--border-subtle);
+    background: var(--surface-panel);
+  }
+
+  .stats-page__subtable {
+    width: 100%;
+    min-width: 900px;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+
+  .stats-page__subtable th,
+  .stats-page__subtable td {
+    padding: 10px;
+    border-bottom: 1px solid var(--border-subtle);
+    text-align: left;
+    vertical-align: top;
+    overflow-wrap: anywhere;
+  }
+
+  .stats-page__subtable th {
+    color: var(--text-muted);
+    font-size: var(--text-table-size);
+    font-weight: var(--text-table-weight);
+    line-height: var(--text-table-line-height);
+    letter-spacing: var(--text-table-tracking);
+    background: color-mix(in oklab, var(--surface-panel) 72%, var(--surface-canvas-strong));
+    word-break: keep-all;
+    white-space: normal;
+  }
+
+  .stats-page__subtable-col--task {
+    width: 140px;
+  }
+
+  .stats-page__subtable-col--assignee {
+    width: 172px;
+  }
+
+  .stats-page__subtable-col--status {
+    width: 96px;
+  }
+
+  .stats-page__subtable-col--month {
+    width: 128px;
+  }
+
+  .stats-page__subtable-col--link {
+    width: 84px;
   }
 }

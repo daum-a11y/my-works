@@ -130,10 +130,8 @@ export interface ProjectSubtask {
   title: string;
   url: string;
   ownerMemberId: string | null;
-  monitoringMonth: string;
-  trackStatus: SubtaskStatus;
-  monitoringInProgress: boolean;
-  qaInProgress: boolean;
+  taskMonth: string;
+  taskStatus: SubtaskStatus;
   note: string;
   updatedAt: string;
 }
@@ -369,10 +367,8 @@ export interface SaveProjectSubtaskInput {
   title: string;
   url: string;
   ownerMemberId: string | null;
-  monitoringMonth?: string;
-  trackStatus: SubtaskStatus;
-  monitoringInProgress: boolean;
-  qaInProgress: boolean;
+  taskMonth?: string;
+  taskStatus: SubtaskStatus;
   note: string;
 }
 
@@ -394,22 +390,37 @@ export interface DashboardSnapshot {
 export interface StatsSnapshot {
   totalTaskUsedtime: number;
   totalTasks: number;
-  monitoringInProgress: number;
-  qaInProgress: number;
   statusBreakdown: Array<{ status: SubtaskStatus; count: number }>;
   typeBreakdown: Array<{ type: string; taskUsedtime: number }>;
 }
 
-export interface MonitoringStatsRow {
+export interface ProjectStatsRow {
+  projectId: string;
+  type1: string | null;
+  projectName: string | null;
+  platform: string | null;
+  costGroupName: string | null;
+  serviceGroupName: string | null;
+  reportUrl: string | null;
+  reporterDisplay: string | null;
+  reviewerDisplay: string | null;
+  startDate: string;
+  endDate: string;
+  subtaskCount: number;
+  untouchedSubtaskCount: number;
+  partialSubtaskCount: number;
+  completedSubtaskCount: number;
+}
+
+export interface ProjectSubtaskStatsRow {
   subtaskId: string;
   projectId: string;
+  type1: string | null;
   title: string;
   url: string;
   ownerMemberId: string | null;
-  monitoringMonth: string;
-  trackStatus: SubtaskStatus;
-  monitoringInProgress: boolean;
-  qaInProgress: boolean;
+  taskMonth: string;
+  taskStatus: SubtaskStatus;
   note: string | null;
   updatedAt: string;
   costGroupName: string | null;
@@ -420,19 +431,7 @@ export interface MonitoringStatsRow {
   reportUrl: string | null;
 }
 
-export interface QaStatsProjectRow {
-  id: string;
-  type1: string | null;
-  name: string | null;
-  platform: string | null;
-  costGroupName: string | null;
-  serviceGroupName: string | null;
-  reportUrl: string | null;
-  reporterDisplay: string | null;
-  startDate: string;
-  endDate: string;
-  isActive: boolean;
-}
+export type MonitoringStatsRow = ProjectSubtaskStatsRow;
 
 export interface OpsStore {
   members: Member[];

@@ -30,6 +30,15 @@ function splitServiceName(name: string) {
   };
 }
 
+function readFirst(record: ApiRecord, ...keys: string[]) {
+  for (const key of keys) {
+    if (record[key] != null) {
+      return record[key];
+    }
+  }
+  return null;
+}
+
 function readValue(record: ApiRecord, snakeKey: string, camelKey: string) {
   return record[snakeKey] ?? record[camelKey];
 }
@@ -144,13 +153,13 @@ export function toAdminProject(record: ApiRecord): AdminProjectOption {
 
 export function toAdminSubtask(record: ApiRecord): AdminSubtaskOption {
   return {
-    id: String(record.id ?? ''),
-    projectId: String(record.project_id ?? ''),
-    title: String(record.title ?? ''),
+    id: String(readFirst(record, 'id', 'subtask_id', 'subtaskId') ?? ''),
+    projectId: String(readFirst(record, 'project_id', 'projectId') ?? ''),
+    title: String(readFirst(record, 'title', 'subtask_title', 'subtaskTitle', 'page_name', 'pj_page_name') ?? ''),
     url: String(record.url ?? ''),
-    trackStatus: normalizeSubtaskStatus(String(record.track_status ?? '미수정')),
-    monitoringInProgress: Boolean(record.monitoring_in_progress ?? false),
-    qaInProgress: Boolean(record.qa_in_progress ?? false),
+    taskStatus: normalizeSubtaskStatus(
+      String(readFirst(record, 'task_status', 'taskStatus', 'track_status', 'trackStatus') ?? '미수정'),
+    ),
   };
 }
 

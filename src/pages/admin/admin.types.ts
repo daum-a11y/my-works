@@ -164,9 +164,7 @@ export interface AdminSubtaskOption {
   projectId: string;
   title: string;
   url: string;
-  trackStatus: string;
-  monitoringInProgress: boolean;
-  qaInProgress: boolean;
+  taskStatus: string;
 }
 
 export interface MemberAdminItem {

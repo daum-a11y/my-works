@@ -84,8 +84,7 @@ vi.mock('../pages/search', () => ({
 }));
 
 vi.mock('../pages/stats', () => ({
-  MonitoringStatsPage: () => <div>monitoring-stats-page</div>,
-  QaStatsPage: () => <div>qa-stats-page</div>,
+  ProjectStatsPage: () => <div>project-stats-page</div>,
 }));
 
 vi.mock('../pages/profile', () => ({
@@ -244,5 +243,54 @@ describe('RootRouter', () => {
     await waitFor(() => {
       expect(screen.getByText('not-found-page')).toBeInTheDocument();
     });
+  });
+
+  it('renders the project stats page on the new stats route', async () => {
+    window.history.replaceState({}, '', '/stats/projects');
+    mockUseAuth.mockReturnValue({
+      status: 'authenticated',
+      authFlow: 'default',
+      isRecoverySession: false,
+      session: {
+        member: {
+          id: 'member-1',
+          accountId: 'user01',
+          name: '사용자',
+          role: 'member',
+          isActive: true,
+        },
+      },
+    });
+
+    render(<RootRouter />);
+
+    await waitFor(() => {
+      expect(screen.getByText('project-stats-page')).toBeInTheDocument();
+    });
+  });
+
+  it('redirects the old monitoring stats route to the project stats route', async () => {
+    window.history.replaceState({}, '', '/stats/monitoring');
+    mockUseAuth.mockReturnValue({
+      status: 'authenticated',
+      authFlow: 'default',
+      isRecoverySession: false,
+      session: {
+        member: {
+          id: 'member-1',
+          accountId: 'user01',
+          name: '사용자',
+          role: 'member',
+          isActive: true,
+        },
+      },
+    });
+
+    render(<RootRouter />);
+
+    await waitFor(() => {
+      expect(screen.getByText('project-stats-page')).toBeInTheDocument();
+    });
+    expect(window.location.pathname).toBe('/stats/projects');
   });
 });

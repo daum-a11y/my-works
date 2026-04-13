@@ -125,10 +125,10 @@ describe('AuthenticatedLayout', () => {
     render(
       <ThemePreferenceProvider>
         <QueryClientProvider client={queryClient}>
-          <MemoryRouter initialEntries={['/stats/monitoring']}>
+          <MemoryRouter initialEntries={['/stats/projects']}>
             <Routes>
               <Route path="/" element={<AuthenticatedLayout />}>
-                <Route path="stats/monitoring" element={<div>monitoring-stats-page</div>} />
+                <Route path="stats/projects" element={<div>project-stats-page</div>} />
               </Route>
             </Routes>
           </MemoryRouter>
@@ -136,7 +136,7 @@ describe('AuthenticatedLayout', () => {
       </ThemePreferenceProvider>,
     );
 
-    expect(screen.getAllByText('모니터링 통계').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('프로젝트 통계').length).toBeGreaterThan(0);
   });
 
   it('moves to dashboard when clicking breadcrumb home', async () => {
@@ -162,10 +162,10 @@ describe('AuthenticatedLayout', () => {
     render(
       <ThemePreferenceProvider>
         <QueryClientProvider client={queryClient}>
-          <MemoryRouter initialEntries={['/stats/monitoring']}>
+          <MemoryRouter initialEntries={['/stats/projects']}>
             <Routes>
               <Route path="/" element={<AuthenticatedLayout />}>
-                <Route path="stats/monitoring" element={<div>monitoring-stats-page</div>} />
+                <Route path="stats/projects" element={<div>project-stats-page</div>} />
                 <Route path="dashboard" element={<div>dashboard-page</div>} />
               </Route>
             </Routes>

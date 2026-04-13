@@ -20,8 +20,7 @@ export interface SubtaskFormState {
   title: string;
   url: string;
   ownerMemberId: string;
-  trackStatus: SubtaskStatus;
-  monitoringInProgress: boolean;
-  qaInProgress: boolean;
+  taskMonth: string;
+  taskStatus: SubtaskStatus;
   note: string;
 }

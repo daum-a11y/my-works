@@ -225,9 +225,8 @@ describe('Projects routes', () => {
         title: '로그인',
         url: 'https://example.com/login',
         ownerMemberId: 'member-1',
-        trackStatus: '전체 수정',
-        monitoringInProgress: true,
-        qaInProgress: false,
+        taskMonth: '2026-03',
+        taskStatus: '전체 수정',
         note: '메모',
         updatedAt: '2026-03-24T09:00:00.000Z',
       },
@@ -239,9 +238,8 @@ describe('Projects routes', () => {
         title: '로그인',
         url: 'https://example.com/login',
         ownerMemberId: 'member-1',
-        trackStatus: '전체 수정',
-        monitoringInProgress: true,
-        qaInProgress: false,
+        taskMonth: '2026-03',
+        taskStatus: '전체 수정',
         note: '메모',
         updatedAt: '2026-03-24T09:00:00.000Z',
       },
@@ -253,9 +251,8 @@ describe('Projects routes', () => {
         title: '로그인',
         url: 'https://example.com/login',
         ownerMemberId: 'member-1',
-        trackStatus: '전체 수정',
-        monitoringInProgress: true,
-        qaInProgress: false,
+        taskMonth: '2026-03',
+        taskStatus: '전체 수정',
         note: '메모',
         updatedAt: '2026-03-24T09:00:00.000Z',
       },
@@ -281,9 +278,8 @@ describe('Projects routes', () => {
       title: '신규 과업',
       url: 'https://example.com/new',
       ownerMemberId: 'member-1',
-      trackStatus: '미수정',
-      monitoringInProgress: false,
-      qaInProgress: false,
+      taskMonth: '',
+      taskStatus: '미수정',
       note: '',
       updatedAt: '2026-03-24T09:00:00.000Z',
     });
@@ -478,10 +474,8 @@ describe('Projects routes', () => {
         title: `과업 ${index + 1}`,
         url: `https://example.com/subtask-${index + 1}`,
         ownerMemberId: 'member-1',
-        monitoringMonth: '2026-03',
-        trackStatus: '전체 수정',
-        monitoringInProgress: false,
-        qaInProgress: false,
+        taskMonth: '2026-03',
+        taskStatus: '전체 수정',
         note: '',
         updatedAt: '2026-03-24T09:00:00.000Z',
       })),
@@ -537,13 +531,13 @@ describe('Projects routes', () => {
     await user.click(screen.getByRole('button', { name: '과업 저장' }));
 
     await waitFor(() => {
-      expect(mockDataClient.saveProjectSubtask).toHaveBeenCalledWith(
-        expect.objectContaining({
-          id: 'subtask-1',
-          trackStatus: '미수정',
-          note: '비고 수정',
-        }),
-      );
+        expect(mockDataClient.saveProjectSubtask).toHaveBeenCalledWith(
+          expect.objectContaining({
+            id: 'subtask-1',
+            taskStatus: '미수정',
+            note: '비고 수정',
+          }),
+        );
     });
 
     await user.click(screen.getByRole('button', { name: '과업 추가' }));
@@ -554,16 +548,16 @@ describe('Projects routes', () => {
     await user.click(screen.getByRole('button', { name: '추가' }));
 
     await waitFor(() => {
-      expect(mockDataClient.saveProjectSubtask).toHaveBeenCalledWith(
-        expect.objectContaining({
-          projectId: 'project-1',
-          title: '신규 과업',
-          url: 'https://example.com/new',
-          ownerMemberId: 'member-1',
-          trackStatus: '일부 수정',
-          note: '신규 비고',
-        }),
-      );
+        expect(mockDataClient.saveProjectSubtask).toHaveBeenCalledWith(
+          expect.objectContaining({
+            projectId: 'project-1',
+            title: '신규 과업',
+            url: 'https://example.com/new',
+            ownerMemberId: 'member-1',
+            taskStatus: '일부 수정',
+            note: '신규 비고',
+          }),
+        );
     });
   });
 

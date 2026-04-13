@@ -28,7 +28,7 @@ import {
   ResourceTypePage,
 } from '../pages/resource';
 import { SearchPage } from '../pages/search';
-import { MonitoringStatsPage, QaStatsPage } from '../pages/stats';
+import { ProjectStatsPage } from '../pages/stats';
 import { UserProfilePage } from '../pages/profile';
 import { AuthenticatedLayout } from '../layouts/AuthenticatedLayout';
 import { GlobalLoadingSpinner } from '../components/layout/GlobalLoadingSpinner';
@@ -126,8 +126,8 @@ export function RootRouter() {
             <Route path="/projects" element={<ProjectsPage />} />
             <Route path="/projects/new" element={<ProjectEditorPage />} />
             <Route path="/projects/:projectId/edit" element={<ProjectEditorPage />} />
-            <Route path="/stats/qa" element={<QaStatsPage />} />
-            <Route path="/stats/monitoring" element={<MonitoringStatsPage />} />
+            <Route path="/stats/monitoring" element={<Navigate to="/stats/projects" replace />} />
+            <Route path="/stats/projects" element={<ProjectStatsPage />} />
             <Route path="/profile" element={<UserProfilePage />} />
             <Route path="/password-change" element={<Navigate to="/profile" replace />} />
             <Route element={<AdminRoute />}>

@@ -77,7 +77,7 @@ export function ProjectsResultsTable({
                 onChange={onSortChange}
               />
             </th>
-            <th scope="col">보고서URL</th>
+            <th scope="col">보고서<br/>URL</th>
             <th scope="col" aria-sort={getAriaSort('startDate')}>
               <SortableTableHeaderButton
                 label="QA시작일"
