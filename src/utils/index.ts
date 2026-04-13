@@ -1,4 +1,4 @@
-import { type Member, type SubtaskStatus } from '../types/domain';
+import { DEFAULT_SUBTASK_STATUS, type Member, type SubtaskStatus } from '../types/domain';
 
 export function createId(prefix: string): string {
   return `${prefix}-${crypto.randomUUID()}`;
@@ -106,9 +106,16 @@ export function readBooleanFlag(value: unknown, fallback: boolean): boolean {
 }
 
 export function sortStatus(status: SubtaskStatus): number {
-  return {
-    미수정: 0,
-    '일부 수정': 1,
-    '전체 수정': 2,
-  }[status];
+  return (
+    {
+      미수정: 0,
+      '일부 수정': 1,
+      '전체 수정': 2,
+    }[status] ??
+    {
+      미수정: 0,
+      '일부 수정': 1,
+      '전체 수정': 2,
+    }[DEFAULT_SUBTASK_STATUS]
+  );
 }

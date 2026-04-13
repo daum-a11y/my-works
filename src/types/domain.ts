@@ -1,22 +1,27 @@
 export type UserRole = 'user' | 'admin';
 export type MemberStatus = 'pending' | 'active';
 
-export type SubtaskStatus = '미수정' | '전체 수정' | '일부 수정';
+export type SubtaskStatus = '미수정' | '일부 수정' | '전체 수정';
+
+export const DEFAULT_SUBTASK_STATUS: SubtaskStatus = '미수정';
+export const subtaskStatusOptions: SubtaskStatus[] = ['미수정', '일부 수정', '전체 수정'];
+
+const legacySubtaskStatusMap: Record<string, SubtaskStatus> = {
+  미수정: '미수정',
+  미개선: '미수정',
+  중지: '미수정',
+  '일부 수정': '일부 수정',
+  일부: '일부 수정',
+  '전체 수정': '전체 수정',
+  개선: '전체 수정',
+};
 
 export function normalizeSubtaskStatus(value: string | null | undefined): SubtaskStatus {
-  switch (value) {
-    case '전체 수정':
-    case '개선':
-      return '전체 수정';
-    case '일부 수정':
-    case '일부':
-      return '일부 수정';
-    case '미수정':
-    case '미개선':
-    case '중지':
-    default:
-      return '미수정';
+  if (!value) {
+    return DEFAULT_SUBTASK_STATUS;
   }
+
+  return legacySubtaskStatusMap[value] ?? DEFAULT_SUBTASK_STATUS;
 }
 
 export interface Member {
@@ -453,5 +458,3 @@ export interface OpsStore {
   projectSubtasks: ProjectSubtask[];
   tasks: Task[];
 }
-
-export const subtaskStatusOptions: SubtaskStatus[] = ['미수정', '전체 수정', '일부 수정'];

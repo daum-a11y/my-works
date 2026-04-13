@@ -38,3 +38,10 @@ export interface TaskMonitoringSortState {
   key: TaskMonitoringSortKey;
   direction: 'asc' | 'desc';
 }
+
+export interface TaskMonitoringMonthlyRow {
+  monthKey: string;
+  label: string;
+  totalCount: number;
+  statusCounts: Record<'미수정' | '일부 수정' | '전체 수정', number>;
+}
