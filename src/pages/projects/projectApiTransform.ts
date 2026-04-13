@@ -14,7 +14,32 @@ function readValue(record: ApiRecord, snakeKey: string, camelKey: string) {
   return record[snakeKey] ?? record[camelKey];
 }
 
+function formatMemberDisplay(accountId: string | null, name: string | null) {
+  if (accountId && name) {
+    return `${accountId}(${name})`;
+  }
+
+  return accountId || name;
+}
+
 export function toProjectListRow(record: ApiRecord): ProjectListRow {
+  const reporterAccountId =
+    readValue(record, 'reporter_account_id', 'reporterAccountId') == null
+      ? null
+      : String(readValue(record, 'reporter_account_id', 'reporterAccountId'));
+  const reporterName =
+    readValue(record, 'reporter_name', 'reporterName') == null
+      ? null
+      : String(readValue(record, 'reporter_name', 'reporterName'));
+  const reviewerAccountId =
+    readValue(record, 'reviewer_account_id', 'reviewerAccountId') == null
+      ? null
+      : String(readValue(record, 'reviewer_account_id', 'reviewerAccountId'));
+  const reviewerName =
+    readValue(record, 'reviewer_name', 'reviewerName') == null
+      ? null
+      : String(readValue(record, 'reviewer_name', 'reviewerName'));
+
   return {
     id: String(record.id),
     createdByMemberId: readValue(record, 'created_by_member_id', 'createdByMemberId')
@@ -51,17 +76,23 @@ export function toProjectListRow(record: ApiRecord): ProjectListRow {
     reporterMemberId: readValue(record, 'reporter_member_id', 'reporterMemberId')
       ? String(readValue(record, 'reporter_member_id', 'reporterMemberId'))
       : null,
+    reporterAccountId,
+    reporterName,
     reporterDisplay:
-      readValue(record, 'reporter_display', 'reporterDisplay') == null
+      formatMemberDisplay(reporterAccountId, reporterName) ??
+      (readValue(record, 'reporter_display', 'reporterDisplay') == null
         ? null
-        : String(readValue(record, 'reporter_display', 'reporterDisplay')),
+        : String(readValue(record, 'reporter_display', 'reporterDisplay'))),
     reviewerMemberId: readValue(record, 'reviewer_member_id', 'reviewerMemberId')
       ? String(readValue(record, 'reviewer_member_id', 'reviewerMemberId'))
       : null,
+    reviewerAccountId,
+    reviewerName,
     reviewerDisplay:
-      readValue(record, 'reviewer_display', 'reviewerDisplay') == null
+      formatMemberDisplay(reviewerAccountId, reviewerName) ??
+      (readValue(record, 'reviewer_display', 'reviewerDisplay') == null
         ? null
-        : String(readValue(record, 'reviewer_display', 'reviewerDisplay')),
+        : String(readValue(record, 'reviewer_display', 'reviewerDisplay'))),
     startDate: String(readValue(record, 'start_date', 'startDate') ?? getToday()),
     endDate: String(readValue(record, 'end_date', 'endDate') ?? getToday()),
     isActive: Boolean(readValue(record, 'is_active', 'isActive') ?? true),

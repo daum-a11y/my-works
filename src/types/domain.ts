@@ -102,8 +102,12 @@ export interface ProjectListRow {
   serviceName: string | null;
   reportUrl: string | null;
   reporterMemberId: string | null;
+  reporterAccountId: string | null;
+  reporterName: string | null;
   reporterDisplay: string | null;
   reviewerMemberId: string | null;
+  reviewerAccountId: string | null;
+  reviewerName: string | null;
   reviewerDisplay: string | null;
   startDate: string;
   endDate: string;
