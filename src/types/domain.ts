@@ -423,18 +423,21 @@ export interface ProjectSubtaskStatsRow {
   subtaskId: string;
   projectId: string;
   type1: string | null;
-  title: string;
-  url: string;
+  title: string | null;
+  url: string | null;
   ownerMemberId: string | null;
+  ownerAccountId: string | null;
+  ownerName: string | null;
+  ownerDisplay: string | null;
   taskDate: string;
   taskStatus: SubtaskStatus;
   note: string | null;
-  updatedAt: string;
+  updatedAt: string | null;
   costGroupName: string | null;
   serviceGroupName: string | null;
+  serviceName: string | null;
   projectName: string | null;
   platform: string | null;
-  assigneeDisplay: string | null;
   reportUrl: string | null;
 }
 

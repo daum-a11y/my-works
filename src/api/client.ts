@@ -82,6 +82,13 @@ export interface DataClient {
     sortKey: string;
     sortDirection: 'asc' | 'desc';
   }): Promise<ApiRecord[]>;
+  getMonitoringStatsRows(filters: {
+    startMonth: string;
+    endMonth: string;
+    query: string | null;
+    sortKey: string;
+    sortDirection: 'asc' | 'desc';
+  }): Promise<ApiRecord[]>;
 }
 
 const supabase = getSupabaseClient();
@@ -210,6 +217,9 @@ const unconfiguredClient: DataClient = {
     throw new Error(configurationErrorMessage);
   },
   async getProjectStatsRows() {
+    throw new Error(configurationErrorMessage);
+  },
+  async getMonitoringStatsRows() {
     throw new Error(configurationErrorMessage);
   },
 };
@@ -602,6 +612,18 @@ const configuredClient: DataClient = !supabase
           p_start_month: filters.startMonth,
           p_end_month: filters.endMonth,
           p_task_type1: filters.taskType1,
+          p_sort_key: filters.sortKey,
+          p_sort_direction: filters.sortDirection,
+        });
+        if (error) throw error;
+        return (data ?? []) as ApiRecord[];
+      },
+      async getMonitoringStatsRows(filters) {
+        const { data, error } = await supabase.rpc('get_monitoring_stats_rows', {
+          p_start_month: filters.startMonth,
+          p_end_month: filters.endMonth,
+          p_task_type1: null,
+          p_keyword: filters.query,
           p_sort_key: filters.sortKey,
           p_sort_direction: filters.sortDirection,
         });

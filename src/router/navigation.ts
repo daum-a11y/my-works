@@ -39,6 +39,7 @@ export const baseNavigation = [
     children: [
       { to: '/projects', label: '프로젝트 관리', icon: Layers },
       { to: '/stats/projects', label: '프로젝트 통계' },
+      { to: '/stats/monitoring', label: '태스크 현황' },
     ],
   },
 ] as const satisfies readonly NavigationItem[];

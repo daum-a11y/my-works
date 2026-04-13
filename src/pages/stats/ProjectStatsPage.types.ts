@@ -22,3 +22,19 @@ export interface ProjectStatsMonthlyRow {
   totalProjectCount: number;
   projectCountByType1: Record<string, number>;
 }
+
+export type TaskMonitoringSortKey =
+  | 'month'
+  | 'costGroupName'
+  | 'type1'
+  | 'serviceName'
+  | 'platform'
+  | 'projectName'
+  | 'title'
+  | 'ownerAccountId'
+  | 'taskStatus';
+
+export interface TaskMonitoringSortState {
+  key: TaskMonitoringSortKey;
+  direction: 'asc' | 'desc';
+}

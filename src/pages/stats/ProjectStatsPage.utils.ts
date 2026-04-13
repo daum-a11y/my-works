@@ -1,5 +1,4 @@
 import type { SubtaskStatus } from '../../types/domain';
-import type { ProjectStatsMonthlyRow } from './ProjectStatsPage.types';
 export type { ProjectStatsMonthlyRow } from './ProjectStatsPage.types';
 
 export function formatTaskStatus(value: SubtaskStatus) {
@@ -45,10 +44,6 @@ export function monthKeyFromTaskMonth(value: string): string {
 }
 
 export function formatTaskMonthValue(value: string): string {
-  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
-    return value;
-  }
-
   const monthKey = monthKeyFromTaskMonth(value);
   return monthKey ? formatMonthLabel(monthKey) : '-';
 }

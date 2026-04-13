@@ -2003,11 +2003,13 @@ $$;
 drop function if exists public.get_monitoring_stats_rows();
 drop function if exists public.get_monitoring_stats_rows(text, text, text, text);
 drop function if exists public.get_monitoring_stats_rows(text, text, text, text, text);
+drop function if exists public.get_monitoring_stats_rows(text, text, text, text, text, text);
 
 create or replace function public.get_monitoring_stats_rows(
   p_start_month text,
   p_end_month text,
   p_task_type1 text default null,
+  p_keyword text default null,
   p_sort_key text default 'month',
   p_sort_direction text default 'desc'
 )
@@ -2018,15 +2020,17 @@ returns table (
   title text,
   url text,
   owner_member_id uuid,
+  owner_account_id text,
+  owner_name text,
   task_date text,
   task_status text,
   note text,
   updated_at timestamptz,
   cost_group_name text,
   service_group_name text,
+  service_name text,
   project_name text,
   platform text,
-  assignee_display text,
   report_url text
 )
 language sql
@@ -2042,15 +2046,17 @@ as $$
       pp.title,
       pp.url,
       pp.owner_member_id,
+      nullif(owner.account_id, '') as owner_account_id,
+      nullif(owner.name, '') as owner_name,
       pp.task_date,
       pp.task_status,
       nullif(pp.note, '') as note,
       pp.updated_at,
       nullif(cg.name, '') as cost_group_name,
       nullif(public.resolve_service_group_name(sg.service_group_name, sg.name), '') as service_group_name,
+      nullif(public.resolve_service_name(sg.service_name, sg.name), '') as service_name,
       p.name as project_name,
       nullif(pl.name, '') as platform,
-      nullif(concat_ws(' ', nullif(owner.account_id, ''), nullif(owner.name, '')), '') as assignee_display,
       nullif(p.report_url, '') as report_url,
       case
         when regexp_replace(coalesce(pp.task_date, ''), '\D', '', 'g') ~ '^\d{4}$'
@@ -2082,21 +2088,35 @@ as $$
     title,
     url,
     owner_member_id,
+    owner_account_id,
+    owner_name,
     task_date,
     task_status,
     note,
     updated_at,
     cost_group_name,
     service_group_name,
+    service_name,
     project_name,
     platform,
-    assignee_display,
     report_url
   from base
   where task_date_value is not null
     and task_date_value >= to_date(p_start_month || '-01', 'YYYY-MM-DD')
     and task_date_value <= (to_date(p_end_month || '-01', 'YYYY-MM-DD') + interval '1 month' - interval '1 day')::date
     and (p_task_type1 is null or type1 = p_task_type1)
+    and (
+      nullif(trim(coalesce(p_keyword, '')), '') is null
+      or coalesce(cost_group_name, '') ilike '%' || trim(p_keyword) || '%'
+      or coalesce(service_group_name, '') ilike '%' || trim(p_keyword) || '%'
+      or coalesce(service_name, '') ilike '%' || trim(p_keyword) || '%'
+      or coalesce(project_name, '') ilike '%' || trim(p_keyword) || '%'
+      or coalesce(title, '') ilike '%' || trim(p_keyword) || '%'
+      or coalesce(platform, '') ilike '%' || trim(p_keyword) || '%'
+      or coalesce(owner_account_id, '') ilike '%' || trim(p_keyword) || '%'
+      or coalesce(owner_name, '') ilike '%' || trim(p_keyword) || '%'
+      or coalesce(task_status, '') ilike '%' || trim(p_keyword) || '%'
+    )
   order by
     case when p_sort_key = 'month' and lower(p_sort_direction) = 'asc' then task_date_value end asc,
     case when p_sort_key = 'month' and lower(p_sort_direction) <> 'asc' then task_date_value end desc,
@@ -2104,14 +2124,16 @@ as $$
     case when p_sort_key = 'costGroupName' and lower(p_sort_direction) <> 'asc' then cost_group_name end desc,
     case when p_sort_key = 'serviceGroupName' and lower(p_sort_direction) = 'asc' then service_group_name end asc,
     case when p_sort_key = 'serviceGroupName' and lower(p_sort_direction) <> 'asc' then service_group_name end desc,
+    case when p_sort_key = 'serviceName' and lower(p_sort_direction) = 'asc' then service_name end asc,
+    case when p_sort_key = 'serviceName' and lower(p_sort_direction) <> 'asc' then service_name end desc,
     case when p_sort_key = 'projectName' and lower(p_sort_direction) = 'asc' then project_name end asc,
     case when p_sort_key = 'projectName' and lower(p_sort_direction) <> 'asc' then project_name end desc,
     case when p_sort_key = 'platform' and lower(p_sort_direction) = 'asc' then platform end asc,
     case when p_sort_key = 'platform' and lower(p_sort_direction) <> 'asc' then platform end desc,
     case when p_sort_key = 'title' and lower(p_sort_direction) = 'asc' then title end asc,
     case when p_sort_key = 'title' and lower(p_sort_direction) <> 'asc' then title end desc,
-    case when p_sort_key = 'assigneeDisplay' and lower(p_sort_direction) = 'asc' then assignee_display end asc,
-    case when p_sort_key = 'assigneeDisplay' and lower(p_sort_direction) <> 'asc' then assignee_display end desc,
+    case when p_sort_key = 'ownerAccountId' and lower(p_sort_direction) = 'asc' then owner_account_id end asc,
+    case when p_sort_key = 'ownerAccountId' and lower(p_sort_direction) <> 'asc' then owner_account_id end desc,
     case when p_sort_key in ('trackStatus', 'taskStatus') and lower(p_sort_direction) = 'asc' then task_status_order end asc,
     case when p_sort_key in ('trackStatus', 'taskStatus') and lower(p_sort_direction) <> 'asc' then task_status_order end desc,
     updated_at desc,
@@ -3651,7 +3673,7 @@ grant execute on function public.get_resource_service_summary_by_year(uuid, text
 grant execute on function public.get_resource_month_report(uuid, text) to authenticated;
 grant execute on function public.get_stats() to authenticated;
 grant execute on function public.get_project_stats_rows(text, text, text, text, text) to authenticated;
-grant execute on function public.get_monitoring_stats_rows(text, text, text, text, text) to authenticated;
+grant execute on function public.get_monitoring_stats_rows(text, text, text, text, text, text) to authenticated;
 grant execute on function public.search_tasks_export(uuid, date, date, uuid, uuid, text, text, numeric, numeric, text) to authenticated;
 grant execute on function public.search_tasks_page(uuid, date, date, uuid, uuid, text, text, numeric, numeric, text) to authenticated;
 grant execute on function public.admin_get_task(uuid) to authenticated;

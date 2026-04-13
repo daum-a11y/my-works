@@ -12,7 +12,7 @@ import { buildProjectTypeOptions } from '../../utils/taskType';
 import {
   MONITORING_STATS_DEFAULT_SORT,
   MONITORING_STATS_DEFAULT_SUMMARY_VIEW,
-  MONITORING_STATS_PAGE_TITLE,
+  PROJECT_STATS_PAGE_TITLE,
 } from './ProjectStatsPage.constants';
 import { ProjectStatsDetailsTable } from './ProjectStatsDetailsTable';
 import { ProjectStatsFilterForm } from './ProjectStatsFilterForm';
@@ -126,7 +126,7 @@ export function ProjectStatsPage() {
   }, [projectRows, summaryType1Keys]);
 
   useEffect(() => {
-    setDocumentTitle(MONITORING_STATS_PAGE_TITLE);
+    setDocumentTitle(PROJECT_STATS_PAGE_TITLE);
   }, []);
 
   useEffect(() => {
@@ -169,7 +169,7 @@ export function ProjectStatsPage() {
 
   return (
     <div className={'stats-page stats-page--page'}>
-      <PageHeader title={MONITORING_STATS_PAGE_TITLE} />
+      <PageHeader title={PROJECT_STATS_PAGE_TITLE} />
 
       <PageSection title="필터">
         <ProjectStatsFilterForm

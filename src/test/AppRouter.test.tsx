@@ -85,6 +85,7 @@ vi.mock('../pages/search', () => ({
 
 vi.mock('../pages/stats', () => ({
   ProjectStatsPage: () => <div>project-stats-page</div>,
+  TaskMonitoringPage: () => <div>task-monitoring-page</div>,
 }));
 
 vi.mock('../pages/profile', () => ({
@@ -186,6 +187,31 @@ describe('RootRouter', () => {
     expect(screen.queryByText('resource-summary-page')).not.toBeInTheDocument();
   });
 
+  it('allows authenticated members to open task monitoring', async () => {
+    window.history.replaceState({}, '', '/stats/monitoring');
+    mockUseAuth.mockReturnValue({
+      status: 'authenticated',
+      authFlow: 'default',
+      isRecoverySession: false,
+      session: {
+        member: {
+          id: 'member-1',
+          accountId: 'user01',
+          name: '사용자',
+          role: 'user',
+          isActive: true,
+          status: 'active',
+        },
+      },
+    });
+
+    render(<RootRouter />);
+
+    await waitFor(() => {
+      expect(screen.getByText('task-monitoring-page')).toBeInTheDocument();
+    });
+  });
+
   it('allows admins to open organization summary', async () => {
     window.history.replaceState({}, '', '/org/summary');
     mockUseAuth.mockReturnValue({
@@ -269,7 +295,7 @@ describe('RootRouter', () => {
     });
   });
 
-  it('redirects the old monitoring stats route to the project stats route', async () => {
+  it('renders the monitoring stats route directly', async () => {
     window.history.replaceState({}, '', '/stats/monitoring');
     mockUseAuth.mockReturnValue({
       status: 'authenticated',
@@ -289,8 +315,8 @@ describe('RootRouter', () => {
     render(<RootRouter />);
 
     await waitFor(() => {
-      expect(screen.getByText('project-stats-page')).toBeInTheDocument();
+      expect(screen.getByText('task-monitoring-page')).toBeInTheDocument();
     });
-    expect(window.location.pathname).toBe('/stats/projects');
+    expect(window.location.pathname).toBe('/stats/monitoring');
   });
 });
