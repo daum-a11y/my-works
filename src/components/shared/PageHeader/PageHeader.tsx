@@ -1,6 +1,5 @@
 import clsx from 'clsx';
 import type { ComponentPropsWithoutRef, ReactNode } from 'react';
-import './PageHeader.css';
 
 export type PageHeaderAlign = 'start' | 'center';
 
@@ -26,18 +25,11 @@ export function PageHeader({
   ...props
 }: PageHeaderProps) {
   return (
-    <header
-      className={clsx('page-header', `page-header--${align}`, className)}
-      {...props}
-    >
+    <header className={clsx('page-header', `page-header--${align}`, className)} {...props}>
       <div className="page-header__main">
         {kicker ? <p className="page-header__kicker">{kicker}</p> : null}
         <h1 className="page-header__title">{title}</h1>
-        {description ? (
-          <div className="page-header__description">
-            {description}
-          </div>
-        ) : null}
+        {description ? <div className="page-header__description">{description}</div> : null}
       </div>
       {actions ? <div className="page-header__actions">{actions}</div> : null}
     </header>

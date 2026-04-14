@@ -1,3 +1,4 @@
+import { Button } from 'krds-react';
 import { Link } from 'react-router-dom';
 
 interface AdminCostGroupEditorActionRowProps {
@@ -33,34 +34,38 @@ export function AdminCostGroupEditorActionRow({
         }
       >
         {isEditMode ? (
-          <button
+          <Button
             type="button"
-            className={'projects-feature__delete-button'}
+            className="projects-feature__delete-button"
+            variant="secondary"
+            size="medium"
             onClick={onDelete}
             disabled={deletePending || transferPending}
           >
             삭제
-          </button>
+          </Button>
         ) : null}
         {isEditMode ? (
-          <button
+          <Button
             type="button"
-            className={'projects-feature__button projects-feature__button--secondary'}
+            variant="secondary"
+            size="medium"
             onClick={onTransfer}
             disabled={transferPending || transferBlocked || deletePending || savePending}
           >
             전환
-          </button>
+          </Button>
         ) : null}
         {isEditMode ? (
-          <button
+          <Button
             type="button"
-            className={'projects-feature__button projects-feature__button--secondary'}
+            variant="secondary"
+            size="medium"
             onClick={onViewTasks}
             disabled={transferPending}
           >
             조회
-          </button>
+          </Button>
         ) : null}
         {helpText ? <span className="projects-feature__helper-text">{helpText}</span> : null}
       </div>
@@ -69,19 +74,12 @@ export function AdminCostGroupEditorActionRow({
           'projects-feature__editor-form-actions projects-feature__editor-form-actions--end'
         }
       >
-        <Link
-          to="/admin/cost-group"
-          className={'projects-feature__button projects-feature__button--secondary'}
-        >
+        <Link to="/admin/cost-group" className="krds-btn secondary medium">
           취소
         </Link>
-        <button
-          type="submit"
-          className={'projects-feature__button projects-feature__button--primary'}
-          disabled={savePending}
-        >
+        <Button type="submit" variant="primary" size="medium" disabled={savePending}>
           저장
-        </button>
+        </Button>
       </div>
     </div>
   );

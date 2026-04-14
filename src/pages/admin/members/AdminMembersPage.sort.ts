@@ -17,7 +17,7 @@ export interface AdminMembersSortState {
 }
 
 function compareText(left: string, right: string) {
-  return left.localeCompare(right, 'ko');
+  return left.localeCompare(right, 'ko', { numeric: true });
 }
 
 function getRoleRank(role: MemberAdminPayload['role']) {

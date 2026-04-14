@@ -8,14 +8,13 @@ import { SEARCH_PAGE_SIZE_OPTIONS } from './SearchPage.constants';
 import { SearchFilterForm } from './SearchFilterForm';
 import { SearchResultsTable } from './SearchResultsTable';
 import { useSearchPage } from './useSearchPage';
-import './SearchPage.css';
 const numberFormatter = new Intl.NumberFormat('ko-KR');
 
 export function SearchPage() {
   const page = useSearchPage();
 
   return (
-    <section className="search-page search-page--shell">
+    <section className="search-page page-shell">
       <PageHeader title="내 업무 내역" />
 
       <PageSection title="필터">
@@ -32,15 +31,11 @@ export function SearchPage() {
       </PageSection>
 
       <PageResultBar
-        className="search-page__result-bar"
         aria-label="업무 내역 목록 요약"
         metrics={
           <>
             <PagePager
-              className="search-page__pager"
               aria-label="업무 내역 목록 페이지 이동"
-              buttonClassName="search-page__page-button"
-              statusClassName="search-page__page-status"
               currentPage={page.currentPageSafe}
               totalPages={page.totalPages}
               canGoPrevious={page.currentPageSafe > 1}
@@ -50,15 +45,15 @@ export function SearchPage() {
                 page.setCurrentPage((current) => Math.min(page.totalPages, current + 1))
               }
             />
-            <p className="search-page__result-metric">
-              <span className="search-page__result-label">총 건수</span>
-              <strong className="search-page__result-value">
+            <p className="page-result-bar__metric">
+              <span className="page-result-bar__label">총 건수</span>
+              <strong className="page-result-bar__value">
                 {numberFormatter.format(page.totalReports)}건
               </strong>
             </p>
-            <p className="search-page__result-metric">
-              <span className="search-page__result-label">총 시간</span>
-              <strong className="search-page__result-value">
+            <p className="page-result-bar__metric">
+              <span className="page-result-bar__label">총 시간</span>
+              <strong className="page-result-bar__value">
                 {formatReportTaskUsedtime(page.totalMinutes)}
               </strong>
             </p>
@@ -66,7 +61,6 @@ export function SearchPage() {
         }
         controls={
           <PageSizeField
-            className="search-page__page-size-field"
             aria-label="페이지당 행 수"
             value={page.pageSize}
             options={SEARCH_PAGE_SIZE_OPTIONS}

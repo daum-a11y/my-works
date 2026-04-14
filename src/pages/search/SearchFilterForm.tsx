@@ -29,20 +29,15 @@ export function SearchFilterForm({
     <form onSubmit={onSubmit}>
       <PageFilterBar
         actions={
-          <div className="search-page__filter-actions">
+          <div className="page-filter-actions">
             <Button type="submit" variant="primary">
               검색
             </Button>
             <Button type="button" variant="secondary" onClick={onReset}>
               초기화
             </Button>
-            <span className="search-page__filter-divider" aria-hidden="true" />
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={onDownload}
-              disabled={!totalReports}
-            >
+            <span className="page-filter-divider" aria-hidden="true" />
+            <Button type="button" variant="secondary" onClick={onDownload} disabled={!totalReports}>
               다운로드
             </Button>
           </div>

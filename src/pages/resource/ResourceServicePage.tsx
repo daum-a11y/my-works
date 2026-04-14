@@ -9,7 +9,6 @@ import { buildResourceServiceYearRows } from './ResourceServicePage.summary';
 import { ResourceServiceTableSection } from './ResourceServiceTableSection';
 import { useAuth } from '../../auth/AuthContext';
 import { toResourceServiceSummaryRow } from './resourceApiTransform';
-import './ResourcePage.css';
 
 export function ResourceServicePage() {
   const { session } = useAuth();
@@ -52,7 +51,7 @@ export function ResourceServicePage() {
   const activeRow = rows[0] ?? null;
 
   return (
-    <section className="projects-feature projects-feature--shell resource-page resource-page--page">
+    <section className="projects-feature resource-page page-shell">
       <PageHeader
         title={RESOURCE_SERVICE_PAGE_TITLE}
         actions={

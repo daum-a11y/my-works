@@ -24,7 +24,6 @@ import type {
 } from './ProjectStatsPage.types';
 import { buildMonthRange, monthKeyFromDate } from './ProjectStatsPage.utils';
 import { toProjectStatsRow } from './statsApiTransform';
-import './StatsPage.css';
 
 const ALL_TASK_TYPE1 = '전체';
 
@@ -168,7 +167,7 @@ export function ProjectStatsPage() {
   };
 
   return (
-    <div className={'stats-page stats-page--page'}>
+    <div className={'stats-page page-shell'}>
       <PageHeader title={PROJECT_STATS_PAGE_TITLE} />
 
       <PageSection title="필터">

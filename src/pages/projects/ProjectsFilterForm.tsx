@@ -25,7 +25,7 @@ export function ProjectsFilterForm({
     <form onSubmit={onSubmit}>
       <PageFilterBar
         actions={
-          <div className="projects-feature__filter-actions">
+          <div className="page-filter-actions">
             <Button type="submit" variant="primary">
               검색
             </Button>
@@ -52,11 +52,7 @@ export function ProjectsFilterForm({
           />
         </PageFilterField>
         <PageFilterField className="projects-feature__filter-field" label="검색어">
-          <TextInput
-            value={searchInput}
-            onChange={onSearchInputChange}
-            placeholder="검색어 입력"
-          />
+          <TextInput value={searchInput} onChange={onSearchInputChange} placeholder="검색어 입력" />
         </PageFilterField>
       </PageFilterBar>
     </form>

@@ -1,3 +1,4 @@
+import { Select, TextInput } from 'krds-react';
 import type { MemberAdminPayload } from '../admin.types';
 import { ADMIN_MEMBER_EDITOR_BASIC_SECTION_TITLE } from './AdminMemberEditorPage.constants';
 
@@ -24,51 +25,54 @@ export function AdminMemberEditorBasicSection({
         </h2>
       </div>
       <div className={'projects-feature__editor-form-grid'}>
-        <label className={'projects-feature__field'}>
-          <span>ID</span>
-          <input
+        <div className={'projects-feature__field'}>
+          <TextInput
+            id="member-account-id"
+            label="ID"
             autoFocus
             value={draft.accountId}
             readOnly={Boolean(isInactiveMember)}
-            onChange={(event) => onDraftChange({ accountId: event.target.value })}
+            onChange={(value) => onDraftChange({ accountId: value })}
           />
-        </label>
+        </div>
 
-        <label className={'projects-feature__field'}>
-          <span>이름</span>
-          <input
+        <div className={'projects-feature__field'}>
+          <TextInput
+            id="member-name"
+            label="이름"
             value={draft.name}
             readOnly={Boolean(isInactiveMember)}
-            onChange={(event) => onDraftChange({ name: event.target.value })}
+            onChange={(value) => onDraftChange({ name: value })}
           />
-        </label>
+        </div>
 
-        <label className={'projects-feature__field'}>
-          <span>이메일</span>
-          <input
+        <div className={'projects-feature__field'}>
+          <TextInput
+            id="member-email"
+            label="이메일"
             type="email"
             value={draft.email}
             readOnly={isEmailLocked}
-            onChange={(event) => onDraftChange({ email: event.target.value })}
+            onChange={(value) => onDraftChange({ email: value })}
           />
-        </label>
+        </div>
 
-        <label className={'projects-feature__field'}>
-          <span>권한</span>
+        <div className={'projects-feature__field'}>
           {isInactiveMember ? (
-            <input value={roleLabel} readOnly />
+            <TextInput id="member-role" label="권한" value={roleLabel} readOnly />
           ) : (
-            <select
+            <Select
+              id="member-role"
+              label="권한"
               value={draft.role}
-              onChange={(event) =>
-                onDraftChange({ role: event.target.value as MemberAdminPayload['role'] })
-              }
-            >
-              <option value="user">팀원</option>
-              <option value="admin">관리자</option>
-            </select>
+              options={[
+                { value: 'user', label: '팀원' },
+                { value: 'admin', label: '관리자' },
+              ]}
+              onChange={(value) => onDraftChange({ role: value as MemberAdminPayload['role'] })}
+            />
           )}
-        </label>
+        </div>
       </div>
     </section>
   );

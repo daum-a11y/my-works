@@ -1,7 +1,6 @@
 import clsx from 'clsx';
 import type { ReactNode } from 'react';
 import { BrandLogo } from './BrandLogo';
-import './AuthLayoutShell.css';
 
 interface AuthLayoutShellProps {
   caption: string;

@@ -232,14 +232,14 @@ export function AdminReportsFilterForm({
       </div>
 
       <div className={'admin-reports-page__filter-actions-row'}>
-        <div className={'admin-reports-page__filter-actions'}>
+        <div className={'page-filter-actions'}>
           <Button type="submit" variant="primary" disabled={loading || searching}>
             검색
           </Button>
           <Button type="button" variant="secondary" onClick={onReset}>
             초기화
           </Button>
-          <span className={'admin-reports-page__filter-divider'} aria-hidden="true" />
+          <span className={'page-filter-divider'} aria-hidden="true" />
           <Button type="button" variant="secondary" onClick={onExport} disabled={totalTasks === 0}>
             다운로드
           </Button>

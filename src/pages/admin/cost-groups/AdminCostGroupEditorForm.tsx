@@ -1,4 +1,5 @@
 import type { RefObject } from 'react';
+import { Select, TextInput } from 'krds-react';
 import type { AdminCostGroupPayload } from '../admin.types';
 
 interface AdminCostGroupEditorFormProps {
@@ -14,25 +15,28 @@ export function AdminCostGroupEditorForm({
 }: AdminCostGroupEditorFormProps) {
   return (
     <div className={'projects-feature__editor-form-grid'}>
-      <label className={'projects-feature__field'}>
-        <span>청구그룹명</span>
-        <input
+      <div className={'projects-feature__field'}>
+        <TextInput
+          id="admin-cost-group-name"
+          label="청구그룹명"
           ref={titleRef}
           value={draft.name}
-          onChange={(event) => onDraftChange({ name: event.target.value })}
+          onChange={(value) => onDraftChange({ name: value })}
         />
-      </label>
+      </div>
 
-      <label className={'projects-feature__field'}>
-        <span>노출여부</span>
-        <select
+      <div className={'projects-feature__field'}>
+        <Select
+          id="admin-cost-group-active"
+          label="노출여부"
           value={draft.isActive ? '1' : '0'}
-          onChange={(event) => onDraftChange({ isActive: event.target.value === '1' })}
-        >
-          <option value="1">노출</option>
-          <option value="0">숨김</option>
-        </select>
-      </label>
+          options={[
+            { value: '1', label: '노출' },
+            { value: '0', label: '숨김' },
+          ]}
+          onChange={(value) => onDraftChange({ isActive: value === '1' })}
+        />
+      </div>
     </div>
   );
 }

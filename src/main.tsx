@@ -5,6 +5,7 @@ import { FontPreferenceProvider } from './preferences/FontPreferenceContext';
 import { ThemePreferenceProvider } from './preferences/ThemePreferenceContext';
 import { RootRouter } from './router/RootRouter';
 import 'krds-react/dist/index.css';
+import './styles/app.css';
 
 const container = document.getElementById('root');
 

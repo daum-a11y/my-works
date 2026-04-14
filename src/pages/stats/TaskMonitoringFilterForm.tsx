@@ -28,7 +28,7 @@ export function TaskMonitoringFilterForm({
     <form onSubmit={onSubmit}>
       <PageFilterBar
         actions={
-          <div className={'stats-page__filter-actions'}>
+          <div className={'page-filter-actions'}>
             <Button type="submit" variant="primary">
               검색
             </Button>

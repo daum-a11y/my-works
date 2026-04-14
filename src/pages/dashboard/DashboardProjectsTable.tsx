@@ -33,7 +33,7 @@ export function DashboardProjectsTable({
           <caption className="sr-only">진행중인 프로젝트</caption>
           <thead>
             <tr>
-              <th scope="col" aria-sort={getAriaSort('costGroupName')}>
+              <th scope="col" aria-sort={getAriaSort('costGroupName')} aria-label="청구그룹">
                 <SortableTableHeaderButton
                   label="청구그룹"
                   sortKey="costGroupName"
@@ -41,7 +41,7 @@ export function DashboardProjectsTable({
                   onChange={onSortChange}
                 />
               </th>
-              <th scope="col" aria-sort={getAriaSort('type1')}>
+              <th scope="col" aria-sort={getAriaSort('type1')} aria-label="타입1">
                 <SortableTableHeaderButton
                   label="타입1"
                   sortKey="type1"
@@ -49,7 +49,11 @@ export function DashboardProjectsTable({
                   onChange={onSortChange}
                 />
               </th>
-              <th scope="col" aria-sort={getAriaSort('serviceGroupName')}>
+              <th
+                scope="col"
+                aria-sort={getAriaSort('serviceGroupName')}
+                aria-label="서비스 그룹"
+              >
                 <SortableTableHeaderButton
                   label="서비스 그룹"
                   sortKey="serviceGroupName"
@@ -57,7 +61,7 @@ export function DashboardProjectsTable({
                   onChange={onSortChange}
                 />
               </th>
-              <th scope="col" aria-sort={getAriaSort('projectName')}>
+              <th scope="col" aria-sort={getAriaSort('projectName')} aria-label="프로젝트명">
                 <SortableTableHeaderButton
                   label="프로젝트명"
                   sortKey="projectName"
@@ -65,7 +69,7 @@ export function DashboardProjectsTable({
                   onChange={onSortChange}
                 />
               </th>
-              <th scope="col" aria-sort={getAriaSort('platform')}>
+              <th scope="col" aria-sort={getAriaSort('platform')} aria-label="플랫폼">
                 <SortableTableHeaderButton
                   label="플랫폼"
                   sortKey="platform"
@@ -73,7 +77,7 @@ export function DashboardProjectsTable({
                   onChange={onSortChange}
                 />
               </th>
-              <th scope="col" aria-sort={getAriaSort('startDate')}>
+              <th scope="col" aria-sort={getAriaSort('startDate')} aria-label="시작일">
                 <SortableTableHeaderButton
                   label="시작일"
                   sortKey="startDate"
@@ -81,7 +85,7 @@ export function DashboardProjectsTable({
                   onChange={onSortChange}
                 />
               </th>
-              <th scope="col" aria-sort={getAriaSort('endDate')}>
+              <th scope="col" aria-sort={getAriaSort('endDate')} aria-label="종료일">
                 <SortableTableHeaderButton
                   label="종료일"
                   sortKey="endDate"

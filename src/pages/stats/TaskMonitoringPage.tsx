@@ -22,7 +22,6 @@ import type {
 import { buildMonthRange, monthKeyFromTaskMonth } from './ProjectStatsPage.utils';
 import { TaskMonitoringResultsTable } from './TaskMonitoringResultsTable';
 import { TaskMonitoringSummarySection } from './TaskMonitoringSummarySection';
-import './StatsPage.css';
 
 export function TaskMonitoringPage() {
   const { session } = useAuth();
@@ -146,7 +145,7 @@ export function TaskMonitoringPage() {
   };
 
   return (
-    <div className="stats-page stats-page--page">
+    <div className="stats-page page-shell">
       <PageHeader title={TASK_MONITORING_PAGE_TITLE} />
 
       <PageSection title="필터">

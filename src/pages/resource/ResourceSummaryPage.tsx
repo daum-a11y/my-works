@@ -20,7 +20,6 @@ import { ResourceSummaryResults } from './ResourceSummaryResults';
 import { useAuth } from '../../auth/AuthContext';
 import { toResourceSummaryDay, toResourceSummaryMember } from './resourceApiTransform';
 import { sortResourceSummaryRows, type ResourceSummarySortState } from './ResourceSummaryPage.sort';
-import './ResourceSummaryPage.css';
 
 export function ResourceSummaryPage() {
   const { session } = useAuth();
@@ -191,14 +190,14 @@ export function ResourceSummaryPage() {
   };
 
   return (
-    <section className="projects-feature projects-feature--shell resource-summary-page resource-summary-page--shell">
+    <section className="projects-feature resource-summary-page page-shell">
       <PageHeader title="업무보고 현황" />
 
       <PageSection title="필터">
         <form onSubmit={handleSearchSubmit}>
           <PageFilterBar
             actions={
-              <div className="projects-feature__filter-actions">
+              <div className="page-filter-actions">
                 <Button type="submit" variant="primary">
                   검색
                 </Button>
@@ -206,11 +205,7 @@ export function ResourceSummaryPage() {
             }
           >
             <PageFilterField className="projects-feature__filter-field" label="기간">
-              <TextInput
-                type="month"
-                value={monthDraft}
-                onChange={setMonthDraft}
-              />
+              <TextInput type="month" value={monthDraft} onChange={setMonthDraft} />
             </PageFilterField>
             <div
               className={clsx(

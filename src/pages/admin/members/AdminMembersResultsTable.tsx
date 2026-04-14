@@ -30,7 +30,7 @@ export function AdminMembersResultsTable({
         <caption className="sr-only">사용자 내역</caption>
         <thead>
           <tr>
-            <th scope="col" aria-sort={getAriaSort('accountId')}>
+            <th scope="col" aria-sort={getAriaSort('accountId')} aria-label="ID">
               <SortableTableHeaderButton
                 label="ID"
                 sortKey="accountId"
@@ -38,7 +38,7 @@ export function AdminMembersResultsTable({
                 onChange={onSortChange}
               />
             </th>
-            <th scope="col" aria-sort={getAriaSort('name')}>
+            <th scope="col" aria-sort={getAriaSort('name')} aria-label="이름">
               <SortableTableHeaderButton
                 label="이름"
                 sortKey="name"
@@ -46,7 +46,7 @@ export function AdminMembersResultsTable({
                 onChange={onSortChange}
               />
             </th>
-            <th scope="col" aria-sort={getAriaSort('email')}>
+            <th scope="col" aria-sort={getAriaSort('email')} aria-label="이메일">
               <SortableTableHeaderButton
                 label="이메일"
                 sortKey="email"
@@ -54,7 +54,7 @@ export function AdminMembersResultsTable({
                 onChange={onSortChange}
               />
             </th>
-            <th scope="col" aria-sort={getAriaSort('role')}>
+            <th scope="col" aria-sort={getAriaSort('role')} aria-label="권한">
               <SortableTableHeaderButton
                 label="권한"
                 sortKey="role"
@@ -62,7 +62,7 @@ export function AdminMembersResultsTable({
                 onChange={onSortChange}
               />
             </th>
-            <th scope="col" aria-sort={getAriaSort('userActive')}>
+            <th scope="col" aria-sort={getAriaSort('userActive')} aria-label="활성여부">
               <SortableTableHeaderButton
                 label="활성여부"
                 sortKey="userActive"
@@ -70,7 +70,7 @@ export function AdminMembersResultsTable({
                 onChange={onSortChange}
               />
             </th>
-            <th scope="col" aria-sort={getAriaSort('memberStatus')}>
+            <th scope="col" aria-sort={getAriaSort('memberStatus')} aria-label="승인상태">
               <SortableTableHeaderButton
                 label="승인상태"
                 sortKey="memberStatus"
@@ -78,7 +78,7 @@ export function AdminMembersResultsTable({
                 onChange={onSortChange}
               />
             </th>
-            <th scope="col" aria-sort={getAriaSort('reportRequired')}>
+            <th scope="col" aria-sort={getAriaSort('reportRequired')} aria-label="업무보고접근">
               <SortableTableHeaderButton
                 label="업무보고접근"
                 sortKey="reportRequired"
@@ -86,7 +86,7 @@ export function AdminMembersResultsTable({
                 onChange={onSortChange}
               />
             </th>
-            <th scope="col" aria-sort={getAriaSort('joinedAt')}>
+            <th scope="col" aria-sort={getAriaSort('joinedAt')} aria-label="등록일">
               <SortableTableHeaderButton
                 label="등록일"
                 sortKey="joinedAt"
@@ -94,7 +94,7 @@ export function AdminMembersResultsTable({
                 onChange={onSortChange}
               />
             </th>
-            <th scope="col" aria-sort={getAriaSort('lastLoginAt')}>
+            <th scope="col" aria-sort={getAriaSort('lastLoginAt')} aria-label="최종로그인">
               <SortableTableHeaderButton
                 label="최종로그인"
                 sortKey="lastLoginAt"

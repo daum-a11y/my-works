@@ -1,3 +1,4 @@
+import { Textarea } from 'krds-react';
 import type { MemberAdminPayload } from '../admin.types';
 import { ADMIN_MEMBER_EDITOR_NOTE_SECTION_TITLE } from './AdminMemberEditorPage.constants';
 
@@ -20,14 +21,15 @@ export function AdminMemberEditorNoteSection({
         </h2>
       </div>
       <div className={'projects-feature__editor-form-grid'}>
-        <label className={'projects-feature__field'}>
-          <span>비고</span>
-          <textarea
+        <div className={'projects-feature__field'}>
+          <Textarea
+            id="member-note"
+            label="비고"
             value={draft.note}
             readOnly={Boolean(isInactiveMember)}
-            onChange={(event) => onDraftChange({ note: event.target.value })}
+            onChange={(value) => onDraftChange({ note: value })}
           />
-        </label>
+        </div>
       </div>
     </section>
   );

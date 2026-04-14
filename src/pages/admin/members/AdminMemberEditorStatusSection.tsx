@@ -1,3 +1,4 @@
+import { Select, TextInput } from 'krds-react';
 import type { MemberAdminPayload } from '../admin.types';
 import { ADMIN_MEMBER_EDITOR_STATUS_SECTION_TITLE } from './AdminMemberEditorPage.constants';
 
@@ -24,48 +25,58 @@ export function AdminMemberEditorStatusSection({
         </h2>
       </div>
       <div className={'projects-feature__editor-form-grid'}>
-        <label className={'projects-feature__field'}>
-          <span>Auth ID</span>
-          <input value={draft.authUserId ?? '-'} readOnly />
-        </label>
-        <label className={'projects-feature__field'}>
-          <span>활성 여부</span>
-          <input value={activeLabel} readOnly />
-        </label>
+        <div className={'projects-feature__field'}>
+          <TextInput
+            id="member-auth-user-id"
+            label="Auth ID"
+            value={draft.authUserId ?? '-'}
+            readOnly
+          />
+        </div>
+        <div className={'projects-feature__field'}>
+          <TextInput id="member-active-label" label="활성 여부" value={activeLabel} readOnly />
+        </div>
 
-        <label className={'projects-feature__field'}>
-          <span>승인 상태</span>
+        <div className={'projects-feature__field'}>
           {isInactiveMember ? (
-            <input value={memberStatusLabel} readOnly />
+            <TextInput id="member-status" label="승인 상태" value={memberStatusLabel} readOnly />
           ) : (
-            <select
+            <Select
+              id="member-status"
+              label="승인 상태"
               value={draft.memberStatus}
-              onChange={(event) =>
-                onDraftChange({
-                  memberStatus: event.target.value as MemberAdminPayload['memberStatus'],
-                })
+              options={[
+                { value: 'active', label: '활성' },
+                { value: 'pending', label: '승인대기' },
+              ]}
+              onChange={(value) =>
+                onDraftChange({ memberStatus: value as MemberAdminPayload['memberStatus'] })
               }
-            >
-              <option value="active">활성</option>
-              <option value="pending">승인대기</option>
-            </select>
+            />
           )}
-        </label>
+        </div>
 
-        <label className={'projects-feature__field'}>
-          <span>업무보고 접근</span>
+        <div className={'projects-feature__field'}>
           {isInactiveMember ? (
-            <input value={draft.reportRequired ? '허용' : '차단'} readOnly />
+            <TextInput
+              id="member-report-required"
+              label="업무보고 접근"
+              value={draft.reportRequired ? '허용' : '차단'}
+              readOnly
+            />
           ) : (
-            <select
+            <Select
+              id="member-report-required"
+              label="업무보고 접근"
               value={draft.reportRequired ? '1' : '0'}
-              onChange={(event) => onDraftChange({ reportRequired: event.target.value === '1' })}
-            >
-              <option value="1">허용</option>
-              <option value="0">차단</option>
-            </select>
+              options={[
+                { value: '1', label: '허용' },
+                { value: '0', label: '차단' },
+              ]}
+              onChange={(value) => onDraftChange({ reportRequired: value === '1' })}
+            />
           )}
-        </label>
+        </div>
       </div>
     </section>
   );

@@ -9,7 +9,6 @@ import { AdminReportsFilterForm } from './AdminReportsFilterForm';
 import { AdminReportsResultsTable } from './AdminReportsResultsTable';
 import { useAdminReportsPage } from './useAdminReportsPage';
 import { useAlertMessage } from '../../../hooks/useAlertMessage';
-import './AdminReportsPage.css';
 const numberFormatter = new Intl.NumberFormat('ko-KR');
 
 export function AdminReportsPage() {
@@ -18,15 +17,11 @@ export function AdminReportsPage() {
   useAlertMessage(errorMessage);
 
   return (
-    <section className={'admin-reports-page admin-reports-page--shell'}>
+    <section className={'admin-reports-page page-shell'}>
       <PageHeader
         title="업무보고 조회"
         actions={
-          <Button
-            type="button"
-            onClick={page.handleCreate}
-            variant="primary"
-          >
+          <Button type="button" onClick={page.handleCreate} variant="primary">
             업무보고 추가
           </Button>
         }
@@ -60,15 +55,11 @@ export function AdminReportsPage() {
       </PageSection>
 
       <PageResultBar
-        className={'admin-reports-page__result-bar'}
         aria-label="업무보고 조회 결과 요약"
         metrics={
           <>
             <PagePager
-              className={'admin-reports-page__pager'}
               aria-label="업무보고 목록 페이지 이동"
-              buttonClassName={'admin-reports-page__button admin-reports-page__button--page'}
-              statusClassName={'admin-reports-page__page-status'}
               currentPage={page.currentPageSafe}
               totalPages={page.totalPages}
               canGoPrevious={page.currentPageSafe > 1}
@@ -78,21 +69,20 @@ export function AdminReportsPage() {
                 page.setCurrentPage((current) => Math.min(page.totalPages, current + 1))
               }
             />
-            <p className={'admin-reports-page__result-metric'}>
-              <span className={'admin-reports-page__result-label'}>총 건수</span>
-              <strong className={'admin-reports-page__result-value'}>
+            <p className={'page-result-bar__metric'}>
+              <span className={'page-result-bar__label'}>총 건수</span>
+              <strong className={'page-result-bar__value'}>
                 {numberFormatter.format(page.totalTasks)}건
               </strong>
             </p>
-            <p className={'admin-reports-page__result-metric'}>
-              <span className={'admin-reports-page__result-label'}>총 시간</span>
-              <strong className={'admin-reports-page__result-value'}>{page.summaryTime}</strong>
+            <p className={'page-result-bar__metric'}>
+              <span className={'page-result-bar__label'}>총 시간</span>
+              <strong className={'page-result-bar__value'}>{page.summaryTime}</strong>
             </p>
           </>
         }
         controls={
           <PageSizeField
-            className={'admin-reports-page__page-size-field'}
             aria-label="페이지당 행 수"
             value={page.pageSize}
             options={ADMIN_REPORTS_PAGE_SIZE_OPTIONS}

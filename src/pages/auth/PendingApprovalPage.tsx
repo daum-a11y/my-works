@@ -14,7 +14,7 @@ export function PendingApprovalPage() {
 
   return (
     <AuthLayoutShell
-      caption="승인 대기"
+      caption="계정 확인"
       labelledBy="pending-title"
       title="승인 대기 중입니다"
       description={

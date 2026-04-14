@@ -18,7 +18,6 @@ import { ResourceMonthTableSection } from './ResourceMonthTableSection';
 import { parseMonth } from './ResourceMonthPage.utils';
 import { useAuth } from '../../auth/AuthContext';
 import { toResourceMonthReport } from './resourceApiTransform';
-import './ResourcePage.css';
 
 export function ResourceMonthPage() {
   const { type } = useParams();
@@ -144,7 +143,7 @@ export function ResourceMonthPage() {
   const memberUnderCount = memberStatusRows.filter((member) => member.diffMinutes < 0).length;
 
   return (
-    <section className="dashboard-page dashboard-page--page projects-feature projects-feature--shell resource-page resource-page--page">
+    <section className="dashboard-page dashboard-page--page projects-feature resource-page page-shell">
       <PageHeader title={RESOURCE_MONTH_PAGE_TITLE} />
 
       {query.isPending ? null : (

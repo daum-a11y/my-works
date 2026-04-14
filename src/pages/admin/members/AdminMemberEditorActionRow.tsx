@@ -1,3 +1,4 @@
+import { Button } from 'krds-react';
 import { Link } from 'react-router-dom';
 
 interface AdminMemberEditorActionRowProps {
@@ -35,33 +36,37 @@ export function AdminMemberEditorActionRow({
         {isEditMode ? (
           <>
             {!isInactiveMember ? (
-              <button
+              <Button
                 type="button"
-                className={'projects-feature__button projects-feature__button--secondary'}
+                variant="secondary"
+                size="medium"
                 onClick={onInvite}
                 disabled={invitePending}
               >
                 {authActionLabel}
-              </button>
+              </Button>
             ) : null}
             {isInactiveMember ? (
-              <button
+              <Button
                 type="button"
-                className={'projects-feature__button projects-feature__button--primary'}
+                variant="primary"
+                size="medium"
                 onClick={onRestore}
                 disabled={restorePending}
               >
                 복원
-              </button>
+              </Button>
             ) : (
-              <button
+              <Button
                 type="button"
-                className={'projects-feature__delete-button'}
+                className="projects-feature__delete-button"
+                variant="secondary"
+                size="medium"
                 onClick={onDelete}
                 disabled={deletePending}
               >
                 삭제
-              </button>
+              </Button>
             )}
           </>
         ) : null}
@@ -71,19 +76,17 @@ export function AdminMemberEditorActionRow({
           'projects-feature__editor-form-actions projects-feature__editor-form-actions--end'
         }
       >
-        <Link
-          to="/admin/members"
-          className={'projects-feature__button projects-feature__button--secondary'}
-        >
+        <Link to="/admin/members" className="krds-btn secondary medium">
           취소
         </Link>
-        <button
+        <Button
           type="submit"
-          className={'projects-feature__button projects-feature__button--primary'}
+          variant="primary"
+          size="medium"
           disabled={savePending || Boolean(isInactiveMember)}
         >
           저장
-        </button>
+        </Button>
       </div>
     </div>
   );

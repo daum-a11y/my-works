@@ -2,7 +2,17 @@ import { Link } from 'react-router-dom';
 import { SortableTableHeaderButton, TableEmptyRow } from '../../components/shared';
 import type { MonitoringStatsRow } from '../../types/domain';
 import type { TaskMonitoringSortState } from './ProjectStatsPage.types';
-import { formatTaskMonthValue, formatTaskStatus } from './ProjectStatsPage.utils';
+import {
+  formatMonthLabel,
+  formatTaskStatus,
+  monthKeyFromDate,
+  monthKeyFromTaskMonth,
+} from './ProjectStatsPage.utils';
+
+function formatMonitoringMonth(value: string) {
+  const monthKey = monthKeyFromDate(value) || monthKeyFromTaskMonth(value);
+  return monthKey ? formatMonthLabel(monthKey) : '-';
+}
 
 interface TaskMonitoringResultsTableProps {
   rows: MonitoringStatsRow[];
@@ -119,7 +129,7 @@ export function TaskMonitoringResultsTable({
         <tbody>
           {rows.map((row) => (
             <tr key={row.subtaskId}>
-              <td>{formatTaskMonthValue(row.taskDate)}</td>
+              <td>{formatMonitoringMonth(row.taskDate)}</td>
               <td>{row.costGroupName || '-'}</td>
               <td>{row.type1 || '-'}</td>
               <td>{row.serviceName || row.serviceGroupName || '-'}</td>

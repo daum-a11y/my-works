@@ -1,4 +1,5 @@
 import { Button as KrdsButton } from 'krds-react';
+import clsx from 'clsx';
 import { BUTTON_DEFAULTS } from './Button.constants';
 import type { ButtonProps } from './Button.types';
 
@@ -19,6 +20,7 @@ function toButtonVariant(tone: NonNullable<ButtonProps['tone']>) {
 export function Button({
   children,
   tone = BUTTON_DEFAULTS.tone,
+  className,
   isDisabled,
   onPress,
   onClick,
@@ -27,6 +29,7 @@ export function Button({
   return (
     <KrdsButton
       {...props}
+      className={clsx('ui-button', `ui-button--${tone}`, className)}
       variant={toButtonVariant(tone)}
       disabled={isDisabled ?? props.disabled}
       onClick={(event) => {
