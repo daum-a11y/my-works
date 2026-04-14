@@ -1,22 +1,8 @@
-import { Link as KrdsLink } from 'krds-react';
-import {
-  KrdsRouterTextLink,
-  SortableTableHeaderButton,
-  SubtaskStatusBadge,
-  TableEmptyRow,
-} from '../../components/shared';
+import { Link } from 'react-router-dom';
+import { SortableTableHeaderButton, TableEmptyRow } from '../../components/shared';
 import type { MonitoringStatsRow } from '../../types/domain';
 import type { TaskMonitoringSortState } from './ProjectStatsPage.types';
-import {
-  formatMonthLabel,
-  monthKeyFromDate,
-  monthKeyFromTaskMonth,
-} from './ProjectStatsPage.utils';
-
-function formatMonitoringMonth(value: string) {
-  const monthKey = monthKeyFromDate(value) || monthKeyFromTaskMonth(value);
-  return monthKey ? formatMonthLabel(monthKey) : '-';
-}
+import { formatTaskMonthValue, formatTaskStatus } from './ProjectStatsPage.utils';
 
 interface TaskMonitoringResultsTableProps {
   rows: MonitoringStatsRow[];
@@ -38,20 +24,20 @@ export function TaskMonitoringResultsTable({
   };
 
   return (
-    <div className="krds-page__table-wrap krds-table-wrap">
-      <table className="krds-page__table tbl data">
+    <div className="stats-page__table-wrap">
+      <table className="stats-page__table">
         <caption className="sr-only">필터링된 태스크 현황 목록</caption>
         <colgroup>
-          <col className="krds-page__table-col krds-page__table-col--month" />
-          <col className="krds-page__table-col krds-page__table-col--group" />
-          <col className="krds-page__table-col krds-page__table-col--type" />
-          <col className="krds-page__table-col krds-page__table-col--group" />
-          <col className="krds-page__table-col krds-page__table-col--platform" />
-          <col className="krds-page__table-col krds-page__table-col--project" />
-          <col className="krds-page__table-col krds-page__table-col--project" />
-          <col className="krds-page__table-col krds-page__table-col--group" />
-          <col className="krds-page__table-col krds-page__table-col--group" />
-          <col className="krds-page__table-col krds-page__table-col--report" />
+          <col className="stats-page__table-col stats-page__table-col--month" />
+          <col className="stats-page__table-col stats-page__table-col--group" />
+          <col className="stats-page__table-col stats-page__table-col--type" />
+          <col className="stats-page__table-col stats-page__table-col--group" />
+          <col className="stats-page__table-col stats-page__table-col--platform" />
+          <col className="stats-page__table-col stats-page__table-col--project" />
+          <col className="stats-page__table-col stats-page__table-col--project" />
+          <col className="stats-page__table-col stats-page__table-col--group" />
+          <col className="stats-page__table-col stats-page__table-col--group" />
+          <col className="stats-page__table-col stats-page__table-col--report" />
         </colgroup>
         <thead>
           <tr>
@@ -133,16 +119,16 @@ export function TaskMonitoringResultsTable({
         <tbody>
           {rows.map((row) => (
             <tr key={row.subtaskId}>
-              <td>{formatMonitoringMonth(row.taskDate)}</td>
+              <td>{formatTaskMonthValue(row.taskDate)}</td>
               <td>{row.costGroupName || '-'}</td>
               <td>{row.type1 || '-'}</td>
               <td>{row.serviceName || row.serviceGroupName || '-'}</td>
               <td>{row.platform || '-'}</td>
               <td>
                 {row.projectId && row.projectName ? (
-                  <KrdsRouterTextLink to={`/projects/${row.projectId}/edit`}>
+                  <Link to={`/projects/${row.projectId}/edit`} className="stats-page__link">
                     {row.projectName}
-                  </KrdsRouterTextLink>
+                  </Link>
                 ) : (
                   row.projectName || '-'
                 )}
@@ -150,13 +136,20 @@ export function TaskMonitoringResultsTable({
               <td>{row.title || '-'}</td>
               <td>{row.ownerDisplay || '-'}</td>
               <td>
-                <SubtaskStatusBadge status={row.taskStatus} />
+                <span className="stats-page__status-badge" data-status={row.taskStatus}>
+                  {formatTaskStatus(row.taskStatus)}
+                </span>
               </td>
               <td>
                 {row.reportUrl ? (
-                  <KrdsLink size="medium" href={row.reportUrl} external>
+                  <a
+                    href={row.reportUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="stats-page__link"
+                  >
                     링크
-                  </KrdsLink>
+                  </a>
                 ) : (
                   '-'
                 )}

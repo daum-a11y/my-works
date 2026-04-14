@@ -1,4 +1,5 @@
-import { Button } from 'krds-react';
+import clsx from 'clsx';
+import '../../../styles/components/SortableTableHeaderButton.scss';
 import type {
   SortDirection,
   SortableTableHeaderButtonProps,
@@ -9,6 +10,7 @@ export function SortableTableHeaderButton<TSortKey extends string = string>({
   sortKey,
   sortState,
   onChange,
+  className,
   ...props
 }: SortableTableHeaderButtonProps<TSortKey>) {
   const active = sortState.key === sortKey;
@@ -21,10 +23,13 @@ export function SortableTableHeaderButton<TSortKey extends string = string>({
   const nextDirectionLabel = nextDirection === 'asc' ? '오름차순' : '내림차순';
 
   return (
-    <Button
-      size="medium"
+    <button
       type="button"
-      variant="tertiary"
+      className={clsx(
+        'sortable-table-header-button',
+        active && 'sortable-table-header-button--active',
+        className,
+      )}
       onClick={() => onChange({ key: sortKey, direction: nextDirection })}
       aria-pressed={active}
       aria-label={
@@ -34,10 +39,30 @@ export function SortableTableHeaderButton<TSortKey extends string = string>({
       }
       {...props}
     >
-      <span>{label}</span>
+      <span className={'sortable-table-header-button__label'}>{label}</span>
+      <span className={'sortable-table-header-button__icon'} aria-hidden="true">
+        <span
+          className={clsx(
+            'sortable-table-header-button__chevron',
+            'sortable-table-header-button__chevron--up',
+            active &&
+              sortState.direction === 'asc' &&
+              'sortable-table-header-button__chevron--current',
+          )}
+        />
+        <span
+          className={clsx(
+            'sortable-table-header-button__chevron',
+            'sortable-table-header-button__chevron--down',
+            active &&
+              sortState.direction === 'desc' &&
+              'sortable-table-header-button__chevron--current',
+          )}
+        />
+      </span>
       <span className={'sr-only'}>
         {active ? `${currentDirectionLabel}으로 정렬 중` : '정렬 기준 선택 가능'}
       </span>
-    </Button>
+    </button>
   );
 }

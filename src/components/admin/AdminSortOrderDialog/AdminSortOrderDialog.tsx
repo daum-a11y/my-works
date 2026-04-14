@@ -3,7 +3,7 @@ import { GripHorizontal } from 'lucide-react';
 import { Badge, Button, CriticalAlert, Modal, type BadgeProps } from 'krds-react';
 import { cleanupKrdsModalState, useKrdsModalCleanup } from '../../shared';
 
-export interface AdminOrderDialogItem {
+export interface AdminSortOrderDialogItem {
   id: string;
   title: string;
   description?: string;
@@ -12,10 +12,10 @@ export interface AdminOrderDialogItem {
   inactive?: boolean;
 }
 
-export interface AdminOrderDialogProps {
+export interface AdminSortOrderDialogProps {
   title: string;
   description?: string;
-  items: AdminOrderDialogItem[];
+  items: AdminSortOrderDialogItem[];
   isOpen: boolean;
   isPending: boolean;
   errorMessage?: string;
@@ -23,7 +23,7 @@ export interface AdminOrderDialogProps {
   onSave: (ids: string[]) => Promise<void> | void;
 }
 
-const ADMIN_ORDER_DIALOG_DEFAULTS = {
+const ADMIN_SORT_ORDER_DIALOG_DEFAULTS = {
   ERROR_MESSAGE: '',
 } as const;
 
@@ -38,17 +38,17 @@ function moveItem<T>(items: readonly T[], fromIndex: number, toIndex: number) {
   return nextItems;
 }
 
-export function AdminOrderDialog({
+export function AdminSortOrderDialog({
   title,
   description,
   items,
   isOpen,
   isPending,
-  errorMessage = ADMIN_ORDER_DIALOG_DEFAULTS.ERROR_MESSAGE,
+  errorMessage = ADMIN_SORT_ORDER_DIALOG_DEFAULTS.ERROR_MESSAGE,
   onClose,
   onSave,
-}: AdminOrderDialogProps) {
-  const [draftItems, setDraftItems] = useState<AdminOrderDialogItem[]>(items);
+}: AdminSortOrderDialogProps) {
+  const [draftItems, setDraftItems] = useState<AdminSortOrderDialogItem[]>(items);
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [dropTargetId, setDropTargetId] = useState<string | null>(null);
   useKrdsModalCleanup(isOpen);
@@ -145,7 +145,7 @@ export function AdminOrderDialog({
 
         <Modal.Body>
           {description ? (
-            <div id="admin-order-dialog-note">
+            <div id="admin-sort-order-dialog-note">
               <CriticalAlert alerts={[{ variant: 'info', message: description }]} />
             </div>
           ) : null}
@@ -207,7 +207,7 @@ export function AdminOrderDialog({
                     size="medium"
                     className="krds-page-admin__sortable-handle"
                     aria-label={`${item.title} 순서 이동 핸들`}
-                    aria-describedby={description ? 'admin-order-dialog-note' : undefined}
+                    aria-describedby={description ? 'admin-sort-order-dialog-note' : undefined}
                     draggable={!isPending}
                     onDragStart={() => setDraggingId(item.id)}
                     onDragEnd={() => {

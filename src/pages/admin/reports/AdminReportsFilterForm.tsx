@@ -1,7 +1,14 @@
 import type { FormEvent } from 'react';
-import { Accordion, Button, Checkbox, CheckboxGroup, Select, TextInput } from 'krds-react';
-import { KrdsDateInput } from '../../../components/shared';
+import {
+  Accordion,
+  Button,
+  Checkbox,
+  CheckboxGroup,
+  Select,
+  TextInput,
+} from 'krds-react';
 import { EmptyState } from '../../../components/shared/EmptyState';
+import { IsoDateInput } from '../../../components/shared/IsoDateInput';
 import { PageFilterField } from '../../../components/shared/PageFilterField';
 import type {
   AdminCostGroupItem,
@@ -73,19 +80,19 @@ export function AdminReportsFilterForm({
     <form className={'krds-page-admin__filter-form'} onSubmit={onSubmit}>
       <div className={'krds-page-admin__date-row'}>
         <PageFilterField className={'krds-page-admin__filter-field'} label="시작일">
-          <KrdsDateInput
+          <IsoDateInput
             id="admin-reports-start-date"
             value={filters.startDate}
             max={filters.endDate || undefined}
-            onChange={(value) => onFilterField('startDate', value)}
+            onChange={(next) => onFilterField('startDate', next)}
           />
         </PageFilterField>
         <PageFilterField className={'krds-page-admin__filter-field'} label="종료일">
-          <KrdsDateInput
+          <IsoDateInput
             id="admin-reports-end-date"
             value={filters.endDate}
             min={filters.startDate || undefined}
-            onChange={(value) => onFilterField('endDate', value)}
+            onChange={(next) => onFilterField('endDate', next)}
           />
         </PageFilterField>
       </div>

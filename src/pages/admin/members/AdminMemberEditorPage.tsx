@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { CriticalAlert } from 'krds-react';
+import { CriticalAlert, Spinner } from 'krds-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { adminDataClient } from '../../../api/admin';
 import type { MemberAdminPayload } from '../admin.types';
@@ -27,7 +27,6 @@ import {
 import { toMemberAdmin } from '../adminApiTransform';
 import { useAlertMessage } from '../../../hooks/useAlertMessage';
 import { PageHeader } from '../../../components/shared';
-import { GlobalLoadingSpinner } from '../../../components/layout';
 
 export function AdminMemberEditorPage() {
   const navigate = useNavigate();
@@ -234,7 +233,19 @@ export function AdminMemberEditorPage() {
   if (membersQuery.isLoading && isEditMode) {
     return (
       <section className="krds-page krds-page__shell krds-page__editor-shell">
-        <GlobalLoadingSpinner />
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            minHeight: '96px',
+          }}
+          className="global-loading-spinner"
+          aria-label="로딩 중"
+          role="status"
+        >
+          <Spinner />
+        </div>
       </section>
     );
   }

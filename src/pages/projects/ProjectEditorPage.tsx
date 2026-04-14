@@ -1,7 +1,7 @@
 import { type FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { CriticalAlert } from 'krds-react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Button, CriticalAlert, Spinner } from 'krds-react';
+import { Link as RouterLink, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../auth/AuthContext';
 import { dataClient } from '../../api/client';
 import {
@@ -34,8 +34,7 @@ import {
 } from './ProjectEditorPage.draft';
 import { splitServiceGroupName } from './ProjectEditorPage.service';
 import { useAlertMessage } from '../../hooks/useAlertMessage';
-import { KrdsRouterButtonLink, PageHeader } from '../../components/shared';
-import { GlobalLoadingSpinner } from '../../components/layout';
+import { PageHeader } from '../../components/shared';
 
 function getProjectEditorErrorMessage(error: unknown, fallback: string) {
   const message =
@@ -448,13 +447,25 @@ export function ProjectEditorPage() {
           title={isEditMode ? PROJECT_EDITOR_EDIT_TITLE : PROJECT_EDITOR_CREATE_TITLE}
           actions={
             isEditMode ? (
-              <KrdsRouterButtonLink to="/projects">
+              <Button as={RouterLink} to="/projects" role="link">
                 목록으로
-              </KrdsRouterButtonLink>
+              </Button>
             ) : null
           }
         />
-        <GlobalLoadingSpinner />
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            minHeight: '96px',
+          }}
+          className="global-loading-spinner"
+          aria-label="로딩 중"
+          role="status"
+        >
+          <Spinner />
+        </div>
       </section>
     );
   }
@@ -465,9 +476,9 @@ export function ProjectEditorPage() {
         <PageHeader
           title={isEditMode ? PROJECT_EDITOR_EDIT_TITLE : PROJECT_EDITOR_CREATE_TITLE}
           actions={
-            <KrdsRouterButtonLink to="/projects">
+            <Button as={RouterLink} to="/projects" role="link">
               목록으로
-            </KrdsRouterButtonLink>
+            </Button>
           }
         />
       </section>
@@ -480,9 +491,9 @@ export function ProjectEditorPage() {
         <PageHeader
           title={PROJECT_EDITOR_EDIT_TITLE}
           actions={
-            <KrdsRouterButtonLink to="/projects">
+            <Button as={RouterLink} to="/projects" role="link">
               목록으로
-            </KrdsRouterButtonLink>
+            </Button>
           }
         />
         <CriticalAlert alerts={[{ variant: 'info', message: '프로젝트를 찾을 수 없습니다.' }]} />

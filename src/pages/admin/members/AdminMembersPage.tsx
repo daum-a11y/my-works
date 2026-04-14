@@ -1,10 +1,8 @@
-import { CriticalAlert } from 'krds-react';
-import { KrdsRouterButtonLink } from '../../../components/shared';
+import { Button, CriticalAlert, Pagination, Select } from 'krds-react';
+import { Link as RouterLink } from 'react-router-dom';
 import { PageHeader } from '../../../components/shared/PageHeader';
-import { PagePager } from '../../../components/shared/PagePager';
 import { PageResultBar } from '../../../components/shared/PageResultBar';
 import { PageSection } from '../../../components/shared/PageSection';
-import { PageSizeField } from '../../../components/shared/PageSizeField';
 import { AdminMembersFilterForm } from './AdminMembersFilterForm';
 import { AdminMembersResultsTable } from './AdminMembersResultsTable';
 import { ADMIN_MEMBERS_PAGE_SIZE_OPTIONS } from './AdminMembersPage.constants';
@@ -21,9 +19,15 @@ export function AdminMembersPage() {
       <PageHeader
         title="사용자 관리"
         actions={
-          <KrdsRouterButtonLink to="/admin/members/new" variant="primary" size="medium">
+          <Button
+            as={RouterLink}
+            to="/admin/members/new"
+            role="link"
+            variant="primary"
+            size="medium"
+          >
             사용자 추가
-          </KrdsRouterButtonLink>
+          </Button>
         }
       />
 
@@ -43,18 +47,22 @@ export function AdminMembersPage() {
         aria-label="사용자 목록 상태"
         metrics={
           <>
-            <PagePager
-              aria-label="사용자 목록 페이지 이동"
-              currentPage={page.currentPageSafe}
-              totalPages={page.totalPages}
-              canGoPrevious={page.currentPageSafe > 1}
-              canGoNext={page.currentPageSafe < page.totalPages && page.totalMembers > 0}
-              onPrevious={() => page.setCurrentPage((current) => Math.max(1, current - 1))}
-              onNext={() =>
-                page.setCurrentPage((current) => Math.min(page.totalPages, current + 1))
-              }
-              onPageChange={page.setCurrentPage}
-            />
+            <div aria-label="사용자 목록 페이지 이동">
+              <span className="sr-only">
+                {page.currentPageSafe}/ {page.totalPages}
+              </span>
+              <Pagination
+                currentPage={page.currentPageSafe}
+                totalPages={page.totalPages}
+                onChange={page.setCurrentPage}
+                prevLabel="이전 페이지"
+                nextLabel="다음 페이지"
+                disabled={
+                  !(page.currentPageSafe > 1) &&
+                  !(page.currentPageSafe < page.totalPages && page.totalMembers > 0)
+                }
+              />
+            </div>
             <p>
               <span>검색 결과</span>
               <strong>{numberFormatter.format(page.totalMembers)}건</strong>
@@ -70,14 +78,25 @@ export function AdminMembersPage() {
           </>
         }
         controls={
-          <PageSizeField
-            value={page.pageSize}
-            options={ADMIN_MEMBERS_PAGE_SIZE_OPTIONS}
-            onValueChange={(next) => {
-              page.setPageSize(next);
-              page.setCurrentPage(1);
-            }}
-          />
+          <>
+            <strong className="sort-label">
+              <label htmlFor="admin-members-page-size">페이지당 행 수</label>
+            </strong>
+            <Select
+              id="admin-members-page-size"
+              value={String(page.pageSize)}
+              variant="sorting"
+              size="small"
+              options={ADMIN_MEMBERS_PAGE_SIZE_OPTIONS.map((option) => ({
+                value: String(option),
+                label: `${option}개`,
+              }))}
+              onChange={(next) => {
+                page.setPageSize(Number(next));
+                page.setCurrentPage(1);
+              }}
+            />
+          </>
         }
       />
 

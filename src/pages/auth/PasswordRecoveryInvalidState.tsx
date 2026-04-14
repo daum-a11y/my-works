@@ -1,4 +1,4 @@
-import { AuthLayoutShell } from '../../components/layout/AuthLayoutShell';
+import { AuthPageLayout } from '../../components/layout/AuthPageLayout';
 import { Button } from 'krds-react';
 
 interface PasswordRecoveryInvalidStateProps {
@@ -7,7 +7,7 @@ interface PasswordRecoveryInvalidStateProps {
 
 export function PasswordRecoveryInvalidState({ onLogin }: PasswordRecoveryInvalidStateProps) {
   return (
-    <AuthLayoutShell
+    <AuthPageLayout
       caption="비밀번호 재설정"
       labelledBy="recovery-invalid-title"
       title="유효하지 않은 재설정 링크"

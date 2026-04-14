@@ -1,7 +1,7 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { Accordion, Badge } from 'krds-react';
+import { Accordion, Badge, Button, StructuredList } from 'krds-react';
+import { Link as RouterLink } from 'react-router-dom';
 import { Bar, BarChart, LabelList, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
-import { KrdsRouterButtonLink, KrdsStructuredInfoList } from '../../components/shared';
 import type { ResourceMonthReportMemberTotal } from '../../types/domain';
 import { DistributionLabel, DistributionTooltip } from './ResourceMonthPage.chart';
 import type { DistributionItem } from './ResourceMonthPage.types';
@@ -47,30 +47,47 @@ export function ResourceMonthContextSection({
       <div className="krds-page__section-head">
         <div className="krds-page__calendar-heading">
           <div className="krds-page__calendar-nav" aria-label="월간 리포트 월 이동">
-            <KrdsRouterButtonLink
+            <Button
+              as={RouterLink}
               to={`/resource/month/${beforeMonth}`}
+              role="link"
               variant="tertiary"
               aria-label="이전달 보기"
             >
               <ChevronLeft size={16} strokeWidth={2.4} aria-hidden="true" />
               <span className="sr-only">이전달 보기</span>
-            </KrdsRouterButtonLink>
+            </Button>
             <h2 className="krds-page__calendar-title">
               {year}년 {month}월
             </h2>
-            <KrdsRouterButtonLink
+            <Button
+              as={RouterLink}
               to={`/resource/month/${afterMonth}`}
+              role="link"
               variant="tertiary"
               aria-label="다음달 보기"
             >
               <ChevronRight size={16} strokeWidth={2.4} aria-hidden="true" />
               <span className="sr-only">다음달 보기</span>
-            </KrdsRouterButtonLink>
+            </Button>
           </div>
         </div>
       </div>
 
-      <KrdsStructuredInfoList className="krds-page__summary-facts" items={summaryItems} />
+      <StructuredList className="krds-page__summary-facts sm">
+        {summaryItems.map((item, index) => (
+          <li key={`${item.label}-${index}`} className="structured-item">
+            <div className="in">
+              <div className="card-body">
+                <div className="c-text">
+                  <strong className="c-tit">{item.label}</strong>
+                  <span className="c-txt">{item.value}</span>
+                </div>
+              </div>
+            </div>
+          </li>
+        ))}
+      </StructuredList>
 
       {distributionItems.length ? (
         <div className="krds-page__chart-surface">

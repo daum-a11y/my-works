@@ -1,5 +1,5 @@
 import { Button } from 'krds-react';
-import { KrdsRouterButtonLink } from '../../components/shared';
+import { Link as RouterLink } from 'react-router-dom';
 
 interface ProjectEditorActionRowProps {
   canDelete: boolean;
@@ -22,7 +22,9 @@ export function ProjectEditorActionRow({
         ) : null}
       </div>
       <div className={'krds-page__editor-form-actions krds-page__editor-form-actions--end'}>
-        <KrdsRouterButtonLink to="/projects">취소</KrdsRouterButtonLink>
+        <Button as={RouterLink} to="/projects" role="link">
+          취소
+        </Button>
         <Button size="medium" type="submit" variant="primary" disabled={saving}>
           저장
         </Button>

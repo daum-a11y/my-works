@@ -1,5 +1,4 @@
 import { SortableTableHeaderButton, TableEmptyRow } from '../../../components/shared';
-import { GlobalLoadingSpinner } from '../../../components/layout';
 import type { MemberAdminItem } from '../admin.types';
 import { AdminMemberRow } from './AdminMemberRow';
 import type { AdminMembersSortState } from './AdminMembersPage.sort';
@@ -26,12 +25,12 @@ export function AdminMembersResultsTable({
   };
 
   return (
-    <div className={'krds-page-admin__table-wrap krds-table-wrap'}>
-      <table className={'krds-page-admin__table tbl data'}>
+    <div className={'admin-members-page__table-wrap'}>
+      <table className={'admin-members-page__table'}>
         <caption className="sr-only">사용자 내역</caption>
         <thead>
           <tr>
-            <th scope="col" aria-sort={getAriaSort('accountId')} aria-label="ID">
+            <th scope="col" aria-sort={getAriaSort('accountId')}>
               <SortableTableHeaderButton
                 label="ID"
                 sortKey="accountId"
@@ -39,7 +38,7 @@ export function AdminMembersResultsTable({
                 onChange={onSortChange}
               />
             </th>
-            <th scope="col" aria-sort={getAriaSort('name')} aria-label="이름">
+            <th scope="col" aria-sort={getAriaSort('name')}>
               <SortableTableHeaderButton
                 label="이름"
                 sortKey="name"
@@ -47,7 +46,7 @@ export function AdminMembersResultsTable({
                 onChange={onSortChange}
               />
             </th>
-            <th scope="col" aria-sort={getAriaSort('email')} aria-label="이메일">
+            <th scope="col" aria-sort={getAriaSort('email')}>
               <SortableTableHeaderButton
                 label="이메일"
                 sortKey="email"
@@ -55,7 +54,7 @@ export function AdminMembersResultsTable({
                 onChange={onSortChange}
               />
             </th>
-            <th scope="col" aria-sort={getAriaSort('role')} aria-label="권한">
+            <th scope="col" aria-sort={getAriaSort('role')}>
               <SortableTableHeaderButton
                 label="권한"
                 sortKey="role"
@@ -63,7 +62,7 @@ export function AdminMembersResultsTable({
                 onChange={onSortChange}
               />
             </th>
-            <th scope="col" aria-sort={getAriaSort('userActive')} aria-label="활성여부">
+            <th scope="col" aria-sort={getAriaSort('userActive')}>
               <SortableTableHeaderButton
                 label="활성여부"
                 sortKey="userActive"
@@ -71,7 +70,7 @@ export function AdminMembersResultsTable({
                 onChange={onSortChange}
               />
             </th>
-            <th scope="col" aria-sort={getAriaSort('memberStatus')} aria-label="승인상태">
+            <th scope="col" aria-sort={getAriaSort('memberStatus')}>
               <SortableTableHeaderButton
                 label="승인상태"
                 sortKey="memberStatus"
@@ -79,7 +78,7 @@ export function AdminMembersResultsTable({
                 onChange={onSortChange}
               />
             </th>
-            <th scope="col" aria-sort={getAriaSort('reportRequired')} aria-label="업무보고접근">
+            <th scope="col" aria-sort={getAriaSort('reportRequired')}>
               <SortableTableHeaderButton
                 label="업무보고접근"
                 sortKey="reportRequired"
@@ -87,7 +86,7 @@ export function AdminMembersResultsTable({
                 onChange={onSortChange}
               />
             </th>
-            <th scope="col" aria-sort={getAriaSort('joinedAt')} aria-label="등록일">
+            <th scope="col" aria-sort={getAriaSort('joinedAt')}>
               <SortableTableHeaderButton
                 label="등록일"
                 sortKey="joinedAt"
@@ -95,7 +94,7 @@ export function AdminMembersResultsTable({
                 onChange={onSortChange}
               />
             </th>
-            <th scope="col" aria-sort={getAriaSort('lastLoginAt')} aria-label="최종로그인">
+            <th scope="col" aria-sort={getAriaSort('lastLoginAt')}>
               <SortableTableHeaderButton
                 label="최종로그인"
                 sortKey="lastLoginAt"
@@ -107,13 +106,6 @@ export function AdminMembersResultsTable({
           </tr>
         </thead>
         <tbody>
-          {loading ? (
-            <tr>
-              <td colSpan={10} className="table-empty-row">
-                <GlobalLoadingSpinner />
-              </td>
-            </tr>
-          ) : null}
           {!loading && members.length === 0 ? (
             <TableEmptyRow colSpan={10} message="조회된 사용자가 없습니다." />
           ) : null}

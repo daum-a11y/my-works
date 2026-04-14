@@ -1,5 +1,5 @@
 import { Button, CriticalAlert } from 'krds-react';
-import { KrdsRouterButtonLink } from '../../../components/shared';
+import { Link as RouterLink } from 'react-router-dom';
 
 interface AdminCostGroupEditorActionRowProps {
   isEditMode: boolean;
@@ -73,9 +73,9 @@ export function AdminCostGroupEditorActionRow({
           'krds-page__editor-form-actions krds-page__editor-form-actions--end'
         }
       >
-        <KrdsRouterButtonLink to="/admin/cost-group">
+        <Button as={RouterLink} to="/admin/cost-group" role="link">
           취소
-        </KrdsRouterButtonLink>
+        </Button>
         <Button type="submit" variant="primary" size="medium" disabled={savePending}>
           저장
         </Button>

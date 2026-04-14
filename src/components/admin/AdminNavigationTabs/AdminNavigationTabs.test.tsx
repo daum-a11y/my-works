@@ -1,13 +1,13 @@
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it } from 'vitest';
-import { AdminSectionTabs } from './AdminSectionTabs';
+import { AdminNavigationTabs } from './AdminNavigationTabs';
 
-describe('AdminSectionTabs', () => {
+describe('AdminNavigationTabs', () => {
   it('marks the active tab as selected', () => {
     render(
       <MemoryRouter>
-        <AdminSectionTabs active="platforms" />
+        <AdminNavigationTabs active="platforms" />
       </MemoryRouter>,
     );
 

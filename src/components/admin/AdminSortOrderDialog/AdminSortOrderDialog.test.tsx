@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
-import { AdminOrderDialog } from './AdminOrderDialog';
+import { AdminSortOrderDialog } from './AdminSortOrderDialog';
 
 const baseItems = [
   { id: 'a', title: '첫 번째 항목' },
@@ -9,10 +9,10 @@ const baseItems = [
   { id: 'c', title: '세 번째 항목' },
 ];
 
-describe('AdminOrderDialog', () => {
+describe('AdminSortOrderDialog', () => {
   it('returns null when closed', () => {
     const { container } = render(
-      <AdminOrderDialog
+      <AdminSortOrderDialog
         title="순서 편집"
         items={baseItems}
         isOpen={false}
@@ -30,7 +30,7 @@ describe('AdminOrderDialog', () => {
     const handleSave = vi.fn();
 
     render(
-      <AdminOrderDialog
+      <AdminSortOrderDialog
         title="순서 편집"
         items={baseItems}
         isOpen

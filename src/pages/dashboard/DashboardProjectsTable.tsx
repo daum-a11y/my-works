@@ -1,4 +1,4 @@
-import { PageSection, SortableTableHeaderButton, TableEmptyRow } from '../../components/shared';
+import { SortableTableHeaderButton, TableEmptyRow } from '../../components/shared';
 import type {
   DashboardProjectRow,
   DashboardProjectsSortState,
@@ -24,13 +24,16 @@ export function DashboardProjectsTable({
   };
 
   return (
-    <PageSection title="진행중인 프로젝트">
-      <div className="krds-page__table-wrap krds-table-wrap">
-        <table className="krds-page__table tbl data">
+    <section className="dashboard-page__section">
+      <div className="dashboard-page__section-head">
+        <h2 className="dashboard-page__section-title">진행중인 프로젝트</h2>
+      </div>
+      <div className="dashboard-page__table-wrap">
+        <table className="dashboard-page__table">
           <caption className="sr-only">진행중인 프로젝트</caption>
           <thead>
             <tr>
-              <th scope="col" aria-sort={getAriaSort('costGroupName')} aria-label="청구그룹">
+              <th scope="col" aria-sort={getAriaSort('costGroupName')}>
                 <SortableTableHeaderButton
                   label="청구그룹"
                   sortKey="costGroupName"
@@ -38,7 +41,7 @@ export function DashboardProjectsTable({
                   onChange={onSortChange}
                 />
               </th>
-              <th scope="col" aria-sort={getAriaSort('type1')} aria-label="타입1">
+              <th scope="col" aria-sort={getAriaSort('type1')}>
                 <SortableTableHeaderButton
                   label="타입1"
                   sortKey="type1"
@@ -46,11 +49,7 @@ export function DashboardProjectsTable({
                   onChange={onSortChange}
                 />
               </th>
-              <th
-                scope="col"
-                aria-sort={getAriaSort('serviceGroupName')}
-                aria-label="서비스 그룹"
-              >
+              <th scope="col" aria-sort={getAriaSort('serviceGroupName')}>
                 <SortableTableHeaderButton
                   label="서비스 그룹"
                   sortKey="serviceGroupName"
@@ -58,7 +57,7 @@ export function DashboardProjectsTable({
                   onChange={onSortChange}
                 />
               </th>
-              <th scope="col" aria-sort={getAriaSort('projectName')} aria-label="프로젝트명">
+              <th scope="col" aria-sort={getAriaSort('projectName')}>
                 <SortableTableHeaderButton
                   label="프로젝트명"
                   sortKey="projectName"
@@ -66,7 +65,7 @@ export function DashboardProjectsTable({
                   onChange={onSortChange}
                 />
               </th>
-              <th scope="col" aria-sort={getAriaSort('platform')} aria-label="플랫폼">
+              <th scope="col" aria-sort={getAriaSort('platform')}>
                 <SortableTableHeaderButton
                   label="플랫폼"
                   sortKey="platform"
@@ -74,7 +73,7 @@ export function DashboardProjectsTable({
                   onChange={onSortChange}
                 />
               </th>
-              <th scope="col" aria-sort={getAriaSort('startDate')} aria-label="시작일">
+              <th scope="col" aria-sort={getAriaSort('startDate')}>
                 <SortableTableHeaderButton
                   label="시작일"
                   sortKey="startDate"
@@ -82,7 +81,7 @@ export function DashboardProjectsTable({
                   onChange={onSortChange}
                 />
               </th>
-              <th scope="col" aria-sort={getAriaSort('endDate')} aria-label="종료일">
+              <th scope="col" aria-sort={getAriaSort('endDate')}>
                 <SortableTableHeaderButton
                   label="종료일"
                   sortKey="endDate"
@@ -110,6 +109,6 @@ export function DashboardProjectsTable({
           </tbody>
         </table>
       </div>
-    </PageSection>
+    </section>
   );
 }

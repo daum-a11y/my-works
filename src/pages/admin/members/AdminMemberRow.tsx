@@ -1,6 +1,5 @@
-import { Badge } from 'krds-react';
-
-import { KrdsRouterButtonLink } from '../../../components/shared';
+import { Badge, Button } from 'krds-react';
+import { Link as RouterLink } from 'react-router-dom';
 import { formatDateLabel, formatDateTimeLabel } from '../../../utils';
 import type { MemberAdminItem, MemberAdminPayload } from '../admin.types';
 
@@ -85,9 +84,9 @@ export function AdminMemberRow({ member }: AdminMemberRowProps) {
       <td>{formatMemberDate(member.joinedAt)}</td>
       <td>{formatMemberDateTime(member.lastLoginAt)}</td>
       <td>
-        <KrdsRouterButtonLink to={`/admin/members/${member.id}/edit`}>
+        <Button as={RouterLink} to={`/admin/members/${member.id}/edit`} role="link">
           수정
-        </KrdsRouterButtonLink>
+        </Button>
       </td>
     </tr>
   );

@@ -1,5 +1,5 @@
-import { Badge, Button, Radio, RadioGroup } from 'krds-react';
-import { KrdsStructuredInfoList, PageSection } from '../../components/shared';
+import { Badge, Button, Radio, RadioGroup, StructuredList } from 'krds-react';
+import { PageSection } from '../../components/shared';
 import type { FontPreference } from '../../preferences/FontPreferenceState';
 import type { ThemePreference } from '../../preferences/ThemePreferenceState';
 import { USER_PROFILE_FONT_OPTIONS, USER_PROFILE_THEME_OPTIONS } from './UserProfilePage.constants';
@@ -42,8 +42,8 @@ export function UserProfileAccountSection({
         ) : null
       }
     >
-      <KrdsStructuredInfoList
-        items={[
+      <StructuredList className="sm">
+        {[
           { label: 'ID', value: accountId ?? '-' },
           { label: '이름', value: name ?? '-' },
           { label: '이메일', value: email ?? '-' },
@@ -59,8 +59,19 @@ export function UserProfileAccountSection({
               </Badge>
             ),
           },
-        ]}
-      />
+        ].map((item, index) => (
+          <li key={`${item.label}-${index}`} className="structured-item">
+            <div className="in">
+              <div className="card-body">
+                <div className="c-text">
+                  <strong className="c-tit">{item.label}</strong>
+                  <span className="c-txt">{item.value}</span>
+                </div>
+              </div>
+            </div>
+          </li>
+        ))}
+      </StructuredList>
     </PageSection>
   );
 }

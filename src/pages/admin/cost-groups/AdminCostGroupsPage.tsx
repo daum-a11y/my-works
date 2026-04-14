@@ -1,11 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button, CriticalAlert } from 'krds-react';
-import { useLocation } from 'react-router-dom';
+import { Link as RouterLink, useLocation } from 'react-router-dom';
 import { setDocumentTitle } from '../../../router/navigation';
-import { AdminOrderDialog } from '../../../components/admin/AdminOrderDialog';
+import { AdminSortOrderDialog } from '../../../components/admin/AdminSortOrderDialog';
 import { PageHeader } from '../../../components/shared/PageHeader';
-import { KrdsRouterButtonLink } from '../../../components/shared';
 import { adminDataClient } from '../../../api/admin';
 import { AdminCostGroupsResultsTable } from './AdminCostGroupsResultsTable';
 import { toAdminCostGroup } from '../adminApiTransform';
@@ -73,9 +72,15 @@ export function AdminCostGroupsPage() {
             >
               순서변경
             </Button>
-            <KrdsRouterButtonLink to="/admin/cost-group/new" variant="primary" size="medium">
+            <Button
+              as={RouterLink}
+              to="/admin/cost-group/new"
+              role="link"
+              variant="primary"
+              size="medium"
+            >
               청구그룹 추가
-            </KrdsRouterButtonLink>
+            </Button>
           </>
         }
       />
@@ -86,7 +91,7 @@ export function AdminCostGroupsPage() {
 
       <AdminCostGroupsResultsTable costGroups={costGroups} />
 
-      <AdminOrderDialog
+      <AdminSortOrderDialog
         title="청구그룹 순서변경"
         items={costGroups.map((item) => ({
           id: item.id,

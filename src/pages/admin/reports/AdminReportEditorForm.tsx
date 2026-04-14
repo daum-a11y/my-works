@@ -1,5 +1,5 @@
 import type { CSSProperties, FormEvent, KeyboardEvent } from 'react';
-import { CriticalAlert, Tab, TabList, TabTrigger, Textarea } from 'krds-react';
+import { CriticalAlert, Spinner, Tab, TabList, TabTrigger, Textarea } from 'krds-react';
 import type { Platform, ProjectSubtask } from '../../../types/domain';
 import type { ProjectViewModel, ReportDraft } from '../../reports/reportUtils';
 import { getTodayInputValue } from '../../reports/reportUtils';
@@ -10,7 +10,6 @@ import { AdminReportEditorReportTabFields } from './AdminReportEditorReportTabFi
 import { AdminReportEditorStatus } from './AdminReportEditorStatus';
 import type { AdminReportEditorTab } from './AdminReportEditorPage.types';
 import type { MemberAdminItem } from '../admin.types';
-import { GlobalLoadingSpinner } from '../../../components/layout';
 import { PageSection } from '../../../components/shared';
 
 const panelStyle: CSSProperties = {
@@ -165,7 +164,21 @@ export function AdminReportEditorForm({
         isMissingEditTarget={missingEditTarget}
       />
 
-      {loading && !missingEditTarget ? <GlobalLoadingSpinner /> : null}
+      {loading && !missingEditTarget ? (
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            minHeight: '96px',
+          }}
+          className="global-loading-spinner"
+          aria-label="로딩 중"
+          role="status"
+        >
+          <Spinner />
+        </div>
+      ) : null}
 
       {!loading && !missingEditTarget ? (
         <form className={'krds-page__form'} onSubmit={onSubmit} style={formStyle}>

@@ -1,5 +1,5 @@
 import { Button } from 'krds-react';
-import { KrdsRouterButtonLink } from '../../../components/shared';
+import { Link as RouterLink } from 'react-router-dom';
 
 interface AdminMemberEditorActionRowProps {
   isEditMode: boolean;
@@ -75,9 +75,9 @@ export function AdminMemberEditorActionRow({
           'krds-page__editor-form-actions krds-page__editor-form-actions--end'
         }
       >
-        <KrdsRouterButtonLink to="/admin/members">
+        <Button as={RouterLink} to="/admin/members" role="link">
           취소
-        </KrdsRouterButtonLink>
+        </Button>
         <Button
           type="submit"
           variant="primary"

@@ -1,7 +1,5 @@
-import { Button } from 'krds-react';
-import { PagePager } from '../../../components/shared/PagePager';
+import { Button, Pagination, Select } from 'krds-react';
 import { PageResultBar } from '../../../components/shared/PageResultBar';
-import { PageSizeField } from '../../../components/shared/PageSizeField';
 import { PageHeader } from '../../../components/shared/PageHeader';
 import { PageSection } from '../../../components/shared/PageSection';
 import { ADMIN_REPORTS_PAGE_SIZE_OPTIONS } from './AdminReportsPage.constants';
@@ -58,18 +56,22 @@ export function AdminReportsPage() {
         aria-label="업무보고 검색 결과 요약"
         metrics={
           <>
-            <PagePager
-              aria-label="업무보고 목록 페이지 이동"
-              currentPage={page.currentPageSafe}
-              totalPages={page.totalPages}
-              canGoPrevious={page.currentPageSafe > 1}
-              canGoNext={page.currentPageSafe < page.totalPages && page.totalTasks > 0}
-              onPrevious={() => page.setCurrentPage((current) => Math.max(1, current - 1))}
-              onNext={() =>
-                page.setCurrentPage((current) => Math.min(page.totalPages, current + 1))
-              }
-              onPageChange={page.setCurrentPage}
-            />
+            <div aria-label="업무보고 목록 페이지 이동">
+              <span className="sr-only">
+                {page.currentPageSafe}/ {page.totalPages}
+              </span>
+              <Pagination
+                currentPage={page.currentPageSafe}
+                totalPages={page.totalPages}
+                onChange={page.setCurrentPage}
+                prevLabel="이전 페이지"
+                nextLabel="다음 페이지"
+                disabled={
+                  !(page.currentPageSafe > 1) &&
+                  !(page.currentPageSafe < page.totalPages && page.totalTasks > 0)
+                }
+              />
+            </div>
             <p>
               <span>검색 결과</span>
               <strong>{numberFormatter.format(page.totalTasks)}건</strong>
@@ -81,14 +83,25 @@ export function AdminReportsPage() {
           </>
         }
         controls={
-          <PageSizeField
-            value={page.pageSize}
-            options={ADMIN_REPORTS_PAGE_SIZE_OPTIONS}
-            onValueChange={(next) => {
-              page.setPageSize(next);
-              page.setCurrentPage(1);
-            }}
-          />
+          <>
+            <strong className="sort-label">
+              <label htmlFor="admin-reports-page-size">페이지당 행 수</label>
+            </strong>
+            <Select
+              id="admin-reports-page-size"
+              value={String(page.pageSize)}
+              variant="sorting"
+              size="small"
+              options={ADMIN_REPORTS_PAGE_SIZE_OPTIONS.map((option) => ({
+                value: String(option),
+                label: `${option}개`,
+              }))}
+              onChange={(next) => {
+                page.setPageSize(Number(next));
+                page.setCurrentPage(1);
+              }}
+            />
+          </>
         }
       />
 

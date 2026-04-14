@@ -1,6 +1,6 @@
 import type { RefObject } from 'react';
 import { Select, TextInput } from 'krds-react';
-import { KrdsDateInput } from '../../components/shared';
+import { IsoDateInput } from '../../components/shared/IsoDateInput';
 import type { ProjectFormState } from './ProjectEditorPage.types';
 
 interface ProjectEditorFormProps {
@@ -139,21 +139,21 @@ export function ProjectEditorForm({
         style={{ width: '100%' }}
       />
 
-      <KrdsDateInput
+      <IsoDateInput
         id="project-editor-start-date"
         label="QA시작일"
         value={projectDraft.startDate}
         max={projectDraft.endDate || undefined}
-        onChange={(value) => onProjectDraftChange({ startDate: value })}
+        onChange={(next) => onProjectDraftChange({ startDate: next })}
         style={{ width: '100%' }}
       />
 
-      <KrdsDateInput
+      <IsoDateInput
         id="project-editor-end-date"
         label="QA종료일"
         value={projectDraft.endDate}
         min={projectDraft.startDate || undefined}
-        onChange={(value) => onProjectDraftChange({ endDate: value })}
+        onChange={(next) => onProjectDraftChange({ endDate: next })}
         style={{ width: '100%' }}
       />
 

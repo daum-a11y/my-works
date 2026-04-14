@@ -1,9 +1,8 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button } from 'krds-react';
+import { Button, StructuredList } from 'krds-react';
 import { useAuth } from '../../auth/AuthContext';
-import { AuthLayoutShell } from '../../components/layout/AuthLayoutShell';
-import { KrdsStructuredInfoList } from '../../components/shared';
+import { AuthPageLayout } from '../../components/layout/AuthPageLayout';
 
 export function PendingApprovalPage() {
   const navigate = useNavigate();
@@ -14,7 +13,7 @@ export function PendingApprovalPage() {
   }, []);
 
   return (
-    <AuthLayoutShell
+    <AuthPageLayout
       caption="계정 확인"
       labelledBy="pending-title"
       title="승인 대기 중입니다"
@@ -27,12 +26,23 @@ export function PendingApprovalPage() {
       }
       body={
         <>
-          <KrdsStructuredInfoList
-            items={[
+          <StructuredList className="sm">
+            {[
               { label: '계정', value: session?.member.accountId ?? '-' },
               { label: '이름', value: session?.member.name ?? '-' },
-            ]}
-          />
+            ].map((item, index) => (
+              <li key={`${item.label}-${index}`} className="structured-item">
+                <div className="in">
+                  <div className="card-body">
+                    <div className="c-text">
+                      <strong className="c-tit">{item.label}</strong>
+                      <span className="c-txt">{item.value}</span>
+                    </div>
+                  </div>
+                </div>
+              </li>
+            ))}
+          </StructuredList>
           <div className="krds-auth-shell__actions">
             <Button
               size="medium"

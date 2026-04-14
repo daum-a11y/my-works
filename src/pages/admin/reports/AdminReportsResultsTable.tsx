@@ -1,5 +1,4 @@
-import { Button, Link as KrdsLink } from 'krds-react';
-import { PageSection, SortableTableHeaderButton, TableEmptyRow } from '../../../components/shared';
+import { SortableTableHeaderButton, TableEmptyRow } from '../../../components/shared';
 import type { AdminTaskSearchItem } from '../admin.types';
 import type { SortState } from './AdminReportsPage.types';
 import { formatTimeCell } from './AdminReportsPage.utils';
@@ -30,10 +29,10 @@ export function AdminReportsResultsTable({
   };
 
   return (
-    <PageSection title="검색 결과" className={'krds-page-admin__panel'}>
-      <div className={'krds-page-admin__table-wrap krds-table-wrap'}>
-        <table className={'krds-page-admin__table tbl data'}>
-          <caption className={'sr-only'}>업무보고 검색 결과 테이블</caption>
+    <div className={'admin-reports-page__panel'}>
+      <div className={'admin-reports-page__table-wrap'}>
+        <table className={'admin-reports-page__table'}>
+          <caption className={'sr-only'}>업무보고 조회 결과 테이블</caption>
           <thead>
             <tr>
               <th scope="col" aria-sort={getAriaSort('taskDate')}>
@@ -140,7 +139,7 @@ export function AdminReportsResultsTable({
                     <td>{task.taskDate}</td>
                     <td>
                       <strong>{task.memberAccountId || task.memberId}</strong>
-                      <div className={'krds-page-admin__muted'}>{task.memberName}</div>
+                      <div className={'admin-reports-page__muted'}>{task.memberName}</div>
                     </td>
                     <td>{task.costGroupName || '-'}</td>
                     <td>{task.taskType1}</td>
@@ -153,9 +152,14 @@ export function AdminReportsResultsTable({
                     <td>{task.content || '-'}</td>
                     <td>
                       {task.url ? (
-                        <KrdsLink size="medium" href={task.url} external>
+                        <a
+                          href={task.url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className={'admin-reports-page__table-link'}
+                        >
                           링크
-                        </KrdsLink>
+                        </a>
                       ) : (
                         '-'
                       )}
@@ -163,24 +167,26 @@ export function AdminReportsResultsTable({
                     <td>{formatTimeCell(task.taskUsedtime)}</td>
                     {/*<td>{task.note || '-'}</td>*/}
                     <td>
-                      <div className={'krds-page-admin__action-stack'}>
-                        <Button
-                          size="medium"
+                      <div className={'admin-reports-page__action-stack'}>
+                        <button
                           type="button"
-                          variant="secondary"
+                          className={
+                            'admin-reports-page__button admin-reports-page__button--action'
+                          }
                           onClick={() => onEdit(task.id)}
                         >
                           수정
-                        </Button>
-                        <Button
-                          size="medium"
+                        </button>
+                        <button
                           type="button"
-                          variant="secondary"
+                          className={
+                            'admin-reports-page__button admin-reports-page__button--delete'
+                          }
                           onClick={() => onDelete(task.id)}
                           disabled={deletePending}
                         >
                           삭제
-                        </Button>
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -190,6 +196,6 @@ export function AdminReportsResultsTable({
           </tbody>
         </table>
       </div>
-    </PageSection>
+    </div>
   );
 }

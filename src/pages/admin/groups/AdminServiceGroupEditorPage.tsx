@@ -1,6 +1,6 @@
 import { type FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { CriticalAlert } from 'krds-react';
+import { CriticalAlert, Spinner } from 'krds-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { adminDataClient } from '../../../api/admin';
 import { openAdminTaskSearch } from '../adminTaskSearchLink';
@@ -11,7 +11,6 @@ import type { AdminServiceGroupItem, AdminServiceGroupPayload } from '../admin.t
 import { toAdminCostGroup, toAdminServiceGroup } from '../adminApiTransform';
 import { useAlertMessage } from '../../../hooks/useAlertMessage';
 import { PageHeader } from '../../../components/shared';
-import { GlobalLoadingSpinner } from '../../../components/layout';
 
 function createDraft(item?: AdminServiceGroupItem): AdminServiceGroupPayload {
   if (!item) {
@@ -276,7 +275,19 @@ export function AdminServiceGroupEditorPage() {
   if (serviceGroupsQuery.isLoading && isEditMode) {
     return (
       <section className="krds-page krds-page__shell krds-page__editor-shell">
-        <GlobalLoadingSpinner />
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            minHeight: '96px',
+          }}
+          className="global-loading-spinner"
+          aria-label="로딩 중"
+          role="status"
+        >
+          <Spinner />
+        </div>
       </section>
     );
   }

@@ -138,6 +138,45 @@ describe('AuthenticatedLayout', () => {
     expect(screen.getAllByText('프로젝트 통계').length).toBeGreaterThan(0);
   });
 
+  it('renders header, sidebar, breadcrumb, main content, and footer in the authenticated shell', () => {
+    const queryClient = new QueryClient({
+      defaultOptions: {
+        queries: { retry: false },
+      },
+    });
+
+    mockUseAuth.mockReturnValue({
+      session: {
+        member: {
+          name: '홍길동',
+          accountId: 'hong.gd',
+          role: 'user',
+        },
+      },
+      logout: vi.fn(),
+    });
+
+    render(
+      <ThemePreferenceProvider>
+        <QueryClientProvider client={queryClient}>
+          <MemoryRouter initialEntries={['/dashboard']}>
+            <Routes>
+              <Route path="/" element={<AuthenticatedLayout />}>
+                <Route path="dashboard" element={<div>dashboard-page</div>} />
+              </Route>
+            </Routes>
+          </MemoryRouter>
+        </QueryClientProvider>
+      </ThemePreferenceProvider>,
+    );
+
+    expect(screen.getByRole('banner')).toBeInTheDocument();
+    expect(screen.getByLabelText('사이드 메뉴')).toBeInTheDocument();
+    expect(screen.getByRole('navigation', { name: '브래드크럼' })).toBeInTheDocument();
+    expect(screen.getByRole('main')).toBeInTheDocument();
+    expect(screen.getByRole('contentinfo')).toBeInTheDocument();
+  });
+
   it('moves to dashboard when clicking breadcrumb home', async () => {
     const user = userEvent.setup();
     const queryClient = new QueryClient({

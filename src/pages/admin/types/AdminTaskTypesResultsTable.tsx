@@ -1,5 +1,5 @@
-import { Badge } from 'krds-react';
-import { KrdsRouterButtonLink } from '../../../components/shared';
+import { Badge, Button } from 'krds-react';
+import { Link as RouterLink } from 'react-router-dom';
 import { TableEmptyRow } from '../../../components/shared/TableEmptyRow';
 import type { AdminTaskTypeItem } from '../admin.types';
 
@@ -70,9 +70,9 @@ export function AdminTaskTypesResultsTable({
                   <td>{item.note || '-'}</td>
                   <td>
                     <div className="krds-page-admin__actions">
-                      <KrdsRouterButtonLink to={`/admin/type/${item.id}/edit`}>
+                      <Button as={RouterLink} to={`/admin/type/${item.id}/edit`} role="link">
                         수정
-                      </KrdsRouterButtonLink>
+                      </Button>
                     </div>
                   </td>
                 </tr>

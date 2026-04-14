@@ -1,10 +1,9 @@
+import { Button, Pagination, Select } from 'krds-react';
+import { Link as RouterLink } from 'react-router-dom';
 import { useAuth } from '../../auth/AuthContext';
-import { KrdsRouterButtonLink } from '../../components/shared';
 import { PageHeader } from '../../components/shared/PageHeader';
-import { PagePager } from '../../components/shared/PagePager';
 import { PageResultBar } from '../../components/shared/PageResultBar';
 import { PageSection } from '../../components/shared/PageSection';
-import { PageSizeField } from '../../components/shared/PageSizeField';
 import { PROJECTS_PAGE_SIZE_OPTIONS } from './ProjectsPage.constants';
 import { ProjectsFilterForm } from './ProjectsFilterForm';
 import { ProjectsResultsTable } from './ProjectsResultsTable';
@@ -21,9 +20,9 @@ export function ProjectsPage() {
       <PageHeader
         title="프로젝트 관리"
         actions={
-          <KrdsRouterButtonLink to="/projects/new" variant="primary" size="medium">
+          <Button as={RouterLink} to="/projects/new" role="link" variant="primary" size="medium">
             프로젝트 추가
-          </KrdsRouterButtonLink>
+          </Button>
         }
       />
 
@@ -42,18 +41,22 @@ export function ProjectsPage() {
         aria-label="프로젝트 목록 요약"
         metrics={
           <>
-            <PagePager
-              aria-label="프로젝트 목록 페이지 이동"
-              currentPage={page.currentPageSafe}
-              totalPages={page.totalPages}
-              canGoPrevious={page.currentPageSafe > 1}
-              canGoNext={page.currentPageSafe < page.totalPages && page.totalProjects > 0}
-              onPrevious={() => page.setCurrentPage((current) => Math.max(1, current - 1))}
-              onNext={() =>
-                page.setCurrentPage((current) => Math.min(page.totalPages, current + 1))
-              }
-              onPageChange={page.setCurrentPage}
-            />
+            <div aria-label="프로젝트 목록 페이지 이동">
+              <span className="sr-only">
+                {page.currentPageSafe}/ {page.totalPages}
+              </span>
+              <Pagination
+                currentPage={page.currentPageSafe}
+                totalPages={page.totalPages}
+                onChange={page.setCurrentPage}
+                prevLabel="이전 페이지"
+                nextLabel="다음 페이지"
+                disabled={
+                  !(page.currentPageSafe > 1) &&
+                  !(page.currentPageSafe < page.totalPages && page.totalProjects > 0)
+                }
+              />
+            </div>
             <p>
               <span>총 건수</span>
               <strong>{numberFormatter.format(page.totalProjects)}건</strong>
@@ -61,14 +64,25 @@ export function ProjectsPage() {
           </>
         }
         controls={
-          <PageSizeField
-            value={page.pageSize}
-            options={PROJECTS_PAGE_SIZE_OPTIONS}
-            onValueChange={(next) => {
-              page.setPageSize(next);
-              page.setCurrentPage(1);
-            }}
-          />
+          <>
+            <strong className="sort-label">
+              <label htmlFor="projects-page-size">페이지당 행 수</label>
+            </strong>
+            <Select
+              id="projects-page-size"
+              value={String(page.pageSize)}
+              variant="sorting"
+              size="small"
+              options={PROJECTS_PAGE_SIZE_OPTIONS.map((option) => ({
+                value: String(option),
+                label: `${option}개`,
+              }))}
+              onChange={(next) => {
+                page.setPageSize(Number(next));
+                page.setCurrentPage(1);
+              }}
+            />
+          </>
         }
       />
 

@@ -1,8 +1,7 @@
+import { Pagination, Select } from 'krds-react';
 import { PageHeader } from '../../components/shared/PageHeader';
-import { PagePager } from '../../components/shared/PagePager';
 import { PageResultBar } from '../../components/shared/PageResultBar';
 import { PageSection } from '../../components/shared/PageSection';
-import { PageSizeField } from '../../components/shared/PageSizeField';
 import { formatReportTaskUsedtime } from '../reports/reportUtils';
 import { SEARCH_PAGE_SIZE_OPTIONS } from './SearchPage.constants';
 import { SearchFilterForm } from './SearchFilterForm';
@@ -34,41 +33,52 @@ export function SearchPage() {
         aria-label="업무 내역 목록 요약"
         metrics={
           <>
-            <PagePager
-              aria-label="업무 내역 목록 페이지 이동"
-              currentPage={page.currentPageSafe}
-              totalPages={page.totalPages}
-              canGoPrevious={page.currentPageSafe > 1}
-              canGoNext={page.currentPageSafe < page.totalPages && page.totalReports > 0}
-              onPrevious={() => page.setCurrentPage((current) => Math.max(1, current - 1))}
-              onNext={() =>
-                page.setCurrentPage((current) => Math.min(page.totalPages, current + 1))
-              }
-              onPageChange={page.setCurrentPage}
-            />
+            <div aria-label="업무 내역 목록 페이지 이동">
+              <span className="sr-only">
+                {page.currentPageSafe}/ {page.totalPages}
+              </span>
+              <Pagination
+                currentPage={page.currentPageSafe}
+                totalPages={page.totalPages}
+                onChange={page.setCurrentPage}
+                prevLabel="이전 페이지"
+                nextLabel="다음 페이지"
+                disabled={
+                  !(page.currentPageSafe > 1) &&
+                  !(page.currentPageSafe < page.totalPages && page.totalReports > 0)
+                }
+              />
+            </div>
             <p>
               <span>검색 결과</span>
-              <strong>
-                {numberFormatter.format(page.totalReports)}건
-              </strong>
+              <strong>{numberFormatter.format(page.totalReports)}건</strong>
             </p>
             <p>
               <span>총 시간</span>
-              <strong>
-                {formatReportTaskUsedtime(page.totalMinutes)}
-              </strong>
+              <strong>{formatReportTaskUsedtime(page.totalMinutes)}</strong>
             </p>
           </>
         }
         controls={
-          <PageSizeField
-            value={page.pageSize}
-            options={SEARCH_PAGE_SIZE_OPTIONS}
-            onValueChange={(next) => {
-              page.setPageSize(next);
-              page.setCurrentPage(1);
-            }}
-          />
+          <>
+            <strong className="sort-label">
+              <label htmlFor="search-page-size">페이지당 행 수</label>
+            </strong>
+            <Select
+              id="search-page-size"
+              value={String(page.pageSize)}
+              variant="sorting"
+              size="small"
+              options={SEARCH_PAGE_SIZE_OPTIONS.map((option) => ({
+                value: String(option),
+                label: `${option}개`,
+              }))}
+              onChange={(next) => {
+                page.setPageSize(Number(next));
+                page.setCurrentPage(1);
+              }}
+            />
+          </>
         }
       />
 

@@ -1,11 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button, CriticalAlert } from 'krds-react';
-import { useLocation } from 'react-router-dom';
+import { Link as RouterLink, useLocation } from 'react-router-dom';
 import { setDocumentTitle } from '../../../router/navigation';
-import { AdminOrderDialog } from '../../../components/admin/AdminOrderDialog';
+import { AdminSortOrderDialog } from '../../../components/admin/AdminSortOrderDialog';
 import { PageHeader } from '../../../components/shared/PageHeader';
-import { KrdsRouterButtonLink } from '../../../components/shared';
 import { adminDataClient } from '../../../api/admin';
 import { AdminServiceGroupsResultsTable } from './AdminServiceGroupsResultsTable';
 import type { AdminServiceGroupItem } from '../admin.types';
@@ -104,9 +103,15 @@ export function AdminServiceGroupsPage() {
             >
               순서변경
             </Button>
-            <KrdsRouterButtonLink to="/admin/group/new" variant="primary" size="medium">
+            <Button
+              as={RouterLink}
+              to="/admin/group/new"
+              role="link"
+              variant="primary"
+              size="medium"
+            >
               서비스 그룹 추가
-            </KrdsRouterButtonLink>
+            </Button>
           </>
         }
       />
@@ -117,7 +122,7 @@ export function AdminServiceGroupsPage() {
 
       <AdminServiceGroupsResultsTable groupedServiceGroups={groupedServiceGroups} />
 
-      <AdminOrderDialog
+      <AdminSortOrderDialog
         title="서비스 그룹 순서변경"
         items={serviceGroups.map((item) => ({
           id: item.id,

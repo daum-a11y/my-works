@@ -116,8 +116,8 @@ export function getBreadcrumbs(pathname: string, navigation: readonly Navigation
 export function toBreadcrumbItems(pathname: string, navigation: readonly NavigationItem[]) {
   return getBreadcrumbs(pathname, navigation).map<KrdsBreadcrumbItem>((item, index, items) => ({
     text: item.label,
-    href: item.to === '#' ? pathname : item.to,
-    disabled: index === items.length - 1,
+    href: item.to === '#' ? '' : item.to,
+    disabled: item.to === '#' || index === items.length - 1,
   }));
 }
 

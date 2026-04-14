@@ -6,7 +6,7 @@ import { CriticalAlert } from 'krds-react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../auth/AuthContext';
 import { isSupabaseConfigured } from '../../config/env';
-import { AuthLayoutShell } from '../../components/layout/AuthLayoutShell';
+import { AuthPageLayout } from '../../components/layout/AuthPageLayout';
 import { LoginForm } from './LoginForm';
 
 const loginSchema = z.object({
@@ -58,7 +58,7 @@ export function LoginPage() {
   const isBusy = isSubmitting;
 
   return (
-    <AuthLayoutShell
+    <AuthPageLayout
       caption="로그인"
       labelledBy="login-title"
       body={

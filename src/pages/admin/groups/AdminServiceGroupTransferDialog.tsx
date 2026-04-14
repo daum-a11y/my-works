@@ -1,10 +1,6 @@
 import { useCallback, useEffect, useMemo } from 'react';
-import { Button, Checkbox, CriticalAlert, Modal, Select } from 'krds-react';
-import {
-  cleanupKrdsModalState,
-  KrdsStructuredInfoList,
-  useKrdsModalCleanup,
-} from '../../../components/shared';
+import { Button, Checkbox, CriticalAlert, Modal, Select, StructuredList } from 'krds-react';
+import { cleanupKrdsModalState, useKrdsModalCleanup } from '../../../components/shared';
 import type { AdminCostGroupItem, AdminServiceGroupItem } from '../admin.types';
 
 interface AdminServiceGroupTransferDialogProps {
@@ -143,9 +139,18 @@ export function AdminServiceGroupTransferDialog({
           ) : null}
 
           <Modal.Body>
-            <KrdsStructuredInfoList
-              items={[{ label: '현재 항목', value: formatServiceGroup(sourceServiceGroup) }]}
-            />
+            <StructuredList className="sm">
+              <li className="structured-item">
+                <div className="in">
+                  <div className="card-body">
+                    <div className="c-text">
+                      <strong className="c-tit">현재 항목</strong>
+                      <span className="c-txt">{formatServiceGroup(sourceServiceGroup)}</span>
+                    </div>
+                  </div>
+                </div>
+              </li>
+            </StructuredList>
             <Select
               size="medium"
               id="service-group-transfer-target-cost-group"

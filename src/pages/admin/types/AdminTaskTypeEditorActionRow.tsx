@@ -1,5 +1,5 @@
 import { Button, CriticalAlert } from 'krds-react';
-import { KrdsRouterButtonLink } from '../../../components/shared';
+import { Link as RouterLink } from 'react-router-dom';
 
 interface AdminTaskTypeEditorActionRowProps {
   isEditMode: boolean;
@@ -77,9 +77,9 @@ export function AdminTaskTypeEditorActionRow({
           'krds-page__editor-form-actions krds-page__editor-form-actions--end'
         }
       >
-        <KrdsRouterButtonLink to="/admin/type">
+        <Button as={RouterLink} to="/admin/type" role="link">
           취소
-        </KrdsRouterButtonLink>
+        </Button>
         <Button type="submit" variant="primary" size="medium" disabled={savePending}>
           저장
         </Button>

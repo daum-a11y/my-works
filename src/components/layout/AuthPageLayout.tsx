@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { BrandLogo } from './BrandLogo';
 
-interface AuthLayoutShellProps {
+interface AuthPageLayoutProps {
   caption: string;
   title?: ReactNode;
   description?: ReactNode;
@@ -10,14 +10,14 @@ interface AuthLayoutShellProps {
   labelledBy: string;
 }
 
-export function AuthLayoutShell({
+export function AuthPageLayout({
   caption,
   title,
   description,
   body,
   aside,
   labelledBy,
-}: AuthLayoutShellProps) {
+}: AuthPageLayoutProps) {
   return (
     <div id="container" className="krds-auth-shell">
       <main className="contents">
@@ -27,7 +27,9 @@ export function AuthLayoutShell({
             <h1 className="krds-auth-shell__logo-heading">
               <BrandLogo alt="My Works" width={100} height={30} />
             </h1>
-            <p className="krds-auth-shell__caption">{caption}</p>
+            <p id={title ? undefined : labelledBy} className="krds-auth-shell__caption">
+              {caption}
+            </p>
             {title ? (
               <h2 id={labelledBy} className="krds-auth-shell__title">
                 {title}

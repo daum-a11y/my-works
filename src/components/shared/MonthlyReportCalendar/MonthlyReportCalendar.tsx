@@ -1,6 +1,7 @@
 import clsx from 'clsx';
-import { Badge } from 'krds-react';
-import { KrdsRouterTextLink } from '../KrdsRouterTextLink';
+import { Badge, Link as KrdsLink } from 'krds-react';
+import type { MouseEvent } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   MONTHLY_REPORT_CALENDAR_DEFAULTS,
   MONTHLY_REPORT_CALENDAR_WEEKDAY_LABELS,
@@ -31,6 +32,8 @@ export function MonthlyReportCalendar({
   getDateLink,
   className,
 }: MonthlyReportCalendarProps) {
+  const navigate = useNavigate();
+
   return (
     <div
       className={clsx(
@@ -84,14 +87,28 @@ export function MonthlyReportCalendar({
                   >
                     <div className="monthly-report-calendar__cell-inner">
                       {linkTarget ? (
-                        <KrdsRouterTextLink
-                          to={linkTarget.to}
-                          state={linkTarget.state}
+                        <KrdsLink
+                          href={linkTarget.to}
                           size="small"
                           className="monthly-report-calendar__link"
+                          onClick={(event: MouseEvent<HTMLAnchorElement>) => {
+                            if (
+                              event.defaultPrevented ||
+                              event.button !== 0 ||
+                              event.metaKey ||
+                              event.altKey ||
+                              event.ctrlKey ||
+                              event.shiftKey
+                            ) {
+                              return;
+                            }
+
+                            event.preventDefault();
+                            navigate(linkTarget.to, { state: linkTarget.state });
+                          }}
                         >
                           {dateLabel}
-                        </KrdsRouterTextLink>
+                        </KrdsLink>
                       ) : (
                         dateLabel
                       )}

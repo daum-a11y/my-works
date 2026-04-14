@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from 'react-router-dom';
 import { Button, CriticalAlert, TextInput } from 'krds-react';
-import { AuthLayoutShell } from '../../components/layout/AuthLayoutShell';
+import { AuthPageLayout } from '../../components/layout/AuthPageLayout';
 import { isSupabaseConfigured } from '../../config/env';
 import { useAuth } from '../../auth/AuthContext';
 
@@ -35,7 +35,7 @@ export function ForgotPasswordPage() {
   }, []);
 
   return (
-    <AuthLayoutShell
+    <AuthPageLayout
       caption="비밀번호 찾기"
       labelledBy="forgot-password-title"
       description="가입한 이메일 주소를 입력하면 재설정 메일을 보내어 새 비밀번호를 설정합니다."

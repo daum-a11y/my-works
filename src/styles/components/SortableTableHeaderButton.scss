@@ -1,0 +1,82 @@
+.sortable-table-header-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  min-width: max-content;
+  width: 100%;
+  border: 1px solid transparent;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: inherit;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    border-color 180ms ease,
+    background-color 180ms ease,
+    color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.sortable-table-header-button:hover {
+  color: var(--text-primary);
+}
+
+.sortable-table-header-button:active {
+  transform: translateY(1px);
+  background: color-mix(in oklab, var(--surface-active) 74%, var(--surface-canvas-strong));
+}
+
+.sortable-table-header-button--active {
+  color: var(--accent-strong);
+}
+
+.sortable-table-header-button__label {
+  color: currentColor;
+}
+
+.sortable-table-header-button__icon {
+  display: inline-grid;
+  gap: 2px;
+  flex: 0 0 auto;
+  justify-items: center;
+  width: 10px;
+}
+
+.sortable-table-header-button__chevron {
+  display: block;
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  opacity: 0.35;
+  transition:
+    opacity 180ms ease,
+    transform 180ms ease,
+    border-color 180ms ease;
+}
+
+.sortable-table-header-button__chevron--up {
+  border-bottom: 5px solid currentColor;
+  transform: translateY(1px);
+}
+
+.sortable-table-header-button__chevron--down {
+  border-top: 5px solid currentColor;
+  transform: translateY(-1px);
+}
+
+.sortable-table-header-button__chevron--current {
+  opacity: 1;
+  transform: translateY(0) scale(1.08);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sortable-table-header-button,
+  .sortable-table-header-button__chevron {
+    transition: none;
+  }
+}

@@ -1,6 +1,6 @@
 import { Controller, type Control, type UseFormHandleSubmit } from 'react-hook-form';
 import { Button, CriticalAlert, TextInput } from 'krds-react';
-import { AuthLayoutShell } from '../../components/layout/AuthLayoutShell';
+import { AuthPageLayout } from '../../components/layout/AuthPageLayout';
 
 interface RecoveryFormValues {
   nextPassword: string;
@@ -30,7 +30,7 @@ export function PasswordRecoveryForm({
   onSubmit,
 }: PasswordRecoveryFormProps) {
   return (
-    <AuthLayoutShell
+    <AuthPageLayout
       caption="비밀번호 재설정"
       labelledBy="recovery-title"
       description="새 비밀번호를 입력하면 현재 계정의 비밀번호가 즉시 변경됩니다."

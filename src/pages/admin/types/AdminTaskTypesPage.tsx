@@ -1,11 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button, CriticalAlert } from 'krds-react';
-import { useLocation } from 'react-router-dom';
+import { Link as RouterLink, useLocation } from 'react-router-dom';
 import { setDocumentTitle } from '../../../router/navigation';
-import { AdminOrderDialog } from '../../../components/admin/AdminOrderDialog';
+import { AdminSortOrderDialog } from '../../../components/admin/AdminSortOrderDialog';
 import { PageHeader } from '../../../components/shared/PageHeader';
-import { KrdsRouterButtonLink } from '../../../components/shared';
 import { adminDataClient } from '../../../api/admin';
 import { AdminTaskTypesResultsTable } from './AdminTaskTypesResultsTable';
 import type { AdminTaskTypeItem } from '../admin.types';
@@ -108,9 +107,9 @@ export function AdminTaskTypesPage() {
             >
               순서변경
             </Button>
-            <KrdsRouterButtonLink to="/admin/type/new" variant="primary" size="medium">
+            <Button as={RouterLink} to="/admin/type/new" role="link" variant="primary" size="medium">
               업무 타입 추가
-            </KrdsRouterButtonLink>
+            </Button>
           </>
         }
       />
@@ -124,7 +123,7 @@ export function AdminTaskTypesPage() {
         activeTypeMap={activeTypeMap}
       />
 
-      <AdminOrderDialog
+      <AdminSortOrderDialog
         title="업무 타입 순서변경"
         items={taskTypes.map((item) => ({
           id: item.id,

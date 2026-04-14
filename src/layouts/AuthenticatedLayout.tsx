@@ -1,14 +1,17 @@
-import { useEffect, useMemo, useState, type MouseEvent } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type MouseEvent } from 'react';
 import { useIsFetching } from '@tanstack/react-query';
+import clsx from 'clsx';
 import {
   Breadcrumb,
   CriticalAlert,
+  Footer,
   Header,
   SideNavigation,
   SkipLink,
-  type HeaderMyGovMenuItem,
+  Spinner,
 } from 'krds-react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { ChevronDown, LogOut, UserRound } from 'lucide-react';
 import { BrandLogo } from '../components/layout/BrandLogo';
 import { useAuth } from '../auth/AuthContext';
 import {
@@ -18,7 +21,7 @@ import {
   toBreadcrumbItems,
   type NavigationItem,
 } from '../router/navigation';
-import { GlobalLoadingSpinner } from '../components/layout/GlobalLoadingSpinner';
+import { getAvatarColors } from '../utils/color';
 
 function toDomId(value: string) {
   return value.replace(/[^a-zA-Z0-9_-]/g, '-');
@@ -43,8 +46,15 @@ export function AuthenticatedLayout() {
   const { session, logout } = useAuth();
   const isAdmin = session?.member.role === 'admin';
   const activeFetchCount = useIsFetching();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [logoutError, setLogoutError] = useState('');
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [avatarColor, setAvatarColor] = useState<{ backgroundColor: string; textColor: string }>({
+    backgroundColor: '',
+    textColor: '',
+  });
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
+  const userMenuRef = useRef<HTMLDivElement | null>(null);
 
   const navigation = useMemo(
     () => (isAdmin ? [...baseNavigation, ...adminNavigation] : [...baseNavigation]),
@@ -63,24 +73,77 @@ export function AuthenticatedLayout() {
 
   useEffect(() => {
     setLogoutError('');
+    setIsUserMenuOpen(false);
   }, [location.pathname]);
 
-  const myGovItems = useMemo<HeaderMyGovMenuItem[]>(
-    () => [
-      {
-        label: '프로필',
-        href: '/profile',
-        onClick(event) {
-          event.preventDefault();
-          navigate('/profile');
-        },
-      },
-    ],
-    [navigate],
-  );
+  useEffect(() => {
+    if (!isUserMenuOpen) {
+      return;
+    }
 
-  function handleRouteLinkClick(event: MouseEvent<HTMLElement>, href?: string) {
+    function handlePointerDown(event: PointerEvent) {
+      if (!userMenuRef.current?.contains(event.target as Node)) {
+        setIsUserMenuOpen(false);
+      }
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        setIsUserMenuOpen(false);
+      }
+    }
+
+    document.addEventListener('pointerdown', handlePointerDown);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('pointerdown', handlePointerDown);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isUserMenuOpen]);
+
+  async function handleLogout() {
+    if (isLoggingOut) {
+      return;
+    }
+
+    setIsLoggingOut(true);
+    setLogoutError('');
+
+    try {
+      await logout();
+    } catch (error) {
+      setLogoutError(error instanceof Error ? error.message : '로그아웃에 실패했습니다.');
+    } finally {
+      setIsLoggingOut(false);
+    }
+  }
+
+  useLayoutEffect(() => {
+    setAvatarColor(getAvatarColors(session?.member?.accountId || ''));
+  }, [session?.member?.accountId]);
+
+  const footerCopyright = useMemo(
+    () => `© ${new Date().getFullYear()} MY WORKS. All rights reserved.`,
+    [],
+  );
+  const userInitials = (session?.member?.accountId || '').slice(0, 1);
+
+  function handleRouteLinkClick(event: MouseEvent<HTMLElement>, anchor: HTMLAnchorElement) {
+    const href = anchor.getAttribute('href') ?? '';
     if (!href || !href.startsWith('/')) {
+      return;
+    }
+
+    if (
+      event.defaultPrevented ||
+      event.button !== 0 ||
+      event.metaKey ||
+      event.altKey ||
+      event.ctrlKey ||
+      event.shiftKey ||
+      (anchor.target && anchor.target !== '_self') ||
+      anchor.hasAttribute('download')
+    ) {
       return;
     }
 
@@ -98,29 +161,87 @@ export function AuthenticatedLayout() {
             <NavLink to="/dashboard" aria-label="MY WORKS 홈">
               <BrandLogo alt="MY WORKS" width={100} height={30} />
             </NavLink>
-            <Header.Navi
-              onClickCapture={async (event) => {
-                const target = event.target as HTMLElement;
-                const button = target.closest('button');
-                if (!button || button.textContent?.trim() !== '로그아웃') {
-                  return;
-                }
-
-                try {
-                  setLogoutError('');
-                  await logout();
-                } catch (error) {
-                  setLogoutError(
-                    error instanceof Error ? error.message : '로그아웃 처리 중 오류가 발생했습니다.',
-                  );
-                }
-              }}
-            >
-              <Header.NaviButton.MyGov
-                label="사용자 메뉴"
-                name={session?.member.accountId ?? ''}
-                items={myGovItems}
-              />
+            <Header.Navi>
+              <div className="authenticated-layout__user-menu" ref={userMenuRef}>
+                <button
+                  type="button"
+                  className="authenticated-layout__user-menu-trigger btn-navi my drop-btn"
+                  aria-haspopup="menu"
+                  aria-expanded={isUserMenuOpen}
+                  aria-label="사용자 메뉴"
+                  onClick={() => setIsUserMenuOpen((open) => !open)}
+                >
+                  <div
+                    className="authenticated-layout__profile-icon"
+                    style={{
+                      backgroundColor: avatarColor.backgroundColor,
+                      color: avatarColor.textColor,
+                    }}
+                    aria-hidden="true"
+                  >
+                    {userInitials}
+                  </div>
+                  <div className="authenticated-layout__profile-info">
+                    <strong>{session?.member.accountId}</strong>
+                  </div>
+                  <ChevronDown
+                    size={15}
+                    strokeWidth={2.2}
+                    className={clsx(
+                      'authenticated-layout__user-menu-chevron',
+                      isUserMenuOpen && 'authenticated-layout__user-menu-chevron--open',
+                    )}
+                    aria-hidden="true"
+                  />
+                </button>
+                {isUserMenuOpen ? (
+                  <div
+                    className="authenticated-layout__user-menu-panel"
+                    role="menu"
+                    aria-label="사용자 메뉴"
+                  >
+                    <div className="authenticated-layout__user-menu-identity">
+                      <div
+                        className="authenticated-layout__user-menu-identity-avatar"
+                        style={{
+                          backgroundColor: avatarColor.backgroundColor,
+                          color: avatarColor.textColor,
+                        }}
+                        aria-hidden="true"
+                      >
+                        {userInitials}
+                      </div>
+                      <div className="authenticated-layout__user-menu-identity-text">
+                        <strong>{session?.member.accountId}</strong>
+                        <span>{session?.member.name}</span>
+                      </div>
+                    </div>
+                    <NavLink
+                      to="/profile"
+                      role="menuitem"
+                      className={({ isActive }) =>
+                        clsx(
+                          'authenticated-layout__user-menu-item',
+                          isActive && 'authenticated-layout__user-menu-item--active',
+                        )
+                      }
+                    >
+                      <UserRound size={15} strokeWidth={2} aria-hidden="true" />
+                      <span>프로필</span>
+                    </NavLink>
+                    <button
+                      type="button"
+                      role="menuitem"
+                      className="authenticated-layout__user-menu-item authenticated-layout__user-menu-item--danger"
+                      onClick={() => void handleLogout()}
+                      disabled={isLoggingOut}
+                    >
+                      <LogOut size={15} strokeWidth={2} aria-hidden="true" />
+                      <span>로그아웃</span>
+                    </button>
+                  </div>
+                ) : null}
+              </div>
             </Header.Navi>
           </div>
         </Header.Container>
@@ -132,11 +253,11 @@ export function AuthenticatedLayout() {
             aria-label="사이드 메뉴"
             onClickCapture={(event) => {
               const target = event.target as HTMLElement;
-              const anchor = target.closest('a');
+              const anchor = target.closest('a') as HTMLAnchorElement | null;
               if (!anchor) {
                 return;
               }
-              handleRouteLinkClick(event, anchor.getAttribute('href') ?? undefined);
+              handleRouteLinkClick(event, anchor);
             }}
           >
             <SideNavigation.Title>메뉴</SideNavigation.Title>
@@ -173,8 +294,7 @@ export function AuthenticatedLayout() {
                         setOpenGroups((current) => ({
                           ...current,
                           [item.label]: !(
-                            hasActiveChild(location.pathname, item) ||
-                            current[item.label] === true
+                            hasActiveChild(location.pathname, item) || current[item.label] === true
                           ),
                         }))
                       }
@@ -211,14 +331,31 @@ export function AuthenticatedLayout() {
             className="contents"
             onClickCapture={(event) => {
               const target = event.target as HTMLElement;
-              const anchor = target.closest('.krds-breadcrumb-wrap a');
+              const anchor = target.closest('.krds-breadcrumb-wrap a') as HTMLAnchorElement | null;
               if (!anchor) {
                 return;
               }
-              handleRouteLinkClick(event, anchor.getAttribute('href') ?? undefined);
+              handleRouteLinkClick(event, anchor);
             }}
           >
-            {activeFetchCount > 0 ? <GlobalLoadingSpinner overlay /> : null}
+            {activeFetchCount > 0 ? (
+              <div
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: 'rgba(255, 255, 255, 0.72)',
+                  zIndex: 10,
+                }}
+                className="global-loading-spinner global-loading-spinner--overlay"
+                aria-label="로딩 중"
+                role="status"
+              >
+                <Spinner />
+              </div>
+            ) : null}
             {logoutError ? (
               <CriticalAlert alerts={[{ variant: 'danger', message: logoutError }]} />
             ) : null}
@@ -226,6 +363,13 @@ export function AuthenticatedLayout() {
             <main id="main-content" className="conts-area">
               <Outlet />
             </main>
+            <Footer
+              hideQuickLinks
+              hideIdentifier
+              logo={{ alt: 'MY WORKS' }}
+              address="MY WORKS"
+              copyright={footerCopyright}
+            />
           </div>
         </div>
       </div>

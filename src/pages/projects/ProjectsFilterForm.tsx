@@ -1,6 +1,6 @@
 import type { FormEvent } from 'react';
 import { Button, TextInput } from 'krds-react';
-import { KrdsDateInput } from '../../components/shared';
+import { IsoDateInput } from '../../components/shared/IsoDateInput';
 import { PageFilterBar } from '../../components/shared/PageFilterBar';
 import { PageFilterField } from '../../components/shared/PageFilterField';
 import type { ProjectFilterState } from './ProjectsPage.types';
@@ -37,19 +37,19 @@ export function ProjectsFilterForm({
         }
       >
         <PageFilterField className="krds-page__filter-field" label="시작일">
-          <KrdsDateInput
+          <IsoDateInput
             id="projects-filter-start-date"
             value={filterDraft.startDate}
             max={filterDraft.endDate || undefined}
-            onChange={(value) => onFilterDraftChange({ ...filterDraft, startDate: value })}
+            onChange={(next) => onFilterDraftChange({ ...filterDraft, startDate: next })}
           />
         </PageFilterField>
         <PageFilterField className="krds-page__filter-field" label="종료일">
-          <KrdsDateInput
+          <IsoDateInput
             id="projects-filter-end-date"
             value={filterDraft.endDate}
             min={filterDraft.startDate || undefined}
-            onChange={(value) => onFilterDraftChange({ ...filterDraft, endDate: value })}
+            onChange={(next) => onFilterDraftChange({ ...filterDraft, endDate: next })}
           />
         </PageFilterField>
         <PageFilterField className="krds-page__filter-field" label="검색어">

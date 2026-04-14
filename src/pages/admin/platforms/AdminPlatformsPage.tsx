@@ -1,11 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button, CriticalAlert } from 'krds-react';
-import { useLocation } from 'react-router-dom';
+import { Link as RouterLink, useLocation } from 'react-router-dom';
 import { setDocumentTitle } from '../../../router/navigation';
-import { AdminOrderDialog } from '../../../components/admin/AdminOrderDialog';
+import { AdminSortOrderDialog } from '../../../components/admin/AdminSortOrderDialog';
 import { PageHeader } from '../../../components/shared/PageHeader';
-import { KrdsRouterButtonLink } from '../../../components/shared';
 import { adminDataClient } from '../../../api/admin';
 import { AdminPlatformsResultsTable } from './AdminPlatformsResultsTable';
 import { toAdminPlatform } from '../adminApiTransform';
@@ -72,9 +71,15 @@ export function AdminPlatformsPage() {
             >
               순서변경
             </Button>
-            <KrdsRouterButtonLink to="/admin/platform/new" variant="primary" size="medium">
+            <Button
+              as={RouterLink}
+              to="/admin/platform/new"
+              role="link"
+              variant="primary"
+              size="medium"
+            >
               플랫폼 추가
-            </KrdsRouterButtonLink>
+            </Button>
           </>
         }
       />
@@ -85,7 +90,7 @@ export function AdminPlatformsPage() {
 
       <AdminPlatformsResultsTable platforms={platforms} />
 
-      <AdminOrderDialog
+      <AdminSortOrderDialog
         title="플랫폼 순서변경"
         items={platforms.map((item) => ({
           id: item.id,

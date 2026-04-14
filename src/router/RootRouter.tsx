@@ -2,6 +2,7 @@ import { AdminCostGroupEditorPage } from '../pages/admin/cost-groups/AdminCostGr
 import { AdminCostGroupsPage } from '../pages/admin/cost-groups/AdminCostGroupsPage';
 import { AdminPlatformEditorPage } from '../pages/admin/platforms/AdminPlatformEditorPage';
 import { AdminPlatformsPage } from '../pages/admin/platforms/AdminPlatformsPage';
+import { Spinner } from 'krds-react';
 import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import { AuthProvider, useAuth } from '../auth/AuthContext';
 import { ForgotPasswordPage } from '../pages/auth/ForgotPasswordPage';
@@ -31,10 +32,23 @@ import { SearchPage } from '../pages/search';
 import { ProjectStatsPage, TaskMonitoringPage } from '../pages/stats';
 import { UserProfilePage } from '../pages/profile';
 import { AuthenticatedLayout } from '../layouts/AuthenticatedLayout';
-import { GlobalLoadingSpinner } from '../components/layout/GlobalLoadingSpinner';
 
 function LoadingFallback() {
-  return <GlobalLoadingSpinner />;
+  return (
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: '96px',
+      }}
+      className="global-loading-spinner"
+      aria-label="로딩 중"
+      role="status"
+    >
+      <Spinner />
+    </div>
+  );
 }
 
 function GuardedLayout() {

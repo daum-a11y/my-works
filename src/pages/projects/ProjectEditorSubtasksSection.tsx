@@ -1,11 +1,13 @@
 import { Fragment, useState, type FormEvent } from 'react';
-import { Button, Link as KrdsLink, Select, TextInput, Textarea } from 'krds-react';
 import {
-  EmptyState,
-  KrdsDateInput,
-  PageSection,
-  SubtaskStatusBadge,
-} from '../../components/shared';
+  Badge,
+  Button,
+  Link as KrdsLink,
+  Select,
+  TextInput,
+  Textarea,
+} from 'krds-react';
+import { EmptyState, IsoDateInput, PageSection } from '../../components/shared';
 import { subtaskStatusOptions, type ProjectSubtask, type SubtaskStatus } from '../../types/domain';
 import type { SubtaskFormState } from './ProjectEditorPage.types';
 
@@ -26,6 +28,12 @@ interface ProjectEditorSubtasksSectionProps {
   savePending: boolean;
   toSubtaskDraft: (subtask: ProjectSubtask) => SubtaskFormState;
 }
+
+const statusBadgeColor: Record<SubtaskStatus, 'danger' | 'warning' | 'success'> = {
+  미수정: 'danger',
+  '일부 수정': 'warning',
+  '전체 수정': 'success',
+};
 
 export function ProjectEditorSubtasksSection({
   subtaskAddOpen,
@@ -90,12 +98,12 @@ export function ProjectEditorSubtasksSection({
               {subtaskAddOpen && newSubtaskDraft ? (
                 <tr className={'krds-page__subtask-add-row'}>
                   <td>
-                    <KrdsDateInput
+                    <IsoDateInput
                       id="new-subtask-date"
                       label="작업일"
                       form={addFormId}
                       value={newSubtaskDraft.taskDate}
-                      onChange={(value) => onNewSubtaskDraftChange({ taskDate: value })}
+                      onChange={(next) => onNewSubtaskDraftChange({ taskDate: next })}
                       style={{ width: '100%' }}
                     />
                   </td>
@@ -219,7 +227,13 @@ export function ProjectEditorSubtasksSection({
                       </td>
                       <td>{ownerText}</td>
                       <td>
-                        <SubtaskStatusBadge status={subtask.taskStatus} />
+                        <Badge
+                          variant="light"
+                          color={statusBadgeColor[subtask.taskStatus]}
+                          size="small"
+                        >
+                          {subtask.taskStatus}
+                        </Badge>
                       </td>
                       <td>
                         <div className={'krds-page__subtask-table-actions'}>
@@ -245,13 +259,13 @@ export function ProjectEditorSubtasksSection({
                     {isEditing ? (
                       <tr className={'krds-page__subtask-edit-row'}>
                         <td>
-                          <KrdsDateInput
+                          <IsoDateInput
                             id={`subtask-date-${subtask.id}`}
                             label="작업일"
                             value={draft.taskDate}
-                            onChange={(value) =>
+                            onChange={(next) =>
                               onSubtaskDraftChange(subtask.id, {
-                                taskDate: value,
+                                taskDate: next,
                               })
                             }
                             style={{ width: '100%' }}

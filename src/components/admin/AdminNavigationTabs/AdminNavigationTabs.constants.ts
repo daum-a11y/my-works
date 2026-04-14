@@ -1,6 +1,6 @@
-import type { AdminSectionTabItem } from './AdminSectionTabs.types';
+import type { AdminNavigationTabItem } from './AdminNavigationTabs.types';
 
-export const ADMIN_SECTION_TABS: ReadonlyArray<AdminSectionTabItem> = [
+export const ADMIN_NAVIGATION_TABS: ReadonlyArray<AdminNavigationTabItem> = [
   { key: 'summary', label: '요약', to: '/org/search' },
   { key: 'task-types', label: '업무 타입', to: '/admin/type' },
   { key: 'platforms', label: '플랫폼', to: '/admin/platform' },

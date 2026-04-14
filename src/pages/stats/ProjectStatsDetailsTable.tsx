@@ -1,5 +1,5 @@
-import { Link as KrdsLink } from 'krds-react';
-import { KrdsRouterTextLink, SortableTableHeaderButton, TableEmptyRow } from '../../components/shared';
+import { Link } from 'react-router-dom';
+import { SortableTableHeaderButton, TableEmptyRow } from '../../components/shared';
 import { type ProjectStatsRow } from '../../types/domain';
 import type { ProjectStatsSortState } from './ProjectStatsPage.types';
 import { formatMonthLabel, monthKeyFromDate } from './ProjectStatsPage.utils';
@@ -24,21 +24,21 @@ export function ProjectStatsDetailsTable({
   };
 
   return (
-    <div className={'krds-page__table-wrap krds-table-wrap'}>
-      <table className={'krds-page__table tbl data'}>
+    <div className={'stats-page__table-wrap'}>
+      <table className={'stats-page__table'}>
         <caption className={'sr-only'}>필터링된 프로젝트 목록</caption>
         <colgroup>
-          <col className={'krds-page__table-col krds-page__table-col--month'} />
-          <col className={'krds-page__table-col krds-page__table-col--type'} />
-          <col className={'krds-page__table-col krds-page__table-col--group'} />
-          <col className={'krds-page__table-col krds-page__table-col--group'} />
-          <col className={'krds-page__table-col krds-page__table-col--group'} />
-          <col className={'krds-page__table-col krds-page__table-col--platform'} />
-          <col className={'krds-page__table-col krds-page__table-col--project'} />
-          <col className={'krds-page__table-col krds-page__table-col--group'} />
-          <col className={'krds-page__table-col krds-page__table-col--group'} />
-          <col className={'krds-page__table-col krds-page__table-col--count'} />
-          <col className={'krds-page__table-col krds-page__table-col--report'} />
+          <col className={'stats-page__table-col stats-page__table-col--month'} />
+          <col className={'stats-page__table-col stats-page__table-col--type'} />
+          <col className={'stats-page__table-col stats-page__table-col--group'} />
+          <col className={'stats-page__table-col stats-page__table-col--group'} />
+          <col className={'stats-page__table-col stats-page__table-col--group'} />
+          <col className={'stats-page__table-col stats-page__table-col--platform'} />
+          <col className={'stats-page__table-col stats-page__table-col--project'} />
+          <col className={'stats-page__table-col stats-page__table-col--group'} />
+          <col className={'stats-page__table-col stats-page__table-col--group'} />
+          <col className={'stats-page__table-col stats-page__table-col--count'} />
+          <col className={'stats-page__table-col stats-page__table-col--report'} />
         </colgroup>
         <thead>
           <tr>
@@ -129,23 +129,28 @@ export function ProjectStatsDetailsTable({
               <td>{row.platform || '-'}</td>
               <td>
                 {row.projectId && row.projectName ? (
-                  <KrdsRouterTextLink to={`/projects/${row.projectId}/edit`}>
+                  <Link to={`/projects/${row.projectId}/edit`} className={'stats-page__link'}>
                     {row.projectName}
-                  </KrdsRouterTextLink>
+                  </Link>
                 ) : (
                   <strong>{row.projectName || '-'}</strong>
                 )}
               </td>
               <td>{row.reporterDisplay || '-'}</td>
               <td>{row.reviewerDisplay || '-'}</td>
-              <td className="krds-page__table-number">
+              <td className="stats-page__table-number">
                 {row.subtaskCount > 0 ? row.subtaskCount : '-'}
               </td>
               <td>
                 {row.reportUrl ? (
-                  <KrdsLink size="medium" href={row.reportUrl} external>
+                  <a
+                    href={row.reportUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className={'stats-page__link'}
+                  >
                     링크
-                  </KrdsLink>
+                  </a>
                 ) : (
                   '-'
                 )}

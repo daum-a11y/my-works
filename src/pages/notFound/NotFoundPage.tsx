@@ -1,9 +1,8 @@
 import { useEffect } from 'react';
 import { Button } from 'krds-react';
-import { useNavigate } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../auth/AuthContext';
 import { BrandLogo } from '../../components/layout/BrandLogo';
-import { KrdsRouterButtonLink } from '../../components/shared';
 
 export function NotFoundPage() {
   const { status, session } = useAuth();
@@ -38,13 +37,13 @@ export function NotFoundPage() {
               : '로그인 화면으로 돌아가 다시 진입해 주세요.'}
           </p>
           <div className="krds-not-found__actions">
-            <KrdsRouterButtonLink to={destination} variant="primary" size="medium">
+            <Button as={RouterLink} to={destination} role="link" variant="primary" size="medium">
               {actionLabel}
-            </KrdsRouterButtonLink>
+            </Button>
             {secondaryDestination ? (
-              <KrdsRouterButtonLink to={secondaryDestination} size="medium">
+              <Button as={RouterLink} to={secondaryDestination} role="link" size="medium">
                 {secondaryLabel}
-              </KrdsRouterButtonLink>
+              </Button>
             ) : (
               <Button size="medium" type="button" variant="secondary" onClick={() => navigate(-1)}>
                 {secondaryLabel}

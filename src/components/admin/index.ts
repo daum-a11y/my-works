@@ -1,2 +1,2 @@
-export * from './AdminOrderDialog';
-export * from './AdminSectionTabs';
+export * from './AdminSortOrderDialog';
+export * from './AdminNavigationTabs';
