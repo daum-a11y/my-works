@@ -1,6 +1,5 @@
 import clsx from 'clsx';
 import type { ComponentPropsWithoutRef, ReactNode } from 'react';
-import '../../../styles/components/PageSection.scss';
 
 export type PageSectionVariant = 'plain' | 'panel';
 

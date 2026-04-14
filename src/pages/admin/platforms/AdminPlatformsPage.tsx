@@ -7,7 +7,6 @@ import { adminDataClient } from '../../../api/admin';
 import { AdminPlatformsResultsTable } from './AdminPlatformsResultsTable';
 import { toAdminPlatform } from '../adminApiTransform';
 import { useAlertMessage } from '../../../hooks/useAlertMessage';
-import '../../../styles/pages/AdminPage.scss';
 
 export function AdminPlatformsPage() {
   const location = useLocation();

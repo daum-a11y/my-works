@@ -9,7 +9,6 @@ import { PROJECTS_PAGE_SIZE_OPTIONS } from './ProjectsPage.constants';
 import { ProjectsFilterForm } from './ProjectsFilterForm';
 import { ProjectsResultsTable } from './ProjectsResultsTable';
 import { useProjectsPage } from './useProjectsPage';
-import '../../styles/pages/ProjectsPage.scss';
 const numberFormatter = new Intl.NumberFormat('ko-KR');
 
 export function ProjectsPage() {

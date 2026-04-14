@@ -4,9 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { FontPreferenceProvider } from './preferences/FontPreferenceContext';
 import { ThemePreferenceProvider } from './preferences/ThemePreferenceContext';
 import { RootRouter } from './router/RootRouter';
-import './styles/reset.css';
-import './styles/tokens.css';
-import './styles/global.css';
+import 'krds-react/dist/index.css';
 
 const container = document.getElementById('root');
 

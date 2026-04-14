@@ -12,7 +12,6 @@ import {
   type DashboardProjectsSortState,
 } from './DashboardProjectsTable.sort';
 import { toDashboardSnapshot, toDashboardTaskCalendarDay } from './dashboardApiTransform';
-import '../../styles/pages/DashboardPage.scss';
 
 export function DashboardPage() {
   const { session } = useAuth();

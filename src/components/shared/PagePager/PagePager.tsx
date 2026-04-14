@@ -1,6 +1,5 @@
 import clsx from 'clsx';
 import type { ComponentPropsWithoutRef } from 'react';
-import '../../../styles/components/PagePager.scss';
 
 export interface PagePagerProps extends ComponentPropsWithoutRef<'div'> {
   currentPage: number;

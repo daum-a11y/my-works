@@ -8,7 +8,6 @@ import { AdminReportsFilterForm } from './AdminReportsFilterForm';
 import { AdminReportsResultsTable } from './AdminReportsResultsTable';
 import { useAdminReportsPage } from './useAdminReportsPage';
 import { useAlertMessage } from '../../../hooks/useAlertMessage';
-import '../../../styles/pages/AdminPage.scss';
 const numberFormatter = new Intl.NumberFormat('ko-KR');
 
 export function AdminReportsPage() {

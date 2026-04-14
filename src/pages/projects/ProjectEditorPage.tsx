@@ -33,7 +33,6 @@ import {
 } from './ProjectEditorPage.draft';
 import { splitServiceGroupName } from './ProjectEditorPage.service';
 import { useAlertMessage } from '../../hooks/useAlertMessage';
-import '../../styles/pages/ProjectsPage.scss';
 
 function getProjectEditorErrorMessage(error: unknown, fallback: string) {
   const message =

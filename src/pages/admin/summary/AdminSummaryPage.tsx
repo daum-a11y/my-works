@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import { setDocumentTitle } from '../../../router/navigation';
-import '../../../styles/pages/AdminPage.scss';
 
 export function AdminSummaryPage() {
   useEffect(() => {

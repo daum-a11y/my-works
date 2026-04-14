@@ -1,6 +1,5 @@
 import clsx from 'clsx';
 import type { ComponentPropsWithoutRef, ReactNode } from 'react';
-import '../../../styles/components/PageFilterBar.scss';
 
 export interface PageFilterBarProps extends ComponentPropsWithoutRef<'div'> {
   actions?: ReactNode;

@@ -9,7 +9,6 @@ import { ReportsResultsTable } from './ReportsResultsTable';
 import { normalizeDateForInput } from './ReportsPage.utils';
 import { useReportsSlice } from './useReportsSlice';
 import { useAlertMessage } from '../../hooks/useAlertMessage';
-import '../../styles/pages/ReportsPage.scss';
 
 export function ReportsPage() {
   useEffect(() => {

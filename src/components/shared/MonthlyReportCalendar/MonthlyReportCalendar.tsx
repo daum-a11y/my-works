@@ -1,6 +1,5 @@
 import clsx from 'clsx';
 import { Link } from 'react-router-dom';
-import '../../../styles/components/MonthlyReportCalendar.scss';
 import {
   MONTHLY_REPORT_CALENDAR_DEFAULTS,
   MONTHLY_REPORT_CALENDAR_WEEKDAY_LABELS,

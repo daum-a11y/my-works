@@ -8,7 +8,6 @@ import { AdminServiceGroupsResultsTable } from './AdminServiceGroupsResultsTable
 import type { AdminServiceGroupItem } from '../admin.types';
 import { toAdminServiceGroup } from '../adminApiTransform';
 import { useAlertMessage } from '../../../hooks/useAlertMessage';
-import '../../../styles/pages/AdminPage.scss';
 
 function groupServiceGroups(items: readonly AdminServiceGroupItem[]) {
   const grouped = new Map<string, Map<string, AdminServiceGroupItem[]>>();

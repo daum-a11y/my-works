@@ -16,8 +16,6 @@ import { ResourceSummaryResults } from './ResourceSummaryResults';
 import { useAuth } from '../../auth/AuthContext';
 import { toResourceSummaryDay, toResourceSummaryMember } from './resourceApiTransform';
 import { sortResourceSummaryRows, type ResourceSummarySortState } from './ResourceSummaryPage.sort';
-import '../../styles/pages/ProjectsPage.scss';
-import '../../styles/pages/ResourcePage.scss';
 
 export function ResourceSummaryPage() {
   const { session } = useAuth();

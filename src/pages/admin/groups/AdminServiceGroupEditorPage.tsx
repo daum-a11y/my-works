@@ -9,7 +9,6 @@ import { AdminServiceGroupTransferDialog } from './AdminServiceGroupTransferDial
 import type { AdminServiceGroupItem, AdminServiceGroupPayload } from '../admin.types';
 import { toAdminCostGroup, toAdminServiceGroup } from '../adminApiTransform';
 import { useAlertMessage } from '../../../hooks/useAlertMessage';
-import '../../../styles/pages/AdminPage.scss';
 
 function createDraft(item?: AdminServiceGroupItem): AdminServiceGroupPayload {
   if (!item) {

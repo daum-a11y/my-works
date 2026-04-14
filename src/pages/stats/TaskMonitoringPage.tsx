@@ -22,7 +22,6 @@ import type {
 import { buildMonthRange, monthKeyFromTaskMonth } from './ProjectStatsPage.utils';
 import { TaskMonitoringResultsTable } from './TaskMonitoringResultsTable';
 import { TaskMonitoringSummarySection } from './TaskMonitoringSummarySection';
-import '../../styles/pages/StatsPage.scss';
 
 export function TaskMonitoringPage() {
   const { session } = useAuth();

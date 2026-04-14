@@ -9,7 +9,6 @@ import { AdminTaskTypeTransferDialog } from './AdminTaskTypeTransferDialog';
 import type { AdminTaskTypeItem, AdminTaskTypePayload } from '../admin.types';
 import { toAdminTaskType } from '../adminApiTransform';
 import { useAlertMessage } from '../../../hooks/useAlertMessage';
-import '../../../styles/pages/AdminPage.scss';
 
 function createDraft(taskType?: AdminTaskTypeItem): AdminTaskTypePayload {
   if (!taskType) {

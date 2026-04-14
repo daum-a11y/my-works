@@ -1,6 +1,5 @@
 import clsx from 'clsx';
 import type { ComponentPropsWithoutRef, ReactNode } from 'react';
-import '../../../styles/components/PageHeader.scss';
 
 export type PageHeaderAlign = 'start' | 'center';
 

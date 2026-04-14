@@ -12,7 +12,6 @@ import {
   setDocumentTitle,
 } from '../router/navigation';
 import { GlobalLoadingSpinner } from '../components/layout/GlobalLoadingSpinner';
-import '../styles/pages/AuthenticatedLayout.scss';
 import { getAvatarColors } from '../utils/color';
 
 export function AuthenticatedLayout() {

@@ -2,7 +2,6 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../../components/base/Button';
 import { useAuth } from '../../auth/AuthContext';
-import '../../styles/pages/AuthPage.scss';
 
 export function PendingApprovalPage() {
   const navigate = useNavigate();

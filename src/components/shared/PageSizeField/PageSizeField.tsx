@@ -1,6 +1,5 @@
 import clsx from 'clsx';
 import type { ComponentPropsWithoutRef } from 'react';
-import '../../../styles/components/PageSizeField.scss';
 
 export interface PageSizeFieldProps extends Omit<
   ComponentPropsWithoutRef<'select'>,

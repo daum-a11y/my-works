@@ -8,7 +8,6 @@ import { InputField } from '../../components/base/Field';
 import { BrandLogo } from '../../components/layout/BrandLogo';
 import { isSupabaseConfigured } from '../../config/env';
 import { useAuth } from '../../auth/AuthContext';
-import '../../styles/pages/AuthPage.scss';
 
 const forgotPasswordSchema = z.object({
   email: z.string().email('이메일 형식으로 입력해 주세요.'),

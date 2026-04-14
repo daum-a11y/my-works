@@ -25,7 +25,6 @@ import {
 } from './AdminMemberEditorPage.utils';
 import { toMemberAdmin } from '../adminApiTransform';
 import { useAlertMessage } from '../../../hooks/useAlertMessage';
-import '../../../styles/pages/AdminPage.scss';
 
 export function AdminMemberEditorPage() {
   const navigate = useNavigate();

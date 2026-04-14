@@ -9,7 +9,6 @@ import { AdminMembersResultsTable } from './AdminMembersResultsTable';
 import { ADMIN_MEMBERS_PAGE_SIZE_OPTIONS } from './AdminMembersPage.constants';
 import { useAdminMembersPage } from './useAdminMembersPage';
 import { useAlertMessage } from '../../../hooks/useAlertMessage';
-import '../../../styles/pages/AdminPage.scss';
 const numberFormatter = new Intl.NumberFormat('ko-KR');
 
 export function AdminMembersPage() {

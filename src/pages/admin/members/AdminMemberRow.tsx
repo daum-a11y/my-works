@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom';
 import { formatDateLabel, formatDateTimeLabel } from '../../../utils';
 import type { MemberAdminItem, MemberAdminPayload } from '../admin.types';
-import '../../../styles/pages/AdminPage.scss';
 
 type AdminMemberRowProps = {
   member: MemberAdminItem;

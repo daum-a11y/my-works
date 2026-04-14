@@ -16,9 +16,6 @@ import type { DistributionItem, ResourceMonthTableTab } from './ResourceMonthPag
 import { ResourceMonthContextSection } from './ResourceMonthContextSection';
 import { ResourceMonthTableSection } from './ResourceMonthTableSection';
 import { parseMonth } from './ResourceMonthPage.utils';
-import '../../styles/pages/ResourcePage.scss';
-import '../../styles/pages/ProjectsPage.scss';
-import '../../styles/pages/ResourcePage.scss';
 import { useAuth } from '../../auth/AuthContext';
 import { toResourceMonthReport } from './resourceApiTransform';
 

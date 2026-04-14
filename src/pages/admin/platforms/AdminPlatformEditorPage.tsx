@@ -9,7 +9,6 @@ import { AdminPlatformTransferDialog } from './AdminPlatformTransferDialog';
 import type { AdminPlatformItem, AdminPlatformPayload } from '../admin.types';
 import { toAdminPlatform } from '../adminApiTransform';
 import { useAlertMessage } from '../../../hooks/useAlertMessage';
-import '../../../styles/pages/AdminPage.scss';
 
 function createDraft(item?: AdminPlatformItem): AdminPlatformPayload {
   if (!item) {

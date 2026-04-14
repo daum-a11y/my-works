@@ -24,7 +24,6 @@ import type {
 } from './ProjectStatsPage.types';
 import { buildMonthRange, monthKeyFromDate } from './ProjectStatsPage.utils';
 import { toProjectStatsRow } from './statsApiTransform';
-import '../../styles/pages/StatsPage.scss';
 
 const ALL_TASK_TYPE1 = '전체';
 

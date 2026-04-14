@@ -9,7 +9,6 @@ import { AdminCostGroupTransferDialog } from './AdminCostGroupTransferDialog';
 import type { AdminCostGroupItem, AdminCostGroupPayload } from '../admin.types';
 import { toAdminCostGroup } from '../adminApiTransform';
 import { useAlertMessage } from '../../../hooks/useAlertMessage';
-import '../../../styles/pages/AdminPage.scss';
 
 function createDraft(item?: AdminCostGroupItem): AdminCostGroupPayload {
   if (!item) {

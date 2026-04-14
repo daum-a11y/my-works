@@ -32,7 +32,6 @@ import {
 import { toAdminTask, toMemberAdmin } from '../adminApiTransform';
 import { AdminReportEditorForm } from './AdminReportEditorForm';
 import { useAlertMessage } from '../../../hooks/useAlertMessage';
-import '../../../styles/pages/AdminPage.scss';
 
 function getSelectedProjectOption(projects: Project[], projectId: string) {
   const project = projects.find((item) => item.id === projectId) ?? null;

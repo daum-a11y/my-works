@@ -7,7 +7,6 @@ import { adminDataClient } from '../../../api/admin';
 import { AdminCostGroupsResultsTable } from './AdminCostGroupsResultsTable';
 import { toAdminCostGroup } from '../adminApiTransform';
 import { useAlertMessage } from '../../../hooks/useAlertMessage';
-import '../../../styles/pages/AdminPage.scss';
 
 export function AdminCostGroupsPage() {
   const location = useLocation();

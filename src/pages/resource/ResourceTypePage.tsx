@@ -6,8 +6,6 @@ import { dataClient } from '../../api/client';
 import { RESOURCE_TYPE_PAGE_TITLE } from './ResourceTypePage.constants';
 import { buildResourceTypeYearRows } from './ResourceTypePage.summary';
 import { ResourceTypeTableSection } from './ResourceTypeTableSection';
-import '../../styles/pages/ResourcePage.scss';
-import '../../styles/pages/ResourcePage.scss';
 import { useAuth } from '../../auth/AuthContext';
 import { toResourceTypeSummaryRow } from './resourceApiTransform';
 

@@ -6,8 +6,6 @@ import { dataClient } from '../../api/client';
 import { RESOURCE_SERVICE_PAGE_TITLE } from './ResourceServicePage.constants';
 import { buildResourceServiceYearRows } from './ResourceServicePage.summary';
 import { ResourceServiceTableSection } from './ResourceServiceTableSection';
-import '../../styles/pages/ResourcePage.scss';
-import '../../styles/pages/ResourcePage.scss';
 import { useAuth } from '../../auth/AuthContext';
 import { toResourceServiceSummaryRow } from './resourceApiTransform';
 
