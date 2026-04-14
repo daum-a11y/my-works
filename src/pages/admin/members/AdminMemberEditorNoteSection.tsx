@@ -1,4 +1,5 @@
 import { Textarea } from 'krds-react';
+import { PageSection } from '../../../components/shared';
 import type { MemberAdminPayload } from '../admin.types';
 import { ADMIN_MEMBER_EDITOR_NOTE_SECTION_TITLE } from './AdminMemberEditorPage.constants';
 
@@ -14,23 +15,21 @@ export function AdminMemberEditorNoteSection({
   onDraftChange,
 }: AdminMemberEditorNoteSectionProps) {
   return (
-    <section className={'projects-feature__editor-section'} aria-labelledby="member-note-section">
-      <div className={'projects-feature__section-header'}>
-        <h2 id="member-note-section" className={'projects-feature__section-title'}>
-          {ADMIN_MEMBER_EDITOR_NOTE_SECTION_TITLE}
-        </h2>
+    <PageSection
+      className={'krds-page__editor-section'}
+      title={ADMIN_MEMBER_EDITOR_NOTE_SECTION_TITLE}
+      titleId="member-note-section"
+      aria-labelledby="member-note-section"
+    >
+      <div className={'krds-page__editor-form-grid'}>
+        <Textarea
+          id="member-note"
+          label="비고"
+          value={draft.note}
+          readOnly={Boolean(isInactiveMember)}
+          onChange={(value) => onDraftChange({ note: value })}
+        />
       </div>
-      <div className={'projects-feature__editor-form-grid'}>
-        <div className={'projects-feature__field'}>
-          <Textarea
-            id="member-note"
-            label="비고"
-            value={draft.note}
-            readOnly={Boolean(isInactiveMember)}
-            onChange={(value) => onDraftChange({ note: value })}
-          />
-        </div>
-      </div>
-    </section>
+    </PageSection>
   );
 }

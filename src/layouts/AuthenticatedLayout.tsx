@@ -1,6 +1,13 @@
 import { useEffect, useMemo, useState, type MouseEvent } from 'react';
 import { useIsFetching } from '@tanstack/react-query';
-import { Breadcrumb, Header, SideNavigation, SkipLink, type HeaderMyGovMenuItem } from 'krds-react';
+import {
+  Breadcrumb,
+  CriticalAlert,
+  Header,
+  SideNavigation,
+  SkipLink,
+  type HeaderMyGovMenuItem,
+} from 'krds-react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { BrandLogo } from '../components/layout/BrandLogo';
 import { useAuth } from '../auth/AuthContext';
@@ -82,62 +89,57 @@ export function AuthenticatedLayout() {
   }
 
   return (
-    <div className="authenticated-layout">
+    <>
       <SkipLink targetId="main-content">본문으로 바로가기</SkipLink>
 
-      <Header className="authenticated-layout__header">
-        <Header.Container className="authenticated-layout__header-container">
-          <NavLink
-            to="/dashboard"
-            aria-label="MY WORKS 홈"
-            className="authenticated-layout__brand-link"
-          >
-            <BrandLogo className="my-works-brand-logo" alt="MY WORKS" width={100} height={30} />
-          </NavLink>
-          <Header.Navi
-            onClickCapture={async (event) => {
-              const target = event.target as HTMLElement;
-              const button = target.closest('button');
-              if (!button || button.textContent?.trim() !== '로그아웃') {
-                return;
-              }
+      <Header>
+        <Header.Container>
+          <div className="header-branding">
+            <NavLink to="/dashboard" aria-label="MY WORKS 홈">
+              <BrandLogo alt="MY WORKS" width={100} height={30} />
+            </NavLink>
+            <Header.Navi
+              onClickCapture={async (event) => {
+                const target = event.target as HTMLElement;
+                const button = target.closest('button');
+                if (!button || button.textContent?.trim() !== '로그아웃') {
+                  return;
+                }
 
-              try {
-                setLogoutError('');
-                await logout();
-              } catch (error) {
-                setLogoutError(
-                  error instanceof Error ? error.message : '로그아웃 처리 중 오류가 발생했습니다.',
-                );
-              }
-            }}
-          >
-            <Header.NaviButton.MyGov
-              label="사용자 메뉴"
-              name={session?.member.accountId ?? ''}
-              items={myGovItems}
-            />
-          </Header.Navi>
+                try {
+                  setLogoutError('');
+                  await logout();
+                } catch (error) {
+                  setLogoutError(
+                    error instanceof Error ? error.message : '로그아웃 처리 중 오류가 발생했습니다.',
+                  );
+                }
+              }}
+            >
+              <Header.NaviButton.MyGov
+                label="사용자 메뉴"
+                name={session?.member.accountId ?? ''}
+                items={myGovItems}
+              />
+            </Header.Navi>
+          </div>
         </Header.Container>
       </Header>
 
-      <div className="authenticated-layout__content-grid">
-        <aside
-          aria-label="주요 메뉴"
-          className="authenticated-layout__sidebar"
-          onClickCapture={(event) => {
-            const target = event.target as HTMLElement;
-            const anchor = target.closest('a');
-            if (!anchor) {
-              return;
-            }
-            handleRouteLinkClick(event, anchor.getAttribute('href') ?? undefined);
-          }}
-        >
-          <SideNavigation>
-            <SideNavigation.Title className="authenticated-layout__side-nav-title">
-              메뉴
-            </SideNavigation.Title>
+      <div id="container">
+        <div className="inner in-between">
+          <SideNavigation
+            aria-label="사이드 메뉴"
+            onClickCapture={(event) => {
+              const target = event.target as HTMLElement;
+              const anchor = target.closest('a');
+              if (!anchor) {
+                return;
+              }
+              handleRouteLinkClick(event, anchor.getAttribute('href') ?? undefined);
+            }}
+          >
+            <SideNavigation.Title>메뉴</SideNavigation.Title>
             <SideNavigation.Menu>
               {navigation.map((item) => {
                 if (isLeafItem(item)) {
@@ -146,7 +148,11 @@ export function AuthenticatedLayout() {
 
                   return (
                     <SideNavigation.Item key={item.to} active={isCurrent}>
-                      <SideNavigation.Link href={item.to} current={isCurrent}>
+                      <SideNavigation.Link
+                        href={item.to}
+                        current={isCurrent}
+                        className={isCurrent ? 'selected active' : undefined}
+                      >
                         {item.label}
                       </SideNavigation.Link>
                     </SideNavigation.Item>
@@ -162,11 +168,13 @@ export function AuthenticatedLayout() {
                     <SideNavigation.Toggle
                       active={expanded}
                       expanded={expanded}
+                      className={expanded ? 'selected' : undefined}
                       onClick={() =>
                         setOpenGroups((current) => ({
                           ...current,
                           [item.label]: !(
-                            hasActiveChild(location.pathname, item) || current[item.label] === true
+                            hasActiveChild(location.pathname, item) ||
+                            current[item.label] === true
                           ),
                         }))
                       }
@@ -175,56 +183,52 @@ export function AuthenticatedLayout() {
                       {item.label}
                     </SideNavigation.Toggle>
                     <SideNavigation.SubMenu id={submenuId}>
-                      <SideNavigation.Menu>
-                        {item.children.map((child) => {
-                          const isCurrent =
-                            location.pathname === child.to ||
-                            location.pathname.startsWith(`${child.to}/`);
+                      {item.children.map((child) => {
+                        const isCurrent =
+                          location.pathname === child.to ||
+                          location.pathname.startsWith(`${child.to}/`);
 
-                          return (
-                            <SideNavigation.SubItem key={child.to} active={isCurrent}>
-                              <SideNavigation.Link href={child.to} current={isCurrent}>
-                                {child.label}
-                              </SideNavigation.Link>
-                            </SideNavigation.SubItem>
-                          );
-                        })}
-                      </SideNavigation.Menu>
+                        return (
+                          <SideNavigation.SubItem key={child.to} active={isCurrent}>
+                            <SideNavigation.Link
+                              href={child.to}
+                              current={isCurrent}
+                              className={isCurrent ? 'selected' : undefined}
+                            >
+                              {child.label}
+                            </SideNavigation.Link>
+                          </SideNavigation.SubItem>
+                        );
+                      })}
                     </SideNavigation.SubMenu>
                   </SideNavigation.Item>
                 );
               })}
             </SideNavigation.Menu>
           </SideNavigation>
-        </aside>
 
-        <div className="authenticated-layout__main-wrap">
-          {activeFetchCount > 0 ? <GlobalLoadingSpinner overlay /> : null}
-          <div className="authenticated-layout__inner">
+          <div
+            className="contents"
+            onClickCapture={(event) => {
+              const target = event.target as HTMLElement;
+              const anchor = target.closest('.krds-breadcrumb-wrap a');
+              if (!anchor) {
+                return;
+              }
+              handleRouteLinkClick(event, anchor.getAttribute('href') ?? undefined);
+            }}
+          >
+            {activeFetchCount > 0 ? <GlobalLoadingSpinner overlay /> : null}
             {logoutError ? (
-              <p role="alert" aria-live="polite" className="authenticated-layout__status-message">
-                {logoutError}
-              </p>
+              <CriticalAlert alerts={[{ variant: 'danger', message: logoutError }]} />
             ) : null}
-            <div
-              className="authenticated-layout__breadcrumb"
-              onClickCapture={(event) => {
-                const target = event.target as HTMLElement;
-                const anchor = target.closest('a');
-                if (!anchor) {
-                  return;
-                }
-                handleRouteLinkClick(event, anchor.getAttribute('href') ?? undefined);
-              }}
-            >
-              <Breadcrumb items={breadcrumbItems} ariaLabel="브래드크럼" />
-            </div>
-            <main id="main-content" className="authenticated-layout__main">
+            <Breadcrumb items={breadcrumbItems} ariaLabel="브래드크럼" />
+            <main id="main-content" className="conts-area">
               <Outlet />
             </main>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

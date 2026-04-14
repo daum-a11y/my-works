@@ -1,4 +1,4 @@
-export type StatsSummaryView = 'stats-page__chart' | 'stats-page__table';
+export type StatsSummaryView = 'chart' | 'table';
 
 export type ProjectStatsSortKey =
   | 'month'

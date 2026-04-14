@@ -6,6 +6,12 @@ For the full 조사본, see:
 
 - `/Volumes/workspace/workspace/my-works/.agents/skills/krds-guide/references/research/component-inventory.md`
 
+React implementation source:
+
+- KRDS React Storybook: <https://www.krds.go.kr/storybook/react/>
+
+Use Storybook for React component API, states, variants, and examples after selecting the correct KRDS component. Do not use Storybook alone to decide service journey, pattern choice, or accessibility rationale.
+
 ## 1. Category Map
 
 ### 아이덴티티
@@ -188,3 +194,7 @@ If you need the exact official page, use the researched inventory:
 - `/Volumes/workspace/workspace/my-works/.agents/skills/krds-guide/references/research/component-inventory.md`
 
 That file includes the current detail URLs for every visible component menu.
+
+For React implementation details, use:
+
+- <https://www.krds.go.kr/storybook/react/>

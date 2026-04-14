@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import { GripHorizontal } from 'lucide-react';
+import { Badge, Button, CriticalAlert, Modal, type BadgeProps } from 'krds-react';
 
 export interface AdminOrderDialogItem {
   id: string;
   title: string;
   description?: string;
   badge?: string;
+  badgeColor?: BadgeProps['color'];
   inactive?: boolean;
 }
 
@@ -37,6 +39,7 @@ function moveItem<T>(items: readonly T[], fromIndex: number, toIndex: number) {
 
 export function AdminOrderDialog({
   title,
+  description,
   items,
   isOpen,
   isPending,
@@ -114,131 +117,135 @@ export function AdminOrderDialog({
   };
 
   return (
-    <div
-      className="admin-crud-page__dialog-scrim"
-      onClick={() => {
-        if (!isPending) {
+    <Modal.Root
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open && !isPending) {
           onClose();
         }
       }}
+      closeOnEsc={!isPending}
+      closeOnOverlayClick={!isPending}
+      size="lg"
     >
-      <section
-        className="admin-crud-page__dialog admin-crud-page__dialog--wide"
-        role="dialog"
-        aria-modal="true"
-        aria-label={title}
-        onClick={(event) => event.stopPropagation()}
-      >
-        <header className="admin-crud-page__dialog-header">
-          <div className="admin-crud-page__dialog-heading">
-            <h2 className="admin-crud-page__dialog-title">{title}</h2>
-          </div>
-        </header>
+      <Modal.Content aria-label={title}>
+        <Modal.Header title={title} />
 
-        {errorMessage ? <p className="admin-crud-page__helper-text">{errorMessage}</p> : null}
+        {errorMessage ? (
+          <CriticalAlert alerts={[{ variant: 'danger', message: errorMessage }]} />
+        ) : null}
 
-        <ol className="admin-crud-page__sortable-list">
-          {draftItems.map((item, index) => {
-            const isDragging = draggingId === item.id;
-            const isDropTarget = dropTargetId === item.id && draggingId !== item.id;
+        <Modal.Body>
+          {description ? (
+            <div id="admin-order-dialog-note">
+              <CriticalAlert alerts={[{ variant: 'info', message: description }]} />
+            </div>
+          ) : null}
 
-            return (
-              <li
-                key={item.id}
-                className={[
-                  'admin-crud-page__sortable-item',
-                  item.inactive ? 'admin-crud-page__sortable-item--inactive' : '',
-                  isDragging ? 'admin-crud-page__sortable-item--dragging' : '',
-                  isDropTarget ? 'admin-crud-page__sortable-item--drop-target' : '',
-                ]
-                  .filter(Boolean)
-                  .join(' ')}
-                onDragOver={(event) => event.preventDefault()}
-                onDragEnter={() => {
-                  if (!draggingId || draggingId === item.id) {
-                    setDropTargetId(null);
-                    return;
-                  }
-                  setDropTargetId(item.id);
-                }}
-                onDragLeave={() => {
-                  if (dropTargetId === item.id) {
-                    setDropTargetId(null);
-                  }
-                }}
-                onDrop={() => handleDrop(item.id)}
-              >
-                <div className="admin-crud-page__sortable-body">
-                  <div className="admin-crud-page__sortable-topline">
-                    <span className="admin-crud-page__sortable-order">{index + 1}</span>
-                    <strong className="admin-crud-page__sortable-title">{item.title}</strong>
-                    {item.description ? (
-                      <span className="admin-crud-page__sortable-description">
-                        {item.description}
-                      </span>
-                    ) : null}
-                    {item.badge ? (
-                      <span className="admin-crud-page__sortable-badge">{item.badge}</span>
-                    ) : null}
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  className="admin-crud-page__sortable-handle"
-                  aria-label={`${item.title} 순서 이동 핸들`}
-                  aria-describedby="admin-order-dialog-note"
-                  draggable={!isPending}
-                  onDragStart={() => setDraggingId(item.id)}
-                  onDragEnd={() => {
-                    setDraggingId(null);
-                    setDropTargetId(null);
-                  }}
-                  onKeyDown={(event) => {
-                    if (isPending) {
+          <ol className="krds-page-admin__sortable-list">
+            {draftItems.map((item, index) => {
+              const isDragging = draggingId === item.id;
+              const isDropTarget = dropTargetId === item.id && draggingId !== item.id;
+
+              return (
+                <li
+                  key={item.id}
+                  className={[
+                    'krds-page-admin__sortable-item',
+                    item.inactive ? 'krds-page-admin__sortable-item--inactive' : '',
+                    isDragging ? 'krds-page-admin__sortable-item--dragging' : '',
+                    isDropTarget ? 'krds-page-admin__sortable-item--drop-target' : '',
+                  ]
+                    .filter(Boolean)
+                    .join(' ')}
+                  onDragOver={(event) => event.preventDefault()}
+                  onDragEnter={() => {
+                    if (!draggingId || draggingId === item.id) {
+                      setDropTargetId(null);
                       return;
                     }
-
-                    if (event.key === 'ArrowUp') {
-                      event.preventDefault();
-                      moveBy(item.id, -1);
-                      return;
-                    }
-
-                    if (event.key === 'ArrowDown') {
-                      event.preventDefault();
-                      moveBy(item.id, 1);
+                    setDropTargetId(item.id);
+                  }}
+                  onDragLeave={() => {
+                    if (dropTargetId === item.id) {
+                      setDropTargetId(null);
                     }
                   }}
-                  disabled={isPending}
+                  onDrop={() => handleDrop(item.id)}
                 >
-                  <GripHorizontal />
-                </button>
-              </li>
-            );
-          })}
-        </ol>
+                  <div className="krds-page-admin__sortable-body">
+                    <div className="krds-page-admin__sortable-topline">
+                      <span className="krds-page-admin__sortable-order">{index + 1}</span>
+                      <strong className="krds-page-admin__sortable-title">{item.title}</strong>
+                      {item.description ? (
+                        <span className="krds-page-admin__sortable-description">
+                          {item.description}
+                        </span>
+                      ) : null}
+                      {item.badge ? (
+                        <Badge
+                          variant="light"
+                          color={item.badgeColor ?? (item.inactive ? 'gray' : 'secondary')}
+                          size="small"
+                        >
+                          {item.badge}
+                        </Badge>
+                      ) : null}
+                    </div>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="icon"
+                    size="medium"
+                    className="krds-page-admin__sortable-handle"
+                    aria-label={`${item.title} 순서 이동 핸들`}
+                    aria-describedby={description ? 'admin-order-dialog-note' : undefined}
+                    draggable={!isPending}
+                    onDragStart={() => setDraggingId(item.id)}
+                    onDragEnd={() => {
+                      setDraggingId(null);
+                      setDropTargetId(null);
+                    }}
+                    onKeyDown={(event) => {
+                      if (isPending) {
+                        return;
+                      }
 
-        <footer className="admin-crud-page__dialog-footer">
-          <div className="admin-crud-page__actions">
-            <button
-              type="button"
-              className="admin-crud-page__button admin-crud-page__button--secondary"
-              onClick={onClose}
-              disabled={isPending}
-            >
-              취소
-            </button>
-            <button
-              type="button"
-              className="admin-crud-page__button admin-crud-page__button--primary"
-              onClick={() => void handleSave()}
-              disabled={isPending || !hasChanges}
-            >
-              저장
-            </button>
-          </div>
-        </footer>
-      </section>
-    </div>
+                      if (event.key === 'ArrowUp') {
+                        event.preventDefault();
+                        moveBy(item.id, -1);
+                        return;
+                      }
+
+                      if (event.key === 'ArrowDown') {
+                        event.preventDefault();
+                        moveBy(item.id, 1);
+                      }
+                    }}
+                    disabled={isPending}
+                  >
+                    <GripHorizontal />
+                  </Button>
+                </li>
+              );
+            })}
+          </ol>
+        </Modal.Body>
+
+        <Modal.Footer>
+          <Button type="button" variant="secondary" onClick={onClose} disabled={isPending}>
+            취소
+          </Button>
+          <Button
+            type="button"
+            variant="primary"
+            onClick={() => void handleSave()}
+            disabled={isPending || !hasChanges}
+          >
+            저장
+          </Button>
+        </Modal.Footer>
+      </Modal.Content>
+    </Modal.Root>
   );
 }

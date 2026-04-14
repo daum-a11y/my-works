@@ -14,60 +14,50 @@ export function AdminTaskTypeEditorForm({
   onDraftChange,
 }: AdminTaskTypeEditorFormProps) {
   return (
-    <div className={'projects-feature__editor-form-grid'}>
-      <div className={'projects-feature__field'}>
-        <TextInput
-          id="admin-task-type-type1"
-          label="타입1"
-          ref={titleRef}
-          value={draft.type1}
-          onChange={(value) => onDraftChange({ type1: value })}
-        />
-      </div>
+    <div className={'krds-page__editor-form-grid'}>
+      <TextInput
+        id="admin-task-type-type1"
+        label="타입1"
+        ref={titleRef}
+        value={draft.type1}
+        onChange={(value) => onDraftChange({ type1: value })}
+      />
 
-      <div className={'projects-feature__field'}>
-        <TextInput
-          id="admin-task-type-type2"
-          label="타입2"
-          value={draft.type2}
-          onChange={(value) => onDraftChange({ type2: value })}
-        />
-      </div>
+      <TextInput
+        id="admin-task-type-type2"
+        label="타입2"
+        value={draft.type2}
+        onChange={(value) => onDraftChange({ type2: value })}
+      />
 
-      <div className={'projects-feature__field'}>
-        <Select
-          id="admin-task-type-resource-type"
-          label="리소스 타입"
-          value={draft.requiresServiceGroup ? '1' : '0'}
-          options={[
-            { value: '1', label: '프로젝트' },
-            { value: '0', label: '일반' },
-          ]}
-          onChange={(value) => onDraftChange({ requiresServiceGroup: value === '1' })}
-        />
-      </div>
+      <Select
+        id="admin-task-type-resource-type"
+        label="리소스 타입"
+        value={draft.requiresServiceGroup ? '1' : '0'}
+        options={[
+          { value: '1', label: '프로젝트' },
+          { value: '0', label: '일반' },
+        ]}
+        onChange={(value) => onDraftChange({ requiresServiceGroup: value === '1' })}
+      />
 
-      <div className={'projects-feature__field'}>
-        <Select
-          id="admin-task-type-active"
-          label="활성여부"
-          value={draft.isActive ? '1' : '0'}
-          options={[
-            { value: '1', label: '활성' },
-            { value: '0', label: '비활성' },
-          ]}
-          onChange={(value) => onDraftChange({ isActive: value === '1' })}
-        />
-      </div>
+      <Select
+        id="admin-task-type-active"
+        label="활성여부"
+        value={draft.isActive ? '1' : '0'}
+        options={[
+          { value: '1', label: '활성' },
+          { value: '0', label: '비활성' },
+        ]}
+        onChange={(value) => onDraftChange({ isActive: value === '1' })}
+      />
 
-      <div className={'projects-feature__field'}>
-        <TextInput
-          id="admin-task-type-note"
-          label="비고"
-          value={draft.note}
-          onChange={(value) => onDraftChange({ note: value })}
-        />
-      </div>
+      <TextInput
+        id="admin-task-type-note"
+        label="비고"
+        value={draft.note}
+        onChange={(value) => onDraftChange({ note: value })}
+      />
     </div>
   );
 }

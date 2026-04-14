@@ -15,9 +15,9 @@ describe('PageSection', () => {
     expect(screen.getByText('내용')).toBeInTheDocument();
   });
 
-  it('applies the panel variant modifier class', () => {
+  it('keeps the panel variant available without custom styling classes', () => {
     const { container } = render(<PageSection title="리포트" variant="panel" />);
 
-    expect(container.querySelector('.page-section')).toHaveClass('page-section--panel');
+    expect(container.querySelector('section')).toHaveAttribute('data-variant', 'panel');
   });
 });

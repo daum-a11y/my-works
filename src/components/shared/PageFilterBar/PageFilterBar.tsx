@@ -7,9 +7,9 @@ export interface PageFilterBarProps extends ComponentPropsWithoutRef<'div'> {
 
 export function PageFilterBar({ actions, className, children, ...props }: PageFilterBarProps) {
   return (
-    <div className={clsx('page-filter-bar', className)} {...props}>
-      <div className="page-filter-bar__fields">{children}</div>
-      {actions ? <div className="page-filter-bar__actions">{actions}</div> : null}
+    <div className={clsx('krds-page-filter-bar', className)} {...props}>
+      <div className="krds-page-filter-bar__fields">{children}</div>
+      {actions ? <div className="krds-page-filter-bar__actions">{actions}</div> : null}
     </div>
   );
 }

@@ -39,6 +39,7 @@ export function AdminReportEditorTypeFields({
         <TextInput label="타입1" value={type1Value} readOnly style={{ width: '100%' }} />
       ) : (
         <Select
+          id="admin-report-editor-type1"
           label="타입1"
           value={draft.type1}
           onChange={onType1Change}
@@ -57,6 +58,7 @@ export function AdminReportEditorTypeFields({
       )}
 
       <Select
+        id="admin-report-editor-type2"
         label="타입2"
         value={draft.type2}
         onChange={onType2Change}

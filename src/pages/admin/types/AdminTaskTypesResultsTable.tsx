@@ -1,4 +1,5 @@
-import { Link } from 'react-router-dom';
+import { Badge } from 'krds-react';
+import { KrdsRouterButtonLink } from '../../../components/shared';
 import { TableEmptyRow } from '../../../components/shared/TableEmptyRow';
 import type { AdminTaskTypeItem } from '../admin.types';
 
@@ -17,8 +18,8 @@ export function AdminTaskTypesResultsTable({
   activeTypeMap,
 }: AdminTaskTypesResultsTableProps) {
   return (
-    <div className="admin-crud-page__table-wrap">
-      <table className="admin-crud-page__table">
+    <div className="krds-page-admin__table-wrap krds-table-wrap">
+      <table className="krds-page-admin__table tbl data">
         <caption className="sr-only">업무타입 내역</caption>
         <thead>
           <tr>
@@ -36,29 +37,42 @@ export function AdminTaskTypesResultsTable({
               group.rows.map((item, rowIndex) => (
                 <tr
                   key={item.id}
-                  className={activeTypeMap.get(item.id) ? '' : 'admin-crud-page__inactive-row'}
+                  className={activeTypeMap.get(item.id) ? '' : 'krds-page-admin__inactive-row'}
                 >
                   {rowIndex === 0 ? (
                     <td
                       rowSpan={group.rows.length}
                       scope="row"
-                      className="admin-crud-page__row-key"
+                      className="krds-page-admin__row-key"
                     >
                       {group.type1}
                     </td>
                   ) : null}
                   <td>{item.type2}</td>
-                  <td>{item.requiresServiceGroup ? '프로젝트' : '일반'}</td>
-                  <td>{activeTypeMap.get(item.id) ? '활성' : '비활성'}</td>
+                  <td>
+                    <Badge
+                      variant="light"
+                      color={item.requiresServiceGroup ? 'information' : 'gray'}
+                      size="small"
+                    >
+                      {item.requiresServiceGroup ? '프로젝트' : '일반'}
+                    </Badge>
+                  </td>
+                  <td>
+                    <Badge
+                      variant="light"
+                      color={activeTypeMap.get(item.id) ? 'success' : 'gray'}
+                      size="small"
+                    >
+                      {activeTypeMap.get(item.id) ? '활성' : '비활성'}
+                    </Badge>
+                  </td>
                   <td>{item.note || '-'}</td>
                   <td>
-                    <div className="admin-crud-page__actions">
-                      <Link
-                        to={`/admin/type/${item.id}/edit`}
-                        className="admin-crud-page__button admin-crud-page__button--secondary"
-                      >
+                    <div className="krds-page-admin__actions">
+                      <KrdsRouterButtonLink to={`/admin/type/${item.id}/edit`}>
                         수정
-                      </Link>
+                      </KrdsRouterButtonLink>
                     </div>
                   </td>
                 </tr>

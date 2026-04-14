@@ -17,10 +17,8 @@ export function TableEmptyRow({
   return (
     <tr>
       <td colSpan={colSpan} className={clsx('table-empty-row', className)} {...props}>
-        <span className="table-empty-row__content">
-          <span className="table-empty-row__message">{message}</span>
-          {description ? <span className="table-empty-row__description">{description}</span> : null}
-        </span>
+        <p>{message}</p>
+        {description ? <p>{description}</p> : null}
       </td>
     </tr>
   );

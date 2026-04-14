@@ -6,6 +6,7 @@
 ## 범위
 
 - 시작하기 문서: 디자이너, 개발자
+- 개발자 Storybook 문서: React
 - 스타일 문서: `style_01` ~ `style_07`
 - 디자인 원칙 문서: `utility_02`
 - 네이밍 원칙 문서: `utility_03`
@@ -19,6 +20,7 @@
 
 - 디자이너 시작하기: <https://www.krds.go.kr/html/site/outline/outline_02.html>
 - 개발자 시작하기: <https://www.krds.go.kr/html/site/outline/outline_03.html>
+- React Storybook: <https://www.krds.go.kr/storybook/react/>
 - 스타일 소개: <https://www.krds.go.kr/html/site/style/style_01.html>
 - 색상: <https://www.krds.go.kr/html/site/style/style_02.html>
 - 타이포그래피: <https://www.krds.go.kr/html/site/style/style_03.html>
@@ -87,5 +89,6 @@
 ## 바로 쓸 수 있는 결론
 
 - KRDS 도입, 리소스 준비, Figma 라이브러리 사용, HTML/React/Vue Kit 설치 질문은 `스타일/컴포넌트/패턴` 이전에 `getting-started` 축으로 라우팅하는 편이 맞습니다.
+- React 구현 세부는 Storybook을 참조하되, 컴포넌트 선택과 접근성 판단은 `components.md`의 공식 컴포넌트 문서 기준을 우선해야 합니다.
 - KRDS 스킬은 `스타일 규칙`, `컴포넌트 선택`, `패턴 선택`, `적용 수준(필수/권장/우수)`, `접근성`, `토큰/코드 반영`의 6축으로 설계하는 것이 맞습니다.
 - `SKILL.md`에는 판단 흐름과 체크리스트만 남기고, 자세한 표와 메뉴 인벤토리는 이 폴더의 자료를 `references`로 나누어 넣는 편이 좋습니다.

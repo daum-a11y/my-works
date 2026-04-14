@@ -2,10 +2,11 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { CriticalAlert } from 'krds-react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../auth/AuthContext';
 import { isSupabaseConfigured } from '../../config/env';
-import { AuthLayoutShell, getAuthFeedbackClassName } from '../../components/layout/AuthLayoutShell';
+import { AuthLayoutShell } from '../../components/layout/AuthLayoutShell';
 import { LoginForm } from './LoginForm';
 
 const loginSchema = z.object({
@@ -28,7 +29,7 @@ export function LoginPage() {
     typeof locationState.noticeMessage === 'string' ? locationState.noticeMessage : '',
   );
   const {
-    register,
+    control,
     handleSubmit,
     setFocus,
     formState: { errors, isSubmitting },
@@ -67,7 +68,7 @@ export function LoginPage() {
           isBusy={isBusy}
           isSupabaseConfigured={isSupabaseConfigured}
           errors={errors}
-          register={register}
+          control={control}
           handleSubmit={handleSubmit}
           onSubmit={async (values) => {
             try {
@@ -85,12 +86,15 @@ export function LoginPage() {
       }
       aside={
         !isSupabaseConfigured ? (
-          <div role="status" className={getAuthFeedbackClassName('info')}>
-            <strong>환경 설정 필요</strong>
-            <p>
-              `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`가 설정되어야 로그인할 수 있습니다.
-            </p>
-          </div>
+          <CriticalAlert
+            alerts={[
+              {
+                variant: 'info',
+                message:
+                  '환경 설정 필요. `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`가 설정되어야 로그인할 수 있습니다.',
+              },
+            ]}
+          />
         ) : null
       }
     />

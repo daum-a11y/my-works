@@ -1,3 +1,4 @@
+import { Link as KrdsLink } from 'krds-react';
 import { SortableTableHeaderButton, TableEmptyRow } from '../../components/shared';
 import type { SearchTaskRow } from '../../types/domain';
 import { formatReportDate, formatReportTaskUsedtime } from '../reports/reportUtils';
@@ -19,8 +20,8 @@ export function SearchResultsTable({ reports, sortState, onSortChange }: SearchR
   };
 
   return (
-    <div className="search-page__table-wrap">
-      <table className="search-page__table">
+    <div className="krds-page__table-wrap krds-table-wrap">
+      <table className="krds-page__table tbl data">
         <caption className="sr-only">업무 리스트 테이블</caption>
         <thead>
           <tr>
@@ -112,7 +113,7 @@ export function SearchResultsTable({ reports, sortState, onSortChange }: SearchR
         <tbody>
           {reports.map((report) => (
             <tr key={report.id}>
-              <td className="search-page__table-number">{formatReportDate(report.taskDate)}</td>
+              <td className="krds-page__table-number">{formatReportDate(report.taskDate)}</td>
               <td>
                 <strong>{report.costGroupName || '-'}</strong>
               </td>
@@ -140,14 +141,14 @@ export function SearchResultsTable({ reports, sortState, onSortChange }: SearchR
               <td>{report.content || '-'}</td>
               <td>
                 {report.url ? (
-                  <a href={report.url} target="_blank" rel="noreferrer">
+                  <KrdsLink href={report.url} external>
                     링크
-                  </a>
+                  </KrdsLink>
                 ) : (
                   '-'
                 )}
               </td>
-              <td className="search-page__table-number">
+              <td className="krds-page__table-number">
                 {formatReportTaskUsedtime(report.taskUsedtime)}
               </td>
               <td>{report.note || '-'}</td>

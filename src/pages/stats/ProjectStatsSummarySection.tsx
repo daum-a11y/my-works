@@ -8,6 +8,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
+import { Tab, TabList, TabTrigger } from 'krds-react';
 import { EmptyState, TableEmptyRow } from '../../components/shared';
 import type { StatsSummaryView } from './ProjectStatsPage.types';
 import type { ProjectStatsMonthlyRow } from './ProjectStatsPage.utils';
@@ -41,40 +42,19 @@ export function ProjectStatsSummarySection({
 
   return (
     <>
-      <div
-        className={'stats-page__view-toggle'}
-        role="tablist"
-        aria-label="프로젝트 월별 요약 보기"
+      <Tab
+        value={summaryView}
+        onValueChange={(value) => onSummaryViewChange(value as StatsSummaryView)}
       >
-        <button
-          type="button"
-          className={
-            summaryView === 'stats-page__table'
-              ? 'stats-page__view-toggle-button stats-page__view-toggle-button--active'
-              : 'stats-page__view-toggle-button'
-          }
-          aria-pressed={summaryView === 'stats-page__table'}
-          onClick={() => onSummaryViewChange('stats-page__table')}
-        >
-          표
-        </button>
-        <button
-          type="button"
-          className={
-            summaryView === 'stats-page__chart'
-              ? 'stats-page__view-toggle-button stats-page__view-toggle-button--active'
-              : 'stats-page__view-toggle-button'
-          }
-          aria-pressed={summaryView === 'stats-page__chart'}
-          onClick={() => onSummaryViewChange('stats-page__chart')}
-        >
-          그래프
-        </button>
-      </div>
-      {summaryView === 'stats-page__chart' ? (
-        <div className={'stats-page__chart-surface'}>
+        <TabList aria-label="프로젝트 월별 요약 보기">
+          <TabTrigger value="table">표</TabTrigger>
+          <TabTrigger value="chart">그래프</TabTrigger>
+        </TabList>
+      </Tab>
+      {summaryView === 'chart' ? (
+        <div className={'krds-page__chart-surface'}>
           {monthlyRows.length ? (
-            <div className={'stats-page__chart-frame'} role="img" aria-label="프로젝트 월별 차트">
+            <div className={'krds-page__chart-frame'} role="img" aria-label="프로젝트 월별 차트">
               <ResponsiveContainer width="100%" height={320}>
                 <LineChart data={monthlyRows} margin={{ top: 12, right: 12, left: 0, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" />
@@ -112,8 +92,8 @@ export function ProjectStatsSummarySection({
           )}
         </div>
       ) : (
-        <div className={'stats-page__table-wrap'}>
-          <table className={'stats-page__table'}>
+        <div className={'krds-page__table-wrap krds-table-wrap'}>
+          <table className={'krds-page__table tbl data'}>
             <caption className={'sr-only'}>프로젝트 월별 표</caption>
             <thead>
               <tr>
@@ -132,10 +112,10 @@ export function ProjectStatsSummarySection({
               {monthlyRows.map((row) => (
                 <tr key={row.monthKey}>
                   <td>{row.label}</td>
-                  <td className="stats-page__table-number">{row.totalProjectCount}</td>
+                  <td className="krds-page__table-number">{row.totalProjectCount}</td>
                   {showAllType1Series
                     ? summaryType1Keys.map((type1) => (
-                        <td key={type1} className="stats-page__table-number">
+                        <td key={type1} className="krds-page__table-number">
                           {row.projectCountByType1[type1] ?? 0}
                         </td>
                       ))

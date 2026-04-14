@@ -1,5 +1,6 @@
 import clsx from 'clsx';
-import { Link } from 'react-router-dom';
+import { Badge } from 'krds-react';
+import { KrdsRouterTextLink } from '../KrdsRouterTextLink';
 import {
   MONTHLY_REPORT_CALENDAR_DEFAULTS,
   MONTHLY_REPORT_CALENDAR_WEEKDAY_LABELS,
@@ -83,13 +84,14 @@ export function MonthlyReportCalendar({
                   >
                     <div className="monthly-report-calendar__cell-inner">
                       {linkTarget ? (
-                        <Link
+                        <KrdsRouterTextLink
                           to={linkTarget.to}
                           state={linkTarget.state}
+                          size="small"
                           className="monthly-report-calendar__link"
                         >
                           {dateLabel}
-                        </Link>
+                        </KrdsRouterTextLink>
                       ) : (
                         dateLabel
                       )}
@@ -99,25 +101,22 @@ export function MonthlyReportCalendar({
                     </div>
                     {isWeekend ? (
                       minutes > 0 ? (
-                        <span className="monthly-report-calendar__badge monthly-report-calendar__badge--weekend">
+                        <Badge variant="light" color="gray" size="small">
                           {minutes.toLocaleString('ko-KR')}분
-                        </span>
+                        </Badge>
                       ) : null
                     ) : minutes > 0 ? (
-                      <span
-                        className={clsx(
-                          'monthly-report-calendar__badge',
-                          minutes >= 480
-                            ? 'monthly-report-calendar__badge--success'
-                            : 'monthly-report-calendar__badge--warning',
-                        )}
+                      <Badge
+                        variant="light"
+                        color={minutes >= 480 ? 'success' : 'warning'}
+                        size="small"
                       >
                         {formatDiffMinutes(minutes - 480)}
-                      </span>
+                      </Badge>
                     ) : showBusinessState ? (
-                      <span className="monthly-report-calendar__badge monthly-report-calendar__badge--danger">
+                      <Badge variant="light" color="danger" size="small">
                         -480분
-                      </span>
+                      </Badge>
                     ) : null}
                   </td>
                 );

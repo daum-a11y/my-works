@@ -17,7 +17,7 @@ export function ResourceTypeYearRows({ row, fold }: ResourceTypeYearRowsProps) {
             items={month.type1Items}
           />
         ))}
-        <tr className="resource-page__summary-strong-row">
+        <tr className="krds-page__summary-strong-row">
           <td colSpan={3}>{row.year}년 합계</td>
           <td>{formatMm(row.yearTotalMinutes, 21.73)}</td>
         </tr>
@@ -35,7 +35,7 @@ export function ResourceTypeYearRows({ row, fold }: ResourceTypeYearRowsProps) {
           showMonthSummary
         />
       ))}
-      <tr className="resource-page__summary-strong-row">
+      <tr className="krds-page__summary-strong-row">
         <td colSpan={3}>{row.year}년 합계</td>
         <td>{formatMm(row.yearTotalMinutes, 21.73)}</td>
       </tr>
@@ -80,7 +80,7 @@ function ResourceTypeMonthRows({
         </tr>
       ))}
       {showMonthSummary ? (
-        <tr className="resource-page__summary-strong-row">
+        <tr className="krds-page__summary-strong-row">
           <td colSpan={3}>{month.month}월 합계</td>
           <td>{formatMm(month.totalMinutes, month.workingDays)}</td>
         </tr>

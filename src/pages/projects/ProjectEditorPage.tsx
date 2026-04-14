@@ -1,6 +1,7 @@
 import { type FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { CriticalAlert } from 'krds-react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../auth/AuthContext';
 import { dataClient } from '../../api/client';
 import {
@@ -33,6 +34,8 @@ import {
 } from './ProjectEditorPage.draft';
 import { splitServiceGroupName } from './ProjectEditorPage.service';
 import { useAlertMessage } from '../../hooks/useAlertMessage';
+import { KrdsRouterButtonLink, PageHeader } from '../../components/shared';
+import { GlobalLoadingSpinner } from '../../components/layout';
 
 function getProjectEditorErrorMessage(error: unknown, fallback: string) {
   const message =
@@ -440,75 +443,64 @@ export function ProjectEditorPage() {
 
   if (loading) {
     return (
-      <section className="projects-feature projects-feature--shell projects-feature--editor">
-        <header className={'projects-feature__editor-header'}>
-          <h1 className={'projects-feature__title'}>
-            {isEditMode ? PROJECT_EDITOR_EDIT_TITLE : PROJECT_EDITOR_CREATE_TITLE}
-          </h1>
-          {isEditMode ? (
-            <Link
-              to="/projects"
-              className={'projects-feature__button projects-feature__button--secondary'}
-            >
-              목록으로
-            </Link>
-          ) : null}
-        </header>
+      <section className="krds-page krds-page--shell krds-page--editor">
+        <PageHeader
+          title={isEditMode ? PROJECT_EDITOR_EDIT_TITLE : PROJECT_EDITOR_CREATE_TITLE}
+          actions={
+            isEditMode ? (
+              <KrdsRouterButtonLink to="/projects">
+                목록으로
+              </KrdsRouterButtonLink>
+            ) : null
+          }
+        />
+        <GlobalLoadingSpinner />
       </section>
     );
   }
 
   if (queryError) {
     return (
-      <section className="projects-feature projects-feature--shell projects-feature--editor">
-        <header className={'projects-feature__editor-header'}>
-          <h1 className={'projects-feature__title'}>
-            {isEditMode ? PROJECT_EDITOR_EDIT_TITLE : PROJECT_EDITOR_CREATE_TITLE}
-          </h1>
-          <Link
-            to="/projects"
-            className={'projects-feature__button projects-feature__button--secondary'}
-          >
-            목록으로
-          </Link>
-        </header>
+      <section className="krds-page krds-page--shell krds-page--editor">
+        <PageHeader
+          title={isEditMode ? PROJECT_EDITOR_EDIT_TITLE : PROJECT_EDITOR_CREATE_TITLE}
+          actions={
+            <KrdsRouterButtonLink to="/projects">
+              목록으로
+            </KrdsRouterButtonLink>
+          }
+        />
       </section>
     );
   }
 
   if (isEditMode && !selectedProject) {
     return (
-      <section className="projects-feature projects-feature--shell projects-feature--editor">
-        <header className={'projects-feature__editor-header'}>
-          <h1 className={'projects-feature__title'}>{PROJECT_EDITOR_EDIT_TITLE}</h1>
-          <Link
-            to="/projects"
-            className={'projects-feature__button projects-feature__button--secondary'}
-          >
-            목록으로
-          </Link>
-        </header>
-        <p className={'projects-feature__status-message'}>프로젝트를 찾을 수 없습니다.</p>
+      <section className="krds-page krds-page--shell krds-page--editor">
+        <PageHeader
+          title={PROJECT_EDITOR_EDIT_TITLE}
+          actions={
+            <KrdsRouterButtonLink to="/projects">
+              목록으로
+            </KrdsRouterButtonLink>
+          }
+        />
+        <CriticalAlert alerts={[{ variant: 'info', message: '프로젝트를 찾을 수 없습니다.' }]} />
       </section>
     );
   }
 
   return (
-    <section className="projects-feature projects-feature--shell projects-feature--editor">
-      <header className={'projects-feature__editor-header'}>
-        <h1 className={'projects-feature__title'}>
-          {isEditMode ? PROJECT_EDITOR_EDIT_TITLE : PROJECT_EDITOR_CREATE_TITLE}
-        </h1>
-      </header>
+    <section className="krds-page krds-page--shell krds-page--editor">
+      <PageHeader title={isEditMode ? PROJECT_EDITOR_EDIT_TITLE : PROJECT_EDITOR_CREATE_TITLE} />
 
-      {statusMessage ? <p className={'projects-feature__status-message'}>{statusMessage}</p> : null}
+      {statusMessage ? (
+        <CriticalAlert alerts={[{ variant: 'ok', message: statusMessage }]} />
+      ) : null}
 
-      <section
-        className="projects-feature__modal projects-feature__editor-surface"
-        aria-label="프로젝트 편집 패널"
-      >
+      <section className="krds-page__editor-surface" aria-label="프로젝트 편집 패널">
         <form
-          className="projects-feature__detail-form projects-feature__editor-detail-form"
+          className="krds-page__detail-form krds-page__editor-detail-form"
           onSubmit={handleProjectSave}
         >
           <ProjectEditorForm
@@ -547,7 +539,7 @@ export function ProjectEditorPage() {
       </section>
 
       {isEditMode && selectedProject ? (
-        <section className={'projects-feature__modal'} aria-label="태스크 목록 패널">
+        <section aria-label="태스크 목록 패널">
           <ProjectEditorSubtasksSection
             subtaskAddOpen={subtaskAddOpen}
             newSubtaskDraft={newSubtaskDraft}

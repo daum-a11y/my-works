@@ -1,5 +1,5 @@
 import type { CSSProperties, FormEvent, KeyboardEvent } from 'react';
-import { Textarea } from 'krds-react';
+import { CriticalAlert, Textarea } from 'krds-react';
 import type { Platform, ProjectSubtask } from '../../../types/domain';
 import type { ProjectViewModel, ReportDraft } from '../../reports/reportUtils';
 import { getTodayInputValue } from '../../reports/reportUtils';
@@ -11,6 +11,7 @@ import { AdminReportEditorReportTabFields } from './AdminReportEditorReportTabFi
 import { AdminReportEditorStatus } from './AdminReportEditorStatus';
 import type { AdminReportEditorTab } from './AdminReportEditorPage.types';
 import type { MemberAdminItem } from '../admin.types';
+import { GlobalLoadingSpinner } from '../../../components/layout';
 
 const panelStyle: CSSProperties = {
   display: 'grid',
@@ -139,7 +140,7 @@ export function AdminReportEditorForm({
   parseCompactDate,
 }: AdminReportEditorFormProps) {
   return (
-    <section className={'reports-page__panel'} style={panelStyle}>
+    <section className={'krds-page__panel'} style={panelStyle}>
       <AdminReportEditorPanelHeader
         title="업무 입력"
         dateText={draft.reportDate || getTodayInputValue()}
@@ -152,8 +153,10 @@ export function AdminReportEditorForm({
         isMissingEditTarget={missingEditTarget}
       />
 
+      {loading && !missingEditTarget ? <GlobalLoadingSpinner /> : null}
+
       {!loading && !missingEditTarget ? (
-        <form className={'reports-page__form'} onSubmit={onSubmit} style={formStyle}>
+        <form className={'krds-page__form'} onSubmit={onSubmit} style={formStyle}>
           <AdminReportEditorBasicFields
             isEdit={isEdit}
             members={members}
@@ -220,9 +223,14 @@ export function AdminReportEditorForm({
           />
 
           {isEdit && currentMember ? (
-            <p className={'reports-page__status-message'}>
-              사용자: {currentMember.accountId} ({currentMember.name})
-            </p>
+            <CriticalAlert
+              alerts={[
+                {
+                  variant: 'info',
+                  message: `사용자: ${currentMember.accountId} (${currentMember.name})`,
+                },
+              ]}
+            />
           ) : null}
 
           <AdminReportEditorActionRow

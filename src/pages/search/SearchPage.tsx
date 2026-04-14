@@ -14,7 +14,7 @@ export function SearchPage() {
   const page = useSearchPage();
 
   return (
-    <section className="search-page page-shell">
+    <section className="krds-page">
       <PageHeader title="내 업무 내역" />
 
       <PageSection title="필터">
@@ -44,16 +44,17 @@ export function SearchPage() {
               onNext={() =>
                 page.setCurrentPage((current) => Math.min(page.totalPages, current + 1))
               }
+              onPageChange={page.setCurrentPage}
             />
-            <p className="page-result-bar__metric">
-              <span className="page-result-bar__label">총 건수</span>
-              <strong className="page-result-bar__value">
+            <p>
+              <span>검색 결과</span>
+              <strong>
                 {numberFormatter.format(page.totalReports)}건
               </strong>
             </p>
-            <p className="page-result-bar__metric">
-              <span className="page-result-bar__label">총 시간</span>
-              <strong className="page-result-bar__value">
+            <p>
+              <span>총 시간</span>
+              <strong>
                 {formatReportTaskUsedtime(page.totalMinutes)}
               </strong>
             </p>
@@ -61,7 +62,6 @@ export function SearchPage() {
         }
         controls={
           <PageSizeField
-            aria-label="페이지당 행 수"
             value={page.pageSize}
             options={SEARCH_PAGE_SIZE_OPTIONS}
             onValueChange={(next) => {

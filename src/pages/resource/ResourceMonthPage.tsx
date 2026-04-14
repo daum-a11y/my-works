@@ -125,25 +125,15 @@ export function ResourceMonthPage() {
         },
       ]
     : [];
-  const memberStatusRows = memberTotals.map((member) => {
-    const diffMinutes = member.totalMinutes - expectedMinutes;
-
-    return {
-      ...member,
-      diffMinutes,
-      className:
-        diffMinutes < 0
-          ? 'resource-page__member-badge--danger'
-          : diffMinutes > 0
-            ? 'resource-page__member-badge--warning'
-            : 'resource-page__member-badge--success',
-    };
-  });
+  const memberStatusRows = memberTotals.map((member) => ({
+    ...member,
+    diffMinutes: member.totalMinutes - expectedMinutes,
+  }));
   const memberOverCount = memberStatusRows.filter((member) => member.diffMinutes > 0).length;
   const memberUnderCount = memberStatusRows.filter((member) => member.diffMinutes < 0).length;
 
   return (
-    <section className="dashboard-page dashboard-page--page projects-feature resource-page page-shell">
+    <section className="krds-page krds-page--page krds-page krds-page">
       <PageHeader title={RESOURCE_MONTH_PAGE_TITLE} />
 
       {query.isPending ? null : (

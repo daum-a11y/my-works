@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { CriticalAlert } from 'krds-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { adminDataClient } from '../../../api/admin';
 import type { MemberAdminPayload } from '../admin.types';
@@ -25,6 +26,8 @@ import {
 } from './AdminMemberEditorPage.utils';
 import { toMemberAdmin } from '../adminApiTransform';
 import { useAlertMessage } from '../../../hooks/useAlertMessage';
+import { PageHeader } from '../../../components/shared';
+import { GlobalLoadingSpinner } from '../../../components/layout';
 
 export function AdminMemberEditorPage() {
   const navigate = useNavigate();
@@ -230,34 +233,29 @@ export function AdminMemberEditorPage() {
 
   if (membersQuery.isLoading && isEditMode) {
     return (
-      <section className="projects-feature projects-feature__shell projects-feature__editor-shell" />
+      <section className="krds-page krds-page__shell krds-page__editor-shell">
+        <GlobalLoadingSpinner />
+      </section>
     );
   }
 
   if (isEditMode && !selectedMember && !membersQuery.isLoading) {
     return (
-      <section className="projects-feature projects-feature__shell projects-feature__editor-shell">
-        <header className={'projects-feature__editor-header'}>
-          <h1 className={'projects-feature__title'}>{ADMIN_MEMBER_EDITOR_EDIT_TITLE}</h1>
-        </header>
-        <p className={'projects-feature__status-message'}>사용자 정보를 찾을 수 없습니다.</p>
+      <section className="krds-page krds-page__shell krds-page__editor-shell">
+        <PageHeader title={ADMIN_MEMBER_EDITOR_EDIT_TITLE} />
+        <CriticalAlert alerts={[{ variant: 'info', message: '사용자 정보를 찾을 수 없습니다.' }]} />
       </section>
     );
   }
 
   return (
-    <section className="projects-feature projects-feature__shell projects-feature__editor-shell">
-      <header className={'projects-feature__editor-header'}>
-        <h1 className={'projects-feature__title'}>
-          {isEditMode ? ADMIN_MEMBER_EDITOR_EDIT_TITLE : ADMIN_MEMBER_EDITOR_CREATE_TITLE}
-        </h1>
-      </header>
-      <section
-        className="projects-feature__modal projects-feature__editor-surface"
-        aria-label="사용자 편집 패널"
-      >
+    <section className="krds-page krds-page__shell krds-page__editor-shell">
+      <PageHeader
+        title={isEditMode ? ADMIN_MEMBER_EDITOR_EDIT_TITLE : ADMIN_MEMBER_EDITOR_CREATE_TITLE}
+      />
+      <section className="krds-page__editor-surface" aria-label="사용자 편집 패널">
         <form
-          className="projects-feature__detail-form projects-feature__editor-detail-form"
+          className="krds-page__detail-form krds-page__editor-detail-form"
           onSubmit={handleSubmit}
         >
           <AdminMemberEditorBasicSection

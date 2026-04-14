@@ -1,5 +1,6 @@
 import { type FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { CriticalAlert } from 'krds-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { adminDataClient } from '../../../api/admin';
 import { openAdminTaskSearch } from '../adminTaskSearchLink';
@@ -9,6 +10,8 @@ import { AdminTaskTypeTransferDialog } from './AdminTaskTypeTransferDialog';
 import type { AdminTaskTypeItem, AdminTaskTypePayload } from '../admin.types';
 import { toAdminTaskType } from '../adminApiTransform';
 import { useAlertMessage } from '../../../hooks/useAlertMessage';
+import { PageHeader } from '../../../components/shared';
+import { GlobalLoadingSpinner } from '../../../components/layout';
 
 function createDraft(taskType?: AdminTaskTypeItem): AdminTaskTypePayload {
   if (!taskType) {
@@ -246,34 +249,27 @@ export function AdminTaskTypeEditorPage() {
 
   if (taskTypesQuery.isLoading && isEditMode) {
     return (
-      <section className="projects-feature projects-feature__shell projects-feature__editor-shell" />
+      <section className="krds-page krds-page__shell krds-page__editor-shell">
+        <GlobalLoadingSpinner />
+      </section>
     );
   }
 
   if (isEditMode && !selectedTaskType && !taskTypesQuery.isLoading) {
     return (
-      <section className="projects-feature projects-feature__shell projects-feature__editor-shell">
-        <header className={'projects-feature__editor-header'}>
-          <h1 className={'projects-feature__title'}>업무 타입 수정</h1>
-        </header>
-        <p className={'projects-feature__status-message'}>업무 타입을 찾을 수 없습니다.</p>
+      <section className="krds-page krds-page__shell krds-page__editor-shell">
+        <PageHeader title="업무 타입 수정" />
+        <CriticalAlert alerts={[{ variant: 'info', message: '업무 타입을 찾을 수 없습니다.' }]} />
       </section>
     );
   }
 
   return (
-    <section className="projects-feature projects-feature__shell projects-feature__editor-shell">
-      <header className={'projects-feature__editor-header'}>
-        <h1 className={'projects-feature__title'}>
-          {isEditMode ? '업무 타입 수정' : '업무 타입 추가'}
-        </h1>
-      </header>
-      <section
-        className="projects-feature__modal projects-feature__editor-surface"
-        aria-label="업무 타입 편집 패널"
-      >
+    <section className="krds-page krds-page__shell krds-page__editor-shell">
+      <PageHeader title={isEditMode ? '업무 타입 수정' : '업무 타입 추가'} />
+      <section className="krds-page__editor-surface" aria-label="업무 타입 편집 패널">
         <form
-          className="projects-feature__detail-form projects-feature__editor-detail-form"
+          className="krds-page__detail-form krds-page__editor-detail-form"
           onSubmit={handleSubmit}
         >
           <AdminTaskTypeEditorForm

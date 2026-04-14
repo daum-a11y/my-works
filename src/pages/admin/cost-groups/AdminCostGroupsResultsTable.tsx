@@ -1,4 +1,5 @@
-import { Link } from 'react-router-dom';
+import { Badge } from 'krds-react';
+import { KrdsRouterButtonLink } from '../../../components/shared';
 import { TableEmptyRow } from '../../../components/shared/TableEmptyRow';
 import type { AdminCostGroupItem } from '../admin.types';
 
@@ -8,8 +9,8 @@ interface AdminCostGroupsResultsTableProps {
 
 export function AdminCostGroupsResultsTable({ costGroups }: AdminCostGroupsResultsTableProps) {
   return (
-    <div className="admin-crud-page__table-wrap">
-      <table className="admin-crud-page__table">
+    <div className="krds-page-admin__table-wrap krds-table-wrap">
+      <table className="krds-page-admin__table tbl data">
         <caption className="sr-only">청구그룹 내역</caption>
         <thead>
           <tr>
@@ -21,17 +22,22 @@ export function AdminCostGroupsResultsTable({ costGroups }: AdminCostGroupsResul
         <tbody>
           {costGroups.length ? (
             costGroups.map((item) => (
-              <tr key={item.id} className={item.isActive ? '' : 'admin-crud-page__inactive-row'}>
-                <td className="admin-crud-page__row-key">{item.name}</td>
-                <td>{item.isActive ? '노출' : '숨김'}</td>
+              <tr key={item.id} className={item.isActive ? '' : 'krds-page-admin__inactive-row'}>
+                <td className="krds-page-admin__row-key">{item.name}</td>
                 <td>
-                  <div className="admin-crud-page__actions">
-                    <Link
-                      to={`/admin/cost-group/${item.id}/edit`}
-                      className="admin-crud-page__button admin-crud-page__button--secondary"
-                    >
+                  <Badge
+                    variant="light"
+                    color={item.isActive ? 'success' : 'gray'}
+                    size="small"
+                  >
+                    {item.isActive ? '노출' : '숨김'}
+                  </Badge>
+                </td>
+                <td>
+                  <div className="krds-page-admin__actions">
+                    <KrdsRouterButtonLink to={`/admin/cost-group/${item.id}/edit`}>
                       수정
-                    </Link>
+                    </KrdsRouterButtonLink>
                   </div>
                 </td>
               </tr>

@@ -1,5 +1,5 @@
 import type { FormEvent } from 'react';
-import { Button, Select, TextInput } from 'krds-react';
+import { Accordion, Button, Checkbox, CheckboxGroup, Select, TextInput } from 'krds-react';
 import { EmptyState } from '../../../components/shared/EmptyState';
 import { PageFilterField } from '../../../components/shared/PageFilterField';
 import type {
@@ -61,10 +61,17 @@ export function AdminReportsFilterForm({
   onReset,
   onExport,
 }: AdminReportsFilterFormProps) {
+  const selectedMemberLabel =
+    memberFilterIds.length === members.length && members.length > 0
+      ? '전체'
+      : memberFilterIds.length === 0
+        ? '전체'
+        : `${memberFilterIds.length}명 선택`;
+
   return (
-    <form className={'admin-reports-page__filter-form'} onSubmit={onSubmit}>
-      <div className={'admin-reports-page__date-row'}>
-        <PageFilterField className={'admin-reports-page__filter-field'} label="시작일">
+    <form className={'krds-page-admin__filter-form'} onSubmit={onSubmit}>
+      <div className={'krds-page-admin__date-row'}>
+        <PageFilterField className={'krds-page-admin__filter-field'} label="시작일">
           <TextInput
             id="admin-reports-start-date"
             type="date"
@@ -73,7 +80,7 @@ export function AdminReportsFilterForm({
             onChange={(value) => onFilterField('startDate', value)}
           />
         </PageFilterField>
-        <PageFilterField className={'admin-reports-page__filter-field'} label="종료일">
+        <PageFilterField className={'krds-page-admin__filter-field'} label="종료일">
           <TextInput
             id="admin-reports-end-date"
             type="date"
@@ -84,8 +91,8 @@ export function AdminReportsFilterForm({
         </PageFilterField>
       </div>
 
-      <div className={'admin-reports-page__meta-row'}>
-        <PageFilterField className={'admin-reports-page__filter-field'} label="타입1">
+      <div className={'krds-page-admin__meta-row'}>
+        <PageFilterField className={'krds-page-admin__filter-field'} label="타입1">
           <Select
             id="admin-reports-task-type-1"
             value={filters.taskType1}
@@ -96,7 +103,7 @@ export function AdminReportsFilterForm({
             ]}
           />
         </PageFilterField>
-        <PageFilterField className={'admin-reports-page__filter-field'} label="타입2">
+        <PageFilterField className={'krds-page-admin__filter-field'} label="타입2">
           <Select
             id="admin-reports-task-type-2"
             value={filters.taskType2}
@@ -108,7 +115,7 @@ export function AdminReportsFilterForm({
             ]}
           />
         </PageFilterField>
-        <PageFilterField className={'admin-reports-page__filter-field'} label="청구그룹">
+        <PageFilterField className={'krds-page-admin__filter-field'} label="청구그룹">
           <Select
             id="admin-reports-cost-group"
             value={filters.costGroupId}
@@ -119,7 +126,7 @@ export function AdminReportsFilterForm({
             ]}
           />
         </PageFilterField>
-        <PageFilterField className={'admin-reports-page__filter-field'} label="프로젝트">
+        <PageFilterField className={'krds-page-admin__filter-field'} label="프로젝트">
           <Select
             id="admin-reports-service-name"
             value={filters.projectId}
@@ -133,96 +140,69 @@ export function AdminReportsFilterForm({
         </PageFilterField>
       </div>
 
-      <div className={'admin-reports-page__search-row'}>
-        <div className={'page-filter-field admin-reports-page__filter-field'}>
-          <span className="page-filter-field__label">사용자</span>
-          <div className={'admin-reports-page__member-select'}>
-            <button
-              type="button"
-              className={'admin-reports-page__member-accordion-trigger'}
-              onClick={onMemberFilterOpenToggle}
-              aria-expanded={memberFilterOpen}
-              aria-controls="admin-reports-member-panel"
+      <div className={'krds-page-admin__search-row'}>
+        <PageFilterField className={'krds-page-admin__filter-field'} label="사용자">
+          <div className={'krds-page-admin__member-select'}>
+            <Accordion
+              value={memberFilterOpen ? ['members'] : []}
+              onChange={(values) => {
+                const nextOpen = values.includes('members');
+                if (nextOpen !== memberFilterOpen) {
+                  onMemberFilterOpenToggle();
+                }
+              }}
+              variant="line"
             >
-              <span className={'admin-reports-page__member-accordion-value'}>
-                {memberFilterIds.length === members.length && members.length > 0
-                  ? '전체'
-                  : memberFilterIds.length === 0
-                    ? '전체'
-                    : `${memberFilterIds.length}명 선택`}
-              </span>
-              <span className={'admin-reports-page__member-accordion-arrow'} aria-hidden="true">
-                {memberFilterOpen ? '▲' : '▼'}
-              </span>
-            </button>
-            <div
-              id="admin-reports-member-panel"
-              className={[
-                'admin-reports-page__member-accordion-body',
-                memberFilterOpen ? 'admin-reports-page__member-accordion-body--open' : '',
-              ]
-                .filter(Boolean)
-                .join(' ')}
-            >
-              <div className={'admin-reports-page__member-accordion-inner'}>
-                <div className={'admin-reports-page__member-panel-toolbar'}>
-                  <TextInput
-                    className={'admin-reports-page__member-search-input'}
-                    value={memberSearchInput}
-                    onChange={onMemberSearchInputChange}
-                    placeholder="ID, 이름, 이메일 검색"
-                    aria-label="사용자 검색"
-                  />
-                </div>
-                <div className={'admin-reports-page__member-quick-actions'}>
-                  <Button type="button" variant="tertiary" onClick={onSelectAllMembers}>
-                    전체 선택
-                  </Button>
-                  <Button type="button" variant="tertiary" onClick={onClearAllMembers}>
-                    전체 해제
-                  </Button>
-                </div>
-                <div className={'admin-reports-page__member-checkboxes'}>
-                  {visibleMembers.length === 0 ? (
-                    <EmptyState
-                      className={'admin-reports-page__member-empty-state'}
-                      message="검색 조건에 맞는 사용자가 없습니다."
+              <Accordion.Item value="members">
+                <Accordion.Header>{selectedMemberLabel}</Accordion.Header>
+                <Accordion.Panel>
+                  <div className={'krds-page-admin__member-panel-toolbar'}>
+                    <TextInput
+                      className={'krds-page-admin__member-search-input'}
+                      value={memberSearchInput}
+                      onChange={onMemberSearchInputChange}
+                      placeholder="ID, 이름, 이메일 검색"
+                      aria-label="사용자 검색"
                     />
-                  ) : (
-                    visibleMembers.map((member) => {
-                      const checked = memberFilterIds.includes(member.id);
+                  </div>
+                  <div className={'krds-page-admin__member-quick-actions'}>
+                    <Button type="button" variant="tertiary" onClick={onSelectAllMembers}>
+                      전체 선택
+                    </Button>
+                    <Button type="button" variant="tertiary" onClick={onClearAllMembers}>
+                      전체 해제
+                    </Button>
+                  </div>
+                  <CheckboxGroup className={'krds-page-admin__member-checkboxes'} column>
+                    {visibleMembers.length === 0 ? (
+                      <EmptyState
+                        className={'krds-page-admin__member-empty-state'}
+                        message="검색 조건에 맞는 사용자가 없습니다."
+                      />
+                    ) : (
+                      visibleMembers.map((member) => {
+                        const checked = memberFilterIds.includes(member.id);
 
-                      return (
-                        <label
-                          key={member.id}
-                          className={[
-                            'admin-reports-page__member-checkbox',
-                            checked ? 'admin-reports-page__member-checkbox--selected' : '',
-                          ]
-                            .filter(Boolean)
-                            .join(' ')}
-                        >
-                          <input
-                            type="checkbox"
+                        return (
+                          <Checkbox
+                            key={member.id}
+                            id={`admin-report-member-${member.id}`}
+                            label={`${member.accountId} ${member.name}`}
                             checked={checked}
                             onChange={(event) =>
                               onMemberCheckedChange(member.id, event.target.checked)
                             }
                           />
-                          <span className={'admin-reports-page__member-account'}>
-                            {member.accountId}
-                          </span>
-                          <span className={'admin-reports-page__member-name'}>{member.name}</span>
-                        </label>
-                      );
-                    })
-                  )}
-                </div>
-              </div>
-            </div>
+                        );
+                      })
+                    )}
+                  </CheckboxGroup>
+                </Accordion.Panel>
+              </Accordion.Item>
+            </Accordion>
           </div>
-        </div>
-        <PageFilterField className={'admin-reports-page__filter-field'} label="검색어">
+        </PageFilterField>
+        <PageFilterField className={'krds-page-admin__filter-field'} label="검색어">
           <TextInput
             value={filters.keyword}
             onChange={(value) => onFilterField('keyword', value)}
@@ -231,15 +211,14 @@ export function AdminReportsFilterForm({
         </PageFilterField>
       </div>
 
-      <div className={'admin-reports-page__filter-actions-row'}>
-        <div className={'page-filter-actions'}>
+      <div className={'krds-page-admin__filter-actions-row'}>
+        <div>
           <Button type="submit" variant="primary" disabled={loading || searching}>
             검색
           </Button>
           <Button type="button" variant="secondary" onClick={onReset}>
             초기화
           </Button>
-          <span className={'page-filter-divider'} aria-hidden="true" />
           <Button type="button" variant="secondary" onClick={onExport} disabled={totalTasks === 0}>
             다운로드
           </Button>

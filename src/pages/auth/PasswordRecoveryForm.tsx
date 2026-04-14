@@ -1,7 +1,6 @@
-import type { UseFormHandleSubmit, UseFormRegister } from 'react-hook-form';
-import { AuthLayoutShell, getAuthFeedbackClassName } from '../../components/layout/AuthLayoutShell';
-import { Button } from '../../components/base/Button';
-import { InputField } from '../../components/base/Field';
+import { Controller, type Control, type UseFormHandleSubmit } from 'react-hook-form';
+import { Button, CriticalAlert, TextInput } from 'krds-react';
+import { AuthLayoutShell } from '../../components/layout/AuthLayoutShell';
 
 interface RecoveryFormValues {
   nextPassword: string;
@@ -16,7 +15,7 @@ interface PasswordRecoveryFormProps {
     nextPassword?: { message?: string };
     confirmPassword?: { message?: string };
   };
-  register: UseFormRegister<RecoveryFormValues>;
+  control: Control<RecoveryFormValues>;
   handleSubmit: UseFormHandleSubmit<RecoveryFormValues>;
   onSubmit: (values: RecoveryFormValues) => Promise<void>;
 }
@@ -26,7 +25,7 @@ export function PasswordRecoveryForm({
   noticeMessage,
   isSubmitting,
   errors,
-  register,
+  control,
   handleSubmit,
   onSubmit,
 }: PasswordRecoveryFormProps) {
@@ -36,35 +35,45 @@ export function PasswordRecoveryForm({
       labelledBy="recovery-title"
       description="새 비밀번호를 입력하면 현재 계정의 비밀번호가 즉시 변경됩니다."
       body={
-        <form onSubmit={handleSubmit(onSubmit)} className="auth-layout-shell__form">
-          <InputField
-            label="새 비밀번호"
-            type="password"
-            autoComplete="new-password"
-            errorMessage={errors.nextPassword?.message}
-            disabled={isSubmitting}
-            {...register('nextPassword')}
+        <form onSubmit={handleSubmit(onSubmit)} className="krds-auth-shell__form">
+          <Controller
+            name="nextPassword"
+            control={control}
+            render={({ field }) => (
+              <TextInput
+                {...field}
+                label="새 비밀번호"
+                type="password"
+                autoComplete="new-password"
+                error={errors.nextPassword?.message}
+                disabled={isSubmitting}
+                size="large"
+              />
+            )}
           />
-          <InputField
-            label="새 비밀번호 확인"
-            type="password"
-            autoComplete="new-password"
-            errorMessage={errors.confirmPassword?.message}
-            disabled={isSubmitting}
-            {...register('confirmPassword')}
+          <Controller
+            name="confirmPassword"
+            control={control}
+            render={({ field }) => (
+              <TextInput
+                {...field}
+                label="새 비밀번호 확인"
+                type="password"
+                autoComplete="new-password"
+                error={errors.confirmPassword?.message}
+                disabled={isSubmitting}
+                size="large"
+              />
+            )}
           />
           {noticeMessage ? (
-            <p role="status" className={getAuthFeedbackClassName('success')}>
-              {noticeMessage}
-            </p>
+            <CriticalAlert alerts={[{ variant: 'ok', message: noticeMessage }]} />
           ) : null}
           {errorMessage ? (
-            <p role="alert" className={getAuthFeedbackClassName('danger')}>
-              {errorMessage}
-            </p>
+            <CriticalAlert alerts={[{ variant: 'danger', message: errorMessage }]} />
           ) : null}
-          <div className="auth-layout-shell__actions">
-            <Button type="submit" isDisabled={isSubmitting}>
+          <div className="krds-auth-shell__actions">
+            <Button type="submit" variant="primary" disabled={isSubmitting}>
               비밀번호 변경
             </Button>
           </div>

@@ -1,5 +1,5 @@
-import { Button } from 'krds-react';
-import { Link } from 'react-router-dom';
+import { Button, CriticalAlert } from 'krds-react';
+import { KrdsRouterButtonLink } from '../../../components/shared';
 
 interface AdminServiceGroupEditorActionRowProps {
   isEditMode: boolean;
@@ -31,17 +31,16 @@ export function AdminServiceGroupEditorActionRow({
   onViewTasks,
 }: AdminServiceGroupEditorActionRowProps) {
   return (
-    <div className="projects-feature__form-actions projects-feature__editor-form-actions">
+    <div className="krds-page__form-actions krds-page__editor-form-actions">
       <div
         className={
-          'projects-feature__editor-form-actions projects-feature__editor-form-actions--start'
+          'krds-page__editor-form-actions krds-page__editor-form-actions--start'
         }
       >
         {isEditMode ? (
           <>
             <Button
               type="button"
-              className="projects-feature__delete-button"
               variant="secondary"
               size="medium"
               onClick={onDelete}
@@ -68,19 +67,21 @@ export function AdminServiceGroupEditorActionRow({
               조회
             </Button>
             {transferHelpText || deleteHelpText ? (
-              <p className={'projects-feature__help-text'}>{transferHelpText || deleteHelpText}</p>
+              <CriticalAlert
+                alerts={[{ variant: 'info', message: transferHelpText || deleteHelpText }]}
+              />
             ) : null}
           </>
         ) : null}
       </div>
       <div
         className={
-          'projects-feature__editor-form-actions projects-feature__editor-form-actions--end'
+          'krds-page__editor-form-actions krds-page__editor-form-actions--end'
         }
       >
-        <Link to="/admin/group" className="krds-btn secondary medium">
+        <KrdsRouterButtonLink to="/admin/group">
           취소
-        </Link>
+        </KrdsRouterButtonLink>
         <Button type="submit" variant="primary" size="medium" disabled={savePending || !canSave}>
           저장
         </Button>

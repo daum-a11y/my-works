@@ -7,6 +7,7 @@
 
 - 디자이너 시작하기: <https://www.krds.go.kr/html/site/outline/outline_02.html>
 - 개발자 시작하기: <https://www.krds.go.kr/html/site/outline/outline_03.html>
+- React Storybook: <https://www.krds.go.kr/storybook/react/>
 
 ## 1. 디자이너 시작하기 핵심 구조
 
@@ -73,9 +74,21 @@
 - 토큰 수정은 원본 코드 직접 수정이 아니라 프로젝트 CSS/SCSS에서 CSS variable을 재선언하는 방식이 원칙이다.
 - 토큰 수정 전에는 디자인 토큰 목록과 연관 영향 범위를 먼저 확인하도록 안내한다.
 
-## 3. 스킬 반영 포인트
+## 3. React Storybook 확인 메모
+
+Storybook 정적 인덱스에서 확인한 구조:
+
+- `Components/*` title 아래에 컴포넌트별 `Docs`와 story variant가 노출된다.
+- 각 항목은 `*.stories.tsx`를 import path로 가진다.
+- 다수의 story 항목은 실제 React 컴포넌트 파일 경로인 `componentPath`를 포함한다.
+- story variant는 기본 상태, 크기, 색상, disabled/readOnly, controlled/uncontrolled, keyboard navigation 같은 구현 상태를 확인하는 데 적합하다.
+
+React 구현 질문에서는 이 Storybook을 컴포넌트 API와 상태 예시 확인용으로 사용한다. 단, 컴포넌트 선택 이유와 접근성 판단은 `components.md`, 패턴 판단은 `patterns.md`를 우선한다.
+
+## 4. 스킬 반영 포인트
 
 - 이 두 문서는 `스타일`, `컴포넌트`, `패턴`보다 앞단의 `도입/설치/자산 준비` 문맥을 다룬다.
 - 따라서 `krds-guide`에는 별도 `getting-started.md` 라우팅 축을 두는 편이 맞다.
 - 디자이너 질문은 Figma 라이브러리와 디자인 토큰 사용 흐름을 먼저 설명하고, 구체 구현 단계에서만 `style.md`나 `components.md`로 넘긴다.
 - 개발자 질문은 Kit 설치 경로, 토큰 연계 방식, 원본 수정 금지 원칙을 먼저 설명하고, 세부 UI 구현 단계에서 도메인 참조를 추가로 읽는다.
+- React 컴포넌트 구현 질문은 Storybook을 추가 레퍼런스로 보되, 상위 KRDS 문서의 컴포넌트/패턴/접근성 판단을 대체하지 않도록 한다.

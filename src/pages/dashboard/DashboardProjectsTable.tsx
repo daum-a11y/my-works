@@ -1,4 +1,4 @@
-import { SortableTableHeaderButton, TableEmptyRow } from '../../components/shared';
+import { PageSection, SortableTableHeaderButton, TableEmptyRow } from '../../components/shared';
 import type {
   DashboardProjectRow,
   DashboardProjectsSortState,
@@ -24,12 +24,9 @@ export function DashboardProjectsTable({
   };
 
   return (
-    <section className="dashboard-page__section">
-      <div className="dashboard-page__section-head">
-        <h2 className="dashboard-page__section-title">진행중인 프로젝트</h2>
-      </div>
-      <div className="dashboard-page__table-wrap">
-        <table className="dashboard-page__table">
+    <PageSection title="진행중인 프로젝트">
+      <div className="krds-page__table-wrap krds-table-wrap">
+        <table className="krds-page__table tbl data">
           <caption className="sr-only">진행중인 프로젝트</caption>
           <thead>
             <tr>
@@ -113,6 +110,6 @@ export function DashboardProjectsTable({
           </tbody>
         </table>
       </div>
-    </section>
+    </PageSection>
   );
 }

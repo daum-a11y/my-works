@@ -27,6 +27,7 @@ export function AdminReportEditorServiceFields({
     <div style={gridStyle}>
       {showPlatformSelect ? (
         <Select
+          id="admin-report-editor-platform"
           label="플랫폼"
           value={draft.platform}
           onChange={onPlatformChange}

@@ -1,4 +1,5 @@
 import clsx from 'clsx';
+import { Button, Modal } from 'krds-react';
 import { SortableTableHeaderButton } from '../../components/shared';
 import { MonthlyReportCalendar } from '../../components/shared/MonthlyReportCalendar';
 import { TableEmptyRow } from '../../components/shared/TableEmptyRow';
@@ -50,9 +51,9 @@ export function ResourceSummaryResults({
 
   return (
     <>
-      <section className="resource-summary-page__content-section">
-        <div className="projects-feature__table-wrap">
-          <table className="projects-feature__table">
+      <section className="krds-page-summary__content-section">
+        <div className="krds-page__table-wrap krds-table-wrap">
+          <table className="krds-page__table tbl data">
             <caption className="sr-only">월별 사용자 업무보고 현황</caption>
             <thead>
               <tr>
@@ -85,21 +86,21 @@ export function ResourceSummaryResults({
                       <td>
                         <span
                           className={clsx(
-                            'resource-summary-page__minute-value',
-                            `resource-summary-page__minute-value--${tone}`,
+                            'krds-page-summary__minute-value',
+                            `krds-page-summary__minute-value--${tone}`,
                           )}
                         >
                           {formatSignedMinutes(row.diffMinutes)}
                         </span>
                       </td>
                       <td>
-                        <button
+                        <Button
                           type="button"
-                          className="projects-feature__table-link"
+                          variant="tertiary"
                           onClick={() => onDetailOpen(row.id)}
                         >
                           상세
-                        </button>
+                        </Button>
                       </td>
                     </tr>
                   );
@@ -117,30 +118,21 @@ export function ResourceSummaryResults({
       </section>
 
       {detailOpen && detailMember && monthState ? (
-        <div className="resource-summary-page__modal-scrim" onClick={onDetailClose}>
-          <section
-            className="projects-feature__modal"
-            aria-label="월간 작성 현황"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <div className="projects-feature__modal-header">
-              <div className="resource-summary-page__detail-header-text">
-                <h2 className="projects-feature__detail-title">
-                  {formatMemberLabel(detailMember.accountId, detailMember.name)}
-                </h2>
-                <p className="resource-summary-page__detail-period">{monthState.label}</p>
-              </div>
-              <button
-                type="button"
-                className="projects-feature__icon-button"
-                onClick={onDetailClose}
-                aria-label="상세 닫기"
-              >
-                닫기
-              </button>
-            </div>
-
-            <div className="resource-summary-page__detail-body">
+        <Modal.Root
+          open={detailOpen}
+          onOpenChange={(open) => {
+            if (!open) {
+              onDetailClose();
+            }
+          }}
+          closeOnEsc
+          closeOnOverlayClick
+          size="lg"
+        >
+          <Modal.Content aria-label="월간 작성 현황">
+            <Modal.Header title={formatMemberLabel(detailMember.accountId, detailMember.name)} />
+            <Modal.Body>
+              <p className="krds-page-summary__detail-period">{monthState.label}</p>
               <MonthlyReportCalendar
                 weeks={monthState.weeks}
                 summary={monthState.summary}
@@ -148,11 +140,16 @@ export function ResourceSummaryResults({
                 futureMonth={monthState.futureMonth}
                 todayDay={monthState.todayDay}
                 padded={false}
-                className="resource-summary-page__calendar"
+                className="krds-page-summary__calendar"
               />
-            </div>
-          </section>
-        </div>
+            </Modal.Body>
+            <Modal.Footer>
+              <Button type="button" variant="secondary" onClick={onDetailClose}>
+                닫기
+              </Button>
+            </Modal.Footer>
+          </Modal.Content>
+        </Modal.Root>
       ) : null}
     </>
   );

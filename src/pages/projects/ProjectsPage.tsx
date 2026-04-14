@@ -1,5 +1,5 @@
-import { Link } from 'react-router-dom';
 import { useAuth } from '../../auth/AuthContext';
+import { KrdsRouterButtonLink } from '../../components/shared';
 import { PageHeader } from '../../components/shared/PageHeader';
 import { PagePager } from '../../components/shared/PagePager';
 import { PageResultBar } from '../../components/shared/PageResultBar';
@@ -17,13 +17,13 @@ export function ProjectsPage() {
   const page = useProjectsPage(member);
 
   return (
-    <section className="projects-feature page-shell">
+    <section className="krds-page">
       <PageHeader
         title="프로젝트 관리"
         actions={
-          <Link to="/projects/new" className="krds-btn primary large">
+          <KrdsRouterButtonLink to="/projects/new" variant="primary" size="large">
             프로젝트 추가
-          </Link>
+          </KrdsRouterButtonLink>
         }
       />
 
@@ -52,10 +52,11 @@ export function ProjectsPage() {
               onNext={() =>
                 page.setCurrentPage((current) => Math.min(page.totalPages, current + 1))
               }
+              onPageChange={page.setCurrentPage}
             />
-            <p className="page-result-bar__metric">
-              <span className="page-result-bar__label">총 건수</span>
-              <strong className="page-result-bar__value">
+            <p>
+              <span>총 건수</span>
+              <strong>
                 {numberFormatter.format(page.totalProjects)}건
               </strong>
             </p>
@@ -63,7 +64,6 @@ export function ProjectsPage() {
         }
         controls={
           <PageSizeField
-            aria-label="페이지당 행 수"
             value={page.pageSize}
             options={PROJECTS_PAGE_SIZE_OPTIONS}
             onValueChange={(next) => {

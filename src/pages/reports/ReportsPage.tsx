@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, type FormEvent, type KeyboardEvent } from 'react';
+import { CriticalAlert } from 'krds-react';
 import { useLocation } from 'react-router-dom';
 import { setDocumentTitle } from '../../router/navigation';
 import { getTaskTypeUiRule } from '../../utils/taskType';
@@ -9,6 +10,7 @@ import { ReportsResultsTable } from './ReportsResultsTable';
 import { normalizeDateForInput } from './ReportsPage.utils';
 import { useReportsSlice } from './useReportsSlice';
 import { useAlertMessage } from '../../hooks/useAlertMessage';
+import { PageHeader } from '../../components/shared';
 
 export function ReportsPage() {
   useEffect(() => {
@@ -201,19 +203,15 @@ export function ReportsPage() {
 
   const isListDateValid = /^\d{4}-\d{2}-\d{2}$/.test(currentListDateValue);
   return (
-    <section className="reports-page reports-page--page">
-      <header className="reports-page__hero">
-        <div className="reports-page__hero-main">
-          <h1 className="reports-page__title">업무보고</h1>
-        </div>
-      </header>
+    <section className="krds-page krds-page--page">
+      <PageHeader title="업무보고" />
 
       <ReportsDateNavigator
         currentListDateText={currentListDateText}
         onShiftDate={shiftSelectedDate}
       />
 
-      <div className="reports-page__grid-layout">
+      <div className="krds-page__grid-layout">
         {canEditReports ? (
           <ReportsEditorForm
             mode={isEditMode ? 'edit' : 'create'}
@@ -247,15 +245,18 @@ export function ReportsPage() {
 
         <section
           className={
-            canEditReports ? 'reports-page__panel reports-page__panel--results' : undefined
+            canEditReports ? 'krds-page__panel krds-page__panel--results' : undefined
           }
         >
           {statusMessage && statusKind !== 'error' ? (
-            <p
-              className={`reports-page__status-message reports-page__status-message--${statusKind}`}
-            >
-              {statusMessage}
-            </p>
+            <CriticalAlert
+              alerts={[
+                {
+                  variant: statusKind === 'success' ? 'ok' : 'info',
+                  message: statusMessage,
+                },
+              ]}
+            />
           ) : null}
           <ReportsResultsTable
             rows={dailyReports}

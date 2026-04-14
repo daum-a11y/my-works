@@ -1,10 +1,14 @@
-import { Link } from 'react-router-dom';
-import { SortableTableHeaderButton, TableEmptyRow } from '../../components/shared';
+import { Link as KrdsLink } from 'krds-react';
+import {
+  KrdsRouterTextLink,
+  SortableTableHeaderButton,
+  SubtaskStatusBadge,
+  TableEmptyRow,
+} from '../../components/shared';
 import type { MonitoringStatsRow } from '../../types/domain';
 import type { TaskMonitoringSortState } from './ProjectStatsPage.types';
 import {
   formatMonthLabel,
-  formatTaskStatus,
   monthKeyFromDate,
   monthKeyFromTaskMonth,
 } from './ProjectStatsPage.utils';
@@ -34,20 +38,20 @@ export function TaskMonitoringResultsTable({
   };
 
   return (
-    <div className="stats-page__table-wrap">
-      <table className="stats-page__table">
+    <div className="krds-page__table-wrap krds-table-wrap">
+      <table className="krds-page__table tbl data">
         <caption className="sr-only">필터링된 태스크 현황 목록</caption>
         <colgroup>
-          <col className="stats-page__table-col stats-page__table-col--month" />
-          <col className="stats-page__table-col stats-page__table-col--group" />
-          <col className="stats-page__table-col stats-page__table-col--type" />
-          <col className="stats-page__table-col stats-page__table-col--group" />
-          <col className="stats-page__table-col stats-page__table-col--platform" />
-          <col className="stats-page__table-col stats-page__table-col--project" />
-          <col className="stats-page__table-col stats-page__table-col--project" />
-          <col className="stats-page__table-col stats-page__table-col--group" />
-          <col className="stats-page__table-col stats-page__table-col--group" />
-          <col className="stats-page__table-col stats-page__table-col--report" />
+          <col className="krds-page__table-col krds-page__table-col--month" />
+          <col className="krds-page__table-col krds-page__table-col--group" />
+          <col className="krds-page__table-col krds-page__table-col--type" />
+          <col className="krds-page__table-col krds-page__table-col--group" />
+          <col className="krds-page__table-col krds-page__table-col--platform" />
+          <col className="krds-page__table-col krds-page__table-col--project" />
+          <col className="krds-page__table-col krds-page__table-col--project" />
+          <col className="krds-page__table-col krds-page__table-col--group" />
+          <col className="krds-page__table-col krds-page__table-col--group" />
+          <col className="krds-page__table-col krds-page__table-col--report" />
         </colgroup>
         <thead>
           <tr>
@@ -136,9 +140,9 @@ export function TaskMonitoringResultsTable({
               <td>{row.platform || '-'}</td>
               <td>
                 {row.projectId && row.projectName ? (
-                  <Link to={`/projects/${row.projectId}/edit`} className="stats-page__link">
+                  <KrdsRouterTextLink to={`/projects/${row.projectId}/edit`}>
                     {row.projectName}
-                  </Link>
+                  </KrdsRouterTextLink>
                 ) : (
                   row.projectName || '-'
                 )}
@@ -146,20 +150,13 @@ export function TaskMonitoringResultsTable({
               <td>{row.title || '-'}</td>
               <td>{row.ownerDisplay || '-'}</td>
               <td>
-                <span className="stats-page__status-badge" data-status={row.taskStatus}>
-                  {formatTaskStatus(row.taskStatus)}
-                </span>
+                <SubtaskStatusBadge status={row.taskStatus} />
               </td>
               <td>
                 {row.reportUrl ? (
-                  <a
-                    href={row.reportUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="stats-page__link"
-                  >
+                  <KrdsLink href={row.reportUrl} external>
                     링크
-                  </a>
+                  </KrdsLink>
                 ) : (
                   '-'
                 )}

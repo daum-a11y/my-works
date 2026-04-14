@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from 'react-router-dom';
-import { Button } from '../../components/base/Button';
-import { InputField } from '../../components/base/Field';
-import { AuthLayoutShell, getAuthFeedbackClassName } from '../../components/layout/AuthLayoutShell';
+import { Button, CriticalAlert, TextInput } from 'krds-react';
+import { AuthLayoutShell } from '../../components/layout/AuthLayoutShell';
 import { isSupabaseConfigured } from '../../config/env';
 import { useAuth } from '../../auth/AuthContext';
 
@@ -21,7 +20,7 @@ export function ForgotPasswordPage() {
   const [errorMessage, setErrorMessage] = useState('');
   const [noticeMessage, setNoticeMessage] = useState('');
   const {
-    register,
+    control,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<ForgotPasswordValues>({
@@ -52,34 +51,39 @@ export function ForgotPasswordPage() {
               setErrorMessage(error instanceof Error ? error.message : '메일 발송 실패.');
             }
           })}
-          className="auth-layout-shell__form"
+          className="krds-auth-shell__form"
         >
-          <InputField
-            label="이메일"
-            type="email"
-            autoComplete="username"
-            errorMessage={errors.email?.message}
-            disabled={!isSupabaseConfigured || isSubmitting}
-            {...register('email')}
+          <Controller
+            name="email"
+            control={control}
+            render={({ field }) => (
+              <TextInput
+                {...field}
+                label="이메일"
+                type="email"
+                autoComplete="username"
+                error={errors.email?.message}
+                disabled={!isSupabaseConfigured || isSubmitting}
+                size="large"
+              />
+            )}
           />
           {noticeMessage ? (
-            <div role="status" className={getAuthFeedbackClassName('success')}>
-              <strong>메일 발송 완료</strong>
-              <p>{noticeMessage}</p>
-            </div>
+            <CriticalAlert
+              alerts={[{ variant: 'ok', message: `메일 발송 완료. ${noticeMessage}` }]}
+            />
           ) : null}
           {errorMessage ? (
-            <div role="alert" className={getAuthFeedbackClassName('danger')}>
-              <strong>입력 확인 필요</strong>
-              <p>{errorMessage}</p>
-            </div>
+            <CriticalAlert
+              alerts={[{ variant: 'danger', message: `입력 확인 필요. ${errorMessage}` }]}
+            />
           ) : null}
-          <div className="auth-layout-shell__actions">
-            <Button type="submit" isDisabled={!isSupabaseConfigured || isSubmitting}>
+          <div className="krds-auth-shell__actions">
+            <Button type="submit" variant="primary" disabled={!isSupabaseConfigured || isSubmitting}>
               재설정 메일 보내기
             </Button>
-            <div className="auth-layout-shell__action-divider">
-              <Button type="button" tone="ghost" onPress={() => navigate('/login')}>
+            <div className="krds-auth-shell__action-divider">
+              <Button type="button" variant="tertiary" onClick={() => navigate('/login')}>
                 로그인으로 돌아가기
               </Button>
             </div>

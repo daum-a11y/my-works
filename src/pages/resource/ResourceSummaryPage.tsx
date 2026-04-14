@@ -1,7 +1,6 @@
 import { type FormEvent, useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import clsx from 'clsx';
-import { Button, TextInput } from 'krds-react';
+import { Button, Checkbox, TextInput } from 'krds-react';
 import { setDocumentTitle } from '../../router/navigation';
 import { PageFilterBar } from '../../components/shared/PageFilterBar';
 import { PageFilterField } from '../../components/shared/PageFilterField';
@@ -190,39 +189,31 @@ export function ResourceSummaryPage() {
   };
 
   return (
-    <section className="projects-feature resource-summary-page page-shell">
+    <section className="krds-page krds-page-summary">
       <PageHeader title="업무보고 현황" />
 
       <PageSection title="필터">
         <form onSubmit={handleSearchSubmit}>
           <PageFilterBar
             actions={
-              <div className="page-filter-actions">
+              <div>
                 <Button type="submit" variant="primary">
                   검색
                 </Button>
               </div>
             }
           >
-            <PageFilterField className="projects-feature__filter-field" label="기간">
+            <PageFilterField className="krds-page__filter-field" label="기간">
               <TextInput type="month" value={monthDraft} onChange={setMonthDraft} />
             </PageFilterField>
-            <div
-              className={clsx(
-                'projects-feature__filter-field',
-                'resource-summary-page__checkbox-field',
-              )}
-            >
-              <span>미작성자만 보기</span>
-              <label className="resource-summary-page__checkbox-label">
-                <input
-                  type="checkbox"
-                  checked={missingOnlyDraft}
-                  onChange={(event) => setMissingOnlyDraft(event.target.checked)}
-                />
-                <span>미작성자만 보기</span>
-              </label>
-            </div>
+            <PageFilterField className="krds-page__filter-field" label="미작성자">
+              <Checkbox
+                id="resource-summary-missing-only"
+                label="미작성자만 보기"
+                checked={missingOnlyDraft}
+                onChange={(event) => setMissingOnlyDraft(event.target.checked)}
+              />
+            </PageFilterField>
           </PageFilterBar>
         </form>
       </PageSection>

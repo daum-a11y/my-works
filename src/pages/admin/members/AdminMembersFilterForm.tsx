@@ -21,7 +21,7 @@ export function AdminMembersFilterForm({
     <form onSubmit={onSubmit}>
       <PageFilterBar
         actions={
-          <div className={'page-filter-actions'}>
+          <div>
             <Button type="submit" variant="primary">
               검색
             </Button>
@@ -31,8 +31,9 @@ export function AdminMembersFilterForm({
           </div>
         }
       >
-        <PageFilterField className={'admin-members-page__filter-field'} label="활성 여부">
+        <PageFilterField className={'krds-page-admin__filter-field'} label="활성 여부">
           <Select
+            id="admin-members-status"
             value={filterDraft.status}
             onChange={(value) =>
               onFilterDraftChange({
@@ -47,7 +48,7 @@ export function AdminMembersFilterForm({
             ]}
           />
         </PageFilterField>
-        <PageFilterField className={'admin-members-page__filter-field'} label="검색어">
+        <PageFilterField className={'krds-page-admin__filter-field'} label="검색어">
           <TextInput
             value={filterDraft.keyword}
             onChange={(value) => onFilterDraftChange({ ...filterDraft, keyword: value })}

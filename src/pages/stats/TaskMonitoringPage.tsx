@@ -145,7 +145,7 @@ export function TaskMonitoringPage() {
   };
 
   return (
-    <div className="stats-page page-shell">
+    <div className="krds-page">
       <PageHeader title={TASK_MONITORING_PAGE_TITLE} />
 
       <PageSection title="필터">

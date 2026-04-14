@@ -1,4 +1,5 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { Button } from 'krds-react';
 
 interface ReportsDateNavigatorProps {
   currentListDateText: string;
@@ -40,40 +41,40 @@ export function ReportsDateNavigator({
   const { compact, detail } = formatDateParts(currentListDateText);
 
   return (
-    <section className="reports-page__date-navigator">
-      <div className="reports-page__date-context">
-        <p className="reports-page__date-text">
+    <section className="krds-page__date-navigator">
+      <div className="krds-page__date-context">
+        <p className="krds-page__date-text">
           <strong>{compact}</strong>
           {detail ? <span>{detail}</span> : null}
         </p>
-        <div className="reports-page__date-actions" role="group" aria-label="업무보고 날짜 이동">
-          <button
+        <div className="krds-page__date-actions" role="group" aria-label="업무보고 날짜 이동">
+          <Button
             type="button"
-            className="reports-page__button reports-page__button--date reports-page__button--date-icon"
+            variant="tertiary"
             onClick={() => onShiftDate(-1)}
             aria-label="이전일 조회"
           >
             <ChevronLeft size={16} strokeWidth={2.2} aria-hidden="true" />
             <span className="sr-only">이전일</span>
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
-            className="reports-page__button reports-page__button--date"
+            variant="tertiary"
             onClick={() => onShiftDate(0)}
             aria-label="오늘 조회"
             aria-pressed={isToday}
           >
-            Today
-          </button>
-          <button
+            오늘
+          </Button>
+          <Button
             type="button"
-            className="reports-page__button reports-page__button--date reports-page__button--date-icon"
+            variant="tertiary"
             onClick={() => onShiftDate(1)}
             aria-label="다음일 조회"
           >
             <ChevronRight size={16} strokeWidth={2.2} aria-hidden="true" />
             <span className="sr-only">다음일</span>
-          </button>
+          </Button>
         </div>
       </div>
     </section>

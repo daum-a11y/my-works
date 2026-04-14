@@ -2,8 +2,8 @@ import { Outlet } from 'react-router-dom';
 
 export function ResourceLayout() {
   return (
-    <section className="resource-page page-shell">
-      <div className="resource-page__content">
+    <section className="krds-page">
+      <div className="krds-page__content">
         <Outlet />
       </div>
     </section>

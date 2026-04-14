@@ -29,14 +29,14 @@ export function ResourceServiceYearRows({ row, fold }: ResourceServiceYearRowsPr
             ))}
             <tr
               key={`${row.year}-${month.month}-sum`}
-              className="resource-page__summary-strong-row"
+              className="krds-page__summary-strong-row"
             >
               <td colSpan={3}>{month.month}월 합계</td>
               <td>{formatMm(month.totalMinutes, month.workingDays)}</td>
             </tr>
           </Fragment>
         ))}
-        <tr className="resource-page__summary-strong-row">
+        <tr className="krds-page__summary-strong-row">
           <td colSpan={4}>{row.year}년 합계</td>
           <td>{formatMm(row.yearTotalMinutes, 21.73)}</td>
         </tr>
@@ -49,7 +49,7 @@ export function ResourceServiceYearRows({ row, fold }: ResourceServiceYearRowsPr
       {row.months.map((month) => (
         <ResourceServiceMonthDetailRows key={`${row.year}-${month.month}`} month={month} />
       ))}
-      <tr className="resource-page__summary-strong-row">
+      <tr className="krds-page__summary-strong-row">
         <td colSpan={4}>{row.year}년 합계</td>
         <td>{formatMm(row.yearTotalMinutes, 21.73)}</td>
       </tr>
@@ -86,7 +86,7 @@ function ResourceServiceMonthDetailRows({ month }: ResourceServiceMonthDetailRow
           </tr>
         )),
       )}
-      <tr className="resource-page__summary-strong-row">
+      <tr className="krds-page__summary-strong-row">
         <td colSpan={3}>{month.month}월 합계</td>
         <td>{formatMm(month.totalMinutes, month.workingDays)}</td>
       </tr>

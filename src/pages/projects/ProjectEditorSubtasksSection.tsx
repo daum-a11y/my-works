@@ -1,6 +1,6 @@
 import { Fragment, useState, type FormEvent } from 'react';
-import { Button, Select, TextInput, Textarea } from 'krds-react';
-import { EmptyState } from '../../components/shared/EmptyState';
+import { Button, Link as KrdsLink, Select, TextInput, Textarea } from 'krds-react';
+import { EmptyState, PageSection, SubtaskStatusBadge } from '../../components/shared';
 import { subtaskStatusOptions, type ProjectSubtask, type SubtaskStatus } from '../../types/domain';
 import type { SubtaskFormState } from './ProjectEditorPage.types';
 
@@ -44,31 +44,32 @@ export function ProjectEditorSubtasksSection({
   const showSubtaskTable = subtaskAddOpen || selectedProjectSubtasks.length > 0;
 
   return (
-    <section className={'projects-feature__subtask-section'}>
-      <div className={'projects-feature__section-header'}>
-        <h2 className={'projects-feature__section-title'}>태스크 목록</h2>
+    <PageSection
+      title="태스크 목록"
+      className={'krds-page__subtask-section'}
+      actions={
         <Button
           type="button"
-          className={'projects-feature__button projects-feature__button--secondary'}
           variant="secondary"
           onClick={onToggleAdd}
           aria-expanded={subtaskAddOpen}
         >
           {subtaskAddOpen ? '추가 취소' : '태스크 추가'}
         </Button>
-      </div>
+      }
+    >
 
       {subtaskAddOpen && newSubtaskDraft ? (
         <form
           id={addFormId}
-          className={'projects-feature__subtask-add-form'}
+          className={'krds-page__subtask-add-form'}
           onSubmit={onAddSubmit}
         />
       ) : null}
 
       {showSubtaskTable ? (
-        <div className={'projects-feature__subtask-table-wrap'}>
-          <table className={'projects-feature__subtask-table'}>
+        <div className={'krds-page__subtask-table-wrap krds-table-wrap'}>
+          <table className={'krds-page__subtask-table tbl data'}>
             <caption className={'sr-only'}>태스크 리스트</caption>
             <thead>
               <tr>
@@ -86,13 +87,11 @@ export function ProjectEditorSubtasksSection({
             </thead>
             <tbody>
               {subtaskAddOpen && newSubtaskDraft ? (
-                <tr className={'projects-feature__subtask-add-row'}>
+                <tr className={'krds-page__subtask-add-row'}>
                   <td>
-                    <label className={'sr-only'} htmlFor="new-subtask-date">
-                      작업일
-                    </label>
                     <TextInput
                       id="new-subtask-date"
+                      label="작업일"
                       form={addFormId}
                       type="date"
                       value={newSubtaskDraft.taskDate}
@@ -101,23 +100,19 @@ export function ProjectEditorSubtasksSection({
                     />
                   </td>
                   <td>
-                    <div className={'projects-feature__subtask-title-stack'}>
-                      <label className={'sr-only'} htmlFor="new-subtask-title">
-                        태스크명
-                      </label>
+                    <div className={'krds-page__subtask-title-stack'}>
                       <TextInput
                         id="new-subtask-title"
+                        label="태스크명"
                         form={addFormId}
                         value={newSubtaskDraft.title}
                         placeholder="태스크명"
                         onChange={(value) => onNewSubtaskDraftChange({ title: value })}
                         style={{ width: '100%' }}
                       />
-                      <label className={'sr-only'} htmlFor="new-subtask-note">
-                        비고
-                      </label>
                       <Textarea
                         id="new-subtask-note"
+                        label="비고"
                         form={addFormId}
                         value={newSubtaskDraft.note}
                         placeholder="비고"
@@ -128,11 +123,9 @@ export function ProjectEditorSubtasksSection({
                     </div>
                   </td>
                   <td>
-                    <label className={'sr-only'} htmlFor="new-subtask-url">
-                      보고서 URL
-                    </label>
                     <TextInput
                       id="new-subtask-url"
+                      label="보고서 URL"
                       form={addFormId}
                       value={newSubtaskDraft.url}
                       placeholder="보고서 URL"
@@ -141,11 +134,9 @@ export function ProjectEditorSubtasksSection({
                     />
                   </td>
                   <td>
-                    <label className={'sr-only'} htmlFor="new-subtask-owner">
-                      담당자
-                    </label>
                     <Select
                       id="new-subtask-owner"
+                      label="담당자"
                       form={addFormId}
                       value={newSubtaskDraft.ownerMemberId}
                       onChange={(value) => onNewSubtaskDraftChange({ ownerMemberId: value })}
@@ -160,11 +151,9 @@ export function ProjectEditorSubtasksSection({
                     />
                   </td>
                   <td>
-                    <label className={'sr-only'} htmlFor="new-subtask-status">
-                      상태
-                    </label>
                     <Select
                       id="new-subtask-status"
+                      label="상태"
                       form={addFormId}
                       value={newSubtaskDraft.taskStatus}
                       onChange={(value) =>
@@ -180,11 +169,10 @@ export function ProjectEditorSubtasksSection({
                     />
                   </td>
                   <td>
-                    <div className={'projects-feature__subtask-table-actions'}>
+                    <div className={'krds-page__subtask-table-actions'}>
                       <Button
                         type="submit"
                         form={addFormId}
-                        className={'projects-feature__button projects-feature__button--secondary'}
                         variant="secondary"
                         disabled={savePending}
                       >
@@ -208,10 +196,10 @@ export function ProjectEditorSubtasksSection({
                     <tr>
                       <td>{subtask.taskDate || '-'}</td>
                       <td>
-                        <div className={'projects-feature__subtask-read-title'}>
+                        <div className={'krds-page__subtask-read-title'}>
                           <strong>{subtask.title}</strong>
                           {subtask.note ? (
-                            <span className={'projects-feature__subtask-read-note'}>
+                            <span className={'krds-page__subtask-read-note'}>
                               {subtask.note}
                             </span>
                           ) : null}
@@ -219,32 +207,22 @@ export function ProjectEditorSubtasksSection({
                       </td>
                       <td>
                         {subtask.url ? (
-                          <a
-                            href={subtask.url}
-                            target="_blank"
-                            rel="noreferrer"
-                            className={'projects-feature__table-link'}
-                          >
+                          <KrdsLink href={subtask.url} external>
                             링크
-                          </a>
+                          </KrdsLink>
                         ) : (
                           '-'
                         )}
                       </td>
                       <td>{ownerText}</td>
                       <td>
-                        <span className="status-badge" data-status={subtask.taskStatus}>
-                          {subtask.taskStatus}
-                        </span>
+                        <SubtaskStatusBadge status={subtask.taskStatus} />
                       </td>
                       <td>
-                        <div className={'projects-feature__subtask-table-actions'}>
+                        <div className={'krds-page__subtask-table-actions'}>
                           {canEdit ? (
                             <Button
                               type="button"
-                              className={
-                                'projects-feature__button projects-feature__button--secondary'
-                              }
                               variant="secondary"
                               aria-expanded={isEditing}
                               onClick={() => {
@@ -261,13 +239,11 @@ export function ProjectEditorSubtasksSection({
                       </td>
                     </tr>
                     {isEditing ? (
-                      <tr className={'projects-feature__subtask-edit-row'}>
+                      <tr className={'krds-page__subtask-edit-row'}>
                         <td>
-                          <label className={'sr-only'} htmlFor={`subtask-date-${subtask.id}`}>
-                            작업일
-                          </label>
                           <TextInput
                             id={`subtask-date-${subtask.id}`}
+                            label="작업일"
                             type="date"
                             value={draft.taskDate}
                             onChange={(value) =>
@@ -279,23 +255,19 @@ export function ProjectEditorSubtasksSection({
                           />
                         </td>
                         <td>
-                          <div className={'projects-feature__subtask-title-stack'}>
-                            <label className={'sr-only'} htmlFor={`subtask-title-${subtask.id}`}>
-                              태스크명
-                            </label>
+                          <div className={'krds-page__subtask-title-stack'}>
                             <TextInput
                               id={`subtask-title-${subtask.id}`}
+                              label="태스크명"
                               value={draft.title}
                               onChange={(value) =>
                                 onSubtaskDraftChange(subtask.id, { title: value })
                               }
                               style={{ width: '100%' }}
                             />
-                            <label className={'sr-only'} htmlFor={`subtask-note-${subtask.id}`}>
-                              비고
-                            </label>
                             <Textarea
                               id={`subtask-note-${subtask.id}`}
+                              label="비고"
                               value={draft.note}
                               rows={3}
                               onChange={(value) => onSubtaskDraftChange(subtask.id, { note: value })}
@@ -304,22 +276,18 @@ export function ProjectEditorSubtasksSection({
                           </div>
                         </td>
                         <td>
-                          <label className={'sr-only'} htmlFor={`subtask-url-${subtask.id}`}>
-                            보고서 URL
-                          </label>
                           <TextInput
                             id={`subtask-url-${subtask.id}`}
+                            label="보고서 URL"
                             value={draft.url}
                             onChange={(value) => onSubtaskDraftChange(subtask.id, { url: value })}
                             style={{ width: '100%' }}
                           />
                         </td>
                         <td>
-                          <label className={'sr-only'} htmlFor={`subtask-owner-${subtask.id}`}>
-                            담당자
-                          </label>
                           <Select
                             id={`subtask-owner-${subtask.id}`}
+                            label="담당자"
                             value={draft.ownerMemberId}
                             onChange={(value) =>
                               onSubtaskDraftChange(subtask.id, {
@@ -337,11 +305,9 @@ export function ProjectEditorSubtasksSection({
                           />
                         </td>
                         <td>
-                          <label className={'sr-only'} htmlFor={`subtask-status-${subtask.id}`}>
-                            상태
-                          </label>
                           <Select
                             id={`subtask-status-${subtask.id}`}
+                            label="상태"
                             value={draft.taskStatus}
                             onChange={(value) =>
                               onSubtaskDraftChange(subtask.id, {
@@ -356,12 +322,9 @@ export function ProjectEditorSubtasksSection({
                           />
                         </td>
                         <td>
-                          <div className={'projects-feature__subtask-table-actions'}>
+                          <div className={'krds-page__subtask-table-actions'}>
                             <Button
                               type="button"
-                              className={
-                                'projects-feature__button projects-feature__button--secondary'
-                              }
                               variant="secondary"
                               aria-label="태스크 저장"
                               disabled={savePending}
@@ -371,9 +334,6 @@ export function ProjectEditorSubtasksSection({
                             </Button>
                             <Button
                               type="button"
-                              className={
-                                'projects-feature__button projects-feature__button--secondary'
-                              }
                               variant="secondary"
                               onClick={() => {
                                 onSubtaskDraftChange(subtask.id, toSubtaskDraft(subtask));
@@ -385,7 +345,6 @@ export function ProjectEditorSubtasksSection({
                             {canDeleteSubtask(subtask) ? (
                               <Button
                                 type="button"
-                                className={'projects-feature__delete-button'}
                                 variant="secondary"
                                 aria-label="태스크 삭제"
                                 onClick={() => onSubtaskDelete(subtask)}
@@ -410,6 +369,6 @@ export function ProjectEditorSubtasksSection({
           }
         />
       )}
-    </section>
+    </PageSection>
   );
 }

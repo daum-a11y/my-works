@@ -40,8 +40,9 @@ export function AdminReportEditorReportTabFields({
   onProjectChange,
 }: AdminReportEditorReportTabFieldsProps) {
   return (
-    <div className={'reports-page__form-grid'} style={gridStyle}>
+    <div className={'krds-page__form-grid'} style={gridStyle}>
       <Select
+        id="admin-report-editor-report-cost-group"
         label="청구그룹"
         value={draft.costGroupId}
         onChange={onCostGroupChange}
@@ -70,6 +71,7 @@ export function AdminReportEditorReportTabFields({
       </div>
 
       <Select
+        id="admin-report-editor-report-project"
         label="프로젝트"
         value={draft.projectId}
         onChange={onProjectChange}

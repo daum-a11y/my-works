@@ -1,5 +1,5 @@
-import { Button } from 'krds-react';
-import { Link } from 'react-router-dom';
+import { Button, CriticalAlert } from 'krds-react';
+import { KrdsRouterButtonLink } from '../../../components/shared';
 
 interface AdminTaskTypeEditorActionRowProps {
   isEditMode: boolean;
@@ -29,17 +29,16 @@ export function AdminTaskTypeEditorActionRow({
   onViewTasks,
 }: AdminTaskTypeEditorActionRowProps) {
   return (
-    <div className="projects-feature__form-actions projects-feature__editor-form-actions">
+    <div className="krds-page__form-actions krds-page__editor-form-actions">
       <div
         className={
-          'projects-feature__editor-form-actions projects-feature__editor-form-actions--start'
+          'krds-page__editor-form-actions krds-page__editor-form-actions--start'
         }
       >
         {isEditMode ? (
           <>
             <Button
               type="button"
-              className="projects-feature__delete-button"
               variant="secondary"
               size="medium"
               onClick={onDelete}
@@ -66,19 +65,21 @@ export function AdminTaskTypeEditorActionRow({
               조회
             </Button>
             {deleteHelpText || transferHelpText ? (
-              <p className={'projects-feature__help-text'}>{deleteHelpText || transferHelpText}</p>
+              <CriticalAlert
+                alerts={[{ variant: 'info', message: deleteHelpText || transferHelpText }]}
+              />
             ) : null}
           </>
         ) : null}
       </div>
       <div
         className={
-          'projects-feature__editor-form-actions projects-feature__editor-form-actions--end'
+          'krds-page__editor-form-actions krds-page__editor-form-actions--end'
         }
       >
-        <Link to="/admin/type" className="krds-btn secondary medium">
+        <KrdsRouterButtonLink to="/admin/type">
           취소
-        </Link>
+        </KrdsRouterButtonLink>
         <Button type="submit" variant="primary" size="medium" disabled={savePending}>
           저장
         </Button>

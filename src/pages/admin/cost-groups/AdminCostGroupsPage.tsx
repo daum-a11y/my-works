@@ -1,8 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Link, useLocation } from 'react-router-dom';
+import { Button, CriticalAlert } from 'krds-react';
+import { useLocation } from 'react-router-dom';
 import { setDocumentTitle } from '../../../router/navigation';
 import { AdminOrderDialog } from '../../../components/admin/AdminOrderDialog';
+import { PageHeader } from '../../../components/shared/PageHeader';
+import { KrdsRouterButtonLink } from '../../../components/shared';
 import { adminDataClient } from '../../../api/admin';
 import { AdminCostGroupsResultsTable } from './AdminCostGroupsResultsTable';
 import { toAdminCostGroup } from '../adminApiTransform';
@@ -56,29 +59,29 @@ export function AdminCostGroupsPage() {
   useAlertMessage(errorMessage);
 
   return (
-    <section className="admin-crud-page admin-crud-page--page">
-      <header className="admin-crud-page__page-header">
-        <div className="admin-crud-page__page-header-top">
-          <div className="admin-crud-page__page-heading">
-            <h1 className="admin-crud-page__title">청구그룹 관리</h1>
-          </div>
-          <div className="admin-crud-page__page-header-actions">
-            <button
+    <section className="krds-page-admin krds-page-admin--page">
+      <PageHeader
+        title="청구그룹 관리"
+        actions={
+          <>
+            <Button
               type="button"
-              className="admin-crud-page__header-action"
+              variant="secondary"
               onClick={() => setOrderDialogOpen(true)}
               disabled={!costGroups.length}
             >
               순서변경
-            </button>
-            <Link to="/admin/cost-group/new" className="admin-crud-page__header-action">
+            </Button>
+            <KrdsRouterButtonLink to="/admin/cost-group/new" variant="primary" size="large">
               청구그룹 추가
-            </Link>
-          </div>
-        </div>
-      </header>
+            </KrdsRouterButtonLink>
+          </>
+        }
+      />
 
-      {statusMessage ? <p className="admin-crud-page__helper-text">{statusMessage}</p> : null}
+      {statusMessage ? (
+        <CriticalAlert alerts={[{ variant: 'ok', message: statusMessage }]} />
+      ) : null}
 
       <AdminCostGroupsResultsTable costGroups={costGroups} />
 
@@ -88,6 +91,7 @@ export function AdminCostGroupsPage() {
           id: item.id,
           title: item.name,
           badge: item.isActive ? '노출' : '숨김',
+          badgeColor: item.isActive ? 'success' : 'gray',
           inactive: !item.isActive,
         }))}
         isOpen={orderDialogOpen}

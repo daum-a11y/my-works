@@ -25,13 +25,13 @@ export function PageHeader({
   ...props
 }: PageHeaderProps) {
   return (
-    <header className={clsx('page-header', `page-header--${align}`, className)} {...props}>
-      <div className="page-header__main">
-        {kicker ? <p className="page-header__kicker">{kicker}</p> : null}
-        <h1 className="page-header__title">{title}</h1>
-        {description ? <div className="page-header__description">{description}</div> : null}
+    <header className={clsx('krds-page-header', className)} data-align={align} {...props}>
+      <div className="krds-page-header__text">
+        {kicker ? <p className="krds-page-header__kicker">{kicker}</p> : null}
+        <h1 className="krds-page-header__title">{title}</h1>
+        {description ? <div className="krds-page-header__description">{description}</div> : null}
       </div>
-      {actions ? <div className="page-header__actions">{actions}</div> : null}
+      {actions ? <div className="krds-page-header__actions">{actions}</div> : null}
     </header>
   );
 }

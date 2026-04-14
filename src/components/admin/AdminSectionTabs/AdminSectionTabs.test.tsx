@@ -4,14 +4,14 @@ import { describe, expect, it } from 'vitest';
 import { AdminSectionTabs } from './AdminSectionTabs';
 
 describe('AdminSectionTabs', () => {
-  it('marks the active tab with aria-current', () => {
+  it('marks the active tab as selected', () => {
     render(
       <MemoryRouter>
         <AdminSectionTabs active="platforms" />
       </MemoryRouter>,
     );
 
-    expect(screen.getByRole('link', { name: '플랫폼' })).toHaveAttribute('aria-current', 'page');
-    expect(screen.getByRole('link', { name: '요약' })).not.toHaveAttribute('aria-current');
+    expect(screen.getByRole('tab', { name: /플랫폼/ })).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByRole('tab', { name: '요약' })).toHaveAttribute('aria-selected', 'false');
   });
 });

@@ -51,7 +51,7 @@ export function DistributionTooltip({
   }
 
   return (
-    <div className="resource-page__chart-tooltip">
+    <div className="krds-page__chart-tooltip">
       <strong>{item.label}</strong>
       <span>{item.mm} MM</span>
     </div>

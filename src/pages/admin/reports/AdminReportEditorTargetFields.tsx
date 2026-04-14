@@ -49,6 +49,7 @@ export function AdminReportEditorTargetFields({
     <div style={gridStyle}>
       {showProjectSelect && !isProjectLinkedTab ? (
         <Select
+          id="admin-report-editor-target-project"
           label="프로젝트"
           value={draft.projectId}
           onChange={onProjectChange}
@@ -69,6 +70,7 @@ export function AdminReportEditorTargetFields({
 
       {showSubtaskSelect ? (
         <Select
+          id="admin-report-editor-target-subtask"
           label={isProjectLinkedTab ? '태스크명' : '프로젝트 태스크'}
           value={draft.subtaskId}
           onChange={onSubtaskChange}
@@ -86,6 +88,7 @@ export function AdminReportEditorTargetFields({
       {showManualSubtaskName ? (
         isVacationType ? (
           <Select
+            id="admin-report-editor-vacation-type"
             label={manualSubtaskLabel}
             value={draft.manualSubtaskName}
             onChange={onVacationTypeChange}

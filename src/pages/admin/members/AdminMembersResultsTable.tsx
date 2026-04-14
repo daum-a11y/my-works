@@ -1,4 +1,5 @@
 import { SortableTableHeaderButton, TableEmptyRow } from '../../../components/shared';
+import { GlobalLoadingSpinner } from '../../../components/layout';
 import type { MemberAdminItem } from '../admin.types';
 import { AdminMemberRow } from './AdminMemberRow';
 import type { AdminMembersSortState } from './AdminMembersPage.sort';
@@ -25,8 +26,8 @@ export function AdminMembersResultsTable({
   };
 
   return (
-    <div className={'admin-members-page__table-wrap'}>
-      <table className={'admin-members-page__table'}>
+    <div className={'krds-page-admin__table-wrap krds-table-wrap'}>
+      <table className={'krds-page-admin__table tbl data'}>
         <caption className="sr-only">사용자 내역</caption>
         <thead>
           <tr>
@@ -106,6 +107,13 @@ export function AdminMembersResultsTable({
           </tr>
         </thead>
         <tbody>
+          {loading ? (
+            <tr>
+              <td colSpan={10} className="table-empty-row">
+                <GlobalLoadingSpinner />
+              </td>
+            </tr>
+          ) : null}
           {!loading && members.length === 0 ? (
             <TableEmptyRow colSpan={10} message="조회된 사용자가 없습니다." />
           ) : null}

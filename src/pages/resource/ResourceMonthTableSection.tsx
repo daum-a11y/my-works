@@ -1,3 +1,4 @@
+import { Button, Tab, TabList, TabTrigger } from 'krds-react';
 import type {
   ResourceMonthReportNonServiceSummaryRow,
   ResourceMonthReportServiceDetailRow,
@@ -49,8 +50,8 @@ export function ResourceMonthTableSection({
 }: ResourceMonthTableSectionProps) {
   if (!hasTableData) {
     return (
-      <section className="resource-page__table-tabs-section">
-        <div className="dashboard-page__table-wrap">
+      <section className="krds-page__table-tabs-section">
+        <div className="krds-page__table-wrap">
           <EmptyState message="표시할 월간 리소스 데이터가 없습니다." />
         </div>
       </section>
@@ -58,60 +59,29 @@ export function ResourceMonthTableSection({
   }
 
   return (
-    <section className="resource-page__table-tabs-section">
-      <div className="resource-page__table-tabs" role="tablist" aria-label="월간 리포트 표 보기">
-        <button
-          type="button"
-          className={[
-            'resource-page__table-tab',
-            activeTableTab === 'report' ? 'resource-page__table-tab--active' : '',
-          ]
-            .filter(Boolean)
-            .join(' ')}
-          aria-pressed={activeTableTab === 'report'}
-          onClick={() => onTableTabChange('report')}
-        >
-          월간 보고서
-        </button>
-        <button
-          type="button"
-          className={[
-            'resource-page__table-tab',
-            activeTableTab === 'service' ? 'resource-page__table-tab--active' : '',
-          ]
-            .filter(Boolean)
-            .join(' ')}
-          aria-pressed={activeTableTab === 'service'}
-          onClick={() => onTableTabChange('service')}
-        >
-          서비스 그룹별 합계
-        </button>
-        <button
-          type="button"
-          className={[
-            'resource-page__table-tab',
-            activeTableTab === 'type' ? 'resource-page__table-tab--active' : '',
-          ]
-            .filter(Boolean)
-            .join(' ')}
-          aria-pressed={activeTableTab === 'type'}
-          onClick={() => onTableTabChange('type')}
-        >
-          업무타입별 합계
-        </button>
-      </div>
+    <section className="krds-page__table-tabs-section">
+      <Tab
+        value={activeTableTab}
+        onValueChange={(value) => onTableTabChange(value as ResourceMonthTableTab)}
+      >
+        <TabList aria-label="월간 리포트 표 보기">
+          <TabTrigger value="report">월간 보고서</TabTrigger>
+          <TabTrigger value="service">서비스 그룹별 합계</TabTrigger>
+          <TabTrigger value="type">업무타입별 합계</TabTrigger>
+        </TabList>
+      </Tab>
 
       {activeTableTab === 'type' ? (
-        <section className="resource-page__table-tab-panel">
-          <div className="resource-page__table-tab-actions">
-            <button
+        <section className="krds-page__table-tab-panel">
+          <div className="krds-page__table-tab-actions">
+            <Button
               type="button"
-              className="projects-feature__header-action"
+              variant="secondary"
               onClick={onWorkFoldToggle}
               disabled={!typeRows.length}
             >
               {workFold ? '상세' : '요약'}
-            </button>
+            </Button>
           </div>
           <ResourceMonthTypeTable
             typeRows={typeRows}
@@ -123,16 +93,16 @@ export function ResourceMonthTableSection({
       ) : null}
 
       {activeTableTab === 'service' ? (
-        <section className="resource-page__table-tab-panel">
-          <div className="resource-page__table-tab-actions">
-            <button
+        <section className="krds-page__table-tab-panel">
+          <div className="krds-page__table-tab-actions">
+            <Button
               type="button"
-              className="projects-feature__header-action"
+              variant="secondary"
               onClick={onSvcFoldToggle}
               disabled={!serviceDetailRows.length}
             >
               {svcFold ? '상세' : '요약'}
-            </button>
+            </Button>
           </div>
           <ResourceMonthServiceTable
             serviceDetailRows={serviceDetailRows}
@@ -144,7 +114,7 @@ export function ResourceMonthTableSection({
       ) : null}
 
       {activeTableTab === 'report' ? (
-        <section className="resource-page__table-tab-panel">
+        <section className="krds-page__table-tab-panel">
           <ResourceMonthReportTable
             serviceSummaryRows={serviceSummaryRows}
             nonServiceSummaryRows={nonServiceSummaryRows}

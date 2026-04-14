@@ -1,4 +1,5 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { Button } from 'krds-react';
 import { EmptyState } from '../../components/shared/EmptyState';
 import { MonthlyReportCalendar } from '../../components/shared/MonthlyReportCalendar';
 
@@ -22,30 +23,30 @@ export function DashboardCalendarSection({
   onShiftMonth,
 }: DashboardCalendarSectionProps) {
   return (
-    <section className="dashboard-page__section">
+    <section className="krds-page__section">
       {monthState && (
-        <div className="dashboard-page__section-head">
-          <div className="dashboard-page__calendar-heading">
-            <div className="dashboard-page__calendar-nav" aria-label="업무일지 월 이동">
-              <button
+        <div className="krds-page__section-head">
+          <div className="krds-page__calendar-heading">
+            <div className="krds-page__calendar-nav" aria-label="업무일지 월 이동">
+              <Button
                 type="button"
-                className="dashboard-page__calendar-nav-button"
+                variant="tertiary"
                 onClick={() => onShiftMonth(-1)}
               >
                 <ChevronLeft size={16} strokeWidth={2.4} aria-hidden="true" />
                 <span className="sr-only">이전달 보기</span>
-              </button>
-              <h2 className="dashboard-page__calendar-title">
+              </Button>
+              <h2 className="krds-page__calendar-title">
                 {monthState.year}년 {monthState.month}월
               </h2>
-              <button
+              <Button
                 type="button"
-                className="dashboard-page__calendar-nav-button"
+                variant="tertiary"
                 onClick={() => onShiftMonth(1)}
               >
                 <ChevronRight size={16} strokeWidth={2.4} aria-hidden="true" />
                 <span className="sr-only">다음달 보기</span>
-              </button>
+              </Button>
             </div>
           </div>
         </div>

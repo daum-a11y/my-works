@@ -1,8 +1,9 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button } from '../../components/base/Button';
+import { Button } from 'krds-react';
 import { useAuth } from '../../auth/AuthContext';
-import { AuthLayoutShell, getAuthFeedbackClassName } from '../../components/layout/AuthLayoutShell';
+import { AuthLayoutShell } from '../../components/layout/AuthLayoutShell';
+import { KrdsStructuredInfoList } from '../../components/shared';
 
 export function PendingApprovalPage() {
   const navigate = useNavigate();
@@ -26,21 +27,17 @@ export function PendingApprovalPage() {
       }
       body={
         <>
-          <dl className={getAuthFeedbackClassName('info')}>
-            <div className="auth-layout-shell__feedback-row">
-              <dt>계정</dt>
-              <dd>{session?.member.accountId ?? '-'}</dd>
-            </div>
-            <div className="auth-layout-shell__feedback-row">
-              <dt>이름</dt>
-              <dd>{session?.member.name ?? '-'}</dd>
-            </div>
-          </dl>
-          <div className="auth-layout-shell__actions">
+          <KrdsStructuredInfoList
+            items={[
+              { label: '계정', value: session?.member.accountId ?? '-' },
+              { label: '이름', value: session?.member.name ?? '-' },
+            ]}
+          />
+          <div className="krds-auth-shell__actions">
             <Button
               type="button"
-              tone="secondary"
-              onPress={async () => {
+              variant="secondary"
+              onClick={async () => {
                 await logout();
                 navigate('/login', { replace: true });
               }}

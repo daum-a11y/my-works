@@ -17,7 +17,7 @@ export function AdminReportsPage() {
   useAlertMessage(errorMessage);
 
   return (
-    <section className={'admin-reports-page page-shell'}>
+    <section className={'krds-page-admin krds-page-admin--page'}>
       <PageHeader
         title="업무보고 조회"
         actions={
@@ -55,7 +55,7 @@ export function AdminReportsPage() {
       </PageSection>
 
       <PageResultBar
-        aria-label="업무보고 조회 결과 요약"
+        aria-label="업무보고 검색 결과 요약"
         metrics={
           <>
             <PagePager
@@ -68,22 +68,22 @@ export function AdminReportsPage() {
               onNext={() =>
                 page.setCurrentPage((current) => Math.min(page.totalPages, current + 1))
               }
+              onPageChange={page.setCurrentPage}
             />
-            <p className={'page-result-bar__metric'}>
-              <span className={'page-result-bar__label'}>총 건수</span>
-              <strong className={'page-result-bar__value'}>
+            <p>
+              <span>검색 결과</span>
+              <strong>
                 {numberFormatter.format(page.totalTasks)}건
               </strong>
             </p>
-            <p className={'page-result-bar__metric'}>
-              <span className={'page-result-bar__label'}>총 시간</span>
-              <strong className={'page-result-bar__value'}>{page.summaryTime}</strong>
+            <p>
+              <span>총 시간</span>
+              <strong>{page.summaryTime}</strong>
             </p>
           </>
         }
         controls={
           <PageSizeField
-            aria-label="페이지당 행 수"
             value={page.pageSize}
             options={ADMIN_REPORTS_PAGE_SIZE_OPTIONS}
             onValueChange={(next) => {

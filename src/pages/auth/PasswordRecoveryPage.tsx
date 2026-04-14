@@ -25,7 +25,7 @@ export function PasswordRecoveryPage() {
   const [errorMessage, setErrorMessage] = useState('');
   const [noticeMessage, setNoticeMessage] = useState('');
   const {
-    register,
+    control,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<RecoveryFormValues>({
@@ -50,7 +50,7 @@ export function PasswordRecoveryPage() {
       noticeMessage={noticeMessage}
       isSubmitting={isSubmitting}
       errors={errors}
-      register={register}
+      control={control}
       handleSubmit={handleSubmit}
       onSubmit={async (values) => {
         try {

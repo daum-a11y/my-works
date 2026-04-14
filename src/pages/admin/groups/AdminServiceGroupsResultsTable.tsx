@@ -1,4 +1,5 @@
-import { Link } from 'react-router-dom';
+import { Badge } from 'krds-react';
+import { KrdsRouterButtonLink } from '../../../components/shared';
 import { TableEmptyRow } from '../../../components/shared/TableEmptyRow';
 import type { AdminServiceGroupItem } from '../admin.types';
 
@@ -21,8 +22,8 @@ export function AdminServiceGroupsResultsTable({
   groupedServiceGroups,
 }: AdminServiceGroupsResultsTableProps) {
   return (
-    <div className="admin-crud-page__table-wrap">
-      <table className="admin-crud-page__table">
+    <div className="krds-page-admin__table-wrap krds-table-wrap">
+      <table className="krds-page-admin__table tbl data">
         <caption className="sr-only">서비스 그룹 내역</caption>
         <thead>
           <tr>
@@ -40,12 +41,12 @@ export function AdminServiceGroupsResultsTable({
                 group.rows.map((item, rowIndex) => {
                   const inactiveCellClassName = item.svcActive
                     ? undefined
-                    : 'admin-crud-page__inactive-cell';
+                    : 'krds-page-admin__inactive-cell';
 
                   return (
                     <tr key={item.id}>
                       {group === costGroup.groups[0] && rowIndex === 0 ? (
-                        <td rowSpan={costGroup.rowSpan} className="admin-crud-page__row-key">
+                        <td rowSpan={costGroup.rowSpan} className="krds-page-admin__row-key">
                           {costGroup.costGroupName}
                         </td>
                       ) : null}
@@ -53,21 +54,26 @@ export function AdminServiceGroupsResultsTable({
                         <td
                           rowSpan={group.rows.length}
                           scope="row"
-                          className="admin-crud-page__row-key"
+                          className="krds-page-admin__row-key"
                         >
                           {group.serviceGroupName}
                         </td>
                       ) : null}
                       <td className={inactiveCellClassName}>{item.serviceName || '-'}</td>
-                      <td className={inactiveCellClassName}>{item.svcActive ? '노출' : '숨김'}</td>
                       <td className={inactiveCellClassName}>
-                        <div className="admin-crud-page__actions">
-                          <Link
-                            to={`/admin/group/${item.id}/edit`}
-                            className="admin-crud-page__button admin-crud-page__button--secondary"
-                          >
+                        <Badge
+                          variant="light"
+                          color={item.svcActive ? 'success' : 'gray'}
+                          size="small"
+                        >
+                          {item.svcActive ? '노출' : '숨김'}
+                        </Badge>
+                      </td>
+                      <td className={inactiveCellClassName}>
+                        <div className="krds-page-admin__actions">
+                          <KrdsRouterButtonLink to={`/admin/group/${item.id}/edit`}>
                             수정
-                          </Link>
+                          </KrdsRouterButtonLink>
                         </div>
                       </td>
                     </tr>

@@ -32,6 +32,7 @@ import {
 import { toAdminTask, toMemberAdmin } from '../adminApiTransform';
 import { AdminReportEditorForm } from './AdminReportEditorForm';
 import { useAlertMessage } from '../../../hooks/useAlertMessage';
+import { PageHeader } from '../../../components/shared';
 
 function getSelectedProjectOption(projects: Project[], projectId: string) {
   const project = projects.find((item) => item.id === projectId) ?? null;
@@ -460,14 +461,10 @@ export function AdminReportEditorPage() {
   };
 
   return (
-    <section className={'reports-page reports-page--page'}>
-      <header className={'reports-page__hero'}>
-        <div className={'reports-page__hero-main'}>
-          <h1 className={'reports-page__title'}>
-            {isEdit ? ADMIN_REPORT_EDITOR_EDIT_TITLE : ADMIN_REPORT_EDITOR_CREATE_TITLE}
-          </h1>
-        </div>
-      </header>
+    <section className={'krds-page krds-page--page'}>
+      <PageHeader
+        title={isEdit ? ADMIN_REPORT_EDITOR_EDIT_TITLE : ADMIN_REPORT_EDITOR_CREATE_TITLE}
+      />
 
       <AdminReportEditorForm
         isEdit={isEdit}

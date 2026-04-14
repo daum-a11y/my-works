@@ -1,6 +1,5 @@
-import clsx from 'clsx';
 import type { ComponentPropsWithoutRef } from 'react';
-import { Button } from 'krds-react';
+import { Pagination } from 'krds-react';
 
 export interface PagePagerProps extends ComponentPropsWithoutRef<'div'> {
   currentPage: number;
@@ -9,16 +8,10 @@ export interface PagePagerProps extends ComponentPropsWithoutRef<'div'> {
   canGoNext: boolean;
   onPrevious: () => void;
   onNext: () => void;
+  onPageChange?: (page: number) => void;
   buttonClassName?: string;
   statusClassName?: string;
 }
-
-const PAGE_PAGER_LABELS = {
-  previous: '이전',
-  next: '다음',
-} as const;
-
-const numberFormatter = new Intl.NumberFormat('ko-KR');
 
 export function PagePager({
   currentPage,
@@ -27,37 +20,39 @@ export function PagePager({
   canGoNext,
   onPrevious,
   onNext,
+  onPageChange,
   className,
-  buttonClassName,
-  statusClassName,
   ...props
 }: PagePagerProps) {
+  const handleChange = (page: number) => {
+    if (onPageChange) {
+      onPageChange(page);
+      return;
+    }
+
+    if (page < currentPage && canGoPrevious) {
+      onPrevious();
+      return;
+    }
+
+    if (page > currentPage && canGoNext) {
+      onNext();
+    }
+  };
+
   return (
-    <div className={clsx('page-pager', className)} {...props}>
-      <Button
-        className={clsx('page-pager__button', buttonClassName)}
-        onClick={onPrevious}
-        disabled={!canGoPrevious}
-        aria-label="이전 페이지"
-        variant="tertiary"
-        size="small"
-      >
-        {PAGE_PAGER_LABELS.previous}
-      </Button>
-      <p className={clsx('page-pager__status', statusClassName)}>
-        <strong>{currentPage}</strong>
-        <span>/ {numberFormatter.format(totalPages)}</span>
-      </p>
-      <Button
-        className={clsx('page-pager__button', buttonClassName)}
-        onClick={onNext}
-        disabled={!canGoNext}
-        aria-label="다음 페이지"
-        variant="tertiary"
-        size="small"
-      >
-        {PAGE_PAGER_LABELS.next}
-      </Button>
+    <div className={className} {...props}>
+      <span className="sr-only">
+        {currentPage}/ {totalPages}
+      </span>
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onChange={handleChange}
+        prevLabel="이전 페이지"
+        nextLabel="다음 페이지"
+        disabled={!canGoPrevious && !canGoNext}
+      />
     </div>
   );
 }

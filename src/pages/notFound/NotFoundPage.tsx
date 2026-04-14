@@ -1,8 +1,9 @@
 import { useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Button } from 'krds-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../auth/AuthContext';
 import { BrandLogo } from '../../components/layout/BrandLogo';
+import { KrdsRouterButtonLink } from '../../components/shared';
 
 export function NotFoundPage() {
   const { status, session } = useAuth();
@@ -18,46 +19,40 @@ export function NotFoundPage() {
   }, []);
 
   return (
-    <main className="not-found-page">
-      <section className="not-found-page__panel" aria-labelledby="not-found-title">
-        <div className="not-found-page__hero">
-          <h1 className="not-found-page__logo-heading">
-            <BrandLogo className="not-found-page__logo" alt="My Works" width={100} height={30} />
+    <main className="krds-not-found">
+      <section className="krds-not-found__panel" aria-labelledby="not-found-title">
+        <div className="krds-not-found__hero">
+          <h1 className="krds-not-found__logo-heading">
+            <BrandLogo className="krds-not-found__logo" alt="My Works" width={100} height={30} />
           </h1>
-          <p className="not-found-page__caption">404</p>
+          <p className="krds-not-found__caption">404</p>
         </div>
-        <div className="not-found-page__body">
-          <h1 id="not-found-title" className="not-found-page__title">
+        <div className="krds-not-found__body">
+          <h1 id="not-found-title" className="krds-not-found__title">
             페이지를 찾을 수 없습니다.
           </h1>
-          <p className="not-found-page__description">
+          <p className="krds-not-found__description">
             주소를 다시 확인하시거나{' '}
             {isAuthenticated
               ? '대시보드로 돌아가 현재 작업을 이어서 진행해 주세요.'
               : '로그인 화면으로 돌아가 다시 진입해 주세요.'}
           </p>
-          <div className="not-found-page__actions">
-            <Link
-              to={destination}
-              className="not-found-page__action not-found-page__action--primary"
-            >
+          <div className="krds-not-found__actions">
+            <KrdsRouterButtonLink to={destination} variant="primary" size="large">
               {actionLabel}
-            </Link>
+            </KrdsRouterButtonLink>
             {secondaryDestination ? (
-              <Link
-                to={secondaryDestination}
-                className="not-found-page__action not-found-page__action--secondary"
-              >
+              <KrdsRouterButtonLink to={secondaryDestination} size="large">
                 {secondaryLabel}
-              </Link>
+              </KrdsRouterButtonLink>
             ) : (
-              <button
+              <Button
                 type="button"
-                className="not-found-page__action not-found-page__action--secondary"
+                variant="secondary"
                 onClick={() => navigate(-1)}
               >
                 {secondaryLabel}
-              </button>
+              </Button>
             )}
           </div>
         </div>

@@ -5,9 +5,10 @@ import { FontPreferenceProvider } from './preferences/FontPreferenceContext';
 import { ThemePreferenceProvider } from './preferences/ThemePreferenceContext';
 import { RootRouter } from './router/RootRouter';
 import 'krds-react/dist/index.css';
+import './styles/theme-tokens.css';
 import './styles/app.css';
 
-const container = document.getElementById('root');
+const container = document.getElementById('wrap');
 
 if (!container) {
   throw new Error('Root container not found.');

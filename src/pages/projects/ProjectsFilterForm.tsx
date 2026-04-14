@@ -25,7 +25,7 @@ export function ProjectsFilterForm({
     <form onSubmit={onSubmit}>
       <PageFilterBar
         actions={
-          <div className="page-filter-actions">
+          <div>
             <Button type="submit" variant="primary">
               검색
             </Button>
@@ -35,7 +35,7 @@ export function ProjectsFilterForm({
           </div>
         }
       >
-        <PageFilterField className="projects-feature__filter-field" label="시작일">
+        <PageFilterField className="krds-page__filter-field" label="시작일">
           <TextInput
             type="date"
             value={filterDraft.startDate}
@@ -43,7 +43,7 @@ export function ProjectsFilterForm({
             onChange={(value) => onFilterDraftChange({ ...filterDraft, startDate: value })}
           />
         </PageFilterField>
-        <PageFilterField className="projects-feature__filter-field" label="종료일">
+        <PageFilterField className="krds-page__filter-field" label="종료일">
           <TextInput
             type="date"
             value={filterDraft.endDate}
@@ -51,7 +51,7 @@ export function ProjectsFilterForm({
             onChange={(value) => onFilterDraftChange({ ...filterDraft, endDate: value })}
           />
         </PageFilterField>
-        <PageFilterField className="projects-feature__filter-field" label="검색어">
+        <PageFilterField className="krds-page__filter-field" label="검색어">
           <TextInput value={searchInput} onChange={onSearchInputChange} placeholder="검색어 입력" />
         </PageFilterField>
       </PageFilterBar>

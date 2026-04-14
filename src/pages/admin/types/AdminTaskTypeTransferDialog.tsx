@@ -1,4 +1,6 @@
 import { useEffect, useMemo } from 'react';
+import { Button, Checkbox, CriticalAlert, Modal, Select } from 'krds-react';
+import { KrdsStructuredInfoList } from '../../../components/shared';
 import type { AdminTaskTypeItem } from '../admin.types';
 
 interface AdminTaskTypeTransferDialogProps {
@@ -76,103 +78,75 @@ export function AdminTaskTypeTransferDialog({
   }
 
   return (
-    <div className="admin-crud-page">
-      <div
-        className="admin-crud-page__dialog-scrim"
-        onClick={() => {
-          if (!isPending) {
+    <div className="krds-page-admin">
+      <Modal.Root
+        open={isOpen}
+        onOpenChange={(open) => {
+          if (!open && !isPending) {
             onClose();
           }
         }}
+        closeOnEsc={!isPending}
+        closeOnOverlayClick={!isPending}
+        size="md"
       >
-        <section
-          className="admin-crud-page__dialog"
-          role="dialog"
-          aria-modal="true"
-          aria-label="업무 타입 전환"
-          onClick={(event) => event.stopPropagation()}
-        >
-          <header className="admin-crud-page__dialog-header">
-            <div className="admin-crud-page__dialog-heading">
-              <h2 className="admin-crud-page__dialog-title">업무 타입 전환</h2>
-            </div>
-          </header>
+        <Modal.Content aria-label="업무 타입 전환">
+          <Modal.Header title="업무 타입 전환" />
 
-          {errorMessage ? <p className="admin-crud-page__helper-text">{errorMessage}</p> : null}
+          {errorMessage ? (
+            <CriticalAlert alerts={[{ variant: 'danger', message: errorMessage }]} />
+          ) : null}
 
-          <div className="admin-crud-page__dialog-form">
-            <div className="admin-crud-page__stack-field">
-              <span className="admin-crud-page__field-label">현재 항목</span>
-              <p className="admin-crud-page__readonly-value">{formatTaskType(sourceTaskType)}</p>
-            </div>
-            <label className="admin-crud-page__stack-field">
-              <span className="admin-crud-page__field-label">변경할 타입1</span>
-              <select
-                className="admin-crud-page__field-select"
-                value={selectedType1}
-                onChange={(event) => {
-                  const nextTaskType = targetTaskTypes.find(
-                    (taskType) => taskType.type1 === event.target.value,
-                  );
-                  onTargetTaskTypeChange(nextTaskType?.id ?? '');
-                }}
-                disabled={isPending}
-              >
-                {type1Options.map((type1) => (
-                  <option key={type1} value={type1}>
-                    {type1}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="admin-crud-page__stack-field">
-              <span className="admin-crud-page__field-label">변경할 타입2</span>
-              <select
-                className="admin-crud-page__field-select"
-                value={targetTaskTypeId}
-                onChange={(event) => onTargetTaskTypeChange(event.target.value)}
-                disabled={isPending || !selectedType1}
-              >
-                {type2Options.map((taskType) => (
-                  <option key={taskType.id} value={taskType.id}>
-                    {taskType.type2}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="admin-crud-page__checkbox-field">
-              <input
-                type="checkbox"
-                checked={dropExisting}
-                onChange={(event) => onDropExistingChange(event.target.checked)}
-                disabled={isPending}
-              />
-              <span>기존 항목 삭제</span>
-            </label>
-          </div>
+          <Modal.Body>
+            <KrdsStructuredInfoList
+              items={[{ label: '현재 항목', value: formatTaskType(sourceTaskType) }]}
+            />
+            <Select
+              id="task-type-transfer-target-type1"
+              label="변경할 타입1"
+              value={selectedType1}
+              onChange={(value) => {
+                const nextTaskType = targetTaskTypes.find((taskType) => taskType.type1 === value);
+                onTargetTaskTypeChange(nextTaskType?.id ?? '');
+              }}
+              disabled={isPending}
+              options={type1Options.map((type1) => ({ value: type1, label: type1 }))}
+            />
+            <Select
+              id="task-type-transfer-target-type2"
+              label="변경할 타입2"
+              value={targetTaskTypeId}
+              onChange={onTargetTaskTypeChange}
+              disabled={isPending || !selectedType1}
+              options={type2Options.map((taskType) => ({
+                value: taskType.id,
+                label: taskType.type2,
+              }))}
+            />
+            <Checkbox
+              id="task-type-transfer-drop-existing"
+              label="기존 항목 삭제"
+              checked={dropExisting}
+              onChange={(event) => onDropExistingChange(event.target.checked)}
+              disabled={isPending}
+            />
+          </Modal.Body>
 
-          <footer className="admin-crud-page__dialog-footer">
-            <div className="admin-crud-page__actions">
-              <button
-                type="button"
-                className="admin-crud-page__button admin-crud-page__button--secondary"
-                onClick={onClose}
-                disabled={isPending}
-              >
-                취소
-              </button>
-              <button
-                type="button"
-                className="admin-crud-page__button admin-crud-page__button--primary"
-                onClick={onSave}
-                disabled={isPending || !targetTaskTypeId}
-              >
-                저장
-              </button>
-            </div>
-          </footer>
-        </section>
-      </div>
+          <Modal.Footer>
+            <Button type="button" variant="secondary" onClick={onClose} disabled={isPending}>
+              취소
+            </Button>
+            <Button
+              type="button"
+              variant="primary"
+              onClick={onSave}
+              disabled={isPending || !targetTaskTypeId}
+            >
+              저장
+            </Button>
+          </Modal.Footer>
+        </Modal.Content>
+      </Modal.Root>
     </div>
   );
 }

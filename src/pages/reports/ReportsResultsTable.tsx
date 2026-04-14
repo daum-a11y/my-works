@@ -1,4 +1,4 @@
-import { Button, Select } from 'krds-react';
+import { Button, Link as KrdsLink, Select } from 'krds-react';
 import { TableEmptyRow } from '../../components/shared/TableEmptyRow';
 import { formatReportDate, formatReportTaskUsedtime, type ReportViewModel } from './reportUtils';
 
@@ -35,8 +35,8 @@ export function ReportsResultsTable({
 
   return (
     <>
-      <div className="reports-page__table-wrap">
-        <table className="reports-page__table">
+      <div className="krds-page__table-wrap krds-table-wrap">
+        <table className="krds-page__table tbl data">
           <caption className="sr-only">업무 보고 목록</caption>
           <thead>
             <tr>
@@ -90,9 +90,9 @@ export function ReportsResultsTable({
                   </td>
                   <td>
                     {report.url ? (
-                      <a href={report.url} target="_blank" rel="noreferrer">
+                      <KrdsLink href={report.url} external>
                         {report.url}
-                      </a>
+                      </KrdsLink>
                     ) : (
                       '-'
                     )}
@@ -104,7 +104,6 @@ export function ReportsResultsTable({
                       {canEdit ? (
                         <Button
                           type="button"
-                          className="reports-page__row-button"
                           variant="secondary"
                           onClick={() => onSelect(report.id)}
                         >
@@ -114,7 +113,6 @@ export function ReportsResultsTable({
                       {canEdit ? (
                         <Button
                           type="button"
-                          className="reports-page__row-button"
                           variant="secondary"
                           onClick={() => onDelete(report.id)}
                         >
@@ -131,15 +129,16 @@ export function ReportsResultsTable({
         </table>
       </div>
       {missingMinutes > 0 ? (
-        <div className="reports-page__table-footer">
-          <p className="reports-page__table-footer-text">
+        <div className="krds-page__table-footer">
+          <p className="krds-page__table-footer-text">
             오늘 총 입력 <strong>{totalMinutes}분</strong> / 부족{' '}
             <strong>{missingMinutes}분</strong>
           </p>
           {canEdit ? (
-            <label className="reports-page__table-footer-field">
-              <span>청구그룹</span>
+            <div className="krds-page__table-footer-field">
               <Select
+                id="reports-overhead-cost-group"
+                label="청구그룹"
                 value={overheadCostGroupId}
                 onChange={onOverheadCostGroupChange}
                 options={[
@@ -148,10 +147,14 @@ export function ReportsResultsTable({
                 ]}
                 style={{ width: '100%' }}
               />
-            </label>
+            </div>
           ) : null}
           {canEdit && canAddOverhead ? (
-            <Button type="button" variant="secondary" onClick={() => onOverhead(summaryDate, missingMinutes)}>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => onOverhead(summaryDate, missingMinutes)}
+            >
               오버헤드 등록
             </Button>
           ) : null}

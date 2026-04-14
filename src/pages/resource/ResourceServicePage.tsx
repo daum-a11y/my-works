@@ -51,11 +51,11 @@ export function ResourceServicePage() {
   const activeRow = rows[0] ?? null;
 
   return (
-    <section className="projects-feature resource-page page-shell">
+    <section className="krds-page krds-page">
       <PageHeader
         title={RESOURCE_SERVICE_PAGE_TITLE}
         actions={
-          <div className="resource-page__year-actions">
+          <div className="krds-page__year-actions">
             <Button
               type="button"
               onClick={() => setFold((current) => !current)}

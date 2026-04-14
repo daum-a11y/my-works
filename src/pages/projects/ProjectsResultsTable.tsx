@@ -1,5 +1,9 @@
-import { Link } from 'react-router-dom';
-import { SortableTableHeaderButton, TableEmptyRow } from '../../components/shared';
+import { Link as KrdsLink } from 'krds-react';
+import {
+  KrdsRouterButtonLink,
+  SortableTableHeaderButton,
+  TableEmptyRow,
+} from '../../components/shared';
 import type { ProjectListRow } from '../../types/domain';
 import { formatDateLabel } from '../../utils';
 import type { ProjectsSortState } from './ProjectsPage.types';
@@ -24,8 +28,8 @@ export function ProjectsResultsTable({
   };
 
   return (
-    <div className="projects-feature__table-wrap">
-      <table className="projects-feature__table">
+    <div className="krds-page__table-wrap krds-table-wrap">
+      <table className="krds-page__table tbl data">
         <caption className="sr-only">프로젝트 리스트</caption>
         <thead>
           <tr>
@@ -137,29 +141,21 @@ export function ProjectsResultsTable({
               <td>{project.subtaskCount}</td>
               <td>
                 {project.reportUrl ? (
-                  <a
-                    href={project.reportUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="projects-feature__table-link"
-                  >
+                  <KrdsLink href={project.reportUrl} external>
                     링크
-                  </a>
+                  </KrdsLink>
                 ) : (
                   '-'
                 )}
               </td>
-              <td className="projects-feature__date-cell">{formatDateLabel(project.startDate)}</td>
-              <td className="projects-feature__date-cell">{formatDateLabel(project.endDate)}</td>
+              <td className="krds-page__date-cell">{formatDateLabel(project.startDate)}</td>
+              <td className="krds-page__date-cell">{formatDateLabel(project.endDate)}</td>
               <td>{project.reporterDisplay || '-'}</td>
               <td>{project.reviewerDisplay || '-'}</td>
               <td>
-                <Link
-                  to={`/projects/${project.id}/edit`}
-                  className="projects-feature__action-button"
-                >
+                <KrdsRouterButtonLink to={`/projects/${project.id}/edit`}>
                   수정
-                </Link>
+                </KrdsRouterButtonLink>
               </td>
             </tr>
           ))}

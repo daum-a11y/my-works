@@ -1,4 +1,5 @@
-import { Link } from 'react-router-dom';
+import { CriticalAlert } from 'krds-react';
+import { KrdsRouterButtonLink } from '../../../components/shared';
 import { PageHeader } from '../../../components/shared/PageHeader';
 import { PagePager } from '../../../components/shared/PagePager';
 import { PageResultBar } from '../../../components/shared/PageResultBar';
@@ -16,18 +17,18 @@ export function AdminMembersPage() {
   useAlertMessage(page.errorMessage);
 
   return (
-    <section className={'admin-members-page page-shell'}>
+    <section className={'krds-page-admin krds-page-admin--page'}>
       <PageHeader
         title="사용자 관리"
         actions={
-          <Link to="/admin/members/new" className="krds-btn primary large">
+          <KrdsRouterButtonLink to="/admin/members/new" variant="primary" size="large">
             사용자 추가
-          </Link>
+          </KrdsRouterButtonLink>
         }
       />
 
       {page.statusMessage ? (
-        <p className={'page-status-banner page-status-banner--success'}>{page.statusMessage}</p>
+        <CriticalAlert alerts={[{ variant: 'ok', message: page.statusMessage }]} />
       ) : null}
       <PageSection title="필터">
         <AdminMembersFilterForm
@@ -52,22 +53,23 @@ export function AdminMembersPage() {
               onNext={() =>
                 page.setCurrentPage((current) => Math.min(page.totalPages, current + 1))
               }
+              onPageChange={page.setCurrentPage}
             />
-            <p className={'page-result-bar__metric'}>
-              <span className={'page-result-bar__label'}>조회 결과</span>
-              <strong className={'page-result-bar__value'}>
-                {numberFormatter.format(page.totalMembers)}명
+            <p>
+              <span>검색 결과</span>
+              <strong>
+                {numberFormatter.format(page.totalMembers)}건
               </strong>
             </p>
-            <p className={'page-result-bar__metric'}>
-              <span className={'page-result-bar__label'}>전체 사용자</span>
-              <strong className={'page-result-bar__value'}>
+            <p>
+              <span>전체 사용자</span>
+              <strong>
                 {numberFormatter.format(page.members.length)}명
               </strong>
             </p>
-            <p className={'page-result-bar__metric'}>
-              <span className={'page-result-bar__label'}>활성 사용자</span>
-              <strong className={'page-result-bar__value'}>
+            <p>
+              <span>활성 사용자</span>
+              <strong>
                 {numberFormatter.format(page.activeMemberCount)}명
               </strong>
             </p>
@@ -75,7 +77,6 @@ export function AdminMembersPage() {
         }
         controls={
           <PageSizeField
-            aria-label="페이지당 행 수"
             value={page.pageSize}
             options={ADMIN_MEMBERS_PAGE_SIZE_OPTIONS}
             onValueChange={(next) => {

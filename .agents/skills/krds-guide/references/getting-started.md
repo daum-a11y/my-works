@@ -13,6 +13,7 @@ Official sources:
 
 - `outline_02`: <https://www.krds.go.kr/html/site/outline/outline_02.html>
 - `outline_03`: <https://www.krds.go.kr/html/site/outline/outline_03.html>
+- `React Storybook`: <https://www.krds.go.kr/storybook/react/>
 
 Detailed research note:
 
@@ -70,6 +71,7 @@ KRDS developer onboarding is centered on applying the official kit and keeping t
 - 표준형 스타일은 `Pretendard GOV` 웹폰트 CDN을 기본 전제로 둔다.
 - HTML Component Kit은 `NPM`, `GitHub 다운로드`, `CDN`의 세 경로로 접근할 수 있다.
 - React/Vue는 별도 설치 후 Storybook 문서를 참고하는 흐름이다.
+- React 구현 세부는 KRDS React Storybook을 컴포넌트별 Docs와 story variant 확인용으로 사용한다.
 
 ### Installation guidance
 
@@ -77,6 +79,7 @@ KRDS developer onboarding is centered on applying the official kit and keeping t
 - 정적 포함만 필요한 경우 `CDN` 또는 GitHub 배포 파일 경로를 안내한다.
 - SCSS를 사용할 때는 Kit 내부 참조 경로를 그대로 기대하지 말고 `/resources` 디렉터리 전체 복제와 경로 재설정을 먼저 검토한다.
 - React/Vue 요청은 설치 방법과 함께 Storybook 기반 컴포넌트 문서를 참조하도록 안내한다.
+- React 컴포넌트 구현 요청은 먼저 [components.md](components.md)로 컴포넌트 선택과 접근성 맥락을 확인한 뒤 React Storybook의 Docs와 variant story를 본다.
 
 ### Token and styling guidance
 

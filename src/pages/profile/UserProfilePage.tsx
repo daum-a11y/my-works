@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useFontPreference } from '../../hooks/useFontPreference';
 import { useThemePreference } from '../../hooks/useThemePreference';
@@ -9,6 +9,7 @@ import {
   UserProfileThemeSection,
 } from './UserProfileSections';
 import { UserProfilePasswordModal } from './UserProfilePasswordModal';
+import { PageHeader } from '../../components/shared';
 
 type PasswordDraft = {
   next: string;
@@ -54,8 +55,6 @@ export function UserProfilePage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const nextInputRef = useRef<HTMLInputElement | null>(null);
   const editButtonRef = useRef<HTMLButtonElement | null>(null);
-  const nextHintId = useId();
-  const confirmHintId = useId();
 
   const errors = getPasswordErrors(draft);
   const canSubmit =
@@ -165,16 +164,12 @@ export function UserProfilePage() {
 
   return (
     <section
-      className="password-settings-page password-settings-page--page"
+      className="krds-page-settings krds-page-settings--page"
       aria-labelledby="profile-title"
     >
-      <header className="password-settings-page__hero">
-        <h1 id="profile-title" className="password-settings-page__page-title">
-          프로필
-        </h1>
-      </header>
+      <PageHeader title="프로필" id="profile-title" />
 
-      <div className="password-settings-page__workspace">
+      <div className="krds-page-settings__workspace">
         <UserProfileAccountSection
           accountId={member?.accountId}
           name={member?.name}
@@ -205,8 +200,6 @@ export function UserProfilePage() {
         isSubmitting={isSubmitting}
         canSubmit={canSubmit}
         nextInputRef={nextInputRef}
-        nextHintId={nextHintId}
-        confirmHintId={confirmHintId}
         onDraftChange={(patch) => {
           setSubmitError('');
           setDraft((current) => ({ ...current, ...patch }));

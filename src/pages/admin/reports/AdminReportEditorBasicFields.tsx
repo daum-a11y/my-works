@@ -31,8 +31,9 @@ export function AdminReportEditorBasicFields({
   parseCompactDate,
 }: AdminReportEditorBasicFieldsProps) {
   return (
-    <div className={'reports-page__form-grid'} style={gridStyle}>
+    <div className={'krds-page__form-grid'} style={gridStyle}>
       <Select
+        id="admin-report-editor-member"
         label="사용자"
         value={selectedMemberId}
         onChange={onMemberChange}

@@ -1,4 +1,5 @@
-import { Link } from 'react-router-dom';
+import { Button } from 'krds-react';
+import { KrdsRouterButtonLink } from '../../components/shared';
 
 interface ProjectEditorActionRowProps {
   canDelete: boolean;
@@ -12,36 +13,33 @@ export function ProjectEditorActionRow({
   onDelete,
 }: ProjectEditorActionRowProps) {
   return (
-    <div className="projects-feature__form-actions projects-feature__editor-form-actions">
+    <div className="krds-page__form-actions krds-page__editor-form-actions">
       <div
         className={
-          'projects-feature__editor-form-actions projects-feature__editor-form-actions--start'
+          'krds-page__editor-form-actions krds-page__editor-form-actions--start'
         }
       >
         {canDelete ? (
-          <button type="button" className={'projects-feature__delete-button'} onClick={onDelete}>
+          <Button type="button" variant="secondary" onClick={onDelete}>
             삭제
-          </button>
+          </Button>
         ) : null}
       </div>
       <div
         className={
-          'projects-feature__editor-form-actions projects-feature__editor-form-actions--end'
+          'krds-page__editor-form-actions krds-page__editor-form-actions--end'
         }
       >
-        <Link
-          to="/projects"
-          className={'projects-feature__button projects-feature__button--secondary'}
-        >
+        <KrdsRouterButtonLink to="/projects">
           취소
-        </Link>
-        <button
+        </KrdsRouterButtonLink>
+        <Button
           type="submit"
-          className={'projects-feature__button projects-feature__button--primary'}
+          variant="primary"
           disabled={saving}
         >
           저장
-        </button>
+        </Button>
       </div>
     </div>
   );

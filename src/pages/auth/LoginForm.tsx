@@ -1,6 +1,5 @@
-import type { UseFormHandleSubmit, UseFormRegister } from 'react-hook-form';
-import { Button } from '../../components/base/Button';
-import { InputField } from '../../components/base/Field';
+import { Controller, type Control, type UseFormHandleSubmit } from 'react-hook-form';
+import { Button, CriticalAlert, TextInput } from 'krds-react';
 
 interface LoginFormValues {
   email: string;
@@ -16,7 +15,7 @@ interface LoginFormProps {
     email?: { message?: string };
     password?: { message?: string };
   };
-  register: UseFormRegister<LoginFormValues>;
+  control: Control<LoginFormValues>;
   handleSubmit: UseFormHandleSubmit<LoginFormValues>;
   onSubmit: (values: LoginFormValues) => Promise<void>;
   onRecovery: () => void;
@@ -28,57 +27,65 @@ export function LoginForm({
   isBusy,
   isSupabaseConfigured,
   errors,
-  register,
+  control,
   handleSubmit,
   onSubmit,
   onRecovery,
 }: LoginFormProps) {
   return (
-    <div className="login-page__form">
-      <form className="login-page__form-shell" onSubmit={handleSubmit(onSubmit)}>
-        <InputField
-          label="이메일"
-          type="email"
-          autoComplete="username"
-          errorMessage={errors.email?.message}
-          disabled={!isSupabaseConfigured || isBusy}
-          {...register('email')}
+    <div className="krds-login__form">
+      <form className="krds-login__form-shell" onSubmit={handleSubmit(onSubmit)}>
+        <Controller
+          name="email"
+          control={control}
+          render={({ field }) => (
+            <TextInput
+              {...field}
+              label="이메일"
+              type="email"
+              autoComplete="username"
+              error={errors.email?.message}
+              disabled={!isSupabaseConfigured || isBusy}
+              size="large"
+            />
+          )}
         />
-        <InputField
-          label="비밀번호"
-          type="password"
-          autoComplete="current-password"
-          errorMessage={errors.password?.message}
-          disabled={!isSupabaseConfigured || isBusy}
-          {...register('password')}
+        <Controller
+          name="password"
+          control={control}
+          render={({ field }) => (
+            <TextInput
+              {...field}
+              label="비밀번호"
+              type="password"
+              autoComplete="current-password"
+              error={errors.password?.message}
+              disabled={!isSupabaseConfigured || isBusy}
+              size="large"
+            />
+          )}
         />
         {noticeMessage ? (
-          <div
-            className="login-page__feedback login-page__feedback--success"
-            data-state="success"
-            role="status"
-          >
-            <strong className="login-page__feedback-title">비밀번호 변경 완료</strong>
-            <p>{noticeMessage}</p>
-          </div>
+          <CriticalAlert
+            alerts={[{ variant: 'ok', message: `비밀번호 변경 완료. ${noticeMessage}` }]}
+          />
         ) : null}
         {errorMessage ? (
-          <div className="login-page__feedback login-page__feedback--danger" role="alert">
-            <strong className="login-page__feedback-title">로그인 확인 필요</strong>
-            <p>{errorMessage}</p>
-          </div>
+          <CriticalAlert
+            alerts={[{ variant: 'danger', message: `로그인 확인 필요. ${errorMessage}` }]}
+          />
         ) : null}
-        <div className="login-page__actions">
-          <Button type="submit" isDisabled={!isSupabaseConfigured || isBusy}>
+        <div className="krds-login__actions">
+          <Button type="submit" variant="primary" disabled={!isSupabaseConfigured || isBusy}>
             로그인
           </Button>
         </div>
-        <div className="login-page__recovery">
+        <div className="krds-login__recovery">
           <Button
             type="button"
-            tone="ghost"
-            isDisabled={!isSupabaseConfigured || isBusy}
-            onPress={onRecovery}
+            variant="tertiary"
+            disabled={!isSupabaseConfigured || isBusy}
+            onClick={onRecovery}
           >
             비밀번호 찾기
           </Button>

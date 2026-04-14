@@ -1,5 +1,5 @@
 import { Button } from 'krds-react';
-import { Link } from 'react-router-dom';
+import { KrdsRouterButtonLink } from '../../../components/shared';
 
 interface AdminMemberEditorActionRowProps {
   isEditMode: boolean;
@@ -27,10 +27,10 @@ export function AdminMemberEditorActionRow({
   onDelete,
 }: AdminMemberEditorActionRowProps) {
   return (
-    <div className="projects-feature__form-actions projects-feature__editor-form-actions">
+    <div className="krds-page__form-actions krds-page__editor-form-actions">
       <div
         className={
-          'projects-feature__editor-form-actions projects-feature__editor-form-actions--start'
+          'krds-page__editor-form-actions krds-page__editor-form-actions--start'
         }
       >
         {isEditMode ? (
@@ -59,7 +59,6 @@ export function AdminMemberEditorActionRow({
             ) : (
               <Button
                 type="button"
-                className="projects-feature__delete-button"
                 variant="secondary"
                 size="medium"
                 onClick={onDelete}
@@ -73,12 +72,12 @@ export function AdminMemberEditorActionRow({
       </div>
       <div
         className={
-          'projects-feature__editor-form-actions projects-feature__editor-form-actions--end'
+          'krds-page__editor-form-actions krds-page__editor-form-actions--end'
         }
       >
-        <Link to="/admin/members" className="krds-btn secondary medium">
+        <KrdsRouterButtonLink to="/admin/members">
           취소
-        </Link>
+        </KrdsRouterButtonLink>
         <Button
           type="submit"
           variant="primary"

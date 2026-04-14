@@ -28,7 +28,7 @@ export function TaskMonitoringFilterForm({
     <form onSubmit={onSubmit}>
       <PageFilterBar
         actions={
-          <div className={'page-filter-actions'}>
+          <div>
             <Button type="submit" variant="primary">
               검색
             </Button>
@@ -38,7 +38,7 @@ export function TaskMonitoringFilterForm({
           </div>
         }
       >
-        <PageFilterField className={'stats-page__filter-field'} label="시작월">
+        <PageFilterField className={'krds-page__filter-field'} label="시작월">
           <TextInput
             type="month"
             aria-label="태스크 현황 시작월"
@@ -47,7 +47,7 @@ export function TaskMonitoringFilterForm({
             onChange={onDraftStartMonthChange}
           />
         </PageFilterField>
-        <PageFilterField className={'stats-page__filter-field'} label="종료월">
+        <PageFilterField className={'krds-page__filter-field'} label="종료월">
           <TextInput
             type="month"
             aria-label="태스크 현황 종료월"
@@ -56,7 +56,7 @@ export function TaskMonitoringFilterForm({
             onChange={onDraftEndMonthChange}
           />
         </PageFilterField>
-        <PageFilterField className={'stats-page__filter-field'} label="검색">
+        <PageFilterField className={'krds-page__filter-field'} label="검색">
           <TextInput
             type="search"
             aria-label="태스크 현황 검색"

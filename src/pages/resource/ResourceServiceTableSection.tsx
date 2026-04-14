@@ -1,3 +1,4 @@
+import { Tab, TabList, TabPanel, TabTrigger } from 'krds-react';
 import { TableEmptyRow } from '../../components/shared/TableEmptyRow';
 import type { ResourceServiceYearSummary } from './ResourceServicePage.types';
 import { ResourceServiceYearRows } from './ResourceServiceYearRows';
@@ -19,8 +20,8 @@ export function ResourceServiceTableSection({
 }: ResourceServiceTableSectionProps) {
   if (!years.length) {
     return (
-      <div className="projects-feature__table-wrap">
-        <table className="projects-feature__table">
+      <div className="krds-page__table-wrap krds-table-wrap">
+        <table className="krds-page__table tbl data">
           <caption className="sr-only">연도와 월 기준 서비스 그룹 집계 표</caption>
           <thead>
             <tr>
@@ -40,66 +41,42 @@ export function ResourceServiceTableSection({
   }
 
   return (
-    <section className="resource-page__table-tabs-section">
-      <div className="resource-page__table-tabs-scroller">
-        <div
-          className="resource-page__table-tabs"
-          role="tablist"
-          aria-label="서비스 그룹 집계 연도"
-        >
-          {years.map((year) => {
-            const selected = year === activeYear;
-
-            return (
-              <button
-                key={year}
-                id={`resource-service-tab-${year}`}
-                type="button"
-                role="tab"
-                aria-selected={selected}
-                aria-controls={`resource-service-panel-${year}`}
-                tabIndex={selected ? 0 : -1}
-                className={[
-                  'resource-page__table-tab',
-                  selected ? 'resource-page__table-tab--active' : '',
-                ]
-                  .filter(Boolean)
-                  .join(' ')}
-                onClick={() => onYearChange(year)}
-              >
+    <section className="krds-page__table-tabs-section">
+      <Tab value={activeYear} onValueChange={onYearChange}>
+        <div className="krds-page__table-tabs-scroller">
+          <TabList aria-label="서비스 그룹 집계 연도">
+            {years.map((year) => (
+              <TabTrigger key={year} value={year}>
                 {year}년
-              </button>
-            );
-          })}
+              </TabTrigger>
+            ))}
+          </TabList>
         </div>
-      </div>
 
-      {activeRow ? (
-        <div
-          id={`resource-service-panel-${activeRow.year}`}
-          role="tabpanel"
-          aria-labelledby={`resource-service-tab-${activeRow.year}`}
-          className="resource-page__table-tab-panel"
-        >
-          <div className="projects-feature__table-wrap">
-            <table className="projects-feature__table">
-              <caption className="sr-only">{activeRow.year}년 월 기준 서비스 그룹 집계 표</caption>
-              <thead>
-                <tr>
-                  <th scope="col">월</th>
-                  <th scope="col">청구그룹</th>
-                  <th scope="col">서비스 그룹</th>
-                  <th scope="col">서비스명</th>
-                  <th scope="col">MM</th>
-                </tr>
-              </thead>
-              <tbody>
-                <ResourceServiceYearRows row={activeRow} fold={fold} />
-              </tbody>
-            </table>
-          </div>
-        </div>
-      ) : null}
+        {activeRow ? (
+          <TabPanel value={activeRow.year}>
+            <div className="krds-page__table-wrap krds-table-wrap">
+              <table className="krds-page__table tbl data">
+                <caption className="sr-only">
+                  {activeRow.year}년 월 기준 서비스 그룹 집계 표
+                </caption>
+                <thead>
+                  <tr>
+                    <th scope="col">월</th>
+                    <th scope="col">청구그룹</th>
+                    <th scope="col">서비스 그룹</th>
+                    <th scope="col">서비스명</th>
+                    <th scope="col">MM</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <ResourceServiceYearRows row={activeRow} fold={fold} />
+                </tbody>
+              </table>
+            </div>
+          </TabPanel>
+        ) : null}
+      </Tab>
     </section>
   );
 }

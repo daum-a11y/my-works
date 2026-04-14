@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Badge } from 'krds-react';
 import { getSupabaseClient } from '../../api/supabase';
 
 type HealthState = 'loading' | 'ok' | 'error';
@@ -50,5 +51,13 @@ export function HealthCheckPage() {
 
   const label = status === 'ok' ? 'OK' : status === 'error' ? 'ERROR' : '';
 
-  return <span>{label}</span>;
+  if (!label) {
+    return <span />;
+  }
+
+  return (
+    <Badge variant="light" color={status === 'ok' ? 'success' : 'danger'} size="small">
+      {label}
+    </Badge>
+  );
 }

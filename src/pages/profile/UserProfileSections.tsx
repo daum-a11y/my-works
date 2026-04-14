@@ -1,4 +1,5 @@
-import { Button } from 'krds-react';
+import { Badge, Button, Radio, RadioGroup } from 'krds-react';
+import { KrdsStructuredInfoList, PageSection } from '../../components/shared';
 import type { FontPreference } from '../../preferences/FontPreferenceState';
 import type { ThemePreference } from '../../preferences/ThemePreferenceState';
 import { USER_PROFILE_FONT_OPTIONS, USER_PROFILE_THEME_OPTIONS } from './UserProfilePage.constants';
@@ -23,42 +24,39 @@ export function UserProfileAccountSection({
   onEdit,
 }: UserProfileAccountSectionProps) {
   return (
-    <section aria-labelledby="profile-summary-title">
-      <div className="password-settings-page__panel-header">
-        <h2 id="profile-summary-title" className="password-settings-page__panel-title">
-          계정
-        </h2>
-        {!editing ? (
-          <Button
-            ref={editButtonRef}
-            type="button"
-            onClick={onEdit}
-            variant="primary"
-          >
+    <PageSection
+      title="계정"
+      titleId="profile-summary-title"
+      aria-labelledby="profile-summary-title"
+      actions={
+        !editing ? (
+          <Button ref={editButtonRef} type="button" onClick={onEdit} variant="primary">
             비밀번호 변경
           </Button>
-        ) : null}
-      </div>
+        ) : null
+      }
+    >
 
-      <dl className="password-settings-page__profile-list">
-        <div className="password-settings-page__profile-row">
-          <dt>ID</dt>
-          <dd>{accountId ?? '-'}</dd>
-        </div>
-        <div className="password-settings-page__profile-row">
-          <dt>이름</dt>
-          <dd>{name ?? '-'}</dd>
-        </div>
-        <div className="password-settings-page__profile-row">
-          <dt>이메일</dt>
-          <dd>{email ?? '-'}</dd>
-        </div>
-        <div className="password-settings-page__profile-row">
-          <dt>권한</dt>
-          <dd>{roleLabel}</dd>
-        </div>
-      </dl>
-    </section>
+      <KrdsStructuredInfoList
+        items={[
+          { label: 'ID', value: accountId ?? '-' },
+          { label: '이름', value: name ?? '-' },
+          { label: '이메일', value: email ?? '-' },
+          {
+            label: '권한',
+            value: (
+              <Badge
+                variant="light"
+                color={roleLabel === '관리자' ? 'information' : 'gray'}
+                size="small"
+              >
+                {roleLabel}
+              </Badge>
+            ),
+          },
+        ]}
+      />
+    </PageSection>
   );
 }
 
@@ -72,37 +70,27 @@ export function UserProfileFontSection({
   onFontPreferenceChange,
 }: UserProfileFontSectionProps) {
   return (
-    <section aria-labelledby="font-settings-title">
-      <div className="password-settings-page__panel-header">
-        <h2 id="font-settings-title" className="password-settings-page__panel-title">
-          폰트 설정
-        </h2>
-      </div>
-
-      <fieldset className="password-settings-page__font-fieldset">
+    <PageSection
+      title="폰트 설정"
+      titleId="font-settings-title"
+      aria-labelledby="font-settings-title"
+    >
+      <fieldset className="krds-page-settings__font-fieldset">
         <legend className="sr-only">전역 폰트 선택</legend>
-        <div className="password-settings-page__font-options">
+        <RadioGroup
+          name="fontPreference"
+          value={fontPreference}
+          onChange={(value) => onFontPreferenceChange(value as FontPreference)}
+        >
           {USER_PROFILE_FONT_OPTIONS.map((option) => (
-            <label key={option.value} className="password-settings-page__font-option">
-              <input
-                className="password-settings-page__font-radio"
-                type="radio"
-                name="fontPreference"
-                value={option.value}
-                checked={fontPreference === option.value}
-                onChange={() => onFontPreferenceChange(option.value)}
-              />
-              <span className="password-settings-page__font-option-copy">
-                <span className="password-settings-page__font-option-label">
-                  {option.label}
-                  {option.value === 'pretendard' ? ' (기본값)' : ''}
-                </span>
-              </span>
-            </label>
+            <Radio key={option.value} id={`font-preference-${option.value}`} value={option.value}>
+              {option.label}
+              {option.value === 'pretendard' ? ' (기본값)' : ''}
+            </Radio>
           ))}
-        </div>
+        </RadioGroup>
       </fieldset>
-    </section>
+    </PageSection>
   );
 }
 
@@ -116,36 +104,26 @@ export function UserProfileThemeSection({
   onThemePreferenceChange,
 }: UserProfileThemeSectionProps) {
   return (
-    <section aria-labelledby="theme-settings-title">
-      <div className="password-settings-page__panel-header">
-        <h2 id="theme-settings-title" className="password-settings-page__panel-title">
-          테마 설정
-        </h2>
-      </div>
-
-      <fieldset className="password-settings-page__setting-fieldset">
+    <PageSection
+      title="테마 설정"
+      titleId="theme-settings-title"
+      aria-labelledby="theme-settings-title"
+    >
+      <fieldset className="krds-page-settings__setting-fieldset">
         <legend className="sr-only">전역 테마 선택</legend>
-        <div className="password-settings-page__setting-options">
+        <RadioGroup
+          name="themePreference"
+          value={themePreference}
+          onChange={(value) => onThemePreferenceChange(value as ThemePreference)}
+        >
           {USER_PROFILE_THEME_OPTIONS.map((option) => (
-            <label key={option.value} className="password-settings-page__setting-option">
-              <input
-                className="password-settings-page__setting-radio"
-                type="radio"
-                name="themePreference"
-                value={option.value}
-                checked={themePreference === option.value}
-                onChange={() => onThemePreferenceChange(option.value)}
-              />
-              <span className="password-settings-page__setting-option-copy">
-                <span className="password-settings-page__setting-option-label">
-                  {option.label}
-                  {option.value === 'system' ? ' (기본값)' : ''}
-                </span>
-              </span>
-            </label>
+            <Radio key={option.value} id={`theme-preference-${option.value}`} value={option.value}>
+              {option.label}
+              {option.value === 'system' ? ' (기본값)' : ''}
+            </Radio>
           ))}
-        </div>
+        </RadioGroup>
       </fieldset>
-    </section>
+    </PageSection>
   );
 }

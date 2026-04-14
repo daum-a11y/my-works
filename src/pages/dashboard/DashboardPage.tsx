@@ -12,6 +12,7 @@ import {
   type DashboardProjectsSortState,
 } from './DashboardProjectsTable.sort';
 import { toDashboardSnapshot, toDashboardTaskCalendarDay } from './dashboardApiTransform';
+import { PageHeader } from '../../components/shared';
 
 export function DashboardPage() {
   const { session } = useAuth();
@@ -76,10 +77,8 @@ export function DashboardPage() {
   }, [calendarTasks, member, selectedMonth, shouldShowWorklogCalendar]);
 
   return (
-    <div className="dashboard-page">
-      <section className="dashboard-page__intro">
-        <h1 className="dashboard-page__intro-title">대시보드</h1>
-      </section>
+    <div className="krds-page">
+      <PageHeader title="대시보드" />
       {shouldShowWorklogCalendar ? (
         <DashboardCalendarSection
           monthState={monthState}

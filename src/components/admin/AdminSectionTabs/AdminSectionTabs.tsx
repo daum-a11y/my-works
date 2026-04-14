@@ -1,25 +1,30 @@
-import clsx from 'clsx';
-import { Link } from 'react-router-dom';
+import { Tab, TabList, TabTrigger } from 'krds-react';
+import { useNavigate } from 'react-router-dom';
 import { ADMIN_SECTION_TABS } from './AdminSectionTabs.constants';
 import type { AdminSectionTabsProps } from './AdminSectionTabs.types';
 
 export function AdminSectionTabs({ active }: AdminSectionTabsProps) {
-  return (
-    <nav aria-label="관리자 섹션" className="admin-page__tab-list">
-      {ADMIN_SECTION_TABS.map((tab) => {
-        const isActive = tab.key === active;
+  const navigate = useNavigate();
 
-        return (
-          <Link
-            key={tab.key}
-            to={tab.to}
-            className={clsx('admin-page__tab-link', isActive && 'admin-page__tab-link--active')}
-            aria-current={isActive ? 'page' : undefined}
-          >
+  return (
+    <Tab
+      value={active}
+      variant="line"
+      size="full"
+      onValueChange={(nextValue) => {
+        const nextTab = ADMIN_SECTION_TABS.find((tab) => tab.key === nextValue);
+        if (nextTab) {
+          navigate(nextTab.to);
+        }
+      }}
+    >
+      <TabList aria-label="관리자 섹션">
+        {ADMIN_SECTION_TABS.map((tab) => (
+          <TabTrigger key={tab.key} value={tab.key}>
             {tab.label}
-          </Link>
-        );
-      })}
-    </nav>
+          </TabTrigger>
+        ))}
+      </TabList>
+    </Tab>
   );
 }

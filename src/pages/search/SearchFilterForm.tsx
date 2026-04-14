@@ -29,21 +29,20 @@ export function SearchFilterForm({
     <form onSubmit={onSubmit}>
       <PageFilterBar
         actions={
-          <div className="page-filter-actions">
+          <div>
             <Button type="submit" variant="primary">
               검색
             </Button>
             <Button type="button" variant="secondary" onClick={onReset}>
               초기화
             </Button>
-            <span className="page-filter-divider" aria-hidden="true" />
             <Button type="button" variant="secondary" onClick={onDownload} disabled={!totalReports}>
               다운로드
             </Button>
           </div>
         }
       >
-        <PageFilterField className="search-page__filter-field" label="시작일">
+        <PageFilterField className="krds-page__filter-field" label="시작일">
           <TextInput
             type="date"
             value={filterDraft.startDate}
@@ -51,7 +50,7 @@ export function SearchFilterForm({
             onChange={(value) => onFilterDraftChange({ ...filterDraft, startDate: value })}
           />
         </PageFilterField>
-        <PageFilterField className="search-page__filter-field" label="종료일">
+        <PageFilterField className="krds-page__filter-field" label="종료일">
           <TextInput
             type="date"
             value={filterDraft.endDate}
@@ -59,7 +58,7 @@ export function SearchFilterForm({
             onChange={(value) => onFilterDraftChange({ ...filterDraft, endDate: value })}
           />
         </PageFilterField>
-        <PageFilterField className="search-page__filter-field" label="검색어">
+        <PageFilterField className="krds-page__filter-field" label="검색어">
           <TextInput
             value={searchInput}
             onChange={onSearchInputChange}

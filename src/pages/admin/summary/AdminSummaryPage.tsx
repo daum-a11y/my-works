@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { EmptyState, PageHeader } from '../../../components/shared';
 import { setDocumentTitle } from '../../../router/navigation';
 
 export function AdminSummaryPage() {
@@ -7,12 +8,13 @@ export function AdminSummaryPage() {
   }, []);
 
   return (
-    <section className="admin-page admin-page--page">
-      <header className="admin-page__hero">
-        <h1>업무보고 현황</h1>
-      </header>
+    <section className="krds-page-admin krds-page-admin--page">
+      <PageHeader title="업무보고 현황" />
 
-      <div className="admin-page__panel admin-page__empty-state-panel"></div>
+      <EmptyState
+        className="krds-page-admin__empty-state-panel"
+        message="업무보고 현황을 준비 중입니다."
+      />
     </section>
   );
 }

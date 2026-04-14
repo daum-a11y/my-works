@@ -1,8 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Link, useLocation } from 'react-router-dom';
+import { Button, CriticalAlert } from 'krds-react';
+import { useLocation } from 'react-router-dom';
 import { setDocumentTitle } from '../../../router/navigation';
 import { AdminOrderDialog } from '../../../components/admin/AdminOrderDialog';
+import { PageHeader } from '../../../components/shared/PageHeader';
+import { KrdsRouterButtonLink } from '../../../components/shared';
 import { adminDataClient } from '../../../api/admin';
 import { AdminServiceGroupsResultsTable } from './AdminServiceGroupsResultsTable';
 import type { AdminServiceGroupItem } from '../admin.types';
@@ -87,29 +90,29 @@ export function AdminServiceGroupsPage() {
   useAlertMessage(errorMessage);
 
   return (
-    <section className="admin-crud-page admin-crud-page--page">
-      <header className="admin-crud-page__page-header">
-        <div className="admin-crud-page__page-header-top">
-          <div className="admin-crud-page__page-heading">
-            <h1 className="admin-crud-page__title">서비스 그룹 관리</h1>
-          </div>
-          <div className="admin-crud-page__page-header-actions">
-            <button
+    <section className="krds-page-admin krds-page-admin--page">
+      <PageHeader
+        title="서비스 그룹 관리"
+        actions={
+          <>
+            <Button
               type="button"
-              className="admin-crud-page__header-action"
+              variant="secondary"
               onClick={() => setOrderDialogOpen(true)}
               disabled={!serviceGroups.length}
             >
               순서변경
-            </button>
-            <Link to="/admin/group/new" className="admin-crud-page__header-action">
+            </Button>
+            <KrdsRouterButtonLink to="/admin/group/new" variant="primary" size="large">
               서비스 그룹 추가
-            </Link>
-          </div>
-        </div>
-      </header>
+            </KrdsRouterButtonLink>
+          </>
+        }
+      />
 
-      {statusMessage ? <p className="admin-crud-page__helper-text">{statusMessage}</p> : null}
+      {statusMessage ? (
+        <CriticalAlert alerts={[{ variant: 'ok', message: statusMessage }]} />
+      ) : null}
 
       <AdminServiceGroupsResultsTable groupedServiceGroups={groupedServiceGroups} />
 
@@ -120,6 +123,7 @@ export function AdminServiceGroupsPage() {
           title: item.name,
           description: item.costGroupName ? `${item.costGroupName}` : undefined,
           badge: item.svcActive ? '노출' : '숨김',
+          badgeColor: item.svcActive ? 'success' : 'gray',
           inactive: !item.svcActive,
         }))}
         isOpen={orderDialogOpen}

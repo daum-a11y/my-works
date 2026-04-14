@@ -27,7 +27,7 @@ export function AdminReportEditorActionRow({
   const baseDate = draft.reportDate || getTodayInputValue();
 
   return (
-    <div className={'reports-page__action-row'} style={actionRowStyle}>
+    <div className={'krds-page__action-row'} style={actionRowStyle}>
       <Button
         type="submit"
         variant="primary"

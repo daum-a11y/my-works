@@ -1,4 +1,6 @@
 import { useEffect, useMemo } from 'react';
+import { Button, Checkbox, CriticalAlert, Modal, Select } from 'krds-react';
+import { KrdsStructuredInfoList } from '../../../components/shared';
 import type { AdminCostGroupItem, AdminServiceGroupItem } from '../admin.types';
 
 interface AdminServiceGroupTransferDialogProps {
@@ -109,125 +111,96 @@ export function AdminServiceGroupTransferDialog({
   }
 
   return (
-    <div className="admin-crud-page">
-      <div
-        className="admin-crud-page__dialog-scrim"
-        onClick={() => {
-          if (!isPending) {
+    <div className="krds-page-admin">
+      <Modal.Root
+        open={isOpen}
+        onOpenChange={(open) => {
+          if (!open && !isPending) {
             onClose();
           }
         }}
+        closeOnEsc={!isPending}
+        closeOnOverlayClick={!isPending}
+        size="md"
       >
-        <section
-          className="admin-crud-page__dialog"
-          role="dialog"
-          aria-modal="true"
-          aria-label="서비스 그룹 전환"
-          onClick={(event) => event.stopPropagation()}
-        >
-          <header className="admin-crud-page__dialog-header">
-            <div className="admin-crud-page__dialog-heading">
-              <h2 className="admin-crud-page__dialog-title">서비스 그룹 전환</h2>
-            </div>
-          </header>
+        <Modal.Content aria-label="서비스 그룹 전환">
+          <Modal.Header title="서비스 그룹 전환" />
 
-          {errorMessage ? <p className="admin-crud-page__helper-text">{errorMessage}</p> : null}
+          {errorMessage ? (
+            <CriticalAlert alerts={[{ variant: 'danger', message: errorMessage }]} />
+          ) : null}
 
-          <div className="admin-crud-page__dialog-form">
-            <div className="admin-crud-page__stack-field">
-              <span className="admin-crud-page__field-label">현재 항목</span>
-              <p className="admin-crud-page__readonly-value">
-                {formatServiceGroup(sourceServiceGroup)}
-              </p>
-            </div>
-            <label className="admin-crud-page__stack-field">
-              <span className="admin-crud-page__field-label">변경할 청구그룹</span>
-              <select
-                className="admin-crud-page__field-select"
-                value={selectedCostGroupId}
-                onChange={(event) => {
-                  const nextServiceGroup = targetServiceGroups.find(
-                    (item) => (item.costGroupId ?? '') === event.target.value,
-                  );
-                  onTargetServiceGroupChange(nextServiceGroup?.id ?? '');
-                }}
-                disabled={isPending}
-              >
-                {costGroupOptions.map((costGroup) => (
-                  <option key={costGroup.id} value={costGroup.id}>
-                    {costGroup.name || '-'}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="admin-crud-page__stack-field">
-              <span className="admin-crud-page__field-label">변경할 서비스 그룹</span>
-              <select
-                className="admin-crud-page__field-select"
-                value={selectedGroupName}
-                onChange={(event) => {
-                  const nextServiceGroup = costGroupServiceGroups.find(
-                    (item) => item.serviceGroupName === event.target.value,
-                  );
-                  onTargetServiceGroupChange(nextServiceGroup?.id ?? '');
-                }}
-                disabled={isPending}
-              >
-                {groupOptions.map((groupName) => (
-                  <option key={groupName} value={groupName}>
-                    {groupName || '-'}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="admin-crud-page__stack-field">
-              <span className="admin-crud-page__field-label">변경할 서비스명</span>
-              <select
-                className="admin-crud-page__field-select"
-                value={targetServiceGroupId}
-                onChange={(event) => onTargetServiceGroupChange(event.target.value)}
-                disabled={isPending || !serviceNameOptions.length}
-              >
-                {serviceNameOptions.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.serviceName || '-'}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="admin-crud-page__checkbox-field">
-              <input
-                type="checkbox"
-                checked={dropExisting}
-                onChange={(event) => onDropExistingChange(event.target.checked)}
-                disabled={isPending}
-              />
-              <span>기존 항목 삭제</span>
-            </label>
-          </div>
+          <Modal.Body>
+            <KrdsStructuredInfoList
+              items={[{ label: '현재 항목', value: formatServiceGroup(sourceServiceGroup) }]}
+            />
+            <Select
+              id="service-group-transfer-target-cost-group"
+              label="변경할 청구그룹"
+              value={selectedCostGroupId}
+              onChange={(value) => {
+                const nextServiceGroup = targetServiceGroups.find(
+                  (item) => (item.costGroupId ?? '') === value,
+                );
+                onTargetServiceGroupChange(nextServiceGroup?.id ?? '');
+              }}
+              disabled={isPending}
+              options={costGroupOptions.map((costGroup) => ({
+                value: costGroup.id,
+                label: costGroup.name || '-',
+              }))}
+            />
+            <Select
+              id="service-group-transfer-target-group"
+              label="변경할 서비스 그룹"
+              value={selectedGroupName}
+              onChange={(value) => {
+                const nextServiceGroup = costGroupServiceGroups.find(
+                  (item) => item.serviceGroupName === value,
+                );
+                onTargetServiceGroupChange(nextServiceGroup?.id ?? '');
+              }}
+              disabled={isPending}
+              options={groupOptions.map((groupName) => ({
+                value: groupName,
+                label: groupName || '-',
+              }))}
+            />
+            <Select
+              id="service-group-transfer-target-service"
+              label="변경할 서비스명"
+              value={targetServiceGroupId}
+              onChange={onTargetServiceGroupChange}
+              disabled={isPending || !serviceNameOptions.length}
+              options={serviceNameOptions.map((item) => ({
+                value: item.id,
+                label: item.serviceName || '-',
+              }))}
+            />
+            <Checkbox
+              id="service-group-transfer-drop-existing"
+              label="기존 항목 삭제"
+              checked={dropExisting}
+              onChange={(event) => onDropExistingChange(event.target.checked)}
+              disabled={isPending}
+            />
+          </Modal.Body>
 
-          <footer className="admin-crud-page__dialog-footer">
-            <div className="admin-crud-page__actions">
-              <button
-                type="button"
-                className="admin-crud-page__button admin-crud-page__button--secondary"
-                onClick={onClose}
-                disabled={isPending}
-              >
-                취소
-              </button>
-              <button
-                type="button"
-                className="admin-crud-page__button admin-crud-page__button--primary"
-                onClick={onSave}
-                disabled={isPending || !targetServiceGroupId}
-              >
-                저장
-              </button>
-            </div>
-          </footer>
-        </section>
-      </div>
+          <Modal.Footer>
+            <Button type="button" variant="secondary" onClick={onClose} disabled={isPending}>
+              취소
+            </Button>
+            <Button
+              type="button"
+              variant="primary"
+              onClick={onSave}
+              disabled={isPending || !targetServiceGroupId}
+            >
+              저장
+            </Button>
+          </Modal.Footer>
+        </Modal.Content>
+      </Modal.Root>
     </div>
   );
 }

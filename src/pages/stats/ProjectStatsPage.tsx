@@ -167,7 +167,7 @@ export function ProjectStatsPage() {
   };
 
   return (
-    <div className={'stats-page page-shell'}>
+    <div className={'krds-page'}>
       <PageHeader title={PROJECT_STATS_PAGE_TITLE} />
 
       <PageSection title="필터">

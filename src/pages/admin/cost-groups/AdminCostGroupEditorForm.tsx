@@ -14,29 +14,25 @@ export function AdminCostGroupEditorForm({
   onDraftChange,
 }: AdminCostGroupEditorFormProps) {
   return (
-    <div className={'projects-feature__editor-form-grid'}>
-      <div className={'projects-feature__field'}>
-        <TextInput
-          id="admin-cost-group-name"
-          label="청구그룹명"
-          ref={titleRef}
-          value={draft.name}
-          onChange={(value) => onDraftChange({ name: value })}
-        />
-      </div>
+    <div className={'krds-page__editor-form-grid'}>
+      <TextInput
+        id="admin-cost-group-name"
+        label="청구그룹명"
+        ref={titleRef}
+        value={draft.name}
+        onChange={(value) => onDraftChange({ name: value })}
+      />
 
-      <div className={'projects-feature__field'}>
-        <Select
-          id="admin-cost-group-active"
-          label="노출여부"
-          value={draft.isActive ? '1' : '0'}
-          options={[
-            { value: '1', label: '노출' },
-            { value: '0', label: '숨김' },
-          ]}
-          onChange={(value) => onDraftChange({ isActive: value === '1' })}
-        />
-      </div>
+      <Select
+        id="admin-cost-group-active"
+        label="노출여부"
+        value={draft.isActive ? '1' : '0'}
+        options={[
+          { value: '1', label: '노출' },
+          { value: '0', label: '숨김' },
+        ]}
+        onChange={(value) => onDraftChange({ isActive: value === '1' })}
+      />
     </div>
   );
 }
