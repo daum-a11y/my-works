@@ -93,11 +93,10 @@ describe('AuthenticatedLayout', () => {
 
     await user.click(screen.getByRole('button', { name: '사용자 메뉴' }));
 
-    expect(screen.getByRole('menu', { name: '사용자 메뉴' })).toBeInTheDocument();
-    expect(screen.getByRole('menuitem', { name: '프로필' })).toBeInTheDocument();
-    expect(screen.getByRole('menuitem', { name: '로그아웃' })).toBeInTheDocument();
+    expect(screen.getByText('프로필')).toBeInTheDocument();
+    expect(screen.getByText('로그아웃')).toBeInTheDocument();
 
-    await user.click(screen.getByRole('menuitem', { name: '로그아웃' }));
+    await user.click(screen.getByText('로그아웃'));
 
     await waitFor(() => {
       expect(logout).toHaveBeenCalledTimes(1);
@@ -175,7 +174,7 @@ describe('AuthenticatedLayout', () => {
     );
 
     const breadcrumbNav = screen.getAllByRole('navigation', { name: '브래드크럼' })[0];
-    const homeLink = within(breadcrumbNav).getByRole('link', { name: '홈으로 가기' });
+    const homeLink = within(breadcrumbNav).getByRole('link', { name: '홈' });
     await user.click(homeLink);
 
     await waitFor(() => {

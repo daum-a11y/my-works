@@ -1,4 +1,5 @@
 import type { FormEvent } from 'react';
+import { Button, TextInput } from 'krds-react';
 import { PageFilterBar } from '../../components/shared/PageFilterBar';
 import { PageFilterField } from '../../components/shared/PageFilterField';
 
@@ -28,44 +29,40 @@ export function TaskMonitoringFilterForm({
       <PageFilterBar
         actions={
           <div className={'stats-page__filter-actions'}>
-            <button type="submit" className={'stats-page__filter-button'}>
+            <Button type="submit" variant="primary">
               검색
-            </button>
-            <button
-              type="button"
-              className={'stats-page__filter-button stats-page__filter-button--secondary'}
-              onClick={onReset}
-            >
+            </Button>
+            <Button type="button" variant="secondary" onClick={onReset}>
               초기화
-            </button>
+            </Button>
           </div>
         }
       >
         <PageFilterField className={'stats-page__filter-field'} label="시작월">
-          <input
+          <TextInput
             type="month"
             aria-label="태스크 현황 시작월"
             value={draftStartMonth}
             max={draftEndMonth || undefined}
-            onChange={(event) => onDraftStartMonthChange(event.target.value)}
+            onChange={onDraftStartMonthChange}
           />
         </PageFilterField>
         <PageFilterField className={'stats-page__filter-field'} label="종료월">
-          <input
+          <TextInput
             type="month"
             aria-label="태스크 현황 종료월"
             value={draftEndMonth}
             min={draftStartMonth || undefined}
-            onChange={(event) => onDraftEndMonthChange(event.target.value)}
+            onChange={onDraftEndMonthChange}
           />
         </PageFilterField>
         <PageFilterField className={'stats-page__filter-field'} label="검색">
-          <input
+          <TextInput
             type="search"
             aria-label="태스크 현황 검색"
             value={draftQuery}
             placeholder="프로젝트, 태스크, 담당자"
-            onChange={(event) => onDraftQueryChange(event.target.value)}
+            onChange={onDraftQueryChange}
           />
         </PageFilterField>
       </PageFilterBar>

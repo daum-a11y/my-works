@@ -18,6 +18,7 @@ import { ResourceMonthTableSection } from './ResourceMonthTableSection';
 import { parseMonth } from './ResourceMonthPage.utils';
 import { useAuth } from '../../auth/AuthContext';
 import { toResourceMonthReport } from './resourceApiTransform';
+import './ResourcePage.css';
 
 export function ResourceMonthPage() {
   const { type } = useParams();

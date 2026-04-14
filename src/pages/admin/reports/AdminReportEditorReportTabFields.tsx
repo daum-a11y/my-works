@@ -1,5 +1,18 @@
-import type { KeyboardEvent } from 'react';
+import type { CSSProperties, KeyboardEvent } from 'react';
+import { Button, Select, TextInput } from 'krds-react';
 import type { ReportDraft, ProjectViewModel } from '../../reports/reportUtils';
+
+const gridStyle: CSSProperties = {
+  display: 'grid',
+  gap: '1rem',
+  gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+};
+
+const searchRowStyle: CSSProperties = {
+  display: 'flex',
+  gap: '0.75rem',
+  alignItems: 'flex-end',
+};
 
 interface AdminReportEditorReportTabFieldsProps {
   draft: ReportDraft;
@@ -27,58 +40,49 @@ export function AdminReportEditorReportTabFields({
   onProjectChange,
 }: AdminReportEditorReportTabFieldsProps) {
   return (
-    <div className={'reports-page__form-grid'}>
-      <label className={'reports-page__field'}>
-        <span>청구그룹</span>
-        <select
-          value={draft.costGroupId}
-          onChange={(event) => onCostGroupChange(event.target.value)}
-        >
-          <option value="">{costGroups.length ? '선택' : '청구그룹이 없습니다.'}</option>
-          {costGroups.map((group) => (
-            <option key={group.id} value={group.id}>
-              {group.name}
-            </option>
-          ))}
-        </select>
-      </label>
+    <div className={'reports-page__form-grid'} style={gridStyle}>
+      <Select
+        label="청구그룹"
+        value={draft.costGroupId}
+        onChange={onCostGroupChange}
+        options={[
+          {
+            value: '',
+            label: costGroups.length ? '선택' : '청구그룹이 없습니다.',
+          },
+          ...costGroups.map((group) => ({ value: group.id, label: group.name })),
+        ]}
+        style={{ width: '100%' }}
+      />
 
-      <label className={'reports-page__field'}>
-        <span>프로젝트검색</span>
-        <input
+      <div style={searchRowStyle}>
+        <TextInput
+          label="프로젝트검색"
           value={projectQuery}
-          onChange={(event) => onProjectQueryChange(event.target.value)}
+          onChange={onProjectQueryChange}
           onKeyDown={onProjectSearchKeyDown}
           placeholder="검색어입력"
+          style={{ width: '100%', flex: '1 1 0' }}
         />
-      </label>
-
-      <div className={'reports-page__search-button-field'}>
-        <span className={'sr-only'}>프로젝트 검색</span>
-        <button
-          type="button"
-          className={'reports-page__button reports-page__button--secondary'}
-          onClick={onProjectSearch}
-        >
+        <Button type="button" variant="secondary" onClick={onProjectSearch}>
           검색
-        </button>
+        </Button>
       </div>
 
-      <label className={'reports-page__field'}>
-        <span>프로젝트</span>
-        <select
-          value={draft.projectId}
-          onChange={(event) => onProjectChange(event.target.value)}
-          disabled={!draft.costGroupId}
-        >
-          <option value="">{projectSearchPlaceholder}</option>
-          {filteredProjectOptions.map((project) => (
-            <option key={project.id} value={project.id}>
-              {`${project.project.taskType1} - ${project.project.platform} - ${project.project.name}`}
-            </option>
-          ))}
-        </select>
-      </label>
+      <Select
+        label="프로젝트"
+        value={draft.projectId}
+        onChange={onProjectChange}
+        disabled={!draft.costGroupId}
+        options={[
+          { value: '', label: projectSearchPlaceholder },
+          ...filteredProjectOptions.map((project) => ({
+            value: project.id,
+            label: `${project.project.taskType1} - ${project.project.platform} - ${project.project.name}`,
+          })),
+        ]}
+        style={{ width: '100%' }}
+      />
     </div>
   );
 }

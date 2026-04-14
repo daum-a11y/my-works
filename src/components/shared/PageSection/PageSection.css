@@ -1,0 +1,45 @@
+.page-section {
+  display: grid;
+  gap: 13px;
+  min-width: 0;
+}
+
+.page-section--plain {
+  padding: 2px 0 6px;
+}
+
+.page-section--panel {
+  padding: 15px 16px 16px;
+  border: 1px solid #d8dde3;
+  border-radius: 8px;
+  background-color: #ffffff;
+}
+
+.page-section__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #d8dde3;
+}
+
+.page-section__heading h2 {
+  margin: 0;
+  color: #1d1d1d;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.page-section__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.page-section__content {
+  min-width: 0;
+}

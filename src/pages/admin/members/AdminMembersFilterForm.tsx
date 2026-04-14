@@ -1,4 +1,5 @@
 import type { FormEvent } from 'react';
+import { Button, Select, TextInput } from 'krds-react';
 import { PageFilterBar } from '../../../components/shared/PageFilterBar';
 import { PageFilterField } from '../../../components/shared/PageFilterField';
 import type { MemberFilterState } from './AdminMembersPage.types';
@@ -21,42 +22,35 @@ export function AdminMembersFilterForm({
       <PageFilterBar
         actions={
           <div className={'admin-members-page__filter-actions'}>
-            <button type="submit" className={'admin-members-page__filter-button'}>
+            <Button type="submit" variant="primary">
               검색
-            </button>
-            <button
-              type="button"
-              className={
-                'admin-members-page__filter-button admin-members-page__filter-button--secondary'
-              }
-              onClick={onReset}
-            >
+            </Button>
+            <Button type="button" variant="secondary" onClick={onReset}>
               초기화
-            </button>
+            </Button>
           </div>
         }
       >
         <PageFilterField className={'admin-members-page__filter-field'} label="활성 여부">
-          <select
+          <Select
             value={filterDraft.status}
-            onChange={(event) =>
+            onChange={(value) =>
               onFilterDraftChange({
                 ...filterDraft,
-                status: event.target.value as MemberFilterState['status'],
+                status: value as MemberFilterState['status'],
               })
             }
-          >
-            <option value="all">전체</option>
-            <option value="active">활성</option>
-            <option value="inactive">비활성</option>
-          </select>
+            options={[
+              { value: 'all', label: '전체' },
+              { value: 'active', label: '활성' },
+              { value: 'inactive', label: '비활성' },
+            ]}
+          />
         </PageFilterField>
         <PageFilterField className={'admin-members-page__filter-field'} label="검색어">
-          <input
+          <TextInput
             value={filterDraft.keyword}
-            onChange={(event) =>
-              onFilterDraftChange({ ...filterDraft, keyword: event.target.value })
-            }
+            onChange={(value) => onFilterDraftChange({ ...filterDraft, keyword: value })}
             placeholder="이름, ID, 메일 검색"
           />
         </PageFilterField>

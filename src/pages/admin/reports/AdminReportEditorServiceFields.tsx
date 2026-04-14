@@ -1,4 +1,12 @@
+import type { CSSProperties } from 'react';
 import type { ReportDraft } from '../../reports/reportUtils';
+import { Select, TextInput } from 'krds-react';
+
+const gridStyle: CSSProperties = {
+  display: 'grid',
+  gap: '1rem',
+  gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+};
 
 interface AdminReportEditorServiceFieldsProps {
   draft: ReportDraft;
@@ -16,39 +24,34 @@ export function AdminReportEditorServiceFields({
   onPlatformChange,
 }: AdminReportEditorServiceFieldsProps) {
   return (
-    <>
+    <div style={gridStyle}>
       {showPlatformSelect ? (
-        <label className={'reports-page__field'}>
-          <span>플랫폼</span>
-          <select value={draft.platform} onChange={(event) => onPlatformChange(event.target.value)}>
-            <option value="">선택</option>
-            {platforms
+        <Select
+          label="플랫폼"
+          value={draft.platform}
+          onChange={onPlatformChange}
+          options={[
+            { value: '', label: '선택' },
+            ...platforms
               .filter((platform) => platform.isVisible || platform.name === draft.platform)
-              .map((platform) => (
-                <option key={platform.id} value={platform.name}>
-                  {platform.name}
-                </option>
-              ))}
-          </select>
-        </label>
+              .map((platform) => ({ value: platform.name, label: platform.name })),
+          ]}
+          style={{ width: '100%' }}
+        />
       ) : null}
 
       {showReadonlyService ? (
         <>
-          <label className={'reports-page__field'}>
-            <span>청구그룹</span>
-            <input value={draft.costGroupName} readOnly />
-          </label>
-          <label className={'reports-page__field'}>
-            <span>서비스 그룹</span>
-            <input value={draft.serviceGroupName} readOnly />
-          </label>
-          <label className={'reports-page__field'}>
-            <span>서비스 명</span>
-            <input value={draft.serviceName} readOnly />
-          </label>
+          <TextInput label="청구그룹" value={draft.costGroupName} readOnly style={{ width: '100%' }} />
+          <TextInput
+            label="서비스 그룹"
+            value={draft.serviceGroupName}
+            readOnly
+            style={{ width: '100%' }}
+          />
+          <TextInput label="서비스 명" value={draft.serviceName} readOnly style={{ width: '100%' }} />
         </>
       ) : null}
-    </>
+    </div>
   );
 }

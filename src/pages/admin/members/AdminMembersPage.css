@@ -1,0 +1,60 @@
+.admin-members-page--page {
+  display: grid;
+  gap: 20px;
+  align-content: start;
+}
+
+.admin-members-page__status-text {
+  margin: 0;
+  padding: 12px 16px;
+  border: 1px solid #d8dde3;
+  border-radius: 8px;
+  background: #eefaf0;
+  color: #1b5e20;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.admin-members-page__filter-field {
+  min-width: min(220px, 100%);
+}
+
+.admin-members-page__filter-field > * {
+  width: 100%;
+}
+
+.admin-members-page__filter-actions,
+.admin-members-page__pager {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.admin-members-page__result-metric {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.admin-members-page__result-label {
+  color: #58616a;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.admin-members-page__result-value,
+.admin-members-page__page-status strong {
+  color: #1d1d1d;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+@media (max-width: 767px) {
+  .admin-members-page__result-metric {
+    white-space: normal;
+  }
+}

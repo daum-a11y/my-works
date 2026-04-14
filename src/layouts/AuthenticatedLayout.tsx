@@ -1,303 +1,223 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState, type MouseEvent } from 'react';
 import { useIsFetching } from '@tanstack/react-query';
-import clsx from 'clsx';
-import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
-import { ChevronRight, ChevronDown, House, LogOut, UserRound } from 'lucide-react';
+import {
+  Breadcrumb,
+  Header,
+  SideNavigation,
+  SkipLink,
+  type HeaderMyGovMenuItem,
+} from 'krds-react';
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { BrandLogo } from '../components/layout/BrandLogo';
 import { useAuth } from '../auth/AuthContext';
 import {
   adminNavigation,
   baseNavigation,
-  getBreadcrumbs,
   setDocumentTitle,
+  toBreadcrumbItems,
+  type NavigationItem,
 } from '../router/navigation';
 import { GlobalLoadingSpinner } from '../components/layout/GlobalLoadingSpinner';
-import { getAvatarColors } from '../utils/color';
+import './AuthenticatedLayout.css';
+
+function toDomId(value: string) {
+  return value.replace(/[^a-zA-Z0-9_-]/g, '-');
+}
+
+function isLeafItem(item: NavigationItem): item is Extract<NavigationItem, { to: string }> {
+  return 'to' in item;
+}
+
+function hasActiveChild(pathname: string, item: Extract<NavigationItem, { children: readonly unknown[] }>) {
+  return item.children.some((child) => pathname === child.to || pathname.startsWith(`${child.to}/`));
+}
 
 export function AuthenticatedLayout() {
   const location = useLocation();
+  const navigate = useNavigate();
   const { session, logout } = useAuth();
   const isAdmin = session?.member.role === 'admin';
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const [logoutError, setLogoutError] = useState<string>('');
-  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const [avatarColor, setAvatarColor] = useState<{ backgroundColor: string; textColor: string }>({
-    backgroundColor: '',
-    textColor: '',
-  });
-  const userMenuRef = useRef<HTMLDivElement | null>(null);
   const activeFetchCount = useIsFetching();
+  const [logoutError, setLogoutError] = useState('');
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
 
   const navigation = useMemo(
     () => (isAdmin ? [...baseNavigation, ...adminNavigation] : [...baseNavigation]),
     [isAdmin],
   );
 
-  const breadcrumbs = useMemo(() => {
-    return getBreadcrumbs(location.pathname, navigation);
-  }, [location.pathname, navigation]);
+  const breadcrumbItems = useMemo(
+    () => toBreadcrumbItems(location.pathname, navigation),
+    [location.pathname, navigation],
+  );
 
   useEffect(() => {
-    setDocumentTitle(breadcrumbs[breadcrumbs.length - 1]?.label ?? 'My Works');
-  }, [breadcrumbs]);
+    const current = breadcrumbItems[breadcrumbItems.length - 1];
+    setDocumentTitle(current?.text ?? 'My Works');
+  }, [breadcrumbItems]);
 
   useEffect(() => {
-    setIsUserMenuOpen(false);
+    setLogoutError('');
   }, [location.pathname]);
 
-  useEffect(() => {
-    if (!isUserMenuOpen) {
+  const myGovItems = useMemo<HeaderMyGovMenuItem[]>(
+    () => [
+      {
+        label: '프로필',
+        href: '/profile',
+        onClick(event) {
+          event.preventDefault();
+          navigate('/profile');
+        },
+      },
+      {
+        label: '로그아웃',
+        async onClick() {
+          try {
+            setLogoutError('');
+            await logout();
+          } catch (error) {
+            setLogoutError(
+              error instanceof Error ? error.message : '로그아웃 처리 중 오류가 발생했습니다.',
+            );
+          }
+        },
+      },
+    ],
+    [logout, navigate],
+  );
+
+  function handleRouteLinkClick(event: MouseEvent<HTMLElement>, href?: string) {
+    if (!href || !href.startsWith('/')) {
       return;
     }
 
-    function handlePointerDown(event: PointerEvent) {
-      if (!userMenuRef.current?.contains(event.target as Node)) {
-        setIsUserMenuOpen(false);
-      }
-    }
-
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape') {
-        setIsUserMenuOpen(false);
-      }
-    }
-
-    document.addEventListener('pointerdown', handlePointerDown);
-    document.addEventListener('keydown', handleKeyDown);
-    return () => {
-      document.removeEventListener('pointerdown', handlePointerDown);
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [isUserMenuOpen]);
-
-  async function handleLogout() {
-    if (isLoggingOut) {
-      return;
-    }
-
-    setIsLoggingOut(true);
-    setLogoutError('');
-
-    try {
-      await logout();
-    } catch (error) {
-      setLogoutError(error instanceof Error ? error.message : '로그아웃에 실패했습니다.');
-    } finally {
-      setIsLoggingOut(false);
-    }
+    event.preventDefault();
+    navigate(href);
   }
-
-  useLayoutEffect(() => {
-    setAvatarColor(getAvatarColors(session?.member?.accountId || ''));
-  }, [session?.member?.accountId]);
-
-  const userInitials = (session?.member?.accountId || '').slice(0, 1);
 
   return (
     <div className="authenticated-layout">
-      <a href="#main-content" className="skip-link">
-        본문으로 바로가기
-      </a>
-      <div className="authenticated-layout__layout">
-        <header className="authenticated-layout__header">
-          <div className="authenticated-layout__brand">
-            <NavLink
-              to="/dashboard"
-              className="authenticated-layout__brand-link"
-              aria-label="MY WORKS 홈"
-            >
-              <BrandLogo
-                className="authenticated-layout__brand-logo"
-                alt="MY WORKS"
-                width={100}
-                height={30}
-              />
-            </NavLink>
-          </div>
-          <div className="authenticated-layout__header-body">
-            <div className="authenticated-layout__header-title">
-              <nav className="authenticated-layout__breadcrumbs" aria-label="브래드크럼">
-                <ol>
-                  {breadcrumbs.map((crumb, i) => (
-                    <li key={crumb.label}>
-                      {i > 0 && (
-                        <ChevronRight
-                          size={14}
-                          className="authenticated-layout__breadcrumb-separator"
-                        />
-                      )}
-                      <span
-                        className={
-                          i === breadcrumbs.length - 1 ? 'authenticated-layout__last-crumb' : ''
-                        }
-                      >
-                        {i === 0 ? (
-                          <Link
-                            to="/dashboard"
-                            className="authenticated-layout__breadcrumb-home"
-                            aria-label="홈으로 가기"
-                          >
-                            <House size={14} strokeWidth={2.2} aria-hidden="true" />
-                            <span className="sr-only">홈</span>
-                          </Link>
-                        ) : (
-                          crumb.label
-                        )}
-                      </span>
-                    </li>
-                  ))}
-                </ol>
-              </nav>
-            </div>
-            <div className="authenticated-layout__header-meta">
-              <div className="authenticated-layout__user-menu" ref={userMenuRef}>
-                <button
-                  type="button"
-                  className="authenticated-layout__user-menu-trigger"
-                  aria-haspopup="menu"
-                  aria-expanded={isUserMenuOpen}
-                  aria-label={`사용자 메뉴`}
-                  onClick={() => setIsUserMenuOpen((open) => !open)}
-                >
-                  <div
-                    className="authenticated-layout__profile-icon"
-                    style={{
-                      backgroundColor: avatarColor.backgroundColor,
-                      color: avatarColor.textColor,
-                    }}
-                    aria-hidden="true"
-                  >
-                    {userInitials}
-                  </div>
-                  <div className="authenticated-layout__profile-info">
-                    <strong>{session?.member.accountId}</strong>
-                  </div>
-                  <ChevronDown
-                    size={15}
-                    strokeWidth={2.2}
-                    className={clsx(
-                      'authenticated-layout__user-menu-chevron',
-                      isUserMenuOpen && 'authenticated-layout__user-menu-chevron--open',
-                    )}
-                    aria-hidden="true"
-                  />
-                </button>
-                {isUserMenuOpen ? (
-                  <div
-                    className="authenticated-layout__user-menu-panel"
-                    role="menu"
-                    aria-label="사용자 메뉴"
-                  >
-                    <div className="authenticated-layout__user-menu-identity">
-                      <div
-                        className="authenticated-layout__user-menu-identity-avatar"
-                        style={{
-                          backgroundColor: avatarColor.backgroundColor,
-                          color: avatarColor.textColor,
-                        }}
-                        aria-hidden="true"
-                      >
-                        {userInitials}
-                      </div>
-                      <div className="authenticated-layout__user-menu-identity-text">
-                        <strong>{session?.member.accountId}</strong>
-                        <span>{session?.member.name}</span>
-                      </div>
-                    </div>
-                    <NavLink
-                      to="/profile"
-                      role="menuitem"
-                      className={({ isActive }) =>
-                        clsx(
-                          'authenticated-layout__user-menu-item',
-                          isActive && 'authenticated-layout__user-menu-item--active',
-                        )
-                      }
-                    >
-                      <UserRound size={15} strokeWidth={2} aria-hidden="true" />
-                      <span>프로필</span>
-                    </NavLink>
-                    <button
-                      type="button"
-                      role="menuitem"
-                      className="authenticated-layout__user-menu-item authenticated-layout__user-menu-item--danger"
-                      onClick={() => void handleLogout()}
-                      disabled={isLoggingOut}
-                    >
-                      <LogOut size={15} strokeWidth={2} aria-hidden="true" />
-                      <span>로그아웃</span>
-                    </button>
-                  </div>
-                ) : null}
-              </div>
-              {logoutError ? (
-                <p className="authenticated-layout__header-status" role="alert" aria-live="polite">
-                  {logoutError}
-                </p>
-              ) : null}
-            </div>
-          </div>
-        </header>
+      <SkipLink targetId="main-content">본문으로 바로가기</SkipLink>
 
-        <aside className="authenticated-layout__sidebar">
-          <nav aria-label="주요 메뉴" className="authenticated-layout__nav">
-            <ul className="authenticated-layout__nav-list">
-              {navigation.map((item) => (
-                <li key={item.label} className="authenticated-layout__nav-item">
-                  {'to' in item && item.to ? (
-                    <NavLink
-                      to={item.to}
-                      className={({ isActive }) =>
-                        clsx(
-                          'authenticated-layout__nav-link',
-                          isActive && 'authenticated-layout__nav-link--active',
-                        )
+      <Header className="authenticated-layout__header">
+        <Header.Container className="authenticated-layout__header-container">
+          <NavLink to="/dashboard" aria-label="MY WORKS 홈" className="authenticated-layout__brand-link">
+            <BrandLogo className="my-works-brand-logo" alt="MY WORKS" width={100} height={30} />
+          </NavLink>
+          <Header.Navi>
+            <Header.NaviButton.MyGov
+              label="사용자 메뉴"
+              name={session?.member.accountId ?? ''}
+              items={myGovItems}
+            />
+          </Header.Navi>
+        </Header.Container>
+      </Header>
+
+      <div className="authenticated-layout__content-grid">
+        <aside
+          aria-label="주요 메뉴"
+          className="authenticated-layout__sidebar"
+          onClickCapture={(event) => {
+            const target = event.target as HTMLElement;
+            const anchor = target.closest('a');
+            if (!anchor) {
+              return;
+            }
+            handleRouteLinkClick(event, anchor.getAttribute('href') ?? undefined);
+          }}
+        >
+          <SideNavigation>
+            <SideNavigation.Title className="authenticated-layout__side-nav-title">메뉴</SideNavigation.Title>
+            <SideNavigation.Menu>
+              {navigation.map((item) => {
+                if (isLeafItem(item)) {
+                  const isCurrent =
+                    location.pathname === item.to || location.pathname.startsWith(`${item.to}/`);
+
+                  return (
+                    <SideNavigation.Item key={item.to} active={isCurrent}>
+                      <SideNavigation.Link
+                        href={item.to}
+                        current={isCurrent}
+                      >
+                        {item.label}
+                      </SideNavigation.Link>
+                    </SideNavigation.Item>
+                  );
+                }
+
+                const expanded = hasActiveChild(location.pathname, item) || openGroups[item.label] === true;
+                const submenuId = `side-nav-${toDomId(item.label)}`;
+
+                return (
+                  <SideNavigation.Item key={item.label} active={expanded}>
+                    <SideNavigation.Toggle
+                      active={expanded}
+                      expanded={expanded}
+                      onClick={() =>
+                        setOpenGroups((current) => ({
+                          ...current,
+                          [item.label]: !(hasActiveChild(location.pathname, item) || current[item.label] === true),
+                        }))
                       }
+                      aria-controls={submenuId}
                     >
-                      {item.icon && <item.icon size={16} strokeWidth={2} />}
-                      <span>{item.label}</span>
-                    </NavLink>
-                  ) : (
-                    <div className="authenticated-layout__nav-group">
-                      <div className="authenticated-layout__nav-group-header">
-                        {item.icon && <item.icon size={16} strokeWidth={2} />}
-                        <span className="authenticated-layout__section-label">{item.label}</span>
-                      </div>
-                      <ul className="authenticated-layout__sub-nav-list">
-                        {'children' in item &&
-                          item.children?.map((child) => (
-                            <li key={child.to}>
-                              <NavLink
-                                to={child.to}
-                                className={({ isActive }) =>
-                                  clsx(
-                                    'authenticated-layout__nav-link',
-                                    isActive && 'authenticated-layout__nav-link--active',
-                                  )
-                                }
+                      {item.label}
+                    </SideNavigation.Toggle>
+                    <SideNavigation.SubMenu id={submenuId}>
+                      <SideNavigation.Menu>
+                        {item.children.map((child) => {
+                          const isCurrent =
+                            location.pathname === child.to ||
+                            location.pathname.startsWith(`${child.to}/`);
+
+                          return (
+                            <SideNavigation.SubItem key={child.to} active={isCurrent}>
+                              <SideNavigation.Link
+                                href={child.to}
+                                current={isCurrent}
                               >
                                 {child.label}
-                              </NavLink>
-                            </li>
-                          ))}
-                      </ul>
-                    </div>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </nav>
+                              </SideNavigation.Link>
+                            </SideNavigation.SubItem>
+                          );
+                        })}
+                      </SideNavigation.Menu>
+                    </SideNavigation.SubMenu>
+                  </SideNavigation.Item>
+                );
+              })}
+            </SideNavigation.Menu>
+          </SideNavigation>
         </aside>
 
-        <div className="authenticated-layout__content">
-          {activeFetchCount > 0 ? (
-            <div className="authenticated-layout__global-loading-overlay">
-              <GlobalLoadingSpinner overlay />
+        <div className="authenticated-layout__main-wrap">
+          {activeFetchCount > 0 ? <GlobalLoadingSpinner overlay /> : null}
+          <div className="authenticated-layout__inner">
+            {logoutError ? (
+              <p role="alert" aria-live="polite" className="authenticated-layout__status-message">
+                {logoutError}
+              </p>
+            ) : null}
+            <div
+              className="authenticated-layout__breadcrumb"
+              onClickCapture={(event) => {
+                const target = event.target as HTMLElement;
+                const anchor = target.closest('a');
+                if (!anchor) {
+                  return;
+                }
+                handleRouteLinkClick(event, anchor.getAttribute('href') ?? undefined);
+              }}
+            >
+              <Breadcrumb items={breadcrumbItems} ariaLabel="브레드크럼" />
             </div>
-          ) : null}
-          <main id="main-content" className="authenticated-layout__main">
-            <Outlet />
-          </main>
+            <main id="main-content" className="authenticated-layout__main">
+              <Outlet />
+            </main>
+          </div>
         </div>
       </div>
     </div>

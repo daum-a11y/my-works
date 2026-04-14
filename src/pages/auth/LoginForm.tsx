@@ -74,14 +74,14 @@ export function LoginForm({
           </Button>
         </div>
         <div className="login-page__recovery">
-          <button
+          <Button
             type="button"
-            className="login-page__recovery-button"
-            disabled={!isSupabaseConfigured || isBusy}
-            onClick={onRecovery}
+            tone="ghost"
+            isDisabled={!isSupabaseConfigured || isBusy}
+            onPress={onRecovery}
           >
             비밀번호 찾기
-          </button>
+          </Button>
         </div>
       </form>
     </div>

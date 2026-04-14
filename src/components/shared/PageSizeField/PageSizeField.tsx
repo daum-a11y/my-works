@@ -1,9 +1,9 @@
-import clsx from 'clsx';
 import type { ComponentPropsWithoutRef } from 'react';
+import { Select } from 'krds-react';
 
 export interface PageSizeFieldProps extends Omit<
   ComponentPropsWithoutRef<'select'>,
-  'value' | 'onChange'
+  'value' | 'defaultValue' | 'onChange' | 'size'
 > {
   value: number;
   options: readonly number[];
@@ -21,19 +21,18 @@ export function PageSizeField({
   ...props
 }: PageSizeFieldProps) {
   return (
-    <label className={clsx('page-size-field', className)}>
-      <span>{PAGE_SIZE_FIELD_LABEL}</span>
-      <select
-        value={String(value)}
-        onChange={(event) => onValueChange(Number(event.target.value))}
-        {...props}
-      >
-        {options.map((option) => (
-          <option key={option} value={option}>
-            {option}행
-          </option>
-        ))}
-      </select>
-    </label>
+    <Select
+      className={className}
+      label={PAGE_SIZE_FIELD_LABEL}
+      value={String(value)}
+      variant="sorting"
+      size="small"
+      options={options.map((option) => ({
+        value: String(option),
+        label: `${option}행`,
+      }))}
+      onChange={(next) => onValueChange(Number(next))}
+      {...props}
+    />
   );
 }

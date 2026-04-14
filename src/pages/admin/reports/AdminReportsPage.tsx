@@ -1,3 +1,4 @@
+import { Button } from 'krds-react';
 import { PagePager } from '../../../components/shared/PagePager';
 import { PageResultBar } from '../../../components/shared/PageResultBar';
 import { PageSizeField } from '../../../components/shared/PageSizeField';
@@ -8,6 +9,7 @@ import { AdminReportsFilterForm } from './AdminReportsFilterForm';
 import { AdminReportsResultsTable } from './AdminReportsResultsTable';
 import { useAdminReportsPage } from './useAdminReportsPage';
 import { useAlertMessage } from '../../../hooks/useAlertMessage';
+import './AdminReportsPage.css';
 const numberFormatter = new Intl.NumberFormat('ko-KR');
 
 export function AdminReportsPage() {
@@ -20,13 +22,13 @@ export function AdminReportsPage() {
       <PageHeader
         title="업무보고 조회"
         actions={
-          <button
+          <Button
             type="button"
-            className={'admin-reports-page__header-action'}
             onClick={page.handleCreate}
+            variant="primary"
           >
             업무보고 추가
-          </button>
+          </Button>
         }
       />
 

@@ -1,4 +1,12 @@
+import type { CSSProperties } from 'react';
 import type { ReportDraft, ProjectViewModel } from '../../reports/reportUtils';
+import { Select, TextInput } from 'krds-react';
+
+const gridStyle: CSSProperties = {
+  display: 'grid',
+  gap: '1rem',
+  gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+};
 
 interface AdminReportEditorTargetFieldsProps {
   draft: ReportDraft;
@@ -38,82 +46,80 @@ export function AdminReportEditorTargetFields({
   onTaskUsedtimeChange,
 }: AdminReportEditorTargetFieldsProps) {
   return (
-    <>
+    <div style={gridStyle}>
       {showProjectSelect && !isProjectLinkedTab ? (
-        <label className={'reports-page__field'}>
-          <span>프로젝트</span>
-          <select
-            value={draft.projectId}
-            onChange={(event) => onProjectChange(event.target.value)}
-            disabled={!draft.costGroupId}
-          >
-            <option value="">
-              {typeFilteredProjects.length ? '선택' : '프로젝트가 존재하지 않습니다.'}
-            </option>
-            {typeFilteredProjects.map((project) => (
-              <option key={project.id} value={project.id}>
-                {project.project.name}
-              </option>
-            ))}
-          </select>
-        </label>
+        <Select
+          label="프로젝트"
+          value={draft.projectId}
+          onChange={onProjectChange}
+          disabled={!draft.costGroupId}
+          options={[
+            {
+              value: '',
+              label: typeFilteredProjects.length ? '선택' : '프로젝트가 존재하지 않습니다.',
+            },
+            ...typeFilteredProjects.map((project) => ({
+              value: project.id,
+              label: project.project.name,
+            })),
+          ]}
+          style={{ width: '100%' }}
+        />
       ) : null}
 
       {showSubtaskSelect ? (
-        <label className={'reports-page__field'}>
-          <span>{isProjectLinkedTab ? '태스크명' : '프로젝트 태스크'}</span>
-          <select value={draft.subtaskId} onChange={(event) => onSubtaskChange(event.target.value)}>
-            <option value="">
-              {draftSubtasks.length ? '선택' : '태스크이 존재하지 않습니다.'}
-            </option>
-            {draftSubtasks.map((page) => (
-              <option key={page.id} value={page.id}>
-                {page.title}
-              </option>
-            ))}
-          </select>
-        </label>
+        <Select
+          label={isProjectLinkedTab ? '태스크명' : '프로젝트 태스크'}
+          value={draft.subtaskId}
+          onChange={onSubtaskChange}
+          options={[
+            {
+              value: '',
+              label: draftSubtasks.length ? '선택' : '태스크이 존재하지 않습니다.',
+            },
+            ...draftSubtasks.map((page) => ({ value: page.id, label: page.title })),
+          ]}
+          style={{ width: '100%' }}
+        />
       ) : null}
 
       {showManualSubtaskName ? (
-        <label className={'reports-page__field'}>
-          <span>{manualSubtaskLabel}</span>
-          {isVacationType ? (
-            <select
-              value={draft.manualSubtaskName}
-              onChange={(event) => onVacationTypeChange(event.target.value)}
-            >
-              <option value="">선택</option>
-              <option value="오전 반차">오전 반차</option>
-              <option value="오후 반차">오후 반차</option>
-              <option value="전일 휴가">전일 휴가</option>
-            </select>
-          ) : (
-            <input
-              value={draft.manualSubtaskName}
-              onChange={(event) => onManualSubtaskNameChange(event.target.value)}
-              placeholder={manualSubtaskLabel}
-            />
-          )}
-        </label>
+        isVacationType ? (
+          <Select
+            label={manualSubtaskLabel}
+            value={draft.manualSubtaskName}
+            onChange={onVacationTypeChange}
+            options={[
+              { value: '', label: '선택' },
+              { value: '오전 반차', label: '오전 반차' },
+              { value: '오후 반차', label: '오후 반차' },
+              { value: '전일 휴가', label: '전일 휴가' },
+            ]}
+            style={{ width: '100%' }}
+          />
+        ) : (
+          <TextInput
+            label={manualSubtaskLabel}
+            value={draft.manualSubtaskName}
+            onChange={onManualSubtaskNameChange}
+            placeholder={manualSubtaskLabel}
+            style={{ width: '100%' }}
+          />
+        )
       ) : null}
 
-      <label className={'reports-page__field'}>
-        <span>URL</span>
-        <input value={draft.url} onChange={(event) => onUrlChange(event.target.value)} />
-      </label>
+      <TextInput label="URL" value={draft.url} onChange={onUrlChange} style={{ width: '100%' }} />
 
-      <label className={'reports-page__field'}>
-        <span>총시간</span>
-        <input
-          type="number"
-          min="0"
-          step="1"
-          value={draft.taskUsedtime}
-          onChange={(event) => onTaskUsedtimeChange(event.target.value)}
-          readOnly={isReadonlyWorkHours}
-        />
-      </label>
-    </>
+      <TextInput
+        label="총시간"
+        type="number"
+        min="0"
+        step="1"
+        value={draft.taskUsedtime}
+        onChange={onTaskUsedtimeChange}
+        readOnly={isReadonlyWorkHours}
+        style={{ width: '100%' }}
+      />
+    </div>
   );
 }

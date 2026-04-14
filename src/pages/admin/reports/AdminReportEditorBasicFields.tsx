@@ -1,5 +1,13 @@
+import type { CSSProperties } from 'react';
 import { type ReportDraft } from '../../reports/reportUtils';
+import { Select, TextInput } from 'krds-react';
 import type { MemberAdminItem } from '../admin.types';
+
+const gridStyle: CSSProperties = {
+  display: 'grid',
+  gap: '1rem',
+  gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+};
 
 interface AdminReportEditorBasicFieldsProps {
   isEdit: boolean;
@@ -23,32 +31,30 @@ export function AdminReportEditorBasicFields({
   parseCompactDate,
 }: AdminReportEditorBasicFieldsProps) {
   return (
-    <div className={'reports-page__form-grid'}>
-      <label className={'reports-page__field'}>
-        <span>사용자</span>
-        <select
-          value={selectedMemberId}
-          onChange={(event) => onMemberChange(event.target.value)}
-          disabled={isEdit}
-        >
-          <option value="">{members.length ? '선택' : '사용자가 없습니다.'}</option>
-          {members.map((member) => (
-            <option key={member.id} value={member.id}>
-              {member.accountId} ({member.name})
-            </option>
-          ))}
-        </select>
-      </label>
+    <div className={'reports-page__form-grid'} style={gridStyle}>
+      <Select
+        label="사용자"
+        value={selectedMemberId}
+        onChange={onMemberChange}
+        disabled={isEdit}
+        options={[
+          { value: '', label: members.length ? '선택' : '사용자가 없습니다.' },
+          ...members.map((member) => ({
+            value: member.id,
+            label: `${member.accountId} (${member.name})`,
+          })),
+        ]}
+        style={{ width: '100%' }}
+      />
 
-      <label className={'reports-page__field'}>
-        <span>일자</span>
-        <input
-          type="text"
-          placeholder="YYMMDD"
-          value={formatCompactDate(draft.reportDate, 'short')}
-          onChange={(event) => onReportDateChange(parseCompactDate(event.target.value, 'short'))}
-        />
-      </label>
+      <TextInput
+        label="일자"
+        type="text"
+        placeholder="YYMMDD"
+        value={formatCompactDate(draft.reportDate, 'short')}
+        onChange={(value) => onReportDateChange(parseCompactDate(value, 'short'))}
+        style={{ width: '100%' }}
+      />
     </div>
   );
 }

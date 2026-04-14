@@ -1,4 +1,5 @@
 import type { FormEvent } from 'react';
+import { Button, TextInput } from 'krds-react';
 import { PageFilterBar } from '../../components/shared/PageFilterBar';
 import { PageFilterField } from '../../components/shared/PageFilterField';
 import type { SearchFilters } from './SearchPage.types';
@@ -29,52 +30,44 @@ export function SearchFilterForm({
       <PageFilterBar
         actions={
           <div className="search-page__filter-actions">
-            <button type="submit" className="search-page__filter-button">
+            <Button type="submit" variant="primary">
               검색
-            </button>
-            <button
-              type="button"
-              className="search-page__filter-button search-page__filter-button--secondary"
-              onClick={onReset}
-            >
+            </Button>
+            <Button type="button" variant="secondary" onClick={onReset}>
               초기화
-            </button>
+            </Button>
             <span className="search-page__filter-divider" aria-hidden="true" />
-            <button
+            <Button
               type="button"
-              className="search-page__filter-button search-page__filter-button--secondary"
+              variant="secondary"
               onClick={onDownload}
               disabled={!totalReports}
             >
               다운로드
-            </button>
+            </Button>
           </div>
         }
       >
         <PageFilterField className="search-page__filter-field" label="시작일">
-          <input
+          <TextInput
             type="date"
             value={filterDraft.startDate}
             max={filterDraft.endDate || undefined}
-            onChange={(event) =>
-              onFilterDraftChange({ ...filterDraft, startDate: event.target.value })
-            }
+            onChange={(value) => onFilterDraftChange({ ...filterDraft, startDate: value })}
           />
         </PageFilterField>
         <PageFilterField className="search-page__filter-field" label="종료일">
-          <input
+          <TextInput
             type="date"
             value={filterDraft.endDate}
             min={filterDraft.startDate || undefined}
-            onChange={(event) =>
-              onFilterDraftChange({ ...filterDraft, endDate: event.target.value })
-            }
+            onChange={(value) => onFilterDraftChange({ ...filterDraft, endDate: value })}
           />
         </PageFilterField>
         <PageFilterField className="search-page__filter-field" label="검색어">
-          <input
+          <TextInput
             value={searchInput}
-            onChange={(event) => onSearchInputChange(event.target.value)}
+            onChange={onSearchInputChange}
             placeholder="프로젝트, 페이지, 내용, 비고 검색"
           />
         </PageFilterField>

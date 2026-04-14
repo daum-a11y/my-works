@@ -1,0 +1,29 @@
+.page-filter-bar {
+  display: flex;
+  align-items: end;
+  gap: 12px;
+  flex-wrap: nowrap;
+  min-width: 0;
+}
+
+.page-filter-bar__fields {
+  display: flex;
+  align-items: end;
+  gap: 12px;
+  flex: 0 1 auto;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.page-filter-bar__actions {
+  display: flex;
+  align-items: end;
+  gap: 12px;
+  flex: 0 0 auto;
+}
+
+@media (max-width: 767px) {
+  .page-filter-bar {
+    flex-wrap: wrap;
+  }
+}

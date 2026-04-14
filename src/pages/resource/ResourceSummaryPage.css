@@ -1,0 +1,46 @@
+.resource-summary-page--shell {
+  display: grid;
+  gap: 20px;
+  align-content: start;
+}
+
+.resource-summary-page__checkbox-field {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+}
+
+.resource-summary-page__checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.resource-summary-page__content-section {
+  display: grid;
+  gap: 16px;
+}
+
+.resource-summary-page__minute-value--plus {
+  color: #1b5e20;
+}
+
+.resource-summary-page__minute-value--minus {
+  color: #c62828;
+}
+
+.resource-summary-page__minute-value--zero {
+  color: #46505c;
+}
+
+.resource-summary-page__detail-header-text {
+  display: grid;
+  gap: 4px;
+}
+
+.resource-summary-page__detail-period {
+  margin: 0;
+  color: #58616a;
+  font-size: 14px;
+  line-height: 1.5;
+}

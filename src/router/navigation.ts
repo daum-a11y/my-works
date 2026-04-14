@@ -29,6 +29,12 @@ export interface BreadcrumbItem {
   to: string;
 }
 
+export interface KrdsBreadcrumbItem {
+  text: string;
+  href: string;
+  disabled?: boolean;
+}
+
 export const baseNavigation = [
   { to: '/dashboard', label: '대시보드', icon: LayoutDashboard },
   { to: '/person/report', label: '업무보고', icon: FileText },
@@ -105,6 +111,14 @@ export function getBreadcrumbs(pathname: string, navigation: readonly Navigation
   }
 
   return parts;
+}
+
+export function toBreadcrumbItems(pathname: string, navigation: readonly NavigationItem[]) {
+  return getBreadcrumbs(pathname, navigation).map<KrdsBreadcrumbItem>((item, index, items) => ({
+    text: item.label,
+    href: item.to === '#' ? pathname : item.to,
+    disabled: index === items.length - 1,
+  }));
 }
 
 export function setDocumentTitle(label: string) {

@@ -1,4 +1,12 @@
+import type { CSSProperties } from 'react';
 import type { ReportDraft } from '../../reports/reportUtils';
+import { Select, TextInput } from 'krds-react';
+
+const gridStyle: CSSProperties = {
+  display: 'grid',
+  gap: '1rem',
+  gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+};
 
 interface AdminReportEditorTypeFieldsProps {
   draft: ReportDraft;
@@ -26,37 +34,38 @@ export function AdminReportEditorTypeFields({
   onType2Change,
 }: AdminReportEditorTypeFieldsProps) {
   return (
-    <>
+    <div style={gridStyle}>
       {projectTypeSelected ? (
-        <label className={'reports-page__field'}>
-          <span>타입1</span>
-          <input value={type1Value} readOnly />
-        </label>
+        <TextInput label="타입1" value={type1Value} readOnly style={{ width: '100%' }} />
       ) : (
-        <label className={'reports-page__field'}>
-          <span>타입1</span>
-          <select value={draft.type1} onChange={(event) => onType1Change(event.target.value)}>
-            <option value="">{isProjectLinkedTab ? '선택해주세요' : 'type1'}</option>
-            {(isProjectLinkedTab ? reportTabType1Options : type1Options).map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
-        </label>
+        <Select
+          label="타입1"
+          value={draft.type1}
+          onChange={onType1Change}
+          options={[
+            {
+              value: '',
+              label: isProjectLinkedTab ? '선택해주세요' : 'type1',
+            },
+            ...(isProjectLinkedTab ? reportTabType1Options : type1Options).map((option) => ({
+              value: option,
+              label: option,
+            })),
+          ]}
+          style={{ width: '100%' }}
+        />
       )}
 
-      <label className={'reports-page__field'}>
-        <span>타입2</span>
-        <select value={draft.type2} onChange={(event) => onType2Change(event.target.value)}>
-          {type2Placeholder ? <option value="">{type2Placeholder}</option> : null}
-          {type2Options.map((option) => (
-            <option key={option} value={option}>
-              {option}
-            </option>
-          ))}
-        </select>
-      </label>
-    </>
+      <Select
+        label="타입2"
+        value={draft.type2}
+        onChange={onType2Change}
+        options={[
+          ...(type2Placeholder ? [{ value: '', label: type2Placeholder }] : []),
+          ...type2Options.map((option) => ({ value: option, label: option })),
+        ]}
+        style={{ width: '100%' }}
+      />
+    </div>
   );
 }

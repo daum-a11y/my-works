@@ -1,4 +1,5 @@
 import type { FormEvent } from 'react';
+import { Button, Select, TextInput } from 'krds-react';
 import { PageFilterBar } from '../../components/shared/PageFilterBar';
 import { PageFilterField } from '../../components/shared/PageFilterField';
 
@@ -30,49 +31,40 @@ export function ProjectStatsFilterForm({
       <PageFilterBar
         actions={
           <div className={'stats-page__filter-actions'}>
-            <button type="submit" className={'stats-page__filter-button'}>
+            <Button type="submit" variant="primary">
               검색
-            </button>
-            <button
-              type="button"
-              className={'stats-page__filter-button stats-page__filter-button--secondary'}
-              onClick={onReset}
-            >
+            </Button>
+            <Button type="button" variant="secondary" onClick={onReset}>
               초기화
-            </button>
+            </Button>
           </div>
         }
       >
         <PageFilterField className={'stats-page__filter-field'} label="시작월">
-          <input
+          <TextInput
             type="month"
             aria-label="프로젝트 통계 시작월"
             value={draftStartMonth}
             max={draftEndMonth || undefined}
-            onChange={(event) => onDraftStartMonthChange(event.target.value)}
+            onChange={onDraftStartMonthChange}
           />
         </PageFilterField>
         <PageFilterField className={'stats-page__filter-field'} label="종료월">
-          <input
+          <TextInput
             type="month"
             aria-label="프로젝트 통계 종료월"
             value={draftEndMonth}
             min={draftStartMonth || undefined}
-            onChange={(event) => onDraftEndMonthChange(event.target.value)}
+            onChange={onDraftEndMonthChange}
           />
         </PageFilterField>
         <PageFilterField className={'stats-page__filter-field'} label="타입 1">
-          <select
+          <Select
             aria-label="프로젝트 통계 타입 1"
             value={draftTaskType1}
-            onChange={(event) => onDraftTaskType1Change(event.target.value)}
-          >
-            {taskType1Options.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
+            onChange={onDraftTaskType1Change}
+            options={taskType1Options.map((option) => ({ value: option, label: option }))}
+          />
         </PageFilterField>
       </PageFilterBar>
     </form>

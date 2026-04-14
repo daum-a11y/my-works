@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { Button } from 'krds-react';
 import { setDocumentTitle } from '../../router/navigation';
 import { PageHeader } from '../../components/shared/PageHeader';
 import { dataClient } from '../../api/client';
@@ -8,6 +9,7 @@ import { buildResourceServiceYearRows } from './ResourceServicePage.summary';
 import { ResourceServiceTableSection } from './ResourceServiceTableSection';
 import { useAuth } from '../../auth/AuthContext';
 import { toResourceServiceSummaryRow } from './resourceApiTransform';
+import './ResourcePage.css';
 
 export function ResourceServicePage() {
   const { session } = useAuth();
@@ -54,15 +56,17 @@ export function ResourceServicePage() {
       <PageHeader
         title={RESOURCE_SERVICE_PAGE_TITLE}
         actions={
-          <button
-            type="button"
-            className="projects-feature__header-action"
-            onClick={() => setFold((current) => !current)}
-            aria-pressed={fold}
-            disabled={!rows.length}
-          >
-            {fold ? '펼치기' : '접기'}
-          </button>
+          <div className="resource-page__year-actions">
+            <Button
+              type="button"
+              onClick={() => setFold((current) => !current)}
+              aria-pressed={fold}
+              disabled={!rows.length}
+              variant="secondary"
+            >
+              {fold ? '펼치기' : '접기'}
+            </Button>
+          </div>
         }
       />
 

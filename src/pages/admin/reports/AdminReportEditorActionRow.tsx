@@ -1,5 +1,13 @@
-import type { ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
+import { Button } from 'krds-react';
 import { getTodayInputValue, shiftDateInput, type ReportDraft } from '../../reports/reportUtils';
+
+const actionRowStyle: CSSProperties = {
+  display: 'flex',
+  flexWrap: 'wrap',
+  gap: '0.75rem',
+  alignItems: 'center',
+};
 
 interface AdminReportEditorActionRowProps {
   draft: ReportDraft;
@@ -19,42 +27,42 @@ export function AdminReportEditorActionRow({
   const baseDate = draft.reportDate || getTodayInputValue();
 
   return (
-    <div className={'reports-page__action-row'}>
-      <button
+    <div className={'reports-page__action-row'} style={actionRowStyle}>
+      <Button
         type="submit"
-        className={'reports-page__button reports-page__button--primary'}
+        variant="primary"
         disabled={disabled}
       >
         {onSubmitLabel}
-      </button>
-      <button
+      </Button>
+      <Button
         type="button"
-        className={'reports-page__button reports-page__button--secondary'}
+        variant="secondary"
         onClick={onCancel}
       >
         취소
-      </button>
-      <button
+      </Button>
+      <Button
         type="button"
-        className={'reports-page__button reports-page__button--secondary'}
+        variant="secondary"
         onClick={() => onDateChange(shiftDateInput(baseDate, -1))}
       >
         이전일
-      </button>
-      <button
+      </Button>
+      <Button
         type="button"
-        className={'reports-page__button reports-page__button--secondary'}
+        variant="secondary"
         onClick={() => onDateChange(getTodayInputValue())}
       >
         오늘
-      </button>
-      <button
+      </Button>
+      <Button
         type="button"
-        className={'reports-page__button reports-page__button--secondary'}
+        variant="secondary"
         onClick={() => onDateChange(shiftDateInput(baseDate, 1))}
       >
         다음일
-      </button>
+      </Button>
     </div>
   );
 }

@@ -1,3 +1,4 @@
+import { Button } from 'krds-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../auth/AuthContext';
 import { PageHeader } from '../../components/shared/PageHeader';
@@ -9,6 +10,7 @@ import { PROJECTS_PAGE_SIZE_OPTIONS } from './ProjectsPage.constants';
 import { ProjectsFilterForm } from './ProjectsFilterForm';
 import { ProjectsResultsTable } from './ProjectsResultsTable';
 import { useProjectsPage } from './useProjectsPage';
+import './ProjectsPage.css';
 const numberFormatter = new Intl.NumberFormat('ko-KR');
 
 export function ProjectsPage() {
@@ -21,9 +23,9 @@ export function ProjectsPage() {
       <PageHeader
         title="프로젝트 관리"
         actions={
-          <Link to="/projects/new" className="projects-feature__header-action">
+          <Button as={Link} to="/projects/new" variant="primary">
             프로젝트 추가
-          </Link>
+          </Button>
         }
       />
 

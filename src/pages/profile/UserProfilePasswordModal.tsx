@@ -1,3 +1,5 @@
+import { Button, TextInput } from 'krds-react';
+
 type PasswordDraft = {
   next: string;
   confirm: string;
@@ -79,16 +81,16 @@ export function UserProfilePasswordModal({
           >
             <label className="password-settings-page__field">
               <span className="password-settings-page__label">새 비밀번호</span>
-              <input
+              <TextInput
                 ref={nextInputRef}
-                className="password-settings-page__input"
                 type="password"
                 autoComplete="new-password"
                 aria-label="새 비밀번호"
                 aria-invalid={errors.next ? 'true' : 'false'}
                 aria-describedby={errors.next ? nextHintId : undefined}
                 value={draft.next}
-                onChange={(event) => onDraftChange({ next: event.target.value })}
+                onChange={(value) => onDraftChange({ next: value })}
+                style={{ width: '100%' }}
               />
               <span
                 id={nextHintId}
@@ -101,15 +103,15 @@ export function UserProfilePasswordModal({
 
             <label className="password-settings-page__field">
               <span className="password-settings-page__label">새 비밀번호 확인</span>
-              <input
-                className="password-settings-page__input"
+              <TextInput
                 type="password"
                 autoComplete="new-password"
                 aria-label="새 비밀번호 확인"
                 aria-invalid={errors.confirm ? 'true' : 'false'}
                 aria-describedby={errors.confirm ? confirmHintId : undefined}
                 value={draft.confirm}
-                onChange={(event) => onDraftChange({ confirm: event.target.value })}
+                onChange={(value) => onDraftChange({ confirm: value })}
+                style={{ width: '100%' }}
               />
               <span
                 id={confirmHintId}
@@ -125,21 +127,12 @@ export function UserProfilePasswordModal({
                 {submitError ? <p data-state="danger">{submitError}</p> : null}
               </div>
               <div className="password-settings-page__actions">
-                <button
-                  type="submit"
-                  className="password-settings-page__button password-settings-page__button--primary"
-                  disabled={!canSubmit}
-                >
+                <Button type="submit" variant="primary" disabled={!canSubmit}>
                   변경
-                </button>
-                <button
-                  type="button"
-                  className="password-settings-page__button password-settings-page__button--secondary"
-                  onClick={onCancel}
-                  disabled={isSubmitting}
-                >
+                </Button>
+                <Button type="button" variant="secondary" onClick={onCancel} disabled={isSubmitting}>
                   취소
-                </button>
+                </Button>
               </div>
             </div>
           </form>
@@ -151,22 +144,12 @@ export function UserProfilePasswordModal({
               </p>
             </div>
             <div className="password-settings-page__actions">
-              <button
-                type="button"
-                className="password-settings-page__button password-settings-page__button--primary"
-                onClick={onConfirm}
-                disabled={isSubmitting}
-              >
+              <Button type="button" variant="primary" onClick={onConfirm} disabled={isSubmitting}>
                 변경
-              </button>
-              <button
-                type="button"
-                className="password-settings-page__button password-settings-page__button--secondary"
-                onClick={onBackToForm}
-                disabled={isSubmitting}
-              >
+              </Button>
+              <Button type="button" variant="secondary" onClick={onBackToForm} disabled={isSubmitting}>
                 취소
-              </button>
+              </Button>
             </div>
           </div>
         ) : (
@@ -175,13 +158,9 @@ export function UserProfilePasswordModal({
               <p className="password-settings-page__message-heading">비밀번호가 변경되었습니다.</p>
             </div>
             <div className="password-settings-page__actions">
-              <button
-                type="button"
-                className="password-settings-page__button password-settings-page__button--primary"
-                onClick={onMoveToLogin}
-              >
+              <Button type="button" variant="primary" onClick={onMoveToLogin}>
                 로그인
-              </button>
+              </Button>
             </div>
           </div>
         )}

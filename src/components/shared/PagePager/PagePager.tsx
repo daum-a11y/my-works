@@ -1,5 +1,6 @@
 import clsx from 'clsx';
 import type { ComponentPropsWithoutRef } from 'react';
+import { Button } from 'krds-react';
 
 export interface PagePagerProps extends ComponentPropsWithoutRef<'div'> {
   currentPage: number;
@@ -33,28 +34,30 @@ export function PagePager({
 }: PagePagerProps) {
   return (
     <div className={clsx('page-pager', className)} {...props}>
-      <button
-        type="button"
+      <Button
         className={clsx('page-pager__button', buttonClassName)}
         onClick={onPrevious}
         disabled={!canGoPrevious}
         aria-label="이전 페이지"
+        variant="tertiary"
+        size="small"
       >
         {PAGE_PAGER_LABELS.previous}
-      </button>
+      </Button>
       <p className={clsx('page-pager__status', statusClassName)}>
         <strong>{currentPage}</strong>
         <span>/ {numberFormatter.format(totalPages)}</span>
       </p>
-      <button
-        type="button"
+      <Button
         className={clsx('page-pager__button', buttonClassName)}
         onClick={onNext}
         disabled={!canGoNext}
         aria-label="다음 페이지"
+        variant="tertiary"
+        size="small"
       >
         {PAGE_PAGER_LABELS.next}
-      </button>
+      </Button>
     </div>
   );
 }

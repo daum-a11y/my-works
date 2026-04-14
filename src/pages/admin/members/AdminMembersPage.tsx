@@ -1,3 +1,4 @@
+import { Button } from 'krds-react';
 import { Link } from 'react-router-dom';
 import { PageHeader } from '../../../components/shared/PageHeader';
 import { PagePager } from '../../../components/shared/PagePager';
@@ -9,6 +10,7 @@ import { AdminMembersResultsTable } from './AdminMembersResultsTable';
 import { ADMIN_MEMBERS_PAGE_SIZE_OPTIONS } from './AdminMembersPage.constants';
 import { useAdminMembersPage } from './useAdminMembersPage';
 import { useAlertMessage } from '../../../hooks/useAlertMessage';
+import './AdminMembersPage.css';
 const numberFormatter = new Intl.NumberFormat('ko-KR');
 
 export function AdminMembersPage() {
@@ -20,9 +22,9 @@ export function AdminMembersPage() {
       <PageHeader
         title="사용자 관리"
         actions={
-          <Link to="/admin/members/new" className={'admin-members-page__header-action'}>
+          <Button as={Link} to="/admin/members/new" variant="primary">
             사용자 추가
-          </Link>
+          </Button>
         }
       />
 

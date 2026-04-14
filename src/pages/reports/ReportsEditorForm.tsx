@@ -1,4 +1,5 @@
 import type { FormEvent, KeyboardEvent } from 'react';
+import { Button, Select, TextInput, Textarea } from 'krds-react';
 import type { CostGroup, ProjectSubtask } from '../../types/domain';
 import type { ProjectViewModel, ReportDraft } from './reportUtils';
 
@@ -64,13 +65,9 @@ export function ReportsEditorForm({
       <div className="reports-page__panel-head">
         <h2 className="reports-page__panel-title">{mode === 'edit' ? '업무 수정' : '업무 등록'}</h2>
         {mode === 'edit' ? (
-          <button
-            type="button"
-            className="reports-page__button reports-page__button--secondary"
-            onClick={onCancelEdit}
-          >
+          <Button type="button" variant="secondary" onClick={onCancelEdit}>
             편집 취소
-          </button>
+          </Button>
         ) : null}
       </div>
 
@@ -79,57 +76,52 @@ export function ReportsEditorForm({
           <div className="reports-page__form-grid reports-page__form-grid--compact">
             <label className="reports-page__field">
               <span>청구그룹</span>
-              <select
+              <Select
                 value={draft.costGroupId}
-                onChange={(event) => onDraftFieldChange('costGroupId', event.target.value)}
-              >
-                <option value="">
-                  {costGroupOptions.length ? '선택' : '청구그룹이 없습니다.'}
-                </option>
-                {costGroupOptions.map((group) => (
-                  <option key={group.id} value={group.id}>
-                    {group.name}
-                  </option>
-                ))}
-              </select>
+                onChange={(value) => onDraftFieldChange('costGroupId', value)}
+                options={[
+                  {
+                    value: '',
+                    label: costGroupOptions.length ? '선택' : '청구그룹이 없습니다.',
+                  },
+                  ...costGroupOptions.map((group) => ({ value: group.id, label: group.name })),
+                ]}
+                style={{ width: '100%' }}
+              />
             </label>
             {showTypeStep ? (
               <>
                 {projectTypeSelected ? (
                   <label className="reports-page__field reports-page__field--row-start">
                     <span>타입1</span>
-                    <input value={type1Value} readOnly />
+                    <TextInput value={type1Value} readOnly style={{ width: '100%' }} />
                   </label>
                 ) : (
                   <label className="reports-page__field reports-page__field--row-start">
                     <span>타입1</span>
-                    <select
+                    <Select
                       value={draft.type1}
-                      onChange={(event) => onDraftFieldChange('type1', event.target.value)}
-                    >
-                      <option value="">선택</option>
-                      {type1Options.map((option) => (
-                        <option key={option} value={option}>
-                          {option}
-                        </option>
-                      ))}
-                    </select>
+                      onChange={(value) => onDraftFieldChange('type1', value)}
+                      options={[
+                        { value: '', label: '선택' },
+                        ...type1Options.map((option) => ({ value: option, label: option })),
+                      ]}
+                      style={{ width: '100%' }}
+                    />
                   </label>
                 )}
 
                 <label className="reports-page__field">
                   <span>타입2</span>
-                  <select
+                  <Select
                     value={draft.type2}
-                    onChange={(event) => onType2Change(event.target.value)}
-                  >
-                    {type2Placeholder ? <option value="">{type2Placeholder}</option> : null}
-                    {type2Options.map((option) => (
-                      <option key={option} value={option}>
-                        {option}
-                      </option>
-                    ))}
-                  </select>
+                    onChange={onType2Change}
+                    options={[
+                      { value: '', label: type2Placeholder || '선택' },
+                      ...type2Options.map((option) => ({ value: option, label: option })),
+                    ]}
+                    style={{ width: '100%' }}
+                  />
                 </label>
               </>
             ) : null}
@@ -141,57 +133,56 @@ export function ReportsEditorForm({
             <div className="reports-page__project-lookup">
               <label className="reports-page__field">
                 <span>프로젝트 검색</span>
-                <input
+                <TextInput
                   value={projectQuery}
-                  onChange={(event) => onProjectQueryChange(event.target.value)}
+                  onChange={onProjectQueryChange}
                   onKeyDown={onProjectSearchKeyDown}
                   placeholder="검색어 입력"
+                  style={{ width: '100%' }}
                 />
               </label>
 
               <div className="reports-page__search-button-field">
                 <span className="sr-only">프로젝트 검색</span>
-                <button
-                  type="button"
-                  className="reports-page__button reports-page__button--secondary"
-                  onClick={onProjectSearch}
-                >
+                <Button type="button" variant="secondary" onClick={onProjectSearch}>
                   검색
-                </button>
+                </Button>
               </div>
 
               <label className="reports-page__field reports-page__field--project">
                 <span>프로젝트</span>
-                <select
+                <Select
                   value={draft.projectId}
-                  onChange={(event) => onDraftFieldChange('projectId', event.target.value)}
+                  onChange={(value) => onDraftFieldChange('projectId', value)}
                   disabled={!draft.costGroupId}
-                >
-                  <option value="">{projectSearchPlaceholder}</option>
-                  {filteredProjectOptions.map((project) => (
-                    <option key={project.id} value={project.id}>
-                      {[project.project.platform, project.project.name].filter(Boolean).join(' - ')}
-                    </option>
-                  ))}
-                </select>
+                  options={[
+                    { value: '', label: projectSearchPlaceholder },
+                    ...filteredProjectOptions.map((project) => ({
+                      value: project.id,
+                      label: [project.project.platform, project.project.name]
+                        .filter(Boolean)
+                        .join(' - '),
+                    })),
+                  ]}
+                  style={{ width: '100%' }}
+                />
               </label>
 
               {showSubtaskSelect ? (
                 <label className="reports-page__field reports-page__field--project">
                   <span>태스크명</span>
-                  <select
+                  <Select
                     value={draft.subtaskId}
-                    onChange={(event) => onDraftFieldChange('subtaskId', event.target.value)}
-                  >
-                    <option value="">
-                      {draftSubtasks.length ? '선택' : '태스크이 존재하지 않습니다.'}
-                    </option>
-                    {draftSubtasks.map((page) => (
-                      <option key={page.id} value={page.id}>
-                        {page.title}
-                      </option>
-                    ))}
-                  </select>
+                    onChange={(value) => onDraftFieldChange('subtaskId', value)}
+                    options={[
+                      {
+                        value: '',
+                        label: draftSubtasks.length ? '선택' : '태스크이 존재하지 않습니다.',
+                      },
+                      ...draftSubtasks.map((page) => ({ value: page.id, label: page.title })),
+                    ]}
+                    style={{ width: '100%' }}
+                  />
                 </label>
               ) : null}
             </div>
@@ -203,39 +194,43 @@ export function ReportsEditorForm({
             <div className="reports-page__form-grid">
               <label className="reports-page__field">
                 <span>업무명</span>
-                <input
+                <TextInput
                   value={draft.content}
-                  onChange={(event) => onDraftFieldChange('content', event.target.value)}
+                  onChange={(value) => onDraftFieldChange('content', value)}
+                  style={{ width: '100%' }}
                 />
               </label>
 
               <label className="reports-page__field">
                 <span>업무 시간(분)</span>
-                <input
+                <TextInput
                   type="number"
                   min="0"
                   max="480"
                   step="1"
                   value={draft.taskUsedtime}
-                  onChange={(event) => onDraftFieldChange('taskUsedtime', event.target.value)}
+                  onChange={(value) => onDraftFieldChange('taskUsedtime', value)}
                   readOnly={isReadonlyWorkHours}
+                  style={{ width: '100%' }}
                 />
               </label>
 
               <label className="reports-page__field">
                 <span>URL</span>
-                <input
+                <TextInput
                   value={draft.url}
-                  onChange={(event) => onDraftFieldChange('url', event.target.value)}
+                  onChange={(value) => onDraftFieldChange('url', value)}
+                  style={{ width: '100%' }}
                 />
               </label>
 
               <label className="reports-page__field reports-page__field--note">
                 <span>비고</span>
-                <textarea
+                <Textarea
                   value={draft.note}
-                  onChange={(event) => onDraftFieldChange('note', event.target.value)}
+                  onChange={(value) => onDraftFieldChange('note', value)}
                   rows={2}
+                  style={{ width: '100%' }}
                 />
               </label>
             </div>
@@ -243,21 +238,13 @@ export function ReportsEditorForm({
         ) : null}
 
         <div className="reports-page__action-row">
-          <button
-            type="submit"
-            className="reports-page__button reports-page__button--primary"
-            disabled={isSaving || !isListDateValid}
-          >
+          <Button type="submit" variant="primary" disabled={isSaving || !isListDateValid}>
             {mode === 'edit' ? '수정 저장' : '업무 저장'}
-          </button>
+          </Button>
           {mode === 'edit' ? (
-            <button
-              type="button"
-              className="reports-page__button reports-page__button--secondary"
-              onClick={onCancelEdit}
-            >
+            <Button type="button" variant="secondary" onClick={onCancelEdit}>
               편집 취소
-            </button>
+            </Button>
           ) : null}
         </div>
       </form>

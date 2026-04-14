@@ -8,6 +8,7 @@ import { SEARCH_PAGE_SIZE_OPTIONS } from './SearchPage.constants';
 import { SearchFilterForm } from './SearchFilterForm';
 import { SearchResultsTable } from './SearchResultsTable';
 import { useSearchPage } from './useSearchPage';
+import './SearchPage.css';
 const numberFormatter = new Intl.NumberFormat('ko-KR');
 
 export function SearchPage() {

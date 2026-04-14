@@ -1,4 +1,5 @@
-import type { FormEvent, KeyboardEvent } from 'react';
+import type { CSSProperties, FormEvent, KeyboardEvent } from 'react';
+import { Textarea } from 'krds-react';
 import type { Platform, ProjectSubtask } from '../../../types/domain';
 import type { ProjectViewModel, ReportDraft } from '../../reports/reportUtils';
 import { getTodayInputValue } from '../../reports/reportUtils';
@@ -10,6 +11,17 @@ import { AdminReportEditorReportTabFields } from './AdminReportEditorReportTabFi
 import { AdminReportEditorStatus } from './AdminReportEditorStatus';
 import type { AdminReportEditorTab } from './AdminReportEditorPage.types';
 import type { MemberAdminItem } from '../admin.types';
+
+const panelStyle: CSSProperties = {
+  display: 'grid',
+  gap: '1.25rem',
+  padding: '1rem',
+};
+
+const formStyle: CSSProperties = {
+  display: 'grid',
+  gap: '1.25rem',
+};
 
 interface AdminReportEditorFormProps {
   isEdit: boolean;
@@ -127,7 +139,7 @@ export function AdminReportEditorForm({
   parseCompactDate,
 }: AdminReportEditorFormProps) {
   return (
-    <section className={'reports-page__panel'}>
+    <section className={'reports-page__panel'} style={panelStyle}>
       <AdminReportEditorPanelHeader
         title="업무 입력"
         dateText={draft.reportDate || getTodayInputValue()}
@@ -141,7 +153,7 @@ export function AdminReportEditorForm({
       />
 
       {!loading && !missingEditTarget ? (
-        <form className={'reports-page__form'} onSubmit={onSubmit}>
+        <form className={'reports-page__form'} onSubmit={onSubmit} style={formStyle}>
           <AdminReportEditorBasicFields
             isEdit={isEdit}
             members={members}
@@ -199,14 +211,13 @@ export function AdminReportEditorForm({
             onTaskUsedtimeChange={onTaskUsedtimeChange}
           />
 
-          <label className={'reports-page__field'}>
-            <span>비고</span>
-            <textarea
-              value={draft.note}
-              onChange={(event) => onNoteChange(event.target.value)}
-              rows={2}
-            />
-          </label>
+          <Textarea
+            label="비고"
+            value={draft.note}
+            onChange={onNoteChange}
+            rows={2}
+            style={{ width: '100%' }}
+          />
 
           {isEdit && currentMember ? (
             <p className={'reports-page__status-message'}>

@@ -1,7 +1,11 @@
 import { type FormEvent, useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import clsx from 'clsx';
+import { Button, TextInput } from 'krds-react';
 import { setDocumentTitle } from '../../router/navigation';
+import { PageFilterBar } from '../../components/shared/PageFilterBar';
+import { PageFilterField } from '../../components/shared/PageFilterField';
+import { PageHeader } from '../../components/shared/PageHeader';
 import { PageSection } from '../../components/shared/PageSection';
 import { dataClient } from '../../api/client';
 import { getToday } from '../../utils';
@@ -16,6 +20,7 @@ import { ResourceSummaryResults } from './ResourceSummaryResults';
 import { useAuth } from '../../auth/AuthContext';
 import { toResourceSummaryDay, toResourceSummaryMember } from './resourceApiTransform';
 import { sortResourceSummaryRows, type ResourceSummarySortState } from './ResourceSummaryPage.sort';
+import './ResourceSummaryPage.css';
 
 export function ResourceSummaryPage() {
   const { session } = useAuth();
@@ -187,40 +192,43 @@ export function ResourceSummaryPage() {
 
   return (
     <section className="projects-feature projects-feature--shell resource-summary-page resource-summary-page--shell">
-      <header className="projects-feature__page-header">
-        <div className="projects-feature__page-header-top">
-          <h1 className="projects-feature__title">업무보고 현황</h1>
-        </div>
-      </header>
+      <PageHeader title="업무보고 현황" />
 
       <PageSection title="필터">
-        <form className="projects-feature__filter-bar" onSubmit={handleSearchSubmit}>
-          <label className="projects-feature__filter-field">
-            <span>기간</span>
-            <input
-              type="month"
-              value={monthDraft}
-              onChange={(event) => setMonthDraft(event.target.value)}
-            />
-          </label>
-          <label
-            className={clsx(
-              'projects-feature__filter-field',
-              'resource-summary-page__checkbox-field',
-            )}
+        <form onSubmit={handleSearchSubmit}>
+          <PageFilterBar
+            actions={
+              <div className="projects-feature__filter-actions">
+                <Button type="submit" variant="primary">
+                  검색
+                </Button>
+              </div>
+            }
           >
-            <span>미작성자만 보기</span>
-            <input
-              type="checkbox"
-              checked={missingOnlyDraft}
-              onChange={(event) => setMissingOnlyDraft(event.target.checked)}
-            />
-          </label>
-          <div className="projects-feature__filter-actions">
-            <button type="submit" className="projects-feature__filter-button">
-              검색
-            </button>
-          </div>
+            <PageFilterField className="projects-feature__filter-field" label="기간">
+              <TextInput
+                type="month"
+                value={monthDraft}
+                onChange={setMonthDraft}
+              />
+            </PageFilterField>
+            <div
+              className={clsx(
+                'projects-feature__filter-field',
+                'resource-summary-page__checkbox-field',
+              )}
+            >
+              <span>미작성자만 보기</span>
+              <label className="resource-summary-page__checkbox-label">
+                <input
+                  type="checkbox"
+                  checked={missingOnlyDraft}
+                  onChange={(event) => setMissingOnlyDraft(event.target.checked)}
+                />
+                <span>미작성자만 보기</span>
+              </label>
+            </div>
+          </PageFilterBar>
         </form>
       </PageSection>
 

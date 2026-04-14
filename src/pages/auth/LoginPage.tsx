@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../auth/AuthContext';
 import { isSupabaseConfigured } from '../../config/env';
-import { BrandLogo } from '../../components/layout/BrandLogo';
+import { AuthLayoutShell, getAuthFeedbackClassName } from '../../components/layout/AuthLayoutShell';
 import { LoginForm } from './LoginForm';
 
 const loginSchema = z.object({
@@ -57,16 +57,10 @@ export function LoginPage() {
   const isBusy = isSubmitting;
 
   return (
-    <main className="login-page">
-      <section className="login-page__panel" aria-labelledby="login-title">
-        <div className="login-page__hero">
-          <h1 className="login-page__logo-heading">
-            <BrandLogo className="login-page__logo" alt="My Works" width={100} height={30} />
-          </h1>
-          <p id="login-title" className="login-page__caption">
-            로그인
-          </p>
-        </div>
+    <AuthLayoutShell
+      caption="로그인"
+      labelledBy="login-title"
+      body={
         <LoginForm
           errorMessage={errorMessage}
           noticeMessage={noticeMessage}
@@ -88,13 +82,17 @@ export function LoginPage() {
             navigate('/forgot-password');
           }}
         />
-      </section>
-      {!isSupabaseConfigured ? (
-        <div className="login-page__feedback login-page__feedback--info" data-state="info">
-          <strong>환경 설정 필요</strong>
-          <p>`VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`가 설정되어야 로그인할 수 있습니다.</p>
-        </div>
-      ) : null}
-    </main>
+      }
+      aside={
+        !isSupabaseConfigured ? (
+          <div role="status" className={getAuthFeedbackClassName('info')}>
+            <strong>환경 설정 필요</strong>
+            <p>
+              `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`가 설정되어야 로그인할 수 있습니다.
+            </p>
+          </div>
+        ) : null
+      }
+    />
   );
 }

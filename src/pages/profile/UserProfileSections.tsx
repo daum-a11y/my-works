@@ -1,3 +1,4 @@
+import { Button } from 'krds-react';
 import type { FontPreference } from '../../preferences/FontPreferenceState';
 import type { ThemePreference } from '../../preferences/ThemePreferenceState';
 import { USER_PROFILE_FONT_OPTIONS, USER_PROFILE_THEME_OPTIONS } from './UserProfilePage.constants';
@@ -28,14 +29,14 @@ export function UserProfileAccountSection({
           계정
         </h2>
         {!editing ? (
-          <button
+          <Button
             ref={editButtonRef}
             type="button"
-            className="password-settings-page__button password-settings-page__button--primary"
             onClick={onEdit}
+            variant="primary"
           >
             비밀번호 변경
-          </button>
+          </Button>
         ) : null}
       </div>
 

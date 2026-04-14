@@ -1,5 +1,6 @@
 import clsx from 'clsx';
 import type { ComponentPropsWithoutRef, ReactNode } from 'react';
+import './PageSection.css';
 
 export type PageSectionVariant = 'plain' | 'panel';
 
@@ -22,7 +23,10 @@ export function PageSection({
   ...props
 }: PageSectionProps) {
   return (
-    <section className={clsx('page-section', `page-section--${variant}`, className)} {...props}>
+    <section
+      className={clsx('page-section', `page-section--${variant}`, className)}
+      {...props}
+    >
       <header className="page-section__header">
         <div className="page-section__heading">
           <h2>{title}</h2>

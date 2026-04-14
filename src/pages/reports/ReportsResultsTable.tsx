@@ -1,3 +1,4 @@
+import { Button, Select } from 'krds-react';
 import { TableEmptyRow } from '../../components/shared/TableEmptyRow';
 import { formatReportDate, formatReportTaskUsedtime, type ReportViewModel } from './reportUtils';
 
@@ -101,22 +102,24 @@ export function ReportsResultsTable({
                   <td>
                     <>
                       {canEdit ? (
-                        <button
+                        <Button
                           type="button"
                           className="reports-page__row-button"
+                          variant="secondary"
                           onClick={() => onSelect(report.id)}
                         >
                           수정
-                        </button>
+                        </Button>
                       ) : null}
                       {canEdit ? (
-                        <button
+                        <Button
                           type="button"
                           className="reports-page__row-button"
+                          variant="secondary"
                           onClick={() => onDelete(report.id)}
                         >
                           삭제
-                        </button>
+                        </Button>
                       ) : null}
                     </>
                   </td>
@@ -136,27 +139,21 @@ export function ReportsResultsTable({
           {canEdit ? (
             <label className="reports-page__table-footer-field">
               <span>청구그룹</span>
-              <select
+              <Select
                 value={overheadCostGroupId}
-                onChange={(event) => onOverheadCostGroupChange(event.target.value)}
-              >
-                <option value="">선택</option>
-                {costGroupOptions.map((group) => (
-                  <option key={group.id} value={group.id}>
-                    {group.name}
-                  </option>
-                ))}
-              </select>
+                onChange={onOverheadCostGroupChange}
+                options={[
+                  { value: '', label: '선택' },
+                  ...costGroupOptions.map((group) => ({ value: group.id, label: group.name })),
+                ]}
+                style={{ width: '100%' }}
+              />
             </label>
           ) : null}
           {canEdit && canAddOverhead ? (
-            <button
-              type="button"
-              className="reports-page__button reports-page__button--secondary"
-              onClick={() => onOverhead(summaryDate, missingMinutes)}
-            >
+            <Button type="button" variant="secondary" onClick={() => onOverhead(summaryDate, missingMinutes)}>
               오버헤드 등록
-            </button>
+            </Button>
           ) : null}
         </div>
       ) : null}

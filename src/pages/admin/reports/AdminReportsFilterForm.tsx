@@ -1,4 +1,5 @@
 import type { FormEvent } from 'react';
+import { Button, Select, TextInput } from 'krds-react';
 import { EmptyState } from '../../../components/shared/EmptyState';
 import { PageFilterField } from '../../../components/shared/PageFilterField';
 import type {
@@ -64,83 +65,71 @@ export function AdminReportsFilterForm({
     <form className={'admin-reports-page__filter-form'} onSubmit={onSubmit}>
       <div className={'admin-reports-page__date-row'}>
         <PageFilterField className={'admin-reports-page__filter-field'} label="시작일">
-          <input
+          <TextInput
             id="admin-reports-start-date"
             type="date"
             value={filters.startDate}
             max={filters.endDate || undefined}
-            onChange={(event) => onFilterField('startDate', event.target.value)}
+            onChange={(value) => onFilterField('startDate', value)}
           />
         </PageFilterField>
         <PageFilterField className={'admin-reports-page__filter-field'} label="종료일">
-          <input
+          <TextInput
             id="admin-reports-end-date"
             type="date"
             value={filters.endDate}
             min={filters.startDate || undefined}
-            onChange={(event) => onFilterField('endDate', event.target.value)}
+            onChange={(value) => onFilterField('endDate', value)}
           />
         </PageFilterField>
       </div>
 
       <div className={'admin-reports-page__meta-row'}>
         <PageFilterField className={'admin-reports-page__filter-field'} label="타입1">
-          <select
+          <Select
             id="admin-reports-task-type-1"
             value={filters.taskType1}
-            onChange={(event) => onFilterField('taskType1', event.target.value)}
-          >
-            <option value="">전체</option>
-            {taskType1Options.map((type1) => (
-              <option key={`filter-type1-${type1}`} value={type1}>
-                {type1}
-              </option>
-            ))}
-          </select>
+            onChange={(value) => onFilterField('taskType1', value)}
+            options={[
+              { value: '', label: '전체' },
+              ...taskType1Options.map((type1) => ({ value: type1, label: type1 })),
+            ]}
+          />
         </PageFilterField>
         <PageFilterField className={'admin-reports-page__filter-field'} label="타입2">
-          <select
+          <Select
             id="admin-reports-task-type-2"
             value={filters.taskType2}
-            onChange={(event) => onFilterField('taskType2', event.target.value)}
+            onChange={(value) => onFilterField('taskType2', value)}
             disabled={!filters.taskType1}
-          >
-            <option value="">전체</option>
-            {taskType2Options.map((type2) => (
-              <option key={`filter-type2-${type2}`} value={type2}>
-                {type2}
-              </option>
-            ))}
-          </select>
+            options={[
+              { value: '', label: '전체' },
+              ...taskType2Options.map((type2) => ({ value: type2, label: type2 })),
+            ]}
+          />
         </PageFilterField>
         <PageFilterField className={'admin-reports-page__filter-field'} label="청구그룹">
-          <select
+          <Select
             id="admin-reports-cost-group"
             value={filters.costGroupId}
-            onChange={(event) => onFilterField('costGroupId', event.target.value)}
-          >
-            <option value="">전체</option>
-            {costGroups.map((group) => (
-              <option key={group.id} value={group.id}>
-                {group.name}
-              </option>
-            ))}
-          </select>
+            onChange={(value) => onFilterField('costGroupId', value)}
+            options={[
+              { value: '', label: '전체' },
+              ...costGroups.map((group) => ({ value: group.id, label: group.name })),
+            ]}
+          />
         </PageFilterField>
         <PageFilterField className={'admin-reports-page__filter-field'} label="프로젝트">
-          <select
+          <Select
             id="admin-reports-service-name"
             value={filters.projectId}
-            onChange={(event) => onFilterField('projectId', event.target.value)}
+            onChange={(value) => onFilterField('projectId', value)}
             disabled={!filters.costGroupId}
-          >
-            <option value="">전체</option>
-            {visibleProjects.map((project) => (
-              <option key={project.id} value={project.id}>
-                {project.name}
-              </option>
-            ))}
-          </select>
+            options={[
+              { value: '', label: '전체' },
+              ...visibleProjects.map((project) => ({ value: project.id, label: project.name })),
+            ]}
+          />
         </PageFilterField>
       </div>
 
@@ -177,29 +166,21 @@ export function AdminReportsFilterForm({
             >
               <div className={'admin-reports-page__member-accordion-inner'}>
                 <div className={'admin-reports-page__member-panel-toolbar'}>
-                  <input
+                  <TextInput
                     className={'admin-reports-page__member-search-input'}
                     value={memberSearchInput}
-                    onChange={(event) => onMemberSearchInputChange(event.target.value)}
+                    onChange={onMemberSearchInputChange}
                     placeholder="ID, 이름, 이메일 검색"
                     aria-label="사용자 검색"
                   />
                 </div>
                 <div className={'admin-reports-page__member-quick-actions'}>
-                  <button
-                    type="button"
-                    className={'admin-reports-page__member-quick-action'}
-                    onClick={onSelectAllMembers}
-                  >
+                  <Button type="button" variant="tertiary" onClick={onSelectAllMembers}>
                     전체 선택
-                  </button>
-                  <button
-                    type="button"
-                    className={'admin-reports-page__member-quick-action'}
-                    onClick={onClearAllMembers}
-                  >
+                  </Button>
+                  <Button type="button" variant="tertiary" onClick={onClearAllMembers}>
                     전체 해제
-                  </button>
+                  </Button>
                 </div>
                 <div className={'admin-reports-page__member-checkboxes'}>
                   {visibleMembers.length === 0 ? (
@@ -242,9 +223,9 @@ export function AdminReportsFilterForm({
           </div>
         </div>
         <PageFilterField className={'admin-reports-page__filter-field'} label="검색어">
-          <input
+          <TextInput
             value={filters.keyword}
-            onChange={(event) => onFilterField('keyword', event.target.value)}
+            onChange={(value) => onFilterField('keyword', value)}
             placeholder="ID, 이름, 서비스명, 비고 검색"
           />
         </PageFilterField>
@@ -252,29 +233,16 @@ export function AdminReportsFilterForm({
 
       <div className={'admin-reports-page__filter-actions-row'}>
         <div className={'admin-reports-page__filter-actions'}>
-          <button
-            type="submit"
-            className={'admin-reports-page__button admin-reports-page__button--filter'}
-            disabled={loading || searching}
-          >
+          <Button type="submit" variant="primary" disabled={loading || searching}>
             검색
-          </button>
-          <button
-            type="button"
-            className={'admin-reports-page__button admin-reports-page__button--filter-secondary'}
-            onClick={onReset}
-          >
+          </Button>
+          <Button type="button" variant="secondary" onClick={onReset}>
             초기화
-          </button>
+          </Button>
           <span className={'admin-reports-page__filter-divider'} aria-hidden="true" />
-          <button
-            type="button"
-            className={'admin-reports-page__button admin-reports-page__button--filter-secondary'}
-            onClick={onExport}
-            disabled={totalTasks === 0}
-          >
+          <Button type="button" variant="secondary" onClick={onExport} disabled={totalTasks === 0}>
             다운로드
-          </button>
+          </Button>
         </div>
       </div>
     </form>
