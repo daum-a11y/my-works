@@ -1,0 +1,8 @@
+interface:
+  display_name: "KRDS Guide"
+  short_description: "KRDS 기준으로 UI를 설계, 구현, 리뷰합니다."
+  brand_color: "#1D4ED8"
+  default_prompt: "Use $krds-guide to align this screen or flow with KRDS style, components, and patterns."
+
+policy:
+  allow_implicit_invocation: true
