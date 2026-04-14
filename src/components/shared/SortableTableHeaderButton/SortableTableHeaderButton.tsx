@@ -22,6 +22,7 @@ export function SortableTableHeaderButton<TSortKey extends string = string>({
 
   return (
     <Button
+      size="medium"
       type="button"
       variant="tertiary"
       onClick={() => onChange({ key: sortKey, direction: nextDirection })}

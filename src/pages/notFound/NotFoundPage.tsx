@@ -38,19 +38,15 @@ export function NotFoundPage() {
               : '로그인 화면으로 돌아가 다시 진입해 주세요.'}
           </p>
           <div className="krds-not-found__actions">
-            <KrdsRouterButtonLink to={destination} variant="primary" size="large">
+            <KrdsRouterButtonLink to={destination} variant="primary" size="medium">
               {actionLabel}
             </KrdsRouterButtonLink>
             {secondaryDestination ? (
-              <KrdsRouterButtonLink to={secondaryDestination} size="large">
+              <KrdsRouterButtonLink to={secondaryDestination} size="medium">
                 {secondaryLabel}
               </KrdsRouterButtonLink>
             ) : (
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => navigate(-1)}
-              >
+              <Button size="medium" type="button" variant="secondary" onClick={() => navigate(-1)}>
                 {secondaryLabel}
               </Button>
             )}

@@ -27,6 +27,7 @@ export function AdminReportEditorServiceFields({
     <div style={gridStyle}>
       {showPlatformSelect ? (
         <Select
+          size="medium"
           id="admin-report-editor-platform"
           label="플랫폼"
           value={draft.platform}
@@ -43,14 +44,30 @@ export function AdminReportEditorServiceFields({
 
       {showReadonlyService ? (
         <>
-          <TextInput label="청구그룹" value={draft.costGroupName} readOnly style={{ width: '100%' }} />
           <TextInput
+            size="medium"
+            id="admin-report-editor-cost-group-readonly"
+            label="청구그룹"
+            value={draft.costGroupName}
+            readOnly
+            style={{ width: '100%' }}
+          />
+          <TextInput
+            size="medium"
+            id="admin-report-editor-service-group-readonly"
             label="서비스 그룹"
             value={draft.serviceGroupName}
             readOnly
             style={{ width: '100%' }}
           />
-          <TextInput label="서비스 명" value={draft.serviceName} readOnly style={{ width: '100%' }} />
+          <TextInput
+            size="medium"
+            id="admin-report-editor-service-name-readonly"
+            label="서비스 명"
+            value={draft.serviceName}
+            readOnly
+            style={{ width: '100%' }}
+          />
         </>
       ) : null}
     </div>

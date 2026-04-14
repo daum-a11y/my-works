@@ -28,21 +28,14 @@ export function AdminReportEditorActionRow({
 
   return (
     <div className={'krds-page__action-row'} style={actionRowStyle}>
-      <Button
-        type="submit"
-        variant="primary"
-        disabled={disabled}
-      >
+      <Button size="medium" type="submit" variant="primary" disabled={disabled}>
         {onSubmitLabel}
       </Button>
-      <Button
-        type="button"
-        variant="secondary"
-        onClick={onCancel}
-      >
+      <Button size="medium" type="button" variant="secondary" onClick={onCancel}>
         취소
       </Button>
       <Button
+        size="medium"
         type="button"
         variant="secondary"
         onClick={() => onDateChange(shiftDateInput(baseDate, -1))}
@@ -50,6 +43,7 @@ export function AdminReportEditorActionRow({
         이전일
       </Button>
       <Button
+        size="medium"
         type="button"
         variant="secondary"
         onClick={() => onDateChange(getTodayInputValue())}
@@ -57,6 +51,7 @@ export function AdminReportEditorActionRow({
         오늘
       </Button>
       <Button
+        size="medium"
         type="button"
         variant="secondary"
         onClick={() => onDateChange(shiftDateInput(baseDate, 1))}

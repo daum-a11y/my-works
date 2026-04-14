@@ -27,6 +27,7 @@ export function AdminMemberEditorBasicSection({
     >
       <div className={'krds-page__editor-form-grid'}>
         <TextInput
+          size="medium"
           id="member-account-id"
           label="ID"
           autoFocus
@@ -36,6 +37,7 @@ export function AdminMemberEditorBasicSection({
         />
 
         <TextInput
+          size="medium"
           id="member-name"
           label="이름"
           value={draft.name}
@@ -44,6 +46,7 @@ export function AdminMemberEditorBasicSection({
         />
 
         <TextInput
+          size="medium"
           id="member-email"
           label="이메일"
           type="email"
@@ -53,9 +56,10 @@ export function AdminMemberEditorBasicSection({
         />
 
         {isInactiveMember ? (
-          <TextInput id="member-role" label="권한" value={roleLabel} readOnly />
+          <TextInput size="medium" id="member-role" label="권한" value={roleLabel} readOnly />
         ) : (
           <Select
+            size="medium"
             id="member-role"
             label="권한"
             value={draft.role}

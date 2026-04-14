@@ -21,7 +21,7 @@ export function AdminMembersPage() {
       <PageHeader
         title="사용자 관리"
         actions={
-          <KrdsRouterButtonLink to="/admin/members/new" variant="primary" size="large">
+          <KrdsRouterButtonLink to="/admin/members/new" variant="primary" size="medium">
             사용자 추가
           </KrdsRouterButtonLink>
         }
@@ -57,21 +57,15 @@ export function AdminMembersPage() {
             />
             <p>
               <span>검색 결과</span>
-              <strong>
-                {numberFormatter.format(page.totalMembers)}건
-              </strong>
+              <strong>{numberFormatter.format(page.totalMembers)}건</strong>
             </p>
             <p>
               <span>전체 사용자</span>
-              <strong>
-                {numberFormatter.format(page.members.length)}명
-              </strong>
+              <strong>{numberFormatter.format(page.members.length)}명</strong>
             </p>
             <p>
               <span>활성 사용자</span>
-              <strong>
-                {numberFormatter.format(page.activeMemberCount)}명
-              </strong>
+              <strong>{numberFormatter.format(page.activeMemberCount)}명</strong>
             </p>
           </>
         }

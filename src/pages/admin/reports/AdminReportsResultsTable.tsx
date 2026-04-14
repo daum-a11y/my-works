@@ -1,5 +1,5 @@
 import { Button, Link as KrdsLink } from 'krds-react';
-import { SortableTableHeaderButton, TableEmptyRow } from '../../../components/shared';
+import { PageSection, SortableTableHeaderButton, TableEmptyRow } from '../../../components/shared';
 import type { AdminTaskSearchItem } from '../admin.types';
 import type { SortState } from './AdminReportsPage.types';
 import { formatTimeCell } from './AdminReportsPage.utils';
@@ -30,7 +30,7 @@ export function AdminReportsResultsTable({
   };
 
   return (
-    <div className={'krds-page-admin__panel'}>
+    <PageSection title="검색 결과" className={'krds-page-admin__panel'}>
       <div className={'krds-page-admin__table-wrap krds-table-wrap'}>
         <table className={'krds-page-admin__table tbl data'}>
           <caption className={'sr-only'}>업무보고 검색 결과 테이블</caption>
@@ -153,7 +153,7 @@ export function AdminReportsResultsTable({
                     <td>{task.content || '-'}</td>
                     <td>
                       {task.url ? (
-                        <KrdsLink href={task.url} external>
+                        <KrdsLink size="medium" href={task.url} external>
                           링크
                         </KrdsLink>
                       ) : (
@@ -164,10 +164,16 @@ export function AdminReportsResultsTable({
                     {/*<td>{task.note || '-'}</td>*/}
                     <td>
                       <div className={'krds-page-admin__action-stack'}>
-                        <Button type="button" variant="secondary" onClick={() => onEdit(task.id)}>
+                        <Button
+                          size="medium"
+                          type="button"
+                          variant="secondary"
+                          onClick={() => onEdit(task.id)}
+                        >
                           수정
                         </Button>
                         <Button
+                          size="medium"
                           type="button"
                           variant="secondary"
                           onClick={() => onDelete(task.id)}
@@ -184,6 +190,6 @@ export function AdminReportsResultsTable({
           </tbody>
         </table>
       </div>
-    </div>
+    </PageSection>
   );
 }

@@ -64,6 +64,7 @@ export function AdminPlatformsPage() {
         actions={
           <>
             <Button
+              size="medium"
               type="button"
               variant="secondary"
               onClick={() => setOrderDialogOpen(true)}
@@ -71,7 +72,7 @@ export function AdminPlatformsPage() {
             >
               순서변경
             </Button>
-            <KrdsRouterButtonLink to="/admin/platform/new" variant="primary" size="large">
+            <KrdsRouterButtonLink to="/admin/platform/new" variant="primary" size="medium">
               플랫폼 추가
             </KrdsRouterButtonLink>
           </>

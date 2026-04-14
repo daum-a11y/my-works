@@ -5,7 +5,7 @@ import type {
   ResourceMonthReportServiceSummaryRow,
   ResourceMonthReportTypeRow,
 } from '../../types/domain';
-import { EmptyState } from '../../components/shared/EmptyState';
+import { EmptyState, PageSection } from '../../components/shared';
 import type { ResourceMonthTableTab } from './ResourceMonthPage.types';
 import {
   ResourceMonthReportTable,
@@ -50,16 +50,16 @@ export function ResourceMonthTableSection({
 }: ResourceMonthTableSectionProps) {
   if (!hasTableData) {
     return (
-      <section className="krds-page__table-tabs-section">
+      <PageSection title="월간 리포트 표" className="krds-page__table-tabs-section">
         <div className="krds-page__table-wrap">
           <EmptyState message="표시할 월간 리소스 데이터가 없습니다." />
         </div>
-      </section>
+      </PageSection>
     );
   }
 
   return (
-    <section className="krds-page__table-tabs-section">
+    <PageSection title="월간 리포트 표" className="krds-page__table-tabs-section">
       <Tab
         value={activeTableTab}
         onValueChange={(value) => onTableTabChange(value as ResourceMonthTableTab)}
@@ -75,6 +75,7 @@ export function ResourceMonthTableSection({
         <section className="krds-page__table-tab-panel">
           <div className="krds-page__table-tab-actions">
             <Button
+              size="medium"
               type="button"
               variant="secondary"
               onClick={onWorkFoldToggle}
@@ -96,6 +97,7 @@ export function ResourceMonthTableSection({
         <section className="krds-page__table-tab-panel">
           <div className="krds-page__table-tab-actions">
             <Button
+              size="medium"
               type="button"
               variant="secondary"
               onClick={onSvcFoldToggle}
@@ -123,6 +125,6 @@ export function ResourceMonthTableSection({
           />
         </section>
       ) : null}
-    </section>
+    </PageSection>
   );
 }

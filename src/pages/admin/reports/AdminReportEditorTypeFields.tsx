@@ -36,9 +36,17 @@ export function AdminReportEditorTypeFields({
   return (
     <div style={gridStyle}>
       {projectTypeSelected ? (
-        <TextInput label="타입1" value={type1Value} readOnly style={{ width: '100%' }} />
+        <TextInput
+          size="medium"
+          id="admin-report-editor-type1-readonly"
+          label="타입1"
+          value={type1Value}
+          readOnly
+          style={{ width: '100%' }}
+        />
       ) : (
         <Select
+          size="medium"
           id="admin-report-editor-type1"
           label="타입1"
           value={draft.type1}
@@ -58,6 +66,7 @@ export function AdminReportEditorTypeFields({
       )}
 
       <Select
+        size="medium"
         id="admin-report-editor-type2"
         label="타입2"
         value={draft.type2}

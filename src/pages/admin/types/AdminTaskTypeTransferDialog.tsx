@@ -1,6 +1,10 @@
-import { useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { Button, Checkbox, CriticalAlert, Modal, Select } from 'krds-react';
-import { KrdsStructuredInfoList } from '../../../components/shared';
+import {
+  cleanupKrdsModalState,
+  KrdsStructuredInfoList,
+  useKrdsModalCleanup,
+} from '../../../components/shared';
 import type { AdminTaskTypeItem } from '../admin.types';
 
 interface AdminTaskTypeTransferDialogProps {
@@ -34,6 +38,13 @@ export function AdminTaskTypeTransferDialog({
   onClose,
   onSave,
 }: AdminTaskTypeTransferDialogProps) {
+  useKrdsModalCleanup(isOpen);
+
+  const handleClose = useCallback(() => {
+    cleanupKrdsModalState();
+    onClose();
+  }, [onClose]);
+
   const type1Options = useMemo(
     () => Array.from(new Set(targetTaskTypes.map((taskType) => taskType.type1))),
     [targetTaskTypes],
@@ -55,13 +66,13 @@ export function AdminTaskTypeTransferDialog({
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape' && !isPending) {
-        onClose();
+        handleClose();
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, isPending, onClose]);
+  }, [isOpen, isPending, handleClose]);
 
   useEffect(() => {
     if (!isOpen || !type2Options.length) {
@@ -80,10 +91,11 @@ export function AdminTaskTypeTransferDialog({
   return (
     <div className="krds-page-admin">
       <Modal.Root
+        usePortal
         open={isOpen}
         onOpenChange={(open) => {
           if (!open && !isPending) {
-            onClose();
+            handleClose();
           }
         }}
         closeOnEsc={!isPending}
@@ -102,6 +114,7 @@ export function AdminTaskTypeTransferDialog({
               items={[{ label: '현재 항목', value: formatTaskType(sourceTaskType) }]}
             />
             <Select
+              size="medium"
               id="task-type-transfer-target-type1"
               label="변경할 타입1"
               value={selectedType1}
@@ -113,6 +126,7 @@ export function AdminTaskTypeTransferDialog({
               options={type1Options.map((type1) => ({ value: type1, label: type1 }))}
             />
             <Select
+              size="medium"
               id="task-type-transfer-target-type2"
               label="변경할 타입2"
               value={targetTaskTypeId}
@@ -133,10 +147,17 @@ export function AdminTaskTypeTransferDialog({
           </Modal.Body>
 
           <Modal.Footer>
-            <Button type="button" variant="secondary" onClick={onClose} disabled={isPending}>
+            <Button
+              size="medium"
+              type="button"
+              variant="secondary"
+              onClick={handleClose}
+              disabled={isPending}
+            >
               취소
             </Button>
             <Button
+              size="medium"
               type="button"
               variant="primary"
               onClick={onSave}

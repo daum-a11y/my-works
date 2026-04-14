@@ -64,7 +64,7 @@ export function ForgotPasswordPage() {
                 autoComplete="username"
                 error={errors.email?.message}
                 disabled={!isSupabaseConfigured || isSubmitting}
-                size="large"
+                size="medium"
               />
             )}
           />
@@ -79,11 +79,21 @@ export function ForgotPasswordPage() {
             />
           ) : null}
           <div className="krds-auth-shell__actions">
-            <Button type="submit" variant="primary" disabled={!isSupabaseConfigured || isSubmitting}>
+            <Button
+              size="medium"
+              type="submit"
+              variant="primary"
+              disabled={!isSupabaseConfigured || isSubmitting}
+            >
               재설정 메일 보내기
             </Button>
             <div className="krds-auth-shell__action-divider">
-              <Button type="button" variant="tertiary" onClick={() => navigate('/login')}>
+              <Button
+                size="medium"
+                type="button"
+                variant="tertiary"
+                onClick={() => navigate('/login')}
+              >
                 로그인으로 돌아가기
               </Button>
             </div>

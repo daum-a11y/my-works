@@ -21,7 +21,7 @@ export function AdminReportsPage() {
       <PageHeader
         title="업무보고 조회"
         actions={
-          <Button type="button" onClick={page.handleCreate} variant="primary">
+          <Button size="medium" type="button" onClick={page.handleCreate} variant="primary">
             업무보고 추가
           </Button>
         }
@@ -72,9 +72,7 @@ export function AdminReportsPage() {
             />
             <p>
               <span>검색 결과</span>
-              <strong>
-                {numberFormatter.format(page.totalTasks)}건
-              </strong>
+              <strong>{numberFormatter.format(page.totalTasks)}건</strong>
             </p>
             <p>
               <span>총 시간</span>

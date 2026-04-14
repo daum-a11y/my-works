@@ -133,7 +133,7 @@ export function ResourceMonthPage() {
   const memberUnderCount = memberStatusRows.filter((member) => member.diffMinutes < 0).length;
 
   return (
-    <section className="krds-page krds-page--page krds-page krds-page">
+    <section className="krds-page krds-page--page">
       <PageHeader title={RESOURCE_MONTH_PAGE_TITLE} />
 
       {query.isPending ? null : (

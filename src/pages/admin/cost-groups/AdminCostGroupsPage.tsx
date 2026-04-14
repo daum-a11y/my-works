@@ -65,6 +65,7 @@ export function AdminCostGroupsPage() {
         actions={
           <>
             <Button
+              size="medium"
               type="button"
               variant="secondary"
               onClick={() => setOrderDialogOpen(true)}
@@ -72,7 +73,7 @@ export function AdminCostGroupsPage() {
             >
               순서변경
             </Button>
-            <KrdsRouterButtonLink to="/admin/cost-group/new" variant="primary" size="large">
+            <KrdsRouterButtonLink to="/admin/cost-group/new" variant="primary" size="medium">
               청구그룹 추가
             </KrdsRouterButtonLink>
           </>

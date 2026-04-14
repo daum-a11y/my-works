@@ -30,13 +30,18 @@ export function UserProfileAccountSection({
       aria-labelledby="profile-summary-title"
       actions={
         !editing ? (
-          <Button ref={editButtonRef} type="button" onClick={onEdit} variant="primary">
+          <Button
+            size="medium"
+            ref={editButtonRef}
+            type="button"
+            onClick={onEdit}
+            variant="primary"
+          >
             비밀번호 변경
           </Button>
         ) : null
       }
     >
-
       <KrdsStructuredInfoList
         items={[
           { label: 'ID', value: accountId ?? '-' },

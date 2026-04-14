@@ -16,6 +16,7 @@ export function AdminPlatformEditorForm({
   return (
     <div className={'krds-page__editor-form-grid'}>
       <TextInput
+        size="medium"
         id="admin-platform-name"
         label="플랫폼명"
         ref={titleRef}
@@ -23,6 +24,7 @@ export function AdminPlatformEditorForm({
         onChange={(value) => onDraftChange({ name: value })}
       />
       <Select
+        size="medium"
         id="admin-platform-visible"
         label="노출여부"
         value={draft.isVisible ? '1' : '0'}

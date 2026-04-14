@@ -90,7 +90,7 @@ export function ReportsResultsTable({
                   </td>
                   <td>
                     {report.url ? (
-                      <KrdsLink href={report.url} external>
+                      <KrdsLink size="medium" href={report.url} external>
                         {report.url}
                       </KrdsLink>
                     ) : (
@@ -103,6 +103,7 @@ export function ReportsResultsTable({
                     <>
                       {canEdit ? (
                         <Button
+                          size="medium"
                           type="button"
                           variant="secondary"
                           onClick={() => onSelect(report.id)}
@@ -112,6 +113,7 @@ export function ReportsResultsTable({
                       ) : null}
                       {canEdit ? (
                         <Button
+                          size="medium"
                           type="button"
                           variant="secondary"
                           onClick={() => onDelete(report.id)}
@@ -137,6 +139,7 @@ export function ReportsResultsTable({
           {canEdit ? (
             <div className="krds-page__table-footer-field">
               <Select
+                size="medium"
                 id="reports-overhead-cost-group"
                 label="청구그룹"
                 value={overheadCostGroupId}
@@ -151,6 +154,7 @@ export function ReportsResultsTable({
           ) : null}
           {canEdit && canAddOverhead ? (
             <Button
+              size="medium"
               type="button"
               variant="secondary"
               onClick={() => onOverhead(summaryDate, missingMinutes)}

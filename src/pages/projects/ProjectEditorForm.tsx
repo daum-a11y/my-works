@@ -1,5 +1,6 @@
 import type { RefObject } from 'react';
 import { Select, TextInput } from 'krds-react';
+import { KrdsDateInput } from '../../components/shared';
 import type { ProjectFormState } from './ProjectEditorPage.types';
 
 interface ProjectEditorFormProps {
@@ -40,6 +41,7 @@ export function ProjectEditorForm({
   return (
     <div className={'krds-page__editor-form-grid'}>
       <Select
+        size="medium"
         id="project-editor-cost-group"
         label="청구그룹"
         value={selectedCostGroupId}
@@ -57,6 +59,7 @@ export function ProjectEditorForm({
       />
 
       <Select
+        size="medium"
         id="project-editor-project-type"
         label="프로젝트 종류"
         value={projectDraft.taskTypeId}
@@ -72,6 +75,7 @@ export function ProjectEditorForm({
       />
 
       <Select
+        size="medium"
         id="project-editor-service-group"
         label="서비스 그룹"
         value={selectedServiceGroup}
@@ -85,6 +89,7 @@ export function ProjectEditorForm({
       />
 
       <Select
+        size="medium"
         id="project-editor-service-name"
         label="서비스명"
         value={selectedServiceName}
@@ -98,6 +103,7 @@ export function ProjectEditorForm({
       />
 
       <Select
+        size="medium"
         id="project-editor-platform"
         label="플랫폼"
         value={projectDraft.platformId}
@@ -115,6 +121,8 @@ export function ProjectEditorForm({
       />
 
       <TextInput
+        size="medium"
+        id="project-editor-name"
         label="프로젝트명"
         ref={titleRef}
         value={projectDraft.name}
@@ -123,24 +131,26 @@ export function ProjectEditorForm({
       />
 
       <TextInput
+        size="medium"
+        id="project-editor-report-url"
         label="보고서URL"
         value={projectDraft.reportUrl}
         onChange={(value) => onProjectDraftChange({ reportUrl: value })}
         style={{ width: '100%' }}
       />
 
-      <TextInput
+      <KrdsDateInput
+        id="project-editor-start-date"
         label="QA시작일"
-        type="date"
         value={projectDraft.startDate}
         max={projectDraft.endDate || undefined}
         onChange={(value) => onProjectDraftChange({ startDate: value })}
         style={{ width: '100%' }}
       />
 
-      <TextInput
+      <KrdsDateInput
+        id="project-editor-end-date"
         label="QA종료일"
-        type="date"
         value={projectDraft.endDate}
         min={projectDraft.startDate || undefined}
         onChange={(value) => onProjectDraftChange({ endDate: value })}
@@ -148,6 +158,7 @@ export function ProjectEditorForm({
       />
 
       <Select
+        size="medium"
         id="project-editor-reporter"
         label="리포터"
         value={projectDraft.reporterMemberId}
@@ -163,6 +174,7 @@ export function ProjectEditorForm({
       />
 
       <Select
+        size="medium"
         id="project-editor-reviewer"
         label="리뷰어"
         value={projectDraft.reviewerMemberId}

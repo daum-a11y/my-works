@@ -141,7 +141,7 @@ export function SearchResultsTable({ reports, sortState, onSortChange }: SearchR
               <td>{report.content || '-'}</td>
               <td>
                 {report.url ? (
-                  <KrdsLink href={report.url} external>
+                  <KrdsLink size="medium" href={report.url} external>
                     링크
                   </KrdsLink>
                 ) : (

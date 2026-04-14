@@ -1,6 +1,10 @@
-import { useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { Button, Checkbox, CriticalAlert, Modal, Select } from 'krds-react';
-import { KrdsStructuredInfoList } from '../../../components/shared';
+import {
+  cleanupKrdsModalState,
+  KrdsStructuredInfoList,
+  useKrdsModalCleanup,
+} from '../../../components/shared';
 import type { AdminCostGroupItem, AdminServiceGroupItem } from '../admin.types';
 
 interface AdminServiceGroupTransferDialogProps {
@@ -47,6 +51,13 @@ export function AdminServiceGroupTransferDialog({
   onClose,
   onSave,
 }: AdminServiceGroupTransferDialogProps) {
+  useKrdsModalCleanup(isOpen);
+
+  const handleClose = useCallback(() => {
+    cleanupKrdsModalState();
+    onClose();
+  }, [onClose]);
+
   const costGroupOptions = useMemo(
     () =>
       Array.from(new Set(targetServiceGroups.map((item) => item.costGroupId ?? ''))).map(
@@ -88,13 +99,13 @@ export function AdminServiceGroupTransferDialog({
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape' && !isPending) {
-        onClose();
+        handleClose();
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, isPending, onClose]);
+  }, [isOpen, isPending, handleClose]);
 
   useEffect(() => {
     if (!isOpen || !serviceNameOptions.length) {
@@ -113,10 +124,11 @@ export function AdminServiceGroupTransferDialog({
   return (
     <div className="krds-page-admin">
       <Modal.Root
+        usePortal
         open={isOpen}
         onOpenChange={(open) => {
           if (!open && !isPending) {
-            onClose();
+            handleClose();
           }
         }}
         closeOnEsc={!isPending}
@@ -135,6 +147,7 @@ export function AdminServiceGroupTransferDialog({
               items={[{ label: '현재 항목', value: formatServiceGroup(sourceServiceGroup) }]}
             />
             <Select
+              size="medium"
               id="service-group-transfer-target-cost-group"
               label="변경할 청구그룹"
               value={selectedCostGroupId}
@@ -151,6 +164,7 @@ export function AdminServiceGroupTransferDialog({
               }))}
             />
             <Select
+              size="medium"
               id="service-group-transfer-target-group"
               label="변경할 서비스 그룹"
               value={selectedGroupName}
@@ -167,6 +181,7 @@ export function AdminServiceGroupTransferDialog({
               }))}
             />
             <Select
+              size="medium"
               id="service-group-transfer-target-service"
               label="변경할 서비스명"
               value={targetServiceGroupId}
@@ -187,10 +202,17 @@ export function AdminServiceGroupTransferDialog({
           </Modal.Body>
 
           <Modal.Footer>
-            <Button type="button" variant="secondary" onClick={onClose} disabled={isPending}>
+            <Button
+              size="medium"
+              type="button"
+              variant="secondary"
+              onClick={handleClose}
+              disabled={isPending}
+            >
               취소
             </Button>
             <Button
+              size="medium"
               type="button"
               variant="primary"
               onClick={onSave}

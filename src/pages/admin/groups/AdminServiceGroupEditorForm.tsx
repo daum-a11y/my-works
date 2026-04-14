@@ -18,6 +18,7 @@ export function AdminServiceGroupEditorForm({
   return (
     <div className={'krds-page__editor-form-grid'}>
       <Select
+        size="medium"
         id="admin-service-group-cost-group"
         label="청구그룹"
         value={draft.costGroupId}
@@ -29,6 +30,7 @@ export function AdminServiceGroupEditorForm({
       />
 
       <TextInput
+        size="medium"
         id="admin-service-group-name"
         label="서비스 그룹"
         ref={titleRef}
@@ -37,6 +39,7 @@ export function AdminServiceGroupEditorForm({
       />
 
       <TextInput
+        size="medium"
         id="admin-service-name"
         label="서비스명"
         value={draft.serviceName}
@@ -44,6 +47,7 @@ export function AdminServiceGroupEditorForm({
       />
 
       <Select
+        size="medium"
         id="admin-service-group-active"
         label="노출여부"
         value={draft.svcActive ? '1' : '0'}

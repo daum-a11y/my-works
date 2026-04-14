@@ -27,17 +27,31 @@ export function AdminMemberEditorStatusSection({
     >
       <div className={'krds-page__editor-form-grid'}>
         <TextInput
+          size="medium"
           id="member-auth-user-id"
           label="Auth ID"
           value={draft.authUserId ?? '-'}
           readOnly
         />
-        <TextInput id="member-active-label" label="활성 여부" value={activeLabel} readOnly />
+        <TextInput
+          size="medium"
+          id="member-active-label"
+          label="활성 여부"
+          value={activeLabel}
+          readOnly
+        />
 
         {isInactiveMember ? (
-          <TextInput id="member-status" label="승인 상태" value={memberStatusLabel} readOnly />
+          <TextInput
+            size="medium"
+            id="member-status"
+            label="승인 상태"
+            value={memberStatusLabel}
+            readOnly
+          />
         ) : (
           <Select
+            size="medium"
             id="member-status"
             label="승인 상태"
             value={draft.memberStatus}
@@ -53,6 +67,7 @@ export function AdminMemberEditorStatusSection({
 
         {isInactiveMember ? (
           <TextInput
+            size="medium"
             id="member-report-required"
             label="업무보고 접근"
             value={draft.reportRequired ? '허용' : '차단'}
@@ -60,6 +75,7 @@ export function AdminMemberEditorStatusSection({
           />
         ) : (
           <Select
+            size="medium"
             id="member-report-required"
             label="업무보고 접근"
             value={draft.reportRequired ? '1' : '0'}

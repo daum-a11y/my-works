@@ -33,6 +33,7 @@ export function AdminReportEditorBasicFields({
   return (
     <div className={'krds-page__form-grid'} style={gridStyle}>
       <Select
+        size="medium"
         id="admin-report-editor-member"
         label="사용자"
         value={selectedMemberId}
@@ -49,6 +50,8 @@ export function AdminReportEditorBasicFields({
       />
 
       <TextInput
+        size="medium"
+        id="admin-report-editor-report-date"
         label="일자"
         type="text"
         placeholder="YYMMDD"

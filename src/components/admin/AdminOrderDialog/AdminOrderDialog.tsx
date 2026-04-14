@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { GripHorizontal } from 'lucide-react';
 import { Badge, Button, CriticalAlert, Modal, type BadgeProps } from 'krds-react';
+import { cleanupKrdsModalState, useKrdsModalCleanup } from '../../shared';
 
 export interface AdminOrderDialogItem {
   id: string;
@@ -50,6 +51,12 @@ export function AdminOrderDialog({
   const [draftItems, setDraftItems] = useState<AdminOrderDialogItem[]>(items);
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [dropTargetId, setDropTargetId] = useState<string | null>(null);
+  useKrdsModalCleanup(isOpen);
+
+  const handleClose = useCallback(() => {
+    cleanupKrdsModalState();
+    onClose();
+  }, [onClose]);
 
   useEffect(() => {
     if (isOpen) {
@@ -66,13 +73,13 @@ export function AdminOrderDialog({
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape' && !isPending) {
-        onClose();
+        handleClose();
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, isPending, onClose]);
+  }, [isOpen, isPending, handleClose]);
 
   const hasChanges = useMemo(
     () => draftItems.some((item, index) => item.id !== items[index]?.id),
@@ -118,10 +125,11 @@ export function AdminOrderDialog({
 
   return (
     <Modal.Root
+      usePortal
       open={isOpen}
       onOpenChange={(open) => {
         if (!open && !isPending) {
-          onClose();
+          handleClose();
         }
       }}
       closeOnEsc={!isPending}
@@ -233,10 +241,17 @@ export function AdminOrderDialog({
         </Modal.Body>
 
         <Modal.Footer>
-          <Button type="button" variant="secondary" onClick={onClose} disabled={isPending}>
+          <Button
+            size="medium"
+            type="button"
+            variant="secondary"
+            onClick={handleClose}
+            disabled={isPending}
+          >
             취소
           </Button>
           <Button
+            size="medium"
             type="button"
             variant="primary"
             onClick={() => void handleSave()}

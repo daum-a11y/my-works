@@ -16,6 +16,7 @@ export function AdminCostGroupEditorForm({
   return (
     <div className={'krds-page__editor-form-grid'}>
       <TextInput
+        size="medium"
         id="admin-cost-group-name"
         label="청구그룹명"
         ref={titleRef}
@@ -24,6 +25,7 @@ export function AdminCostGroupEditorForm({
       />
 
       <Select
+        size="medium"
         id="admin-cost-group-active"
         label="노출여부"
         value={draft.isActive ? '1' : '0'}

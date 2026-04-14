@@ -46,7 +46,7 @@ export function LoginForm({
               autoComplete="username"
               error={errors.email?.message}
               disabled={!isSupabaseConfigured || isBusy}
-              size="large"
+              size="medium"
             />
           )}
         />
@@ -61,7 +61,7 @@ export function LoginForm({
               autoComplete="current-password"
               error={errors.password?.message}
               disabled={!isSupabaseConfigured || isBusy}
-              size="large"
+              size="medium"
             />
           )}
         />
@@ -76,12 +76,18 @@ export function LoginForm({
           />
         ) : null}
         <div className="krds-login__actions">
-          <Button type="submit" variant="primary" disabled={!isSupabaseConfigured || isBusy}>
+          <Button
+            size="medium"
+            type="submit"
+            variant="primary"
+            disabled={!isSupabaseConfigured || isBusy}
+          >
             로그인
           </Button>
         </div>
         <div className="krds-login__recovery">
           <Button
+            size="medium"
             type="button"
             variant="tertiary"
             disabled={!isSupabaseConfigured || isBusy}

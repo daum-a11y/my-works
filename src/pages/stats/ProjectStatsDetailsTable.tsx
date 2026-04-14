@@ -143,7 +143,7 @@ export function ProjectStatsDetailsTable({
               </td>
               <td>
                 {row.reportUrl ? (
-                  <KrdsLink href={row.reportUrl} external>
+                  <KrdsLink size="medium" href={row.reportUrl} external>
                     링크
                   </KrdsLink>
                 ) : (

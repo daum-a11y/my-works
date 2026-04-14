@@ -49,6 +49,7 @@ export function ReportsDateNavigator({
         </p>
         <div className="krds-page__date-actions" role="group" aria-label="업무보고 날짜 이동">
           <Button
+            size="medium"
             type="button"
             variant="tertiary"
             onClick={() => onShiftDate(-1)}
@@ -58,6 +59,7 @@ export function ReportsDateNavigator({
             <span className="sr-only">이전일</span>
           </Button>
           <Button
+            size="medium"
             type="button"
             variant="tertiary"
             onClick={() => onShiftDate(0)}
@@ -67,6 +69,7 @@ export function ReportsDateNavigator({
             오늘
           </Button>
           <Button
+            size="medium"
             type="button"
             variant="tertiary"
             onClick={() => onShiftDate(1)}

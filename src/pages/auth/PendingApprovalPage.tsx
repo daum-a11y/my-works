@@ -35,6 +35,7 @@ export function PendingApprovalPage() {
           />
           <div className="krds-auth-shell__actions">
             <Button
+              size="medium"
               type="button"
               variant="secondary"
               onClick={async () => {

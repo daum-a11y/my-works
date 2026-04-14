@@ -47,7 +47,7 @@ export function PasswordRecoveryForm({
                 autoComplete="new-password"
                 error={errors.nextPassword?.message}
                 disabled={isSubmitting}
-                size="large"
+                size="medium"
               />
             )}
           />
@@ -62,7 +62,7 @@ export function PasswordRecoveryForm({
                 autoComplete="new-password"
                 error={errors.confirmPassword?.message}
                 disabled={isSubmitting}
-                size="large"
+                size="medium"
               />
             )}
           />
@@ -73,7 +73,7 @@ export function PasswordRecoveryForm({
             <CriticalAlert alerts={[{ variant: 'danger', message: errorMessage }]} />
           ) : null}
           <div className="krds-auth-shell__actions">
-            <Button type="submit" variant="primary" disabled={isSubmitting}>
+            <Button size="medium" type="submit" variant="primary" disabled={isSubmitting}>
               비밀번호 변경
             </Button>
           </div>

@@ -13,7 +13,13 @@ export interface PageFilterFieldProps extends ComponentPropsWithoutRef<'div'> {
   label: ReactNode;
 }
 
-const KRDS_LABEL_COMPONENTS = new Set(['TextInput', 'Select', 'Textarea', 'Checkbox']);
+const KRDS_LABEL_COMPONENTS = new Set([
+  'TextInput',
+  'Select',
+  'Textarea',
+  'Checkbox',
+  'KrdsDateInput',
+]);
 
 export function PageFilterField({ label, className, children, ...props }: PageFilterFieldProps) {
   const labelId = useId();

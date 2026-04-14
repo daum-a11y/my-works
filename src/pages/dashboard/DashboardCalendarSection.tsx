@@ -29,6 +29,7 @@ export function DashboardCalendarSection({
           <div className="krds-page__calendar-heading">
             <div className="krds-page__calendar-nav" aria-label="업무일지 월 이동">
               <Button
+                size="medium"
                 type="button"
                 variant="tertiary"
                 onClick={() => onShiftMonth(-1)}
@@ -40,6 +41,7 @@ export function DashboardCalendarSection({
                 {monthState.year}년 {monthState.month}월
               </h2>
               <Button
+                size="medium"
                 type="button"
                 variant="tertiary"
                 onClick={() => onShiftMonth(1)}

@@ -197,14 +197,20 @@ export function ResourceSummaryPage() {
           <PageFilterBar
             actions={
               <div>
-                <Button type="submit" variant="primary">
+                <Button size="medium" type="submit" variant="primary">
                   검색
                 </Button>
               </div>
             }
           >
             <PageFilterField className="krds-page__filter-field" label="기간">
-              <TextInput type="month" value={monthDraft} onChange={setMonthDraft} />
+              <TextInput
+                size="medium"
+                id="resource-summary-month"
+                type="month"
+                value={monthDraft}
+                onChange={setMonthDraft}
+              />
             </PageFilterField>
             <PageFilterField className="krds-page__filter-field" label="미작성자">
               <Checkbox

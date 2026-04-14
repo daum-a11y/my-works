@@ -96,6 +96,7 @@ export function AdminServiceGroupsPage() {
         actions={
           <>
             <Button
+              size="medium"
               type="button"
               variant="secondary"
               onClick={() => setOrderDialogOpen(true)}
@@ -103,7 +104,7 @@ export function AdminServiceGroupsPage() {
             >
               순서변경
             </Button>
-            <KrdsRouterButtonLink to="/admin/group/new" variant="primary" size="large">
+            <KrdsRouterButtonLink to="/admin/group/new" variant="primary" size="medium">
               서비스 그룹 추가
             </KrdsRouterButtonLink>
           </>

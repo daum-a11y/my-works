@@ -1,6 +1,10 @@
-import clsx from 'clsx';
-import { Button, Modal } from 'krds-react';
-import { SortableTableHeaderButton } from '../../components/shared';
+import { Badge, Button, Modal, type BadgeProps } from 'krds-react';
+import {
+  cleanupKrdsModalState,
+  PageSection,
+  SortableTableHeaderButton,
+  useKrdsModalCleanup,
+} from '../../components/shared';
 import { MonthlyReportCalendar } from '../../components/shared/MonthlyReportCalendar';
 import { TableEmptyRow } from '../../components/shared/TableEmptyRow';
 import type { ResourceSummaryRow } from './ResourceSummaryPage.types';
@@ -10,6 +14,13 @@ import {
   formatSignedMinutes,
   getMinuteTone,
 } from './ResourceSummaryPage.format';
+import type { ResourceSummaryMinuteTone } from './ResourceSummaryPage.types';
+
+const minuteToneBadgeColor: Record<ResourceSummaryMinuteTone, BadgeProps['color']> = {
+  positive: 'warning',
+  negative: 'danger',
+  neutral: 'success',
+};
 
 interface ResourceSummaryMonthState {
   currentMonth: boolean;
@@ -41,6 +52,13 @@ export function ResourceSummaryResults({
   onDetailOpen,
   onDetailClose,
 }: ResourceSummaryResultsProps) {
+  useKrdsModalCleanup(detailOpen);
+
+  const handleDetailClose = () => {
+    cleanupKrdsModalState();
+    onDetailClose();
+  };
+
   const getAriaSort = (key: ResourceSummarySortState['key']) => {
     if (sortState.key !== key) {
       return 'none';
@@ -51,7 +69,7 @@ export function ResourceSummaryResults({
 
   return (
     <>
-      <section className="krds-page-summary__content-section">
+      <PageSection title="월별 사용자 업무보고 현황" className="krds-page-summary__content-section">
         <div className="krds-page__table-wrap krds-table-wrap">
           <table className="krds-page__table tbl data">
             <caption className="sr-only">월별 사용자 업무보고 현황</caption>
@@ -84,17 +102,13 @@ export function ResourceSummaryResults({
                     <tr key={row.id}>
                       <td>{row.label}</td>
                       <td>
-                        <span
-                          className={clsx(
-                            'krds-page-summary__minute-value',
-                            `krds-page-summary__minute-value--${tone}`,
-                          )}
-                        >
+                        <Badge variant="light" color={minuteToneBadgeColor[tone]} size="small">
                           {formatSignedMinutes(row.diffMinutes)}
-                        </span>
+                        </Badge>
                       </td>
                       <td>
                         <Button
+                          size="medium"
                           type="button"
                           variant="tertiary"
                           onClick={() => onDetailOpen(row.id)}
@@ -115,14 +129,15 @@ export function ResourceSummaryResults({
             </tbody>
           </table>
         </div>
-      </section>
+      </PageSection>
 
       {detailOpen && detailMember && monthState ? (
         <Modal.Root
+          usePortal
           open={detailOpen}
           onOpenChange={(open) => {
             if (!open) {
-              onDetailClose();
+              handleDetailClose();
             }
           }}
           closeOnEsc
@@ -144,7 +159,7 @@ export function ResourceSummaryResults({
               />
             </Modal.Body>
             <Modal.Footer>
-              <Button type="button" variant="secondary" onClick={onDetailClose}>
+              <Button size="medium" type="button" variant="secondary" onClick={handleDetailClose}>
                 닫기
               </Button>
             </Modal.Footer>

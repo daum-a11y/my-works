@@ -51,12 +51,13 @@ export function ResourceTypePage() {
   const activeRow = rows[0] ?? null;
 
   return (
-    <section className="krds-page krds-page">
+    <section className="krds-page">
       <PageHeader
         title={RESOURCE_TYPE_PAGE_TITLE}
         actions={
           <div className="krds-page__year-actions">
             <Button
+              size="medium"
               type="button"
               onClick={() => setFold((current) => !current)}
               aria-pressed={fold}

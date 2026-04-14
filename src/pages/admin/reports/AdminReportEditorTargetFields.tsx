@@ -49,6 +49,7 @@ export function AdminReportEditorTargetFields({
     <div style={gridStyle}>
       {showProjectSelect && !isProjectLinkedTab ? (
         <Select
+          size="medium"
           id="admin-report-editor-target-project"
           label="프로젝트"
           value={draft.projectId}
@@ -70,6 +71,7 @@ export function AdminReportEditorTargetFields({
 
       {showSubtaskSelect ? (
         <Select
+          size="medium"
           id="admin-report-editor-target-subtask"
           label={isProjectLinkedTab ? '태스크명' : '프로젝트 태스크'}
           value={draft.subtaskId}
@@ -88,6 +90,7 @@ export function AdminReportEditorTargetFields({
       {showManualSubtaskName ? (
         isVacationType ? (
           <Select
+            size="medium"
             id="admin-report-editor-vacation-type"
             label={manualSubtaskLabel}
             value={draft.manualSubtaskName}
@@ -102,6 +105,8 @@ export function AdminReportEditorTargetFields({
           />
         ) : (
           <TextInput
+            size="medium"
+            id="admin-report-editor-manual-subtask-name"
             label={manualSubtaskLabel}
             value={draft.manualSubtaskName}
             onChange={onManualSubtaskNameChange}
@@ -111,9 +116,18 @@ export function AdminReportEditorTargetFields({
         )
       ) : null}
 
-      <TextInput label="URL" value={draft.url} onChange={onUrlChange} style={{ width: '100%' }} />
+      <TextInput
+        size="medium"
+        id="admin-report-editor-url"
+        label="URL"
+        value={draft.url}
+        onChange={onUrlChange}
+        style={{ width: '100%' }}
+      />
 
       <TextInput
+        size="medium"
+        id="admin-report-editor-task-used-time"
         label="총시간"
         type="number"
         min="0"

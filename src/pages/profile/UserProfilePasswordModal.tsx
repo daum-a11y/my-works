@@ -1,4 +1,5 @@
 import { Button, CriticalAlert, Modal, TextInput } from 'krds-react';
+import { cleanupKrdsModalState, useKrdsModalCleanup } from '../../components/shared';
 
 type PasswordDraft = {
   next: string;
@@ -45,18 +46,25 @@ export function UserProfilePasswordModal({
   onBackToForm,
   onMoveToLogin,
 }: UserProfilePasswordModalProps) {
+  const canClose = step === 'form' && !isSubmitting;
+  useKrdsModalCleanup(editing);
+
+  const handleCancel = () => {
+    cleanupKrdsModalState();
+    onCancel();
+  };
+
   if (!editing) {
     return null;
   }
 
-  const canClose = step === 'form' && !isSubmitting;
-
   return (
     <Modal.Root
+      usePortal
       open={editing}
       onOpenChange={(open) => {
         if (!open && canClose) {
-          onCancel();
+          handleCancel();
         }
       }}
       closeOnEsc={canClose}
@@ -81,7 +89,7 @@ export function UserProfilePasswordModal({
                 value={draft.next}
                 onChange={(value) => onDraftChange({ next: value })}
                 error={errors.next || undefined}
-                size="large"
+                size="medium"
               />
               <TextInput
                 label="새 비밀번호 확인"
@@ -90,7 +98,7 @@ export function UserProfilePasswordModal({
                 value={draft.confirm}
                 onChange={(value) => onDraftChange({ confirm: value })}
                 error={errors.confirm || undefined}
-                size="large"
+                size="medium"
               />
               <div aria-live="polite">
                 {submitError ? (
@@ -98,13 +106,14 @@ export function UserProfilePasswordModal({
                 ) : null}
               </div>
               <Modal.Footer>
-                <Button type="submit" variant="primary" disabled={!canSubmit}>
+                <Button size="medium" type="submit" variant="primary" disabled={!canSubmit}>
                   변경
                 </Button>
                 <Button
+                  size="medium"
                   type="button"
                   variant="secondary"
-                  onClick={onCancel}
+                  onClick={handleCancel}
                   disabled={isSubmitting}
                 >
                   취소
@@ -122,10 +131,17 @@ export function UserProfilePasswordModal({
                 ]}
               />
               <Modal.Footer>
-                <Button type="button" variant="primary" onClick={onConfirm} disabled={isSubmitting}>
+                <Button
+                  size="medium"
+                  type="button"
+                  variant="primary"
+                  onClick={onConfirm}
+                  disabled={isSubmitting}
+                >
                   변경
                 </Button>
                 <Button
+                  size="medium"
                   type="button"
                   variant="secondary"
                   onClick={onBackToForm}
@@ -137,11 +153,9 @@ export function UserProfilePasswordModal({
             </>
           ) : (
             <>
-              <CriticalAlert
-                alerts={[{ variant: 'ok', message: '비밀번호가 변경되었습니다.' }]}
-              />
+              <CriticalAlert alerts={[{ variant: 'ok', message: '비밀번호가 변경되었습니다.' }]} />
               <Modal.Footer>
-                <Button type="button" variant="primary" onClick={onMoveToLogin}>
+                <Button size="medium" type="button" variant="primary" onClick={onMoveToLogin}>
                   로그인
                 </Button>
               </Modal.Footer>

@@ -22,10 +22,10 @@ export function AdminMembersFilterForm({
       <PageFilterBar
         actions={
           <div>
-            <Button type="submit" variant="primary">
+            <Button size="medium" type="submit" variant="primary">
               검색
             </Button>
-            <Button type="button" variant="secondary" onClick={onReset}>
+            <Button size="medium" type="button" variant="secondary" onClick={onReset}>
               초기화
             </Button>
           </div>
@@ -33,6 +33,7 @@ export function AdminMembersFilterForm({
       >
         <PageFilterField className={'krds-page-admin__filter-field'} label="활성 여부">
           <Select
+            size="medium"
             id="admin-members-status"
             value={filterDraft.status}
             onChange={(value) =>
@@ -50,6 +51,8 @@ export function AdminMembersFilterForm({
         </PageFilterField>
         <PageFilterField className={'krds-page-admin__filter-field'} label="검색어">
           <TextInput
+            size="medium"
+            id="admin-members-keyword"
             value={filterDraft.keyword}
             onChange={(value) => onFilterDraftChange({ ...filterDraft, keyword: value })}
             placeholder="이름, ID, 메일 검색"

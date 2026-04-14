@@ -1,5 +1,6 @@
 import type { FormEvent } from 'react';
 import { Accordion, Button, Checkbox, CheckboxGroup, Select, TextInput } from 'krds-react';
+import { KrdsDateInput } from '../../../components/shared';
 import { EmptyState } from '../../../components/shared/EmptyState';
 import { PageFilterField } from '../../../components/shared/PageFilterField';
 import type {
@@ -72,18 +73,16 @@ export function AdminReportsFilterForm({
     <form className={'krds-page-admin__filter-form'} onSubmit={onSubmit}>
       <div className={'krds-page-admin__date-row'}>
         <PageFilterField className={'krds-page-admin__filter-field'} label="시작일">
-          <TextInput
+          <KrdsDateInput
             id="admin-reports-start-date"
-            type="date"
             value={filters.startDate}
             max={filters.endDate || undefined}
             onChange={(value) => onFilterField('startDate', value)}
           />
         </PageFilterField>
         <PageFilterField className={'krds-page-admin__filter-field'} label="종료일">
-          <TextInput
+          <KrdsDateInput
             id="admin-reports-end-date"
-            type="date"
             value={filters.endDate}
             min={filters.startDate || undefined}
             onChange={(value) => onFilterField('endDate', value)}
@@ -94,6 +93,7 @@ export function AdminReportsFilterForm({
       <div className={'krds-page-admin__meta-row'}>
         <PageFilterField className={'krds-page-admin__filter-field'} label="타입1">
           <Select
+            size="medium"
             id="admin-reports-task-type-1"
             value={filters.taskType1}
             onChange={(value) => onFilterField('taskType1', value)}
@@ -105,6 +105,7 @@ export function AdminReportsFilterForm({
         </PageFilterField>
         <PageFilterField className={'krds-page-admin__filter-field'} label="타입2">
           <Select
+            size="medium"
             id="admin-reports-task-type-2"
             value={filters.taskType2}
             onChange={(value) => onFilterField('taskType2', value)}
@@ -117,6 +118,7 @@ export function AdminReportsFilterForm({
         </PageFilterField>
         <PageFilterField className={'krds-page-admin__filter-field'} label="청구그룹">
           <Select
+            size="medium"
             id="admin-reports-cost-group"
             value={filters.costGroupId}
             onChange={(value) => onFilterField('costGroupId', value)}
@@ -128,6 +130,7 @@ export function AdminReportsFilterForm({
         </PageFilterField>
         <PageFilterField className={'krds-page-admin__filter-field'} label="프로젝트">
           <Select
+            size="medium"
             id="admin-reports-service-name"
             value={filters.projectId}
             onChange={(value) => onFilterField('projectId', value)}
@@ -158,6 +161,8 @@ export function AdminReportsFilterForm({
                 <Accordion.Panel>
                   <div className={'krds-page-admin__member-panel-toolbar'}>
                     <TextInput
+                      size="medium"
+                      id="admin-reports-member-search"
                       className={'krds-page-admin__member-search-input'}
                       value={memberSearchInput}
                       onChange={onMemberSearchInputChange}
@@ -166,10 +171,20 @@ export function AdminReportsFilterForm({
                     />
                   </div>
                   <div className={'krds-page-admin__member-quick-actions'}>
-                    <Button type="button" variant="tertiary" onClick={onSelectAllMembers}>
+                    <Button
+                      size="medium"
+                      type="button"
+                      variant="tertiary"
+                      onClick={onSelectAllMembers}
+                    >
                       전체 선택
                     </Button>
-                    <Button type="button" variant="tertiary" onClick={onClearAllMembers}>
+                    <Button
+                      size="medium"
+                      type="button"
+                      variant="tertiary"
+                      onClick={onClearAllMembers}
+                    >
                       전체 해제
                     </Button>
                   </div>
@@ -204,6 +219,8 @@ export function AdminReportsFilterForm({
         </PageFilterField>
         <PageFilterField className={'krds-page-admin__filter-field'} label="검색어">
           <TextInput
+            size="medium"
+            id="admin-reports-keyword"
             value={filters.keyword}
             onChange={(value) => onFilterField('keyword', value)}
             placeholder="ID, 이름, 서비스명, 비고 검색"
@@ -213,13 +230,19 @@ export function AdminReportsFilterForm({
 
       <div className={'krds-page-admin__filter-actions-row'}>
         <div>
-          <Button type="submit" variant="primary" disabled={loading || searching}>
+          <Button size="medium" type="submit" variant="primary" disabled={loading || searching}>
             검색
           </Button>
-          <Button type="button" variant="secondary" onClick={onReset}>
+          <Button size="medium" type="button" variant="secondary" onClick={onReset}>
             초기화
           </Button>
-          <Button type="button" variant="secondary" onClick={onExport} disabled={totalTasks === 0}>
+          <Button
+            size="medium"
+            type="button"
+            variant="secondary"
+            onClick={onExport}
+            disabled={totalTasks === 0}
+          >
             다운로드
           </Button>
         </div>

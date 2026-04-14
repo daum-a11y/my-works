@@ -21,7 +21,7 @@ export function ProjectsPage() {
       <PageHeader
         title="프로젝트 관리"
         actions={
-          <KrdsRouterButtonLink to="/projects/new" variant="primary" size="large">
+          <KrdsRouterButtonLink to="/projects/new" variant="primary" size="medium">
             프로젝트 추가
           </KrdsRouterButtonLink>
         }
@@ -56,9 +56,7 @@ export function ProjectsPage() {
             />
             <p>
               <span>총 건수</span>
-              <strong>
-                {numberFormatter.format(page.totalProjects)}건
-              </strong>
+              <strong>{numberFormatter.format(page.totalProjects)}건</strong>
             </p>
           </>
         }

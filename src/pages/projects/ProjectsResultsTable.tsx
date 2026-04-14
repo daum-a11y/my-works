@@ -141,7 +141,7 @@ export function ProjectsResultsTable({
               <td>{project.subtaskCount}</td>
               <td>
                 {project.reportUrl ? (
-                  <KrdsLink href={project.reportUrl} external>
+                  <KrdsLink size="medium" href={project.reportUrl} external>
                     링크
                   </KrdsLink>
                 ) : (

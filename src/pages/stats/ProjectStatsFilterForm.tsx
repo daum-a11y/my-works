@@ -31,10 +31,10 @@ export function ProjectStatsFilterForm({
       <PageFilterBar
         actions={
           <div>
-            <Button type="submit" variant="primary">
+            <Button size="medium" type="submit" variant="primary">
               검색
             </Button>
-            <Button type="button" variant="secondary" onClick={onReset}>
+            <Button size="medium" type="button" variant="secondary" onClick={onReset}>
               초기화
             </Button>
           </div>
@@ -42,6 +42,8 @@ export function ProjectStatsFilterForm({
       >
         <PageFilterField className={'krds-page__filter-field'} label="시작월">
           <TextInput
+            size="medium"
+            id="project-stats-start-month"
             type="month"
             aria-label="프로젝트 통계 시작월"
             value={draftStartMonth}
@@ -51,6 +53,8 @@ export function ProjectStatsFilterForm({
         </PageFilterField>
         <PageFilterField className={'krds-page__filter-field'} label="종료월">
           <TextInput
+            size="medium"
+            id="project-stats-end-month"
             type="month"
             aria-label="프로젝트 통계 종료월"
             value={draftEndMonth}
@@ -60,6 +64,8 @@ export function ProjectStatsFilterForm({
         </PageFilterField>
         <PageFilterField className={'krds-page__filter-field'} label="타입 1">
           <Select
+            size="medium"
+            id="project-stats-task-type1"
             aria-label="프로젝트 통계 타입 1"
             value={draftTaskType1}
             onChange={onDraftTaskType1Change}

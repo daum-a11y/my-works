@@ -1,6 +1,10 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { Button, Checkbox, CriticalAlert, Modal, Select } from 'krds-react';
-import { KrdsStructuredInfoList } from '../../../components/shared';
+import {
+  cleanupKrdsModalState,
+  KrdsStructuredInfoList,
+  useKrdsModalCleanup,
+} from '../../../components/shared';
 import type { AdminPlatformItem } from '../admin.types';
 
 interface AdminPlatformTransferDialogProps {
@@ -30,6 +34,13 @@ export function AdminPlatformTransferDialog({
   onClose,
   onSave,
 }: AdminPlatformTransferDialogProps) {
+  useKrdsModalCleanup(isOpen);
+
+  const handleClose = useCallback(() => {
+    cleanupKrdsModalState();
+    onClose();
+  }, [onClose]);
+
   useEffect(() => {
     if (!isOpen) {
       return undefined;
@@ -37,13 +48,13 @@ export function AdminPlatformTransferDialog({
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape' && !isPending) {
-        onClose();
+        handleClose();
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, isPending, onClose]);
+  }, [isOpen, isPending, handleClose]);
 
   if (!isOpen) {
     return null;
@@ -52,10 +63,11 @@ export function AdminPlatformTransferDialog({
   return (
     <div className="krds-page-admin">
       <Modal.Root
+        usePortal
         open={isOpen}
         onOpenChange={(open) => {
           if (!open && !isPending) {
-            onClose();
+            handleClose();
           }
         }}
         closeOnEsc={!isPending}
@@ -72,6 +84,7 @@ export function AdminPlatformTransferDialog({
           <Modal.Body>
             <KrdsStructuredInfoList items={[{ label: '현재 항목', value: sourcePlatform.name }]} />
             <Select
+              size="medium"
               id="platform-transfer-target"
               label="변경할 항목"
               value={targetPlatformId}
@@ -92,10 +105,17 @@ export function AdminPlatformTransferDialog({
           </Modal.Body>
 
           <Modal.Footer>
-            <Button type="button" variant="secondary" onClick={onClose} disabled={isPending}>
+            <Button
+              size="medium"
+              type="button"
+              variant="secondary"
+              onClick={handleClose}
+              disabled={isPending}
+            >
               취소
             </Button>
             <Button
+              size="medium"
               type="button"
               variant="primary"
               onClick={() => void onSave()}

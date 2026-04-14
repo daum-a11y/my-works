@@ -1,4 +1,5 @@
 import { Tab, TabList, TabPanel, TabTrigger } from 'krds-react';
+import { PageSection } from '../../components/shared';
 import { TableEmptyRow } from '../../components/shared/TableEmptyRow';
 import type { ResourceServiceYearSummary } from './ResourceServicePage.types';
 import { ResourceServiceYearRows } from './ResourceServiceYearRows';
@@ -20,28 +21,30 @@ export function ResourceServiceTableSection({
 }: ResourceServiceTableSectionProps) {
   if (!years.length) {
     return (
-      <div className="krds-page__table-wrap krds-table-wrap">
-        <table className="krds-page__table tbl data">
-          <caption className="sr-only">연도와 월 기준 서비스 그룹 집계 표</caption>
-          <thead>
-            <tr>
-              <th scope="col">월</th>
-              <th scope="col">청구그룹</th>
-              <th scope="col">서비스 그룹</th>
-              <th scope="col">서비스명</th>
-              <th scope="col">MM</th>
-            </tr>
-          </thead>
-          <tbody>
-            <TableEmptyRow colSpan={5} message="표시할 서비스 그룹 집계가 없습니다." />
-          </tbody>
-        </table>
-      </div>
+      <PageSection title="서비스 그룹 집계" className="krds-page__table-tabs-section">
+        <div className="krds-page__table-wrap krds-table-wrap">
+          <table className="krds-page__table tbl data">
+            <caption className="sr-only">연도와 월 기준 서비스 그룹 집계 표</caption>
+            <thead>
+              <tr>
+                <th scope="col">월</th>
+                <th scope="col">청구그룹</th>
+                <th scope="col">서비스 그룹</th>
+                <th scope="col">서비스명</th>
+                <th scope="col">MM</th>
+              </tr>
+            </thead>
+            <tbody>
+              <TableEmptyRow colSpan={5} message="표시할 서비스 그룹 집계가 없습니다." />
+            </tbody>
+          </table>
+        </div>
+      </PageSection>
     );
   }
 
   return (
-    <section className="krds-page__table-tabs-section">
+    <PageSection title="서비스 그룹 집계" className="krds-page__table-tabs-section">
       <Tab value={activeYear} onValueChange={onYearChange}>
         <div className="krds-page__table-tabs-scroller">
           <TabList aria-label="서비스 그룹 집계 연도">
@@ -77,6 +80,6 @@ export function ResourceServiceTableSection({
           </TabPanel>
         ) : null}
       </Tab>
-    </section>
+    </PageSection>
   );
 }

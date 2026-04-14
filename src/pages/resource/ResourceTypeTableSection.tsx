@@ -1,4 +1,5 @@
 import { Tab, TabList, TabPanel, TabTrigger } from 'krds-react';
+import { PageSection } from '../../components/shared';
 import { TableEmptyRow } from '../../components/shared/TableEmptyRow';
 import type { ResourceTypeYearSummary } from './ResourceTypePage.types';
 import { ResourceTypeYearRows } from './ResourceTypeYearRows';
@@ -20,27 +21,29 @@ export function ResourceTypeTableSection({
 }: ResourceTypeTableSectionProps) {
   if (!years.length) {
     return (
-      <div className="krds-page__table-wrap krds-table-wrap">
-        <table className="krds-page__table tbl data">
-          <caption className="sr-only">연도와 월 기준 업무 타입 집계 표</caption>
-          <thead>
-            <tr>
-              <th scope="col">월</th>
-              <th scope="col">타입1</th>
-              <th scope="col">타입2</th>
-              <th scope="col">MM</th>
-            </tr>
-          </thead>
-          <tbody>
-            <TableEmptyRow colSpan={4} message="표시할 타입별 집계가 없습니다." />
-          </tbody>
-        </table>
-      </div>
+      <PageSection title="업무 타입 집계" className="krds-page__table-tabs-section">
+        <div className="krds-page__table-wrap krds-table-wrap">
+          <table className="krds-page__table tbl data">
+            <caption className="sr-only">연도와 월 기준 업무 타입 집계 표</caption>
+            <thead>
+              <tr>
+                <th scope="col">월</th>
+                <th scope="col">타입1</th>
+                <th scope="col">타입2</th>
+                <th scope="col">MM</th>
+              </tr>
+            </thead>
+            <tbody>
+              <TableEmptyRow colSpan={4} message="표시할 타입별 집계가 없습니다." />
+            </tbody>
+          </table>
+        </div>
+      </PageSection>
     );
   }
 
   return (
-    <section className="krds-page__table-tabs-section">
+    <PageSection title="업무 타입 집계" className="krds-page__table-tabs-section">
       <Tab value={activeYear} onValueChange={onYearChange}>
         <div className="krds-page__table-tabs-scroller">
           <TabList aria-label="업무 타입 집계 연도">
@@ -73,6 +76,6 @@ export function ResourceTypeTableSection({
           </TabPanel>
         ) : null}
       </Tab>
-    </section>
+    </PageSection>
   );
 }

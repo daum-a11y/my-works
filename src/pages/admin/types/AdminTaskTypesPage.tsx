@@ -100,6 +100,7 @@ export function AdminTaskTypesPage() {
         actions={
           <>
             <Button
+              size="medium"
               type="button"
               variant="secondary"
               onClick={() => setOrderDialogOpen(true)}
@@ -107,7 +108,7 @@ export function AdminTaskTypesPage() {
             >
               순서변경
             </Button>
-            <KrdsRouterButtonLink to="/admin/type/new" variant="primary" size="large">
+            <KrdsRouterButtonLink to="/admin/type/new" variant="primary" size="medium">
               업무 타입 추가
             </KrdsRouterButtonLink>
           </>

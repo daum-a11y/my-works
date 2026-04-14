@@ -29,10 +29,10 @@ export function TaskMonitoringFilterForm({
       <PageFilterBar
         actions={
           <div>
-            <Button type="submit" variant="primary">
+            <Button size="medium" type="submit" variant="primary">
               검색
             </Button>
-            <Button type="button" variant="secondary" onClick={onReset}>
+            <Button size="medium" type="button" variant="secondary" onClick={onReset}>
               초기화
             </Button>
           </div>
@@ -40,6 +40,8 @@ export function TaskMonitoringFilterForm({
       >
         <PageFilterField className={'krds-page__filter-field'} label="시작월">
           <TextInput
+            size="medium"
+            id="task-monitoring-start-month"
             type="month"
             aria-label="태스크 현황 시작월"
             value={draftStartMonth}
@@ -49,6 +51,8 @@ export function TaskMonitoringFilterForm({
         </PageFilterField>
         <PageFilterField className={'krds-page__filter-field'} label="종료월">
           <TextInput
+            size="medium"
+            id="task-monitoring-end-month"
             type="month"
             aria-label="태스크 현황 종료월"
             value={draftEndMonth}
@@ -58,6 +62,8 @@ export function TaskMonitoringFilterForm({
         </PageFilterField>
         <PageFilterField className={'krds-page__filter-field'} label="검색">
           <TextInput
+            size="medium"
+            id="task-monitoring-query"
             type="search"
             aria-label="태스크 현황 검색"
             value={draftQuery}

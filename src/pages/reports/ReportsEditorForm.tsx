@@ -67,17 +67,17 @@ export function ReportsEditorForm({
       title={mode === 'edit' ? '업무 수정' : '업무 등록'}
       actions={
         mode === 'edit' ? (
-          <Button type="button" variant="secondary" onClick={onCancelEdit}>
+          <Button size="medium" type="button" variant="secondary" onClick={onCancelEdit}>
             편집 취소
           </Button>
         ) : null
       }
     >
-
       <form className="krds-page__form" onSubmit={onSubmit}>
         <div className="krds-page__step">
           <div className="krds-page__form-grid krds-page__form-grid--compact">
             <Select
+              size="medium"
               id="report-editor-cost-group"
               label="청구그룹"
               value={draft.costGroupId}
@@ -94,9 +94,17 @@ export function ReportsEditorForm({
             {showTypeStep ? (
               <>
                 {projectTypeSelected ? (
-                  <TextInput label="타입1" value={type1Value} readOnly style={{ width: '100%' }} />
+                  <TextInput
+                    size="medium"
+                    id="report-editor-type1-readonly"
+                    label="타입1"
+                    value={type1Value}
+                    readOnly
+                    style={{ width: '100%' }}
+                  />
                 ) : (
                   <Select
+                    size="medium"
                     id="report-editor-type1"
                     label="타입1"
                     value={draft.type1}
@@ -110,6 +118,7 @@ export function ReportsEditorForm({
                 )}
 
                 <Select
+                  size="medium"
                   id="report-editor-type2"
                   label="타입2"
                   value={draft.type2}
@@ -129,6 +138,8 @@ export function ReportsEditorForm({
           <div className="krds-page__step">
             <div className="krds-page__project-lookup">
               <TextInput
+                size="medium"
+                id="report-editor-project-search"
                 label="프로젝트 검색"
                 value={projectQuery}
                 onChange={onProjectQueryChange}
@@ -139,12 +150,13 @@ export function ReportsEditorForm({
 
               <div className="krds-page__search-button-field">
                 <span className="sr-only">프로젝트 검색</span>
-                <Button type="button" variant="secondary" onClick={onProjectSearch}>
+                <Button size="medium" type="button" variant="secondary" onClick={onProjectSearch}>
                   검색
                 </Button>
               </div>
 
               <Select
+                size="medium"
                 id="report-editor-project"
                 label="프로젝트"
                 value={draft.projectId}
@@ -164,6 +176,7 @@ export function ReportsEditorForm({
 
               {showSubtaskSelect ? (
                 <Select
+                  size="medium"
                   id="report-editor-subtask"
                   label="태스크명"
                   value={draft.subtaskId}
@@ -186,6 +199,8 @@ export function ReportsEditorForm({
           <div className="krds-page__step">
             <div className="krds-page__form-grid">
               <TextInput
+                size="medium"
+                id="report-editor-content"
                 label="업무명"
                 value={draft.content}
                 onChange={(value) => onDraftFieldChange('content', value)}
@@ -193,6 +208,8 @@ export function ReportsEditorForm({
               />
 
               <TextInput
+                size="medium"
+                id="report-editor-used-time"
                 label="업무 시간(분)"
                 type="number"
                 min="0"
@@ -205,6 +222,8 @@ export function ReportsEditorForm({
               />
 
               <TextInput
+                size="medium"
+                id="report-editor-url"
                 label="URL"
                 value={draft.url}
                 onChange={(value) => onDraftFieldChange('url', value)}
@@ -212,6 +231,7 @@ export function ReportsEditorForm({
               />
 
               <Textarea
+                id="report-editor-note"
                 label="비고"
                 value={draft.note}
                 onChange={(value) => onDraftFieldChange('note', value)}
@@ -223,11 +243,16 @@ export function ReportsEditorForm({
         ) : null}
 
         <div className="krds-page__action-row">
-          <Button type="submit" variant="primary" disabled={isSaving || !isListDateValid}>
+          <Button
+            size="medium"
+            type="submit"
+            variant="primary"
+            disabled={isSaving || !isListDateValid}
+          >
             {mode === 'edit' ? '수정 저장' : '업무 저장'}
           </Button>
           {mode === 'edit' ? (
-            <Button type="button" variant="secondary" onClick={onCancelEdit}>
+            <Button size="medium" type="button" variant="secondary" onClick={onCancelEdit}>
               편집 취소
             </Button>
           ) : null}

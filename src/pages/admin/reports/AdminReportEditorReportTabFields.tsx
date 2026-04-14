@@ -42,6 +42,7 @@ export function AdminReportEditorReportTabFields({
   return (
     <div className={'krds-page__form-grid'} style={gridStyle}>
       <Select
+        size="medium"
         id="admin-report-editor-report-cost-group"
         label="청구그룹"
         value={draft.costGroupId}
@@ -58,6 +59,8 @@ export function AdminReportEditorReportTabFields({
 
       <div style={searchRowStyle}>
         <TextInput
+          size="medium"
+          id="admin-report-editor-report-project-search"
           label="프로젝트검색"
           value={projectQuery}
           onChange={onProjectQueryChange}
@@ -65,12 +68,13 @@ export function AdminReportEditorReportTabFields({
           placeholder="검색어입력"
           style={{ width: '100%', flex: '1 1 0' }}
         />
-        <Button type="button" variant="secondary" onClick={onProjectSearch}>
+        <Button size="medium" type="button" variant="secondary" onClick={onProjectSearch}>
           검색
         </Button>
       </div>
 
       <Select
+        size="medium"
         id="admin-report-editor-report-project"
         label="프로젝트"
         value={draft.projectId}

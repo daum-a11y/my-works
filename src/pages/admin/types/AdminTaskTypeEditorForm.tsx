@@ -16,6 +16,7 @@ export function AdminTaskTypeEditorForm({
   return (
     <div className={'krds-page__editor-form-grid'}>
       <TextInput
+        size="medium"
         id="admin-task-type-type1"
         label="타입1"
         ref={titleRef}
@@ -24,6 +25,7 @@ export function AdminTaskTypeEditorForm({
       />
 
       <TextInput
+        size="medium"
         id="admin-task-type-type2"
         label="타입2"
         value={draft.type2}
@@ -31,6 +33,7 @@ export function AdminTaskTypeEditorForm({
       />
 
       <Select
+        size="medium"
         id="admin-task-type-resource-type"
         label="리소스 타입"
         value={draft.requiresServiceGroup ? '1' : '0'}
@@ -42,6 +45,7 @@ export function AdminTaskTypeEditorForm({
       />
 
       <Select
+        size="medium"
         id="admin-task-type-active"
         label="활성여부"
         value={draft.isActive ? '1' : '0'}
@@ -53,6 +57,7 @@ export function AdminTaskTypeEditorForm({
       />
 
       <TextInput
+        size="medium"
         id="admin-task-type-note"
         label="비고"
         value={draft.note}

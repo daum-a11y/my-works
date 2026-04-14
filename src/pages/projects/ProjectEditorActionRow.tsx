@@ -14,30 +14,16 @@ export function ProjectEditorActionRow({
 }: ProjectEditorActionRowProps) {
   return (
     <div className="krds-page__form-actions krds-page__editor-form-actions">
-      <div
-        className={
-          'krds-page__editor-form-actions krds-page__editor-form-actions--start'
-        }
-      >
+      <div className={'krds-page__editor-form-actions krds-page__editor-form-actions--start'}>
         {canDelete ? (
-          <Button type="button" variant="secondary" onClick={onDelete}>
+          <Button size="medium" type="button" variant="secondary" onClick={onDelete}>
             삭제
           </Button>
         ) : null}
       </div>
-      <div
-        className={
-          'krds-page__editor-form-actions krds-page__editor-form-actions--end'
-        }
-      >
-        <KrdsRouterButtonLink to="/projects">
-          취소
-        </KrdsRouterButtonLink>
-        <Button
-          type="submit"
-          variant="primary"
-          disabled={saving}
-        >
+      <div className={'krds-page__editor-form-actions krds-page__editor-form-actions--end'}>
+        <KrdsRouterButtonLink to="/projects">취소</KrdsRouterButtonLink>
+        <Button size="medium" type="submit" variant="primary" disabled={saving}>
           저장
         </Button>
       </div>

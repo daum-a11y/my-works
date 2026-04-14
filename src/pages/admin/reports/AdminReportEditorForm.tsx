@@ -1,17 +1,17 @@
 import type { CSSProperties, FormEvent, KeyboardEvent } from 'react';
-import { CriticalAlert, Textarea } from 'krds-react';
+import { CriticalAlert, Tab, TabList, TabTrigger, Textarea } from 'krds-react';
 import type { Platform, ProjectSubtask } from '../../../types/domain';
 import type { ProjectViewModel, ReportDraft } from '../../reports/reportUtils';
 import { getTodayInputValue } from '../../reports/reportUtils';
 import { AdminReportEditorActionRow } from './AdminReportEditorActionRow';
 import { AdminReportEditorBasicFields } from './AdminReportEditorBasicFields';
 import { AdminReportEditorDetailFields } from './AdminReportEditorDetailFields';
-import { AdminReportEditorPanelHeader } from './AdminReportEditorPanelHeader';
 import { AdminReportEditorReportTabFields } from './AdminReportEditorReportTabFields';
 import { AdminReportEditorStatus } from './AdminReportEditorStatus';
 import type { AdminReportEditorTab } from './AdminReportEditorPage.types';
 import type { MemberAdminItem } from '../admin.types';
 import { GlobalLoadingSpinner } from '../../../components/layout';
+import { PageSection } from '../../../components/shared';
 
 const panelStyle: CSSProperties = {
   display: 'grid',
@@ -140,13 +140,25 @@ export function AdminReportEditorForm({
   parseCompactDate,
 }: AdminReportEditorFormProps) {
   return (
-    <section className={'krds-page__panel'} style={panelStyle}>
-      <AdminReportEditorPanelHeader
-        title="업무 입력"
-        dateText={draft.reportDate || getTodayInputValue()}
-        activeTab={activeTab}
-        onTabChange={onTabChange}
-      />
+    <PageSection
+      className={'krds-page__panel'}
+      style={panelStyle}
+      title="업무 입력"
+      description={
+        <p className={'krds-page__date-text'}>{draft.reportDate || getTodayInputValue()}</p>
+      }
+      actions={
+        <Tab
+          value={activeTab}
+          onValueChange={(value) => onTabChange(value as AdminReportEditorTab)}
+        >
+          <TabList aria-label="업무보고 입력 탭">
+            <TabTrigger value="report">기본 입력</TabTrigger>
+            <TabTrigger value="period">TYPE 입력</TabTrigger>
+          </TabList>
+        </Tab>
+      }
+    >
       <AdminReportEditorStatus
         queryError={queryError}
         statusMessage={statusMessage}
@@ -215,6 +227,7 @@ export function AdminReportEditorForm({
           />
 
           <Textarea
+            id="admin-report-editor-note"
             label="비고"
             value={draft.note}
             onChange={onNoteChange}
@@ -241,6 +254,6 @@ export function AdminReportEditorForm({
           />
         </form>
       ) : null}
-    </section>
+    </PageSection>
   );
 }

@@ -1,5 +1,6 @@
 import type { FormEvent } from 'react';
 import { Button, TextInput } from 'krds-react';
+import { KrdsDateInput } from '../../components/shared';
 import { PageFilterBar } from '../../components/shared/PageFilterBar';
 import { PageFilterField } from '../../components/shared/PageFilterField';
 import type { SearchFilters } from './SearchPage.types';
@@ -30,29 +31,33 @@ export function SearchFilterForm({
       <PageFilterBar
         actions={
           <div>
-            <Button type="submit" variant="primary">
+            <Button size="medium" type="submit" variant="primary">
               검색
             </Button>
-            <Button type="button" variant="secondary" onClick={onReset}>
+            <Button size="medium" type="button" variant="secondary" onClick={onReset}>
               초기화
             </Button>
-            <Button type="button" variant="secondary" onClick={onDownload} disabled={!totalReports}>
+            <Button
+              size="medium"
+              type="button"
+              variant="secondary"
+              onClick={onDownload}
+              disabled={!totalReports}
+            >
               다운로드
             </Button>
           </div>
         }
       >
         <PageFilterField className="krds-page__filter-field" label="시작일">
-          <TextInput
-            type="date"
+          <KrdsDateInput
             value={filterDraft.startDate}
             max={filterDraft.endDate || undefined}
             onChange={(value) => onFilterDraftChange({ ...filterDraft, startDate: value })}
           />
         </PageFilterField>
         <PageFilterField className="krds-page__filter-field" label="종료일">
-          <TextInput
-            type="date"
+          <KrdsDateInput
             value={filterDraft.endDate}
             min={filterDraft.startDate || undefined}
             onChange={(value) => onFilterDraftChange({ ...filterDraft, endDate: value })}
@@ -60,6 +65,7 @@ export function SearchFilterForm({
         </PageFilterField>
         <PageFilterField className="krds-page__filter-field" label="검색어">
           <TextInput
+            size="medium"
             value={searchInput}
             onChange={onSearchInputChange}
             placeholder="프로젝트, 페이지, 내용, 비고 검색"
