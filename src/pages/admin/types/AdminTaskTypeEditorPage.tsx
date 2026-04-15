@@ -10,7 +10,7 @@ import { AdminTaskTypeTransferDialog } from './AdminTaskTypeTransferDialog';
 import type { AdminTaskTypeItem, AdminTaskTypePayload } from '../admin.types';
 import { toAdminTaskType } from '../adminApiTransform';
 import { useAlertMessage } from '../../../hooks/useAlertMessage';
-import { PageHeader } from '../../../components/shared';
+import { PageHeader, PageSection } from '../../../components/shared';
 
 function createDraft(taskType?: AdminTaskTypeItem): AdminTaskTypePayload {
   if (!taskType) {
@@ -278,7 +278,7 @@ export function AdminTaskTypeEditorPage() {
   return (
     <section className="krds-page krds-page__shell krds-page__editor-shell">
       <PageHeader title={isEditMode ? '업무 타입 수정' : '업무 타입 추가'} />
-      <section className="krds-page__editor-surface" aria-label="업무 타입 편집 패널">
+      <PageSection title="업무 타입 정보" className="krds-page__editor-surface">
         <form
           className="krds-page__detail-form krds-page__editor-detail-form"
           onSubmit={handleSubmit}
@@ -308,7 +308,7 @@ export function AdminTaskTypeEditorPage() {
             onViewTasks={handleViewTasks}
           />
         </form>
-      </section>
+      </PageSection>
       {selectedTaskType ? (
         <AdminTaskTypeTransferDialog
           isOpen={transferDialogOpen}

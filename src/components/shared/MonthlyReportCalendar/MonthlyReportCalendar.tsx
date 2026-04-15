@@ -113,7 +113,9 @@ export function MonthlyReportCalendar({
                         dateLabel
                       )}
                       {isToday ? (
-                        <span className="monthly-report-calendar__today-mark">오늘</span>
+                        <Badge variant="light" color="information" size="small">
+                          오늘
+                        </Badge>
                       ) : null}
                     </div>
                     {isWeekend ? (
