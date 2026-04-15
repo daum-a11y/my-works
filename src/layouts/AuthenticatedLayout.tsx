@@ -1,15 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type MouseEvent } from 'react';
 import { useIsFetching } from '@tanstack/react-query';
 import clsx from 'clsx';
-import {
-  Breadcrumb,
-  CriticalAlert,
-  Footer,
-  Header,
-  SideNavigation,
-  SkipLink,
-  Spinner,
-} from 'krds-react';
+import { Breadcrumb, CriticalAlert, Header, SideNavigation, SkipLink, Spinner } from 'krds-react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { ChevronDown, LogOut, UserRound } from 'lucide-react';
 import { BrandLogo } from '../components/layout/BrandLogo';
@@ -122,10 +114,6 @@ export function AuthenticatedLayout() {
     setAvatarColor(getAvatarColors(session?.member?.accountId || ''));
   }, [session?.member?.accountId]);
 
-  const footerCopyright = useMemo(
-    () => `© ${new Date().getFullYear()} MY WORKS. All rights reserved.`,
-    [],
-  );
   const userInitials = (session?.member?.accountId || '').slice(0, 1);
 
   function handleRouteLinkClick(event: MouseEvent<HTMLElement>, anchor: HTMLAnchorElement) {
@@ -152,13 +140,13 @@ export function AuthenticatedLayout() {
   }
 
   return (
-    <div id="wrap">
+    <>
       <SkipLink targetId="main-content">본문으로 바로가기</SkipLink>
 
       <Header>
         <Header.Container>
           <div className="header-branding">
-            <h2 className="logo">
+            <h2>
               <NavLink to="/dashboard" aria-label="MY WORKS 홈">
                 <BrandLogo alt="MY WORKS" width={100} height={30} />
               </NavLink>
@@ -368,13 +356,15 @@ export function AuthenticatedLayout() {
           </div>
         </div>
       </div>
-      <Footer
-        hideQuickLinks
-        hideIdentifier
-        logo={{ alt: 'MY WORKS' }}
-        address="MY WORKS"
-        copyright={footerCopyright}
-      />
-    </div>
+      <footer id="krds-footer" className="">
+        <div className="inner">
+          <div className="f-btm">
+            <div className="f-btm-text">
+              <p className="f-copy">© 2026 MY WORKS. All rights reserved.</p>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </>
   );
 }

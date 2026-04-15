@@ -4,9 +4,9 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { FontPreferenceProvider } from './preferences/FontPreferenceContext';
 import { ThemePreferenceProvider } from './preferences/ThemePreferenceContext';
 import { RootRouter } from './router/RootRouter';
-import 'krds-react/dist/index.css';
+import './styles/krds.scss';
 import './styles/theme-tokens.css';
-import './styles/app.css';
+import './styles/app.scss';
 
 const container = document.getElementById('wrap');
 
