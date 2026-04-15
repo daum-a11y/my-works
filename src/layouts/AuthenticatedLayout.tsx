@@ -152,15 +152,17 @@ export function AuthenticatedLayout() {
   }
 
   return (
-    <>
+    <div id="wrap">
       <SkipLink targetId="main-content">본문으로 바로가기</SkipLink>
 
       <Header>
         <Header.Container>
           <div className="header-branding">
-            <NavLink to="/dashboard" aria-label="MY WORKS 홈">
-              <BrandLogo alt="MY WORKS" width={100} height={30} />
-            </NavLink>
+            <h2 className="logo">
+              <NavLink to="/dashboard" aria-label="MY WORKS 홈">
+                <BrandLogo alt="MY WORKS" width={100} height={30} />
+              </NavLink>
+            </h2>
             <Header.Navi>
               <div className="authenticated-layout__user-menu" ref={userMenuRef}>
                 <button
@@ -363,16 +365,16 @@ export function AuthenticatedLayout() {
             <main id="main-content" className="conts-area">
               <Outlet />
             </main>
-            <Footer
-              hideQuickLinks
-              hideIdentifier
-              logo={{ alt: 'MY WORKS' }}
-              address="MY WORKS"
-              copyright={footerCopyright}
-            />
           </div>
         </div>
       </div>
-    </>
+      <Footer
+        hideQuickLinks
+        hideIdentifier
+        logo={{ alt: 'MY WORKS' }}
+        address="MY WORKS"
+        copyright={footerCopyright}
+      />
+    </div>
   );
 }
