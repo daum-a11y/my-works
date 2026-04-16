@@ -24,8 +24,8 @@ export function ResourceMonthTypeTable({
   workFold,
 }: ResourceMonthTypeTableProps) {
   return (
-    <div className="krds-page__table-wrap krds-table-wrap">
-      <table className={clsx('krds-page__table', 'tbl', 'data')}>
+    <div className="table-wrap krds-table-wrap">
+      <table className={clsx('krds-table', 'tbl', 'data')}>
         <thead>
           <tr>
             <th>타입1</th>
@@ -36,15 +36,15 @@ export function ResourceMonthTypeTable({
           </tr>
         </thead>
         <tfoot>
-          <tr className="krds-page__sum-row">
+          <tr className="summary-row">
             <td colSpan={2}>합계</td>
-            <td className={clsx('krds-page__number-cell', 'krds-page__sum-cell')}>
+            <td className={clsx('number-cell', 'summary-cell')}>
               {formatIntegerValue(totalMinutes)}
             </td>
-            <td className={clsx('krds-page__number-cell', 'krds-page__sum-cell')}>
+            <td className={clsx('number-cell', 'summary-cell')}>
               {formatDecimalValue(Number(formatMd(totalMinutes)))}
             </td>
-            <td className={clsx('krds-page__number-cell', 'krds-page__sum-cell')}>
+            <td className={clsx('number-cell', 'summary-cell')}>
               {formatMm(totalMinutes, workingDays)}
             </td>
           </tr>
@@ -52,33 +52,16 @@ export function ResourceMonthTypeTable({
         <tbody>
           {typeRows.map((row) => (
             <Fragment key={row.type1}>
-              <tr
-                className={!row.requiresServiceGroup ? 'krds-page__light-gray-row' : undefined}
-              >
+              <tr className={!row.requiresServiceGroup ? 'is-muted' : undefined}>
                 <td rowSpan={workFold ? 1 : row.items.length + 1}>{row.type1}</td>
-                <td className="krds-page__table-summary-cell">합계</td>
-                <td
-                  className={clsx(
-                    'krds-page__number-cell',
-                    'krds-page__table-summary-cell',
-                  )}
-                >
+                <td className="summary-cell">합계</td>
+                <td className={clsx('number-cell', 'summary-cell')}>
                   {formatIntegerValue(row.totalMinutes)}
                 </td>
-                <td
-                  className={clsx(
-                    'krds-page__number-cell',
-                    'krds-page__table-summary-cell',
-                  )}
-                >
+                <td className={clsx('number-cell', 'summary-cell')}>
                   {formatDecimalValue(Number(formatMd(row.totalMinutes)))}
                 </td>
-                <td
-                  className={clsx(
-                    'krds-page__number-cell',
-                    'krds-page__table-summary-cell',
-                  )}
-                >
+                <td className={clsx('number-cell', 'summary-cell')}>
                   {formatMm(row.totalMinutes, workingDays)}
                 </td>
               </tr>
@@ -86,20 +69,14 @@ export function ResourceMonthTypeTable({
                 ? row.items.map((item) => (
                     <tr
                       key={`${row.type1}-${item.type2}`}
-                      className={
-                        item.requiresServiceGroup ? undefined : 'krds-page__light-gray-row'
-                      }
+                      className={item.requiresServiceGroup ? undefined : 'is-muted'}
                     >
                       <td>{item.type2}</td>
-                      <td className="krds-page__number-cell">
-                        {formatIntegerValue(item.minutes)}
-                      </td>
-                      <td className="krds-page__number-cell">
+                      <td className="number-cell">{formatIntegerValue(item.minutes)}</td>
+                      <td className="number-cell">
                         {formatDecimalValue(Number(formatMd(item.minutes)))}
                       </td>
-                      <td className="krds-page__number-cell">
-                        {formatMm(item.minutes, workingDays)}
-                      </td>
+                      <td className="number-cell">{formatMm(item.minutes, workingDays)}</td>
                     </tr>
                   ))
                 : null}
@@ -128,8 +105,8 @@ export function ResourceMonthServiceTable({
   svcFold,
 }: ResourceMonthServiceTableProps) {
   return (
-    <div className="krds-page__table-wrap krds-table-wrap">
-      <table className={clsx('krds-page__table', 'tbl', 'data')}>
+    <div className="table-wrap krds-table-wrap">
+      <table className={clsx('krds-table', 'tbl', 'data')}>
         <thead>
           <tr>
             <th>청구그룹</th>
@@ -142,13 +119,11 @@ export function ResourceMonthServiceTable({
           </tr>
         </thead>
         <tfoot>
-          <tr className="krds-page__sum-row">
+          <tr className="summary-row">
             <td colSpan={4}>합계</td>
-            <td className="krds-page__number-cell">{formatIntegerValue(projectMinutes)}</td>
-            <td className="krds-page__number-cell">
-              {formatDecimalValue(Number(formatMd(projectMinutes)))}
-            </td>
-            <td className="krds-page__number-cell">{formatMm(projectMinutes, workingDays)}</td>
+            <td className="number-cell">{formatIntegerValue(projectMinutes)}</td>
+            <td className="number-cell">{formatDecimalValue(Number(formatMd(projectMinutes)))}</td>
+            <td className="number-cell">{formatMm(projectMinutes, workingDays)}</td>
           </tr>
         </tfoot>
         <tbody>
@@ -160,31 +135,16 @@ export function ResourceMonthServiceTable({
                 <tr>
                   <td rowSpan={svcFold ? 1 : detailLength + 1}>{group.costGroup}</td>
                   <td rowSpan={svcFold ? 1 : detailLength + 1}>{group.group}</td>
-                  <td colSpan={2} className="krds-page__table-summary-cell">
+                  <td colSpan={2} className="summary-cell">
                     합계
                   </td>
-                  <td
-                    className={clsx(
-                      'krds-page__number-cell',
-                      'krds-page__table-summary-cell',
-                    )}
-                  >
+                  <td className={clsx('number-cell', 'summary-cell')}>
                     {formatIntegerValue(group.totalMinutes)}
                   </td>
-                  <td
-                    className={clsx(
-                      'krds-page__number-cell',
-                      'krds-page__table-summary-cell',
-                    )}
-                  >
+                  <td className={clsx('number-cell', 'summary-cell')}>
                     {formatDecimalValue(Number(formatMd(group.totalMinutes)))}
                   </td>
-                  <td
-                    className={clsx(
-                      'krds-page__number-cell',
-                      'krds-page__table-summary-cell',
-                    )}
-                  >
+                  <td className={clsx('number-cell', 'summary-cell')}>
                     {formatMm(group.totalMinutes, workingDays)}
                   </td>
                 </tr>
@@ -194,15 +154,11 @@ export function ResourceMonthServiceTable({
                         <tr key={`${group.group}-${name.name}-${item.type1}`}>
                           {index === 0 ? <td rowSpan={name.items.length}>{name.name}</td> : null}
                           <td>{item.type1}</td>
-                          <td className="krds-page__number-cell">
-                            {formatIntegerValue(item.minutes)}
-                          </td>
-                          <td className="krds-page__number-cell">
+                          <td className="number-cell">{formatIntegerValue(item.minutes)}</td>
+                          <td className="number-cell">
                             {formatDecimalValue(Number(formatMd(item.minutes)))}
                           </td>
-                          <td className="krds-page__number-cell">
-                            {formatMm(item.minutes, workingDays)}
-                          </td>
+                          <td className="number-cell">{formatMm(item.minutes, workingDays)}</td>
                         </tr>
                       )),
                     )
@@ -280,15 +236,8 @@ export function ResourceMonthReportTable({
   );
 
   return (
-    <div className="krds-page__table-wrap krds-table-wrap">
-      <table
-        className={clsx(
-          'krds-page__table',
-          'tbl',
-          'data',
-          'krds-page__report-table',
-        )}
-      >
+    <div className="table-wrap krds-table-wrap">
+      <table className={clsx('krds-table', 'tbl', 'data', 'report-table')}>
         <thead>
           <tr>
             <th>청구그룹</th>
@@ -298,11 +247,9 @@ export function ResourceMonthReportTable({
           </tr>
         </thead>
         <tfoot>
-          <tr className="krds-page__sum-row">
+          <tr className="summary-row">
             <td colSpan={3}>합계</td>
-            <td className="krds-page__number-cell">
-              {formatMm(adjustedTotalMinutes, workingDays)}
-            </td>
+            <td className="number-cell">{formatMm(adjustedTotalMinutes, workingDays)}</td>
           </tr>
         </tfoot>
         <tbody>
@@ -321,7 +268,7 @@ export function ResourceMonthReportTable({
                       <tr>
                         {showCostGroup ? <td rowSpan={groupRowSpan}>{group.costGroup}</td> : null}
                         <td rowSpan={item.names.length + 1}>{item.type1}</td>
-                        <td className="krds-page__table-summary-cell">합계</td>
+                        <td className="summary-cell">합계</td>
                         <td>{formatMm(item.totalMinutes, workingDays)}</td>
                       </tr>
                       {item.names.map((name, nameIndex) => (
@@ -329,9 +276,7 @@ export function ResourceMonthReportTable({
                           key={`${group.costGroup}-${item.type1}-${itemIndex}-${name.name}-${nameIndex}`}
                         >
                           <td>{name.name}</td>
-                          <td className="krds-page__number-cell">
-                            {formatMm(name.minutes, workingDays)}
-                          </td>
+                          <td className="number-cell">{formatMm(name.minutes, workingDays)}</td>
                         </tr>
                       ))}
                     </Fragment>

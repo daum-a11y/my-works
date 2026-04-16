@@ -199,7 +199,7 @@ export function AdminPlatformEditorPage() {
 
   if (platformsQuery.isLoading && isEditMode) {
     return (
-      <section className="krds-page krds-page__shell krds-page__editor-shell">
+      <section className="krds-page page-shell editor-shell">
         <div
           style={{
             display: 'flex',
@@ -219,7 +219,7 @@ export function AdminPlatformEditorPage() {
 
   if (isEditMode && !selectedPlatform && !platformsQuery.isLoading) {
     return (
-      <section className="krds-page krds-page__shell krds-page__editor-shell">
+      <section className="krds-page page-shell editor-shell">
         <PageHeader title="플랫폼 수정" />
         <CriticalAlert alerts={[{ variant: 'info', message: '플랫폼을 찾을 수 없습니다.' }]} />
       </section>
@@ -227,13 +227,10 @@ export function AdminPlatformEditorPage() {
   }
 
   return (
-    <section className="krds-page krds-page__shell krds-page__editor-shell">
+    <section className="krds-page page-shell editor-shell">
       <PageHeader title={isEditMode ? '플랫폼 수정' : '플랫폼 추가'} />
-      <section className="krds-page__editor-surface" aria-label="플랫폼 편집 패널">
-        <form
-          className="krds-page__detail-form krds-page__editor-detail-form"
-          onSubmit={handleSubmit}
-        >
+      <section className="editor-surface" aria-label="플랫폼 편집 패널">
+        <form className="detail-form editor-detail-form" onSubmit={handleSubmit}>
           <AdminPlatformEditorForm
             draft={draft}
             titleRef={titleRef}

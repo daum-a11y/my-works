@@ -25,11 +25,7 @@ export function SortableTableHeaderButton<TSortKey extends string = string>({
   return (
     <button
       type="button"
-      className={clsx(
-        'sortable-table-header-button',
-        active && 'sortable-table-header-button--active',
-        className,
-      )}
+      className={clsx('krds-sort-button', active && 'is-active', className)}
       onClick={() => onChange({ key: sortKey, direction: nextDirection })}
       aria-pressed={active}
       aria-label={
@@ -39,24 +35,20 @@ export function SortableTableHeaderButton<TSortKey extends string = string>({
       }
       {...props}
     >
-      <span className={'sortable-table-header-button__label'}>{label}</span>
-      <span className={'sortable-table-header-button__icon'} aria-hidden="true">
+      <span className={'sort-button-label'}>{label}</span>
+      <span className={'sort-button-icon'} aria-hidden="true">
         <span
           className={clsx(
-            'sortable-table-header-button__chevron',
-            'sortable-table-header-button__chevron--up',
-            active &&
-              sortState.direction === 'asc' &&
-              'sortable-table-header-button__chevron--current',
+            'sort-button-chevron',
+            'is-up',
+            active && sortState.direction === 'asc' && 'is-current',
           )}
         />
         <span
           className={clsx(
-            'sortable-table-header-button__chevron',
-            'sortable-table-header-button__chevron--down',
-            active &&
-              sortState.direction === 'desc' &&
-              'sortable-table-header-button__chevron--current',
+            'sort-button-chevron',
+            'is-down',
+            active && sortState.direction === 'desc' && 'is-current',
           )}
         />
       </span>

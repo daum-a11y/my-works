@@ -3,7 +3,7 @@ import { cleanup, render, screen, waitFor, within } from '@testing-library/react
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { AuthenticatedLayout } from '../layouts/AuthenticatedLayout';
+import { AppLayout } from '../layouts/AppLayout';
 import { ThemePreferenceProvider } from '../preferences/ThemePreferenceContext';
 
 const mockUseAuth = vi.hoisted(() => vi.fn());
@@ -16,7 +16,7 @@ afterEach(() => {
   cleanup();
 });
 
-describe('AuthenticatedLayout', () => {
+describe('AppLayout', () => {
   it('does not show organization management links to non-admin members', () => {
     const queryClient = new QueryClient({
       defaultOptions: {
@@ -40,8 +40,8 @@ describe('AuthenticatedLayout', () => {
         <QueryClientProvider client={queryClient}>
           <MemoryRouter initialEntries={['/dashboard']}>
             <Routes>
-              <Route path="/" element={<AuthenticatedLayout />}>
-                <Route path="dashboard" element={<div>dashboard-page</div>} />
+              <Route path="/" element={<AppLayout />}>
+                <Route path="dashboard" element={<div>dashboard screen</div>} />
               </Route>
             </Routes>
           </MemoryRouter>
@@ -79,8 +79,8 @@ describe('AuthenticatedLayout', () => {
         <QueryClientProvider client={queryClient}>
           <MemoryRouter initialEntries={['/dashboard']}>
             <Routes>
-              <Route path="/" element={<AuthenticatedLayout />}>
-                <Route path="dashboard" element={<div>dashboard-page</div>} />
+              <Route path="/" element={<AppLayout />}>
+                <Route path="dashboard" element={<div>dashboard screen</div>} />
                 <Route path="profile" element={<div>profile-page</div>} />
               </Route>
             </Routes>
@@ -126,7 +126,7 @@ describe('AuthenticatedLayout', () => {
         <QueryClientProvider client={queryClient}>
           <MemoryRouter initialEntries={['/stats/projects']}>
             <Routes>
-              <Route path="/" element={<AuthenticatedLayout />}>
+              <Route path="/" element={<AppLayout />}>
                 <Route path="stats/projects" element={<div>project-stats-page</div>} />
               </Route>
             </Routes>
@@ -161,8 +161,8 @@ describe('AuthenticatedLayout', () => {
         <QueryClientProvider client={queryClient}>
           <MemoryRouter initialEntries={['/dashboard']}>
             <Routes>
-              <Route path="/" element={<AuthenticatedLayout />}>
-                <Route path="dashboard" element={<div>dashboard-page</div>} />
+              <Route path="/" element={<AppLayout />}>
+                <Route path="dashboard" element={<div>dashboard screen</div>} />
               </Route>
             </Routes>
           </MemoryRouter>
@@ -202,9 +202,9 @@ describe('AuthenticatedLayout', () => {
         <QueryClientProvider client={queryClient}>
           <MemoryRouter initialEntries={['/stats/projects']}>
             <Routes>
-              <Route path="/" element={<AuthenticatedLayout />}>
+              <Route path="/" element={<AppLayout />}>
                 <Route path="stats/projects" element={<div>project-stats-page</div>} />
-                <Route path="dashboard" element={<div>dashboard-page</div>} />
+                <Route path="dashboard" element={<div>dashboard screen</div>} />
               </Route>
             </Routes>
           </MemoryRouter>
@@ -217,7 +217,7 @@ describe('AuthenticatedLayout', () => {
     await user.click(homeLink);
 
     await waitFor(() => {
-      expect(screen.getByText('dashboard-page')).toBeInTheDocument();
+      expect(screen.getByText('dashboard screen')).toBeInTheDocument();
     });
   });
 });

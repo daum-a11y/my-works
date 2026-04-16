@@ -50,9 +50,9 @@ export function ResourceSummaryResults({
 
   return (
     <>
-      <section className="resource-summary-page__content-section">
-        <div className="projects-feature__table-wrap">
-          <table className="projects-feature__table">
+      <section className="content-section">
+        <div className="table-wrap">
+          <table className="krds-table">
             <caption className="sr-only">월별 사용자 업무보고 현황</caption>
             <thead>
               <tr>
@@ -83,19 +83,14 @@ export function ResourceSummaryResults({
                     <tr key={row.id}>
                       <td>{row.label}</td>
                       <td>
-                        <span
-                          className={clsx(
-                            'resource-summary-page__minute-value',
-                            `resource-summary-page__minute-value--${tone}`,
-                          )}
-                        >
+                        <span className={clsx('minute-value', `tone-${tone}`)}>
                           {formatSignedMinutes(row.diffMinutes)}
                         </span>
                       </td>
                       <td>
                         <button
                           type="button"
-                          className="projects-feature__table-link"
+                          className="table-link"
                           onClick={() => onDetailOpen(row.id)}
                         >
                           상세
@@ -117,22 +112,22 @@ export function ResourceSummaryResults({
       </section>
 
       {detailOpen && detailMember && monthState ? (
-        <div className="resource-summary-page__modal-scrim" onClick={onDetailClose}>
+        <div className="modal-scrim" onClick={onDetailClose}>
           <section
-            className="projects-feature__modal"
+            className="krds-modal-panel"
             aria-label="월간 작성 현황"
             onClick={(event) => event.stopPropagation()}
           >
-            <div className="projects-feature__modal-header">
-              <div className="resource-summary-page__detail-header-text">
-                <h2 className="projects-feature__detail-title">
+            <div className="modal-header">
+              <div className="detail-header-text">
+                <h2 className="detail-title">
                   {formatMemberLabel(detailMember.accountId, detailMember.name)}
                 </h2>
-                <p className="resource-summary-page__detail-period">{monthState.label}</p>
+                <p className="detail-period">{monthState.label}</p>
               </div>
               <button
                 type="button"
-                className="projects-feature__icon-button"
+                className="icon-button"
                 onClick={onDetailClose}
                 aria-label="상세 닫기"
               >
@@ -140,7 +135,7 @@ export function ResourceSummaryResults({
               </button>
             </div>
 
-            <div className="resource-summary-page__detail-body">
+            <div className="detail-body">
               <MonthlyReportCalendar
                 weeks={monthState.weeks}
                 summary={monthState.summary}
@@ -148,7 +143,7 @@ export function ResourceSummaryResults({
                 futureMonth={monthState.futureMonth}
                 todayDay={monthState.todayDay}
                 padded={false}
-                className="resource-summary-page__calendar"
+                className="summary-calendar"
               />
             </div>
           </section>

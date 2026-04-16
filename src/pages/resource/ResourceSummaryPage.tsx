@@ -203,7 +203,7 @@ export function ResourceSummaryPage() {
               </div>
             }
           >
-            <PageFilterField className="krds-page__filter-field" label="기간">
+            <PageFilterField className="filter-field" label="기간">
               <TextInput
                 size="medium"
                 id="resource-summary-month"
@@ -212,7 +212,7 @@ export function ResourceSummaryPage() {
                 onChange={setMonthDraft}
               />
             </PageFilterField>
-            <PageFilterField className="krds-page__filter-field" label="미작성자">
+            <PageFilterField className="filter-field" label="미작성자">
               <Checkbox
                 id="resource-summary-missing-only"
                 label="미작성자만 보기"

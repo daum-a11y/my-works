@@ -24,12 +24,12 @@ export function DashboardProjectsTable({
   };
 
   return (
-    <section className="dashboard-page__section">
-      <div className="dashboard-page__section-head">
-        <h2 className="dashboard-page__section-title">진행중인 프로젝트</h2>
+    <section className="page-section">
+      <div className="section-head">
+        <h2 className="section-title">진행중인 프로젝트</h2>
       </div>
-      <div className="dashboard-page__table-wrap">
-        <table className="dashboard-page__table">
+      <div className="table-wrap">
+        <table className="krds-table">
           <caption className="sr-only">진행중인 프로젝트</caption>
           <thead>
             <tr>

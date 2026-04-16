@@ -31,7 +31,7 @@ export function AdminMembersFilterForm({
           </div>
         }
       >
-        <PageFilterField className={'krds-page-admin__filter-field'} label="활성 여부">
+        <PageFilterField className={'filter-field'} label="활성 여부">
           <Select
             size="medium"
             id="admin-members-status"
@@ -49,7 +49,7 @@ export function AdminMembersFilterForm({
             ]}
           />
         </PageFilterField>
-        <PageFilterField className={'krds-page-admin__filter-field'} label="검색어">
+        <PageFilterField className={'filter-field'} label="검색어">
           <TextInput
             size="medium"
             id="admin-members-keyword"

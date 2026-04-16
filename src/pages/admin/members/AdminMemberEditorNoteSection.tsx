@@ -16,12 +16,12 @@ export function AdminMemberEditorNoteSection({
 }: AdminMemberEditorNoteSectionProps) {
   return (
     <PageSection
-      className={'krds-page__editor-section'}
+      className={'editor-section'}
       title={ADMIN_MEMBER_EDITOR_NOTE_SECTION_TITLE}
       titleId="member-note-section"
       aria-labelledby="member-note-section"
     >
-      <div className={'krds-page__editor-form-grid'}>
+      <div className={'form-grid'}>
         <Textarea
           id="member-note"
           label="비고"

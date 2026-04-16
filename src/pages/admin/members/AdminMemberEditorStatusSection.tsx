@@ -20,12 +20,12 @@ export function AdminMemberEditorStatusSection({
 }: AdminMemberEditorStatusSectionProps) {
   return (
     <PageSection
-      className={'krds-page__editor-section'}
+      className={'editor-section'}
       title={ADMIN_MEMBER_EDITOR_STATUS_SECTION_TITLE}
       titleId="member-status-section"
       aria-labelledby="member-status-section"
     >
-      <div className={'krds-page__editor-form-grid'}>
+      <div className={'form-grid'}>
         <TextInput
           size="medium"
           id="member-auth-user-id"

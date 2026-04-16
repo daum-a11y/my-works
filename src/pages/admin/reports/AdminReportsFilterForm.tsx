@@ -1,12 +1,5 @@
 import type { FormEvent } from 'react';
-import {
-  Accordion,
-  Button,
-  Checkbox,
-  CheckboxGroup,
-  Select,
-  TextInput,
-} from 'krds-react';
+import { Accordion, Button, Checkbox, CheckboxGroup, Select, TextInput } from 'krds-react';
 import { EmptyState } from '../../../components/shared/EmptyState';
 import { IsoDateInput } from '../../../components/shared/IsoDateInput';
 import { PageFilterField } from '../../../components/shared/PageFilterField';
@@ -77,9 +70,9 @@ export function AdminReportsFilterForm({
         : `${memberFilterIds.length}명 선택`;
 
   return (
-    <form className={'krds-page-admin__filter-form'} onSubmit={onSubmit}>
-      <div className={'krds-page-admin__date-row'}>
-        <PageFilterField className={'krds-page-admin__filter-field'} label="시작일">
+    <form className={'filter-form'} onSubmit={onSubmit}>
+      <div className={'date-row'}>
+        <PageFilterField className={'filter-field'} label="시작일">
           <IsoDateInput
             id="admin-reports-start-date"
             value={filters.startDate}
@@ -87,7 +80,7 @@ export function AdminReportsFilterForm({
             onChange={(next) => onFilterField('startDate', next)}
           />
         </PageFilterField>
-        <PageFilterField className={'krds-page-admin__filter-field'} label="종료일">
+        <PageFilterField className={'filter-field'} label="종료일">
           <IsoDateInput
             id="admin-reports-end-date"
             value={filters.endDate}
@@ -97,8 +90,8 @@ export function AdminReportsFilterForm({
         </PageFilterField>
       </div>
 
-      <div className={'krds-page-admin__meta-row'}>
-        <PageFilterField className={'krds-page-admin__filter-field'} label="타입1">
+      <div className={'meta-row'}>
+        <PageFilterField className={'filter-field'} label="타입1">
           <Select
             size="medium"
             id="admin-reports-task-type-1"
@@ -110,7 +103,7 @@ export function AdminReportsFilterForm({
             ]}
           />
         </PageFilterField>
-        <PageFilterField className={'krds-page-admin__filter-field'} label="타입2">
+        <PageFilterField className={'filter-field'} label="타입2">
           <Select
             size="medium"
             id="admin-reports-task-type-2"
@@ -123,7 +116,7 @@ export function AdminReportsFilterForm({
             ]}
           />
         </PageFilterField>
-        <PageFilterField className={'krds-page-admin__filter-field'} label="청구그룹">
+        <PageFilterField className={'filter-field'} label="청구그룹">
           <Select
             size="medium"
             id="admin-reports-cost-group"
@@ -135,7 +128,7 @@ export function AdminReportsFilterForm({
             ]}
           />
         </PageFilterField>
-        <PageFilterField className={'krds-page-admin__filter-field'} label="프로젝트">
+        <PageFilterField className={'filter-field'} label="프로젝트">
           <Select
             size="medium"
             id="admin-reports-service-name"
@@ -150,9 +143,9 @@ export function AdminReportsFilterForm({
         </PageFilterField>
       </div>
 
-      <div className={'krds-page-admin__search-row'}>
-        <PageFilterField className={'krds-page-admin__filter-field'} label="사용자">
-          <div className={'krds-page-admin__member-select'}>
+      <div className={'search-row'}>
+        <PageFilterField className={'filter-field'} label="사용자">
+          <div className={'member-select'}>
             <Accordion
               value={memberFilterOpen ? ['members'] : []}
               onChange={(values) => {
@@ -166,18 +159,18 @@ export function AdminReportsFilterForm({
               <Accordion.Item value="members">
                 <Accordion.Header>{selectedMemberLabel}</Accordion.Header>
                 <Accordion.Panel>
-                  <div className={'krds-page-admin__member-panel-toolbar'}>
+                  <div className={'member-panel-toolbar'}>
                     <TextInput
                       size="medium"
                       id="admin-reports-member-search"
-                      className={'krds-page-admin__member-search-input'}
+                      className={'member-search-input'}
                       value={memberSearchInput}
                       onChange={onMemberSearchInputChange}
                       placeholder="ID, 이름, 이메일 검색"
                       aria-label="사용자 검색"
                     />
                   </div>
-                  <div className={'krds-page-admin__member-quick-actions'}>
+                  <div className={'member-quick-actions'}>
                     <Button
                       size="medium"
                       type="button"
@@ -195,10 +188,10 @@ export function AdminReportsFilterForm({
                       전체 해제
                     </Button>
                   </div>
-                  <CheckboxGroup className={'krds-page-admin__member-checkboxes'} column>
+                  <CheckboxGroup className={'member-checkboxes'} column>
                     {visibleMembers.length === 0 ? (
                       <EmptyState
-                        className={'krds-page-admin__member-empty-state'}
+                        className={'empty-state'}
                         message="검색 조건에 맞는 사용자가 없습니다."
                       />
                     ) : (
@@ -224,7 +217,7 @@ export function AdminReportsFilterForm({
             </Accordion>
           </div>
         </PageFilterField>
-        <PageFilterField className={'krds-page-admin__filter-field'} label="검색어">
+        <PageFilterField className={'filter-field'} label="검색어">
           <TextInput
             size="medium"
             id="admin-reports-keyword"
@@ -235,7 +228,7 @@ export function AdminReportsFilterForm({
         </PageFilterField>
       </div>
 
-      <div className={'krds-page-admin__filter-actions-row'}>
+      <div className={'filter-actions'}>
         <div>
           <Button size="medium" type="submit" variant="primary" disabled={loading || searching}>
             검색

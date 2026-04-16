@@ -65,7 +65,7 @@ export function AdminReportEditorDetailFields({
   onTaskUsedtimeChange,
 }: AdminReportEditorDetailFieldsProps) {
   return (
-    <div className={'krds-page__form-grid'}>
+    <div className={'form-grid'}>
       <AdminReportEditorTypeFields
         draft={draft}
         isProjectLinkedTab={isProjectLinkedTab}

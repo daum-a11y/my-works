@@ -150,7 +150,7 @@ export function AdminSortOrderDialog({
             </div>
           ) : null}
 
-          <ol className="krds-page-admin__sortable-list">
+          <ol className="sortable-list">
             {draftItems.map((item, index) => {
               const isDragging = draggingId === item.id;
               const isDropTarget = dropTargetId === item.id && draggingId !== item.id;
@@ -159,10 +159,10 @@ export function AdminSortOrderDialog({
                 <li
                   key={item.id}
                   className={[
-                    'krds-page-admin__sortable-item',
-                    item.inactive ? 'krds-page-admin__sortable-item--inactive' : '',
-                    isDragging ? 'krds-page-admin__sortable-item--dragging' : '',
-                    isDropTarget ? 'krds-page-admin__sortable-item--drop-target' : '',
+                    'sortable-item',
+                    item.inactive ? 'is-muted' : '',
+                    isDragging ? 'is-dragging' : '',
+                    isDropTarget ? 'is-drop-target' : '',
                   ]
                     .filter(Boolean)
                     .join(' ')}
@@ -181,14 +181,12 @@ export function AdminSortOrderDialog({
                   }}
                   onDrop={() => handleDrop(item.id)}
                 >
-                  <div className="krds-page-admin__sortable-body">
-                    <div className="krds-page-admin__sortable-topline">
-                      <span className="krds-page-admin__sortable-order">{index + 1}</span>
-                      <strong className="krds-page-admin__sortable-title">{item.title}</strong>
+                  <div className="sortable-body">
+                    <div className="sortable-topline">
+                      <span className="sortable-order">{index + 1}</span>
+                      <strong className="sortable-title">{item.title}</strong>
                       {item.description ? (
-                        <span className="krds-page-admin__sortable-description">
-                          {item.description}
-                        </span>
+                        <span className="sortable-description">{item.description}</span>
                       ) : null}
                       {item.badge ? (
                         <Badge
@@ -205,7 +203,7 @@ export function AdminSortOrderDialog({
                     type="button"
                     variant="icon"
                     size="medium"
-                    className="krds-page-admin__sortable-handle"
+                    className="sortable-handle"
                     aria-label={`${item.title} 순서 이동 핸들`}
                     aria-describedby={description ? 'admin-sort-order-dialog-note' : undefined}
                     draggable={!isPending}

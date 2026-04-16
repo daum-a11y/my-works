@@ -31,7 +31,7 @@ import {
 import { SearchPage } from '../pages/search';
 import { ProjectStatsPage, TaskMonitoringPage } from '../pages/stats';
 import { UserProfilePage } from '../pages/profile';
-import { AuthenticatedLayout } from '../layouts/AuthenticatedLayout';
+import { AppLayout } from '../layouts/AppLayout';
 
 function LoadingFallback() {
   return (
@@ -66,7 +66,7 @@ function GuardedLayout() {
     return <Navigate to="/pending-approval" replace />;
   }
 
-  return <AuthenticatedLayout />;
+  return <AppLayout />;
 }
 
 function AdminRoute() {

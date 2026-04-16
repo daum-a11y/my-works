@@ -49,21 +49,21 @@ export function SearchFilterForm({
           </div>
         }
       >
-        <PageFilterField className="krds-page__filter-field" label="시작일">
+        <PageFilterField className="filter-field" label="시작일">
           <IsoDateInput
             value={filterDraft.startDate}
             max={filterDraft.endDate || undefined}
             onChange={(next) => onFilterDraftChange({ ...filterDraft, startDate: next })}
           />
         </PageFilterField>
-        <PageFilterField className="krds-page__filter-field" label="종료일">
+        <PageFilterField className="filter-field" label="종료일">
           <IsoDateInput
             value={filterDraft.endDate}
             min={filterDraft.startDate || undefined}
             onChange={(next) => onFilterDraftChange({ ...filterDraft, endDate: next })}
           />
         </PageFilterField>
-        <PageFilterField className="krds-page__filter-field" label="검색어">
+        <PageFilterField className="filter-field" label="검색어">
           <TextInput
             size="medium"
             value={searchInput}

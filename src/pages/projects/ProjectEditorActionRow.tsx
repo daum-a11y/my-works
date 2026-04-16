@@ -13,15 +13,15 @@ export function ProjectEditorActionRow({
   onDelete,
 }: ProjectEditorActionRowProps) {
   return (
-    <div className="krds-page__form-actions krds-page__editor-form-actions">
-      <div className={'krds-page__editor-form-actions krds-page__editor-form-actions--start'}>
+    <div className="form-actions editor-actions">
+      <div className={'editor-actions is-start'}>
         {canDelete ? (
           <Button size="medium" type="button" variant="secondary" onClick={onDelete}>
             삭제
           </Button>
         ) : null}
       </div>
-      <div className={'krds-page__editor-form-actions krds-page__editor-form-actions--end'}>
+      <div className={'editor-actions is-end'}>
         <Button as={RouterLink} to="/projects" role="link">
           취소
         </Button>

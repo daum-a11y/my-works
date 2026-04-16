@@ -89,7 +89,7 @@ export function AdminServiceGroupsPage() {
   useAlertMessage(errorMessage);
 
   return (
-    <section className="krds-page-admin krds-page-admin--page">
+    <section className="admin-page page-view">
       <PageHeader
         title="서비스 그룹 관리"
         actions={

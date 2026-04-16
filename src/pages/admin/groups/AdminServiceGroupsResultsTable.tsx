@@ -22,8 +22,8 @@ export function AdminServiceGroupsResultsTable({
   groupedServiceGroups,
 }: AdminServiceGroupsResultsTableProps) {
   return (
-    <div className="krds-page-admin__table-wrap krds-table-wrap">
-      <table className="krds-page-admin__table tbl data">
+    <div className="table-wrap krds-table-wrap">
+      <table className="krds-table tbl data">
         <caption className="sr-only">서비스 그룹 내역</caption>
         <thead>
           <tr>
@@ -39,23 +39,17 @@ export function AdminServiceGroupsResultsTable({
             groupedServiceGroups.map((costGroup) =>
               costGroup.groups.map((group) =>
                 group.rows.map((item, rowIndex) => {
-                  const inactiveCellClassName = item.svcActive
-                    ? undefined
-                    : 'krds-page-admin__inactive-cell';
+                  const inactiveCellClassName = item.svcActive ? undefined : 'is-muted';
 
                   return (
                     <tr key={item.id}>
                       {group === costGroup.groups[0] && rowIndex === 0 ? (
-                        <td rowSpan={costGroup.rowSpan} className="krds-page-admin__row-key">
+                        <td rowSpan={costGroup.rowSpan} className="row-title">
                           {costGroup.costGroupName}
                         </td>
                       ) : null}
                       {rowIndex === 0 ? (
-                        <td
-                          rowSpan={group.rows.length}
-                          scope="row"
-                          className="krds-page-admin__row-key"
-                        >
+                        <td rowSpan={group.rows.length} scope="row" className="row-title">
                           {group.serviceGroupName}
                         </td>
                       ) : null}
@@ -70,7 +64,7 @@ export function AdminServiceGroupsResultsTable({
                         </Badge>
                       </td>
                       <td className={inactiveCellClassName}>
-                        <div className="krds-page-admin__actions">
+                        <div className="action-group">
                           <Button as={RouterLink} to={`/admin/group/${item.id}/edit`} role="link">
                             수정
                           </Button>

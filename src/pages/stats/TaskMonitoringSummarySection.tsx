@@ -42,9 +42,9 @@ export function TaskMonitoringSummarySection({
         </TabList>
       </Tab>
       {summaryView === 'chart' ? (
-        <div className={'krds-page__chart-surface'}>
+        <div className={'chart-surface'}>
           {monthlyRows.length ? (
-            <div className={'krds-page__chart-frame'} role="img" aria-label="태스크 월별 차트">
+            <div className={'chart-frame'} role="img" aria-label="태스크 월별 차트">
               <ResponsiveContainer width="100%" height={320}>
                 <AreaChart data={monthlyRows} margin={{ top: 12, right: 12, left: 0, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" />
@@ -72,8 +72,8 @@ export function TaskMonitoringSummarySection({
           )}
         </div>
       ) : (
-        <div className={'krds-page__table-wrap krds-table-wrap'}>
-          <table className={'krds-page__table tbl data'}>
+        <div className={'table-wrap krds-table-wrap'}>
+          <table className={'krds-table tbl data'}>
             <caption className={'sr-only'}>태스크 월별 표</caption>
             <thead>
               <tr>
@@ -90,9 +90,9 @@ export function TaskMonitoringSummarySection({
               {monthlyRows.map((row) => (
                 <tr key={row.monthKey}>
                   <td>{row.label}</td>
-                  <td className="krds-page__table-number">{row.totalCount}</td>
+                  <td className="number-cell">{row.totalCount}</td>
                   {STATUS_ORDER.map((status) => (
-                    <td key={status} className="krds-page__table-number">
+                    <td key={status} className="number-cell">
                       {row.statusCounts[status]}
                     </td>
                   ))}

@@ -15,7 +15,7 @@ export function AdminReportsPage() {
   useAlertMessage(errorMessage);
 
   return (
-    <section className={'krds-page-admin krds-page-admin--page'}>
+    <section className={'admin-page page-view'}>
       <PageHeader
         title="업무보고 조회"
         actions={

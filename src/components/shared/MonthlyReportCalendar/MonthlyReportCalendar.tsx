@@ -38,12 +38,12 @@ export function MonthlyReportCalendar({
     <div
       className={clsx(
         'monthly-report-calendar',
-        panel && 'monthly-report-calendar--panel',
-        padded && 'monthly-report-calendar--padded',
+        panel && 'is-panel',
+        padded && 'is-padded',
         className,
       )}
     >
-      <table className="monthly-report-calendar__table">
+      <table className="calendar-table">
         {caption ? <caption className="sr-only">{caption}</caption> : null}
         <thead>
           <tr>
@@ -58,10 +58,7 @@ export function MonthlyReportCalendar({
               {week.map((cell, weekdayIndex) => {
                 if (!cell) {
                   return (
-                    <td
-                      key={`blank-${weekIndex}-${weekdayIndex}`}
-                      className="monthly-report-calendar__blank"
-                    />
+                    <td key={`blank-${weekIndex}-${weekdayIndex}`} className="calendar-blank" />
                   );
                 }
 
@@ -72,25 +69,23 @@ export function MonthlyReportCalendar({
                   ((currentMonth && todayDay >= cell.day) || (!futureMonth && !currentMonth));
                 const linkTarget = getDateLink?.(cell.date) ?? null;
                 const isToday = currentMonth && todayDay === cell.day;
-                const dateLabel = (
-                  <span className="monthly-report-calendar__date">{cell.day}일</span>
-                );
+                const dateLabel = <span className="calendar-date">{cell.day}일</span>;
 
                 return (
                   <td
                     key={cell.date}
                     className={clsx(
-                      'monthly-report-calendar__cell',
-                      isWeekend && 'monthly-report-calendar__cell--weekend',
-                      isToday && 'monthly-report-calendar__cell--today',
+                      'calendar-cell',
+                      isWeekend && 'is-weekend',
+                      isToday && 'is-today',
                     )}
                   >
-                    <div className="monthly-report-calendar__cell-inner">
+                    <div className="calendar-cell-inner">
                       {linkTarget ? (
                         <KrdsLink
                           href={linkTarget.to}
                           size="small"
-                          className="monthly-report-calendar__link"
+                          className="calendar-link"
                           onClick={(event: MouseEvent<HTMLAnchorElement>) => {
                             if (
                               event.defaultPrevented ||

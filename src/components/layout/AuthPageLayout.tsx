@@ -21,25 +21,25 @@ export function AuthPageLayout({
   return (
     <div id="container" className="krds-auth-shell">
       <main className="contents">
-        <section aria-labelledby={labelledBy} className="krds-auth-shell__panel">
-          <span aria-hidden="true" className="krds-auth-shell__accent" />
-          <div className="krds-auth-shell__top-block">
-            <h1 className="krds-auth-shell__logo-heading">
+        <section aria-labelledby={labelledBy} className="auth-panel">
+          <span aria-hidden="true" className="accent-mark" />
+          <div className="top-block">
+            <h1 className="logo-heading">
               <BrandLogo alt="My Works" width={100} height={30} />
             </h1>
-            <p id={title ? undefined : labelledBy} className="krds-auth-shell__caption">
+            <p id={title ? undefined : labelledBy} className="caption-text">
               {caption}
             </p>
             {title ? (
-              <h2 id={labelledBy} className="krds-auth-shell__title">
+              <h2 id={labelledBy} className="auth-title">
                 {title}
               </h2>
             ) : null}
-            {description ? <p className="krds-auth-shell__description">{description}</p> : null}
+            {description ? <p className="description-text">{description}</p> : null}
           </div>
-          <div className="krds-auth-shell__body">{body}</div>
+          <div className="auth-body">{body}</div>
         </section>
-        {aside ? <div className="krds-auth-shell__aside">{aside}</div> : null}
+        {aside ? <div className="auth-aside">{aside}</div> : null}
       </main>
     </div>
   );

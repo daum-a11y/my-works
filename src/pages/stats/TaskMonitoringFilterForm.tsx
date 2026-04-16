@@ -38,7 +38,7 @@ export function TaskMonitoringFilterForm({
           </div>
         }
       >
-        <PageFilterField className={'krds-page__filter-field'} label="시작월">
+        <PageFilterField className={'filter-field'} label="시작월">
           <TextInput
             size="medium"
             id="task-monitoring-start-month"
@@ -49,7 +49,7 @@ export function TaskMonitoringFilterForm({
             onChange={onDraftStartMonthChange}
           />
         </PageFilterField>
-        <PageFilterField className={'krds-page__filter-field'} label="종료월">
+        <PageFilterField className={'filter-field'} label="종료월">
           <TextInput
             size="medium"
             id="task-monitoring-end-month"
@@ -60,7 +60,7 @@ export function TaskMonitoringFilterForm({
             onChange={onDraftEndMonthChange}
           />
         </PageFilterField>
-        <PageFilterField className={'krds-page__filter-field'} label="검색">
+        <PageFilterField className={'filter-field'} label="검색">
           <TextInput
             size="medium"
             id="task-monitoring-query"

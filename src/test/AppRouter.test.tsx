@@ -23,7 +23,7 @@ vi.mock('../pages/auth/PasswordRecoveryPage', () => ({
 }));
 
 vi.mock('../pages/dashboard', () => ({
-  DashboardPage: () => <div>dashboard-page</div>,
+  DashboardPage: () => <div>dashboard screen</div>,
 }));
 
 vi.mock('../pages/health', () => ({
@@ -92,13 +92,13 @@ vi.mock('../pages/profile', () => ({
   UserProfilePage: () => <div>profile-page</div>,
 }));
 
-vi.mock('../layouts/AuthenticatedLayout', async () => {
+vi.mock('../layouts/AppLayout', async () => {
   const { Outlet } = await import('react-router-dom');
 
   return {
-    AuthenticatedLayout: () => (
+    AppLayout: () => (
       <div>
-        <div>authenticated-layout</div>
+        <div>app-layout</div>
         <Outlet />
       </div>
     ),
@@ -182,7 +182,7 @@ describe('RootRouter', () => {
     render(<RootRouter />);
 
     await waitFor(() => {
-      expect(screen.getByText('dashboard-page')).toBeInTheDocument();
+      expect(screen.getByText('dashboard screen')).toBeInTheDocument();
     });
     expect(screen.queryByText('resource-summary-page')).not.toBeInTheDocument();
   });

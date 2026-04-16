@@ -35,7 +35,7 @@ export function PasswordRecoveryForm({
       labelledBy="recovery-title"
       description="새 비밀번호를 입력하면 현재 계정의 비밀번호가 즉시 변경됩니다."
       body={
-        <form onSubmit={handleSubmit(onSubmit)} className="krds-auth-shell__form">
+        <form onSubmit={handleSubmit(onSubmit)} className="krds-form">
           <Controller
             name="nextPassword"
             control={control}
@@ -72,7 +72,7 @@ export function PasswordRecoveryForm({
           {errorMessage ? (
             <CriticalAlert alerts={[{ variant: 'danger', message: errorMessage }]} />
           ) : null}
-          <div className="krds-auth-shell__actions">
+          <div className="action-area">
             <Button size="medium" type="submit" variant="primary" disabled={isSubmitting}>
               비밀번호 변경
             </Button>

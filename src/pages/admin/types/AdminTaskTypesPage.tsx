@@ -93,7 +93,7 @@ export function AdminTaskTypesPage() {
   useAlertMessage(errorMessage);
 
   return (
-    <section className="krds-page-admin krds-page-admin--page">
+    <section className="admin-page page-view">
       <PageHeader
         title="업무 타입 관리"
         actions={
@@ -107,7 +107,13 @@ export function AdminTaskTypesPage() {
             >
               순서변경
             </Button>
-            <Button as={RouterLink} to="/admin/type/new" role="link" variant="primary" size="medium">
+            <Button
+              as={RouterLink}
+              to="/admin/type/new"
+              role="link"
+              variant="primary"
+              size="medium"
+            >
               업무 타입 추가
             </Button>
           </>

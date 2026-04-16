@@ -14,7 +14,7 @@ export function AdminTaskTypeEditorForm({
   onDraftChange,
 }: AdminTaskTypeEditorFormProps) {
   return (
-    <div className={'krds-page__editor-form-grid'}>
+    <div className={'form-grid'}>
       <TextInput
         size="medium"
         id="admin-task-type-type1"

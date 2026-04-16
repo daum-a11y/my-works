@@ -20,7 +20,7 @@ export function DistributionLabel({ props, item }: { props: unknown; item: Distr
     <text
       x={x + width / 2}
       y={y + height / 2}
-      fill={item.labelColor ?? 'var(--text-inverse)'}
+      fill={item.labelColor ?? 'var(--krds-light-color-text-inverse-static)'}
       fontSize="12"
       fontWeight="600"
       textAnchor="middle"
@@ -51,7 +51,7 @@ export function DistributionTooltip({
   }
 
   return (
-    <div className="krds-page__chart-tooltip">
+    <div className="chart-tooltip">
       <strong>{item.label}</strong>
       <span>{item.mm} MM</span>
     </div>

@@ -41,7 +41,7 @@ function formatMemberDateTime(value: string) {
 
 export function AdminMemberRow({ member }: AdminMemberRowProps) {
   return (
-    <tr className={member.userActive ? undefined : 'krds-page-admin__inactive-row'}>
+    <tr className={member.userActive ? undefined : 'is-muted'}>
       <td>{member.accountId}</td>
       <td>{member.name}</td>
       <td>{member.email || '-'}</td>
@@ -55,11 +55,7 @@ export function AdminMemberRow({ member }: AdminMemberRowProps) {
         </Badge>
       </td>
       <td>
-        <Badge
-          variant="light"
-          color={member.userActive ? 'success' : 'gray'}
-          size="small"
-        >
+        <Badge variant="light" color={member.userActive ? 'success' : 'gray'} size="small">
           {getActiveLabel(member.userActive)}
         </Badge>
       </td>
@@ -73,11 +69,7 @@ export function AdminMemberRow({ member }: AdminMemberRowProps) {
         </Badge>
       </td>
       <td>
-        <Badge
-          variant="light"
-          color={member.reportRequired ? 'success' : 'gray'}
-          size="small"
-        >
+        <Badge variant="light" color={member.reportRequired ? 'success' : 'gray'} size="small">
           {getReportRequiredLabel(member.reportRequired)}
         </Badge>
       </td>

@@ -19,8 +19,8 @@ export function SearchResultsTable({ reports, sortState, onSortChange }: SearchR
   };
 
   return (
-    <div className="search-page__table-wrap">
-      <table className="search-page__table">
+    <div className="table-wrap">
+      <table className="krds-table">
         <caption className="sr-only">업무 리스트 테이블</caption>
         <thead>
           <tr>
@@ -112,7 +112,7 @@ export function SearchResultsTable({ reports, sortState, onSortChange }: SearchR
         <tbody>
           {reports.map((report) => (
             <tr key={report.id}>
-              <td className="search-page__table-number">{formatReportDate(report.taskDate)}</td>
+              <td className="number-cell">{formatReportDate(report.taskDate)}</td>
               <td>
                 <strong>{report.costGroupName || '-'}</strong>
               </td>
@@ -147,9 +147,7 @@ export function SearchResultsTable({ reports, sortState, onSortChange }: SearchR
                   '-'
                 )}
               </td>
-              <td className="search-page__table-number">
-                {formatReportTaskUsedtime(report.taskUsedtime)}
-              </td>
+              <td className="number-cell">{formatReportTaskUsedtime(report.taskUsedtime)}</td>
               <td>{report.note || '-'}</td>
             </tr>
           ))}

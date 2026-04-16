@@ -24,8 +24,8 @@ export function ProjectsResultsTable({
   };
 
   return (
-    <div className="projects-feature__table-wrap">
-      <table className="projects-feature__table">
+    <div className="table-wrap">
+      <table className="krds-table">
         <caption className="sr-only">프로젝트 리스트</caption>
         <thead>
           <tr>
@@ -141,7 +141,7 @@ export function ProjectsResultsTable({
                     href={project.reportUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="projects-feature__table-link"
+                    className="table-link"
                   >
                     링크
                   </a>
@@ -149,15 +149,12 @@ export function ProjectsResultsTable({
                   '-'
                 )}
               </td>
-              <td className="projects-feature__date-cell">{formatDateLabel(project.startDate)}</td>
-              <td className="projects-feature__date-cell">{formatDateLabel(project.endDate)}</td>
+              <td className="date-cell">{formatDateLabel(project.startDate)}</td>
+              <td className="date-cell">{formatDateLabel(project.endDate)}</td>
               <td>{project.reporterDisplay || '-'}</td>
               <td>{project.reviewerDisplay || '-'}</td>
               <td>
-                <Link
-                  to={`/projects/${project.id}/edit`}
-                  className="projects-feature__action-button"
-                >
+                <Link to={`/projects/${project.id}/edit`} className="action-button">
                   수정
                 </Link>
               </td>

@@ -274,7 +274,7 @@ export function AdminServiceGroupEditorPage() {
 
   if (serviceGroupsQuery.isLoading && isEditMode) {
     return (
-      <section className="krds-page krds-page__shell krds-page__editor-shell">
+      <section className="krds-page page-shell editor-shell">
         <div
           style={{
             display: 'flex',
@@ -294,7 +294,7 @@ export function AdminServiceGroupEditorPage() {
 
   if (isEditMode && !selectedServiceGroup && !serviceGroupsQuery.isLoading) {
     return (
-      <section className="krds-page krds-page__shell krds-page__editor-shell">
+      <section className="krds-page page-shell editor-shell">
         <PageHeader title="서비스 그룹 수정" />
         <CriticalAlert alerts={[{ variant: 'info', message: '서비스 그룹을 찾을 수 없습니다.' }]} />
       </section>
@@ -302,13 +302,10 @@ export function AdminServiceGroupEditorPage() {
   }
 
   return (
-    <section className="krds-page krds-page__shell krds-page__editor-shell">
+    <section className="krds-page page-shell editor-shell">
       <PageHeader title={isEditMode ? '서비스 그룹 수정' : '서비스 그룹 추가'} />
-      <section className="krds-page__editor-surface" aria-label="서비스 그룹 편집 패널">
-        <form
-          className="krds-page__detail-form krds-page__editor-detail-form"
-          onSubmit={handleSubmit}
-        >
+      <section className="editor-surface" aria-label="서비스 그룹 편집 패널">
+        <form className="detail-form editor-detail-form" onSubmit={handleSubmit}>
           <AdminServiceGroupEditorForm
             draft={draft}
             costGroups={costGroups}

@@ -203,7 +203,7 @@ export function ReportsPage() {
 
   const isListDateValid = /^\d{4}-\d{2}-\d{2}$/.test(currentListDateValue);
   return (
-    <section className="krds-page krds-page--page">
+    <section className="krds-page page-view">
       <PageHeader title="업무보고" />
 
       <ReportsDateNavigator
@@ -211,7 +211,7 @@ export function ReportsPage() {
         onShiftDate={shiftSelectedDate}
       />
 
-      <div className="krds-page__grid-layout">
+      <div className="grid-layout">
         {canEditReports ? (
           <ReportsEditorForm
             mode={isEditMode ? 'edit' : 'create'}
@@ -243,11 +243,7 @@ export function ReportsPage() {
           />
         ) : null}
 
-        <section
-          className={
-            canEditReports ? 'krds-page__panel krds-page__panel--results' : undefined
-          }
-        >
+        <section className={canEditReports ? 'content-panel is-results' : undefined}>
           {statusMessage && statusKind !== 'error' ? (
             <CriticalAlert
               alerts={[

@@ -18,8 +18,8 @@ export function AdminTaskTypesResultsTable({
   activeTypeMap,
 }: AdminTaskTypesResultsTableProps) {
   return (
-    <div className="krds-page-admin__table-wrap krds-table-wrap">
-      <table className="krds-page-admin__table tbl data">
+    <div className="table-wrap krds-table-wrap">
+      <table className="krds-table tbl data">
         <caption className="sr-only">업무타입 내역</caption>
         <thead>
           <tr>
@@ -35,16 +35,9 @@ export function AdminTaskTypesResultsTable({
           {groupedTaskTypes.length ? (
             groupedTaskTypes.map((group) =>
               group.rows.map((item, rowIndex) => (
-                <tr
-                  key={item.id}
-                  className={activeTypeMap.get(item.id) ? '' : 'krds-page-admin__inactive-row'}
-                >
+                <tr key={item.id} className={activeTypeMap.get(item.id) ? '' : 'is-muted'}>
                   {rowIndex === 0 ? (
-                    <td
-                      rowSpan={group.rows.length}
-                      scope="row"
-                      className="krds-page-admin__row-key"
-                    >
+                    <td rowSpan={group.rows.length} scope="row" className="row-title">
                       {group.type1}
                     </td>
                   ) : null}
@@ -69,7 +62,7 @@ export function AdminTaskTypesResultsTable({
                   </td>
                   <td>{item.note || '-'}</td>
                   <td>
-                    <div className="krds-page-admin__actions">
+                    <div className="action-group">
                       <Button as={RouterLink} to={`/admin/type/${item.id}/edit`} role="link">
                         수정
                       </Button>

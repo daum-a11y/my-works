@@ -163,13 +163,10 @@ export function UserProfilePage() {
   };
 
   return (
-    <section
-      className="krds-page-settings krds-page-settings--page"
-      aria-labelledby="profile-title"
-    >
+    <section className="settings-page page-view" aria-labelledby="profile-title">
       <PageHeader title="프로필" id="profile-title" />
 
-      <div className="krds-page-settings__workspace">
+      <div className="settings-workspace">
         <UserProfileAccountSection
           accountId={member?.accountId}
           name={member?.name}

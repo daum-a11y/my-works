@@ -31,12 +31,8 @@ export function AdminServiceGroupEditorActionRow({
   onViewTasks,
 }: AdminServiceGroupEditorActionRowProps) {
   return (
-    <div className="krds-page__form-actions krds-page__editor-form-actions">
-      <div
-        className={
-          'krds-page__editor-form-actions krds-page__editor-form-actions--start'
-        }
-      >
+    <div className="form-actions editor-actions">
+      <div className={'editor-actions is-start'}>
         {isEditMode ? (
           <>
             <Button
@@ -74,11 +70,7 @@ export function AdminServiceGroupEditorActionRow({
           </>
         ) : null}
       </div>
-      <div
-        className={
-          'krds-page__editor-form-actions krds-page__editor-form-actions--end'
-        }
-      >
+      <div className={'editor-actions is-end'}>
         <Button as={RouterLink} to="/admin/group" role="link">
           취소
         </Button>

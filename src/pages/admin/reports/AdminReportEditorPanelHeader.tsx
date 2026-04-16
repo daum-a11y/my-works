@@ -15,10 +15,10 @@ export function AdminReportEditorPanelHeader({
   onTabChange,
 }: AdminReportEditorPanelHeaderProps) {
   return (
-    <div className={'krds-page__panel-head'}>
+    <div className={'panel-head'}>
       <div>
-        <h2 className={'krds-page__panel-title'}>{title}</h2>
-        <p className={'krds-page__date-text'}>{dateText}</p>
+        <h2 className={'panel-title'}>{title}</h2>
+        <p className={'date-text'}>{dateText}</p>
       </div>
       <Tab value={activeTab} onValueChange={(value) => onTabChange(value as AdminReportEditorTab)}>
         <TabList aria-label="업무보고 입력 탭">

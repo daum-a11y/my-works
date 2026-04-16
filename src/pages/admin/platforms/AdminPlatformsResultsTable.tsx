@@ -9,8 +9,8 @@ interface AdminPlatformsResultsTableProps {
 
 export function AdminPlatformsResultsTable({ platforms }: AdminPlatformsResultsTableProps) {
   return (
-    <div className="krds-page-admin__table-wrap krds-table-wrap">
-      <table className="krds-page-admin__table tbl data">
+    <div className="table-wrap krds-table-wrap">
+      <table className="krds-table tbl data">
         <caption className="sr-only">플랫폼 내역</caption>
         <thead>
           <tr>
@@ -22,19 +22,15 @@ export function AdminPlatformsResultsTable({ platforms }: AdminPlatformsResultsT
         <tbody>
           {platforms.length ? (
             platforms.map((item) => (
-              <tr key={item.id} className={item.isVisible ? '' : 'krds-page-admin__inactive-row'}>
-                <td className="krds-page-admin__row-key">{item.name}</td>
+              <tr key={item.id} className={item.isVisible ? '' : 'is-muted'}>
+                <td className="row-title">{item.name}</td>
                 <td>
-                  <Badge
-                    variant="light"
-                    color={item.isVisible ? 'success' : 'gray'}
-                    size="small"
-                  >
+                  <Badge variant="light" color={item.isVisible ? 'success' : 'gray'} size="small">
                     {item.isVisible ? '노출' : '미노출'}
                   </Badge>
                 </td>
                 <td>
-                  <div className="krds-page-admin__actions">
+                  <div className="action-group">
                     <Button as={RouterLink} to={`/admin/platform/${item.id}/edit`} role="link">
                       수정
                     </Button>

@@ -14,7 +14,7 @@ export function AdminPlatformEditorForm({
   onDraftChange,
 }: AdminPlatformEditorFormProps) {
   return (
-    <div className={'krds-page__editor-form-grid'}>
+    <div className={'form-grid'}>
       <TextInput
         size="medium"
         id="admin-platform-name"

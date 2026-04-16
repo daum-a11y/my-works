@@ -43,7 +43,7 @@ export function PendingApprovalPage() {
               </li>
             ))}
           </StructuredList>
-          <div className="krds-auth-shell__actions">
+          <div className="action-area">
             <Button
               size="medium"
               type="button"

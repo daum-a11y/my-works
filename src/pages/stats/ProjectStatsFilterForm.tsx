@@ -40,7 +40,7 @@ export function ProjectStatsFilterForm({
           </div>
         }
       >
-        <PageFilterField className={'krds-page__filter-field'} label="시작월">
+        <PageFilterField className={'filter-field'} label="시작월">
           <TextInput
             size="medium"
             id="project-stats-start-month"
@@ -51,7 +51,7 @@ export function ProjectStatsFilterForm({
             onChange={onDraftStartMonthChange}
           />
         </PageFilterField>
-        <PageFilterField className={'krds-page__filter-field'} label="종료월">
+        <PageFilterField className={'filter-field'} label="종료월">
           <TextInput
             size="medium"
             id="project-stats-end-month"
@@ -62,7 +62,7 @@ export function ProjectStatsFilterForm({
             onChange={onDraftEndMonthChange}
           />
         </PageFilterField>
-        <PageFilterField className={'krds-page__filter-field'} label="타입 1">
+        <PageFilterField className={'filter-field'} label="타입 1">
           <Select
             size="medium"
             id="project-stats-task-type1"

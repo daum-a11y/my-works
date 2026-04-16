@@ -1,11 +1,11 @@
-.sortable-table-header-button {
+.krds-sort-button {
   display: inline-flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-2);
+  gap: var(--krds-gap-2);
   min-width: max-content;
   width: 100%;
-  border: 1px solid transparent;
+  border: var(--krds-light-border-width-static-regular) solid transparent;
   background: transparent;
   color: inherit;
   font: inherit;
@@ -21,37 +21,37 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-.sortable-table-header-button:hover {
-  color: var(--text-primary);
+.krds-sort-button:hover {
+  color: var(--krds-light-color-text-primary);
 }
 
-.sortable-table-header-button:active {
+.krds-sort-button:active {
   transform: translateY(1px);
-  background: color-mix(in oklab, var(--surface-active) 74%, var(--surface-canvas-strong));
+  background-color: var(--krds-light-color-action-secondary-pressed);
 }
 
-.sortable-table-header-button--active {
-  color: var(--accent-strong);
+.krds-sort-button.is-active {
+  color: var(--krds-light-color-text-primary);
 }
 
-.sortable-table-header-button__label {
+.sort-button-label {
   color: currentColor;
 }
 
-.sortable-table-header-button__icon {
+.sort-button-icon {
   display: inline-grid;
-  gap: 2px;
+  gap: 0.2rem;
   flex: 0 0 auto;
   justify-items: center;
-  width: 10px;
+  width: 1rem;
 }
 
-.sortable-table-header-button__chevron {
+.sort-button-chevron {
   display: block;
   width: 0;
   height: 0;
-  border-left: 4px solid transparent;
-  border-right: 4px solid transparent;
+  border-left: 0.4rem solid transparent;
+  border-right: 0.4rem solid transparent;
   opacity: 0.35;
   transition:
     opacity 180ms ease,
@@ -59,24 +59,24 @@
     border-color 180ms ease;
 }
 
-.sortable-table-header-button__chevron--up {
-  border-bottom: 5px solid currentColor;
-  transform: translateY(1px);
+.sort-button-chevron.is-up {
+  border-bottom: 0.5rem solid currentColor;
+  transform: translateY(0.1rem);
 }
 
-.sortable-table-header-button__chevron--down {
-  border-top: 5px solid currentColor;
-  transform: translateY(-1px);
+.sort-button-chevron.is-down {
+  border-top: 0.5rem solid currentColor;
+  transform: translateY(-0.1rem);
 }
 
-.sortable-table-header-button__chevron--current {
+.sort-button-chevron.is-current {
   opacity: 1;
   transform: translateY(0) scale(1.08);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .sortable-table-header-button,
-  .sortable-table-header-button__chevron {
+  .krds-sort-button,
+  .sort-button-chevron {
     transition: none;
   }
 }

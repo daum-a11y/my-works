@@ -39,7 +39,7 @@ export function ProjectEditorForm({
   onServiceNameChange,
 }: ProjectEditorFormProps) {
   return (
-    <div className={'krds-page__editor-form-grid'}>
+    <div className={'form-grid'}>
       <Select
         size="medium"
         id="project-editor-cost-group"

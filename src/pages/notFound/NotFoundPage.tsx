@@ -19,24 +19,24 @@ export function NotFoundPage() {
 
   return (
     <main className="krds-not-found">
-      <section className="krds-not-found__panel" aria-labelledby="not-found-title">
-        <div className="krds-not-found__hero">
-          <h1 className="krds-not-found__logo-heading">
-            <BrandLogo className="krds-not-found__logo" alt="My Works" width={100} height={30} />
+      <section className="not-found-panel" aria-labelledby="not-found-title">
+        <div className="not-found-hero">
+          <h1 className="logo-heading">
+            <BrandLogo className="brand-logo" alt="My Works" width={100} height={30} />
           </h1>
-          <p className="krds-not-found__caption">404</p>
+          <p className="caption-text">404</p>
         </div>
-        <div className="krds-not-found__body">
-          <h1 id="not-found-title" className="krds-not-found__title">
+        <div className="not-found-body">
+          <h1 id="not-found-title" className="not-found-title">
             페이지를 찾을 수 없습니다.
           </h1>
-          <p className="krds-not-found__description">
+          <p className="description-text">
             주소를 다시 확인하시거나{' '}
             {isAuthenticated
               ? '대시보드로 돌아가 현재 작업을 이어서 진행해 주세요.'
               : '로그인 화면으로 돌아가 다시 진입해 주세요.'}
           </p>
-          <div className="krds-not-found__actions">
+          <div className="action-area">
             <Button as={RouterLink} to={destination} role="link" variant="primary" size="medium">
               {actionLabel}
             </Button>

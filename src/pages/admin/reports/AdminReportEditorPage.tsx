@@ -461,7 +461,7 @@ export function AdminReportEditorPage() {
   };
 
   return (
-    <section className={'krds-page krds-page--page'}>
+    <section className={'krds-page page-view'}>
       <PageHeader
         title={isEdit ? ADMIN_REPORT_EDITOR_EDIT_TITLE : ADMIN_REPORT_EDITOR_CREATE_TITLE}
       />

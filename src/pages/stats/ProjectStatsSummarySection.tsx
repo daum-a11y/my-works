@@ -52,9 +52,9 @@ export function ProjectStatsSummarySection({
         </TabList>
       </Tab>
       {summaryView === 'chart' ? (
-        <div className={'krds-page__chart-surface'}>
+        <div className={'chart-surface'}>
           {monthlyRows.length ? (
-            <div className={'krds-page__chart-frame'} role="img" aria-label="프로젝트 월별 차트">
+            <div className={'chart-frame'} role="img" aria-label="프로젝트 월별 차트">
               <ResponsiveContainer width="100%" height={320}>
                 <LineChart data={monthlyRows} margin={{ top: 12, right: 12, left: 0, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" />
@@ -92,8 +92,8 @@ export function ProjectStatsSummarySection({
           )}
         </div>
       ) : (
-        <div className={'krds-page__table-wrap krds-table-wrap'}>
-          <table className={'krds-page__table tbl data'}>
+        <div className={'table-wrap krds-table-wrap'}>
+          <table className={'krds-table tbl data'}>
             <caption className={'sr-only'}>프로젝트 월별 표</caption>
             <thead>
               <tr>
@@ -112,10 +112,10 @@ export function ProjectStatsSummarySection({
               {monthlyRows.map((row) => (
                 <tr key={row.monthKey}>
                   <td>{row.label}</td>
-                  <td className="krds-page__table-number">{row.totalProjectCount}</td>
+                  <td className="number-cell">{row.totalProjectCount}</td>
                   {showAllType1Series
                     ? summaryType1Keys.map((type1) => (
-                        <td key={type1} className="krds-page__table-number">
+                        <td key={type1} className="number-cell">
                           {row.projectCountByType1[type1] ?? 0}
                         </td>
                       ))

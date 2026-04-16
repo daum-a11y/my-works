@@ -31,7 +31,7 @@ export function AdminReportEditorBasicFields({
   parseCompactDate,
 }: AdminReportEditorBasicFieldsProps) {
   return (
-    <div className={'krds-page__form-grid'} style={gridStyle}>
+    <div className={'form-grid'} style={gridStyle}>
       <Select
         size="medium"
         id="admin-report-editor-member"

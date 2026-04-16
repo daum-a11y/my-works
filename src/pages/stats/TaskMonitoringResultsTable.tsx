@@ -24,20 +24,20 @@ export function TaskMonitoringResultsTable({
   };
 
   return (
-    <div className="stats-page__table-wrap">
-      <table className="stats-page__table">
+    <div className="table-wrap">
+      <table className="krds-table">
         <caption className="sr-only">필터링된 태스크 현황 목록</caption>
         <colgroup>
-          <col className="stats-page__table-col stats-page__table-col--month" />
-          <col className="stats-page__table-col stats-page__table-col--group" />
-          <col className="stats-page__table-col stats-page__table-col--type" />
-          <col className="stats-page__table-col stats-page__table-col--group" />
-          <col className="stats-page__table-col stats-page__table-col--platform" />
-          <col className="stats-page__table-col stats-page__table-col--project" />
-          <col className="stats-page__table-col stats-page__table-col--project" />
-          <col className="stats-page__table-col stats-page__table-col--group" />
-          <col className="stats-page__table-col stats-page__table-col--group" />
-          <col className="stats-page__table-col stats-page__table-col--report" />
+          <col className="table-col col-month" />
+          <col className="table-col col-group" />
+          <col className="table-col col-type" />
+          <col className="table-col col-group" />
+          <col className="table-col col-platform" />
+          <col className="table-col col-project" />
+          <col className="table-col col-project" />
+          <col className="table-col col-group" />
+          <col className="table-col col-group" />
+          <col className="table-col col-report" />
         </colgroup>
         <thead>
           <tr>
@@ -126,7 +126,7 @@ export function TaskMonitoringResultsTable({
               <td>{row.platform || '-'}</td>
               <td>
                 {row.projectId && row.projectName ? (
-                  <Link to={`/projects/${row.projectId}/edit`} className="stats-page__link">
+                  <Link to={`/projects/${row.projectId}/edit`} className="table-link">
                     {row.projectName}
                   </Link>
                 ) : (
@@ -136,18 +136,13 @@ export function TaskMonitoringResultsTable({
               <td>{row.title || '-'}</td>
               <td>{row.ownerDisplay || '-'}</td>
               <td>
-                <span className="stats-page__status-badge" data-status={row.taskStatus}>
+                <span className="status-badge" data-status={row.taskStatus}>
                   {formatTaskStatus(row.taskStatus)}
                 </span>
               </td>
               <td>
                 {row.reportUrl ? (
-                  <a
-                    href={row.reportUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="stats-page__link"
-                  >
+                  <a href={row.reportUrl} target="_blank" rel="noreferrer" className="table-link">
                     링크
                   </a>
                 ) : (

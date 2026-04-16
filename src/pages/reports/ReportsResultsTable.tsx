@@ -35,8 +35,8 @@ export function ReportsResultsTable({
 
   return (
     <>
-      <div className="krds-page__table-wrap krds-table-wrap">
-        <table className="krds-page__table tbl data">
+      <div className="table-wrap krds-table-wrap">
+        <table className="krds-table tbl data">
           <caption className="sr-only">업무 보고 목록</caption>
           <thead>
             <tr>
@@ -131,13 +131,13 @@ export function ReportsResultsTable({
         </table>
       </div>
       {missingMinutes > 0 ? (
-        <div className="krds-page__table-footer">
-          <p className="krds-page__table-footer-text">
+        <div className="table-footer">
+          <p className="table-footer-text">
             오늘 총 입력 <strong>{totalMinutes}분</strong> / 부족{' '}
             <strong>{missingMinutes}분</strong>
           </p>
           {canEdit ? (
-            <div className="krds-page__table-footer-field">
+            <div className="table-footer-field">
               <Select
                 size="medium"
                 id="reports-overhead-cost-group"

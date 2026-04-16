@@ -91,7 +91,7 @@ export function UserProfileFontSection({
       titleId="font-settings-title"
       aria-labelledby="font-settings-title"
     >
-      <fieldset className="krds-page-settings__font-fieldset">
+      <fieldset className="font-fieldset">
         <legend className="sr-only">전역 폰트 선택</legend>
         <RadioGroup
           name="fontPreference"
@@ -125,7 +125,7 @@ export function UserProfileThemeSection({
       titleId="theme-settings-title"
       aria-labelledby="theme-settings-title"
     >
-      <fieldset className="krds-page-settings__setting-fieldset">
+      <fieldset className="setting-fieldset">
         <legend className="sr-only">전역 테마 선택</legend>
         <RadioGroup
           name="themePreference"

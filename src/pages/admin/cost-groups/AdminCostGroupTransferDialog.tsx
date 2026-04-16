@@ -57,7 +57,7 @@ export function AdminCostGroupTransferDialog({
   }
 
   return (
-    <div className="krds-page-admin">
+    <div className="admin-page">
       <Modal.Root
         usePortal
         open={isOpen}

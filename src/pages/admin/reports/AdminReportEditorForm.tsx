@@ -140,12 +140,10 @@ export function AdminReportEditorForm({
 }: AdminReportEditorFormProps) {
   return (
     <PageSection
-      className={'krds-page__panel'}
+      className={'content-panel'}
       style={panelStyle}
       title="업무 입력"
-      description={
-        <p className={'krds-page__date-text'}>{draft.reportDate || getTodayInputValue()}</p>
-      }
+      description={<p className={'date-text'}>{draft.reportDate || getTodayInputValue()}</p>}
       actions={
         <Tab
           value={activeTab}
@@ -181,7 +179,7 @@ export function AdminReportEditorForm({
       ) : null}
 
       {!loading && !missingEditTarget ? (
-        <form className={'krds-page__form'} onSubmit={onSubmit} style={formStyle}>
+        <form className={'krds-form'} onSubmit={onSubmit} style={formStyle}>
           <AdminReportEditorBasicFields
             isEdit={isEdit}
             members={members}

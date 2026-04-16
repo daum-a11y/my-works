@@ -94,7 +94,9 @@ describe('DashboardPage', () => {
     });
 
     expect(screen.getByText('알파')).toBeInTheDocument();
-    expect(screen.getByRole('columnheader', { name: '청구그룹' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('columnheader', { name: '청구그룹 정렬 기준 선택 가능' }),
+    ).toBeInTheDocument();
     expect(screen.getByText('내부')).toBeInTheDocument();
     expect(screen.getByText('커머스')).toBeInTheDocument();
     expect(screen.getByText('2026-03-01')).toBeInTheDocument();

@@ -57,7 +57,7 @@ export function AdminPlatformsPage() {
   useAlertMessage(errorMessage);
 
   return (
-    <section className="krds-page-admin krds-page-admin--page">
+    <section className="admin-page page-view">
       <PageHeader
         title="플랫폼 관리"
         actions={

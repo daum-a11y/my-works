@@ -442,7 +442,7 @@ export function ProjectEditorPage() {
 
   if (loading) {
     return (
-      <section className="krds-page krds-page--shell krds-page--editor">
+      <section className="krds-page page-shell editor-page">
         <PageHeader
           title={isEditMode ? PROJECT_EDITOR_EDIT_TITLE : PROJECT_EDITOR_CREATE_TITLE}
           actions={
@@ -472,7 +472,7 @@ export function ProjectEditorPage() {
 
   if (queryError) {
     return (
-      <section className="krds-page krds-page--shell krds-page--editor">
+      <section className="krds-page page-shell editor-page">
         <PageHeader
           title={isEditMode ? PROJECT_EDITOR_EDIT_TITLE : PROJECT_EDITOR_CREATE_TITLE}
           actions={
@@ -487,7 +487,7 @@ export function ProjectEditorPage() {
 
   if (isEditMode && !selectedProject) {
     return (
-      <section className="krds-page krds-page--shell krds-page--editor">
+      <section className="krds-page page-shell editor-page">
         <PageHeader
           title={PROJECT_EDITOR_EDIT_TITLE}
           actions={
@@ -502,18 +502,15 @@ export function ProjectEditorPage() {
   }
 
   return (
-    <section className="krds-page krds-page--shell krds-page--editor">
+    <section className="krds-page page-shell editor-page">
       <PageHeader title={isEditMode ? PROJECT_EDITOR_EDIT_TITLE : PROJECT_EDITOR_CREATE_TITLE} />
 
       {statusMessage ? (
         <CriticalAlert alerts={[{ variant: 'ok', message: statusMessage }]} />
       ) : null}
 
-      <section className="krds-page__editor-surface" aria-label="프로젝트 편집 패널">
-        <form
-          className="krds-page__detail-form krds-page__editor-detail-form"
-          onSubmit={handleProjectSave}
-        >
+      <section className="editor-surface" aria-label="프로젝트 편집 패널">
+        <form className="detail-form editor-detail-form" onSubmit={handleProjectSave}>
           <ProjectEditorForm
             projectDraft={projectDraft}
             projectTypeOptions={projectTypeOptions}

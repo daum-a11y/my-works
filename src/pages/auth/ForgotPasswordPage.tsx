@@ -51,7 +51,7 @@ export function ForgotPasswordPage() {
               setErrorMessage(error instanceof Error ? error.message : '메일 발송 실패.');
             }
           })}
-          className="krds-auth-shell__form"
+          className="krds-form"
         >
           <Controller
             name="email"
@@ -78,7 +78,7 @@ export function ForgotPasswordPage() {
               alerts={[{ variant: 'danger', message: `입력 확인 필요. ${errorMessage}` }]}
             />
           ) : null}
-          <div className="krds-auth-shell__actions">
+          <div className="action-area">
             <Button
               size="medium"
               type="submit"
@@ -87,7 +87,7 @@ export function ForgotPasswordPage() {
             >
               재설정 메일 보내기
             </Button>
-            <div className="krds-auth-shell__action-divider">
+            <div className="action-divider">
               <Button
                 size="medium"
                 type="button"

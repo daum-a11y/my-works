@@ -29,9 +29,9 @@ export function AdminReportsResultsTable({
   };
 
   return (
-    <div className={'admin-reports-page__panel'}>
-      <div className={'admin-reports-page__table-wrap'}>
-        <table className={'admin-reports-page__table'}>
+    <div className={'content-panel'}>
+      <div className={'table-wrap'}>
+        <table className={'krds-table'}>
           <caption className={'sr-only'}>업무보고 조회 결과 테이블</caption>
           <thead>
             <tr>
@@ -139,7 +139,7 @@ export function AdminReportsResultsTable({
                     <td>{task.taskDate}</td>
                     <td>
                       <strong>{task.memberAccountId || task.memberId}</strong>
-                      <div className={'admin-reports-page__muted'}>{task.memberName}</div>
+                      <div className={'meta-text'}>{task.memberName}</div>
                     </td>
                     <td>{task.costGroupName || '-'}</td>
                     <td>{task.taskType1}</td>
@@ -156,7 +156,7 @@ export function AdminReportsResultsTable({
                           href={task.url}
                           target="_blank"
                           rel="noreferrer"
-                          className={'admin-reports-page__table-link'}
+                          className={'table-link'}
                         >
                           링크
                         </a>
@@ -167,21 +167,17 @@ export function AdminReportsResultsTable({
                     <td>{formatTimeCell(task.taskUsedtime)}</td>
                     {/*<td>{task.note || '-'}</td>*/}
                     <td>
-                      <div className={'admin-reports-page__action-stack'}>
+                      <div className={'action-stack'}>
                         <button
                           type="button"
-                          className={
-                            'admin-reports-page__button admin-reports-page__button--action'
-                          }
+                          className={'action-button is-action'}
                           onClick={() => onEdit(task.id)}
                         >
                           수정
                         </button>
                         <button
                           type="button"
-                          className={
-                            'admin-reports-page__button admin-reports-page__button--delete'
-                          }
+                          className={'action-button is-danger'}
                           onClick={() => onDelete(task.id)}
                           disabled={deletePending}
                         >

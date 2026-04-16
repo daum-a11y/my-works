@@ -32,7 +32,7 @@ function hasActiveChild(
   );
 }
 
-export function AuthenticatedLayout() {
+export function AppLayout() {
   const location = useLocation();
   const navigate = useNavigate();
   const { session, logout } = useAuth();
@@ -152,17 +152,17 @@ export function AuthenticatedLayout() {
               </NavLink>
             </h2>
             <Header.Navi>
-              <div className="authenticated-layout__user-menu" ref={userMenuRef}>
+              <div className="krds-user-menu" ref={userMenuRef}>
                 <button
                   type="button"
-                  className="authenticated-layout__user-menu-trigger btn-navi my drop-btn"
+                  className="user-menu-trigger btn-navi my drop-btn"
                   aria-haspopup="menu"
                   aria-expanded={isUserMenuOpen}
                   aria-label="사용자 메뉴"
                   onClick={() => setIsUserMenuOpen((open) => !open)}
                 >
                   <div
-                    className="authenticated-layout__profile-icon"
+                    className="user-profile-icon"
                     style={{
                       backgroundColor: avatarColor.backgroundColor,
                       color: avatarColor.textColor,
@@ -171,28 +171,21 @@ export function AuthenticatedLayout() {
                   >
                     {userInitials}
                   </div>
-                  <div className="authenticated-layout__profile-info">
+                  <div className="user-profile-info">
                     <strong>{session?.member.accountId}</strong>
                   </div>
                   <ChevronDown
                     size={15}
                     strokeWidth={2.2}
-                    className={clsx(
-                      'authenticated-layout__user-menu-chevron',
-                      isUserMenuOpen && 'authenticated-layout__user-menu-chevron--open',
-                    )}
+                    className={clsx('user-menu-chevron', isUserMenuOpen && 'is-open')}
                     aria-hidden="true"
                   />
                 </button>
                 {isUserMenuOpen ? (
-                  <div
-                    className="authenticated-layout__user-menu-panel"
-                    role="menu"
-                    aria-label="사용자 메뉴"
-                  >
-                    <div className="authenticated-layout__user-menu-identity">
+                  <div className="user-menu-panel" role="menu" aria-label="사용자 메뉴">
+                    <div className="user-menu-identity">
                       <div
-                        className="authenticated-layout__user-menu-identity-avatar"
+                        className="user-menu-avatar"
                         style={{
                           backgroundColor: avatarColor.backgroundColor,
                           color: avatarColor.textColor,
@@ -201,7 +194,7 @@ export function AuthenticatedLayout() {
                       >
                         {userInitials}
                       </div>
-                      <div className="authenticated-layout__user-menu-identity-text">
+                      <div className="user-menu-text">
                         <strong>{session?.member.accountId}</strong>
                         <span>{session?.member.name}</span>
                       </div>
@@ -209,12 +202,7 @@ export function AuthenticatedLayout() {
                     <NavLink
                       to="/profile"
                       role="menuitem"
-                      className={({ isActive }) =>
-                        clsx(
-                          'authenticated-layout__user-menu-item',
-                          isActive && 'authenticated-layout__user-menu-item--active',
-                        )
-                      }
+                      className={({ isActive }) => clsx('user-menu-item', isActive && 'is-active')}
                     >
                       <UserRound size={15} strokeWidth={2} aria-hidden="true" />
                       <span>프로필</span>
@@ -222,7 +210,7 @@ export function AuthenticatedLayout() {
                     <button
                       type="button"
                       role="menuitem"
-                      className="authenticated-layout__user-menu-item authenticated-layout__user-menu-item--danger"
+                      className="user-menu-item is-danger"
                       onClick={() => void handleLogout()}
                       disabled={isLoggingOut}
                     >
@@ -339,7 +327,7 @@ export function AuthenticatedLayout() {
                   backgroundColor: 'rgba(255, 255, 255, 0.72)',
                   zIndex: 10,
                 }}
-                className="global-loading-spinner global-loading-spinner--overlay"
+                className="global-loading-spinner is-overlay"
                 aria-label="로딩 중"
                 role="status"
               >

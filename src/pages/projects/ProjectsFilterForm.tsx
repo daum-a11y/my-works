@@ -36,7 +36,7 @@ export function ProjectsFilterForm({
           </div>
         }
       >
-        <PageFilterField className="krds-page__filter-field" label="시작일">
+        <PageFilterField className="filter-field" label="시작일">
           <IsoDateInput
             id="projects-filter-start-date"
             value={filterDraft.startDate}
@@ -44,7 +44,7 @@ export function ProjectsFilterForm({
             onChange={(next) => onFilterDraftChange({ ...filterDraft, startDate: next })}
           />
         </PageFilterField>
-        <PageFilterField className="krds-page__filter-field" label="종료일">
+        <PageFilterField className="filter-field" label="종료일">
           <IsoDateInput
             id="projects-filter-end-date"
             value={filterDraft.endDate}
@@ -52,7 +52,7 @@ export function ProjectsFilterForm({
             onChange={(next) => onFilterDraftChange({ ...filterDraft, endDate: next })}
           />
         </PageFilterField>
-        <PageFilterField className="krds-page__filter-field" label="검색어">
+        <PageFilterField className="filter-field" label="검색어">
           <TextInput
             size="medium"
             id="projects-filter-keyword"

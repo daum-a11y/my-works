@@ -1,12 +1,5 @@
 import { Fragment, useState, type FormEvent } from 'react';
-import {
-  Badge,
-  Button,
-  Link as KrdsLink,
-  Select,
-  TextInput,
-  Textarea,
-} from 'krds-react';
+import { Badge, Button, Link as KrdsLink, Select, TextInput, Textarea } from 'krds-react';
 import { EmptyState, IsoDateInput, PageSection } from '../../components/shared';
 import { subtaskStatusOptions, type ProjectSubtask, type SubtaskStatus } from '../../types/domain';
 import type { SubtaskFormState } from './ProjectEditorPage.types';
@@ -59,7 +52,7 @@ export function ProjectEditorSubtasksSection({
   return (
     <PageSection
       title="태스크 목록"
-      className={'krds-page__subtask-section'}
+      className={'subtask-section'}
       actions={
         <Button
           size="medium"
@@ -73,12 +66,12 @@ export function ProjectEditorSubtasksSection({
       }
     >
       {subtaskAddOpen && newSubtaskDraft ? (
-        <form id={addFormId} className={'krds-page__subtask-add-form'} onSubmit={onAddSubmit} />
+        <form id={addFormId} className={'subtask-add-form'} onSubmit={onAddSubmit} />
       ) : null}
 
       {showSubtaskTable ? (
-        <div className={'krds-page__subtask-table-wrap krds-table-wrap'}>
-          <table className={'krds-page__subtask-table tbl data'}>
+        <div className={'subtask-table-wrap krds-table-wrap'}>
+          <table className={'subtask-table tbl data'}>
             <caption className={'sr-only'}>태스크 리스트</caption>
             <thead>
               <tr>
@@ -96,7 +89,7 @@ export function ProjectEditorSubtasksSection({
             </thead>
             <tbody>
               {subtaskAddOpen && newSubtaskDraft ? (
-                <tr className={'krds-page__subtask-add-row'}>
+                <tr className={'subtask-add-row'}>
                   <td>
                     <IsoDateInput
                       id="new-subtask-date"
@@ -108,7 +101,7 @@ export function ProjectEditorSubtasksSection({
                     />
                   </td>
                   <td>
-                    <div className={'krds-page__subtask-title-stack'}>
+                    <div className={'subtask-title-stack'}>
                       <TextInput
                         size="medium"
                         id="new-subtask-title"
@@ -181,7 +174,7 @@ export function ProjectEditorSubtasksSection({
                     />
                   </td>
                   <td>
-                    <div className={'krds-page__subtask-table-actions'}>
+                    <div className={'subtask-actions'}>
                       <Button
                         size="medium"
                         type="submit"
@@ -209,10 +202,10 @@ export function ProjectEditorSubtasksSection({
                     <tr>
                       <td>{subtask.taskDate || '-'}</td>
                       <td>
-                        <div className={'krds-page__subtask-read-title'}>
+                        <div className={'subtask-read-title'}>
                           <strong>{subtask.title}</strong>
                           {subtask.note ? (
-                            <span className={'krds-page__subtask-read-note'}>{subtask.note}</span>
+                            <span className={'subtask-read-note'}>{subtask.note}</span>
                           ) : null}
                         </div>
                       </td>
@@ -236,7 +229,7 @@ export function ProjectEditorSubtasksSection({
                         </Badge>
                       </td>
                       <td>
-                        <div className={'krds-page__subtask-table-actions'}>
+                        <div className={'subtask-actions'}>
                           {canEdit ? (
                             <Button
                               size="medium"
@@ -257,7 +250,7 @@ export function ProjectEditorSubtasksSection({
                       </td>
                     </tr>
                     {isEditing ? (
-                      <tr className={'krds-page__subtask-edit-row'}>
+                      <tr className={'subtask-edit-row'}>
                         <td>
                           <IsoDateInput
                             id={`subtask-date-${subtask.id}`}
@@ -272,7 +265,7 @@ export function ProjectEditorSubtasksSection({
                           />
                         </td>
                         <td>
-                          <div className={'krds-page__subtask-title-stack'}>
+                          <div className={'subtask-title-stack'}>
                             <TextInput
                               size="medium"
                               id={`subtask-title-${subtask.id}`}
@@ -345,7 +338,7 @@ export function ProjectEditorSubtasksSection({
                           />
                         </td>
                         <td>
-                          <div className={'krds-page__subtask-table-actions'}>
+                          <div className={'subtask-actions'}>
                             <Button
                               size="medium"
                               type="button"

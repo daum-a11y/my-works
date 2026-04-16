@@ -97,7 +97,7 @@ export function ResourceMonthPage() {
       minutes: nonProjectMinutes,
       mm: formatMm(nonProjectMinutes, workingDays),
       fill: 'color-mix(in oklab, var(--raw-indigo-100) 82%, var(--raw-paper-2))',
-      labelColor: 'var(--text-primary)',
+      labelColor: 'var(--krds-light-color-text-primary)',
     },
     {
       key: 'buffer',
@@ -133,7 +133,7 @@ export function ResourceMonthPage() {
   const memberUnderCount = memberStatusRows.filter((member) => member.diffMinutes < 0).length;
 
   return (
-    <section className="krds-page krds-page--page">
+    <section className="krds-page page-view">
       <PageHeader title={RESOURCE_MONTH_PAGE_TITLE} />
 
       {query.isPending ? null : (

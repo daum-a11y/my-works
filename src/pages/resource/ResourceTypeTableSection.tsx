@@ -21,9 +21,9 @@ export function ResourceTypeTableSection({
 }: ResourceTypeTableSectionProps) {
   if (!years.length) {
     return (
-      <PageSection title="업무 타입 집계" className="krds-page__table-tabs-section">
-        <div className="krds-page__table-wrap krds-table-wrap">
-          <table className="krds-page__table tbl data">
+      <PageSection title="업무 타입 집계" className="table-tabs-section">
+        <div className="table-wrap krds-table-wrap">
+          <table className="krds-table tbl data">
             <caption className="sr-only">연도와 월 기준 업무 타입 집계 표</caption>
             <thead>
               <tr>
@@ -43,9 +43,9 @@ export function ResourceTypeTableSection({
   }
 
   return (
-    <PageSection title="업무 타입 집계" className="krds-page__table-tabs-section">
+    <PageSection title="업무 타입 집계" className="table-tabs-section">
       <Tab value={activeYear} onValueChange={onYearChange}>
-        <div className="krds-page__table-tabs-scroller">
+        <div className="table-tabs-scroller">
           <TabList aria-label="업무 타입 집계 연도">
             {years.map((year) => (
               <TabTrigger key={year} value={year}>
@@ -57,8 +57,8 @@ export function ResourceTypeTableSection({
 
         {activeRow ? (
           <TabPanel value={activeRow.year}>
-            <div className="krds-page__table-wrap krds-table-wrap">
-              <table className="krds-page__table tbl data">
+            <div className="table-wrap krds-table-wrap">
+              <table className="krds-table tbl data">
                 <caption className="sr-only">{activeRow.year}년 월 기준 업무 타입 집계 표</caption>
                 <thead>
                   <tr>

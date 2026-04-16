@@ -58,7 +58,7 @@ export function AdminCostGroupsPage() {
   useAlertMessage(errorMessage);
 
   return (
-    <section className="krds-page-admin krds-page-admin--page">
+    <section className="admin-page page-view">
       <PageHeader
         title="청구그룹 관리"
         actions={

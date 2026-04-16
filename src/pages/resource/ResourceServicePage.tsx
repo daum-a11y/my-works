@@ -55,7 +55,7 @@ export function ResourceServicePage() {
       <PageHeader
         title={RESOURCE_SERVICE_PAGE_TITLE}
         actions={
-          <div className="krds-page__year-actions">
+          <div className="year-actions">
             <Button
               size="medium"
               type="button"

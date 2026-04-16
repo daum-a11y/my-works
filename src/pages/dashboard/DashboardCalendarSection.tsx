@@ -23,11 +23,11 @@ export function DashboardCalendarSection({
   onShiftMonth,
 }: DashboardCalendarSectionProps) {
   return (
-    <section className="krds-page__section">
+    <section className="page-section">
       {monthState && (
-        <div className="krds-page__section-head">
-          <div className="krds-page__calendar-heading">
-            <div className="krds-page__calendar-nav" aria-label="업무일지 월 이동">
+        <div className="section-head">
+          <div className="calendar-heading">
+            <div className="calendar-nav" aria-label="업무일지 월 이동">
               <Button
                 size="medium"
                 type="button"
@@ -37,7 +37,7 @@ export function DashboardCalendarSection({
                 <ChevronLeft size={16} strokeWidth={2.4} aria-hidden="true" />
                 <span className="sr-only">이전달 보기</span>
               </Button>
-              <h2 className="krds-page__calendar-title">
+              <h2 className="calendar-title">
                 {monthState.year}년 {monthState.month}월
               </h2>
               <Button

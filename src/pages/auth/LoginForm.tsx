@@ -33,8 +33,8 @@ export function LoginForm({
   onRecovery,
 }: LoginFormProps) {
   return (
-    <div className="krds-login__form">
-      <form className="krds-login__form-shell" onSubmit={handleSubmit(onSubmit)}>
+    <div className="login-form">
+      <form className="login-form-shell" onSubmit={handleSubmit(onSubmit)}>
         <Controller
           name="email"
           control={control}
@@ -75,7 +75,7 @@ export function LoginForm({
             alerts={[{ variant: 'danger', message: `로그인 확인 필요. ${errorMessage}` }]}
           />
         ) : null}
-        <div className="krds-login__actions">
+        <div className="action-area">
           <Button
             size="medium"
             type="submit"
@@ -85,7 +85,7 @@ export function LoginForm({
             로그인
           </Button>
         </div>
-        <div className="krds-login__recovery">
+        <div className="recovery-link">
           <Button
             size="medium"
             type="button"

@@ -9,8 +9,8 @@ interface AdminCostGroupsResultsTableProps {
 
 export function AdminCostGroupsResultsTable({ costGroups }: AdminCostGroupsResultsTableProps) {
   return (
-    <div className="krds-page-admin__table-wrap krds-table-wrap">
-      <table className="krds-page-admin__table tbl data">
+    <div className="table-wrap krds-table-wrap">
+      <table className="krds-table tbl data">
         <caption className="sr-only">청구그룹 내역</caption>
         <thead>
           <tr>
@@ -22,19 +22,15 @@ export function AdminCostGroupsResultsTable({ costGroups }: AdminCostGroupsResul
         <tbody>
           {costGroups.length ? (
             costGroups.map((item) => (
-              <tr key={item.id} className={item.isActive ? '' : 'krds-page-admin__inactive-row'}>
-                <td className="krds-page-admin__row-key">{item.name}</td>
+              <tr key={item.id} className={item.isActive ? '' : 'is-muted'}>
+                <td className="row-title">{item.name}</td>
                 <td>
-                  <Badge
-                    variant="light"
-                    color={item.isActive ? 'success' : 'gray'}
-                    size="small"
-                  >
+                  <Badge variant="light" color={item.isActive ? 'success' : 'gray'} size="small">
                     {item.isActive ? '노출' : '숨김'}
                   </Badge>
                 </td>
                 <td>
-                  <div className="krds-page-admin__actions">
+                  <div className="action-group">
                     <Button as={RouterLink} to={`/admin/cost-group/${item.id}/edit`} role="link">
                       수정
                     </Button>

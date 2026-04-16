@@ -63,7 +63,7 @@ export function ReportsEditorForm({
 }: ReportsEditorFormProps) {
   return (
     <PageSection
-      className="krds-page__panel"
+      className="content-panel"
       title={mode === 'edit' ? '업무 수정' : '업무 등록'}
       actions={
         mode === 'edit' ? (
@@ -73,9 +73,9 @@ export function ReportsEditorForm({
         ) : null
       }
     >
-      <form className="krds-page__form" onSubmit={onSubmit}>
-        <div className="krds-page__step">
-          <div className="krds-page__form-grid krds-page__form-grid--compact">
+      <form className="krds-form" onSubmit={onSubmit}>
+        <div className="form-step">
+          <div className="form-grid is-compact">
             <Select
               size="medium"
               id="report-editor-cost-group"
@@ -135,8 +135,8 @@ export function ReportsEditorForm({
         </div>
 
         {showProjectLookupStep ? (
-          <div className="krds-page__step">
-            <div className="krds-page__project-lookup">
+          <div className="form-step">
+            <div className="project-lookup">
               <TextInput
                 size="medium"
                 id="report-editor-project-search"
@@ -148,7 +148,7 @@ export function ReportsEditorForm({
                 style={{ width: '100%' }}
               />
 
-              <div className="krds-page__search-button-field">
+              <div className="search-button-field">
                 <span className="sr-only">프로젝트 검색</span>
                 <Button size="medium" type="button" variant="secondary" onClick={onProjectSearch}>
                   검색
@@ -196,8 +196,8 @@ export function ReportsEditorForm({
         ) : null}
 
         {showTaskStep ? (
-          <div className="krds-page__step">
-            <div className="krds-page__form-grid">
+          <div className="form-step">
+            <div className="form-grid">
               <TextInput
                 size="medium"
                 id="report-editor-content"
@@ -242,7 +242,7 @@ export function ReportsEditorForm({
           </div>
         ) : null}
 
-        <div className="krds-page__action-row">
+        <div className="action-area">
           <Button
             size="medium"
             type="submit"

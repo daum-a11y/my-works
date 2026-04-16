@@ -216,7 +216,7 @@ export function AdminCostGroupEditorPage() {
 
   if (costGroupsQuery.isLoading && isEditMode) {
     return (
-      <section className="krds-page krds-page__shell krds-page__editor-shell">
+      <section className="krds-page page-shell editor-shell">
         <div
           style={{
             display: 'flex',
@@ -236,7 +236,7 @@ export function AdminCostGroupEditorPage() {
 
   if (isEditMode && !selectedCostGroup && !costGroupsQuery.isLoading) {
     return (
-      <section className="krds-page krds-page__shell krds-page__editor-shell">
+      <section className="krds-page page-shell editor-shell">
         <PageHeader title="청구그룹 수정" />
         <CriticalAlert alerts={[{ variant: 'info', message: '청구그룹을 찾을 수 없습니다.' }]} />
       </section>
@@ -244,13 +244,10 @@ export function AdminCostGroupEditorPage() {
   }
 
   return (
-    <section className="krds-page krds-page__shell krds-page__editor-shell">
+    <section className="krds-page page-shell editor-shell">
       <PageHeader title={isEditMode ? '청구그룹 수정' : '청구그룹 추가'} />
-      <section className="krds-page__editor-surface" aria-label="청구그룹 편집 패널">
-        <form
-          className="krds-page__detail-form krds-page__editor-detail-form"
-          onSubmit={handleSubmit}
-        >
+      <section className="editor-surface" aria-label="청구그룹 편집 패널">
+        <form className="detail-form editor-detail-form" onSubmit={handleSubmit}>
           <AdminCostGroupEditorForm
             draft={draft}
             titleRef={titleRef}

@@ -16,7 +16,7 @@ export function AdminServiceGroupEditorForm({
   onDraftChange,
 }: AdminServiceGroupEditorFormProps) {
   return (
-    <div className={'krds-page__editor-form-grid'}>
+    <div className={'form-grid'}>
       <Select
         size="medium"
         id="admin-service-group-cost-group"

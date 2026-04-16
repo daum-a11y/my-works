@@ -43,10 +43,10 @@ export function ResourceMonthContextSection({
   memberUnderCount,
 }: ResourceMonthContextSectionProps) {
   return (
-    <section className="krds-page__month-context">
-      <div className="krds-page__section-head">
-        <div className="krds-page__calendar-heading">
-          <div className="krds-page__calendar-nav" aria-label="월간 리포트 월 이동">
+    <section className="month-context">
+      <div className="section-head">
+        <div className="calendar-heading">
+          <div className="calendar-nav" aria-label="월간 리포트 월 이동">
             <Button
               as={RouterLink}
               to={`/resource/month/${beforeMonth}`}
@@ -57,7 +57,7 @@ export function ResourceMonthContextSection({
               <ChevronLeft size={16} strokeWidth={2.4} aria-hidden="true" />
               <span className="sr-only">이전달 보기</span>
             </Button>
-            <h2 className="krds-page__calendar-title">
+            <h2 className="calendar-title">
               {year}년 {month}월
             </h2>
             <Button
@@ -74,7 +74,7 @@ export function ResourceMonthContextSection({
         </div>
       </div>
 
-      <StructuredList className="krds-page__summary-facts sm">
+      <StructuredList className="summary-facts sm">
         {summaryItems.map((item, index) => (
           <li key={`${item.label}-${index}`} className="structured-item">
             <div className="in">
@@ -90,8 +90,8 @@ export function ResourceMonthContextSection({
       </StructuredList>
 
       {distributionItems.length ? (
-        <div className="krds-page__chart-surface">
-          <div className="krds-page__chart-frame" role="img" aria-label="월간 리소스 배분 현황">
+        <div className="chart-surface">
+          <div className="chart-frame" role="img" aria-label="월간 리소스 배분 현황">
             <ResponsiveContainer width="100%" height={52}>
               <BarChart
                 data={distributionChartData}
@@ -134,7 +134,7 @@ export function ResourceMonthContextSection({
               {memberUnderCount}명
             </Accordion.Header>
             <Accordion.Panel>
-              <div className="krds-page__badge-row">
+              <div className="badge-row">
                 {memberStatusRows.map((member) => {
                   const color =
                     member.diffMinutes < 0

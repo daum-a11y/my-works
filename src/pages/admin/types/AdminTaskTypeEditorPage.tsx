@@ -248,7 +248,7 @@ export function AdminTaskTypeEditorPage() {
 
   if (taskTypesQuery.isLoading && isEditMode) {
     return (
-      <section className="krds-page krds-page__shell krds-page__editor-shell">
+      <section className="krds-page page-shell editor-shell">
         <div
           style={{
             display: 'flex',
@@ -268,7 +268,7 @@ export function AdminTaskTypeEditorPage() {
 
   if (isEditMode && !selectedTaskType && !taskTypesQuery.isLoading) {
     return (
-      <section className="krds-page krds-page__shell krds-page__editor-shell">
+      <section className="krds-page page-shell editor-shell">
         <PageHeader title="업무 타입 수정" />
         <CriticalAlert alerts={[{ variant: 'info', message: '업무 타입을 찾을 수 없습니다.' }]} />
       </section>
@@ -276,13 +276,10 @@ export function AdminTaskTypeEditorPage() {
   }
 
   return (
-    <section className="krds-page krds-page__shell krds-page__editor-shell">
+    <section className="krds-page page-shell editor-shell">
       <PageHeader title={isEditMode ? '업무 타입 수정' : '업무 타입 추가'} />
-      <PageSection title="업무 타입 정보" className="krds-page__editor-surface">
-        <form
-          className="krds-page__detail-form krds-page__editor-detail-form"
-          onSubmit={handleSubmit}
-        >
+      <PageSection title="업무 타입 정보" className="editor-surface">
+        <form className="detail-form editor-detail-form" onSubmit={handleSubmit}>
           <AdminTaskTypeEditorForm
             draft={draft}
             titleRef={titleRef}

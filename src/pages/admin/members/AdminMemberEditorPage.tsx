@@ -232,7 +232,7 @@ export function AdminMemberEditorPage() {
 
   if (membersQuery.isLoading && isEditMode) {
     return (
-      <section className="krds-page krds-page__shell krds-page__editor-shell">
+      <section className="krds-page page-shell editor-shell">
         <div
           style={{
             display: 'flex',
@@ -252,7 +252,7 @@ export function AdminMemberEditorPage() {
 
   if (isEditMode && !selectedMember && !membersQuery.isLoading) {
     return (
-      <section className="krds-page krds-page__shell krds-page__editor-shell">
+      <section className="krds-page page-shell editor-shell">
         <PageHeader title={ADMIN_MEMBER_EDITOR_EDIT_TITLE} />
         <CriticalAlert alerts={[{ variant: 'info', message: '사용자 정보를 찾을 수 없습니다.' }]} />
       </section>
@@ -260,15 +260,12 @@ export function AdminMemberEditorPage() {
   }
 
   return (
-    <section className="krds-page krds-page__shell krds-page__editor-shell">
+    <section className="krds-page page-shell editor-shell">
       <PageHeader
         title={isEditMode ? ADMIN_MEMBER_EDITOR_EDIT_TITLE : ADMIN_MEMBER_EDITOR_CREATE_TITLE}
       />
-      <section className="krds-page__editor-surface" aria-label="사용자 편집 패널">
-        <form
-          className="krds-page__detail-form krds-page__editor-detail-form"
-          onSubmit={handleSubmit}
-        >
+      <section className="editor-surface" aria-label="사용자 편집 패널">
+        <form className="detail-form editor-detail-form" onSubmit={handleSubmit}>
           <AdminMemberEditorBasicSection
             draft={draft}
             isInactiveMember={Boolean(isInactiveMember)}
