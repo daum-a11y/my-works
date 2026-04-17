@@ -58,45 +58,47 @@ export function LoginPage() {
   const isBusy = isSubmitting;
 
   return (
-    <AuthPageLayout
-      caption="로그인"
-      labelledBy="login-title"
-      body={
-        <LoginForm
-          errorMessage={errorMessage}
-          noticeMessage={noticeMessage}
-          isBusy={isBusy}
-          isSupabaseConfigured={isSupabaseConfigured}
-          errors={errors}
-          control={control}
-          handleSubmit={handleSubmit}
-          onSubmit={async (values) => {
-            try {
-              setErrorMessage('');
-              setNoticeMessage('');
-              await login(values.email, values.password);
-            } catch (error) {
-              setErrorMessage(error instanceof Error ? error.message : '로그인에 실패했습니다.');
-            }
-          }}
-          onRecovery={() => {
-            navigate('/forgot-password');
-          }}
+    <>
+      {!isSupabaseConfigured ? (
+        <CriticalAlert
+          alerts={[
+            {
+              variant: 'danger',
+              message: '환경 설정 필요합니다. 관리자에게 문의하세요.',
+            },
+          ]}
         />
-      }
-      aside={
-        !isSupabaseConfigured ? (
-          <CriticalAlert
-            alerts={[
-              {
-                variant: 'info',
-                message:
-                  '환경 설정 필요. `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`가 설정되어야 로그인할 수 있습니다.',
-              },
-            ]}
-          />
-        ) : null
-      }
-    />
+      ) : (
+        <AuthPageLayout
+          caption="로그인"
+          labelledBy="login-title"
+          body={
+            <LoginForm
+              errorMessage={errorMessage}
+              noticeMessage={noticeMessage}
+              isBusy={isBusy}
+              isSupabaseConfigured={isSupabaseConfigured}
+              errors={errors}
+              control={control}
+              handleSubmit={handleSubmit}
+              onSubmit={async (values) => {
+                try {
+                  setErrorMessage('');
+                  setNoticeMessage('');
+                  await login(values.email, values.password);
+                } catch (error) {
+                  setErrorMessage(
+                    error instanceof Error ? error.message : '로그인에 실패했습니다.',
+                  );
+                }
+              }}
+              onRecovery={() => {
+                navigate('/forgot-password');
+              }}
+            />
+          }
+        />
+      )}
+    </>
   );
 }
