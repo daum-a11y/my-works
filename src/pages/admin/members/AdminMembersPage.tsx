@@ -15,7 +15,7 @@ export function AdminMembersPage() {
   useAlertMessage(page.errorMessage);
 
   return (
-    <section className={'admin-page page-view'}>
+    <section className="krds-page admin-page page-view">
       <PageHeader
         title="사용자 관리"
         actions={

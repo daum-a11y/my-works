@@ -109,7 +109,7 @@ export function AdminTaskTypeTransferDialog({
             <StructuredList className="sm">
               <li className="structured-item">
                 <div className="in">
-                  <div className="card-body">
+                  <div className="krds-structured-list__body card-body">
                     <div className="c-text">
                       <strong className="c-tit">현재 항목</strong>
                       <span className="c-txt">{formatTaskType(sourceTaskType)}</span>

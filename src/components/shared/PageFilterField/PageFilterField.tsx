@@ -60,18 +60,18 @@ export function PageFilterField({ label, className, children, ...props }: PageFi
 
   if (usesChildLabel) {
     return (
-      <div className={clsx(className)} {...props}>
+      <div className={clsx('krds-filter-field', 'filter-field', className)} {...props}>
         {enhancedChildren}
       </div>
     );
   }
 
   return (
-    <div className={clsx('form-group', className)} {...props}>
-      <div className="form-tit">
+    <div className={clsx('krds-filter-field', 'filter-field', 'form-group', className)} {...props}>
+      <div className="krds-filter-field__label form-tit">
         <label id={labelId}>{label}</label>
       </div>
-      <div className="form-conts">{enhancedChildren}</div>
+      <div className="krds-filter-field__control form-conts">{enhancedChildren}</div>
     </div>
   );
 }

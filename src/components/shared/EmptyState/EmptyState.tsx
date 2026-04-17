@@ -8,9 +8,9 @@ export interface EmptyStateProps extends ComponentPropsWithoutRef<'div'> {
 
 export function EmptyState({ message, description, className, ...props }: EmptyStateProps) {
   return (
-    <div className={clsx('empty-state', className)} {...props}>
-      <p>{message}</p>
-      {description ? <p>{description}</p> : null}
+    <div className={clsx('krds-empty-state', 'empty-state', className)} {...props}>
+      <p className="krds-empty-state__title">{message}</p>
+      {description ? <p className="krds-empty-state__description">{description}</p> : null}
     </div>
   );
 }

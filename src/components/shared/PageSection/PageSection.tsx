@@ -26,17 +26,21 @@ export function PageSection({
   ...props
 }: PageSectionProps) {
   return (
-    <section className={className} data-variant={variant} {...props}>
-      <div className={clsx('page-title-wrap', { between: Boolean(actions) })}>
-        <div>
+    <section className={clsx('krds-page-section', className)} data-variant={variant} {...props}>
+      <div
+        className={clsx('krds-page-section__head', 'page-title-wrap', {
+          between: Boolean(actions),
+        })}
+      >
+        <div className="krds-page-section__text">
           <h2 id={titleId} className="h-tit">
             {title}
           </h2>
           {description ? <div>{description}</div> : null}
         </div>
-        {actions}
+        {actions ? <div className="krds-page-section__actions">{actions}</div> : null}
       </div>
-      {children}
+      <div className="krds-page-section__body">{children}</div>
     </section>
   );
 }

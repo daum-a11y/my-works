@@ -26,12 +26,12 @@ function renderListItems(content: ReactNode): ReactNode[] {
 
 export function PageResultBar({ metrics, controls, className, ...props }: PageResultBarProps) {
   return (
-    <section className={clsx('search-list-top', className)} {...props}>
-      <TextList type="dash" className="sch-info" aria-live="polite">
+    <section className={clsx('krds-result-bar', 'search-list-top', className)} {...props}>
+      <TextList type="dash" className="krds-result-bar__metrics sch-info" aria-live="polite">
         {renderListItems(metrics)}
       </TextList>
       {controls ? (
-        <ul className="sch-sort">
+        <ul className="krds-result-bar__controls sch-sort">
           <li className="m-hide">{controls}</li>
         </ul>
       ) : null}

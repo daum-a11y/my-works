@@ -129,7 +129,7 @@ export function AdminReportEditorForm({
 }: AdminReportEditorFormProps) {
   return (
     <PageSection
-      className={'content-panel form-panel'}
+      className={'krds-work-panel content-panel form-panel'}
       title="업무 입력"
       description={<p className={'date-text'}>{draft.reportDate || getTodayInputValue()}</p>}
       actions={

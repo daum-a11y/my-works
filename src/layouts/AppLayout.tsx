@@ -145,7 +145,7 @@ export function AppLayout() {
 
       <Header>
         <Header.Container>
-          <div className="header-branding">
+          <div className="app-shell__header header-branding">
             <h2>
               <NavLink to="/dashboard" aria-label="MY WORKS 홈">
                 <BrandLogo alt="MY WORKS" width={100} height={30} />
@@ -225,10 +225,11 @@ export function AppLayout() {
         </Header.Container>
       </Header>
 
-      <div id="container">
-        <div className="inner in-between">
+      <div id="container" className="app-shell">
+        <div className="app-shell__body inner in-between">
           <SideNavigation
             aria-label="사이드 메뉴"
+            className="app-shell__navigation"
             onClickCapture={(event) => {
               const target = event.target as HTMLElement;
               const anchor = target.closest('a') as HTMLAnchorElement | null;
@@ -306,7 +307,7 @@ export function AppLayout() {
           </SideNavigation>
 
           <div
-            className="contents"
+            className="app-shell__content contents"
             onClickCapture={(event) => {
               const target = event.target as HTMLElement;
               const anchor = target.closest('.krds-breadcrumb-wrap a') as HTMLAnchorElement | null;
@@ -317,7 +318,11 @@ export function AppLayout() {
             }}
           >
             {activeFetchCount > 0 ? (
-              <div className="global-loading-spinner is-overlay" aria-label="로딩 중" role="status">
+              <div
+                className="app-shell__fetching global-loading-spinner is-overlay"
+                aria-label="로딩 중"
+                role="status"
+              >
                 <Spinner />
               </div>
             ) : null}
@@ -325,13 +330,13 @@ export function AppLayout() {
               <CriticalAlert alerts={[{ variant: 'danger', message: logoutError }]} />
             ) : null}
             <Breadcrumb items={breadcrumbItems} ariaLabel="브래드크럼" />
-            <main id="main-content" className="conts-area">
+            <main id="main-content" className="app-shell__main conts-area">
               <Outlet />
             </main>
           </div>
         </div>
       </div>
-      <footer id="krds-footer" className="">
+      <footer id="krds-footer" className="app-shell__footer">
         <div className="inner">
           <div className="f-btm">
             <div className="f-btm-text">

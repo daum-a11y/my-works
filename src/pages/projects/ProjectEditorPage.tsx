@@ -34,7 +34,7 @@ import {
 } from './ProjectEditorPage.draft';
 import { splitServiceGroupName } from './ProjectEditorPage.service';
 import { useAlertMessage } from '../../hooks/useAlertMessage';
-import { PageHeader } from '../../components/shared';
+import { PageHeader, PageSection } from '../../components/shared';
 
 function getProjectEditorErrorMessage(error: unknown, fallback: string) {
   const message =
@@ -499,7 +499,7 @@ export function ProjectEditorPage() {
         <CriticalAlert alerts={[{ variant: 'ok', message: statusMessage }]} />
       ) : null}
 
-      <section className="page-section" aria-label="프로젝트 편집 패널">
+      <PageSection title="프로젝트 기본 정보" aria-label="프로젝트 편집 패널">
         <form className="krds-form" onSubmit={handleProjectSave}>
           <ProjectEditorForm
             projectDraft={projectDraft}
@@ -534,10 +534,10 @@ export function ProjectEditorPage() {
             onDelete={() => void handleProjectDelete()}
           />
         </form>
-      </section>
+      </PageSection>
 
       {isEditMode && selectedProject ? (
-        <section aria-label="태스크 목록 패널">
+        <PageSection title="태스크 목록" aria-label="태스크 목록 패널">
           <ProjectEditorSubtasksSection
             subtaskAddOpen={subtaskAddOpen}
             newSubtaskDraft={newSubtaskDraft}
@@ -564,7 +564,7 @@ export function ProjectEditorPage() {
             savePending={saveSubtaskMutation.isPending}
             toSubtaskDraft={toSubtaskDraft}
           />
-        </section>
+        </PageSection>
       ) : null}
     </section>
   );

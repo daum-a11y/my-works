@@ -33,7 +33,7 @@ export function PendingApprovalPage() {
             ].map((item, index) => (
               <li key={`${item.label}-${index}`} className="structured-item">
                 <div className="in">
-                  <div className="card-body">
+                  <div className="krds-structured-list__body card-body">
                     <div className="c-text">
                       <strong className="c-tit">{item.label}</strong>
                       <span className="c-txt">{item.value}</span>

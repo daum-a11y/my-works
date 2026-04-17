@@ -63,7 +63,7 @@ export function ReportsEditorForm({
 }: ReportsEditorFormProps) {
   return (
     <PageSection
-      className="content-panel"
+      className="krds-work-panel content-panel"
       title={mode === 'edit' ? '업무 수정' : '업무 등록'}
       actions={
         mode === 'edit' ? (

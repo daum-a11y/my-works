@@ -26,16 +26,21 @@ export function PageHeader({
 }: PageHeaderProps) {
   return (
     <header
-      className={clsx('page-title-wrap', { between: Boolean(actions) }, className)}
+      className={clsx(
+        'krds-page-header',
+        'page-title-wrap',
+        { between: Boolean(actions) },
+        className,
+      )}
       data-align={align}
       {...props}
     >
-      <div>
+      <div className="krds-page-header__text">
         {kicker ? <p>{kicker}</p> : null}
         <h1 className="h-tit">{title}</h1>
         {description ? <div>{description}</div> : null}
       </div>
-      {actions}
+      {actions ? <div className="krds-page-header__actions">{actions}</div> : null}
     </header>
   );
 }

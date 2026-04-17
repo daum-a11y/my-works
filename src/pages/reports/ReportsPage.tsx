@@ -243,7 +243,9 @@ export function ReportsPage() {
           />
         ) : null}
 
-        <section className={canEditReports ? 'content-panel is-results' : undefined}>
+        <section
+          className={canEditReports ? 'krds-work-panel content-panel is-results' : undefined}
+        >
           {statusMessage && statusKind !== 'error' ? (
             <CriticalAlert
               alerts={[
