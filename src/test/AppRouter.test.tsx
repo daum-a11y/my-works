@@ -35,7 +35,7 @@ vi.mock('../pages/admin/groups/AdminServiceGroupsPage', () => ({
 }));
 
 vi.mock('../pages/admin/groups/AdminServiceGroupEditorPage', () => ({
-  AdminServiceGroupEditorPage: () => <div>admin-group-editor-page</div>,
+  AdminServiceGroupEditorPage: () => <div>admin-group-form-screen</div>,
 }));
 
 vi.mock('../pages/admin/members/AdminMembersPage', () => ({
@@ -43,7 +43,7 @@ vi.mock('../pages/admin/members/AdminMembersPage', () => ({
 }));
 
 vi.mock('../pages/admin/reports/AdminReportEditorPage', () => ({
-  AdminReportEditorPage: () => <div>admin-report-editor-page</div>,
+  AdminReportEditorPage: () => <div>admin-report-form-screen</div>,
 }));
 
 vi.mock('../pages/admin/reports/AdminReportsPage', () => ({
@@ -55,7 +55,7 @@ vi.mock('../pages/admin/types/AdminTaskTypesPage', () => ({
 }));
 
 vi.mock('../pages/admin/types/AdminTaskTypeEditorPage', () => ({
-  AdminTaskTypeEditorPage: () => <div>admin-task-type-editor-page</div>,
+  AdminTaskTypeEditorPage: () => <div>admin-task-type-form-screen</div>,
 }));
 
 vi.mock('../pages/notFound', () => ({
@@ -64,7 +64,7 @@ vi.mock('../pages/notFound', () => ({
 
 vi.mock('../pages/projects', () => ({
   ProjectsPage: () => <div>projects-page</div>,
-  ProjectEditorPage: () => <div>project-editor-page</div>,
+  ProjectEditorPage: () => <div>project-form-screen</div>,
 }));
 
 vi.mock('../pages/reports', () => ({

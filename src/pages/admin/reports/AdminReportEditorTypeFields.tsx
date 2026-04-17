@@ -1,12 +1,5 @@
-import type { CSSProperties } from 'react';
 import type { ReportDraft } from '../../reports/reportUtils';
 import { Select, TextInput } from 'krds-react';
-
-const gridStyle: CSSProperties = {
-  display: 'grid',
-  gap: '1rem',
-  gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-};
 
 interface AdminReportEditorTypeFieldsProps {
   draft: ReportDraft;
@@ -34,7 +27,7 @@ export function AdminReportEditorTypeFields({
   onType2Change,
 }: AdminReportEditorTypeFieldsProps) {
   return (
-    <div style={gridStyle}>
+    <div className={'form-grid'}>
       {projectTypeSelected ? (
         <TextInput
           size="medium"

@@ -20,7 +20,7 @@ export function AdminMemberEditorBasicSection({
 }: AdminMemberEditorBasicSectionProps) {
   return (
     <PageSection
-      className={'editor-section'}
+      className={'page-section'}
       title={ADMIN_MEMBER_EDITOR_BASIC_SECTION_TITLE}
       titleId="member-basic-section"
       aria-labelledby="member-basic-section"

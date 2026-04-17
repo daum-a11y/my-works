@@ -232,18 +232,8 @@ export function AdminMemberEditorPage() {
 
   if (membersQuery.isLoading && isEditMode) {
     return (
-      <section className="krds-page page-shell editor-shell">
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            minHeight: '96px',
-          }}
-          className="global-loading-spinner"
-          aria-label="로딩 중"
-          role="status"
-        >
+      <section className="krds-page form-page">
+        <div className="global-loading-spinner" aria-label="로딩 중" role="status">
           <Spinner />
         </div>
       </section>
@@ -252,7 +242,7 @@ export function AdminMemberEditorPage() {
 
   if (isEditMode && !selectedMember && !membersQuery.isLoading) {
     return (
-      <section className="krds-page page-shell editor-shell">
+      <section className="krds-page form-page">
         <PageHeader title={ADMIN_MEMBER_EDITOR_EDIT_TITLE} />
         <CriticalAlert alerts={[{ variant: 'info', message: '사용자 정보를 찾을 수 없습니다.' }]} />
       </section>
@@ -260,12 +250,12 @@ export function AdminMemberEditorPage() {
   }
 
   return (
-    <section className="krds-page page-shell editor-shell">
+    <section className="krds-page form-page">
       <PageHeader
         title={isEditMode ? ADMIN_MEMBER_EDITOR_EDIT_TITLE : ADMIN_MEMBER_EDITOR_CREATE_TITLE}
       />
-      <section className="editor-surface" aria-label="사용자 편집 패널">
-        <form className="detail-form editor-detail-form" onSubmit={handleSubmit}>
+      <section className="page-section" aria-label="사용자 편집 패널">
+        <form className="krds-form" onSubmit={handleSubmit}>
           <AdminMemberEditorBasicSection
             draft={draft}
             isInactiveMember={Boolean(isInactiveMember)}

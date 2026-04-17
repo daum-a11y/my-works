@@ -1,13 +1,6 @@
-import type { CSSProperties, ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { Button } from 'krds-react';
 import { getTodayInputValue, shiftDateInput, type ReportDraft } from '../../reports/reportUtils';
-
-const actionRowStyle: CSSProperties = {
-  display: 'flex',
-  flexWrap: 'wrap',
-  gap: '0.75rem',
-  alignItems: 'center',
-};
 
 interface AdminReportEditorActionRowProps {
   draft: ReportDraft;
@@ -27,7 +20,7 @@ export function AdminReportEditorActionRow({
   const baseDate = draft.reportDate || getTodayInputValue();
 
   return (
-    <div className={'action-area'} style={actionRowStyle}>
+    <div className={'action-area'}>
       <Button size="medium" type="submit" variant="primary" disabled={disabled}>
         {onSubmitLabel}
       </Button>

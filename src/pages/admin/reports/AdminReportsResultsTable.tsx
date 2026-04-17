@@ -139,7 +139,7 @@ export function AdminReportsResultsTable({
                     <td>{task.taskDate}</td>
                     <td>
                       <strong>{task.memberAccountId || task.memberId}</strong>
-                      <div className={'meta-text'}>{task.memberName}</div>
+                      <div className={'description-text'}>{task.memberName}</div>
                     </td>
                     <td>{task.costGroupName || '-'}</td>
                     <td>{task.taskType1}</td>

@@ -1,13 +1,6 @@
-import type { CSSProperties } from 'react';
 import { type ReportDraft } from '../../reports/reportUtils';
 import { Select, TextInput } from 'krds-react';
 import type { MemberAdminItem } from '../admin.types';
-
-const gridStyle: CSSProperties = {
-  display: 'grid',
-  gap: '1rem',
-  gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-};
 
 interface AdminReportEditorBasicFieldsProps {
   isEdit: boolean;
@@ -31,7 +24,7 @@ export function AdminReportEditorBasicFields({
   parseCompactDate,
 }: AdminReportEditorBasicFieldsProps) {
   return (
-    <div className={'form-grid'} style={gridStyle}>
+    <div className={'form-grid'}>
       <Select
         size="medium"
         id="admin-report-editor-member"

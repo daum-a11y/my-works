@@ -20,7 +20,7 @@ export function AdminMemberEditorStatusSection({
 }: AdminMemberEditorStatusSectionProps) {
   return (
     <PageSection
-      className={'editor-section'}
+      className={'page-section'}
       title={ADMIN_MEMBER_EDITOR_STATUS_SECTION_TITLE}
       titleId="member-status-section"
       aria-labelledby="member-status-section"

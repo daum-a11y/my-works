@@ -52,7 +52,7 @@ export function ProjectEditorSubtasksSection({
   return (
     <PageSection
       title="태스크 목록"
-      className={'subtask-section'}
+      className={'page-section'}
       actions={
         <Button
           size="medium"
@@ -66,12 +66,12 @@ export function ProjectEditorSubtasksSection({
       }
     >
       {subtaskAddOpen && newSubtaskDraft ? (
-        <form id={addFormId} className={'subtask-add-form'} onSubmit={onAddSubmit} />
+        <form id={addFormId} className={'hidden-form'} onSubmit={onAddSubmit} />
       ) : null}
 
       {showSubtaskTable ? (
-        <div className={'subtask-table-wrap krds-table-wrap'}>
-          <table className={'subtask-table tbl data'}>
+        <div className={'table-wrap krds-table-wrap'}>
+          <table className={'krds-table tbl data'}>
             <caption className={'sr-only'}>태스크 리스트</caption>
             <thead>
               <tr>
@@ -89,7 +89,7 @@ export function ProjectEditorSubtasksSection({
             </thead>
             <tbody>
               {subtaskAddOpen && newSubtaskDraft ? (
-                <tr className={'subtask-add-row'}>
+                <tr className={'form-row'}>
                   <td>
                     <IsoDateInput
                       id="new-subtask-date"
@@ -101,7 +101,7 @@ export function ProjectEditorSubtasksSection({
                     />
                   </td>
                   <td>
-                    <div className={'subtask-title-stack'}>
+                    <div className={'field-stack'}>
                       <TextInput
                         size="medium"
                         id="new-subtask-title"
@@ -174,7 +174,7 @@ export function ProjectEditorSubtasksSection({
                     />
                   </td>
                   <td>
-                    <div className={'subtask-actions'}>
+                    <div className={'action-group'}>
                       <Button
                         size="medium"
                         type="submit"
@@ -202,10 +202,10 @@ export function ProjectEditorSubtasksSection({
                     <tr>
                       <td>{subtask.taskDate || '-'}</td>
                       <td>
-                        <div className={'subtask-read-title'}>
+                        <div className={'text-stack'}>
                           <strong>{subtask.title}</strong>
                           {subtask.note ? (
-                            <span className={'subtask-read-note'}>{subtask.note}</span>
+                            <span className={'description-text'}>{subtask.note}</span>
                           ) : null}
                         </div>
                       </td>
@@ -229,7 +229,7 @@ export function ProjectEditorSubtasksSection({
                         </Badge>
                       </td>
                       <td>
-                        <div className={'subtask-actions'}>
+                        <div className={'action-group'}>
                           {canEdit ? (
                             <Button
                               size="medium"
@@ -250,7 +250,7 @@ export function ProjectEditorSubtasksSection({
                       </td>
                     </tr>
                     {isEditing ? (
-                      <tr className={'subtask-edit-row'}>
+                      <tr className={'form-row'}>
                         <td>
                           <IsoDateInput
                             id={`subtask-date-${subtask.id}`}
@@ -265,7 +265,7 @@ export function ProjectEditorSubtasksSection({
                           />
                         </td>
                         <td>
-                          <div className={'subtask-title-stack'}>
+                          <div className={'field-stack'}>
                             <TextInput
                               size="medium"
                               id={`subtask-title-${subtask.id}`}
@@ -338,7 +338,7 @@ export function ProjectEditorSubtasksSection({
                           />
                         </td>
                         <td>
-                          <div className={'subtask-actions'}>
+                          <div className={'action-group'}>
                             <Button
                               size="medium"
                               type="button"

@@ -55,7 +55,7 @@ export function ResourceTypePage() {
       <PageHeader
         title={RESOURCE_TYPE_PAGE_TITLE}
         actions={
-          <div className="year-actions">
+          <div className="action-group">
             <Button
               size="medium"
               type="button"

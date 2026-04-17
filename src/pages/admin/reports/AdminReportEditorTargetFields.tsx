@@ -1,12 +1,5 @@
-import type { CSSProperties } from 'react';
 import type { ReportDraft, ProjectViewModel } from '../../reports/reportUtils';
 import { Select, TextInput } from 'krds-react';
-
-const gridStyle: CSSProperties = {
-  display: 'grid',
-  gap: '1rem',
-  gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-};
 
 interface AdminReportEditorTargetFieldsProps {
   draft: ReportDraft;
@@ -46,7 +39,7 @@ export function AdminReportEditorTargetFields({
   onTaskUsedtimeChange,
 }: AdminReportEditorTargetFieldsProps) {
   return (
-    <div style={gridStyle}>
+    <div className={'form-grid'}>
       {showProjectSelect && !isProjectLinkedTab ? (
         <Select
           size="medium"

@@ -16,7 +16,7 @@ export function AdminMemberEditorNoteSection({
 }: AdminMemberEditorNoteSectionProps) {
   return (
     <PageSection
-      className={'editor-section'}
+      className={'page-section'}
       title={ADMIN_MEMBER_EDITOR_NOTE_SECTION_TITLE}
       titleId="member-note-section"
       aria-labelledby="member-note-section"

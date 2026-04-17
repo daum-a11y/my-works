@@ -216,18 +216,8 @@ export function AdminCostGroupEditorPage() {
 
   if (costGroupsQuery.isLoading && isEditMode) {
     return (
-      <section className="krds-page page-shell editor-shell">
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            minHeight: '96px',
-          }}
-          className="global-loading-spinner"
-          aria-label="로딩 중"
-          role="status"
-        >
+      <section className="krds-page form-page">
+        <div className="global-loading-spinner" aria-label="로딩 중" role="status">
           <Spinner />
         </div>
       </section>
@@ -236,7 +226,7 @@ export function AdminCostGroupEditorPage() {
 
   if (isEditMode && !selectedCostGroup && !costGroupsQuery.isLoading) {
     return (
-      <section className="krds-page page-shell editor-shell">
+      <section className="krds-page form-page">
         <PageHeader title="청구그룹 수정" />
         <CriticalAlert alerts={[{ variant: 'info', message: '청구그룹을 찾을 수 없습니다.' }]} />
       </section>
@@ -244,10 +234,10 @@ export function AdminCostGroupEditorPage() {
   }
 
   return (
-    <section className="krds-page page-shell editor-shell">
+    <section className="krds-page form-page">
       <PageHeader title={isEditMode ? '청구그룹 수정' : '청구그룹 추가'} />
-      <section className="editor-surface" aria-label="청구그룹 편집 패널">
-        <form className="detail-form editor-detail-form" onSubmit={handleSubmit}>
+      <section className="page-section" aria-label="청구그룹 편집 패널">
+        <form className="krds-form" onSubmit={handleSubmit}>
           <AdminCostGroupEditorForm
             draft={draft}
             titleRef={titleRef}

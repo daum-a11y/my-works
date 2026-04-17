@@ -29,8 +29,8 @@ export function AdminTaskTypeEditorActionRow({
   onViewTasks,
 }: AdminTaskTypeEditorActionRowProps) {
   return (
-    <div className="form-actions editor-actions">
-      <div className={'editor-actions is-start'}>
+    <div className="action-area">
+      <div className={'action-group is-start'}>
         {isEditMode ? (
           <>
             <Button
@@ -68,7 +68,7 @@ export function AdminTaskTypeEditorActionRow({
           </>
         ) : null}
       </div>
-      <div className={'editor-actions is-end'}>
+      <div className={'action-group is-end'}>
         <Button as={RouterLink} to="/admin/type" role="link">
           취소
         </Button>

@@ -442,7 +442,7 @@ export function ProjectEditorPage() {
 
   if (loading) {
     return (
-      <section className="krds-page page-shell editor-page">
+      <section className="krds-page form-page">
         <PageHeader
           title={isEditMode ? PROJECT_EDITOR_EDIT_TITLE : PROJECT_EDITOR_CREATE_TITLE}
           actions={
@@ -453,17 +453,7 @@ export function ProjectEditorPage() {
             ) : null
           }
         />
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            minHeight: '96px',
-          }}
-          className="global-loading-spinner"
-          aria-label="로딩 중"
-          role="status"
-        >
+        <div className="global-loading-spinner" aria-label="로딩 중" role="status">
           <Spinner />
         </div>
       </section>
@@ -472,7 +462,7 @@ export function ProjectEditorPage() {
 
   if (queryError) {
     return (
-      <section className="krds-page page-shell editor-page">
+      <section className="krds-page form-page">
         <PageHeader
           title={isEditMode ? PROJECT_EDITOR_EDIT_TITLE : PROJECT_EDITOR_CREATE_TITLE}
           actions={
@@ -487,7 +477,7 @@ export function ProjectEditorPage() {
 
   if (isEditMode && !selectedProject) {
     return (
-      <section className="krds-page page-shell editor-page">
+      <section className="krds-page form-page">
         <PageHeader
           title={PROJECT_EDITOR_EDIT_TITLE}
           actions={
@@ -502,15 +492,15 @@ export function ProjectEditorPage() {
   }
 
   return (
-    <section className="krds-page page-shell editor-page">
+    <section className="krds-page form-page">
       <PageHeader title={isEditMode ? PROJECT_EDITOR_EDIT_TITLE : PROJECT_EDITOR_CREATE_TITLE} />
 
       {statusMessage ? (
         <CriticalAlert alerts={[{ variant: 'ok', message: statusMessage }]} />
       ) : null}
 
-      <section className="editor-surface" aria-label="프로젝트 편집 패널">
-        <form className="detail-form editor-detail-form" onSubmit={handleProjectSave}>
+      <section className="page-section" aria-label="프로젝트 편집 패널">
+        <form className="krds-form" onSubmit={handleProjectSave}>
           <ProjectEditorForm
             projectDraft={projectDraft}
             projectTypeOptions={projectTypeOptions}

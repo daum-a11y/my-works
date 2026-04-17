@@ -50,7 +50,7 @@ export function ResourceMonthTableSection({
 }: ResourceMonthTableSectionProps) {
   if (!hasTableData) {
     return (
-      <PageSection title="월간 리포트 표" className="table-tabs-section">
+      <PageSection title="월간 리포트 표" className="page-section">
         <div className="table-wrap">
           <EmptyState message="표시할 월간 리소스 데이터가 없습니다." />
         </div>
@@ -59,7 +59,7 @@ export function ResourceMonthTableSection({
   }
 
   return (
-    <PageSection title="월간 리포트 표" className="table-tabs-section">
+    <PageSection title="월간 리포트 표" className="page-section">
       <Tab
         value={activeTableTab}
         onValueChange={(value) => onTableTabChange(value as ResourceMonthTableTab)}
@@ -72,8 +72,8 @@ export function ResourceMonthTableSection({
       </Tab>
 
       {activeTableTab === 'type' ? (
-        <section className="table-tab-panel">
-          <div className="table-tab-actions">
+        <section className="result-area">
+          <div className="action-area">
             <Button
               size="medium"
               type="button"
@@ -94,8 +94,8 @@ export function ResourceMonthTableSection({
       ) : null}
 
       {activeTableTab === 'service' ? (
-        <section className="table-tab-panel">
-          <div className="table-tab-actions">
+        <section className="result-area">
+          <div className="action-area">
             <Button
               size="medium"
               type="button"
@@ -116,7 +116,7 @@ export function ResourceMonthTableSection({
       ) : null}
 
       {activeTableTab === 'report' ? (
-        <section className="table-tab-panel">
+        <section className="result-area">
           <ResourceMonthReportTable
             serviceSummaryRows={serviceSummaryRows}
             nonServiceSummaryRows={nonServiceSummaryRows}

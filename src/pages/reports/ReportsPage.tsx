@@ -211,7 +211,7 @@ export function ReportsPage() {
         onShiftDate={shiftSelectedDate}
       />
 
-      <div className="grid-layout">
+      <div className="content-grid">
         {canEditReports ? (
           <ReportsEditorForm
             mode={isEditMode ? 'edit' : 'create'}

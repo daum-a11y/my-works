@@ -15,9 +15,9 @@ export function AdminReportEditorPanelHeader({
   onTabChange,
 }: AdminReportEditorPanelHeaderProps) {
   return (
-    <div className={'panel-head'}>
+    <div className={'section-head'}>
       <div>
-        <h2 className={'panel-title'}>{title}</h2>
+        <h2 className={'section-title'}>{title}</h2>
         <p className={'date-text'}>{dateText}</p>
       </div>
       <Tab value={activeTab} onValueChange={(value) => onTabChange(value as AdminReportEditorTab)}>

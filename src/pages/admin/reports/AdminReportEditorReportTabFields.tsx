@@ -1,18 +1,6 @@
-import type { CSSProperties, KeyboardEvent } from 'react';
+import type { KeyboardEvent } from 'react';
 import { Button, Select, TextInput } from 'krds-react';
 import type { ReportDraft, ProjectViewModel } from '../../reports/reportUtils';
-
-const gridStyle: CSSProperties = {
-  display: 'grid',
-  gap: '1rem',
-  gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-};
-
-const searchRowStyle: CSSProperties = {
-  display: 'flex',
-  gap: '0.75rem',
-  alignItems: 'flex-end',
-};
 
 interface AdminReportEditorReportTabFieldsProps {
   draft: ReportDraft;
@@ -40,7 +28,7 @@ export function AdminReportEditorReportTabFields({
   onProjectChange,
 }: AdminReportEditorReportTabFieldsProps) {
   return (
-    <div className={'form-grid'} style={gridStyle}>
+    <div className={'form-grid'}>
       <Select
         size="medium"
         id="admin-report-editor-report-cost-group"
@@ -57,7 +45,7 @@ export function AdminReportEditorReportTabFields({
         style={{ width: '100%' }}
       />
 
-      <div style={searchRowStyle}>
+      <div className={'search-field'}>
         <TextInput
           size="medium"
           id="admin-report-editor-report-project-search"
@@ -66,7 +54,7 @@ export function AdminReportEditorReportTabFields({
           onChange={onProjectQueryChange}
           onKeyDown={onProjectSearchKeyDown}
           placeholder="검색어입력"
-          style={{ width: '100%', flex: '1 1 0' }}
+          style={{ width: '100%' }}
         />
         <Button size="medium" type="button" variant="secondary" onClick={onProjectSearch}>
           검색

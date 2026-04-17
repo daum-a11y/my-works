@@ -1,12 +1,5 @@
-import type { CSSProperties } from 'react';
 import type { ReportDraft } from '../../reports/reportUtils';
 import { Select, TextInput } from 'krds-react';
-
-const gridStyle: CSSProperties = {
-  display: 'grid',
-  gap: '1rem',
-  gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-};
 
 interface AdminReportEditorServiceFieldsProps {
   draft: ReportDraft;
@@ -24,7 +17,7 @@ export function AdminReportEditorServiceFields({
   onPlatformChange,
 }: AdminReportEditorServiceFieldsProps) {
   return (
-    <div style={gridStyle}>
+    <div className={'form-grid'}>
       {showPlatformSelect ? (
         <Select
           size="medium"

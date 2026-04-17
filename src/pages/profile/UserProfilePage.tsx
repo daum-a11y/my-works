@@ -166,7 +166,7 @@ export function UserProfilePage() {
     <section className="settings-page page-view" aria-labelledby="profile-title">
       <PageHeader title="프로필" id="profile-title" />
 
-      <div className="settings-workspace">
+      <div className="content-area">
         <UserProfileAccountSection
           accountId={member?.accountId}
           name={member?.name}

@@ -90,8 +90,8 @@ export function ResourceMonthContextSection({
       </StructuredList>
 
       {distributionItems.length ? (
-        <div className="chart-surface">
-          <div className="chart-frame" role="img" aria-label="월간 리소스 배분 현황">
+        <div className="data-visualization">
+          <div className="visualization-frame" role="img" aria-label="월간 리소스 배분 현황">
             <ResponsiveContainer width="100%" height={52}>
               <BarChart
                 data={distributionChartData}
@@ -134,7 +134,7 @@ export function ResourceMonthContextSection({
               {memberUnderCount}명
             </Accordion.Header>
             <Accordion.Panel>
-              <div className="badge-row">
+              <div className="badge-list">
                 {memberStatusRows.map((member) => {
                   const color =
                     member.diffMinutes < 0

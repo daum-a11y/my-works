@@ -136,7 +136,7 @@ export function ReportsEditorForm({
 
         {showProjectLookupStep ? (
           <div className="form-step">
-            <div className="project-lookup">
+            <div className="search-field">
               <TextInput
                 size="medium"
                 id="report-editor-project-search"
@@ -148,7 +148,7 @@ export function ReportsEditorForm({
                 style={{ width: '100%' }}
               />
 
-              <div className="search-button-field">
+              <div className="action-group">
                 <span className="sr-only">프로젝트 검색</span>
                 <Button size="medium" type="button" variant="secondary" onClick={onProjectSearch}>
                   검색

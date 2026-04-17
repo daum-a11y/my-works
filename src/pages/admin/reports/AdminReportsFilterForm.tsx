@@ -145,7 +145,7 @@ export function AdminReportsFilterForm({
 
       <div className={'search-row'}>
         <PageFilterField className={'filter-field'} label="사용자">
-          <div className={'member-select'}>
+          <div className={'filter-select-panel'}>
             <Accordion
               value={memberFilterOpen ? ['members'] : []}
               onChange={(values) => {
@@ -159,18 +159,18 @@ export function AdminReportsFilterForm({
               <Accordion.Item value="members">
                 <Accordion.Header>{selectedMemberLabel}</Accordion.Header>
                 <Accordion.Panel>
-                  <div className={'member-panel-toolbar'}>
+                  <div className={'filter-head'}>
                     <TextInput
                       size="medium"
                       id="admin-reports-member-search"
-                      className={'member-search-input'}
+                      className={'filter-search-input'}
                       value={memberSearchInput}
                       onChange={onMemberSearchInputChange}
                       placeholder="ID, 이름, 이메일 검색"
                       aria-label="사용자 검색"
                     />
                   </div>
-                  <div className={'member-quick-actions'}>
+                  <div className={'filter-quick-actions'}>
                     <Button
                       size="medium"
                       type="button"
@@ -188,7 +188,7 @@ export function AdminReportsFilterForm({
                       전체 해제
                     </Button>
                   </div>
-                  <CheckboxGroup className={'member-checkboxes'} column>
+                  <CheckboxGroup className={'filter-check-list'} column>
                     {visibleMembers.length === 0 ? (
                       <EmptyState
                         className={'empty-state'}

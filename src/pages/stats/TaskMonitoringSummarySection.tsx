@@ -42,9 +42,9 @@ export function TaskMonitoringSummarySection({
         </TabList>
       </Tab>
       {summaryView === 'chart' ? (
-        <div className={'chart-surface'}>
+        <div className={'data-visualization'}>
           {monthlyRows.length ? (
-            <div className={'chart-frame'} role="img" aria-label="태스크 월별 차트">
+            <div className={'visualization-frame'} role="img" aria-label="태스크 월별 차트">
               <ResponsiveContainer width="100%" height={320}>
                 <AreaChart data={monthlyRows} margin={{ top: 12, right: 12, left: 0, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" />

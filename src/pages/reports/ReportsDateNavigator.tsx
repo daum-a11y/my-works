@@ -41,13 +41,13 @@ export function ReportsDateNavigator({
   const { compact, detail } = formatDateParts(currentListDateText);
 
   return (
-    <section className="date-navigator">
-      <div className="date-context">
+    <section className="date-area">
+      <div className="section-head">
         <p className="date-text">
           <strong>{compact}</strong>
           {detail ? <span>{detail}</span> : null}
         </p>
-        <div className="date-actions" role="group" aria-label="업무보고 날짜 이동">
+        <div className="action-group" role="group" aria-label="업무보고 날짜 이동">
           <Button
             size="medium"
             type="button"

@@ -1,4 +1,4 @@
-import type { CSSProperties, FormEvent, KeyboardEvent } from 'react';
+import type { FormEvent, KeyboardEvent } from 'react';
 import { CriticalAlert, Spinner, Tab, TabList, TabTrigger, Textarea } from 'krds-react';
 import type { Platform, ProjectSubtask } from '../../../types/domain';
 import type { ProjectViewModel, ReportDraft } from '../../reports/reportUtils';
@@ -11,17 +11,6 @@ import { AdminReportEditorStatus } from './AdminReportEditorStatus';
 import type { AdminReportEditorTab } from './AdminReportEditorPage.types';
 import type { MemberAdminItem } from '../admin.types';
 import { PageSection } from '../../../components/shared';
-
-const panelStyle: CSSProperties = {
-  display: 'grid',
-  gap: '1.25rem',
-  padding: '1rem',
-};
-
-const formStyle: CSSProperties = {
-  display: 'grid',
-  gap: '1.25rem',
-};
 
 interface AdminReportEditorFormProps {
   isEdit: boolean;
@@ -140,8 +129,7 @@ export function AdminReportEditorForm({
 }: AdminReportEditorFormProps) {
   return (
     <PageSection
-      className={'content-panel'}
-      style={panelStyle}
+      className={'content-panel form-panel'}
       title="업무 입력"
       description={<p className={'date-text'}>{draft.reportDate || getTodayInputValue()}</p>}
       actions={
@@ -163,23 +151,13 @@ export function AdminReportEditorForm({
       />
 
       {loading && !missingEditTarget ? (
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            minHeight: '96px',
-          }}
-          className="global-loading-spinner"
-          aria-label="로딩 중"
-          role="status"
-        >
+        <div className="global-loading-spinner" aria-label="로딩 중" role="status">
           <Spinner />
         </div>
       ) : null}
 
       {!loading && !missingEditTarget ? (
-        <form className={'krds-form'} onSubmit={onSubmit} style={formStyle}>
+        <form className={'krds-form form-layout'} onSubmit={onSubmit}>
           <AdminReportEditorBasicFields
             isEdit={isEdit}
             members={members}

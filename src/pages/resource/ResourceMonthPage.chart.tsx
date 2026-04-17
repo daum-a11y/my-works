@@ -51,7 +51,7 @@ export function DistributionTooltip({
   }
 
   return (
-    <div className="chart-tooltip">
+    <div className="tooltip-content">
       <strong>{item.label}</strong>
       <span>{item.mm} MM</span>
     </div>

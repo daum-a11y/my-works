@@ -35,17 +35,7 @@ import { AppLayout } from '../layouts/AppLayout';
 
 function LoadingFallback() {
   return (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: '96px',
-      }}
-      className="global-loading-spinner"
-      aria-label="로딩 중"
-      role="status"
-    >
+    <div className="global-loading-spinner" aria-label="로딩 중" role="status">
       <Spinner />
     </div>
   );

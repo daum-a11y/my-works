@@ -131,13 +131,13 @@ export function ReportsResultsTable({
         </table>
       </div>
       {missingMinutes > 0 ? (
-        <div className="table-footer">
-          <p className="table-footer-text">
+        <div className="table-summary">
+          <p className="summary-text">
             오늘 총 입력 <strong>{totalMinutes}분</strong> / 부족{' '}
             <strong>{missingMinutes}분</strong>
           </p>
           {canEdit ? (
-            <div className="table-footer-field">
+            <div className="filter-field">
               <Select
                 size="medium"
                 id="reports-overhead-cost-group"

@@ -317,20 +317,7 @@ export function AppLayout() {
             }}
           >
             {activeFetchCount > 0 ? (
-              <div
-                style={{
-                  position: 'absolute',
-                  inset: 0,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  backgroundColor: 'rgba(255, 255, 255, 0.72)',
-                  zIndex: 10,
-                }}
-                className="global-loading-spinner is-overlay"
-                aria-label="로딩 중"
-                role="status"
-              >
+              <div className="global-loading-spinner is-overlay" aria-label="로딩 중" role="status">
                 <Spinner />
               </div>
             ) : null}
