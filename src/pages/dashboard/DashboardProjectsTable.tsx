@@ -99,8 +99,8 @@ export function DashboardProjectsTable({
                 <td>{item.serviceGroupName || '-'}</td>
                 <td>{item.projectName || '-'}</td>
                 <td>{item.platform || '-'}</td>
-                <td>{item.startDate}</td>
-                <td>{item.endDate}</td>
+                <td className="date-cell">{item.startDate}</td>
+                <td className="date-cell">{item.endDate}</td>
               </tr>
             ))}
             {!projects.length ? (

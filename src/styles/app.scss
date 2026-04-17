@@ -318,7 +318,7 @@ html {
 }
 body {
   background-color: var(--krds-#{$mode-setting}-color-background-white);
-  font-size: var(--krds-pc-font-size-body-medium);
+  font-size: 1.4rem;
   min-width: 1024px;
   overflow-x: auto;
 }
@@ -748,7 +748,7 @@ caption {
   gap: var(--krds-pc-gap-layout-title-body-large);
 
   .h-tit {
-    font-size: var(--krds-pc-font-size-heading-xlarge);
+    font-size: 3.2rem;
     letter-spacing: var(--krds-typo-letter-spacing-1);
     font-weight: var(--krds-font-weight-bold);
     .small-txt {
@@ -820,7 +820,7 @@ caption {
   width: 100%;
 
   .sec-tit {
-    font-size: var(--krds-pc-font-size-heading-medium);
+    font-size: 2.2rem;
   }
 }
 
@@ -871,7 +871,7 @@ caption {
     @include flex-layout($fd: column, $ai: normal);
     .popup-head {
       .pop-tit {
-        font-size: var(--krds-pc-font-size-heading-small);
+        font-size: 2.2rem;
       }
     }
     .popup-body {
@@ -1151,7 +1151,7 @@ caption {
 }
 
 #krds-header .header-container .header-branding {
-  min-height: 7.2rem;
+  min-height: 6rem;
 }
 
 #krds-header .header-branding h2 {
@@ -1172,8 +1172,8 @@ caption {
   flex-direction: row;
   align-items: center;
   gap: var(--krds-gap-3);
-  min-height: var(--krds-size-height-7);
-  padding: var(--krds-padding-3) var(--krds-padding-5);
+  min-height: var(--krds-size-height-6);
+  padding: var(--krds-padding-2) var(--krds-padding-5);
   font-size: var(--krds-pc-font-size-body-small);
   line-height: var(--krds-line-height-base);
 }
@@ -1218,14 +1218,14 @@ caption {
 
 .user-menu-panel {
   position: absolute;
-  top: calc(100% + var(--krds-gap-3));
+  top: calc(100% + var(--krds-gap-2));
   right: 0;
   z-index: 90;
   display: flex;
   flex-direction: column;
   gap: var(--krds-gap-2);
   min-width: 24rem;
-  padding: var(--krds-padding-5);
+  padding: var(--krds-padding-4);
   border: var(--krds-light-border-width-static-regular) solid
     var(--krds-light-color-border-gray-light);
   border-radius: var(--krds-radius-medium2);
@@ -1293,14 +1293,14 @@ caption {
 }
 
 #container .in-between .krds-side-navigation {
-  --krds-shell-header-height: 7.2rem;
+  --krds-shell-header-height: 6rem;
   position: sticky;
   top: var(--krds-shell-header-height);
   align-self: flex-start;
-  flex: 0 0 29.6rem;
-  width: 29.6rem;
+  flex: 0 0 20rem;
+  width: 20rem;
   height: calc(100vh - var(--krds-shell-header-height));
-  padding: var(--krds-padding-10) var(--krds-padding-8) var(--krds-padding-10) var(--krds-padding-8);
+  padding: var(--krds-padding-10) var(--krds-padding-6) var(--krds-padding-10) var(--krds-padding-6);
   overflow-x: hidden;
   overflow-y: auto;
   scrollbar-gutter: stable;
@@ -1363,7 +1363,7 @@ caption {
   min-width: 12rem;
   margin: 0;
   color: var(--krds-light-color-text-basic);
-  font-size: var(--krds-pc-font-size-heading-medium);
+  font-size: 2.2rem;
   font-weight: var(--krds-font-weight-bold);
   text-align: center;
 }
@@ -1391,11 +1391,11 @@ caption {
 
 .calendar-table th,
 .krds-table th {
-  padding: var(--krds-padding-4) var(--krds-padding-5);
+  padding: var(--krds-padding-3) var(--krds-padding-4);
   color: var(--krds-light-color-text-bolder);
   font-weight: var(--krds-font-weight-bold);
   text-align: left;
-  background-color: var(--krds-light-color-surface-secondary-subtler);
+  background-color: var(--krds-light-color-surface-gray-subtler);
 }
 
 .calendar-table th {
@@ -1404,13 +1404,13 @@ caption {
 
 .calendar-table td,
 .krds-table td {
-  padding: var(--krds-padding-4) var(--krds-padding-5);
+  padding: var(--krds-padding-3) var(--krds-padding-4);
   color: var(--krds-light-color-text-basic);
   background-color: var(--krds-light-color-background-white);
 }
 
 .calendar-table td {
-  height: 7.2rem;
+  height: 6.4rem;
   vertical-align: top;
 }
 
@@ -1439,7 +1439,7 @@ caption {
 .section-title {
   margin: 0;
   color: var(--krds-light-color-text-basic);
-  font-size: var(--krds-pc-font-size-heading-small);
+  font-size: 1.7rem;
   font-weight: var(--krds-font-weight-bold);
 }
 
@@ -2103,7 +2103,7 @@ button.table-link {
 [data-krds-mode='high-contrast'] .calendar-table th,
 [data-krds-mode='high-contrast'] .krds-table th {
   color: var(--krds-high-contrast-color-text-bolder);
-  background-color: var(--krds-high-contrast-color-surface-secondary-subtler);
+  background-color: var(--krds-high-contrast-color-surface-gray-subtler);
 }
 
 [data-krds-mode='high-contrast'] .calendar-table th,
@@ -2147,7 +2147,7 @@ button.table-link {
 [data-krds-mode='high-contrast'] .krds-table .summary-row td,
 [data-krds-mode='high-contrast'] .krds-table .summary-cell {
   color: var(--krds-high-contrast-color-text-bolder);
-  background-color: var(--krds-high-contrast-color-surface-secondary-subtler);
+  background-color: var(--krds-high-contrast-color-surface-gray-subtler);
 }
 
 [data-krds-mode='high-contrast'] .krds-table .summary-row.is-strong th,
@@ -2313,7 +2313,7 @@ button.table-link {
   [data-krds-mode='theme'] .calendar-table th,
   [data-krds-mode='theme'] .krds-table th {
     color: var(--krds-high-contrast-color-text-bolder);
-    background-color: var(--krds-high-contrast-color-surface-secondary-subtler);
+    background-color: var(--krds-high-contrast-color-surface-gray-subtler);
   }
 
   [data-krds-mode='theme'] .calendar-table th,
@@ -2357,7 +2357,7 @@ button.table-link {
   [data-krds-mode='theme'] .krds-table .summary-row td,
   [data-krds-mode='theme'] .krds-table .summary-cell {
     color: var(--krds-high-contrast-color-text-bolder);
-    background-color: var(--krds-high-contrast-color-surface-secondary-subtler);
+    background-color: var(--krds-high-contrast-color-surface-gray-subtler);
   }
 
   [data-krds-mode='theme'] .krds-table .summary-row.is-strong th,
