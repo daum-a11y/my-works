@@ -13,7 +13,7 @@ export function ProjectEditorActionRow({
   onDelete,
 }: ProjectEditorActionRowProps) {
   return (
-    <div className="action-area">
+    <div className="action-area form-action-area">
       <div className={'action-group is-start'}>
         {canDelete ? (
           <Button size="medium" type="button" variant="secondary" onClick={onDelete}>

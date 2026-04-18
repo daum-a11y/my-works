@@ -29,7 +29,7 @@ export function AdminTaskTypeEditorActionRow({
   onViewTasks,
 }: AdminTaskTypeEditorActionRowProps) {
   return (
-    <div className="action-area">
+    <div className="action-area form-action-area">
       <div className={'action-group is-start'}>
         {isEditMode ? (
           <>

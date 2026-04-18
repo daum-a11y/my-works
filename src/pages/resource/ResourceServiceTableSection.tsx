@@ -21,7 +21,7 @@ export function ResourceServiceTableSection({
 }: ResourceServiceTableSectionProps) {
   if (!years.length) {
     return (
-      <PageSection title="서비스 그룹 집계" className="page-section">
+      <PageSection title="서비스 그룹 집계" className="page-section resource-year-section">
         <div className="table-wrap krds-table-wrap">
           <table className="krds-table tbl data">
             <caption className="sr-only">연도와 월 기준 서비스 그룹 집계 표</caption>
@@ -44,7 +44,7 @@ export function ResourceServiceTableSection({
   }
 
   return (
-    <PageSection title="서비스 그룹 집계" className="page-section">
+    <PageSection title="서비스 그룹 집계" className="page-section resource-year-section">
       <Tab value={activeYear} onValueChange={onYearChange}>
         <div className="tab-list-wrap">
           <TabList aria-label="서비스 그룹 집계 연도">

@@ -2022,6 +2022,11 @@ button.table-link {
   gap: var(--krds-gap-3);
 }
 
+.krds-result-bar__metrics > li::before {
+  display: none;
+  content: '' !important;
+}
+
 .krds-result-bar__metrics strong {
   color: var(--krds-light-color-text-bolder);
   font-variant-numeric: tabular-nums;
@@ -2040,6 +2045,14 @@ button.table-link {
 .table-wrap .krds-table,
 .krds-table-wrap .krds-table {
   border-radius: inherit;
+}
+
+.form-action-area {
+  margin-top: var(--krds-gap-8);
+  padding: var(--krds-padding-6);
+  border-top: var(--krds-light-border-width-static-regular) solid
+    var(--krds-light-color-divider-gray-light);
+  background-color: var(--krds-light-color-surface-gray-subtler);
 }
 
 .krds-auth-shell {
@@ -2193,6 +2206,11 @@ button.table-link {
 [data-krds-mode='high-contrast'] .krds-table-wrap {
   border-color: var(--krds-high-contrast-color-divider-gray-light);
   background-color: var(--krds-high-contrast-color-background-white);
+}
+
+[data-krds-mode='high-contrast'] .form-action-area {
+  border-color: var(--krds-high-contrast-color-divider-gray-light);
+  background-color: var(--krds-high-contrast-color-surface-gray-subtler);
 }
 
 [data-krds-mode='high-contrast'] .search-list-top .sch-info,
@@ -2426,6 +2444,11 @@ button.table-link {
   [data-krds-mode='theme'] .krds-table-wrap {
     border-color: var(--krds-high-contrast-color-divider-gray-light);
     background-color: var(--krds-high-contrast-color-background-white);
+  }
+
+  [data-krds-mode='theme'] .form-action-area {
+    border-color: var(--krds-high-contrast-color-divider-gray-light);
+    background-color: var(--krds-high-contrast-color-surface-gray-subtler);
   }
 
   [data-krds-mode='theme'] .search-list-top .sch-info,
@@ -2836,6 +2859,33 @@ button.table-link {
     width: max-content;
     min-width: 100%;
     overflow: visible;
+  }
+
+  .resource-year-section,
+  .resource-year-section .tab-conts,
+  .resource-year-section .tab-conts.active,
+  .resource-year-section .krds-table-wrap {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .resource-year-section .tab-conts,
+  .resource-year-section .tab-conts.active {
+    overflow-x: hidden;
+  }
+
+  .resource-year-section .krds-table {
+    width: 100%;
+    min-width: 100%;
+    table-layout: fixed;
+  }
+
+  .resource-year-section .krds-table th,
+  .resource-year-section .krds-table td {
+    white-space: normal;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
   }
 
   .auth-panel,
