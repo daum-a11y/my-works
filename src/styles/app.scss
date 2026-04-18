@@ -1287,6 +1287,7 @@ caption {
   gap: 0;
   width: 100%;
   min-width: 0;
+  box-sizing: border-box;
 }
 
 .app-shell > .inner.in-between,
@@ -1304,6 +1305,7 @@ caption {
 #container .in-between .app-shell__navigation,
 #container .in-between .krds-side-navigation {
   --krds-shell-header-height: 6rem;
+  box-sizing: border-box;
   position: sticky;
   top: var(--krds-shell-header-height);
   align-self: flex-start;
@@ -1321,6 +1323,7 @@ caption {
 
 #container .in-between .app-shell__content,
 #container .in-between .contents {
+  box-sizing: border-box;
   flex: 1 1 0;
   width: 0;
   min-width: 0;
