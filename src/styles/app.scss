@@ -278,7 +278,7 @@ $font-line-heights: (
 $font-underline-offset-default: 0.3rem !default;
 
 //IMG BACKGROUND URL
-$url: '../../img' !default;
+$url: '../../node_modules/krds-react/dist' !default;
 
 //TRANSITION
 $transition-base: 0.4s ease-in-out !default;
@@ -882,7 +882,7 @@ caption {
     }
   }
   .popup-close {
-    background: url(#{$url}/img/pattern/common/ico_close_48.svg) no-repeat;
+    background: url(#{$url}/img/component/icon/ico_close.svg) no-repeat;
     background-size: var(--krds-size-height-4);
     background-position: center;
   }
@@ -907,7 +907,7 @@ caption {
       z-index: 3;
       width: var(--krds-size-height-7);
       height: var(--krds-size-height-7);
-      background: url(#{$url}/img/pattern/common/ico_close_48.svg) no-repeat;
+      background: url(#{$url}/img/component/icon/ico_close.svg) no-repeat;
       background-size: contain;
     }
     &.is-open {
@@ -1029,17 +1029,17 @@ caption {
       }
       &.view-mode-light {
         &::before {
-          background-image: url(#{$url}/img/guide/contents/main/img_screen_light.png);
+          background-color: var(--krds-light-color-surface-primary-subtler);
         }
       }
       &.view-mode-dark {
         &::before {
-          background-image: url(#{$url}/img/guide/contents/main/img_screen_dark.png);
+          background-color: var(--krds-light-color-surface-inverse-static);
         }
       }
       &.view-mode-default {
         &::before {
-          background-image: url(#{$url}/img/guide/contents/main/img_screen_default.png);
+          background-color: var(--krds-light-color-surface-secondary-subtler);
         }
       }
     }
@@ -1342,6 +1342,14 @@ caption {
 
 #container .in-between .krds-breadcrumb-wrap {
   margin-bottom: var(--krds-gap-7);
+}
+
+.app-shell__mobile-nav-head {
+  display: contents;
+}
+
+.app-shell__mobile-nav-toggle {
+  display: none;
 }
 
 .krds-page,
@@ -2645,6 +2653,29 @@ button.table-link {
       var(--krds-light-color-divider-gray-light);
   }
 
+  .app-shell__mobile-nav-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--krds-gap-4);
+  }
+
+  .app-shell__mobile-nav-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 8.8rem;
+    min-height: 4.4rem;
+    padding: var(--krds-padding-2) var(--krds-padding-4);
+    border: var(--krds-light-border-width-static-regular) solid
+      var(--krds-light-color-border-primary);
+    border-radius: var(--krds-radius-medium1);
+    color: var(--krds-light-color-text-primary);
+    font-size: var(--krds-pc-font-size-label-medium);
+    font-weight: var(--krds-font-weight-bold);
+    background-color: var(--krds-light-color-action-secondary);
+  }
+
   #container .in-between .contents {
     width: 100%;
     padding: var(--krds-padding-6) var(--krds-padding-5) var(--krds-gap-10);
@@ -2745,6 +2776,68 @@ button.table-link {
     width: 100%;
   }
 
+  #container .in-between .krds-side-navigation {
+    max-height: none;
+    padding: var(--krds-padding-3) var(--krds-padding-4);
+    overflow: visible;
+  }
+
+  #container .in-between .krds-side-navigation .krds-side-navigation__list,
+  #container .in-between .krds-side-navigation .side-navigation-list,
+  #container .in-between .krds-side-navigation > ul {
+    display: none;
+  }
+
+  #container .in-between .krds-side-navigation.is-mobile-open .krds-side-navigation__list,
+  #container .in-between .krds-side-navigation.is-mobile-open .side-navigation-list,
+  #container .in-between .krds-side-navigation.is-mobile-open > ul {
+    display: block;
+  }
+
+  .monthly-report-calendar {
+    overflow-x: visible;
+  }
+
+  .calendar-table {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .calendar-table th,
+  .calendar-table td {
+    padding: var(--krds-padding-2) var(--krds-padding-1);
+    font-size: 1.2rem;
+    line-height: 1.35;
+  }
+
+  .calendar-table td {
+    height: 5.6rem;
+  }
+
+  .calendar-cell-inner {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .calendar-date,
+  .minute-value {
+    font-size: 1.2rem;
+  }
+
+  .tab-list-wrap {
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  .tab-list-wrap [role='tablist'] {
+    flex-wrap: nowrap;
+    width: max-content;
+    min-width: 100%;
+    overflow: visible;
+  }
+
   .auth-panel,
   .not-found-panel,
   .krds-auth-panel,
@@ -2765,6 +2858,6 @@ button.table-link {
   }
 
   .calendar-table {
-    min-width: 64rem;
+    min-width: 0;
   }
 }
