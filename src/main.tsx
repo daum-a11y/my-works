@@ -7,6 +7,7 @@ import { RootRouter } from './router/RootRouter';
 import './styles/krds.scss';
 import './styles/theme-tokens.css';
 import './styles/app.scss';
+import './styles/components/SortableTableHeaderButton.scss';
 
 const container = document.getElementById('wrap');
 
