@@ -123,7 +123,7 @@ describe('ResourceMonthPage', () => {
 
     expect(screen.getByText(/legacy-1/)).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole('button', { name: '업무타입별 합계' }));
+    fireEvent.click(screen.getByRole('tab', { name: '업무타입별 합계' }));
 
     expect(screen.getByText('운영')).toBeInTheDocument();
     expect(screen.getByText('점검')).toBeInTheDocument();

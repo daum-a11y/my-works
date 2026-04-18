@@ -19,4 +19,14 @@ describe('IsoDateInput', () => {
     expect(input).toHaveValue('2026.04.15');
     expect(handleChange).toHaveBeenCalledWith('2026-04-15');
   });
+
+  it('exposes min and max date constraints on the input element', () => {
+    render(
+      <IsoDateInput label="종료일" value="" onChange={vi.fn()} min="2026-04-01" max="2026-04-30" />,
+    );
+
+    const input = screen.getByLabelText('종료일');
+    expect(input).toHaveAttribute('min', '2026-04-01');
+    expect(input).toHaveAttribute('max', '2026-04-30');
+  });
 });

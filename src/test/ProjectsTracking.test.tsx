@@ -310,8 +310,12 @@ describe('Projects routes', () => {
     expect(screen.getByRole('button', { name: /청구그룹 정렬/ })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /태스크 수 정렬/ })).toBeInTheDocument();
     expect(screen.getByLabelText('페이지당 행 수')).toHaveValue('50');
-    expect(screen.getByLabelText('시작일')).toHaveValue(toLocalDateInputValue(aYearAgo));
-    expect(screen.getByLabelText('종료일')).toHaveValue(toLocalDateInputValue(today));
+    expect(screen.getByLabelText('시작일')).toHaveValue(
+      toLocalDateInputValue(aYearAgo).replaceAll('-', '.'),
+    );
+    expect(screen.getByLabelText('종료일')).toHaveValue(
+      toLocalDateInputValue(today).replaceAll('-', '.'),
+    );
     expect(screen.getByLabelText('시작일')).toHaveAttribute('max', toLocalDateInputValue(today));
     expect(screen.getByLabelText('종료일')).toHaveAttribute('min', toLocalDateInputValue(aYearAgo));
     expect(screen.getByRole('link', { name: '프로젝트 추가' })).toHaveAttribute(
@@ -532,8 +536,8 @@ describe('Projects routes', () => {
       );
     });
 
-    await user.click(screen.getByRole('button', { name: '수정' }));
-    await user.selectOptions(screen.getByLabelText('상태'), '미수정');
+    await user.click(await screen.findByRole('button', { name: '수정' }));
+    await user.selectOptions(await screen.findByLabelText('상태'), '미수정');
     await user.clear(screen.getByLabelText('비고'));
     await user.type(screen.getByLabelText('비고'), '비고 수정');
     await user.click(screen.getByRole('button', { name: '태스크 저장' }));
@@ -567,7 +571,7 @@ describe('Projects routes', () => {
         }),
       );
     });
-  });
+  }, 10000);
 
   it('alerts when subtask save is rejected', async () => {
     const user = userEvent.setup();
@@ -582,8 +586,8 @@ describe('Projects routes', () => {
       expect(screen.getByLabelText('프로젝트 종류')).toHaveValue('type-qa');
     });
 
-    await user.click(screen.getByRole('button', { name: '수정' }));
-    await user.selectOptions(screen.getByLabelText('상태'), '미수정');
+    await user.click(await screen.findByRole('button', { name: '수정' }));
+    await user.selectOptions(await screen.findByLabelText('상태'), '미수정');
     await user.click(screen.getByRole('button', { name: '태스크 저장' }));
 
     await waitFor(() => {

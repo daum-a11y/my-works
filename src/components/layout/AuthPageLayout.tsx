@@ -24,17 +24,13 @@ export function AuthPageLayout({
         <section aria-labelledby={labelledBy} className="krds-auth-panel auth-panel">
           <span aria-hidden="true" className="krds-section-accent accent-mark" />
           <div className="krds-auth-panel__head top-block">
-            <h1 className="logo-heading">
+            <div className="logo-heading">
               <BrandLogo alt="My Works" width={100} height={30} />
+            </div>
+            {title ? <p className="caption-text">{caption}</p> : null}
+            <h1 id={labelledBy} className="auth-title">
+              {title ?? caption}
             </h1>
-            <p id={title ? undefined : labelledBy} className="caption-text">
-              {caption}
-            </p>
-            {title ? (
-              <h2 id={labelledBy} className="auth-title">
-                {title}
-              </h2>
-            ) : null}
             {description ? <p className="description-text">{description}</p> : null}
           </div>
           <div className="krds-auth-panel__body auth-body">{body}</div>

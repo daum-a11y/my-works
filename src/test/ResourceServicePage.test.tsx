@@ -114,19 +114,19 @@ describe('ResourceServicePage', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByRole('tab', { name: '2024년' })).toHaveAttribute('aria-selected', 'true');
+      expect(screen.getByRole('tab', { name: /2024년/ })).toHaveAttribute('aria-selected', 'true');
       expect(screen.getAllByRole('cell', { name: '커머스' }).length).toBeGreaterThan(0);
     });
 
-    expect(screen.getByRole('tab', { name: '2023년' })).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: /2023년/ })).toBeInTheDocument();
     expect(screen.getAllByRole('cell', { name: '커머스' }).length).toBeGreaterThan(0);
     expect(screen.getByText('카카오 T')).toBeInTheDocument();
     expect(screen.queryByRole('cell', { name: '플랫폼' })).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole('tab', { name: '2023년' }));
+    fireEvent.click(screen.getByRole('tab', { name: /2023년/ }));
 
     await waitFor(() => {
-      expect(screen.getByRole('tab', { name: '2023년' })).toHaveAttribute('aria-selected', 'true');
+      expect(screen.getByRole('tab', { name: /2023년/ })).toHaveAttribute('aria-selected', 'true');
       expect(screen.getAllByRole('cell', { name: '커머스' }).length).toBeGreaterThan(0);
     });
 
@@ -147,10 +147,10 @@ describe('ResourceServicePage', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByRole('tab', { name: '2023년' })).toBeInTheDocument();
+      expect(screen.getByRole('tab', { name: /2023년/ })).toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByRole('tab', { name: '2023년' }));
+    fireEvent.click(screen.getByRole('tab', { name: /2023년/ }));
 
     await waitFor(() => {
       expect(screen.getAllByRole('cell', { name: '커머스' }).length).toBeGreaterThan(0);
@@ -186,10 +186,10 @@ describe('ResourceServicePage', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByRole('tab', { name: '2023년' })).toBeInTheDocument();
+      expect(screen.getByRole('tab', { name: /2023년/ })).toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByRole('tab', { name: '2023년' }));
+    fireEvent.click(screen.getByRole('tab', { name: /2023년/ }));
 
     await waitFor(() => {
       expect(screen.getAllByRole('cell', { name: '커머스' }).length).toBeGreaterThan(0);
@@ -215,10 +215,10 @@ describe('ResourceServicePage', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByRole('tab', { name: '2023년' })).toBeInTheDocument();
+      expect(screen.getByRole('tab', { name: /2023년/ })).toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByRole('tab', { name: '2023년' }));
+    fireEvent.click(screen.getByRole('tab', { name: /2023년/ }));
 
     await waitFor(() => {
       expect(screen.getAllByText('톡딜').length).toBeGreaterThan(0);

@@ -78,15 +78,15 @@ describe('AdminMembersPage', () => {
     expect(screen.getByLabelText('사용자 목록 페이지 이동')).toHaveTextContent('1/ 1');
     expect(screen.getByLabelText('페이지당 행 수')).toHaveValue('50');
 
-    expect(screen.getByRole('columnheader', { name: 'ID' })).toBeInTheDocument();
-    expect(screen.getByRole('columnheader', { name: '이름' })).toBeInTheDocument();
-    expect(screen.getByRole('columnheader', { name: '이메일' })).toBeInTheDocument();
-    expect(screen.getByRole('columnheader', { name: '권한' })).toBeInTheDocument();
-    expect(screen.getByRole('columnheader', { name: '활성여부' })).toBeInTheDocument();
-    expect(screen.getByRole('columnheader', { name: '승인상태' })).toBeInTheDocument();
-    expect(screen.getByRole('columnheader', { name: '업무보고접근' })).toBeInTheDocument();
-    expect(screen.getByRole('columnheader', { name: '등록일' })).toBeInTheDocument();
-    expect(screen.getByRole('columnheader', { name: '최종로그인' })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /ID/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /이름/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /이메일/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /권한/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /활성여부/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /승인상태/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /업무보고접근/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /등록일/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /최종로그인/ })).toBeInTheDocument();
     expect(screen.getByText('허용')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: '사용자 추가' })).toHaveAttribute(
       'href',

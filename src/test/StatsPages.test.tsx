@@ -253,7 +253,7 @@ describe('Stats pages', () => {
     expect(screen.getAllByText('-').length).toBeGreaterThan(0);
     expect(screen.getByText('2026/03')).toBeInTheDocument();
     expect(screen.getByText('2026/02')).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: '표' }));
+    fireEvent.click(screen.getByRole('tab', { name: '표' }));
     const summaryTable = screen.getByRole('table', { name: '프로젝트 월별 표' });
     expect(
       within(summaryTable).queryByRole('columnheader', { name: '서브태스크 수' }),
@@ -442,7 +442,7 @@ describe('Stats pages', () => {
       });
     });
 
-    fireEvent.click(screen.getByRole('button', { name: '표' }));
+    fireEvent.click(screen.getByRole('tab', { name: '표' }));
     const summaryTable = screen.getByRole('table', { name: '프로젝트 월별 표' });
     expect(
       within(summaryTable).getByRole('columnheader', { name: '프로젝트 수' }),

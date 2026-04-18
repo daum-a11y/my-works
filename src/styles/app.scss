@@ -1285,6 +1285,7 @@ caption {
   justify-content: flex-start;
   flex-direction: row;
   gap: 0;
+  width: 100%;
   min-width: 0;
 }
 
@@ -1320,7 +1321,8 @@ caption {
 
 #container .in-between .app-shell__content,
 #container .in-between .contents {
-  flex: 1;
+  flex: 1 1 0;
+  width: 0;
   min-width: 0;
   padding: var(--krds-padding-10) var(--krds-padding-10) var(--krds-gap-12);
   background-color: var(--krds-light-color-background-white);
@@ -2610,6 +2612,7 @@ button.table-link {
   }
 
   #container .in-between .contents {
+    width: 100%;
     padding: var(--krds-padding-6) var(--krds-padding-5) var(--krds-gap-10);
   }
 

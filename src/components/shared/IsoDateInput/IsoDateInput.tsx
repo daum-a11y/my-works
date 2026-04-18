@@ -2,8 +2,10 @@ import { useEffect, useState } from 'react';
 import { DateInput, type DateInputProps } from 'krds-react';
 import { isoToKrdsDate, isWithinDateRange, krdsToIsoDate } from '../krdsDateInputUtils';
 
-export interface IsoDateInputProps
-  extends Omit<DateInputProps, 'value' | 'defaultValue' | 'onChange' | 'min' | 'max'> {
+export interface IsoDateInputProps extends Omit<
+  DateInputProps,
+  'value' | 'defaultValue' | 'onChange' | 'min' | 'max'
+> {
   value: string;
   onChange: (value: string) => void;
   min?: string;
@@ -20,6 +22,8 @@ export function IsoDateInput({ value, onChange, min, max, onBlur, ...props }: Is
   return (
     <DateInput
       {...props}
+      min={min}
+      max={max}
       value={displayValue}
       onChange={(nextValue) => {
         setDisplayValue(nextValue);

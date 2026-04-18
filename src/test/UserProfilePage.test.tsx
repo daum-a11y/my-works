@@ -1,4 +1,4 @@
-import { cleanup, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -159,8 +159,8 @@ describe('UserProfilePage', () => {
     renderProfilePage();
 
     await user.click(screen.getByRole('button', { name: '비밀번호 변경' }));
-    await user.type(getNextPasswordInput(), 'new-password-123');
-    await user.type(getConfirmPasswordInput(), 'new-password-123');
+    fireEvent.change(getNextPasswordInput(), { target: { value: 'new-password-123' } });
+    fireEvent.change(getConfirmPasswordInput(), { target: { value: 'new-password-123' } });
     await user.click(screen.getByRole('button', { name: '변경' }));
 
     expect(
@@ -179,7 +179,7 @@ describe('UserProfilePage', () => {
 
     expect(logout).toHaveBeenCalled();
     expect(
-      await screen.findByText('비밀번호가 변경되었습니다. 로그인해 주세요.'),
+      await screen.findByText('비밀번호 변경 완료. 비밀번호가 변경되었습니다. 로그인해 주세요.'),
     ).toBeInTheDocument();
     expect(screen.getByLabelText('비밀번호')).toHaveFocus();
   });
