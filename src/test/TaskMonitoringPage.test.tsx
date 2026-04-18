@@ -222,11 +222,11 @@ describe('TaskMonitoringPage', () => {
     expect(screen.getByRole('heading', { name: '월별 태스크 현황' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: '태스크 목록' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /상태 정렬/ })).toBeInTheDocument();
+    expect(screen.getByText('2026-03-15')).toBeInTheDocument();
     expect(screen.getByText('legacy-1(운영 사용자)')).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('tab', { name: '표' }));
     const summaryTable = screen.getByRole('table', { name: '태스크 월별 표' });
-    expect(summaryTable).toHaveTextContent('2026/03');
     expect(screen.getByRole('columnheader', { name: '전체 태스크 수' })).toBeInTheDocument();
     expect(summaryTable).toHaveTextContent('미수정');
     expect(summaryTable).toHaveTextContent('일부 수정');

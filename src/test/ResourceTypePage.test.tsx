@@ -110,11 +110,11 @@ describe('ResourceTypePage', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByRole('tab', { name: /2024년/ })).toBeInTheDocument();
+      expect(screen.getByRole('tab', { name: /^2024년/ })).toBeInTheDocument();
       expect(screen.getAllByRole('cell', { name: '모니터링' }).length).toBeGreaterThan(0);
     });
 
-    expect(screen.getByRole('tab', { name: /2023년/ })).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: /^2023년/ })).toBeInTheDocument();
     expect(screen.getAllByRole('cell', { name: '모니터링' }).length).toBeGreaterThan(0);
     expect(screen.getByRole('cell', { name: '점검' })).toBeInTheDocument();
   });
@@ -129,16 +129,16 @@ describe('ResourceTypePage', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByRole('tab', { name: /2024년/ })).toHaveAttribute('aria-selected', 'true');
+      expect(screen.getByRole('tab', { name: /^2024년/ })).toHaveAttribute('aria-selected', 'true');
       expect(screen.getAllByRole('cell', { name: '모니터링' }).length).toBeGreaterThan(0);
     });
 
     expect(screen.queryByRole('cell', { name: 'QA' })).not.toBeInTheDocument();
 
-    screen.getByRole('tab', { name: /2023년/ }).click();
+    screen.getByRole('tab', { name: /^2023년/ }).click();
 
     await waitFor(() => {
-      expect(screen.getByRole('tab', { name: /2023년/ })).toHaveAttribute('aria-selected', 'true');
+      expect(screen.getByRole('tab', { name: /^2023년/ })).toHaveAttribute('aria-selected', 'true');
       expect(screen.getAllByRole('cell', { name: 'QA' })).toHaveLength(1);
     });
 
@@ -157,10 +157,10 @@ describe('ResourceTypePage', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByRole('tab', { name: /2023년/ })).toBeInTheDocument();
+      expect(screen.getByRole('tab', { name: /^2023년/ })).toBeInTheDocument();
     });
 
-    screen.getByRole('tab', { name: /2023년/ }).click();
+    screen.getByRole('tab', { name: /^2023년/ }).click();
 
     await waitFor(() => {
       expect(screen.getAllByRole('cell', { name: 'QA' })).toHaveLength(1);
@@ -186,10 +186,10 @@ describe('ResourceTypePage', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByRole('tab', { name: /2023년/ })).toBeInTheDocument();
+      expect(screen.getByRole('tab', { name: '2023년' })).toBeInTheDocument();
     });
 
-    screen.getByRole('tab', { name: /2023년/ }).click();
+    screen.getByRole('tab', { name: '2023년' }).click();
 
     await waitFor(() => {
       expect(screen.getByRole('cell', { name: '사전준비' })).toBeInTheDocument();

@@ -1,8 +1,12 @@
-import { fireEvent, render, screen } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { IsoDateInput } from './IsoDateInput';
 
 describe('IsoDateInput', () => {
+  afterEach(() => {
+    cleanup();
+  });
+
   it('keeps partial manual input visible and commits only completed ISO dates', () => {
     const handleChange = vi.fn();
 
@@ -20,13 +24,18 @@ describe('IsoDateInput', () => {
     expect(handleChange).toHaveBeenCalledWith('2026-04-15');
   });
 
-  it('exposes min and max date constraints on the input element', () => {
+  it('forwards ISO min and max constraints to the input element', () => {
     render(
-      <IsoDateInput label="종료일" value="" onChange={vi.fn()} min="2026-04-01" max="2026-04-30" />,
+      <IsoDateInput
+        label="시작일"
+        value="2026-04-15"
+        onChange={vi.fn()}
+        min="2026-04-01"
+        max="2026-04-30"
+      />,
     );
 
-    const input = screen.getByLabelText('종료일');
-    expect(input).toHaveAttribute('min', '2026-04-01');
-    expect(input).toHaveAttribute('max', '2026-04-30');
+    expect(screen.getByLabelText('시작일')).toHaveAttribute('min', '2026-04-01');
+    expect(screen.getByLabelText('시작일')).toHaveAttribute('max', '2026-04-30');
   });
 });

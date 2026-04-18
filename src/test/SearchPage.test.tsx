@@ -154,7 +154,7 @@ describe('SearchPage', () => {
     expect(screen.getByText('로그인')).toBeInTheDocument();
     expect(screen.getAllByText('60분').length).toBeGreaterThan(0);
     expect(screen.getByText('1건')).toBeInTheDocument();
-    expect(screen.getAllByText('1').length).toBeGreaterThan(0);
+    expect(screen.getByRole('link', { name: '현재페이지 1' })).toBeInTheDocument();
   });
 
   it('sorts the visible rows by sortable table headers', async () => {

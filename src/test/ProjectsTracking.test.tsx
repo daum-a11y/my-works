@@ -536,9 +536,13 @@ describe('Projects routes', () => {
       );
     });
 
-    await user.click(await screen.findByRole('button', { name: '수정' }));
-    await user.selectOptions(await screen.findByLabelText('상태'), '미수정');
-    await user.clear(screen.getByLabelText('비고'));
+    const taskTable = await screen.findByRole('table', { name: '태스크 리스트' });
+    await user.click(within(taskTable).getByRole('button', { name: '수정' }));
+    await waitFor(() => {
+      expect(document.querySelector('#subtask-status-subtask-1')).toBeInTheDocument();
+    });
+    await user.selectOptions(document.querySelector('#subtask-status-subtask-1')!, '미수정');
+    await user.clear(await screen.findByLabelText('비고'));
     await user.type(screen.getByLabelText('비고'), '비고 수정');
     await user.click(screen.getByRole('button', { name: '태스크 저장' }));
 
@@ -571,7 +575,7 @@ describe('Projects routes', () => {
         }),
       );
     });
-  }, 10000);
+  }, 10_000);
 
   it('alerts when subtask save is rejected', async () => {
     const user = userEvent.setup();
@@ -586,8 +590,12 @@ describe('Projects routes', () => {
       expect(screen.getByLabelText('프로젝트 종류')).toHaveValue('type-qa');
     });
 
-    await user.click(await screen.findByRole('button', { name: '수정' }));
-    await user.selectOptions(await screen.findByLabelText('상태'), '미수정');
+    const taskTable = await screen.findByRole('table', { name: '태스크 리스트' });
+    await user.click(within(taskTable).getByRole('button', { name: '수정' }));
+    await waitFor(() => {
+      expect(document.querySelector('#subtask-status-subtask-1')).toBeInTheDocument();
+    });
+    await user.selectOptions(document.querySelector('#subtask-status-subtask-1')!, '미수정');
     await user.click(screen.getByRole('button', { name: '태스크 저장' }));
 
     await waitFor(() => {

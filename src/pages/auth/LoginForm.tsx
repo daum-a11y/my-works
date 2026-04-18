@@ -66,9 +66,7 @@ export function LoginForm({
           )}
         />
         {noticeMessage ? (
-          <CriticalAlert
-            alerts={[{ variant: 'ok', message: `비밀번호 변경 완료. ${noticeMessage}` }]}
-          />
+          <CriticalAlert alerts={[{ variant: 'ok', message: noticeMessage }]} />
         ) : null}
         {errorMessage ? (
           <CriticalAlert

@@ -90,9 +90,7 @@ describe('PasswordRecoveryPage', () => {
       expect(logout).toHaveBeenCalled();
     });
     expect(
-      await screen.findByText(
-        '비밀번호 변경 완료. 비밀번호가 변경되었습니다. 다시 로그인해 주세요.',
-      ),
+      await screen.findByText('비밀번호가 변경되었습니다. 다시 로그인해 주세요.'),
     ).toBeInTheDocument();
   });
 });

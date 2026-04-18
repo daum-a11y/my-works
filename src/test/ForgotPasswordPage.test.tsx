@@ -66,8 +66,6 @@ describe('ForgotPasswordPage', () => {
       expect(resetPassword).toHaveBeenCalledWith('crew@example.com');
     });
 
-    expect(
-      screen.getByText('메일 발송 완료. 메일을 확인해 비밀번호를 재설정해 주세요.'),
-    ).toBeInTheDocument();
+    expect(screen.getByText('메일을 확인해 비밀번호를 재설정해 주세요.')).toBeInTheDocument();
   });
 });

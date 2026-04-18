@@ -69,9 +69,7 @@ export function ForgotPasswordPage() {
             )}
           />
           {noticeMessage ? (
-            <CriticalAlert
-              alerts={[{ variant: 'ok', message: `메일 발송 완료. ${noticeMessage}` }]}
-            />
+            <CriticalAlert alerts={[{ variant: 'ok', message: noticeMessage }]} />
           ) : null}
           {errorMessage ? (
             <CriticalAlert

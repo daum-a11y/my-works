@@ -1325,6 +1325,7 @@ caption {
   width: 0;
   min-width: 0;
   padding: var(--krds-padding-10) var(--krds-padding-10) var(--krds-gap-12);
+  overflow-x: clip;
   background-color: var(--krds-light-color-background-white);
   position: relative;
 }
