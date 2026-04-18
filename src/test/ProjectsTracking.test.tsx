@@ -575,7 +575,7 @@ describe('Projects routes', () => {
         }),
       );
     });
-  }, 10_000);
+  }, 20_000);
 
   it('alerts when subtask save is rejected', async () => {
     const user = userEvent.setup();

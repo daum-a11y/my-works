@@ -281,25 +281,27 @@ export function AppLayout() {
                     >
                       {item.label}
                     </SideNavigation.Toggle>
-                    <SideNavigation.SubMenu id={submenuId}>
-                      {item.children.map((child) => {
-                        const isCurrent =
-                          location.pathname === child.to ||
-                          location.pathname.startsWith(`${child.to}/`);
+                    {expanded ? (
+                      <SideNavigation.SubMenu id={submenuId}>
+                        {item.children.map((child) => {
+                          const isCurrent =
+                            location.pathname === child.to ||
+                            location.pathname.startsWith(`${child.to}/`);
 
-                        return (
-                          <SideNavigation.SubItem key={child.to} active={isCurrent}>
-                            <SideNavigation.Link
-                              href={child.to}
-                              current={isCurrent}
-                              className={isCurrent ? 'selected' : undefined}
-                            >
-                              {child.label}
-                            </SideNavigation.Link>
-                          </SideNavigation.SubItem>
-                        );
-                      })}
-                    </SideNavigation.SubMenu>
+                          return (
+                            <SideNavigation.SubItem key={child.to} active={isCurrent}>
+                              <SideNavigation.Link
+                                href={child.to}
+                                current={isCurrent}
+                                className={isCurrent ? 'selected' : undefined}
+                              >
+                                {child.label}
+                              </SideNavigation.Link>
+                            </SideNavigation.SubItem>
+                          );
+                        })}
+                      </SideNavigation.SubMenu>
+                    ) : null}
                   </SideNavigation.Item>
                 );
               })}
