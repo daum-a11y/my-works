@@ -1,5 +1,5 @@
 import { Controller, type Control, type UseFormHandleSubmit } from 'react-hook-form';
-import { Button, CriticalAlert, TextInput } from 'krds-react';
+import { Button, TextInput } from 'krds-react';
 
 interface LoginFormValues {
   email: string;
@@ -7,7 +7,6 @@ interface LoginFormValues {
 }
 
 interface LoginFormProps {
-  errorMessage: string;
   noticeMessage: string;
   isBusy: boolean;
   isSupabaseConfigured: boolean;
@@ -22,7 +21,6 @@ interface LoginFormProps {
 }
 
 export function LoginForm({
-  errorMessage,
   noticeMessage,
   isBusy,
   isSupabaseConfigured,
@@ -33,8 +31,8 @@ export function LoginForm({
   onRecovery,
 }: LoginFormProps) {
   return (
-    <div className="login-form">
-      <form className="login-form-shell" onSubmit={handleSubmit(onSubmit)}>
+    <div className="krds-auth-form">
+      <form className="krds-auth-fields" onSubmit={handleSubmit(onSubmit)}>
         <Controller
           name="email"
           control={control}
@@ -66,14 +64,11 @@ export function LoginForm({
           )}
         />
         {noticeMessage ? (
-          <CriticalAlert alerts={[{ variant: 'ok', message: noticeMessage }]} />
+          <p className="krds-auth-status" role="status">
+            {noticeMessage}
+          </p>
         ) : null}
-        {errorMessage ? (
-          <CriticalAlert
-            alerts={[{ variant: 'danger', message: `로그인 확인 필요. ${errorMessage}` }]}
-          />
-        ) : null}
-        <div className="action-area">
+        <div className="krds-auth-actions">
           <Button
             size="medium"
             type="submit"
@@ -83,11 +78,12 @@ export function LoginForm({
             로그인
           </Button>
         </div>
-        <div className="recovery-link">
+        <div className="krds-auth-support">
+          <span>비밀번호를 잊으셨나요?</span>
           <Button
-            size="medium"
+            size="small"
             type="button"
-            variant="tertiary"
+            variant="text"
             disabled={!isSupabaseConfigured || isBusy}
             onClick={onRecovery}
           >

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -22,11 +22,11 @@ type RecoveryFormValues = z.infer<typeof recoverySchema>;
 export function PasswordRecoveryPage() {
   const navigate = useNavigate();
   const { isRecoverySession, updatePassword, logout } = useAuth();
-  const [errorMessage, setErrorMessage] = useState('');
-  const [noticeMessage, setNoticeMessage] = useState('');
   const {
     control,
     handleSubmit,
+    setError,
+    clearErrors,
     formState: { errors, isSubmitting },
   } = useForm<RecoveryFormValues>({
     resolver: zodResolver(recoverySchema),
@@ -46,25 +46,24 @@ export function PasswordRecoveryPage() {
 
   return (
     <PasswordRecoveryForm
-      errorMessage={errorMessage}
-      noticeMessage={noticeMessage}
       isSubmitting={isSubmitting}
       errors={errors}
       control={control}
       handleSubmit={handleSubmit}
       onSubmit={async (values) => {
         try {
-          setErrorMessage('');
-          setNoticeMessage('');
+          clearErrors();
           await updatePassword(values.nextPassword);
           await logout();
-          setNoticeMessage('비밀번호가 변경되었습니다. 다시 로그인해 주세요.');
           navigate('/login', {
             replace: true,
             state: { noticeMessage: '비밀번호가 변경되었습니다. 다시 로그인해 주세요.' },
           });
-        } catch (error) {
-          setErrorMessage(error instanceof Error ? error.message : '비밀번호 변경에 실패했습니다.');
+        } catch {
+          setError('confirmPassword', {
+            type: 'server',
+            message: '비밀번호를 변경할 수 없습니다. 다시 입력해 주세요.',
+          });
         }
       }}
     />

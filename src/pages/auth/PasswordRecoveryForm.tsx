@@ -1,5 +1,5 @@
 import { Controller, type Control, type UseFormHandleSubmit } from 'react-hook-form';
-import { Button, CriticalAlert, TextInput } from 'krds-react';
+import { Button, TextInput } from 'krds-react';
 import { AuthPageLayout } from '../../components/layout/AuthPageLayout';
 
 interface RecoveryFormValues {
@@ -8,8 +8,6 @@ interface RecoveryFormValues {
 }
 
 interface PasswordRecoveryFormProps {
-  errorMessage: string;
-  noticeMessage: string;
   isSubmitting: boolean;
   errors: {
     nextPassword?: { message?: string };
@@ -21,8 +19,6 @@ interface PasswordRecoveryFormProps {
 }
 
 export function PasswordRecoveryForm({
-  errorMessage,
-  noticeMessage,
   isSubmitting,
   errors,
   control,
@@ -66,12 +62,6 @@ export function PasswordRecoveryForm({
               />
             )}
           />
-          {noticeMessage ? (
-            <CriticalAlert alerts={[{ variant: 'ok', message: noticeMessage }]} />
-          ) : null}
-          {errorMessage ? (
-            <CriticalAlert alerts={[{ variant: 'danger', message: errorMessage }]} />
-          ) : null}
           <div className="action-area">
             <Button size="medium" type="submit" variant="primary" disabled={isSubmitting}>
               비밀번호 변경

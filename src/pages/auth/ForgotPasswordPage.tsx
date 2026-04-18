@@ -3,7 +3,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from 'react-router-dom';
-import { Button, CriticalAlert, TextInput } from 'krds-react';
+import { Button, TextInput } from 'krds-react';
 import { AuthPageLayout } from '../../components/layout/AuthPageLayout';
 import { isSupabaseConfigured } from '../../config/env';
 import { useAuth } from '../../auth/AuthContext';
@@ -17,11 +17,12 @@ type ForgotPasswordValues = z.infer<typeof forgotPasswordSchema>;
 export function ForgotPasswordPage() {
   const navigate = useNavigate();
   const { resetPassword } = useAuth();
-  const [errorMessage, setErrorMessage] = useState('');
   const [noticeMessage, setNoticeMessage] = useState('');
   const {
     control,
     handleSubmit,
+    setError,
+    clearErrors,
     formState: { errors, isSubmitting },
   } = useForm<ForgotPasswordValues>({
     resolver: zodResolver(forgotPasswordSchema),
@@ -43,12 +44,15 @@ export function ForgotPasswordPage() {
         <form
           onSubmit={handleSubmit(async (values) => {
             try {
-              setErrorMessage('');
+              clearErrors();
               setNoticeMessage('');
               await resetPassword(values.email);
               setNoticeMessage('메일을 확인해 비밀번호를 재설정해 주세요.');
-            } catch (error) {
-              setErrorMessage(error instanceof Error ? error.message : '메일 발송 실패.');
+            } catch {
+              setError('email', {
+                type: 'server',
+                message: '메일을 보낼 수 없습니다. 이메일 주소를 다시 확인해 주세요.',
+              });
             }
           })}
           className="krds-form"
@@ -69,12 +73,9 @@ export function ForgotPasswordPage() {
             )}
           />
           {noticeMessage ? (
-            <CriticalAlert alerts={[{ variant: 'ok', message: noticeMessage }]} />
-          ) : null}
-          {errorMessage ? (
-            <CriticalAlert
-              alerts={[{ variant: 'danger', message: `입력 확인 필요. ${errorMessage}` }]}
-            />
+            <p className="krds-auth-status" role="status">
+              {noticeMessage}
+            </p>
           ) : null}
           <div className="action-area">
             <Button
@@ -86,12 +87,7 @@ export function ForgotPasswordPage() {
               재설정 메일 보내기
             </Button>
             <div className="action-divider">
-              <Button
-                size="medium"
-                type="button"
-                variant="tertiary"
-                onClick={() => navigate('/login')}
-              >
+              <Button size="small" type="button" variant="text" onClick={() => navigate('/login')}>
                 로그인으로 돌아가기
               </Button>
             </div>

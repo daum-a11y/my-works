@@ -24,7 +24,6 @@ export function LoginPage() {
     typeof location.state === 'object' && location.state
       ? (location.state as { noticeMessage?: string; emailPrefill?: string })
       : {};
-  const [errorMessage, setErrorMessage] = useState('');
   const [noticeMessage, setNoticeMessage] = useState(
     typeof locationState.noticeMessage === 'string' ? locationState.noticeMessage : '',
   );
@@ -32,6 +31,8 @@ export function LoginPage() {
     control,
     handleSubmit,
     setFocus,
+    setError,
+    clearErrors,
     formState: { errors, isSubmitting },
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -74,7 +75,6 @@ export function LoginPage() {
           labelledBy="login-title"
           body={
             <LoginForm
-              errorMessage={errorMessage}
               noticeMessage={noticeMessage}
               isBusy={isBusy}
               isSupabaseConfigured={isSupabaseConfigured}
@@ -83,13 +83,15 @@ export function LoginPage() {
               handleSubmit={handleSubmit}
               onSubmit={async (values) => {
                 try {
-                  setErrorMessage('');
+                  clearErrors();
                   setNoticeMessage('');
                   await login(values.email, values.password);
-                } catch (error) {
-                  setErrorMessage(
-                    error instanceof Error ? error.message : '로그인에 실패했습니다.',
-                  );
+                } catch {
+                  setError('password', {
+                    type: 'server',
+                    message: '이메일 또는 비밀번호를 다시 확인해 주세요.',
+                  });
+                  setFocus('password');
                 }
               }}
               onRecovery={() => {
