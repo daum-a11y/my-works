@@ -7,10 +7,12 @@ export interface EmptyStateProps extends ComponentPropsWithoutRef<'div'> {
 }
 
 export function EmptyState({ message, description, className, ...props }: EmptyStateProps) {
+  const fallbackDescription = '조건을 조정하거나 다시 조회해 주세요.';
+
   return (
     <div className={clsx('krds-empty-state', 'empty-state', className)} {...props}>
       <p className="krds-empty-state__title">{message}</p>
-      {description ? <p className="krds-empty-state__description">{description}</p> : null}
+      <p className="krds-empty-state__description">{description ?? fallbackDescription}</p>
     </div>
   );
 }

@@ -146,11 +146,11 @@ export function AppLayout() {
       <Header>
         <Header.Container>
           <div className="app-shell__header header-branding">
-            <h2>
+            <div className="logo-heading">
               <NavLink to="/dashboard" aria-label="MY WORKS 홈">
                 <BrandLogo alt="MY WORKS" width={100} height={30} />
               </NavLink>
-            </h2>
+            </div>
             <Header.Navi>
               <div className="krds-user-menu" ref={userMenuRef}>
                 <button

@@ -24,8 +24,8 @@ export function ProjectsResultsTable({
   };
 
   return (
-    <div className="table-wrap">
-      <table className="krds-table">
+    <div className="table-wrap krds-table-wrap">
+      <table className="krds-table tbl data">
         <caption className="sr-only">프로젝트 리스트</caption>
         <thead>
           <tr>

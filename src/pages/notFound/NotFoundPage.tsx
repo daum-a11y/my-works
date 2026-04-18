@@ -21,9 +21,9 @@ export function NotFoundPage() {
     <main className="krds-not-found">
       <section className="krds-error-panel not-found-panel" aria-labelledby="not-found-title">
         <div className="krds-error-panel__head not-found-hero">
-          <h1 className="logo-heading">
+          <div className="logo-heading">
             <BrandLogo className="brand-logo" alt="My Works" width={100} height={30} />
-          </h1>
+          </div>
           <p className="caption-text">404</p>
         </div>
         <div className="krds-error-panel__body not-found-body">

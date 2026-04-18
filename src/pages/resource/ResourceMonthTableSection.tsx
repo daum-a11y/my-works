@@ -51,9 +51,7 @@ export function ResourceMonthTableSection({
   if (!hasTableData) {
     return (
       <PageSection title="월간 리포트 표" className="page-section">
-        <div className="table-wrap">
-          <EmptyState message="표시할 월간 리소스 데이터가 없습니다." />
-        </div>
+        <EmptyState message="표시할 월간 리소스 데이터가 없습니다." />
       </PageSection>
     );
   }

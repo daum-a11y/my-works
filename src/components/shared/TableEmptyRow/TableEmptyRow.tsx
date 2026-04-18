@@ -14,6 +14,8 @@ export function TableEmptyRow({
   className,
   ...props
 }: TableEmptyRowProps) {
+  const fallbackDescription = '필터 조건을 조정하거나 다시 조회해 주세요.';
+
   return (
     <tr>
       <td
@@ -22,7 +24,7 @@ export function TableEmptyRow({
         {...props}
       >
         <p className="krds-table-empty-row__title">{message}</p>
-        {description ? <p className="krds-table-empty-row__description">{description}</p> : null}
+        <p className="krds-table-empty-row__description">{description ?? fallbackDescription}</p>
       </td>
     </tr>
   );

@@ -51,8 +51,8 @@ export function ResourceSummaryResults({
   return (
     <>
       <section className="content-section">
-        <div className="table-wrap">
-          <table className="krds-table">
+        <div className="table-wrap krds-table-wrap">
+          <table className="krds-table tbl data">
             <caption className="sr-only">월별 사용자 업무보고 현황</caption>
             <thead>
               <tr>

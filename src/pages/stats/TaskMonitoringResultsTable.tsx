@@ -24,8 +24,8 @@ export function TaskMonitoringResultsTable({
   };
 
   return (
-    <div className="table-wrap">
-      <table className="krds-table">
+    <div className="table-wrap krds-table-wrap">
+      <table className="krds-table tbl data">
         <caption className="sr-only">필터링된 태스크 현황 목록</caption>
         <colgroup>
           <col className="table-col col-month" />

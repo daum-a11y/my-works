@@ -32,7 +32,7 @@ export function PageResultBar({ metrics, controls, className, ...props }: PageRe
       </TextList>
       {controls ? (
         <ul className="krds-result-bar__controls sch-sort">
-          <li className="m-hide">{controls}</li>
+          <li>{controls}</li>
         </ul>
       ) : null}
     </section>

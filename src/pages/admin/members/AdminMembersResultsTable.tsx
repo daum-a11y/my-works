@@ -25,8 +25,8 @@ export function AdminMembersResultsTable({
   };
 
   return (
-    <div className={'table-wrap'}>
-      <table className={'krds-table'}>
+    <div className={'table-wrap krds-table-wrap'}>
+      <table className={'krds-table tbl data'}>
         <caption className="sr-only">사용자 내역</caption>
         <thead>
           <tr>

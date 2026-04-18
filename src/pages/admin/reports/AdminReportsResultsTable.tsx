@@ -30,8 +30,8 @@ export function AdminReportsResultsTable({
 
   return (
     <div className={'krds-work-panel content-panel'}>
-      <div className={'table-wrap'}>
-        <table className={'krds-table'}>
+      <div className={'table-wrap krds-table-wrap'}>
+        <table className={'krds-table tbl data'}>
           <caption className={'sr-only'}>업무보고 조회 결과 테이블</caption>
           <thead>
             <tr>
