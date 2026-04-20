@@ -41,7 +41,6 @@ export function AppLayout() {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [logoutError, setLogoutError] = useState('');
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [avatarColor, setAvatarColor] = useState<{ backgroundColor: string; textColor: string }>({
     backgroundColor: '',
     textColor: '',
@@ -67,7 +66,6 @@ export function AppLayout() {
   useEffect(() => {
     setLogoutError('');
     setIsUserMenuOpen(false);
-    setIsMobileNavOpen(false);
   }, [location.pathname]);
 
   useEffect(() => {
@@ -150,7 +148,7 @@ export function AppLayout() {
           <div className="app-shell__header header-branding">
             <div className="logo-heading">
               <NavLink to="/dashboard" aria-label="MY WORKS 홈">
-                <BrandLogo alt="MY WORKS" width={100} height={30} />
+                <BrandLogo className="brand-logo" alt="MY WORKS" width={100} height={30} />
               </NavLink>
             </div>
             <Header.Navi>
@@ -231,7 +229,7 @@ export function AppLayout() {
         <div className="app-shell__body inner in-between">
           <SideNavigation
             aria-label="사이드 메뉴"
-            className={clsx('app-shell__navigation', isMobileNavOpen && 'is-mobile-open')}
+            className="app-shell__navigation"
             onClickCapture={(event) => {
               const target = event.target as HTMLElement;
               const anchor = target.closest('a') as HTMLAnchorElement | null;
@@ -241,18 +239,6 @@ export function AppLayout() {
               handleRouteLinkClick(event, anchor);
             }}
           >
-            <div className="app-shell__mobile-nav-head">
-              <SideNavigation.Title>메뉴</SideNavigation.Title>
-              <button
-                type="button"
-                className="app-shell__mobile-nav-toggle"
-                aria-controls="app-shell-side-menu"
-                aria-expanded={isMobileNavOpen}
-                onClick={() => setIsMobileNavOpen((open) => !open)}
-              >
-                {isMobileNavOpen ? '메뉴 접기' : '메뉴 열기'}
-              </button>
-            </div>
             <SideNavigation.Menu id="app-shell-side-menu">
               {navigation.map((item) => {
                 if (isLeafItem(item)) {

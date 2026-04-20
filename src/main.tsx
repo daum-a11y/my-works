@@ -4,10 +4,10 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { FontPreferenceProvider } from './preferences/FontPreferenceContext';
 import { ThemePreferenceProvider } from './preferences/ThemePreferenceContext';
 import { RootRouter } from './router/RootRouter';
-import './styles/krds.scss';
 import './styles/theme-tokens.css';
+import './styles/krds.scss';
 import './styles/app.scss';
-import './styles/components/SortableTableHeaderButton.scss';
+// import './styles/components/SortableTableHeaderButton.scss';
 
 const container = document.getElementById('wrap');
 

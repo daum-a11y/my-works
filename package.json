@@ -6,9 +6,10 @@
   "packageManager": "pnpm@10.18.2",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && vite build",
+    "build": "pnpm run style:check && tsc --noEmit && vite build",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
+    "style:check": "node scripts/check-style-constraints.mjs",
     "format": "prettier \"**/*.{js,cjs,mjs,ts,tsx,json,css,scss,html}\" --write",
     "format:check": "prettier \"**/*.{js,cjs,mjs,ts,tsx,json,css,scss,html}\" --check",
     "prepare": "husky",

@@ -40,18 +40,18 @@
 
 .sort-button-icon {
   display: inline-grid;
-  gap: 0.2rem;
+  gap: 2px;
   flex: 0 0 auto;
   justify-items: center;
-  width: 1rem;
+  width: 10px;
 }
 
 .sort-button-chevron {
   display: block;
   width: 0;
   height: 0;
-  border-left: 0.4rem solid transparent;
-  border-right: 0.4rem solid transparent;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
   opacity: 0.35;
   transition:
     opacity 180ms ease,
@@ -60,13 +60,13 @@
 }
 
 .sort-button-chevron.is-up {
-  border-bottom: 0.5rem solid currentColor;
-  transform: translateY(0.1rem);
+  border-bottom: 5px solid currentColor;
+  transform: translateY(1px);
 }
 
 .sort-button-chevron.is-down {
-  border-top: 0.5rem solid currentColor;
-  transform: translateY(-0.1rem);
+  border-top: 5px solid currentColor;
+  transform: translateY(-1px);
 }
 
 .sort-button-chevron.is-current {
