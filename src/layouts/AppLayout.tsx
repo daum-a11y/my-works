@@ -3,7 +3,7 @@ import { useIsFetching } from '@tanstack/react-query';
 import clsx from 'clsx';
 import { Breadcrumb, CriticalAlert, Header, SideNavigation, SkipLink, Spinner } from 'krds-react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { ChevronDown, LogOut, UserRound } from 'lucide-react';
+import { ChevronDown, LogOut, Settings, UserRound } from 'lucide-react';
 import { BrandLogo } from '../components/layout/BrandLogo';
 import { useAuth } from '../auth/AuthContext';
 import {
@@ -145,7 +145,7 @@ export function AppLayout() {
 
       <Header>
         <Header.Container>
-          <div className="app-shell__header header-branding">
+          <div className="header-branding">
             <div className="logo-heading">
               <NavLink to="/dashboard" aria-label="MY WORKS 홈">
                 <BrandLogo className="brand-logo" alt="MY WORKS" width={100} height={30} />
@@ -207,6 +207,14 @@ export function AppLayout() {
                       <UserRound size={15} strokeWidth={2} aria-hidden="true" />
                       <span>프로필</span>
                     </NavLink>
+                    <NavLink
+                      to="/settings"
+                      role="menuitem"
+                      className={({ isActive }) => clsx('user-menu-item', isActive && 'is-active')}
+                    >
+                      <Settings size={15} strokeWidth={2} aria-hidden="true" />
+                      <span>환경 설정</span>
+                    </NavLink>
                     <button
                       type="button"
                       role="menuitem"
@@ -225,11 +233,11 @@ export function AppLayout() {
         </Header.Container>
       </Header>
 
-      <div id="container" className="app-shell">
-        <div className="app-shell__body inner in-between">
+      <div id="container" className="krds-service-layout">
+        <div className="krds-service-layout-body inner in-between">
           <SideNavigation
             aria-label="사이드 메뉴"
-            className="app-shell__navigation"
+            className="krds-service-layout-navigation"
             onClickCapture={(event) => {
               const target = event.target as HTMLElement;
               const anchor = target.closest('a') as HTMLAnchorElement | null;
@@ -239,7 +247,7 @@ export function AppLayout() {
               handleRouteLinkClick(event, anchor);
             }}
           >
-            <SideNavigation.Menu id="app-shell-side-menu">
+            <SideNavigation.Menu id="service-side-menu">
               {navigation.map((item) => {
                 if (isLeafItem(item)) {
                   const isCurrent =
@@ -308,7 +316,7 @@ export function AppLayout() {
           </SideNavigation>
 
           <div
-            className="app-shell__content contents"
+            className="krds-service-layout-content contents"
             onClickCapture={(event) => {
               const target = event.target as HTMLElement;
               const anchor = target.closest('.krds-breadcrumb-wrap a') as HTMLAnchorElement | null;
@@ -320,7 +328,7 @@ export function AppLayout() {
           >
             {activeFetchCount > 0 ? (
               <div
-                className="app-shell__fetching global-loading-spinner is-overlay"
+                className="global-loading-spinner is-overlay"
                 aria-label="로딩 중"
                 role="status"
               >
@@ -331,13 +339,13 @@ export function AppLayout() {
               <CriticalAlert alerts={[{ variant: 'danger', message: logoutError }]} />
             ) : null}
             <Breadcrumb items={breadcrumbItems} ariaLabel="브래드크럼" />
-            <main id="main-content" className="app-shell__main conts-area">
+            <main id="main-content" className="krds-service-layout-main conts-area">
               <Outlet />
             </main>
           </div>
         </div>
       </div>
-      <footer id="krds-footer" className="app-shell__footer">
+      <footer id="krds-footer">
         <div className="inner">
           <div className="f-btm">
             <div className="f-btm-text">

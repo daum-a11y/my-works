@@ -12,7 +12,7 @@ export const USER_PROFILE_FONT_OPTIONS: Array<{ value: FontPreference; label: st
   },
   {
     value: 'system',
-    label: '시스템폰트',
+    label: '시스템 폰트',
   },
 ];
 

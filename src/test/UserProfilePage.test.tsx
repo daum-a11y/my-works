@@ -79,8 +79,8 @@ describe('UserProfilePage', () => {
     expect(screen.getByRole('heading', { level: 1, name: '프로필' })).toBeInTheDocument();
     expect(screen.getByText('daum.a11y@gmail.com')).toBeInTheDocument();
     expect(screen.getByText('관리자')).toBeInTheDocument();
-    expect(screen.getByRole('radio', { name: /Pretendard/ })).toBeChecked();
-    expect(screen.getByRole('radio', { name: /시스템설정/ })).toBeChecked();
+    expect(screen.queryByRole('radio', { name: /Pretendard/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole('radio', { name: /시스템설정/ })).not.toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: '비밀번호 변경' }));
 
@@ -182,93 +182,5 @@ describe('UserProfilePage', () => {
       await screen.findByText('비밀번호가 변경되었습니다. 로그인해 주세요.'),
     ).toBeInTheDocument();
     expect(screen.getByLabelText('비밀번호')).toHaveFocus();
-  });
-
-  it('stores the selected font in localStorage and applies it app-wide', async () => {
-    const user = userEvent.setup();
-
-    mockUseAuth.mockReturnValue({
-      status: 'authenticated',
-      authFlow: 'default',
-      isRecoverySession: false,
-      session: {
-        member: {
-          id: 'member-1',
-          accountId: 'daum.a11y',
-          name: '테스트',
-          email: 'daum.a11y@gmail.com',
-          role: 'user',
-          isActive: true,
-          joinedAt: '2026-01-01',
-        },
-      },
-      login: vi.fn(),
-      resetPassword: vi.fn(),
-      logout: vi.fn(),
-      updatePassword: vi.fn(),
-    });
-
-    renderProfilePage();
-
-    await waitFor(() => {
-      expect(document.documentElement.dataset.fontPreference).toBe('pretendard');
-    });
-
-    await user.click(screen.getByRole('radio', { name: /KoddiUD OnGothic/ }));
-
-    expect(document.documentElement.dataset.fontPreference).toBe('ongothic');
-    expect(window.localStorage.getItem('my-works:font-preference')).toBe('ongothic');
-
-    cleanup();
-
-    renderProfilePage();
-
-    expect(screen.getByRole('radio', { name: /KoddiUD OnGothic/ })).toBeChecked();
-    expect(document.documentElement.dataset.fontPreference).toBe('ongothic');
-  });
-
-  it('stores the selected theme in localStorage and applies the resolved theme', async () => {
-    const user = userEvent.setup();
-
-    mockUseAuth.mockReturnValue({
-      status: 'authenticated',
-      authFlow: 'default',
-      isRecoverySession: false,
-      session: {
-        member: {
-          id: 'member-1',
-          accountId: 'daum.a11y',
-          name: '테스트',
-          email: 'daum.a11y@gmail.com',
-          role: 'user',
-          isActive: true,
-          joinedAt: '2026-01-01',
-        },
-      },
-      login: vi.fn(),
-      resetPassword: vi.fn(),
-      logout: vi.fn(),
-      updatePassword: vi.fn(),
-    });
-
-    renderProfilePage();
-
-    await waitFor(() => {
-      expect(document.documentElement.dataset.themePreference).toBe('system');
-    });
-
-    await user.click(screen.getByRole('radio', { name: /다크모드/ }));
-
-    expect(document.documentElement.dataset.themePreference).toBe('dark');
-    expect(document.documentElement.dataset.themeResolved).toBe('dark');
-    expect(window.localStorage.getItem('my-works:theme-preference')).toBe('dark');
-
-    cleanup();
-
-    renderProfilePage();
-
-    expect(screen.getByRole('radio', { name: /다크모드/ })).toBeChecked();
-    expect(document.documentElement.dataset.themePreference).toBe('dark');
-    expect(document.documentElement.dataset.themeResolved).toBe('dark');
   });
 });

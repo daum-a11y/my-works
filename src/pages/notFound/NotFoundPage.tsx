@@ -20,13 +20,13 @@ export function NotFoundPage() {
   return (
     <main className="krds-not-found">
       <section className="krds-error-panel not-found-panel" aria-labelledby="not-found-title">
-        <div className="krds-error-panel__head not-found-hero">
+        <div className="krds-error-panel-head not-found-hero">
           <div className="logo-heading">
             <BrandLogo className="brand-logo" alt="My Works" width={100} height={30} />
           </div>
           <p className="caption-text">404</p>
         </div>
-        <div className="krds-error-panel__body not-found-body">
+        <div className="krds-error-panel-body not-found-body">
           <h1 id="not-found-title" className="not-found-title">
             페이지를 찾을 수 없습니다.
           </h1>

@@ -93,6 +93,11 @@ export function getBreadcrumbs(pathname: string, navigation: readonly Navigation
     return parts;
   }
 
+  if (pathname === '/settings') {
+    parts.push({ label: '환경 설정', to: '/settings' });
+    return parts;
+  }
+
   for (const item of navigation) {
     if ('to' in item && isCurrentPath(pathname, item.to)) {
       parts.push({ label: item.label, to: item.to });

@@ -23,8 +23,8 @@ export function TableEmptyRow({
         className={clsx('krds-table-empty-row', 'table-empty-row', className)}
         {...props}
       >
-        <p className="krds-table-empty-row__title">{message}</p>
-        <p className="krds-table-empty-row__description">{description ?? fallbackDescription}</p>
+        <p className="krds-table-empty-row-title">{message}</p>
+        <p className="krds-table-empty-row-description">{description ?? fallbackDescription}</p>
       </td>
     </tr>
   );

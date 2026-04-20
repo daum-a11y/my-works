@@ -92,6 +92,10 @@ vi.mock('../pages/profile', () => ({
   UserProfilePage: () => <div>profile-page</div>,
 }));
 
+vi.mock('../pages/settings', () => ({
+  UserSettingsPage: () => <div>settings-page</div>,
+}));
+
 vi.mock('../layouts/AppLayout', async () => {
   const { Outlet } = await import('react-router-dom');
 
@@ -209,6 +213,31 @@ describe('RootRouter', () => {
 
     await waitFor(() => {
       expect(screen.getByText('task-monitoring-page')).toBeInTheDocument();
+    });
+  });
+
+  it('allows authenticated members to open settings', async () => {
+    window.history.replaceState({}, '', '/settings');
+    mockUseAuth.mockReturnValue({
+      status: 'authenticated',
+      authFlow: 'default',
+      isRecoverySession: false,
+      session: {
+        member: {
+          id: 'member-1',
+          accountId: 'user01',
+          name: '사용자',
+          role: 'user',
+          isActive: true,
+          status: 'active',
+        },
+      },
+    });
+
+    render(<RootRouter />);
+
+    await waitFor(() => {
+      expect(screen.getByText('settings-page')).toBeInTheDocument();
     });
   });
 

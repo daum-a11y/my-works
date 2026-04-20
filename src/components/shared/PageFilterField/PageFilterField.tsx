@@ -68,10 +68,10 @@ export function PageFilterField({ label, className, children, ...props }: PageFi
 
   return (
     <div className={clsx('krds-filter-field', 'filter-field', 'form-group', className)} {...props}>
-      <div className="krds-filter-field__label form-tit">
+      <div className="krds-filter-field-label form-tit">
         <label id={labelId}>{label}</label>
       </div>
-      <div className="krds-filter-field__control form-conts">{enhancedChildren}</div>
+      <div className="krds-filter-field-control form-conts">{enhancedChildren}</div>
     </div>
   );
 }

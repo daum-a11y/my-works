@@ -35,12 +35,12 @@ export function PageHeader({
       data-align={align}
       {...props}
     >
-      <div className="krds-page-header__text">
+      <div className="krds-page-header-text">
         {kicker ? <p>{kicker}</p> : null}
         <h1 className="h-tit">{title}</h1>
         {description ? <div>{description}</div> : null}
       </div>
-      {actions ? <div className="krds-page-header__actions">{actions}</div> : null}
+      {actions ? <div className="krds-page-header-actions">{actions}</div> : null}
     </header>
   );
 }

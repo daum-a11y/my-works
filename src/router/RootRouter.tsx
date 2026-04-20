@@ -29,6 +29,7 @@ import {
   ResourceTypePage,
 } from '../pages/resource';
 import { SearchPage } from '../pages/search';
+import { UserSettingsPage } from '../pages/settings';
 import { ProjectStatsPage, TaskMonitoringPage } from '../pages/stats';
 import { UserProfilePage } from '../pages/profile';
 import { AppLayout } from '../layouts/AppLayout';
@@ -133,6 +134,7 @@ export function RootRouter() {
             <Route path="/stats/monitoring" element={<TaskMonitoringPage />} />
             <Route path="/stats/projects" element={<ProjectStatsPage />} />
             <Route path="/profile" element={<UserProfilePage />} />
+            <Route path="/settings" element={<UserSettingsPage />} />
             <Route path="/password-change" element={<Navigate to="/profile" replace />} />
             <Route element={<AdminRoute />}>
               <Route path="/org/summary" element={<ResourceSummaryPage />} />

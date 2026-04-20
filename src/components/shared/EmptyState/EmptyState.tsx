@@ -11,8 +11,8 @@ export function EmptyState({ message, description, className, ...props }: EmptyS
 
   return (
     <div className={clsx('krds-empty-state', 'empty-state', className)} {...props}>
-      <p className="krds-empty-state__title">{message}</p>
-      <p className="krds-empty-state__description">{description ?? fallbackDescription}</p>
+      <p className="krds-empty-state-title">{message}</p>
+      <p className="krds-empty-state-description">{description ?? fallbackDescription}</p>
     </div>
   );
 }

@@ -82,6 +82,7 @@ describe('AppLayout', () => {
               <Route path="/" element={<AppLayout />}>
                 <Route path="dashboard" element={<div>dashboard screen</div>} />
                 <Route path="profile" element={<div>profile-page</div>} />
+                <Route path="settings" element={<div>settings-page</div>} />
               </Route>
             </Routes>
           </MemoryRouter>
@@ -94,6 +95,7 @@ describe('AppLayout', () => {
     await user.click(screen.getByRole('button', { name: '사용자 메뉴' }));
 
     expect(screen.getByText('프로필')).toBeInTheDocument();
+    expect(screen.getByText('환경 설정')).toBeInTheDocument();
     expect(screen.getByText('로그아웃')).toBeInTheDocument();
 
     await user.click(screen.getByText('로그아웃'));

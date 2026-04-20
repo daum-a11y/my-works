@@ -13,8 +13,8 @@ export function PageFilterBar({ actions, className, children, ...props }: PageFi
       data-has-actions={actions ? 'true' : undefined}
       {...props}
     >
-      <div className="krds-filter-bar__fields">{children}</div>
-      {actions ? <div className="krds-filter-bar__actions">{actions}</div> : null}
+      <div className="krds-filter-bar-fields">{children}</div>
+      {actions ? <div className="krds-filter-bar-actions">{actions}</div> : null}
     </div>
   );
 }

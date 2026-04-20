@@ -85,7 +85,6 @@ export function MonthlyReportCalendar({
                         <KrdsLink
                           href={linkTarget.to}
                           size="small"
-                          className="calendar-link"
                           onClick={(event: MouseEvent<HTMLAnchorElement>) => {
                             if (
                               event.defaultPrevented ||

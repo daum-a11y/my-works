@@ -1,13 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useFontPreference } from '../../hooks/useFontPreference';
-import { useThemePreference } from '../../hooks/useThemePreference';
 import { useAuth } from '../../auth/AuthContext';
-import {
-  UserProfileAccountSection,
-  UserProfileFontSection,
-  UserProfileThemeSection,
-} from './UserProfileSections';
+import { UserProfileAccountSection } from './UserProfileSections';
 import { UserProfilePasswordModal } from './UserProfilePasswordModal';
 import { PageHeader } from '../../components/shared';
 
@@ -45,8 +39,6 @@ function getPasswordErrors(draft: PasswordDraft): PasswordErrors {
 export function UserProfilePage() {
   const navigate = useNavigate();
   const { session, updatePassword, logout } = useAuth();
-  const { fontPreference, setFontPreference } = useFontPreference();
-  const { themePreference, setThemePreference } = useThemePreference();
   const member = session?.member;
   const [editing, setEditing] = useState(false);
   const [step, setStep] = useState<PasswordStep>('form');
@@ -177,15 +169,6 @@ export function UserProfilePage() {
           onEdit={handleEdit}
         />
 
-        <UserProfileFontSection
-          fontPreference={fontPreference}
-          onFontPreferenceChange={setFontPreference}
-        />
-
-        <UserProfileThemeSection
-          themePreference={themePreference}
-          onThemePreferenceChange={setThemePreference}
-        />
       </div>
 
       <UserProfilePasswordModal
