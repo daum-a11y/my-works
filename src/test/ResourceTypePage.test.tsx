@@ -133,6 +133,8 @@ describe('ResourceTypePage', () => {
       expect(screen.getAllByRole('cell', { name: '모니터링' }).length).toBeGreaterThan(0);
     });
 
+    expect(screen.getByRole('cell', { name: '2024년 합계' })).toBeInTheDocument();
+    expect(screen.getByRole('cell', { name: '모니터링' })).toBeInTheDocument();
     expect(screen.queryByRole('cell', { name: 'QA' })).not.toBeInTheDocument();
 
     screen.getByRole('tab', { name: /^2023년/ }).click();
