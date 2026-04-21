@@ -1359,6 +1359,16 @@ caption {
 //  margin-bottom: var(--krds-gap-4);
 //}
 
+.krds-breadcrumb-wrap .breadcrumb li:not(:last-child)::after,
+.krds-breadcrumb-wrap .breadcrumb .home .txt::before {
+  background-color: var(--krds-light-color-text-basic);
+}
+
+[data-theme-resolved='dark'] .krds-breadcrumb-wrap .breadcrumb li:not(:last-child)::after,
+[data-theme-resolved='dark'] .krds-breadcrumb-wrap .breadcrumb .home .txt::before {
+  background-color: var(--krds-dark-color-text-basic);
+}
+
 .krds-page,
 .admin-page,
 .settings-page {
