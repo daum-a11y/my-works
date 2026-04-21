@@ -1,3 +1,5 @@
+@charset "UTF-8";
+@import 'https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-gov.min.css';
 /* Component-scoped KRDS custom properties. */
 
 .krds-drop-wrap {
@@ -3586,10 +3588,11 @@ textarea.krds-input {
     --krds-calendar--action-btn-wrap-color-surface: var(--krds-dark-color-surface-white);
 }
 
-@charset "UTF-8";
-@import 'https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-gov.min.css';.scroll-no {
+.scroll-no {
   overflow: hidden;
-}.svg-icon.ico-angle {
+}
+
+.svg-icon.ico-angle {
   -webkit-mask-repeat: no-repeat;
   -webkit-mask-position: center center;
   -webkit-mask-size: contain;
@@ -4481,13 +4484,15 @@ textarea.krds-input {
 .krds-drop-wrap.drop-right .drop-menu:before {
   left: unset;
   right: 24px;
-}  [data-theme-resolved='dark'] .krds-drop-wrap .drop-list .item-link .ico-go {
-    display: inline-flex;
-    width: var(--krds-icon--size-medium);
-    height: var(--krds-icon--size-medium);
-    background-color: var(--krds-dark-color-text-basic);
-    forced-color-adjust: none;
-  }
+}
+
+[data-theme-resolved='dark'] .krds-drop-wrap .drop-list .item-link .ico-go {
+  display: inline-flex;
+  width: var(--krds-icon--size-medium);
+  height: var(--krds-icon--size-medium);
+  background-color: var(--krds-dark-color-text-basic);
+  forced-color-adjust: none;
+}
 
 html,
 body {
@@ -4786,10 +4791,12 @@ caption {
   padding-right: var(--krds-contents-padding-x);
 }
 
-  [data-theme-resolved='dark'] a:visited.visited,
-  [data-theme-resolved='dark'] a:visited .visited {
-    color: var(--krds-dark-color-link-visited);
-  }.krds-btn {
+[data-theme-resolved='dark'] a:visited.visited,
+[data-theme-resolved='dark'] a:visited .visited {
+  color: var(--krds-dark-color-link-visited);
+}
+
+.krds-btn {
   gap: var(--krds-button--gap-large);
   height: var(--krds-button--size-height-large);
   padding: var(--krds-button-text--padding-y-large) var(--krds-button-text--padding-x-large);
@@ -4866,7 +4873,9 @@ caption {
 .krds-btn.xlarge .svg-icon {
   width: var(--krds-icon--size-xlarge);
   height: var(--krds-icon--size-xlarge);
-}.krds-btn,
+}
+
+.krds-btn,
 .krds-btn.primary {
   background-color: var(--krds-button--color-primary-fill);
   border-color: var(--krds-button--color-primary-border);
@@ -5984,7 +5993,9 @@ caption {
 }
 .krds-modal[data-type='full'] .modal-back.in {
   display: none;
-}.krds-modal[data-type='bottom-sheet'] .modal-content {
+}
+
+.krds-modal[data-type='bottom-sheet'] .modal-content {
   position: fixed;
   left: 0;
   bottom: -100%;
@@ -6035,16 +6046,18 @@ caption {
 }
 .krds-modal[data-type='bottom-sheet'].in .modal-content {
   bottom: 0;
-}  [data-theme-resolved='dark'] .krds-modal .modal-dialog .modal-conts::-webkit-scrollbar {
-    width: 8px;
-  }
-  [data-theme-resolved='dark'] .krds-modal .modal-dialog .modal-conts::-webkit-scrollbar-thumb {
-    background-color: var(--krds-dark-color-element-secondary-light);
-    border-radius: 8px;
-  }
-  [data-theme-resolved='dark'] .krds-modal .modal-dialog .modal-conts::-webkit-scrollbar-track {
-    background-color: var(--krds-dark-color-element-secondary-lighter);
-  }
+}
+
+[data-theme-resolved='dark'] .krds-modal .modal-dialog .modal-conts::-webkit-scrollbar {
+  width: 8px;
+}
+[data-theme-resolved='dark'] .krds-modal .modal-dialog .modal-conts::-webkit-scrollbar-thumb {
+  background-color: var(--krds-dark-color-element-secondary-light);
+  border-radius: 8px;
+}
+[data-theme-resolved='dark'] .krds-modal .modal-dialog .modal-conts::-webkit-scrollbar-track {
+  background-color: var(--krds-dark-color-element-secondary-lighter);
+}
 
 .krds-help-panel {
   position: fixed;
@@ -10642,22 +10655,8 @@ label {
   border-radius: var(--krds-form-check--checkbox-button-radius-medium);
 }
 .krds-form-check.medium > input[type='checkbox'] ~ label:after {
-  top: calc(
-    (
-        var(--krds-form-check--button-size-medium) - var(
-            --krds-form-check--checkbox-check-size-medium
-          )
-      ) /
-      2 + var(--krds-form-check--button-margin-top)
-  );
-  left: calc(
-    (
-        var(--krds-form-check--button-size-medium) - var(
-            --krds-form-check--checkbox-check-size-medium
-          )
-      ) /
-      2
-  );
+  top: calc((var(--krds-form-check--button-size-medium) - var(--krds-form-check--checkbox-check-size-medium)) / 2 + var(--krds-form-check--button-margin-top));
+  left: calc((var(--krds-form-check--button-size-medium) - var(--krds-form-check--checkbox-check-size-medium)) / 2);
   display: inline-flex;
   width: var(--krds-form-check--checkbox-check-size-medium);
   height: var(--krds-form-check--checkbox-check-size-medium);
@@ -10698,13 +10697,8 @@ label {
   border-radius: var(--krds-form-check--radio-button-radius-large);
 }
 .krds-form-check.large > input[type='radio'] ~ label:after {
-  top: calc(
-    (var(--krds-form-check--button-size-large) - var(--krds-form-check--radio-check-size-large)) /
-      2 + var(--krds-form-check--button-margin-top)
-  );
-  left: calc(
-    (var(--krds-form-check--button-size-large) - var(--krds-form-check--radio-check-size-large)) / 2
-  );
+  top: calc((var(--krds-form-check--button-size-large) - var(--krds-form-check--radio-check-size-large)) / 2 + var(--krds-form-check--button-margin-top));
+  left: calc((var(--krds-form-check--button-size-large) - var(--krds-form-check--radio-check-size-large)) / 2);
   width: var(--krds-form-check--radio-check-size-large);
   height: var(--krds-form-check--radio-check-size-large);
   background-color: var(--krds-form-check--radio-check-color-element);
@@ -10714,22 +10708,8 @@ label {
   border-radius: var(--krds-form-check--checkbox-button-radius-large);
 }
 .krds-form-check.large > input[type='checkbox'] ~ label:after {
-  top: calc(
-    (
-        var(--krds-form-check--button-size-large) - var(
-            --krds-form-check--checkbox-check-size-large
-          )
-      ) /
-      2 + var(--krds-form-check--button-margin-top)
-  );
-  left: calc(
-    (
-        var(--krds-form-check--button-size-large) - var(
-            --krds-form-check--checkbox-check-size-large
-          )
-      ) /
-      2
-  );
+  top: calc((var(--krds-form-check--button-size-large) - var(--krds-form-check--checkbox-check-size-large)) / 2 + var(--krds-form-check--button-margin-top));
+  left: calc((var(--krds-form-check--button-size-large) - var(--krds-form-check--checkbox-check-size-large)) / 2);
   display: inline-flex;
   width: var(--krds-form-check--checkbox-check-size-large);
   height: var(--krds-form-check--checkbox-check-size-large);
@@ -10795,14 +10775,8 @@ label {
   border-radius: var(--krds-form-check--radio-button-radius-medium);
 }
 .krds-form-check input[type='radio'] ~ label:after {
-  top: calc(
-    (var(--krds-form-check--button-size-medium) - var(--krds-form-check--radio-check-size-medium)) /
-      2 + var(--krds-form-check--button-margin-top)
-  );
-  left: calc(
-    (var(--krds-form-check--button-size-medium) - var(--krds-form-check--radio-check-size-medium)) /
-      2
-  );
+  top: calc((var(--krds-form-check--button-size-medium) - var(--krds-form-check--radio-check-size-medium)) / 2 + var(--krds-form-check--button-margin-top));
+  left: calc((var(--krds-form-check--button-size-medium) - var(--krds-form-check--radio-check-size-medium)) / 2);
   width: var(--krds-form-check--radio-check-size-medium);
   height: var(--krds-form-check--radio-check-size-medium);
   background-color: var(--krds-form-check--radio-check-color-element);
@@ -10821,22 +10795,8 @@ label {
   border-radius: var(--krds-form-check--checkbox-button-radius-medium);
 }
 .krds-form-check input[type='checkbox'] ~ label:after {
-  top: calc(
-    (
-        var(--krds-form-check--button-size-medium) - var(
-            --krds-form-check--checkbox-check-size-medium
-          )
-      ) /
-      2 + var(--krds-form-check--button-margin-top)
-  );
-  left: calc(
-    (
-        var(--krds-form-check--button-size-medium) - var(
-            --krds-form-check--checkbox-check-size-medium
-          )
-      ) /
-      2
-  );
+  top: calc((var(--krds-form-check--button-size-medium) - var(--krds-form-check--checkbox-check-size-medium)) / 2 + var(--krds-form-check--button-margin-top));
+  left: calc((var(--krds-form-check--button-size-medium) - var(--krds-form-check--checkbox-check-size-medium)) / 2);
   display: inline-flex;
   width: var(--krds-form-check--checkbox-check-size-medium);
   height: var(--krds-form-check--checkbox-check-size-medium);
@@ -10911,22 +10871,8 @@ label {
     border-radius: var(--krds-form-check--radio-button-radius-medium);
   }
   [data-theme-resolved='dark'] .krds-form-check.medium > input[type='radio'] ~ label:after {
-    top: calc(
-      (
-          var(--krds-form-check--button-size-medium) - var(
-              --krds-form-check--radio-check-size-medium
-            )
-        ) /
-        2 + var(--krds-form-check--button-margin-top)
-    );
-    left: calc(
-      (
-          var(--krds-form-check--button-size-medium) - var(
-              --krds-form-check--radio-check-size-medium
-            )
-        ) /
-        2
-    );
+    top: calc((var(--krds-form-check--button-size-medium) - var(--krds-form-check--radio-check-size-medium)) / 2 + var(--krds-form-check--button-margin-top));
+    left: calc((var(--krds-form-check--button-size-medium) - var(--krds-form-check--radio-check-size-medium)) / 2);
     width: var(--krds-form-check--radio-check-size-medium);
     height: var(--krds-form-check--radio-check-size-medium);
     background-color: var(--krds-form-check--radio-check-color-element);
@@ -10936,22 +10882,8 @@ label {
     border-radius: var(--krds-form-check--checkbox-button-radius-medium);
   }
   [data-theme-resolved='dark'] .krds-form-check.medium > input[type='checkbox'] ~ label:after {
-    top: calc(
-      (
-          var(--krds-form-check--button-size-medium) - var(
-              --krds-form-check--checkbox-check-size-medium
-            )
-        ) /
-        2 + var(--krds-form-check--button-margin-top)
-    );
-    left: calc(
-      (
-          var(--krds-form-check--button-size-medium) - var(
-              --krds-form-check--checkbox-check-size-medium
-            )
-        ) /
-        2
-    );
+    top: calc((var(--krds-form-check--button-size-medium) - var(--krds-form-check--checkbox-check-size-medium)) / 2 + var(--krds-form-check--button-margin-top));
+    left: calc((var(--krds-form-check--button-size-medium) - var(--krds-form-check--checkbox-check-size-medium)) / 2);
     display: inline-flex;
     width: var(--krds-form-check--checkbox-check-size-medium);
     height: var(--krds-form-check--checkbox-check-size-medium);
@@ -11010,14 +10942,8 @@ label {
     border-radius: var(--krds-form-check--radio-button-radius-large);
   }
   [data-theme-resolved='dark'] .krds-form-check.large > input[type='radio'] ~ label:after {
-    top: calc(
-      (var(--krds-form-check--button-size-large) - var(--krds-form-check--radio-check-size-large)) /
-        2 + var(--krds-form-check--button-margin-top)
-    );
-    left: calc(
-      (var(--krds-form-check--button-size-large) - var(--krds-form-check--radio-check-size-large)) /
-        2
-    );
+    top: calc((var(--krds-form-check--button-size-large) - var(--krds-form-check--radio-check-size-large)) / 2 + var(--krds-form-check--button-margin-top));
+    left: calc((var(--krds-form-check--button-size-large) - var(--krds-form-check--radio-check-size-large)) / 2);
     width: var(--krds-form-check--radio-check-size-large);
     height: var(--krds-form-check--radio-check-size-large);
     background-color: var(--krds-form-check--radio-check-color-element);
@@ -11027,22 +10953,8 @@ label {
     border-radius: var(--krds-form-check--checkbox-button-radius-large);
   }
   [data-theme-resolved='dark'] .krds-form-check.large > input[type='checkbox'] ~ label:after {
-    top: calc(
-      (
-          var(--krds-form-check--button-size-large) - var(
-              --krds-form-check--checkbox-check-size-large
-            )
-        ) /
-        2 + var(--krds-form-check--button-margin-top)
-    );
-    left: calc(
-      (
-          var(--krds-form-check--button-size-large) - var(
-              --krds-form-check--checkbox-check-size-large
-            )
-        ) /
-        2
-    );
+    top: calc((var(--krds-form-check--button-size-large) - var(--krds-form-check--checkbox-check-size-large)) / 2 + var(--krds-form-check--button-margin-top));
+    left: calc((var(--krds-form-check--button-size-large) - var(--krds-form-check--checkbox-check-size-large)) / 2);
     display: inline-flex;
     width: var(--krds-form-check--checkbox-check-size-large);
     height: var(--krds-form-check--checkbox-check-size-large);
@@ -11059,22 +10971,8 @@ label {
     background-color: var(--krds-form-check--checkbox-check-color-element);
   }
   [data-theme-resolved='dark'] .krds-form-check input[type='checkbox'] ~ label:after {
-    top: calc(
-      (
-          var(--krds-form-check--button-size-medium) - var(
-              --krds-form-check--checkbox-check-size-medium
-            )
-        ) /
-        2 + var(--krds-form-check--button-margin-top)
-    );
-    left: calc(
-      (
-          var(--krds-form-check--button-size-medium) - var(
-              --krds-form-check--checkbox-check-size-medium
-            )
-        ) /
-        2
-    );
+    top: calc((var(--krds-form-check--button-size-medium) - var(--krds-form-check--checkbox-check-size-medium)) / 2 + var(--krds-form-check--button-margin-top));
+    left: calc((var(--krds-form-check--button-size-medium) - var(--krds-form-check--checkbox-check-size-medium)) / 2);
     display: inline-flex;
     width: var(--krds-form-check--checkbox-check-size-medium);
     height: var(--krds-form-check--checkbox-check-size-medium);
