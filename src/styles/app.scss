@@ -2093,7 +2093,6 @@ button.table-link {
 }
 
 .auth-panel,
-.not-found-panel,
 .krds-auth-panel,
 .krds-error-panel {
   position: relative;
@@ -2116,10 +2115,8 @@ button.table-link {
 }
 
 .top-block,
-.not-found-hero,
 .krds-auth-head,
-.krds-error-panel-head,
-.not-found-body {
+.krds-error-panel-head {
   display: flex;
   flex-direction: column;
   gap: var(--krds-gap-4);
@@ -2137,8 +2134,7 @@ button.table-link {
   font-weight: var(--krds-font-weight-bold);
 }
 
-.auth-title,
-.not-found-title {
+.auth-title {
   margin: 0;
   color: var(--krds-light-color-text-basic);
   font-size: var(--krds-pc-font-size-heading-large);
@@ -2173,8 +2169,7 @@ button.table-link {
 }
 
 .krds-auth-actions,
-.krds-auth-shell .action-area,
-.not-found-panel .action-area {
+.krds-auth-shell .action-area {
   display: flex;
   align-items: center;
   gap: var(--krds-gap-3);
@@ -2193,24 +2188,6 @@ button.table-link {
   color: var(--krds-light-color-text-subtle);
   font-size: var(--krds-pc-font-size-body-small);
   line-height: var(--krds-line-height-base);
-}
-
-.krds-not-found {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  min-width: 0;
-  padding: var(--krds-gap-12);
-  background-color: var(--krds-light-color-background-white);
-}
-
-.not-found-panel {
-  width: min(100%, 560px);
-}
-
-.not-found-body {
-  margin-top: var(--krds-gap-8);
 }
 
   [data-theme-resolved='dark'] #container .in-between .krds-side-navigation {
@@ -2258,14 +2235,11 @@ button.table-link {
   }
 
   [data-theme-resolved='dark'] .krds-auth-shell,
-  [data-theme-resolved='dark'] .krds-not-found,
-  [data-theme-resolved='dark'] .auth-panel,
-  [data-theme-resolved='dark'] .not-found-panel {
+  [data-theme-resolved='dark'] .auth-panel {
     background-color: var(--krds-dark-color-background-white);
   }
 
-  [data-theme-resolved='dark'] .auth-panel,
-  [data-theme-resolved='dark'] .not-found-panel {
+  [data-theme-resolved='dark'] .auth-panel {
     border-color: var(--krds-dark-color-border-gray-light);
   }
 
@@ -2277,12 +2251,12 @@ button.table-link {
     color: var(--krds-dark-color-text-primary);
   }
 
-  [data-theme-resolved='dark'] .auth-title,
-  [data-theme-resolved='dark'] .not-found-title {
+  [data-theme-resolved='dark'] .auth-title {
     color: var(--krds-dark-color-text-basic);
   }
 
-  [data-theme-resolved='dark'] .description-text {
+  [data-theme-resolved='dark'] .description-text,
+  [data-theme-resolved='dark'] .krds-auth-support {
     color: var(--krds-dark-color-text-subtle);
   }
 

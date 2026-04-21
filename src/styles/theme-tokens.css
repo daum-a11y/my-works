@@ -561,7 +561,7 @@
   --krds-dark-color-button-text-fill-hover: var(--krds-color-dark-secondary-95);
   --krds-dark-color-button-text-fill-pressed: var(--krds-color-dark-secondary-90);
   --krds-dark-color-button-text-fill: var(--krds-color-dark-alpha-black0);
-  --krds-dark-color-button-text-border: var(--krds-color-dark-alpha-white50);
+  --krds-dark-color-button-text-border: var(--krds-color-dark-alpha-white0);
   --krds-dark-color-button-disabled-border: var(--krds-color-dark-gray-70);
   --krds-dark-color-background-white: var(--krds-color-dark-gray-100);
   --krds-dark-color-background-inverse: var(--krds-color-dark-gray-10);
@@ -1317,7 +1317,7 @@
   --krds-dark-color-button-text-fill-hover: var(--krds-color-dark-secondary-95);
   --krds-dark-color-button-text-fill-pressed: var(--krds-color-dark-secondary-90);
   --krds-dark-color-button-text-fill: var(--krds-color-dark-alpha-black0);
-  --krds-dark-color-button-text-border: var(--krds-color-dark-alpha-white50);
+  --krds-dark-color-button-text-border: var(--krds-color-dark-alpha-white0);
   --krds-dark-color-button-disabled-border: var(--krds-color-dark-gray-70);
   --krds-dark-color-background-white: var(--krds-color-dark-gray-100);
   --krds-dark-color-background-inverse: var(--krds-color-dark-gray-10);
@@ -2068,7 +2068,7 @@
   --krds-dark-color-button-text-fill-hover: var(--krds-color-dark-secondary-95);
   --krds-dark-color-button-text-fill-pressed: var(--krds-color-dark-secondary-90);
   --krds-dark-color-button-text-fill: var(--krds-color-dark-alpha-black0);
-  --krds-dark-color-button-text-border: var(--krds-color-dark-alpha-white50);
+  --krds-dark-color-button-text-border: var(--krds-color-dark-alpha-white0);
   --krds-dark-color-button-disabled-border: var(--krds-color-dark-gray-70);
   --krds-dark-color-background-white: var(--krds-color-dark-gray-100);
   --krds-dark-color-background-inverse: var(--krds-color-dark-gray-10);

@@ -83,7 +83,7 @@ export function LoginForm({
           <Button
             size="small"
             type="button"
-            variant="text"
+            variant="link"
             disabled={!isSupabaseConfigured || isBusy}
             onClick={onRecovery}
           >

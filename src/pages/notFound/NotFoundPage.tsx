@@ -2,15 +2,15 @@ import { useEffect } from 'react';
 import { Button } from 'krds-react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../auth/AuthContext';
-import { BrandLogo } from '../../components/layout/BrandLogo';
+import { AuthPageLayout } from '../../components/layout/AuthPageLayout';
 
 export function NotFoundPage() {
   const { status, session } = useAuth();
   const navigate = useNavigate();
   const isAuthenticated = status === 'authenticated' && session;
   const destination = isAuthenticated ? '/dashboard' : '/login';
-  const actionLabel = isAuthenticated ? '대시보드 복귀' : '로그인 화면으로 이동';
-  const secondaryLabel = isAuthenticated ? '업무보고로 바로 이동' : '이전 화면으로 돌아가기';
+  const actionLabel = isAuthenticated ? '대시보드로 이동' : '로그인으로 이동';
+  const secondaryLabel = isAuthenticated ? '업무보고로 이동' : '이전 화면';
   const secondaryDestination = isAuthenticated ? '/person/report' : null;
 
   useEffect(() => {
@@ -18,40 +18,33 @@ export function NotFoundPage() {
   }, []);
 
   return (
-    <main className="krds-not-found">
-      <section className="krds-error-panel not-found-panel" aria-labelledby="not-found-title">
-        <div className="krds-error-panel-head not-found-hero">
-          <div className="logo-heading">
-            <BrandLogo className="brand-logo" alt="My Works" width={100} height={30} />
-          </div>
-          <p className="caption-text">404</p>
-        </div>
-        <div className="krds-error-panel-body not-found-body">
-          <h1 id="not-found-title" className="not-found-title">
-            페이지를 찾을 수 없습니다.
-          </h1>
-          <p className="description-text">
-            주소를 다시 확인하시거나{' '}
-            {isAuthenticated
-              ? '대시보드로 돌아가 현재 작업을 이어서 진행해 주세요.'
-              : '로그인 화면으로 돌아가 다시 진입해 주세요.'}
-          </p>
-          <div className="action-area">
-            <Button as={RouterLink} to={destination} role="link" variant="primary" size="medium">
-              {actionLabel}
+    <AuthPageLayout
+      caption="404"
+      labelledBy="not-found-title"
+      title="페이지를 찾을 수 없습니다."
+      description="요청한 주소가 없거나 접근할 수 없습니다."
+      body={
+        <div className="action-area">
+          <Button as={RouterLink} to={destination} role="link" variant="primary" size="medium">
+            {actionLabel}
+          </Button>
+          {secondaryDestination ? (
+            <Button
+              as={RouterLink}
+              to={secondaryDestination}
+              role="link"
+              variant="link"
+              size="small"
+            >
+              {secondaryLabel}
             </Button>
-            {secondaryDestination ? (
-              <Button as={RouterLink} to={secondaryDestination} role="link" size="medium">
-                {secondaryLabel}
-              </Button>
-            ) : (
-              <Button size="medium" type="button" variant="secondary" onClick={() => navigate(-1)}>
-                {secondaryLabel}
-              </Button>
-            )}
-          </div>
+          ) : (
+            <Button size="small" type="button" variant="link" onClick={() => navigate(-1)}>
+              {secondaryLabel}
+            </Button>
+          )}
         </div>
-      </section>
-    </main>
+      }
+    />
   );
 }

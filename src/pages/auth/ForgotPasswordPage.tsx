@@ -77,7 +77,7 @@ export function ForgotPasswordPage() {
               {noticeMessage}
             </p>
           ) : null}
-          <div className="action-area">
+          <div className="krds-auth-actions">
             <Button
               size="medium"
               type="submit"
@@ -86,11 +86,12 @@ export function ForgotPasswordPage() {
             >
               재설정 메일 보내기
             </Button>
-            <div className="action-divider">
-              <Button size="small" type="button" variant="text" onClick={() => navigate('/login')}>
-                로그인으로 돌아가기
-              </Button>
-            </div>
+          </div>
+          <div className="krds-auth-support">
+            <span>이미 계정이 있으신가요?</span>
+            <Button size="small" type="button" variant="link" onClick={() => navigate('/login')}>
+              로그인으로 돌아가기
+            </Button>
           </div>
         </form>
       }
