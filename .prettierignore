@@ -6,3 +6,5 @@ pnpm-lock.yaml
 .docs
 README.md
 *.sql
+**/*.css
+**/*.scss
