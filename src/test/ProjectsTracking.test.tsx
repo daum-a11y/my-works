@@ -40,9 +40,15 @@ vi.mock('../auth/AuthContext', () => ({
   useAuth: mockUseAuth,
 }));
 
-vi.mock('../api/client', () => ({
-  dataClient: mockDataClient,
-}));
+vi.mock('../api/members', () => (mockDataClient));
+
+vi.mock('../api/platforms', () => (mockDataClient));
+
+vi.mock('../api/projects', () => (mockDataClient));
+
+vi.mock('../api/serviceGroups', () => (mockDataClient));
+
+vi.mock('../api/taskTypes', () => (mockDataClient));
 
 function renderProjectsList() {
   const queryClient = new QueryClient();

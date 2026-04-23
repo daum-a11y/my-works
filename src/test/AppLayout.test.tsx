@@ -140,7 +140,7 @@ describe('AppLayout', () => {
     expect(screen.getAllByText('프로젝트 통계').length).toBeGreaterThan(0);
   });
 
-  it('renders header, sidebar, breadcrumb, main content, and footer in the authenticated shell', () => {
+  it('renders header, sidebar, breadcrumb, main content, and footer in the authenticated layout', () => {
     const queryClient = new QueryClient({
       defaultOptions: {
         queries: { retry: false },

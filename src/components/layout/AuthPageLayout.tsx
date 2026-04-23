@@ -19,7 +19,7 @@ export function AuthPageLayout({
   labelledBy,
 }: AuthPageLayoutProps) {
   return (
-    <div id="container" className="krds-auth-shell">
+    <div id="container" className="krds-auth-layout">
       <main className="contents">
         <section aria-labelledby={labelledBy} className="krds-auth-panel auth-panel">
           <span aria-hidden="true" className="krds-section-accent accent-mark" />

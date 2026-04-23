@@ -14,15 +14,8 @@ vi.mock('../auth/AuthContext', () => ({
   useAuth: mockUseAuth,
 }));
 
-vi.mock('../api/client', async () => {
-  const actual = await vi.importActual<typeof import('../api/client')>('../api/client');
-  return {
-    ...actual,
-    dataClient: {
-      ...actual.dataClient,
-      ...mockDataClient,
-    },
-  };
+vi.mock('../api/resources', () => {
+  return mockDataClient;
 });
 
 function renderPage(initialEntry = '/resource/month/2026-03') {

@@ -2,7 +2,7 @@ import { type FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { CriticalAlert, Spinner } from 'krds-react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { adminDataClient } from '../../../api/admin';
+import { deletePlatformAdmin, listPlatforms, reorderPlatforms, replacePlatformUsage, savePlatformAdmin } from '../../../api/platforms';
 import { openAdminTaskSearch } from '../adminTaskSearchLink';
 import { AdminPlatformEditorActionRow } from './AdminPlatformEditorActionRow';
 import { AdminPlatformEditorForm } from './AdminPlatformEditorForm';
@@ -42,7 +42,7 @@ export function AdminPlatformEditorPage() {
 
   const platformsQuery = useQuery({
     queryKey: ['admin', 'platforms'],
-    queryFn: () => adminDataClient.listPlatforms(),
+    queryFn: () => listPlatforms(),
   });
 
   const platforms = useMemo(
@@ -88,7 +88,7 @@ export function AdminPlatformEditorPage() {
 
   const saveMutation = useMutation({
     mutationFn: async (payload: AdminPlatformPayload) =>
-      adminDataClient.savePlatformAdmin({ ...payload, name: payload.name.trim() }),
+      savePlatformAdmin({ ...payload, name: payload.name.trim() }),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['admin', 'platforms'] });
       navigate('/admin/platform', {
@@ -101,7 +101,7 @@ export function AdminPlatformEditorPage() {
   const deleteMutation = useMutation({
     mutationFn: async () => {
       if (!platformId) throw new Error('삭제할 플랫폼이 없습니다.');
-      await adminDataClient.deletePlatformAdmin(platformId);
+      await deletePlatformAdmin(platformId);
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['admin', 'platforms'] });
@@ -123,7 +123,7 @@ export function AdminPlatformEditorPage() {
       if (!platformId) {
         throw new Error('전환할 플랫폼이 없습니다.');
       }
-      await adminDataClient.replacePlatformUsage(platformId, nextPlatformId, dropExisting);
+      await replacePlatformUsage(platformId, nextPlatformId, dropExisting);
     },
     onSuccess: async () => {
       await Promise.all([

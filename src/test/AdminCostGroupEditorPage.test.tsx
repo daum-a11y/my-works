@@ -11,13 +11,11 @@ const saveCostGroupAdmin = vi.fn();
 const deleteCostGroupAdmin = vi.fn();
 const replaceCostGroupUsage = vi.fn();
 
-vi.mock('../api/admin', () => ({
-  adminDataClient: {
+vi.mock('../api/costGroups', () => ({
     listCostGroups: (...args: unknown[]) => listCostGroups(...args),
     saveCostGroupAdmin: (...args: unknown[]) => saveCostGroupAdmin(...args),
     deleteCostGroupAdmin: (...args: unknown[]) => deleteCostGroupAdmin(...args),
     replaceCostGroupUsage: (...args: unknown[]) => replaceCostGroupUsage(...args),
-  },
 }));
 
 function CostGroupsListRoute() {

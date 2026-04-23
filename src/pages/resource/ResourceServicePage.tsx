@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Button } from 'krds-react';
 import { setDocumentTitle } from '../../router/navigation';
 import { PageHeader } from '../../components/shared/PageHeader';
-import { dataClient } from '../../api/client';
+import { getResourceMonthReport, getResourceServiceSummaryByYear, getResourceServiceSummaryYears, getResourceSummary, getResourceSummaryMembers, getResourceTypeSummaryByYear, getResourceTypeSummaryYears } from '../../api/resources';
 import { RESOURCE_SERVICE_PAGE_TITLE } from './ResourceServicePage.constants';
 import { buildResourceServiceYearRows } from './ResourceServicePage.summary';
 import { ResourceServiceTableSection } from './ResourceServiceTableSection';
@@ -16,12 +16,12 @@ export function ResourceServicePage() {
   const [activeYear, setActiveYear] = useState('');
   const yearsQuery = useQuery({
     queryKey: ['resource', 'service-summary-years', member?.id],
-    queryFn: () => dataClient.getResourceServiceSummaryYears(member!),
+    queryFn: () => getResourceServiceSummaryYears(member!),
     enabled: Boolean(member),
   });
   const detailQuery = useQuery({
     queryKey: ['resource', 'service-summary', member?.id, activeYear],
-    queryFn: () => dataClient.getResourceServiceSummaryByYear(member!, activeYear),
+    queryFn: () => getResourceServiceSummaryByYear(member!, activeYear),
     enabled: Boolean(member && activeYear),
   });
   const years = useMemo(() => yearsQuery.data ?? [], [yearsQuery.data]);

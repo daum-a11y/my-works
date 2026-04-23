@@ -1,15 +1,13 @@
-import { env } from '../../config/env';
-import { getPasswordRecoveryRedirectUrl } from '../../auth/auth.util';
-import { getSupabaseClient } from '../../api/supabase';
+import { getPasswordRecoveryRedirectUrl } from '../auth/auth.util';
+import { env } from '../config/env';
+import { getSupabaseClient } from './supabase';
 
-export function getAdminEdgeHeaders() {
-  return {
-    redirectTo: getPasswordRecoveryRedirectUrl(),
-  };
+export function getMemberPasswordRecoveryRedirectUrl() {
+  return getPasswordRecoveryRedirectUrl();
 }
 
-export async function fetchAdminEdgeJson<TResponse>(
-  functionName: string,
+export async function callMemberAccountFunction<TResponse>(
+  functionName: 'invite-member' | 'delete-member',
   payload: Record<string, unknown>,
 ) {
   const supabase = getSupabaseClient();

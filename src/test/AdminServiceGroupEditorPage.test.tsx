@@ -13,15 +13,16 @@ const deleteServiceGroupAdmin = vi.fn();
 const getServiceGroupUsageSummary = vi.fn();
 const replaceServiceGroupUsage = vi.fn();
 
-vi.mock('../api/admin', () => ({
-  adminDataClient: {
+vi.mock('../api/serviceGroups', () => ({
     listServiceGroups: (...args: unknown[]) => listServiceGroups(...args),
-    listCostGroups: (...args: unknown[]) => listCostGroups(...args),
     saveServiceGroupAdmin: (...args: unknown[]) => saveServiceGroupAdmin(...args),
     deleteServiceGroupAdmin: (...args: unknown[]) => deleteServiceGroupAdmin(...args),
     getServiceGroupUsageSummary: (...args: unknown[]) => getServiceGroupUsageSummary(...args),
     replaceServiceGroupUsage: (...args: unknown[]) => replaceServiceGroupUsage(...args),
-  },
+}));
+
+vi.mock('../api/costGroups', () => ({
+    listCostGroups: (...args: unknown[]) => listCostGroups(...args),
 }));
 
 function ServiceGroupsListRoute() {

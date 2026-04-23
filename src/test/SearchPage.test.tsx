@@ -31,9 +31,7 @@ vi.mock('../auth/AuthContext', () => ({
   useAuth: mockUseAuth,
 }));
 
-vi.mock('../api/client', () => ({
-  dataClient: mockDataClient,
-}));
+vi.mock('../api/tasks', () => (mockDataClient));
 
 describe('SearchPage', () => {
   const today = parseLocalDateInput(toLocalDateInputValue(new Date())) ?? new Date();

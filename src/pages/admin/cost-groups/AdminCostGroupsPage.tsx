@@ -5,7 +5,7 @@ import { Link as RouterLink, useLocation } from 'react-router-dom';
 import { setDocumentTitle } from '../../../router/navigation';
 import { AdminSortOrderDialog } from '../../../components/admin/AdminSortOrderDialog';
 import { PageHeader } from '../../../components/shared/PageHeader';
-import { adminDataClient } from '../../../api/admin';
+import { deleteCostGroupAdmin, listCostGroups, reorderCostGroups, replaceCostGroupUsage, saveCostGroupAdmin } from '../../../api/costGroups';
 import { AdminCostGroupsResultsTable } from './AdminCostGroupsResultsTable';
 import { toAdminCostGroup } from '../adminApiTransform';
 import { useAlertMessage } from '../../../hooks/useAlertMessage';
@@ -22,7 +22,7 @@ export function AdminCostGroupsPage() {
 
   const costGroupsQuery = useQuery({
     queryKey: ['admin', 'cost-groups'],
-    queryFn: () => adminDataClient.listCostGroups(),
+    queryFn: () => listCostGroups(),
   });
 
   const costGroups = useMemo(
@@ -35,7 +35,7 @@ export function AdminCostGroupsPage() {
   );
 
   const reorderMutation = useMutation({
-    mutationFn: async (ids: string[]) => adminDataClient.reorderCostGroups({ ids }),
+    mutationFn: async (ids: string[]) => reorderCostGroups({ ids }),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['admin', 'cost-groups'] });
       await queryClient.invalidateQueries({ queryKey: ['admin', 'service-groups'] });

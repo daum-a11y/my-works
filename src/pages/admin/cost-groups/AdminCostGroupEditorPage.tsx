@@ -2,7 +2,7 @@ import { type FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { CriticalAlert, Spinner } from 'krds-react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { adminDataClient } from '../../../api/admin';
+import { deleteCostGroupAdmin, listCostGroups, reorderCostGroups, replaceCostGroupUsage, saveCostGroupAdmin } from '../../../api/costGroups';
 import { openAdminTaskSearch } from '../adminTaskSearchLink';
 import { AdminCostGroupEditorActionRow } from './AdminCostGroupEditorActionRow';
 import { AdminCostGroupEditorForm } from './AdminCostGroupEditorForm';
@@ -42,7 +42,7 @@ export function AdminCostGroupEditorPage() {
 
   const costGroupsQuery = useQuery({
     queryKey: ['admin', 'cost-groups'],
-    queryFn: () => adminDataClient.listCostGroups(),
+    queryFn: () => listCostGroups(),
   });
 
   const costGroups = useMemo(
@@ -92,7 +92,7 @@ export function AdminCostGroupEditorPage() {
 
   const saveMutation = useMutation({
     mutationFn: async (payload: AdminCostGroupPayload) =>
-      adminDataClient.saveCostGroupAdmin({
+      saveCostGroupAdmin({
         ...payload,
         name: payload.name.trim(),
       }),
@@ -113,7 +113,7 @@ export function AdminCostGroupEditorPage() {
         throw new Error('삭제할 청구그룹이 없습니다.');
       }
 
-      await adminDataClient.deleteCostGroupAdmin(costGroupId);
+      await deleteCostGroupAdmin(costGroupId);
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['admin', 'cost-groups'] });
@@ -137,7 +137,7 @@ export function AdminCostGroupEditorPage() {
         throw new Error('전환할 청구그룹이 없습니다.');
       }
 
-      await adminDataClient.replaceCostGroupUsage(costGroupId, nextCostGroupId, dropExisting);
+      await replaceCostGroupUsage(costGroupId, nextCostGroupId, dropExisting);
     },
     onSuccess: async () => {
       await Promise.all([

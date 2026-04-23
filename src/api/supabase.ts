@@ -11,3 +11,11 @@ export function getSupabaseClient(): SupabaseClient | null {
   client ??= createClient(env.supabaseUrl, env.supabaseAnonKey);
   return client;
 }
+
+export function requireSupabaseClient(): SupabaseClient {
+  const supabase = getSupabaseClient();
+  if (!supabase) {
+    throw new Error('Supabase 환경 변수가 설정되지 않았습니다.');
+  }
+  return supabase;
+}

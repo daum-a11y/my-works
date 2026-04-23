@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { setDocumentTitle } from '../../router/navigation';
-import { dataClient } from '../../api/client';
+import { getDashboard } from '../../api/stats';
+import { getDashboardTaskCalendar } from '../../api/tasks';
 import { useAuth } from '../../auth/AuthContext';
 import { buildCalendarWeeks, getCurrentMonth, shiftMonth } from '../resource/resourceUtils';
 import { DashboardCalendarSection } from './DashboardCalendarSection';
@@ -29,13 +30,13 @@ export function DashboardPage() {
 
   const dashboardQuery = useQuery({
     queryKey: ['dashboard', member?.id],
-    queryFn: async () => dataClient.getDashboard(member!),
+    queryFn: async () => getDashboard(member!),
     enabled: Boolean(member),
   });
 
   const tasksQuery = useQuery({
     queryKey: ['dashboard', 'tasks', member?.id, selectedMonth],
-    queryFn: async () => dataClient.getDashboardTaskCalendar(member!, selectedMonth),
+    queryFn: async () => getDashboardTaskCalendar(member!, selectedMonth),
     enabled: Boolean(member),
   });
 

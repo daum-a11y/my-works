@@ -11,13 +11,11 @@ const savePlatformAdmin = vi.fn();
 const deletePlatformAdmin = vi.fn();
 const replacePlatformUsage = vi.fn();
 
-vi.mock('../api/admin', () => ({
-  adminDataClient: {
+vi.mock('../api/platforms', () => ({
     listPlatforms: (...args: unknown[]) => listPlatforms(...args),
     savePlatformAdmin: (...args: unknown[]) => savePlatformAdmin(...args),
     deletePlatformAdmin: (...args: unknown[]) => deletePlatformAdmin(...args),
     replacePlatformUsage: (...args: unknown[]) => replacePlatformUsage(...args),
-  },
 }));
 
 function PlatformListRoute() {

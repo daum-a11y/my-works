@@ -35,13 +35,11 @@ vi.mock('../api/supabase', () => ({
   getSupabaseClient: () => mockSupabaseClient,
 }));
 
-vi.mock('../api/client', () => ({
-  dataClient: {
+vi.mock('../api/members', () => ({
     getMemberByAuthId: mockGetMemberByAuthId,
     bindAuthSessionMember: mockBindAuthSessionMember,
     touchMemberLastLogin: mockTouchMemberLastLogin,
     getMemberByEmail: mockGetMemberByEmail,
-  },
 }));
 
 function AuthProbe() {

@@ -6,7 +6,11 @@ import type {
   ServiceGroup,
   TaskType,
 } from '../../../types/domain';
-import { adminDataClient } from '../../../api/admin';
+import { deleteCostGroupAdmin, listCostGroups, reorderCostGroups, replaceCostGroupUsage, saveCostGroupAdmin } from '../../../api/costGroups';
+import { deletePlatformAdmin, listPlatforms, reorderPlatforms, replacePlatformUsage, savePlatformAdmin } from '../../../api/platforms';
+import { getProjectAdminOption, listProjects, listProjectSubtasks, listProjectSubtasksByProjectId, searchReportProjectsAdmin } from '../../../api/projects';
+import { deleteServiceGroupAdmin, getServiceGroupUsageSummary, listServiceGroups, reorderServiceGroups, replaceServiceGroupUsage, saveServiceGroupAdmin } from '../../../api/serviceGroups';
+import { deleteTaskTypeAdmin, getTaskTypeUsageSummary, listTaskTypes, reorderTaskTypes, replaceTaskTypeUsageById, saveTaskTypeAdmin } from '../../../api/taskTypes';
 import {
   toAdminCostGroup,
   toAdminSubtask,
@@ -46,7 +50,7 @@ export function parseCompactDate(value: string, mode: 'short' | 'long') {
 }
 
 export function toTaskTypes(
-  items: Awaited<ReturnType<typeof adminDataClient.listTaskTypes>>,
+  items: Awaited<ReturnType<typeof listTaskTypes>>,
 ): TaskType[] {
   return items.map(toAdminTaskType).map((item) => ({
     id: item.id,
@@ -60,7 +64,7 @@ export function toTaskTypes(
 }
 
 export function toServiceGroups(
-  items: Awaited<ReturnType<typeof adminDataClient.listServiceGroups>>,
+  items: Awaited<ReturnType<typeof listServiceGroups>>,
 ): ServiceGroup[] {
   return items.map(toAdminServiceGroup).map((item) => ({
     id: item.id,
@@ -75,7 +79,7 @@ export function toServiceGroups(
 }
 
 export function toProjects(
-  items: Awaited<ReturnType<typeof adminDataClient.listProjects>>,
+  items: Awaited<ReturnType<typeof listProjects>>,
 ): Project[] {
   return items.map(toAdminProject).map((item) => ({
     id: item.id,
@@ -100,7 +104,7 @@ export function toProjects(
 }
 
 export function toCostGroups(
-  items: Awaited<ReturnType<typeof adminDataClient.listCostGroups>>,
+  items: Awaited<ReturnType<typeof listCostGroups>>,
 ): CostGroup[] {
   return items.map(toAdminCostGroup).map((item) => ({
     id: item.id,
@@ -111,7 +115,7 @@ export function toCostGroups(
 }
 
 export function toPlatforms(
-  items: Awaited<ReturnType<typeof adminDataClient.listPlatforms>>,
+  items: Awaited<ReturnType<typeof listPlatforms>>,
 ): Platform[] {
   return items.map(toAdminPlatform).map((item) => ({
     id: item.id,
@@ -122,7 +126,7 @@ export function toPlatforms(
 }
 
 export function toPages(
-  items: Awaited<ReturnType<typeof adminDataClient.listProjectSubtasks>>,
+  items: Awaited<ReturnType<typeof listProjectSubtasks>>,
 ): ProjectSubtask[] {
   return items.map(toAdminSubtask).map((item) => ({
     id: item.id,

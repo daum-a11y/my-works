@@ -13,15 +13,13 @@ const inviteMemberAdmin = vi.fn();
 const resetMemberPasswordAdmin = vi.fn();
 const deleteMemberAdmin = vi.fn();
 
-vi.mock('../api/admin', () => ({
-  adminDataClient: {
+vi.mock('../api/members', () => ({
     listMembersAdmin: (...args: unknown[]) => listMembersAdmin(...args),
     saveMemberAdmin: (...args: unknown[]) => saveMemberAdmin(...args),
     createMemberAdmin: (...args: unknown[]) => createMemberAdmin(...args),
     inviteMemberAdmin: (...args: unknown[]) => inviteMemberAdmin(...args),
     resetMemberPasswordAdmin: (...args: unknown[]) => resetMemberPasswordAdmin(...args),
     deleteMemberAdmin: (...args: unknown[]) => deleteMemberAdmin(...args),
-  },
 }));
 
 function renderEditor(initialEntry: string) {

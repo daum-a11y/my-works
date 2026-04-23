@@ -5,7 +5,7 @@ import { Link as RouterLink, useLocation } from 'react-router-dom';
 import { setDocumentTitle } from '../../../router/navigation';
 import { AdminSortOrderDialog } from '../../../components/admin/AdminSortOrderDialog';
 import { PageHeader } from '../../../components/shared/PageHeader';
-import { adminDataClient } from '../../../api/admin';
+import { deletePlatformAdmin, listPlatforms, reorderPlatforms, replacePlatformUsage, savePlatformAdmin } from '../../../api/platforms';
 import { AdminPlatformsResultsTable } from './AdminPlatformsResultsTable';
 import { toAdminPlatform } from '../adminApiTransform';
 import { useAlertMessage } from '../../../hooks/useAlertMessage';
@@ -22,7 +22,7 @@ export function AdminPlatformsPage() {
 
   const platformsQuery = useQuery({
     queryKey: ['admin', 'platforms'],
-    queryFn: () => adminDataClient.listPlatforms(),
+    queryFn: () => listPlatforms(),
   });
 
   const platforms = useMemo(
@@ -35,7 +35,7 @@ export function AdminPlatformsPage() {
   );
 
   const reorderMutation = useMutation({
-    mutationFn: async (ids: string[]) => adminDataClient.reorderPlatforms({ ids }),
+    mutationFn: async (ids: string[]) => reorderPlatforms({ ids }),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['admin', 'platforms'] });
       setOrderDialogOpen(false);

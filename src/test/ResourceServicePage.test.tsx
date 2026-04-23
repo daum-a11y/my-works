@@ -34,9 +34,7 @@ vi.mock('../auth/AuthContext', () => ({
   useAuth: mockUseAuth,
 }));
 
-vi.mock('../api/client', () => ({
-  dataClient: mockDataClient,
-}));
+vi.mock('../api/resources', () => (mockDataClient));
 
 describe('ResourceServicePage', () => {
   afterEach(() => {

@@ -30,9 +30,9 @@ vi.mock('../auth/AuthContext', () => ({
   useAuth: mockUseAuth,
 }));
 
-vi.mock('../api/client', () => ({
-  dataClient: mockDataClient,
-}));
+vi.mock('../api/stats', () => (mockDataClient));
+
+vi.mock('../api/taskTypes', () => (mockDataClient));
 
 type MockProjectStatsRow = {
   project_id: string;

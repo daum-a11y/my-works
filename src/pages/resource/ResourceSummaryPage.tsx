@@ -6,7 +6,7 @@ import { PageFilterBar } from '../../components/shared/PageFilterBar';
 import { PageFilterField } from '../../components/shared/PageFilterField';
 import { PageHeader } from '../../components/shared/PageHeader';
 import { PageSection } from '../../components/shared/PageSection';
-import { dataClient } from '../../api/client';
+import { getResourceMonthReport, getResourceServiceSummaryByYear, getResourceServiceSummaryYears, getResourceSummary, getResourceSummaryMembers, getResourceTypeSummaryByYear, getResourceTypeSummaryYears } from '../../api/resources';
 import { getToday } from '../../utils';
 import { buildCalendarWeeks, buildMonthDays, getCurrentMonth } from './resourceUtils';
 import {
@@ -42,13 +42,13 @@ export function ResourceSummaryPage() {
 
   const membersQuery = useQuery({
     queryKey: ['resource', 'members', member?.id],
-    queryFn: () => dataClient.getResourceSummaryMembers(member!),
+    queryFn: () => getResourceSummaryMembers(member!),
     enabled: Boolean(member),
   });
 
   const summaryQuery = useQuery({
     queryKey: ['resource', 'summary', member?.id, appliedMonth],
-    queryFn: () => dataClient.getResourceSummary(member!, appliedMonth),
+    queryFn: () => getResourceSummary(member!, appliedMonth),
     enabled: Boolean(member),
   });
 

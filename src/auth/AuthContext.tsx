@@ -9,7 +9,7 @@ import {
 } from 'react';
 import { getSupabaseClient } from '../api/supabase';
 import { isSupabaseConfigured } from '../config/env';
-import { dataClient } from '../api/client';
+import { touchMemberLastLogin } from '../api/members';
 import { type Member } from '../types/domain';
 import { toMember } from './auth.helper';
 import {
@@ -42,7 +42,7 @@ async function getMemberForSupabaseSession(
   userId: string,
   email?: string | null,
 ): Promise<Member | null> {
-  const member = await dataClient.touchMemberLastLogin(userId, email);
+  const member = await touchMemberLastLogin(userId, email);
   return member ? toMember(member) : null;
 }
 

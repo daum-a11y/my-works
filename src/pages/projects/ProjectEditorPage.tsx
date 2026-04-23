@@ -3,7 +3,11 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button, CriticalAlert, Spinner } from 'krds-react';
 import { Link as RouterLink, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../auth/AuthContext';
-import { dataClient } from '../../api/client';
+import { getMembers } from '../../api/members';
+import { getPlatforms } from '../../api/platforms';
+import { deleteProject, deleteProjectSubtask, getProject, getProjectSubtasksByProjectId, saveProject, saveProjectSubtask } from '../../api/projects';
+import { getServiceGroups } from '../../api/serviceGroups';
+import { getTaskTypes } from '../../api/taskTypes';
 import {
   toMember,
   toPlatform,
@@ -76,12 +80,12 @@ export function ProjectEditorPage() {
     retry: false,
     queryFn: async () => {
       const [project, subtasks, members, serviceGroups, platforms, taskTypes] = await Promise.all([
-        projectId ? dataClient.getProject(projectId) : Promise.resolve(null),
-        projectId ? dataClient.getProjectSubtasksByProjectId(projectId) : Promise.resolve([]),
-        dataClient.getMembers(),
-        dataClient.getServiceGroups(),
-        dataClient.getPlatforms(),
-        dataClient.getTaskTypes(),
+        projectId ? getProject(projectId) : Promise.resolve(null),
+        projectId ? getProjectSubtasksByProjectId(projectId) : Promise.resolve([]),
+        getMembers(),
+        getServiceGroups(),
+        getPlatforms(),
+        getTaskTypes(),
       ]);
       return { project, subtasks, members, serviceGroups, platforms, taskTypes };
     },
@@ -252,7 +256,7 @@ export function ProjectEditorPage() {
         throw new Error('로그인 정보가 없습니다.');
       }
 
-      return dataClient.saveProject(toProjectInput(draft));
+      return saveProject(toProjectInput(draft));
     },
     onSuccess: async (saved) => {
       await queryClient.invalidateQueries({ queryKey: ['projects', member?.id] });
@@ -278,7 +282,7 @@ export function ProjectEditorPage() {
         throw new Error('로그인 정보가 없습니다.');
       }
 
-      return dataClient.saveProjectSubtask(toSubtaskInput(draft));
+      return saveProjectSubtask(toSubtaskInput(draft));
     },
     onSuccess: async (saved) => {
       await queryClient.invalidateQueries({ queryKey: ['projects', member?.id] });
@@ -303,7 +307,7 @@ export function ProjectEditorPage() {
   });
 
   const deleteProjectMutation = useMutation({
-    mutationFn: async (id: string) => dataClient.deleteProject(id),
+    mutationFn: async (id: string) => deleteProject(id),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['projects', member?.id] });
       setStatusMessage('프로젝트를 삭제했습니다.');
@@ -316,7 +320,7 @@ export function ProjectEditorPage() {
   });
 
   const deleteSubtaskMutation = useMutation({
-    mutationFn: async (id: string) => dataClient.deleteProjectSubtask(id),
+    mutationFn: async (id: string) => deleteProjectSubtask(id),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['projects', member?.id] });
       await queryClient.invalidateQueries({ queryKey: ['project-editor', member?.id] });

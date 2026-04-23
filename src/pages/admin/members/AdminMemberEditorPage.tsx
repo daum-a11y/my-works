@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { CriticalAlert, Spinner } from 'krds-react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { adminDataClient } from '../../../api/admin';
+import { createMemberAdmin, deleteMemberAdmin, listMembersAdmin, resetMemberPasswordAdmin, saveMemberAdmin } from '../../../api/members';
 import type { MemberAdminPayload } from '../admin.types';
 import { AdminMemberEditorActionRow } from './AdminMemberEditorActionRow';
 import { AdminMemberEditorBasicSection } from './AdminMemberEditorBasicSection';
@@ -38,7 +38,7 @@ export function AdminMemberEditorPage() {
 
   const membersQuery = useQuery({
     queryKey: ['admin', 'members'],
-    queryFn: () => adminDataClient.listMembersAdmin(),
+    queryFn: () => listMembersAdmin(),
   });
 
   const selectedMember = useMemo(
@@ -75,11 +75,11 @@ export function AdminMemberEditorPage() {
       }
 
       if (!isEditMode) {
-        await adminDataClient.createMemberAdmin(normalizedDraft);
+        await createMemberAdmin(normalizedDraft);
         return;
       }
 
-      await adminDataClient.saveMemberAdmin(normalizedDraft);
+      await saveMemberAdmin(normalizedDraft);
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['admin', 'members'] });
@@ -103,13 +103,13 @@ export function AdminMemberEditorPage() {
           throw new Error('Auth 이메일이 없어 비밀번호 재설정 메일을 보낼 수 없습니다.');
         }
 
-        await adminDataClient.resetMemberPasswordAdmin({
+        await resetMemberPasswordAdmin({
           email: selectedMember.authEmail,
         });
         return;
       }
 
-      await adminDataClient.createMemberAdmin(buildInvitePayload(selectedMember));
+      await createMemberAdmin(buildInvitePayload(selectedMember));
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['admin', 'members'] });
@@ -128,7 +128,7 @@ export function AdminMemberEditorPage() {
         throw new Error('삭제할 사용자 정보가 없습니다.');
       }
 
-      return adminDataClient.deleteMemberAdmin(memberId);
+      return deleteMemberAdmin(memberId);
     },
     onSuccess: async (result) => {
       await queryClient.invalidateQueries({ queryKey: ['admin', 'members'] });
@@ -147,7 +147,7 @@ export function AdminMemberEditorPage() {
         throw new Error('복원할 사용자 정보가 없습니다.');
       }
 
-      await adminDataClient.saveMemberAdmin({
+      await saveMemberAdmin({
         id: selectedMember.id,
         authUserId: selectedMember.authUserId,
         accountId: selectedMember.accountId,

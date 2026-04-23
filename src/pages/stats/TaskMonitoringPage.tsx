@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { dataClient } from '../../api/client';
+import { getDashboard, getMonitoringStatsRows, getProjectStatsRows } from '../../api/stats';
 import { PageHeader } from '../../components/shared/PageHeader';
 import { PageSection } from '../../components/shared/PageSection';
 import { useAuth } from '../../auth/AuthContext';
@@ -50,7 +50,7 @@ export function TaskMonitoringPage() {
       sortState.direction,
     ],
     queryFn: async () =>
-      dataClient.getMonitoringStatsRows({
+      getMonitoringStatsRows({
         startMonth,
         endMonth,
         query: query || null,

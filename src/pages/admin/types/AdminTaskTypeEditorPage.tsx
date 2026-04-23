@@ -2,7 +2,7 @@ import { type FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { CriticalAlert, Spinner } from 'krds-react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { adminDataClient } from '../../../api/admin';
+import { deleteTaskTypeAdmin, getTaskTypeUsageSummary, listTaskTypes, reorderTaskTypes, replaceTaskTypeUsageById, saveTaskTypeAdmin } from '../../../api/taskTypes';
 import { openAdminTaskSearch } from '../adminTaskSearchLink';
 import { AdminTaskTypeEditorActionRow } from './AdminTaskTypeEditorActionRow';
 import { AdminTaskTypeEditorForm } from './AdminTaskTypeEditorForm';
@@ -48,7 +48,7 @@ export function AdminTaskTypeEditorPage() {
 
   const taskTypesQuery = useQuery({
     queryKey: ['admin', 'task-types'],
-    queryFn: () => adminDataClient.listTaskTypes(),
+    queryFn: () => listTaskTypes(),
   });
 
   const taskTypes = useMemo(
@@ -74,7 +74,7 @@ export function AdminTaskTypeEditorPage() {
     ],
     enabled: Boolean(selectedTaskType),
     queryFn: () =>
-      adminDataClient.getTaskTypeUsageSummary(
+      getTaskTypeUsageSummary(
         selectedTaskType!.id,
         selectedTaskType!.type1,
         selectedTaskType!.type2,
@@ -115,7 +115,7 @@ export function AdminTaskTypeEditorPage() {
 
   const saveMutation = useMutation({
     mutationFn: async (payload: AdminTaskTypePayload) => {
-      return adminDataClient.saveTaskTypeAdmin({
+      return saveTaskTypeAdmin({
         ...payload,
         type1: payload.type1.trim(),
         type2: payload.type2.trim(),
@@ -139,7 +139,7 @@ export function AdminTaskTypeEditorPage() {
         throw new Error('삭제할 업무 타입이 없습니다.');
       }
 
-      await adminDataClient.deleteTaskTypeAdmin(taskTypeId);
+      await deleteTaskTypeAdmin(taskTypeId);
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['admin', 'task-types'] });
@@ -162,7 +162,7 @@ export function AdminTaskTypeEditorPage() {
         throw new Error('전환할 업무 타입이 없습니다.');
       }
 
-      await adminDataClient.replaceTaskTypeUsageById(taskTypeId, nextTaskTypeId, dropExisting);
+      await replaceTaskTypeUsageById(taskTypeId, nextTaskTypeId, dropExisting);
     },
     onSuccess: async () => {
       await Promise.all([

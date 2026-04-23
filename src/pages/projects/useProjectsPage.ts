@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import type { Member } from '../../types/domain';
-import { dataClient } from '../../api/client';
+import { deleteProject, deleteProjectSubtask, getProject, getProjectSubtasksByProjectId, saveProject, saveProjectSubtask, searchProjectsPage, searchReportProjects } from '../../api/projects';
 import { setDocumentTitle } from '../../router/navigation';
 import {
   PROJECTS_DEFAULT_PAGE_SIZE,
@@ -32,7 +32,7 @@ export function useProjectsPage(member: Member | null) {
     enabled: Boolean(member),
     placeholderData: (previousData) => previousData,
     queryFn: async () =>
-      dataClient.searchProjectsPage(
+      searchProjectsPage(
         {
           startDate: appliedFilters.startDate || null,
           endDate: appliedFilters.endDate || null,

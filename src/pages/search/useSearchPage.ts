@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../../auth/AuthContext';
-import { dataClient } from '../../api/client';
+import { deleteTask, exportTasks, getDashboardTaskCalendar, getTasksByDate, saveTask, searchTasksPage } from '../../api/tasks';
 import { setDocumentTitle } from '../../router/navigation';
 import { downloadExcelFile } from '../../utils/excel';
 import {
@@ -50,7 +50,7 @@ export function useSearchPage() {
       pageSize,
     ],
     queryFn: async () =>
-      dataClient.searchTasksPage(
+      searchTasksPage(
         member!,
         {
           ...DEFAULT_REPORT_FILTERS,
@@ -126,7 +126,7 @@ export function useSearchPage() {
       return;
     }
 
-    const downloadTasksRaw = await dataClient.exportTasks(member, {
+    const downloadTasksRaw = await exportTasks(member, {
       ...DEFAULT_REPORT_FILTERS,
       query: appliedSearch || null,
       startDate: appliedFilters.startDate,

@@ -12,14 +12,12 @@ const saveTaskTypeAdmin = vi.fn();
 const deleteTaskTypeAdmin = vi.fn();
 const replaceTaskTypeUsageById = vi.fn();
 
-vi.mock('../api/admin', () => ({
-  adminDataClient: {
+vi.mock('../api/taskTypes', () => ({
     listTaskTypes: (...args: unknown[]) => listTaskTypes(...args),
     getTaskTypeUsageSummary: (...args: unknown[]) => getTaskTypeUsageSummary(...args),
     saveTaskTypeAdmin: (...args: unknown[]) => saveTaskTypeAdmin(...args),
     deleteTaskTypeAdmin: (...args: unknown[]) => deleteTaskTypeAdmin(...args),
     replaceTaskTypeUsageById: (...args: unknown[]) => replaceTaskTypeUsageById(...args),
-  },
 }));
 
 function TaskTypesListRoute() {

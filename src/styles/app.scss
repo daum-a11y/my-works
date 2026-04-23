@@ -2085,14 +2085,14 @@ button.table-link {
   background-color: var(--krds-light-color-surface-gray-subtler);
 }
 
-.krds-auth-shell {
+.krds-auth-layout {
   display: flex;
   min-height: 100vh;
   min-width: 0;
   background-color: var(--krds-light-color-background-white);
 }
 
-.krds-auth-shell .contents {
+.krds-auth-layout .contents {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2163,7 +2163,7 @@ button.table-link {
 }
 
 .krds-auth-fields,
-.krds-auth-shell .krds-form {
+.krds-auth-layout .krds-form {
   display: flex;
   flex-direction: column;
   gap: var(--krds-gap-5);
@@ -2178,7 +2178,7 @@ button.table-link {
 }
 
 .krds-auth-actions,
-.krds-auth-shell .action-area {
+.krds-auth-layout .action-area {
   display: flex;
   align-items: center;
   gap: var(--krds-gap-3);
@@ -2243,7 +2243,7 @@ button.table-link {
     color: var(--krds-dark-color-text-primary);
   }
 
-  [data-theme-resolved='dark'] .krds-auth-shell,
+  [data-theme-resolved='dark'] .krds-auth-layout,
   [data-theme-resolved='dark'] .auth-panel {
     background-color: var(--krds-dark-color-background-white);
   }

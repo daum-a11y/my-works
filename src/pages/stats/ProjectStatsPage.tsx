@@ -2,7 +2,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { PageHeader } from '../../components/shared/PageHeader';
 import { PageSection } from '../../components/shared/PageSection';
-import { dataClient } from '../../api/client';
+import { getProjectStatsRows } from '../../api/stats';
+import { getTaskTypes } from '../../api/taskTypes';
 import { useAuth } from '../../auth/AuthContext';
 import { setDocumentTitle } from '../../router/navigation';
 import { type ProjectStatsRow } from '../../types/domain';
@@ -45,7 +46,7 @@ export function ProjectStatsPage() {
 
   const taskTypesQuery = useQuery({
     queryKey: ['task-types', member?.id],
-    queryFn: async () => dataClient.getTaskTypes(),
+    queryFn: async () => getTaskTypes(),
     enabled: Boolean(member),
   });
   const taskType1Options = useMemo(
@@ -70,7 +71,7 @@ export function ProjectStatsPage() {
       sortState.direction,
     ],
     queryFn: async () =>
-      dataClient.getProjectStatsRows({
+      getProjectStatsRows({
         startMonth,
         endMonth,
         taskType1: queryTaskType1,

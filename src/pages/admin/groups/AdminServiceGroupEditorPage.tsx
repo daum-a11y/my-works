@@ -2,7 +2,8 @@ import { type FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { CriticalAlert, Spinner } from 'krds-react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { adminDataClient } from '../../../api/admin';
+import { deleteCostGroupAdmin, listCostGroups, reorderCostGroups, replaceCostGroupUsage, saveCostGroupAdmin } from '../../../api/costGroups';
+import { deleteServiceGroupAdmin, getServiceGroupUsageSummary, listServiceGroups, reorderServiceGroups, replaceServiceGroupUsage, saveServiceGroupAdmin } from '../../../api/serviceGroups';
 import { openAdminTaskSearch } from '../adminTaskSearchLink';
 import { AdminServiceGroupEditorActionRow } from './AdminServiceGroupEditorActionRow';
 import { AdminServiceGroupEditorForm } from './AdminServiceGroupEditorForm';
@@ -66,11 +67,11 @@ export function AdminServiceGroupEditorPage() {
 
   const serviceGroupsQuery = useQuery({
     queryKey: ['admin', 'service-groups'],
-    queryFn: () => adminDataClient.listServiceGroups(),
+    queryFn: () => listServiceGroups(),
   });
   const costGroupsQuery = useQuery({
     queryKey: ['admin', 'cost-groups'],
-    queryFn: () => adminDataClient.listCostGroups(),
+    queryFn: () => listCostGroups(),
   });
 
   const serviceGroups = useMemo(
@@ -92,7 +93,7 @@ export function AdminServiceGroupEditorPage() {
   const usageQuery = useQuery({
     queryKey: ['admin', 'service-groups', 'usage', selectedServiceGroup?.id],
     enabled: Boolean(selectedServiceGroup),
-    queryFn: () => adminDataClient.getServiceGroupUsageSummary(selectedServiceGroup!.id),
+    queryFn: () => getServiceGroupUsageSummary(selectedServiceGroup!.id),
   });
   const nextDisplayOrder = useMemo(
     () => Math.max(0, ...serviceGroups.map((item) => item.displayOrder)) + 1,
@@ -133,7 +134,7 @@ export function AdminServiceGroupEditorPage() {
       const serviceName = payload.serviceName.trim();
       const svcActive = payload.svcActive;
 
-      return adminDataClient.saveServiceGroupAdmin({
+      return saveServiceGroupAdmin({
         ...payload,
         name: composeServiceName(serviceGroupName, serviceName),
         serviceGroupName,
@@ -160,7 +161,7 @@ export function AdminServiceGroupEditorPage() {
         throw new Error('삭제할 서비스 그룹이 없습니다.');
       }
 
-      await adminDataClient.deleteServiceGroupAdmin(serviceGroupId);
+      await deleteServiceGroupAdmin(serviceGroupId);
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['admin', 'service-groups'] });
@@ -183,7 +184,7 @@ export function AdminServiceGroupEditorPage() {
         throw new Error('전환할 서비스 그룹이 없습니다.');
       }
 
-      await adminDataClient.replaceServiceGroupUsage(
+      await replaceServiceGroupUsage(
         serviceGroupId,
         nextServiceGroupId,
         dropExisting,

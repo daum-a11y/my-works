@@ -5,7 +5,7 @@ import { Link as RouterLink, useLocation } from 'react-router-dom';
 import { setDocumentTitle } from '../../../router/navigation';
 import { AdminSortOrderDialog } from '../../../components/admin/AdminSortOrderDialog';
 import { PageHeader } from '../../../components/shared/PageHeader';
-import { adminDataClient } from '../../../api/admin';
+import { deleteServiceGroupAdmin, getServiceGroupUsageSummary, listServiceGroups, reorderServiceGroups, replaceServiceGroupUsage, saveServiceGroupAdmin } from '../../../api/serviceGroups';
 import { AdminServiceGroupsResultsTable } from './AdminServiceGroupsResultsTable';
 import type { AdminServiceGroupItem } from '../admin.types';
 import { toAdminServiceGroup } from '../adminApiTransform';
@@ -50,7 +50,7 @@ export function AdminServiceGroupsPage() {
 
   const serviceGroupsQuery = useQuery({
     queryKey: ['admin', 'service-groups'],
-    queryFn: () => adminDataClient.listServiceGroups(),
+    queryFn: () => listServiceGroups(),
   });
 
   const serviceGroups = useMemo(
@@ -66,7 +66,7 @@ export function AdminServiceGroupsPage() {
   const groupedServiceGroups = useMemo(() => groupServiceGroups(serviceGroups), [serviceGroups]);
 
   const reorderMutation = useMutation({
-    mutationFn: async (ids: string[]) => adminDataClient.reorderServiceGroups({ ids }),
+    mutationFn: async (ids: string[]) => reorderServiceGroups({ ids }),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['admin', 'service-groups'] });
       await queryClient.invalidateQueries({ queryKey: ['admin', 'cost-groups'] });

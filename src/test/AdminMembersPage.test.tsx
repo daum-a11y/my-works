@@ -11,13 +11,11 @@ const saveMemberAdmin = vi.fn();
 const inviteMemberAdmin = vi.fn();
 const deleteMemberAdmin = vi.fn<(...args: unknown[]) => Promise<'deleted' | 'deactivated'>>();
 
-vi.mock('../api/admin', () => ({
-  adminDataClient: {
+vi.mock('../api/members', () => ({
     listMembersAdmin: (...args: unknown[]) => listMembersAdmin(...args),
     saveMemberAdmin: (...args: unknown[]) => saveMemberAdmin(...args),
     inviteMemberAdmin: (...args: unknown[]) => inviteMemberAdmin(...args),
     deleteMemberAdmin: (...args: unknown[]) => deleteMemberAdmin(...args),
-  },
 }));
 
 beforeEach(() => {

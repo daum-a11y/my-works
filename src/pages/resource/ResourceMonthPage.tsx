@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
 import { setDocumentTitle } from '../../router/navigation';
 import { PageHeader } from '../../components/shared/PageHeader';
-import { dataClient } from '../../api/client';
+import { getResourceMonthReport, getResourceServiceSummaryByYear, getResourceServiceSummaryYears, getResourceSummary, getResourceSummaryMembers, getResourceTypeSummaryByYear, getResourceTypeSummaryYears } from '../../api/resources';
 import {
   countWorkingDays,
   countWorkingDaysUntil,
@@ -26,7 +26,7 @@ export function ResourceMonthPage() {
   const member = session?.member ?? null;
   const query = useQuery({
     queryKey: ['resource', 'month-report', member?.id, selectedMonth],
-    queryFn: () => dataClient.getResourceMonthReport(member!, selectedMonth),
+    queryFn: () => getResourceMonthReport(member!, selectedMonth),
     enabled: Boolean(member),
     placeholderData: (previousData) => previousData,
   });

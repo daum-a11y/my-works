@@ -1,7 +1,11 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { adminDataClient } from '../../../api/admin';
+import { deleteCostGroupAdmin, listCostGroups, reorderCostGroups, replaceCostGroupUsage, saveCostGroupAdmin } from '../../../api/costGroups';
+import { createMemberAdmin, deleteMemberAdmin, listMembersAdmin, resetMemberPasswordAdmin, saveMemberAdmin } from '../../../api/members';
+import { getProjectAdminOption, listProjects, listProjectSubtasks, listProjectSubtasksByProjectId, searchReportProjectsAdmin } from '../../../api/projects';
+import { deleteTaskAdmin, getTaskAdmin, saveTaskAdmin, searchTasksAdmin } from '../../../api/tasks';
+import { deleteTaskTypeAdmin, getTaskTypeUsageSummary, listTaskTypes, reorderTaskTypes, replaceTaskTypeUsageById, saveTaskTypeAdmin } from '../../../api/taskTypes';
 import {
   toAdminCostGroup,
   toAdminProject,
@@ -53,21 +57,21 @@ export function useAdminReportsPage() {
 
   const membersQuery = useQuery({
     queryKey: ['admin', 'members'],
-    queryFn: () => adminDataClient.listMembersAdmin(),
+    queryFn: () => listMembersAdmin(),
   });
   const taskTypesQuery = useQuery({
     queryKey: ['admin', 'task-types'],
-    queryFn: () => adminDataClient.listTaskTypes(),
+    queryFn: () => listTaskTypes(),
   });
   const costGroupsQuery = useQuery({
     queryKey: ['admin', 'cost-groups'],
-    queryFn: () => adminDataClient.listCostGroups(),
+    queryFn: () => listCostGroups(),
   });
   const projectsQuery = useQuery({
     queryKey: ['admin', 'report-project-options', filters.costGroupId],
     queryFn: () =>
       filters.costGroupId
-        ? adminDataClient.searchReportProjectsAdmin({
+        ? searchReportProjectsAdmin({
             costGroupId: filters.costGroupId || null,
             platform: null,
             taskType1: null,
@@ -79,7 +83,7 @@ export function useAdminReportsPage() {
   const searchQuery = useQuery({
     queryKey: ['admin', 'task-search', appliedFilters, currentPage, pageSize],
     queryFn: () =>
-      adminDataClient.searchTasksAdmin(
+      searchTasksAdmin(
         {
           memberId: appliedFilters.memberId || null,
           startDate: appliedFilters.startDate || null,
@@ -185,7 +189,7 @@ export function useAdminReportsPage() {
   }, [currentPage, totalPages]);
 
   const deleteMutation = useMutation({
-    mutationFn: (taskId: string) => adminDataClient.deleteTaskAdmin(taskId),
+    mutationFn: (taskId: string) => deleteTaskAdmin(taskId),
     onSuccess: () => {
       setLocalMutationError('');
       void queryClient.invalidateQueries({ queryKey: ['admin', 'task-search'] });

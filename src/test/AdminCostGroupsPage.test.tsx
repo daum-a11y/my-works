@@ -9,11 +9,9 @@ import { AdminCostGroupsPage } from '../pages/admin/cost-groups/AdminCostGroupsP
 const listCostGroups = vi.fn();
 const reorderCostGroups = vi.fn();
 
-vi.mock('../api/admin', () => ({
-  adminDataClient: {
+vi.mock('../api/costGroups', () => ({
     listCostGroups: (...args: unknown[]) => listCostGroups(...args),
     reorderCostGroups: (...args: unknown[]) => reorderCostGroups(...args),
-  },
 }));
 
 beforeEach(() => {

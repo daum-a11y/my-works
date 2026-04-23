@@ -12,7 +12,12 @@ import {
   type ReportDraft,
 } from '../../reports/reportUtils';
 import { getTaskTypeUiRule } from '../../../utils/taskType';
-import { adminDataClient } from '../../../api/admin';
+import { deleteCostGroupAdmin, listCostGroups, reorderCostGroups, replaceCostGroupUsage, saveCostGroupAdmin } from '../../../api/costGroups';
+import { createMemberAdmin, deleteMemberAdmin, listMembersAdmin, resetMemberPasswordAdmin, saveMemberAdmin } from '../../../api/members';
+import { deletePlatformAdmin, listPlatforms, reorderPlatforms, replacePlatformUsage, savePlatformAdmin } from '../../../api/platforms';
+import { getProjectAdminOption, listProjects, listProjectSubtasks, listProjectSubtasksByProjectId, searchReportProjectsAdmin } from '../../../api/projects';
+import { deleteTaskAdmin, getTaskAdmin, saveTaskAdmin, searchTasksAdmin } from '../../../api/tasks';
+import { deleteTaskTypeAdmin, getTaskTypeUsageSummary, listTaskTypes, reorderTaskTypes, replaceTaskTypeUsageById, saveTaskTypeAdmin } from '../../../api/taskTypes';
 import {
   ADMIN_REPORT_EDITOR_CREATE_TITLE,
   ADMIN_REPORT_EDITOR_DEFAULT_TAB,
@@ -57,23 +62,23 @@ export function AdminReportEditorPage() {
 
   const membersQuery = useQuery({
     queryKey: ['admin', 'members'],
-    queryFn: () => adminDataClient.listMembersAdmin(),
+    queryFn: () => listMembersAdmin(),
   });
   const taskTypesQuery = useQuery({
     queryKey: ['admin', 'task-types'],
-    queryFn: () => adminDataClient.listTaskTypes(),
+    queryFn: () => listTaskTypes(),
   });
   const costGroupsQuery = useQuery({
     queryKey: ['admin', 'cost-groups'],
-    queryFn: () => adminDataClient.listCostGroups(),
+    queryFn: () => listCostGroups(),
   });
   const platformsQuery = useQuery({
     queryKey: ['admin', 'platforms'],
-    queryFn: () => adminDataClient.listPlatforms(),
+    queryFn: () => listPlatforms(),
   });
   const selectedProjectQuery = useQuery({
     queryKey: ['admin', 'project-option', draft.projectId],
-    queryFn: () => adminDataClient.getProjectAdminOption(draft.projectId),
+    queryFn: () => getProjectAdminOption(draft.projectId),
     enabled: Boolean(draft.projectId),
   });
   const reportProjectsQuery = useQuery({
@@ -86,7 +91,7 @@ export function AdminReportEditorPage() {
       appliedProjectQuery,
     ],
     queryFn: () =>
-      adminDataClient.searchReportProjectsAdmin({
+      searchReportProjectsAdmin({
         costGroupId: draft.costGroupId || null,
         platform: draft.platform || null,
         taskType1: draft.type1 || null,
@@ -98,12 +103,12 @@ export function AdminReportEditorPage() {
   });
   const pagesQuery = useQuery({
     queryKey: ['admin', 'project-pages', draft.projectId],
-    queryFn: () => adminDataClient.listProjectSubtasksByProjectId(draft.projectId),
+    queryFn: () => listProjectSubtasksByProjectId(draft.projectId),
     enabled: Boolean(draft.projectId),
   });
   const taskQuery = useQuery({
     queryKey: ['admin', 'task', taskId],
-    queryFn: () => adminDataClient.getTaskAdmin(taskId),
+    queryFn: () => getTaskAdmin(taskId),
     enabled: isEdit,
   });
 
@@ -404,7 +409,7 @@ export function AdminReportEditorPage() {
         }
       }
 
-      await adminDataClient.saveTaskAdmin({
+      await saveTaskAdmin({
         id: isEdit ? taskId : undefined,
         memberId: selectedMemberId,
         taskDate: draft.reportDate,

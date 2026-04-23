@@ -2,7 +2,11 @@ import { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { useAuth } from '../../auth/AuthContext';
-import { dataClient } from '../../api/client';
+import { getCostGroups } from '../../api/costGroups';
+import { getPlatforms } from '../../api/platforms';
+import { getProject, getProjectSubtasksByProjectId, searchReportProjects } from '../../api/projects';
+import { deleteTask, getTasksByDate, saveTask } from '../../api/tasks';
+import { getTaskTypes } from '../../api/taskTypes';
 import {
   toCostGroup,
   toPlatform,
@@ -133,7 +137,7 @@ export function useReportsSlice(): ReportsSlice {
 
   const tasksQuery = useQuery({
     queryKey: ['reports', 'tasks', member?.id, selectedDate],
-    queryFn: async () => dataClient.getTasksByDate(member!, selectedDate),
+    queryFn: async () => getTasksByDate(member!, selectedDate),
     enabled: Boolean(member),
   });
   const tasks = useMemo(() => (tasksQuery.data ?? []).map(toTask), [tasksQuery.data]);
@@ -141,7 +145,7 @@ export function useReportsSlice(): ReportsSlice {
   const reportProjectsQuery = useQuery({
     queryKey: ['reports', 'project-options', draft.costGroupId, draft.type1, appliedProjectQuery],
     queryFn: async () =>
-      dataClient.searchReportProjects({
+      searchReportProjects({
         costGroupId: draft.costGroupId || null,
         platform: null,
         taskType1: draft.type1 || null,
@@ -152,7 +156,7 @@ export function useReportsSlice(): ReportsSlice {
 
   const costGroupsQuery = useQuery({
     queryKey: ['reports', 'cost-groups'],
-    queryFn: async () => dataClient.getCostGroups(),
+    queryFn: async () => getCostGroups(),
     enabled: Boolean(member),
   });
 
@@ -163,7 +167,7 @@ export function useReportsSlice(): ReportsSlice {
         return [];
       }
 
-      return dataClient.getProjectSubtasksByProjectId(draft.projectId);
+      return getProjectSubtasksByProjectId(draft.projectId);
     },
     enabled: Boolean(member),
   });
@@ -175,19 +179,19 @@ export function useReportsSlice(): ReportsSlice {
         return null;
       }
 
-      return dataClient.getProject(draft.projectId);
+      return getProject(draft.projectId);
     },
     enabled: Boolean(member && draft.projectId),
   });
 
   const taskTypesQuery = useQuery({
     queryKey: ['reports', 'task-types'],
-    queryFn: async () => dataClient.getTaskTypes(),
+    queryFn: async () => getTaskTypes(),
     enabled: Boolean(member),
   });
   const platformsQuery = useQuery({
     queryKey: ['reports', 'platforms'],
-    queryFn: async () => dataClient.getPlatforms(),
+    queryFn: async () => getPlatforms(),
     enabled: Boolean(member),
   });
   const reportProjectRows = useMemo(
@@ -361,7 +365,7 @@ export function useReportsSlice(): ReportsSlice {
 
       const taskType = validateTaskTypeSelection(taskTypes, input.taskType1, input.taskType2);
 
-      return dataClient.saveTask(member, {
+      return saveTask(member, {
         id: input.id,
         taskDate: normalizedTaskDate,
         costGroupId,
@@ -404,7 +408,7 @@ export function useReportsSlice(): ReportsSlice {
         throw new Error('업무보고 입력 권한이 없습니다.');
       }
 
-      await dataClient.deleteTask(member, taskId);
+      await deleteTask(member, taskId);
     },
     onSuccess: async (_, taskId) => {
       await invalidateReportQueries();

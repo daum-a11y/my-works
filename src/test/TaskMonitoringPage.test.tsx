@@ -15,9 +15,7 @@ vi.mock('../auth/AuthContext', () => ({
   useAuth: mockUseAuth,
 }));
 
-vi.mock('../api/client', () => ({
-  dataClient: mockDataClient,
-}));
+vi.mock('../api/stats', () => (mockDataClient));
 
 type MockMonitoringStatsRow = {
   subtask_id: string;

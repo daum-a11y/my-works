@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useLocation } from 'react-router-dom';
-import { adminDataClient } from '../../../api/admin';
+import { createMemberAdmin, deleteMemberAdmin, listMembersAdmin, resetMemberPasswordAdmin, saveMemberAdmin } from '../../../api/members';
 import { setDocumentTitle } from '../../../router/navigation';
 import type { MemberFilterState } from './AdminMembersPage.types';
 import { createInitialFilters, matchesMemberFilters } from './AdminMembersPage.utils';
@@ -25,7 +25,7 @@ export function useAdminMembersPage() {
 
   const membersQuery = useQuery({
     queryKey: ['admin', 'members'],
-    queryFn: () => adminDataClient.listMembersAdmin(),
+    queryFn: () => listMembersAdmin(),
   });
 
   useEffect(() => {

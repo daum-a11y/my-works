@@ -5,7 +5,7 @@ import { Link as RouterLink, useLocation } from 'react-router-dom';
 import { setDocumentTitle } from '../../../router/navigation';
 import { AdminSortOrderDialog } from '../../../components/admin/AdminSortOrderDialog';
 import { PageHeader } from '../../../components/shared/PageHeader';
-import { adminDataClient } from '../../../api/admin';
+import { deleteTaskTypeAdmin, getTaskTypeUsageSummary, listTaskTypes, reorderTaskTypes, replaceTaskTypeUsageById, saveTaskTypeAdmin } from '../../../api/taskTypes';
 import { AdminTaskTypesResultsTable } from './AdminTaskTypesResultsTable';
 import type { AdminTaskTypeItem } from '../admin.types';
 import { toAdminTaskType } from '../adminApiTransform';
@@ -47,7 +47,7 @@ export function AdminTaskTypesPage() {
 
   const taskTypesQuery = useQuery({
     queryKey: ['admin', 'task-types'],
-    queryFn: () => adminDataClient.listTaskTypes(),
+    queryFn: () => listTaskTypes(),
   });
 
   const taskTypes = useMemo(
@@ -78,7 +78,7 @@ export function AdminTaskTypesPage() {
   }, [location.state]);
 
   const reorderMutation = useMutation({
-    mutationFn: async (ids: string[]) => adminDataClient.reorderTaskTypes({ ids }),
+    mutationFn: async (ids: string[]) => reorderTaskTypes({ ids }),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['admin', 'task-types'] });
       setOrderDialogOpen(false);
