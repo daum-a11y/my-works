@@ -1,7 +1,7 @@
 import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 import { ThemePreferenceContext } from '../../../preferences/ThemePreferenceState';
-import { BrandLogo } from './BrandLogo';
+import { BrandLogo } from '../../../components/layout/BrandLogo/BrandLogo';
 
 function renderBrandLogo(resolvedTheme: 'light' | 'dark' = 'light') {
   return render(

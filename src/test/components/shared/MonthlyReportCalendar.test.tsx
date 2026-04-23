@@ -1,8 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it } from 'vitest';
-import { MonthlyReportCalendar } from './MonthlyReportCalendar';
-import type { CalendarCell } from './MonthlyReportCalendar.types';
+import { MonthlyReportCalendar } from '../../../components/shared/MonthlyReportCalendar/MonthlyReportCalendar';
+import type { CalendarCell } from '../../../components/shared/MonthlyReportCalendar/MonthlyReportCalendar.types';
 
 function createCell(day: number, weekday: number): CalendarCell {
   return {

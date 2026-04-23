@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import { PageSection } from './PageSection';
+import { PageSection } from '../../../components/shared/PageSection/PageSection';
 
 describe('PageSection', () => {
   it('renders the title as a section heading and shows actions', () => {

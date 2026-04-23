@@ -53,6 +53,7 @@ export default defineConfig(({ mode }) => ({
     port: 4173,
   },
   test: {
+    include: ['src/test/**/*.test.{ts,tsx}'],
     environment: 'jsdom',
     setupFiles: './src/test/setup.ts',
   },

@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
-import { AdminSortOrderDialog } from './AdminSortOrderDialog';
+import { AdminSortOrderDialog } from '../../../components/admin/AdminSortOrderDialog/AdminSortOrderDialog';
 
 const baseItems = [
   { id: 'a', title: '첫 번째 항목' },
