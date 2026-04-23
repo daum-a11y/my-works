@@ -2,6 +2,7 @@ import { cleanup, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { ThemePreferenceProvider } from '../preferences/ThemePreferenceContext';
 import { PendingApprovalPage } from '../pages/auth/PendingApprovalPage';
 
 const mockUseAuth = vi.hoisted(() => vi.fn());
@@ -32,9 +33,11 @@ describe('PendingApprovalPage', () => {
 
   it('keeps the original Korean approval copy without the English label', () => {
     render(
-      <MemoryRouter>
-        <PendingApprovalPage />
-      </MemoryRouter>,
+      <ThemePreferenceProvider>
+        <MemoryRouter>
+          <PendingApprovalPage />
+        </MemoryRouter>
+      </ThemePreferenceProvider>,
     );
 
     expect(screen.getByRole('heading', { name: '승인 대기 중입니다' })).toBeInTheDocument();
@@ -52,12 +55,14 @@ describe('PendingApprovalPage', () => {
     mockLogout.mockResolvedValue(undefined);
 
     render(
-      <MemoryRouter initialEntries={['/pending']}>
-        <Routes>
-          <Route path="/pending" element={<PendingApprovalPage />} />
-          <Route path="/login" element={<div>login-page</div>} />
-        </Routes>
-      </MemoryRouter>,
+      <ThemePreferenceProvider>
+        <MemoryRouter initialEntries={['/pending']}>
+          <Routes>
+            <Route path="/pending" element={<PendingApprovalPage />} />
+            <Route path="/login" element={<div>login-page</div>} />
+          </Routes>
+        </MemoryRouter>
+      </ThemePreferenceProvider>,
     );
 
     await user.click(screen.getByRole('button', { name: '로그아웃' }));
