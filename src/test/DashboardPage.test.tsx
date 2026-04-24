@@ -1,5 +1,11 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor
+} from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { DashboardPage } from '../pages/dashboard';
@@ -27,16 +33,16 @@ const mockDataClient = vi.hoisted(() => ({
   searchTasks: vi.fn(),
   getDashboard: vi.fn(),
   getDashboardTaskCalendar: vi.fn(),
-  getStats: vi.fn(),
+  getStats: vi.fn()
 }));
 
 vi.mock('../auth/AuthContext', () => ({
-  useAuth: mockUseAuth,
+  useAuth: mockUseAuth
 }));
 
-vi.mock('../api/stats', () => (mockDataClient));
+vi.mock('../api/stats', () => mockDataClient);
 
-vi.mock('../api/tasks', () => (mockDataClient));
+vi.mock('../api/tasks', () => mockDataClient);
 
 afterEach(() => {
   cleanup();
@@ -54,9 +60,9 @@ describe('DashboardPage', () => {
           email: 'operator@example.com',
           reportRequired: true,
           role: 'user',
-          isActive: true,
-        },
-      },
+          isActive: true
+        }
+      }
     });
 
     mockDataClient.getDashboard.mockReset();
@@ -71,9 +77,9 @@ describe('DashboardPage', () => {
           costGroupName: '내부',
           serviceGroupName: '커머스',
           startDate: '2026-03-01',
-          endDate: '2026-03-31',
-        },
-      ],
+          endDate: '2026-03-31'
+        }
+      ]
     });
     mockDataClient.getDashboardTaskCalendar.mockResolvedValue([]);
   });
@@ -86,7 +92,7 @@ describe('DashboardPage', () => {
         <MemoryRouter>
           <DashboardPage />
         </MemoryRouter>
-      </QueryClientProvider>,
+      </QueryClientProvider>
     );
 
     await waitFor(() => {
@@ -95,14 +101,30 @@ describe('DashboardPage', () => {
 
     expect(screen.getByText('알파')).toBeInTheDocument();
     expect(
-      screen.getByRole('columnheader', { name: '청구그룹 정렬 기준 선택 가능' }),
+      screen.getByRole('columnheader', { name: '청구그룹 정렬 기준 선택 가능' })
     ).toBeInTheDocument();
     expect(screen.getByText('내부')).toBeInTheDocument();
     expect(screen.getByText('커머스')).toBeInTheDocument();
     expect(screen.getByText('2026-03-01')).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: '진행중인 프로젝트' })).toBeInTheDocument();
-    expect(screen.queryByRole('heading', { name: '진행중 모니터링 목록' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('heading', { name: '진행중 QA 목록' })).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: '진행중인 프로젝트' })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('navigation', { name: '대시보드 페이지 내 탐색' })
+    ).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: '업무일지 달력' })).toHaveAttribute(
+      'href',
+      '#dashboard-calendar'
+    );
+    expect(
+      screen.getByRole('link', { name: '진행중인 프로젝트' })
+    ).toHaveAttribute('href', '#dashboard-projects');
+    expect(
+      screen.queryByRole('heading', { name: '진행중 모니터링 목록' })
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('heading', { name: '진행중 QA 목록' })
+    ).not.toBeInTheDocument();
     expect(screen.queryByText('업무 보고 현황')).not.toBeInTheDocument();
   });
 
@@ -118,18 +140,26 @@ describe('DashboardPage', () => {
         <MemoryRouter>
           <DashboardPage />
         </MemoryRouter>
-      </QueryClientProvider>,
+      </QueryClientProvider>
     );
 
     await waitFor(() => {
-      expect(screen.getAllByRole('heading', { name: currentHeading }).length).toBeGreaterThan(0);
+      expect(
+        screen.getAllByRole('heading', { name: currentHeading }).length
+      ).toBeGreaterThan(0);
     });
 
     fireEvent.click(screen.getAllByRole('button', { name: '이전달 보기' })[0]);
-    expect(screen.getAllByRole('heading', { name: previousHeading }).length).toBeGreaterThan(0);
+    expect(
+      screen.getAllByRole('heading', { name: previousHeading }).length
+    ).toBeGreaterThan(0);
+    expect(screen.getByRole('button', { name: '이번달' })).toBeEnabled();
 
-    fireEvent.click(screen.getAllByRole('button', { name: '다음달 보기' })[0]);
-    expect(screen.getAllByRole('heading', { name: currentHeading }).length).toBeGreaterThan(0);
+    fireEvent.click(screen.getByRole('button', { name: '이번달' }));
+    expect(
+      screen.getAllByRole('heading', { name: currentHeading }).length
+    ).toBeGreaterThan(0);
+    expect(screen.getByRole('button', { name: '이번달' })).toBeDisabled();
   });
 
   it('hides the worklog calendar when reportRequired is false', async () => {
@@ -145,9 +175,9 @@ describe('DashboardPage', () => {
           email: 'operator@example.com',
           reportRequired: false,
           role: 'user',
-          isActive: true,
-        },
-      },
+          isActive: true
+        }
+      }
     });
 
     render(
@@ -155,11 +185,21 @@ describe('DashboardPage', () => {
         <MemoryRouter>
           <DashboardPage />
         </MemoryRouter>
-      </QueryClientProvider>,
+      </QueryClientProvider>
     );
 
-    expect(screen.queryByRole('navigation', { name: '업무일지 월 이동' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('table', { name: '업무일지 작성 현황' })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('navigation', { name: '업무일지 월 이동' })
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('table', { name: '업무일지 작성 현황' })
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('link', { name: '업무일지 달력' })
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: '진행중인 프로젝트' })
+    ).toHaveAttribute('href', '#dashboard-projects');
     expect(screen.queryByText('업무 현황')).not.toBeInTheDocument();
   });
 });

@@ -4,24 +4,30 @@ import { setDocumentTitle } from '../../router/navigation';
 import { getDashboard } from '../../api/stats';
 import { getDashboardTaskCalendar } from '../../api/tasks';
 import { useAuth } from '../../auth/AuthContext';
-import { buildCalendarWeeks, getCurrentMonth, shiftMonth } from '../resource/resourceUtils';
+import {
+  buildCalendarWeeks,
+  getCurrentMonth,
+  shiftMonth
+} from '../resource/resourceUtils';
 import { DashboardCalendarSection } from './DashboardCalendarSection';
 import { DashboardProjectsTable } from './DashboardProjectsTable';
 import { DASHBOARD_PROJECTS_DEFAULT_SORT } from './DashboardPage.constants';
 import {
   sortDashboardProjects,
-  type DashboardProjectsSortState,
+  type DashboardProjectsSortState
 } from './DashboardProjectsTable.sort';
-import { toDashboardSnapshot, toDashboardTaskCalendarDay } from './dashboardApiTransform';
+import {
+  toDashboardSnapshot,
+  toDashboardTaskCalendarDay
+} from './dashboardApiTransform';
 import { PageHeader } from '../../components/shared';
 
 export function DashboardPage() {
   const { session } = useAuth();
   const member = session?.member;
   const [selectedMonth, setSelectedMonth] = useState(() => getCurrentMonth());
-  const [projectsSortState, setProjectsSortState] = useState<DashboardProjectsSortState>(
-    DASHBOARD_PROJECTS_DEFAULT_SORT,
-  );
+  const [projectsSortState, setProjectsSortState] =
+    useState<DashboardProjectsSortState>(DASHBOARD_PROJECTS_DEFAULT_SORT);
   const shouldShowWorklogCalendar = member?.reportRequired === true;
 
   useEffect(() => {
@@ -31,23 +37,30 @@ export function DashboardPage() {
   const dashboardQuery = useQuery({
     queryKey: ['dashboard', member?.id],
     queryFn: async () => getDashboard(member!),
-    enabled: Boolean(member),
+    enabled: Boolean(member)
   });
 
   const tasksQuery = useQuery({
     queryKey: ['dashboard', 'tasks', member?.id, selectedMonth],
     queryFn: async () => getDashboardTaskCalendar(member!, selectedMonth),
-    enabled: Boolean(member),
+    enabled: Boolean(member)
   });
 
-  const dashboard = useMemo(() => toDashboardSnapshot(dashboardQuery.data), [dashboardQuery.data]);
+  const dashboard = useMemo(
+    () => toDashboardSnapshot(dashboardQuery.data),
+    [dashboardQuery.data]
+  );
   const inProgressProjects = useMemo(
-    () => sortDashboardProjects(dashboard?.inProgressProjects ?? [], projectsSortState),
-    [dashboard?.inProgressProjects, projectsSortState],
+    () =>
+      sortDashboardProjects(
+        dashboard?.inProgressProjects ?? [],
+        projectsSortState
+      ),
+    [dashboard?.inProgressProjects, projectsSortState]
   );
   const calendarTasks = useMemo(
     () => (tasksQuery.data ?? []).map(toDashboardTaskCalendarDay),
-    [tasksQuery.data],
+    [tasksQuery.data]
   );
   const monthState = useMemo(() => {
     if (!member || !shouldShowWorklogCalendar) {
@@ -73,21 +86,33 @@ export function DashboardPage() {
       weeks: buildCalendarWeeks(selectedMonth),
       year: Number(selectedMonth.slice(0, 4)),
       month: Number(selectedMonth.slice(5, 7)),
-      summary,
+      summary
     };
   }, [calendarTasks, member, selectedMonth, shouldShowWorklogCalendar]);
 
   return (
-    <div className="krds-page">
-      <PageHeader title="대시보드" />
+    <div className='krds-page'>
+      <PageHeader title='대시보드' />
+      <nav
+        className='dashboard-page-nav'
+        aria-label='대시보드 페이지 내 탐색'>
+        {shouldShowWorklogCalendar ? (
+          <a href='#dashboard-calendar'>업무일지 달력</a>
+        ) : null}
+        <a href='#dashboard-projects'>진행중인 프로젝트</a>
+      </nav>
       {shouldShowWorklogCalendar ? (
         <DashboardCalendarSection
           monthState={monthState}
-          onShiftMonth={(offset) => setSelectedMonth((current) => shiftMonth(current, offset))}
+          onShiftMonth={offset =>
+            setSelectedMonth(current => shiftMonth(current, offset))
+          }
+          onResetMonth={() => setSelectedMonth(getCurrentMonth())}
         />
       ) : null}
 
       <DashboardProjectsTable
+        sectionId='dashboard-projects'
         projects={inProgressProjects}
         sortState={projectsSortState}
         onSortChange={setProjectsSortState}
