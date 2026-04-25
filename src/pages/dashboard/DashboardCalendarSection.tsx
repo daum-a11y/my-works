@@ -1,9 +1,4 @@
-import {
-  CalendarDays,
-  ChevronLeft,
-  ChevronRight,
-  RotateCcw
-} from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from 'krds-react';
 import { EmptyState } from '../../components/shared/EmptyState';
 import { MonthlyReportCalendar } from '../../components/shared/MonthlyReportCalendar';
@@ -37,24 +32,11 @@ export function DashboardCalendarSection({
       className='page-section dashboard-calendar-section'>
       {monthState && (
         <div className='section-head dashboard-calendar-head'>
-          <div className='calendar-heading'>
-            <span
-              className='calendar-heading-icon'
-              aria-hidden='true'>
-              <CalendarDays
-                size={20}
-                strokeWidth={2.2}
-              />
-            </span>
-            <div>
-              <p className='calendar-kicker'>업무일지 달력</p>
-              <h2
-                className='calendar-title'
-                aria-live='polite'>
-                {monthState.year}년 {monthState.month}월
-              </h2>
-            </div>
-          </div>
+          <h2
+            className='calendar-title'
+            aria-live='polite'>
+            {monthState.year}년 {monthState.month}월
+          </h2>
           <nav
             className='calendar-nav'
             aria-label='대시보드 업무일지 월 이동'>
@@ -63,38 +45,36 @@ export function DashboardCalendarSection({
                 size='medium'
                 type='button'
                 variant='tertiary'
+                aria-label='이전 월 보기'
                 onClick={() => onShiftMonth(-1)}>
                 <ChevronLeft
                   size={16}
                   strokeWidth={2.4}
                   aria-hidden='true'
                 />
-                <span className='sr-only'>이전달 보기</span>
+                이전 월
               </Button>
               <Button
                 size='medium'
                 type='button'
                 variant='secondary'
+                aria-label='이번 달로 이동'
                 disabled={monthState.currentMonth}
                 onClick={onResetMonth}>
-                <RotateCcw
-                  size={16}
-                  strokeWidth={2.2}
-                  aria-hidden='true'
-                />
-                이번달
+                오늘
               </Button>
               <Button
                 size='medium'
                 type='button'
                 variant='tertiary'
+                aria-label='다음 월 보기'
                 onClick={() => onShiftMonth(1)}>
                 <ChevronRight
                   size={16}
                   strokeWidth={2.4}
                   aria-hidden='true'
                 />
-                <span className='sr-only'>다음달 보기</span>
+                다음 월
               </Button>
             </div>
           </nav>

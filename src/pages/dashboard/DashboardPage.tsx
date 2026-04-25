@@ -93,14 +93,6 @@ export function DashboardPage() {
   return (
     <div className='krds-page'>
       <PageHeader title='대시보드' />
-      <nav
-        className='dashboard-page-nav'
-        aria-label='대시보드 페이지 내 탐색'>
-        {shouldShowWorklogCalendar ? (
-          <a href='#dashboard-calendar'>업무일지 달력</a>
-        ) : null}
-        <a href='#dashboard-projects'>진행중인 프로젝트</a>
-      </nav>
       {shouldShowWorklogCalendar ? (
         <DashboardCalendarSection
           monthState={monthState}
