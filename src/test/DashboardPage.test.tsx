@@ -110,15 +110,14 @@ describe('DashboardPage', () => {
       screen.getByRole('heading', { name: '진행중인 프로젝트' })
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('navigation', { name: '대시보드 페이지 내 탐색' })
-    ).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: '업무일지 달력' })).toHaveAttribute(
-      'href',
-      '#dashboard-calendar'
-    );
+      screen.queryByRole('navigation', { name: '대시보드 페이지 내 탐색' })
+    ).not.toBeInTheDocument();
     expect(
-      screen.getByRole('link', { name: '진행중인 프로젝트' })
-    ).toHaveAttribute('href', '#dashboard-projects');
+      screen.queryByRole('link', { name: '업무일지 달력' })
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('link', { name: '진행중인 프로젝트' })
+    ).not.toBeInTheDocument();
     expect(
       screen.queryByRole('heading', { name: '진행중 모니터링 목록' })
     ).not.toBeInTheDocument();
@@ -148,18 +147,23 @@ describe('DashboardPage', () => {
         screen.getAllByRole('heading', { name: currentHeading }).length
       ).toBeGreaterThan(0);
     });
+    expect(screen.queryByText('업무일지 달력')).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getAllByRole('button', { name: '이전달 보기' })[0]);
+    fireEvent.click(screen.getAllByRole('button', { name: '이전 월 보기' })[0]);
     expect(
       screen.getAllByRole('heading', { name: previousHeading }).length
     ).toBeGreaterThan(0);
-    expect(screen.getByRole('button', { name: '이번달' })).toBeEnabled();
+    expect(
+      screen.getByRole('button', { name: '이번 달로 이동' })
+    ).toBeEnabled();
 
-    fireEvent.click(screen.getByRole('button', { name: '이번달' }));
+    fireEvent.click(screen.getByRole('button', { name: '이번 달로 이동' }));
     expect(
       screen.getAllByRole('heading', { name: currentHeading }).length
     ).toBeGreaterThan(0);
-    expect(screen.getByRole('button', { name: '이번달' })).toBeDisabled();
+    expect(
+      screen.getByRole('button', { name: '이번 달로 이동' })
+    ).toBeDisabled();
   });
 
   it('hides the worklog calendar when reportRequired is false', async () => {
@@ -198,8 +202,8 @@ describe('DashboardPage', () => {
       screen.queryByRole('link', { name: '업무일지 달력' })
     ).not.toBeInTheDocument();
     expect(
-      screen.getByRole('link', { name: '진행중인 프로젝트' })
-    ).toHaveAttribute('href', '#dashboard-projects');
+      screen.queryByRole('link', { name: '진행중인 프로젝트' })
+    ).not.toBeInTheDocument();
     expect(screen.queryByText('업무 현황')).not.toBeInTheDocument();
   });
 });
